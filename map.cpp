@@ -7,6 +7,12 @@ namespace map
 	std::unordered_map<std::string, sf::Texture> _path_to_tileset_texture;
 	std::vector<sf::Sprite> _tile_sprites;
 
+	void _clear_map()
+	{
+		_path_to_tileset_texture.clear();
+		_tile_sprites.clear();
+	}
+
 	sf::IntRect _get_tile_texture_rect(const tmx::Tileset& tileset, uint32_t tile_id)
 	{
 		if (!tileset.hasTile(tile_id))
@@ -28,8 +34,7 @@ namespace map
 		if (!map.load(filename))
 			return false;
 
-		_path_to_tileset_texture.clear();
-		_tile_sprites.clear();
+		_clear_map();
 
 		// Load all the tileset textures.
 		for (const auto& tileset : map.getTilesets())
@@ -77,7 +82,7 @@ namespace map
 		return true;
 	}
 
-	void draw_map_tiles(sf::RenderWindow& render_window)
+	void draw_map(sf::RenderWindow& render_window)
 	{
 		for (const auto& sprite : _tile_sprites)
 			render_window.draw(sprite);
