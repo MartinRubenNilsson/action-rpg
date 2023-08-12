@@ -1,5 +1,7 @@
 {
   "dependencies": [
-    "sfml"
+    "sfml",
+    "tmxlite",
+    "entt"
   ]
 }
