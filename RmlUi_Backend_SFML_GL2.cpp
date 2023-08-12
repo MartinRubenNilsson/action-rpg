@@ -227,37 +227,11 @@ void Backend::RequestExit()
 void Backend::BeginFrame()
 {
 	RMLUI_ASSERT(data);
-	sf::RenderWindow& window = *data->window;
-
-	window.resetGLStates();
-	window.clear();
-
 	data->render_interface.BeginFrame();
-
-#if 1
-	// Draw a simple shape with SFML for demonstration purposes. Make sure to push and pop GL states as appropriate.
-	sf::Vector2f circle_position(100.f, 100.f);
-
-	window.pushGLStates();
-
-	sf::CircleShape circle(50.f);
-	circle.setPosition(circle_position);
-	circle.setFillColor(sf::Color::Blue);
-	circle.setOutlineColor(sf::Color::Red);
-	circle.setOutlineThickness(10.f);
-	window.draw(circle);
-
-	window.popGLStates();
-#endif
 }
 
 void Backend::PresentFrame()
 {
 	RMLUI_ASSERT(data);
-
 	data->render_interface.EndFrame();
-	data->window->display();
-
-	// Optional, used to mark frames during performance profiling.
-	RMLUI_FrameMark;
 }

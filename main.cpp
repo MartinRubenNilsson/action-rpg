@@ -1,7 +1,8 @@
 #include "map.h"
-#include "html.h"
+#include "rml.h"
+#include <Windows.h>
 
-int main()
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     //if (!map::load_map("assets/maps/test00.tmx"))
 	//	return 1;
@@ -16,26 +17,39 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(800, 600), "Hello, SFML!", style, context_settings);
     window.setVerticalSyncEnabled(true);
+    window.setActive(true);
 
-    html::startup_html(&window);
+    rml::startup_rml(&window);
+    rml::load_rml("assets/rml/hello_world.rml");
 
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        //window.clear(sf::Color::White);
+        //sf::Event event;
+        //while (window.pollEvent(event))
+        //{
+        //    if (event.type == sf::Event::Closed)
+        //    {
+        //        window.close();
+        //        goto SHUTDOWN;
+        //    }
+        //}
+        // 
         //map::draw_map(window);
-        //window.display();
 
-        html::render_html();
+        rml::update_rml();
+
+        window.clear(sf::Color::White);
+
+        // RmlUi uses OpenGL, so we need to push and pop the OpenGL states.
+        window.pushGLStates();
+        rml::render_rml();
+        window.popGLStates();
+
+        window.display();
     }
 
-    html::cleanup_html();
+    SHUTDOWN:
+    rml::cleanup_rml();
 
 	return 0;
 }

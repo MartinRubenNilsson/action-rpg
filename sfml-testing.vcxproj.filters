@@ -5,16 +5,16 @@
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClCompile>
     <ClCompile Include="RmlUi_Platform_SFML.cpp">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClCompile>
     <ClCompile Include="RmlUi_Renderer_GL2.cpp">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClCompile>
-    <ClCompile Include="html.cpp">
-      <Filter>html</Filter>
+    <ClCompile Include="rml.cpp">
+      <Filter>rml</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -24,23 +24,23 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Backend.h">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Include_Windows.h">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Platform_SFML.h">
-      <Filter>html</Filter>
+      <Filter>rml</Filter>
     </ClInclude>
-    <ClInclude Include="html.h">
-      <Filter>html</Filter>
+    <ClInclude Include="rml.h">
+      <Filter>rml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="html">
+    <Filter Include="rml">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
