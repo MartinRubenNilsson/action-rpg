@@ -2,9 +2,12 @@
 
 namespace rml
 {
-	void startup_rml(sf::RenderWindow* window);
-	void cleanup_rml();
-	void update_rml();
-	void render_rml();
-	bool load_rml(const std::string& filename);
+	void startup(sf::RenderWindow* window);
+	void cleanup();
+
+	void process_event(const sf::Event& ev);
+	void update();
+	void render(); // Uses OpenGL, so push and pop the OpenGL states before and after calling this function.
+
+	bool load_document(const std::string& filename);
 }

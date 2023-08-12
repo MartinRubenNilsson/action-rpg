@@ -136,27 +136,19 @@ static void UpdateWindowDimensions(sf::RenderWindow& window, RenderInterface_GL2
 struct BackendData {
 	SystemInterface_SFML system_interface;
 	RenderInterface_GL2_SFML render_interface;
-	sf::RenderWindow* window = nullptr; // CHANGE: Changed to pointer instead of instance.
-	bool running = true;
+	sf::RenderWindow* window = nullptr;
 };
 static Rml::UniquePtr<BackendData> data;
 
-bool Backend::Initialize(sf::RenderWindow* window)
+void Backend::Initialize(sf::RenderWindow* window)
 {
-	// CHANGE: No longer creates a window, instead takes a pointer to an existing window.
-
-	RMLUI_ASSERT(!data);
-	RMLUI_ASSERT(window);
+	RMLUI_ASSERT(!data && window);
 
 	data = Rml::MakeUnique<BackendData>();
 	data->window = window;
-
-	// Optionally apply the SFML window to the system interface so that it can change its mouse cursor.
-	data->system_interface.SetWindow(data->window);
+	data->system_interface.SetWindow(data->window); // So that the system interface can set the mouse cursor.
 
 	UpdateWindowDimensions(*data->window, data->render_interface, nullptr);
-
-	return true;
 }
 
 void Backend::Shutdown()
@@ -176,52 +168,22 @@ Rml::RenderInterface* Backend::GetRenderInterface()
 	return &data->render_interface;
 }
 
-bool Backend::ProcessEvents(Rml::Context* context, KeyDownCallback key_down_callback, bool power_save)
+void Backend::ProcessEvent(Rml::Context* context, const sf::Event& ev)
 {
 	RMLUI_ASSERT(data && context);
 
-	// SFML does not seem to provide a way to wait for events with a timeout.
-	(void)power_save;
-
-	// The contents of this function is intended to be copied directly into your main loop.
-	bool result = data->running;
-	data->running = true;
-
-	sf::Event ev;
-	while (data->window->pollEvent(ev))
+	switch (ev.type)
 	{
-		switch (ev.type)
-		{
-		case sf::Event::Resized: UpdateWindowDimensions(*data->window, data->render_interface, context); break;
-		case sf::Event::KeyPressed:
-		{
-			const Rml::Input::KeyIdentifier key = RmlSFML::ConvertKey(ev.key.code);
-			const int key_modifier = RmlSFML::GetKeyModifierState();
-			const float native_dp_ratio = 1.f;
-
-			// See if we have any global shortcuts that take priority over the context.
-			if (key_down_callback && !key_down_callback(context, key, key_modifier, native_dp_ratio, true))
-				break;
-			// Otherwise, hand the event over to the context by calling the input handler as normal.
-			if (!RmlSFML::InputHandler(context, ev))
-				break;
-			// The key was not consumed by the context either, try keyboard shortcuts of lower priority.
-			if (key_down_callback && !key_down_callback(context, key, key_modifier, native_dp_ratio, false))
-				break;
-		}
+	case sf::Event::Resized:
+		UpdateWindowDimensions(*data->window, data->render_interface, context);
 		break;
-		case sf::Event::Closed: result = false; break;
-		default: RmlSFML::InputHandler(context, ev); break;
-		}
+	default:
+	{
+		sf::Event ev_copy = ev;
+		RmlSFML::InputHandler(context, ev_copy);
+		break;
 	}
-
-	return result;
-}
-
-void Backend::RequestExit()
-{
-	RMLUI_ASSERT(data);
-	data->running = false;
+	}
 }
 
 void Backend::BeginFrame()

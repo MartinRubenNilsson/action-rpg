@@ -6,10 +6,7 @@ namespace rml
 {
 	Rml::Context* _context = nullptr;
 
-	bool _show_text = true;
-	std::string _animal = "cat";
-
-	void startup_rml(sf::RenderWindow* window)
+	void startup(sf::RenderWindow* window)
 	{
 		Backend::Initialize(window);
 		Rml::SetSystemInterface(Backend::GetSystemInterface());
@@ -17,52 +14,44 @@ namespace rml
 		Rml::Initialise();
 		_context = Rml::CreateContext("main", Rml::Vector2i(window->getSize().x, window->getSize().y));
 
-		// Tell RmlUi to load the given fonts.
-		Rml::LoadFontFace("assets/fonts/LatoLatin-Regular.ttf");
-		// Fonts can be registered as fallback fonts, as in this case to display emojis.
-		Rml::LoadFontFace("assets/fonts/NotoEmoji-Regular.ttf", true);
-
-		// Set up data bindings to synchronize application data.
-		if (Rml::DataModelConstructor constructor = _context->CreateDataModel("animals"))
+		// Load all fonts in the fonts folder.
+		for (const auto& entry : std::filesystem::directory_iterator("assets/fonts"))
 		{
-			constructor.Bind("show_text", &_show_text);
-			constructor.Bind("animal", &_animal);
+			if (entry.is_regular_file() && entry.path().extension() == ".ttf")
+				Rml::LoadFontFace(entry.path().string());
 		}
 	}
 
-	void cleanup_rml()
+	void cleanup()
 	{
 		Rml::RemoveContext(_context->GetName());
 		Rml::Shutdown();
 		Backend::Shutdown();
 	}
 
-	void update_rml()
+	void process_event(const sf::Event& ev)
 	{
-		Backend::ProcessEvents(_context);
+		Backend::ProcessEvent(_context, ev);
+	}
+
+	void update()
+	{
 		_context->Update();
 	}
 
-	void render_rml()
+	void render()
 	{
 		Backend::BeginFrame();
 		_context->Render();
 		Backend::PresentFrame();
 	}
 
-	bool load_rml(const std::string& filename)
+	bool load_document(const std::string& filename)
 	{
 		Rml::ElementDocument* document = _context->LoadDocument(filename);
 		if (!document)
 			return false;
-
 		document->Show();
-
-		// Replace and style some text in the loaded document.
-		Rml::Element* element = document->GetElementById("world");
-		element->SetInnerRML(reinterpret_cast<const char*>(u8"🌍"));
-		element->SetProperty("font-size", "1.5em");
-
 		return true;
 	}
 }
