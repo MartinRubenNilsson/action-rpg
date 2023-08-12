@@ -113,21 +113,6 @@ public:
 	void ReleaseTexture(Rml::TextureHandle texture_handle) override { delete (sf::Texture*)texture_handle; }
 };
 
-// Updates the viewport and context dimensions, should be called whenever the window size changes.
-static void UpdateWindowDimensions(sf::RenderWindow& window, RenderInterface_GL2_SFML& render_interface, Rml::Context* context)
-{
-	const int width = (int)window.getSize().x;
-	const int height = (int)window.getSize().y;
-
-	if (context)
-		context->SetDimensions(Rml::Vector2i(width, height));
-
-	sf::View view(sf::FloatRect(0.f, 0.f, (float)width, (float)height));
-	window.setView(view);
-
-	render_interface.SetViewport(width, height);
-}
-
 /**
     Global data used by this backend.
 
@@ -140,6 +125,21 @@ struct BackendData {
 };
 static Rml::UniquePtr<BackendData> data;
 
+// Updates the viewport and context dimensions, should be called whenever the window size changes.
+static void UpdateWindowDimensions(Rml::Context* context)
+{
+	if (!data || !data->window)
+		return;
+
+	const int width = (int)data->window->getSize().x;
+	const int height = (int)data->window->getSize().y;
+
+	if (context)
+		context->SetDimensions(Rml::Vector2i(width, height));
+
+	data->render_interface.SetViewport(width, height);
+}
+
 void Backend::Initialize(sf::RenderWindow* window)
 {
 	RMLUI_ASSERT(!data && window);
@@ -148,7 +148,7 @@ void Backend::Initialize(sf::RenderWindow* window)
 	data->window = window;
 	data->system_interface.SetWindow(data->window); // So that the system interface can set the mouse cursor.
 
-	UpdateWindowDimensions(*data->window, data->render_interface, nullptr);
+	UpdateWindowDimensions(nullptr);
 }
 
 void Backend::Shutdown()
@@ -175,7 +175,7 @@ void Backend::ProcessEvent(Rml::Context* context, const sf::Event& ev)
 	switch (ev.type)
 	{
 	case sf::Event::Resized:
-		UpdateWindowDimensions(*data->window, data->render_interface, context);
+		UpdateWindowDimensions(context);
 		break;
 	default:
 	{

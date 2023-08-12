@@ -9,5 +9,5 @@ namespace rml
 	void update();
 	void render(); // Uses OpenGL, so push and pop the OpenGL states before and after calling this function.
 
-	bool load_document(const std::string& filename);
+	bool load_document(const std::string& path);
 }

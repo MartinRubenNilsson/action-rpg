@@ -2,6 +2,6 @@
 
 namespace map
 {
-	bool load_map(const std::string& filename);
-	void draw_map(sf::RenderWindow& render_window);
+	void load_assets(); // Safe to call multiple times.
+	bool load(entt::registry& registry, const std::string& name);
 }

@@ -16,6 +16,7 @@
     <ClCompile Include="rml.cpp">
       <Filter>rml</Filter>
     </ClCompile>
+    <ClCompile Include="game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -38,6 +39,8 @@
     <ClInclude Include="rml.h">
       <Filter>rml</Filter>
     </ClInclude>
+    <ClInclude Include="asset_directories.h" />
+    <ClInclude Include="game.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">

@@ -1,17 +1,33 @@
+#include <Windows.h>
 #include "map.h"
 #include "rml.h"
-#include <Windows.h>
+#include "game.h"
+
+#define MAP_WIDTH 480
+#define MAP_HEIGHT 320
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Hello, SFML!");
-    window.setVerticalSyncEnabled(true);
+    // CREATE WINDOW
+
+    sf::VideoMode video_mode(MAP_WIDTH * 3, MAP_HEIGHT * 3);
+    sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
+    sf::RenderWindow window(video_mode, "Hello, SFML!", style);
+
+    sf::View view(sf::FloatRect(0, 0, MAP_WIDTH, MAP_HEIGHT));
+    window.setView(view);
 
     rml::startup(&window);
-    rml::load_document("assets/rml/hello_world.rml");
+    //rml::load_document("assets/rml/main_menu.rml");
 
-    map::load_map("assets/maps/test00.tmx");
+    map::load_assets();
 
+    entt::registry registry;
+    map::load(registry, "dungeon");
+
+    // GAME LOOP
+
+    sf::Clock clock;
     while (window.isOpen())
     {
         // EVENT HANDLING
@@ -22,20 +38,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
             if (ev.type == sf::Event::Closed)
             {
                 window.close();
-                goto SHUTDOWN;
+                break;
             }
 
             rml::process_event(ev);
         }
 
         // UPDATING
-
+        float dt = clock.restart().asSeconds();
+		game::update_player(registry, dt);
         rml::update();
 
         // RENDERING
 
         window.clear();
-        map::draw_map(window);
+
+        for (auto [entity, sprite] : registry.view<sf::Sprite>().each())
+            window.draw(sprite);
 
         // RmlUi uses OpenGL, so we need to push and pop the OpenGL states.
         window.pushGLStates();
@@ -45,7 +64,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         window.display();
     }
 
-    SHUTDOWN:
     rml::cleanup();
 
 	return 0;

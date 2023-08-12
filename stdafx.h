@@ -1,9 +1,12 @@
 #pragma once
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <entt/entt.hpp>
+#include <tmxlite/Object.hpp>

@@ -99,6 +99,8 @@
       </AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,6 +124,8 @@
       </AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,6 +149,8 @@
       </AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,6 +174,8 @@
       </AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <ForcedUsingFiles>
+      </ForcedUsingFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -179,6 +187,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="rml.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -196,6 +205,8 @@
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="asset_directories.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="rml.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Backend.h" />

@@ -1,13 +1,15 @@
 <rml>
 <head>
-	<title>Hello world</title>
 	<link type="text/rcss" href="rml.rcss"/>
 	<link type="text/rcss" href="window.rcss"/>
 </head>
 <body>
-	<h1>RmlUi</h1>
-	<p>Hello world!</p>
-	<p>This is a paragraph.</p>
-	<input type="text"/>
+	<h1>Main Menu</h1>
+	<ul>
+		<li>Play</li>
+		<li>Continue</li>
+		<li>Settings</li>
+		<li>Quit</li>
+	</ul>
 </body>
 </rml>
