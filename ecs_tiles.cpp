@@ -1,8 +1,9 @@
-#include "utilities_tmxlite.h"
+#include "ecs_tiles.h"
+#include <tmxlite/Tileset.hpp>
 
 namespace tmx
 {
-	sf::IntRect get_texture_rect(const Tileset& tileset, uint32_t tile_id)
+	sf::IntRect _get_texture_rect(const Tileset& tileset, uint32_t tile_id)
 	{
 		if (!tileset.hasTile(tile_id))
 			return sf::IntRect();
@@ -42,23 +43,32 @@ namespace tmx
 
 		return UINT32_MAX; // Should never happen.
 	}
+}
 
-	float get_total_duration(const AnimatedTile& animated_tile)
+namespace ecs
+{
+	bool is_valid(const Tile& tile)
 	{
-		auto tile = animated_tile.tileset->getTile(animated_tile.tile_id);
-		return _get_total_duration_in_ms(tile->animation) / 1000.0f;
+		return tile._tileset && tile._tileset->hasTile(tile.id);
 	}
 
-	uint32_t get_current_tile_id(const AnimatedTile& animated_tile)
+	bool is_animated(const Tile& tile)
 	{
-		auto tile = animated_tile.tileset->getTile(animated_tile.tile_id);
-		return _get_tile_id_at_time(tile->animation, animated_tile.time * 1000);
+		if (!tile._tileset) return false;
+		auto tileset_tile = tile._tileset->getTile(tile.id);
+		if (!tileset_tile) return false;
+		return !tileset_tile->animation.frames.empty();
 	}
 
-	sf::IntRect get_current_texture_rect(const AnimatedTile& animated_tile)
+	sf::IntRect get_texture_rect(const Tile& tile)
 	{
-		auto tile = animated_tile.tileset->getTile(animated_tile.tile_id);
-		uint32_t current_tile_id = _get_tile_id_at_time(tile->animation, animated_tile.time * 1000);
-		return get_texture_rect(*animated_tile.tileset, current_tile_id);
+		uint32_t tile_id = tile.id;
+		if (is_animated(tile))
+		{
+			auto& animation = tile._tileset->getTile(tile.id)->animation;
+			uint32_t time_in_ms = tile.animation_time * 1000;
+			tile_id = tmx::_get_tile_id_at_time(animation, time_in_ms);
+		}
+		return tmx::_get_texture_rect(*tile._tileset, tile_id);
 	}
 }

@@ -52,7 +52,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         // UPDATING
         float dt = clock.restart().asSeconds();
 		game::update_player(registry, dt);
-        map::update_animated_tiles(registry, dt);
+        game::update_tiles(registry, dt);
         rml::update();
 
         // RENDERING

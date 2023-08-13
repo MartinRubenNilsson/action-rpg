@@ -1,4 +1,5 @@
 #include "game.h"
+#include "ecs_tiles.h"
 
 namespace game
 {
@@ -29,5 +30,16 @@ namespace game
 		if (direction.x != 0)
 			scale.x = direction.x;
 		sprite.setScale(scale);
+	}
+
+	void update_tiles(entt::registry& registry, float dt)
+	{
+		for (auto [entity, tile, sprite] :
+			registry.view<ecs::Tile, sf::Sprite>().each())
+		{
+			if (ecs::is_animated(tile))
+				tile.animation_time += dt;
+			sprite.setTextureRect(ecs::get_texture_rect(tile));
+		}
 	}
 }

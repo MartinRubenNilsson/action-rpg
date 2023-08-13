@@ -1,6 +1,6 @@
 #include "map.h"
 #include "asset_directories.h"
-#include "utilities_tmxlite.h"
+#include "ecs_tiles.h"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
@@ -36,6 +36,7 @@ namespace map
 		const auto& map = _filename_to_map.at(map_filename);
 
 		registry.clear();
+		game::player_entity = entt::null;
 
 		// Iterate through all the tilesets in the map and load their textures.
 		for (const auto& tileset : map.getTilesets())
@@ -48,8 +49,10 @@ namespace map
 			registry.emplace<sf::Texture>(entity, std::move(texture));
 		}
 
-		// Iterate through all the layers in the map.
-		for (const auto& layer : map.getLayers())
+		// Iterate through all the layers in the map in reverse order
+		// so that sprites on the lower layers are created first.
+		// This ensures that sprites on the higher layers are drawn on top.
+		for (const auto& layer : std::ranges::reverse_view(map.getLayers()))
 		{
 			tmx::Layer::Type layer_type = layer->getType();
 			if (layer_type == tmx::Layer::Type::Tile)
@@ -57,7 +60,7 @@ namespace map
 				const auto& tile_layer = layer->getLayerAs<tmx::TileLayer>();
 				const auto& tiles = tile_layer.getTiles();
 
-				// Iterate through all the tiles in the layer and create entities for them.
+				// Iterate through all the tiles in the layer.
 				for (uint32_t tile_index = 0; tile_index < tiles.size(); ++tile_index)
 				{
 					const auto& tile = tiles[tile_index];
@@ -66,14 +69,34 @@ namespace map
 					if (tile.ID == 0)
 						continue;
 
-					// Calculate the tile's position in the layer.
-					uint32_t x = tile_index % tile_layer.getSize().x;
-					uint32_t y = tile_index / tile_layer.getSize().x; // Using x is intentional.
+					// Find the tileset that contains the tile.
+					for (auto [tileset_entity, tileset, texture] :
+						registry.view<tmx::Tileset, sf::Texture>().each())
+					{
+						if (!tileset.hasTile(tile.ID))
+							continue;
 
-					// Create an entity for the tile.
-					entt::entity entity = registry.create();
-					registry.emplace<tmx::TileLayer::Tile>(entity, tile);
-					registry.emplace<sf::Vector2u>(entity, x, y);
+						// Create a tile component for the tile.
+						ecs::Tile tile_component;
+						tile_component._tileset = &tileset;
+						tile_component.id = tile.ID;
+
+						// Calculate the tile's position.
+						uint32_t col = tile_index % tile_layer.getSize().x;
+						uint32_t row = tile_index / tile_layer.getSize().x; // Using x is intentional.
+						sf::Vector2f position(col * map.getTileSize().x, row * map.getTileSize().y);
+
+						// Create a sprite for the tile.
+						sf::Sprite sprite(texture, ecs::get_texture_rect(tile_component));
+						sprite.setPosition(position);
+
+						// Create an entity for the tile.
+						entt::entity entity = registry.create();
+						registry.emplace<ecs::Tile>(entity, tile_component);
+						registry.emplace<sf::Sprite>(entity, sprite);
+
+						break;
+					}
 				}
 			}
 			else if (layer_type == tmx::Layer::Type::Object)
@@ -81,100 +104,53 @@ namespace map
 				const auto& object_group = layer->getLayerAs<tmx::ObjectGroup>();
 				const auto& objects = object_group.getObjects();
 
-				// Iterate through all the objects in the layer and create entities for them.
+				// Iterate through all objects in the layer.
 				for (const auto& object : objects)
 				{
-					entt::entity entity = registry.create();
-					registry.emplace<tmx::Object>(entity, object);
-				}
-			}
-		}
+					// Skip objects that aren't tiles.
+					if (object.getTileID() == 0)
+						continue;
 
-		// Iterate through all the tile objects in the registry and create sprites for them.
-		for (auto [object_entity, object] : registry.view<tmx::Object>().each())
-		{
-			// Skip objects that aren't tiles.
-			if (object.getTileID() == 0)
-				continue;
-
-			// Find the tileset that contains the object.
-			for (auto [tileset_entity, tileset, texture] :
-				registry.view<tmx::Tileset, sf::Texture>().each())
-			{
-				if (!tileset.hasTile(object.getTileID()))
-					continue;
-
-				// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
-				// but SFML uses the top-left corner of the sprite for the sprite's position.
-				// Moreover, getAABB().top is the bottom of the AABB, not the top.
-
-				tmx::FloatRect aabb = object.getAABB(); // Global axis-aligned bounding box.
-				sf::Vector2f sprite_center(aabb.left + aabb.width / 2, aabb.top - aabb.height / 2);
-				sf::Vector2f sprite_origin(tileset.getTileSize().x / 2, tileset.getTileSize().y / 2);
-
-				// Add a sprite component to the entity.
-				sf::Sprite sprite(texture, tmx::get_texture_rect(tileset, object.getTileID()));
-				sprite.setPosition(sprite_center);
-				sprite.setOrigin(sprite_origin);
-				registry.emplace<sf::Sprite>(object_entity, sprite);
-
-				// If the tile is animated, add an animation component to the entity.
-				if (auto tile = tileset.getTile(object.getTileID()))
-				{
-					if (!tile->animation.frames.empty())
+					// Find the tileset that contains the object.
+					for (auto [tileset_entity, tileset, texture] :
+						registry.view<tmx::Tileset, sf::Texture>().each())
 					{
-						tmx::AnimatedTile animated_tile;
-						animated_tile.tileset = &tileset;
-						animated_tile.tile_id = object.getTileID(); // PITFALL: This is not the same as tile->ID.
-						registry.emplace<tmx::AnimatedTile>(object_entity, animated_tile);
+						if (!tileset.hasTile(object.getTileID()))
+							continue;
+
+						// Create a tile component for the object.
+						ecs::Tile tile_component;
+						tile_component._tileset = &tileset;
+						tile_component.id = object.getTileID();
+
+						// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
+						// but SFML uses the top-left corner of the sprite for the sprite's position.
+						// Moreover, getAABB().top is actually the bottom of the AABB, not the top.
+
+						tmx::FloatRect aabb = object.getAABB();
+						sf::Vector2f position(aabb.left + aabb.width / 2, aabb.top - aabb.height / 2);
+						sf::Vector2f origin(tileset.getTileSize().x / 2, tileset.getTileSize().y / 2);
+
+						// Create a sprite for the object.
+						sf::Sprite sprite(texture, ecs::get_texture_rect(tile_component));
+						sprite.setPosition(position);
+						sprite.setOrigin(origin);
+
+						// Create an entity for the object.
+						entt::entity entity = registry.create();
+						registry.emplace<ecs::Tile>(entity, tile_component);
+						registry.emplace<sf::Sprite>(entity, sprite);
+
+						if (object.getName() == "player")
+						{
+							game::player_entity = entity;
+							break;
+						}
+
+						break;
 					}
 				}
-
-				break;
 			}
-		}
-
-		// Iterate through all the tiles in the registry and create sprites for them.
-		for (auto [tile_entity, tile, position] :
-			registry.view<tmx::TileLayer::Tile, sf::Vector2u>().each())
-		{
-			// Find the tileset that contains the tile.
-			for (auto [tileset_entity, tileset, texture] :
-				registry.view<tmx::Tileset, sf::Texture>().each())
-			{
-				if (!tileset.hasTile(tile.ID))
-					continue;
-
-				// Create a sprite for the tile.
-				sf::Sprite sprite(texture, tmx::get_texture_rect(tileset, tile.ID));
-				sprite.setPosition(position.x * map.getTileSize().x, position.y * map.getTileSize().y);
-				registry.emplace<sf::Sprite>(tile_entity, sprite);
-
-				break;
-			}
-		}
-
-		// Find the player entity and store it in the game namespace.
-		game::player_entity = entt::null;
-		for (auto [object_entity, object] : registry.view<tmx::Object>().each())
-		{
-			if (object.getName() == "player")
-			{
-				game::player_entity = object_entity;
-				break;
-			}
-		}
-
-		return true;
-	}
-
-	void update_animated_tiles(entt::registry& registry, float dt)
-	{
-		for (auto [entity, animated_tile, sprite] :
-			registry.view<tmx::AnimatedTile, sf::Sprite>().each())
-		{
-			animated_tile.time += dt;
-			sprite.setTextureRect(tmx::get_current_texture_rect(animated_tile));
 		}
 	}
 }

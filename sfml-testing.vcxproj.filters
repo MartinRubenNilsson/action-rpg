@@ -17,8 +17,8 @@
       <Filter>rml</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp" />
-    <ClCompile Include="utilities_tmxlite.cpp">
-      <Filter>utilities</Filter>
+    <ClCompile Include="ecs_tiles.cpp">
+      <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -44,8 +44,8 @@
     </ClInclude>
     <ClInclude Include="asset_directories.h" />
     <ClInclude Include="game.h" />
-    <ClInclude Include="utilities_tmxlite.h">
-      <Filter>utilities</Filter>
+    <ClInclude Include="ecs_tiles.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +54,9 @@
     </Filter>
     <Filter Include="utilities">
       <UniqueIdentifier>{ed3b92ec-9ae6-47eb-9b54-2ceba55544e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs">
+      <UniqueIdentifier>{f1d0e233-c8b6-45ea-9899-c05d6aa201d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
