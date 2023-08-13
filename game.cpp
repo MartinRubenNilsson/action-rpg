@@ -20,8 +20,14 @@ namespace game
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			direction.y += 1;
 
-		// Update the player's position based on their velocity.
+		// Update the player's position based on their direction.
 		auto& sprite = registry.get<sf::Sprite>(player_entity);
 		sprite.move(direction * dt * 100.0f);
+		
+		// Update the player's scale based on their direction.
+		sf::Vector2f scale = sprite.getScale();
+		if (direction.x != 0)
+			scale.x = direction.x;
+		sprite.setScale(scale);
 	}
 }

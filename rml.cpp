@@ -13,14 +13,9 @@ namespace rml
 		Rml::SetSystemInterface(Backend::GetSystemInterface());
 		Rml::SetRenderInterface(Backend::GetRenderInterface());
 		Rml::Initialise();
-		_context = Rml::CreateContext("main", Rml::Vector2i(window->getSize().x, window->getSize().y));
 
-		// Load all fonts in the fonts folder.
-		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_FONTS))
-		{
-			if (entry.path().extension() == ".ttf")
-				Rml::LoadFontFace(entry.path().string());
-		}
+		Rml::Vector2i initial_window_size(window->getSize().x, window->getSize().y);
+		_context = Rml::CreateContext("main", initial_window_size);
 	}
 
 	void cleanup()
@@ -28,6 +23,27 @@ namespace rml
 		Rml::RemoveContext(_context->GetName());
 		Rml::Shutdown();
 		Backend::Shutdown();
+	}
+
+	void load_assets()
+	{
+		// Load all TTF fonts.
+		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_FONTS))
+		{
+			if (entry.path().extension() == ".ttf")
+				Rml::LoadFontFace(entry.path().string());
+		}
+
+		// Load all RML documents and set their IDs to their filenames.
+		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_RML))
+		{
+			if (entry.path().extension() != ".rml")
+				continue;
+			auto document = _context->LoadDocument(entry.path().string());
+			if (!document)
+				continue;
+			document->SetId(entry.path().filename().string());
+		}
 	}
 
 	void process_event(const sf::Event& ev)
@@ -47,12 +63,15 @@ namespace rml
 		Backend::PresentFrame();
 	}
 
-	bool load_document(const std::string& path)
+	void show_document(const std::string& document_filename)
 	{
-		Rml::ElementDocument* document = _context->LoadDocument(path);
-		if (!document)
-			return false;
-		document->Show();
-		return true;
+		if (auto document = _context->GetDocument(document_filename))
+			document->Show();
+	}
+
+	void hide_document(const std::string& document_filename)
+	{
+		if (auto document = _context->GetDocument(document_filename))
+			document->Hide();
 	}
 }

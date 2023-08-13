@@ -17,13 +17,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
     sf::View view(sf::FloatRect(0, 0, MAP_WIDTH, MAP_HEIGHT));
     window.setView(view);
 
-    rml::startup(&window);
-    //rml::load_document("assets/rml/main_menu.rml");
+    // STARTUP
 
+    rml::startup(&window);
+
+    // LOAD ASSETS
+
+    rml::load_assets();
     map::load_assets();
 
     entt::registry registry;
-    map::load(registry, "dungeon");
+    map::create_entities(registry, "dungeon.tmx");
+    rml::show_document("main_menu.rml");
 
     // GAME LOOP
 
@@ -47,22 +52,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         // UPDATING
         float dt = clock.restart().asSeconds();
 		game::update_player(registry, dt);
+        map::update_animated_tiles(registry, dt);
         rml::update();
 
         // RENDERING
 
         window.clear();
-
         for (auto [entity, sprite] : registry.view<sf::Sprite>().each())
             window.draw(sprite);
-
-        // RmlUi uses OpenGL, so we need to push and pop the OpenGL states.
         window.pushGLStates();
-        rml::render();
+        rml::render(); // Uses OpenGL, so we need to push and pop the OpenGL states before and after.
         window.popGLStates();
-
         window.display();
     }
+
+    // CLEANUP
 
     rml::cleanup();
 

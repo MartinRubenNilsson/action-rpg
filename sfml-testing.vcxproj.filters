@@ -17,6 +17,9 @@
       <Filter>rml</Filter>
     </ClCompile>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="utilities_tmxlite.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -41,10 +44,16 @@
     </ClInclude>
     <ClInclude Include="asset_directories.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="utilities_tmxlite.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{ed3b92ec-9ae6-47eb-9b54-2ceba55544e8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
