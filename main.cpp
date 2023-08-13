@@ -6,8 +6,12 @@
 #define MAP_WIDTH 480
 #define MAP_HEIGHT 320
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR command_line, int)
 {
+    // PARSE COMMAND LINE
+
+    std::string command_line_str(command_line); // TODO
+
     // CREATE WINDOW
 
     sf::VideoMode video_mode(MAP_WIDTH * 3, MAP_HEIGHT * 3);
@@ -50,6 +54,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         }
 
         // UPDATING
+
         float dt = clock.restart().asSeconds();
 		game::update_player(registry, dt);
         game::update_tiles(registry, dt);

@@ -34,7 +34,7 @@ namespace game
 
 	void update_tiles(entt::registry& registry, float dt)
 	{
-		for (auto [entity, tile, sprite] :
+		for (auto [entity, tile, sprite] : 
 			registry.view<ecs::Tile, sf::Sprite>().each())
 		{
 			if (ecs::is_animated(tile))
