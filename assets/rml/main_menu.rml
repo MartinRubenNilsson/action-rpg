@@ -2,8 +2,9 @@
 <head>
 	<link type="text/rcss" href="styles/html4_default.rcss"/>
 </head>
-<body>
+<body data-model="data_model">
 	<h1>Main Menu</h1>
-	<button onclick="play">Play</button>
+	<p>{{test_string}}</p>
+	<p data-event-click="test_func">Click me!</p>
 </body>
 </rml>

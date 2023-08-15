@@ -2,41 +2,12 @@
 #include "asset_directories.h"
 #include "RmlUi_Backend.h"
 #include <RmlUi/Core.h>
-#include <RmlUi/Core/Event.h>
 
 namespace rml
 {
-	struct EventListener : Rml::EventListener
-	{
-		Rml::String _value;
-		Rml::Element* _element;
-
-		EventListener(const Rml::String& value, Rml::Element* element)
-			: _value(value), _element(element)
-		{
-		}
-
-		void ProcessEvent(Rml::Event& ev) override
-		{
-			_element->SetInnerRML("You pressed play!");
-		}
-
-		void OnDetach(Rml::Element*) override
-		{
-			delete this;
-		}
-	};
-
-	struct EventListenerInstancer : Rml::EventListenerInstancer
-	{
-		Rml::EventListener* InstanceEventListener(const Rml::String& value, Rml::Element* element) override
-		{
-			return new EventListener(value, element);
-		}
-	};
-
-	EventListenerInstancer _event_listener_instancer;
 	Rml::Context* _context = nullptr;
+
+	extern void _create_data_bindings(Rml::Context* context);
 
 	void startup(sf::RenderWindow* window)
 	{
@@ -44,10 +15,11 @@ namespace rml
 		Rml::SetSystemInterface(Backend::GetSystemInterface());
 		Rml::SetRenderInterface(Backend::GetRenderInterface());
 		Rml::Initialise();
-		Rml::Factory::RegisterEventListenerInstancer(&_event_listener_instancer);
 
 		Rml::Vector2i initial_window_size(window->getSize().x, window->getSize().y);
 		_context = Rml::CreateContext("main", initial_window_size);
+
+		_create_data_bindings(_context);
 	}
 
 	void cleanup()

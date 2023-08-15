@@ -103,7 +103,7 @@
       </ForcedUsingFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -128,7 +128,7 @@
       </ForcedUsingFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -153,7 +153,7 @@
       </ForcedUsingFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -178,7 +178,7 @@
       </ForcedUsingFiles>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -194,6 +194,7 @@
     <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp" />
     <ClCompile Include="RmlUi_Platform_SFML.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2.cpp" />
+    <ClCompile Include="rml_data_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -214,6 +215,7 @@
     <ClInclude Include="RmlUi_Include_Windows.h" />
     <ClInclude Include="RmlUi_Platform_SFML.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h" />
+    <ClInclude Include="rml_data_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_tiles.h" />
   </ItemGroup>

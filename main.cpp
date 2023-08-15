@@ -2,16 +2,13 @@
 #include "map.h"
 #include "rml.h"
 #include "game.h"
+#include "rml_data_bindings.h"
 
 #define MAP_WIDTH 480
 #define MAP_HEIGHT 320
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR command_line, int)
+int main()
 {
-    // PARSE COMMAND LINE
-
-    std::string command_line_str(command_line); // TODO
-
     // CREATE WINDOW
 
     sf::VideoMode video_mode(MAP_WIDTH * 3, MAP_HEIGHT * 3);
@@ -33,6 +30,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR command_line, int)
     entt::registry registry;
     map::create_entities(registry, "dungeon.tmx");
     rml::show_document("main_menu.rml");
+
+    rml::test_string = "Hello, RML!";
+    rml::dirty_variable("test_string");
 
     // GAME LOOP
 

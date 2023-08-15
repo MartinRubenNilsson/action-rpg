@@ -20,6 +20,9 @@
     <ClCompile Include="ecs_tiles.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="rml_data_bindings.cpp">
+      <Filter>rml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -46,6 +49,9 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="ecs_tiles.h">
       <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="rml_data_bindings.h">
+      <Filter>rml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
