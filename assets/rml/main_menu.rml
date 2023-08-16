@@ -1,10 +1,11 @@
 <rml>
 <head>
-	<link type="text/rcss" href="styles/html4_default.rcss"/>
+	<link type="text/rcss" href="styles/rml.rcss"/>
+	<link type="text/rcss" href="styles/window.rcss"/>
 </head>
 <body data-model="data_model">
 	<h1>Main Menu</h1>
-	<p>{{test_string}}</p>
-	<p data-event-click="test_func">Click me!</p>
+	<p data-event-click="play_game">Play</p>
+	<p data-event-click="quit_game">Quit</p>
 </body>
 </rml>

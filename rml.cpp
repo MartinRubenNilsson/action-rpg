@@ -7,7 +7,7 @@ namespace rml
 {
 	Rml::Context* _context = nullptr;
 
-	extern void _create_data_bindings(Rml::Context* context);
+	extern void _create_data_bindings();
 
 	void startup(sf::RenderWindow* window)
 	{
@@ -19,7 +19,7 @@ namespace rml
 		Rml::Vector2i initial_window_size(window->getSize().x, window->getSize().y);
 		_context = Rml::CreateContext("main", initial_window_size);
 
-		_create_data_bindings(_context);
+		_create_data_bindings();
 	}
 
 	void cleanup()

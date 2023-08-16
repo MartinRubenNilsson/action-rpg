@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "sfml",
+    "imgui-sfml",
     "rmlui",
     "tmxlite",
     "entt"

@@ -1,13 +1,17 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #include "map.h"
 #include "rml.h"
 #include "game.h"
 #include "rml_data_bindings.h"
+#include <imgui-SFML.h>
+#include <imgui.h>
 
 #define MAP_WIDTH 480
 #define MAP_HEIGHT 320
 
-int main()
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR pCmdLine, int)
 {
     // CREATE WINDOW
 
@@ -20,6 +24,7 @@ int main()
 
     // STARTUP
 
+    ImGui::SFML::Init(window);
     rml::startup(&window);
 
     // LOAD ASSETS
@@ -29,36 +34,36 @@ int main()
 
     entt::registry registry;
     map::create_entities(registry, "dungeon.tmx");
-    rml::show_document("main_menu.rml");
 
-    rml::test_string = "Hello, RML!";
-    rml::dirty_variable("test_string");
+    rml::show_document("main_menu.rml");
 
     // GAME LOOP
 
-    sf::Clock clock;
+    sf::Clock delta_clock;
     while (window.isOpen())
     {
         // EVENT HANDLING
-
-        sf::Event ev;
-        while (window.pollEvent(ev))
         {
-            if (ev.type == sf::Event::Closed)
+            sf::Event event;
+            while (window.pollEvent(event))
             {
-                window.close();
-                break;
-            }
+                ImGui::SFML::ProcessEvent(window, event);
+                rml::process_event(event);
 
-            rml::process_event(ev);
+                if (event.type == sf::Event::Closed)
+                    window.close();
+            }
         }
 
         // UPDATING
-
-        float dt = clock.restart().asSeconds();
-		game::update_player(registry, dt);
-        game::update_tiles(registry, dt);
-        rml::update();
+        {
+            sf::Time sf_delta_time = delta_clock.restart();
+            float delta_time = sf_delta_time.asSeconds();
+            ImGui::SFML::Update(window, sf_delta_time);
+            rml::update();
+            game::update_player(registry, delta_time);
+            game::update_tiles(registry, delta_time);
+        }
 
         // RENDERING
 
@@ -68,12 +73,14 @@ int main()
         window.pushGLStates();
         rml::render(); // Uses OpenGL, so we need to push and pop the OpenGL states before and after.
         window.popGLStates();
+        ImGui::SFML::Render(window);
         window.display();
     }
 
     // CLEANUP
 
     rml::cleanup();
+    ImGui::SFML::Shutdown();
 
 	return 0;
 }

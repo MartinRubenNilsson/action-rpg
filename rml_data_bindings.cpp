@@ -3,6 +3,8 @@
 
 namespace rml
 {
+	extern Rml::Context* _context;
+
 	Rml::DataModelHandle data_model_handle;
 
 	bool is_variable_dirty(const std::string& name)
@@ -21,16 +23,23 @@ namespace rml
 
 	// EVENT CALLBACKS
 
-	void _on_click(Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&)
+	void _play_game(Rml::DataModelHandle, Rml::Event& ev, const Rml::VariantList&)
 	{
-		std::cout << "You pressed play!" << std::endl;
+		if (auto doc = _context->GetDocument("main_menu.rml"))
+			doc->Hide();
+		std::cout << "Play game!" << std::endl;
+	}
+
+	void _quit_game(Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&)
+	{
+		std::cout << "Quit game!" << std::endl;
 	}
 
 	// CREATE BINDINGS
 
-	void _create_data_bindings(Rml::Context* context)
+	void _create_data_bindings()
 	{
-		auto data_model = context->CreateDataModel("data_model");
+		auto data_model = _context->CreateDataModel("data_model");
 		if (!data_model)
 			return;
 		data_model_handle = data_model.GetModelHandle();
@@ -41,6 +50,7 @@ namespace rml
 
 		// EVENT CALLBACKS
 
-		data_model.BindEventCallback("test_func", _on_click);
+		data_model.BindEventCallback("play_game", _play_game);
+		data_model.BindEventCallback("quit_game", _quit_game);
 	}
 }
