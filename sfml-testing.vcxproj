@@ -187,6 +187,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="console.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="rml.cpp" />
     <ClCompile Include="main.cpp" />
@@ -208,6 +209,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="asset_directories.h" />
+    <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="rml.h" />
     <ClInclude Include="map.h" />

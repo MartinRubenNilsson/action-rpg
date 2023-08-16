@@ -1,12 +1,13 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#include <imgui-SFML.h>
+#include <imgui.h>
 #include "map.h"
 #include "rml.h"
 #include "game.h"
 #include "rml_data_bindings.h"
-#include <imgui-SFML.h>
-#include <imgui.h>
+#include "console.h"
 
 #define MAP_WIDTH 480
 #define MAP_HEIGHT 320
@@ -39,31 +40,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR pCmdLine, int)
 
     // GAME LOOP
 
-    sf::Clock delta_clock;
+    sf::Clock clock;
     while (window.isOpen())
     {
         // EVENT HANDLING
-        {
-            sf::Event event;
-            while (window.pollEvent(event))
-            {
-                ImGui::SFML::ProcessEvent(window, event);
-                rml::process_event(event);
 
-                if (event.type == sf::Event::Closed)
-                    window.close();
-            }
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            ImGui::SFML::ProcessEvent(window, event);
+            rml::process_event(event);
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
+				console::toggle_visible();
+            if (event.type == sf::Event::Closed)
+                window.close();
         }
 
         // UPDATING
-        {
-            sf::Time sf_delta_time = delta_clock.restart();
-            float delta_time = sf_delta_time.asSeconds();
-            ImGui::SFML::Update(window, sf_delta_time);
-            rml::update();
-            game::update_player(registry, delta_time);
-            game::update_tiles(registry, delta_time);
-        }
+
+        sf::Time delta_time = clock.restart();
+        float dt = delta_time.asSeconds();
+        ImGui::SFML::Update(window, delta_time);
+        console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+        rml::update();
+        game::update_player(registry, dt);
+        game::update_tiles(registry, dt);
 
         // RENDERING
 

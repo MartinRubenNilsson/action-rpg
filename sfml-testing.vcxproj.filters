@@ -23,6 +23,7 @@
     <ClCompile Include="rml_data_bindings.cpp">
       <Filter>rml</Filter>
     </ClCompile>
+    <ClCompile Include="console.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -53,6 +54,7 @@
     <ClInclude Include="rml_data_bindings.h">
       <Filter>rml</Filter>
     </ClInclude>
+    <ClInclude Include="console.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">
