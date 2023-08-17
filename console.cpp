@@ -4,9 +4,11 @@
 #include <CLI/CLI.hpp>
 #include "map.h"
 
+extern void close_window();
+
 namespace console
 {
-	CLI::App _app("Developer console", "");
+	CLI::App _app("Console", "");
 
 	bool _visible = false;
 	bool _reclaim_focus = false;
@@ -15,9 +17,10 @@ namespace console
 
 	void startup()
 	{
-		//_app.add_subcommand("exit", "Exit the game")->callback([]() { std::exit(0); });
+		_app.add_subcommand("exit", "Exit the game")->callback(close_window);
 		_app.add_subcommand("clear", "Clear the console")->callback(clear);
 
+		// MAPS
 		{
 			auto cmd = _app.add_subcommand("map", "Handle maps");
 			cmd->add_option_function<std::string>("-o,--open", map::open, "Open a map");
@@ -33,8 +36,10 @@ namespace console
         if (!_visible)
 			return;
 
+		
 		if (ImGui::Begin("Console"))
 		{
+			ImGui::SetWindowFontScale(2.f);
 			// HISTORY
 			{
 				// Height of 1 separator + 1 input text

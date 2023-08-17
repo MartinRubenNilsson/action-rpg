@@ -1,4 +1,5 @@
 #include "ecs_tiles.h"
+#include <tmxlite/Map.hpp>
 #include <tmxlite/Tileset.hpp>
 
 namespace tmx
@@ -47,28 +48,54 @@ namespace tmx
 
 namespace ecs
 {
-	bool is_valid(const Tile& tile)
+	Tile::Tile(const void* tileset, uint32_t id)
+		: _tileset(tileset)
+		, _tile(static_cast<const tmx::Tileset*>(tileset)->getTile(id))
 	{
-		return tile._tileset && tile._tileset->hasTile(tile.id);
 	}
 
-	bool is_animated(const Tile& tile)
+	bool Tile::is_animated() const
 	{
-		if (!tile._tileset) return false;
-		auto tileset_tile = tile._tileset->getTile(tile.id);
-		if (!tileset_tile) return false;
-		return !tileset_tile->animation.frames.empty();
+		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
+		return !tile->animation.frames.empty();
 	}
 
-	sf::IntRect get_texture_rect(const Tile& tile)
+	uint32_t Tile::get_id() const
 	{
-		uint32_t tile_id = tile.id;
-		if (is_animated(tile))
+		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
+		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
+		return tile->ID + tileset->getFirstGID();
+	}
+
+	const std::string& Tile::get_type() const
+	{
+		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
+		return tile->type;
+	}
+
+	bool Tile::set_type(const std::string& type)
+	{
+		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
+		for (const auto& tile : tileset->getTiles())
 		{
-			auto& animation = tile._tileset->getTile(tile.id)->animation;
-			uint32_t time_in_ms = tile.animation_time * 1000;
-			tile_id = tmx::_get_tile_id_at_time(animation, time_in_ms);
+			if (tile.type == type)
+			{
+				_tile = &tile;
+				return true;
+			}
 		}
-		return tmx::_get_texture_rect(*tile._tileset, tile_id);
+		return false;
+	}
+
+	sf::IntRect Tile::get_texture_rect() const
+	{
+		uint32_t id = get_id();
+		if (is_animated())
+		{
+			auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
+			id = tmx::_get_tile_id_at_time(tile->animation, animation_time * 1000);
+		}
+		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
+		return tmx::_get_texture_rect(*tileset, id);
 	}
 }

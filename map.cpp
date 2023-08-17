@@ -1,13 +1,9 @@
 #include "map.h"
-#include "ecs_tiles.h"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
-
-namespace game
-{
-	extern entt::entity player_entity; // TODO: remove this global variable.
-}
+#include "game.h"
+#include "ecs_tiles.h"
 
 namespace map
 {
@@ -39,8 +35,7 @@ namespace map
 			return false;
 		const auto& map = _filename_to_map.at(filename);
 
-		_registry.clear();
-		game::player_entity = entt::null;
+		close(); // Close the current map.
 
 		// Iterate through all the tilesets in the map and load their textures.
 		for (const auto& tileset : map.getTilesets())
@@ -81,9 +76,7 @@ namespace map
 							continue;
 
 						// Create a tile component for the tile.
-						ecs::Tile tile_component;
-						tile_component._tileset = &tileset;
-						tile_component.id = tile.ID;
+						ecs::Tile tile_component(&tileset, tile.ID);
 
 						// Calculate the tile's position.
 						uint32_t col = tile_index % tile_layer.getSize().x;
@@ -91,7 +84,7 @@ namespace map
 						sf::Vector2f position(col * map.getTileSize().x, row * map.getTileSize().y);
 
 						// Create a sprite for the tile.
-						sf::Sprite sprite(texture, ecs::get_texture_rect(tile_component));
+						sf::Sprite sprite(texture, tile_component.get_texture_rect());
 						sprite.setPosition(position);
 
 						// Create an entity for the tile.
@@ -123,9 +116,7 @@ namespace map
 							continue;
 
 						// Create a tile component for the object.
-						ecs::Tile tile_component;
-						tile_component._tileset = &tileset;
-						tile_component.id = object.getTileID();
+						ecs::Tile tile_component(&tileset, object.getTileID());
 
 						// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
 						// but SFML uses the top-left corner of the sprite for the sprite's position.
@@ -136,7 +127,7 @@ namespace map
 						sf::Vector2f origin(tileset.getTileSize().x / 2, tileset.getTileSize().y / 2);
 
 						// Create a sprite for the object.
-						sf::Sprite sprite(texture, ecs::get_texture_rect(tile_component));
+						sf::Sprite sprite(texture, tile_component.get_texture_rect());
 						sprite.setPosition(position);
 						sprite.setOrigin(origin);
 
@@ -146,10 +137,7 @@ namespace map
 						_registry.emplace<sf::Sprite>(entity, sprite);
 
 						if (object.getName() == "player")
-						{
-							game::player_entity = entity;
-							break;
-						}
+							game::set_player_entity(entity);
 
 						break;
 					}
@@ -163,6 +151,6 @@ namespace map
 	void close()
 	{
 		_registry.clear();
-		game::player_entity = entt::null;
+		game::set_player_entity();
 	}
 }
