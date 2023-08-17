@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="map.cpp" />
     <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp">
       <Filter>rml</Filter>
     </ClCompile>
@@ -24,13 +23,15 @@
       <Filter>rml</Filter>
     </ClCompile>
     <ClCompile Include="console.cpp" />
+    <ClCompile Include="map.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h">
       <Filter>rml</Filter>
     </ClInclude>
@@ -55,16 +56,19 @@
       <Filter>rml</Filter>
     </ClInclude>
     <ClInclude Include="console.h" />
+    <ClInclude Include="map.h">
+      <Filter>map</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="utilities">
-      <UniqueIdentifier>{ed3b92ec-9ae6-47eb-9b54-2ceba55544e8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ecs">
       <UniqueIdentifier>{f1d0e233-c8b6-45ea-9899-c05d6aa201d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="map">
+      <UniqueIdentifier>{7ff8c929-179f-49c5-bccc-7bcfd599952e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

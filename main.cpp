@@ -27,14 +27,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR pCmdLine, int)
 
     ImGui::SFML::Init(window);
     rml::startup(&window);
+    console::startup();
 
     // LOAD ASSETS
 
     rml::load_assets();
     map::load_assets();
-
-    entt::registry registry;
-    map::create_entities(registry, "dungeon.tmx");
 
     rml::show_document("main_menu.rml");
 
@@ -63,13 +61,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR pCmdLine, int)
         ImGui::SFML::Update(window, delta_time);
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         rml::update();
-        game::update_player(registry, dt);
-        game::update_tiles(registry, dt);
+        game::update_player(map::get_registry(), dt);
+        game::update_tiles(map::get_registry(), dt);
 
         // RENDERING
 
         window.clear();
-        for (auto [entity, sprite] : registry.view<sf::Sprite>().each())
+        for (auto [entity, sprite] : map::get_registry().view<sf::Sprite>().each())
             window.draw(sprite);
         window.pushGLStates();
         rml::render(); // Uses OpenGL, so we need to push and pop the OpenGL states before and after.

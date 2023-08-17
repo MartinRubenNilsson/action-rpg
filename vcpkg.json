@@ -2,6 +2,7 @@
   "dependencies": [
     "sfml",
     "imgui-sfml",
+    "cli11",
     "rmlui",
     "tmxlite",
     "entt"

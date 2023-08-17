@@ -1,5 +1,4 @@
 #include "map.h"
-#include "asset_directories.h"
 #include "ecs_tiles.h"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
@@ -7,18 +6,18 @@
 
 namespace game
 {
-	extern entt::entity player_entity;
+	extern entt::entity player_entity; // TODO: remove this global variable.
 }
 
 namespace map
 {
 	std::unordered_map<std::string, tmx::Map> _filename_to_map;
+	entt::registry _registry;
 
 	void load_assets()
 	{
-		// Load all TMX maps.
 		_filename_to_map.clear();
-		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_MAPS))
+		for (const auto& entry : std::filesystem::directory_iterator("assets/maps"))
 		{
 			if (entry.path().extension() != ".tmx")
 				continue;
@@ -29,13 +28,18 @@ namespace map
 		}
 	}
 
-	bool create_entities(entt::registry& registry, const std::string& map_filename)
+	entt::registry& get_registry()
 	{
-		if (!_filename_to_map.contains(map_filename))
-			return false;
-		const auto& map = _filename_to_map.at(map_filename);
+		return _registry;
+	}
 
-		registry.clear();
+	bool open(const std::string& filename)
+	{
+		if (!_filename_to_map.contains(filename))
+			return false;
+		const auto& map = _filename_to_map.at(filename);
+
+		_registry.clear();
 		game::player_entity = entt::null;
 
 		// Iterate through all the tilesets in the map and load their textures.
@@ -44,9 +48,9 @@ namespace map
 			sf::Texture texture;
 			if (!texture.loadFromFile(tileset.getImagePath()))
 				return false;
-			entt::entity entity = registry.create();
-			registry.emplace<tmx::Tileset>(entity, tileset);
-			registry.emplace<sf::Texture>(entity, std::move(texture));
+			entt::entity entity = _registry.create();
+			_registry.emplace<tmx::Tileset>(entity, tileset);
+			_registry.emplace<sf::Texture>(entity, std::move(texture));
 		}
 
 		// Iterate through all the layers in the map in reverse order
@@ -71,7 +75,7 @@ namespace map
 
 					// Find the tileset that contains the tile.
 					for (auto [tileset_entity, tileset, texture] :
-						registry.view<tmx::Tileset, sf::Texture>().each())
+						_registry.view<tmx::Tileset, sf::Texture>().each())
 					{
 						if (!tileset.hasTile(tile.ID))
 							continue;
@@ -91,9 +95,9 @@ namespace map
 						sprite.setPosition(position);
 
 						// Create an entity for the tile.
-						entt::entity entity = registry.create();
-						registry.emplace<ecs::Tile>(entity, tile_component);
-						registry.emplace<sf::Sprite>(entity, sprite);
+						entt::entity entity = _registry.create();
+						_registry.emplace<ecs::Tile>(entity, tile_component);
+						_registry.emplace<sf::Sprite>(entity, sprite);
 
 						break;
 					}
@@ -113,7 +117,7 @@ namespace map
 
 					// Find the tileset that contains the object.
 					for (auto [tileset_entity, tileset, texture] :
-						registry.view<tmx::Tileset, sf::Texture>().each())
+						_registry.view<tmx::Tileset, sf::Texture>().each())
 					{
 						if (!tileset.hasTile(object.getTileID()))
 							continue;
@@ -137,9 +141,9 @@ namespace map
 						sprite.setOrigin(origin);
 
 						// Create an entity for the object.
-						entt::entity entity = registry.create();
-						registry.emplace<ecs::Tile>(entity, tile_component);
-						registry.emplace<sf::Sprite>(entity, sprite);
+						entt::entity entity = _registry.create();
+						_registry.emplace<ecs::Tile>(entity, tile_component);
+						_registry.emplace<sf::Sprite>(entity, sprite);
 
 						if (object.getName() == "player")
 						{
@@ -152,5 +156,13 @@ namespace map
 				}
 			}
 		}
+
+		return true;
+	}
+
+	void close()
+	{
+		_registry.clear();
+		game::player_entity = entt::null;
 	}
 }
