@@ -7,5 +7,6 @@ namespace console
 	void toggle_visible();
 	void clear();
 	void log(const std::string& message);
+	void log_error(const std::string& message);
 	void execute(const std::string& command_line);
 }

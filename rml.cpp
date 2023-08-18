@@ -74,15 +74,15 @@ namespace rml
 		return names;
 	}
 
-	void show(const std::string& document_name)
+	void show(const std::string& name)
 	{
-		if (auto document = _context->GetDocument(document_name))
+		if (auto document = _context->GetDocument(name))
 			document->Show();
 	}
 
-	void hide(const std::string& document_name)
+	void hide(const std::string& name)
 	{
-		if (auto document = _context->GetDocument(document_name))
+		if (auto document = _context->GetDocument(name))
 			document->Hide();
 	}
 }
