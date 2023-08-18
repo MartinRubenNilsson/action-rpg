@@ -7,12 +7,14 @@
 
 namespace map
 {
-	std::unordered_map<std::string, tmx::Map> _filename_to_map;
-	entt::registry _registry;
+	std::unordered_map<std::string, tmx::Map> _name_to_map;
+	std::string _name; // The name of the currently open map.
+	entt::registry _registry; // Contains the deserialized version of the currently open map.
 
-	void load_assets()
+	void load_all()
 	{
-		_filename_to_map.clear();
+		close(); // Close the current map.
+		_name_to_map.clear();
 		for (const auto& entry : std::filesystem::directory_iterator("assets/maps"))
 		{
 			if (entry.path().extension() != ".tmx")
@@ -20,8 +22,21 @@ namespace map
 			tmx::Map map;
 			if (!map.load(entry.path().string()))
 				continue;
-			_filename_to_map.emplace(entry.path().filename().string(), std::move(map));
+			_name_to_map.emplace(entry.path().stem().string(), std::move(map));
 		}
+	}
+
+	std::vector<std::string> get_list()
+	{
+		std::vector<std::string> names;
+		for (const auto& [name, map] : _name_to_map)
+			names.push_back(name);
+		return names;
+	}
+
+	const std::string& get_name()
+	{
+		return _name;
 	}
 
 	entt::registry& get_registry()
@@ -29,13 +44,14 @@ namespace map
 		return _registry;
 	}
 
-	bool open(const std::string& filename)
+	bool open(const std::string& name)
 	{
-		if (!_filename_to_map.contains(filename))
+		if (!_name_to_map.contains(name))
 			return false;
-		const auto& map = _filename_to_map.at(filename);
+		const auto& map = _name_to_map.at(name);
 
 		close(); // Close the current map.
+		_name = name;
 
 		// Iterate through all the tilesets in the map and load their textures.
 		for (const auto& tileset : map.getTilesets())
@@ -150,6 +166,7 @@ namespace map
 
 	void close()
 	{
+		_name.clear();
 		_registry.clear();
 		game::set_player_entity();
 	}

@@ -47,7 +47,6 @@
     <ClInclude Include="rml.h">
       <Filter>rml</Filter>
     </ClInclude>
-    <ClInclude Include="asset_directories.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="ecs_tiles.h">
       <Filter>ecs</Filter>

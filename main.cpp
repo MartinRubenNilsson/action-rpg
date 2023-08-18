@@ -19,7 +19,7 @@ void close_window()
     _window.close();
 }
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     // CREATE WINDOW
 
@@ -38,15 +38,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     // LOAD ASSETS
 
-    rml::load_assets();
-    map::load_assets();
-
-    //rml::show_document("main_menu.rml");
-
-    //if (strlen(command_line) > 0)
-    //    console::execute(command_line);
-
-    console::execute("map -o dungeon.tmx");
+    rml::load_all();
+    map::load_all();
 
     // GAME LOOP
 

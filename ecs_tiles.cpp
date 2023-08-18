@@ -54,7 +54,7 @@ namespace ecs
 	{
 	}
 
-	bool Tile::is_animated() const
+	bool Tile::has_animation() const
 	{
 		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
 		return !tile->animation.frames.empty();
@@ -90,7 +90,7 @@ namespace ecs
 	sf::IntRect Tile::get_texture_rect() const
 	{
 		uint32_t id = get_id();
-		if (is_animated())
+		if (has_animation())
 		{
 			auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
 			id = tmx::_get_tile_id_at_time(tile->animation, animation_time * 1000);

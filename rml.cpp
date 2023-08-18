@@ -1,5 +1,4 @@
 ﻿#include "rml.h"
-#include "asset_directories.h"
 #include "RmlUi_Backend.h"
 #include <RmlUi/Core.h>
 
@@ -16,8 +15,8 @@ namespace rml
 		Rml::SetRenderInterface(Backend::GetRenderInterface());
 		Rml::Initialise();
 
-		Rml::Vector2i initial_window_size(window->getSize().x, window->getSize().y);
-		_context = Rml::CreateContext("main", initial_window_size);
+		Rml::Vector2i window_size(window->getSize().x, window->getSize().y);
+		_context = Rml::CreateContext("main", window_size);
 
 		_create_data_bindings();
 	}
@@ -29,30 +28,9 @@ namespace rml
 		Backend::Shutdown();
 	}
 
-	void load_assets()
+	void process_event(const sf::Event& event)
 	{
-		// Load all TTF fonts.
-		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_FONTS))
-		{
-			if (entry.path().extension() == ".ttf")
-				Rml::LoadFontFace(entry.path().string());
-		}
-
-		// Load all RML documents and set their IDs to their filenames.
-		for (const auto& entry : std::filesystem::directory_iterator(ASSET_DIR_RML))
-		{
-			if (entry.path().extension() != ".rml")
-				continue;
-			auto document = _context->LoadDocument(entry.path().string());
-			if (!document)
-				continue;
-			document->SetId(entry.path().filename().string());
-		}
-	}
-
-	void process_event(const sf::Event& ev)
-	{
-		Backend::ProcessEvent(_context, ev);
+		Backend::ProcessEvent(_context, event);
 	}
 
 	void update()
@@ -67,15 +45,44 @@ namespace rml
 		Backend::PresentFrame();
 	}
 
-	void show_document(const std::string& filename)
+	void load_all()
 	{
-		if (auto document = _context->GetDocument(filename))
+		// Load all TTF fonts.
+		for (const auto& entry : std::filesystem::directory_iterator("assets/fonts"))
+		{
+			if (entry.path().extension() == ".ttf")
+				Rml::LoadFontFace(entry.path().string());
+		}
+
+		// Load all RML documents and set their IDs to their names.
+		for (const auto& entry : std::filesystem::directory_iterator("assets/rml"))
+		{
+			if (entry.path().extension() != ".rml")
+				continue;
+			auto document = _context->LoadDocument(entry.path().string());
+			if (!document)
+				continue;
+			document->SetId(entry.path().stem().string());
+		}
+	}
+
+	std::vector<std::string> get_list()
+	{
+		std::vector<std::string> names;
+		for (int i = 0; i < _context->GetNumDocuments(); ++i)
+			names.push_back(_context->GetDocument(i)->GetId());
+		return names;
+	}
+
+	void show(const std::string& document_name)
+	{
+		if (auto document = _context->GetDocument(document_name))
 			document->Show();
 	}
 
-	void hide_document(const std::string& filename)
+	void hide(const std::string& document_name)
 	{
-		if (auto document = _context->GetDocument(filename))
+		if (auto document = _context->GetDocument(document_name))
 			document->Hide();
 	}
 }

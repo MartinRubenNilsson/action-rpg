@@ -61,7 +61,7 @@ namespace game
 		for (auto [entity, tile, sprite] : 
 			registry.view<ecs::Tile, sf::Sprite>().each())
 		{
-			if (tile.is_animated())
+			if (tile.has_animation())
 				tile.animation_time += dt;
 			sprite.setTextureRect(tile.get_texture_rect());
 		}

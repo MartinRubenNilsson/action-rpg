@@ -3,6 +3,7 @@
 #include <imgui_stdlib.h>
 #include <CLI/CLI.hpp>
 #include "map.h"
+#include "rml.h"
 
 extern void close_window();
 
@@ -17,25 +18,40 @@ namespace console
 
 	void startup()
 	{
+		log("Type -h or --help for a list of commands");
+
 		_app.add_subcommand("exit", "Exit the game")->callback(close_window);
 		_app.add_subcommand("clear", "Clear the console")->callback(clear);
 
-		// MAPS
+		// MAP
 		{
 			auto cmd = _app.add_subcommand("map", "Handle maps");
-			cmd->add_option_function<std::string>("-o,--open", map::open, "Open a map");
-			cmd->add_flag_callback("-c,--close", map::close, "Close the current map");
-			cmd->footer("Example: map -o dungeon.tmx");
+			cmd->add_subcommand("list", "List all loaded maps")
+				->callback([]() { for (const auto& name : map::get_list()) log(name); });
+			cmd->add_subcommand("name", "Print the name of the current map")
+				->callback([]() { log(map::get_name()); });
+			cmd->add_subcommand("open", "Open a map")
+				->add_option_function<std::string>("name", map::open, "The name of the map");
+			cmd->add_subcommand("close", "Close the current map")
+				->callback(map::close);
 		}
 
-		log("Type -h or --help for a list of commands");
+		// RML
+		{
+			auto cmd = _app.add_subcommand("rml", "Handle RML documents");
+			cmd->add_subcommand("list", "List all loaded documents")
+				->callback([]() { for (const auto& name : rml::get_list()) log(name); });
+			cmd->add_subcommand("show", "Show a document")
+				->add_option_function<std::string>("name", rml::show, "The name of the document");
+			cmd->add_subcommand("hide", "Hide a document")
+				->add_option_function<std::string>("name", rml::hide, "The name of the document");
+		}
 	}
 
 	void update()
 	{
         if (!_visible)
 			return;
-
 		
 		if (ImGui::Begin("Console"))
 		{
@@ -52,6 +68,8 @@ namespace console
 					for (const auto& line : _history)
 						ImGui::TextUnformatted(line.c_str());
 					ImGui::PopStyleVar();
+					if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+						ImGui::SetScrollHereY(1.0f); // Scroll to bottom
 				}
 				ImGui::EndChild();
 			}
@@ -70,7 +88,7 @@ namespace console
 			}
 			ImGui::PopItemWidth();
 
-			// AUTOFOCUS
+			// AUTO FOCUS
 
 			ImGui::SetItemDefaultFocus();
 			if (_reclaim_focus)

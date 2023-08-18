@@ -7,11 +7,11 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile(const void* tileset, uint32_t id);
+		Tile(const void* tileset, uint32_t id); // Global ID.
 		
 		float animation_time = 0.0f; // In seconds.
 
-		bool is_animated() const;
+		bool has_animation() const;
 		uint32_t get_id() const; // Global ID.
 		const std::string& get_type() const;
 		bool set_type(const std::string& type);
