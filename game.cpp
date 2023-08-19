@@ -1,5 +1,6 @@
 #include "game.h"
 #include "ecs_tiles.h"
+#include "math_vectors.h"
 
 namespace game
 {
@@ -42,12 +43,10 @@ namespace game
 			direction_char = 'd';
 		}
 
-		// Normalize the direction vector.
-		if (velocity.x != 0 || velocity.y != 0)
-			velocity = velocity / std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+		sf::normalize_safe(velocity);
 
 		std::string type = "idle";
-		if (velocity.x == 0 && velocity.y == 0)
+		if (sf::is_zero(velocity))
 		{
 			tile.animation_time = 0;
 		}

@@ -26,6 +26,9 @@
     <ClCompile Include="map.cpp">
       <Filter>map</Filter>
     </ClCompile>
+    <ClCompile Include="math_vectors.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -58,6 +61,9 @@
     <ClInclude Include="map.h">
       <Filter>map</Filter>
     </ClInclude>
+    <ClInclude Include="math_vectors.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">
@@ -68,6 +74,9 @@
     </Filter>
     <Filter Include="map">
       <UniqueIdentifier>{7ff8c929-179f-49c5-bccc-7bcfd599952e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{fff1760b-f79a-4c10-886f-a39f2230c48d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
