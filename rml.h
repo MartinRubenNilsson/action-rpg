@@ -6,9 +6,9 @@ namespace rml
 	void cleanup();
 	void process_event(const sf::Event& event);
 	void update();
-	void render(); // Uses OpenGL, so push and pop the OpenGL states before and after.
+	void render(); // Uses OpenGL, so push and pop the OpenGL states before and after calling this function.
 
-	// Loads all RML documents in the assets/rml folder
+	// Loads all RML documents in the assets/rml folder,
 	// and all TTF fonts in the assets/fonts folder.
 	void load_all();
 

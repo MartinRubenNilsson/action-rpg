@@ -30,16 +30,42 @@ namespace console
 
 	CLI::App _app("Console", "");
 
+	std::string _command_line;
+	std::vector<std::string> _command_history;
+	std::vector<std::string>::iterator _command_history_it = _command_history.end();
+	std::vector<std::pair<std::string, ImColor>> _history;
 	bool _visible = false;
 	bool _reclaim_focus = false;
-	std::vector<std::pair<std::string, ImColor>> _history;
-	std::string _command_line;
+
+	int _input_text_callback(ImGuiInputTextCallbackData* data)
+	{
+		if (_command_history.empty()) return 0;
+		if (data->EventKey == ImGuiKey_UpArrow)
+		{
+			if (_command_history_it > _command_history.begin())
+			{
+				_command_history_it--;
+				data->DeleteChars(0, data->BufTextLen);
+				data->InsertChars(0, _command_history_it->c_str());
+			}
+		}
+		else if (data->EventKey == ImGuiKey_DownArrow)
+		{
+			if (_command_history_it < _command_history.end() - 1)
+			{
+				_command_history_it++;
+				data->DeleteChars(0, data->BufTextLen);
+				data->InsertChars(0, _command_history_it->c_str());
+			}
+		}
+		return 0;
+	}
 
 	void startup()
 	{
 		// SET IMGUI STYLE
 		{
-			https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
+			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
 
 			ImGuiStyle& style = ImGui::GetStyle();
 			style.WindowRounding = 5.3f;
@@ -147,9 +173,14 @@ namespace console
             // COMMAND LINE
 
 			ImGui::PushItemWidth(-1); // Use all available width
-			if (ImGui::InputText("##CommandLine", &_command_line, ImGuiInputTextFlags_EnterReturnsTrue))
+			if (ImGui::InputText(
+				"##CommandLine",
+				&_command_line,
+				ImGuiInputTextFlags_EnterReturnsTrue |
+				ImGuiInputTextFlags_CallbackHistory |
+				ImGuiInputTextFlags_EscapeClearsAll,
+				_input_text_callback))
 			{
-				_history.emplace_back(_command_line, _blue);
 				execute(_command_line);
 				_command_line.clear();
 				_reclaim_focus = true;
@@ -190,6 +221,10 @@ namespace console
 
 	void execute(const std::string& command_line)
 	{
+		_command_history.push_back(command_line);
+		_command_history_it = _command_history.end();
+		_history.emplace_back(command_line, _blue);
+
 		try
 		{
 			_app.parse(command_line); // throws

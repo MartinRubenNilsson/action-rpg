@@ -52,7 +52,7 @@ namespace game
 		}
 		else
 		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 			{
 				type = "run";
 				velocity *= 160.f;

@@ -42,4 +42,14 @@ namespace sf
 	float angle_between(const Vector2f& a, const Vector2f& b) {
 		return std::acos(dot(a, b) / (len(a) * len(b))); // TODO: Check for division by zero
 	}
+
+	Vector2f rotate(const Vector2f& v, float angle) {
+		float c = std::cos(angle);
+		float s = std::sin(angle);
+		return Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
+	}
+
+	Vector2f lerp(const Vector2f& a, const Vector2f& b, float t) {
+		return a + (b - a) * t;
+	}
 }
