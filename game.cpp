@@ -19,41 +19,53 @@ namespace game
 		auto& sprite = registry.get<sf::Sprite>(_player_entity);
 
 		// Set the player's direction based on which keys are pressed.
-		sf::Vector2f direction;
+		sf::Vector2f velocity;
 		char direction_char = tile.get_type().empty() ? ' ' : tile.get_type().back();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 		{
-			direction.x -= 1;
+			velocity.x -= 1;
 			direction_char = 'l';
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 		{
-			direction.x += 1;
+			velocity.x += 1;
 			direction_char = 'r';
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
-			direction.y -= 1;
+			velocity.y -= 1;
 			direction_char = 'u';
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 		{
-			direction.y += 1;
+			velocity.y += 1;
 			direction_char = 'd';
 		}
 
 		// Normalize the direction vector.
-		if (direction.x != 0 || direction.y != 0)
-			direction = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		if (velocity.x != 0 || velocity.y != 0)
+			velocity = velocity / std::sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
 
-		std::string action = "idle";
-		if (direction.x != 0 || direction.y != 0)
-			action = "walk";
-		tile.set_type(action + "_" + direction_char);
-
-		// Update the player's position based on their direction.
-		sprite.move(direction * dt * 80.0f);
-
+		std::string type = "idle";
+		if (velocity.x == 0 && velocity.y == 0)
+		{
+			tile.animation_time = 0;
+		}
+		else
+		{
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+			{
+				type = "run";
+				velocity *= 160.f;
+			}
+			else
+			{
+				type = "walk";
+				velocity *= 90.f;
+			}
+		}
+		tile.set_type(type + "_" + direction_char);
+		sprite.move(velocity * dt);
 	}
 
 	void _update_tiles(entt::registry& registry, float dt)

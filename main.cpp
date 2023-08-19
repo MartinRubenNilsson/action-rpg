@@ -41,6 +41,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     rml::load_all();
     map::load_all();
 
+    // EXECUTE CONSOLE COMMANDS
+
+    console::execute("map open dungeon");
+
     // GAME LOOP
 
     sf::Clock clock;
