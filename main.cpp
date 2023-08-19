@@ -2,15 +2,15 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <imgui-SFML.h>
-#include <imgui.h>
-#include "map.h"
+#include "audio.h"
 #include "rml.h"
+#include "map.h"
 #include "game.h"
 #include "rml_data_bindings.h"
 #include "console.h"
 
-#define MAP_WIDTH 480
-#define MAP_HEIGHT 320
+#define VIEW_WIDTH 480
+#define VIEW_HEIGHT 320
 
 sf::RenderWindow _window;
 
@@ -28,11 +28,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     // CREATE WINDOW
 
-    sf::VideoMode video_mode(MAP_WIDTH * 3, MAP_HEIGHT * 3);
+    sf::VideoMode video_mode(VIEW_WIDTH * 3, VIEW_HEIGHT * 3);
     sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
     _window.create(video_mode, "Hello, SFML!", style);
 
-    sf::View view(sf::FloatRect(0, 0, MAP_WIDTH, MAP_HEIGHT));
+    sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
     _window.setView(view);
 
     // STARTUP
@@ -43,8 +43,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     // LOAD ASSETS
 
-    rml::load_all();
-    map::load_all();
+    audio::load_music_and_sounds();
+    rml::load_fonts_and_documents();
+    map::load_tilesets();
+    map::load_maps();
+
+    // OTHER STUFF
+
+    audio::play_music("quiet_and_falling");
 
     // EXECUTE CONSOLE COMMANDS
 
@@ -74,12 +80,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
         ImGui::SFML::Update(_window, dt);
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         rml::update();
-        game::update(map::get_registry(), dt.asSeconds());
+        game::update(dt.asSeconds());
 
         // RENDERING
 
         _window.clear();
-        game::render(map::get_registry(), _window);
+        game::render(_window);
         _window.pushGLStates();
         rml::render(); // Uses OpenGL, so we need to push and pop the OpenGL states before and after.
         _window.popGLStates();

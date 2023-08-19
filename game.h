@@ -2,7 +2,7 @@
 
 namespace game
 {
-	void update(entt::registry& registry, float dt);
-	void render(const entt::registry& registry, sf::RenderWindow& window);
+	void update(float dt);
+	void render(sf::RenderWindow& window);
 }
 

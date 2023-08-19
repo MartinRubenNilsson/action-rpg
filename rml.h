@@ -10,7 +10,7 @@ namespace rml
 
 	// Loads all RML documents in the assets/rml folder,
 	// and all TTF fonts in the assets/fonts folder.
-	void load_all();
+	void load_fonts_and_documents();
 
 	// Returns a list of names of all loaded documents.
 	std::vector<std::string> get_list();

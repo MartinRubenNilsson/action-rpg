@@ -187,7 +187,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="audio.cpp" />
     <ClCompile Include="console.cpp" />
+    <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="math_vectors.cpp" />
     <ClCompile Include="rml.cpp" />
@@ -209,6 +211,7 @@
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="audio.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="math_vectors.h" />

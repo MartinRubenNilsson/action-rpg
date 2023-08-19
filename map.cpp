@@ -6,12 +6,26 @@
 
 namespace map
 {
+	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_texture;
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
 	std::string _name; // The name of the currently open map.
 	tmx::Map* _map = nullptr; // A pointer to the currently open map.
-	entt::registry _registry; 
+	entt::registry _registry; // The registry of the currently open map.
 
-	void load_all()
+	void load_tilesets()
+	{
+		_path_to_texture.clear();
+		for (const auto& entry : std::filesystem::directory_iterator("assets/tilesets"))
+		{
+			if (entry.path().extension() != ".png")
+				continue;
+			sf::Texture texture;
+			if (texture.loadFromFile(entry.path().string()))
+				_path_to_texture.emplace(entry.path(), std::move(texture));
+		}
+	}
+
+	void load_maps()
 	{
 		close(); // Close the current map.
 		_name_to_map.clear();
@@ -58,17 +72,6 @@ namespace map
 		_name = name;
 		_map = &_name_to_map.at(name);
 
-		// Iterate through all the tilesets in the map and load their textures.
-		for (const auto& tileset : _map->getTilesets())
-		{
-			sf::Texture texture;
-			if (!texture.loadFromFile(tileset.getImagePath()))
-				return false;
-			entt::entity entity = _registry.create();
-			_registry.emplace<tmx::Tileset>(entity, tileset);
-			_registry.emplace<sf::Texture>(entity, std::move(texture));
-		}
-
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
 		// This ensures that sprites on the higher layers are drawn on top.
@@ -90,8 +93,7 @@ namespace map
 						continue;
 
 					// Find the tileset that contains the tile.
-					for (auto [tileset_entity, tileset, texture] :
-						_registry.view<tmx::Tileset, sf::Texture>().each())
+					for (const auto& tileset : _map->getTilesets())
 					{
 						if (!tileset.hasTile(tile.ID))
 							continue;
@@ -105,7 +107,9 @@ namespace map
 						sf::Vector2f position(col * _map->getTileSize().x, row * _map->getTileSize().y);
 
 						// Create a sprite for the tile.
-						sf::Sprite sprite(texture, tile_component.get_texture_rect());
+						sf::Sprite sprite(
+							_path_to_texture.at(tileset.getImagePath()),
+							tile_component.get_texture_rect());
 						sprite.setPosition(position);
 
 						// Create an entity for the tile.
@@ -130,8 +134,7 @@ namespace map
 						continue;
 
 					// Find the tileset that contains the object.
-					for (auto [tileset_entity, tileset, texture] :
-						_registry.view<tmx::Tileset, sf::Texture>().each())
+					for (const auto& tileset : _map->getTilesets())
 					{
 						if (!tileset.hasTile(object.getTileID()))
 							continue;
@@ -148,7 +151,9 @@ namespace map
 						sf::Vector2f origin(tileset.getTileSize().x / 2, tileset.getTileSize().y / 2);
 
 						// Create a sprite for the object.
-						sf::Sprite sprite(texture, tile_component.get_texture_rect());
+						sf::Sprite sprite(
+							_path_to_texture.at(tileset.getImagePath()),
+							tile_component.get_texture_rect());
 						sprite.setPosition(position);
 						sprite.setOrigin(origin);
 

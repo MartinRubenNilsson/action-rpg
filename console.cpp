@@ -2,10 +2,6 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <CLI/CLI.hpp>
-#include "map.h"
-#include "rml.h"
-
-extern void close_window();
 
 namespace console
 {
@@ -29,7 +25,6 @@ namespace console
 	const ImColor _green   = IM_COL32(133, 153,   0, 255);
 
 	CLI::App _app("Console", "");
-
 	std::string _command_line;
 	std::vector<std::string> _command_history;
 	std::vector<std::string>::iterator _command_history_it = _command_history.end();
@@ -62,9 +57,12 @@ namespace console
 		return 0;
 	}
 
+	// Defined in console_commands.cpp
+	extern void _setup_commands(CLI::App& app);
+
 	void startup()
 	{
-		// SET IMGUI STYLE
+		// SETUP IMGUI STYLE
 		{
 			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
 
@@ -111,34 +109,9 @@ namespace console
 			style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 		}
 
+		_setup_commands(_app);
+
 		log("Type -h or --help for a list of commands");
-
-		_app.add_subcommand("exit", "Exit the game")->callback(close_window);
-		_app.add_subcommand("clear", "Clear the console")->callback(clear);
-
-		// MAP
-		{
-			auto cmd = _app.add_subcommand("map", "Handle maps");
-			cmd->add_subcommand("list", "List all loaded maps")
-				->callback([]() { for (const auto& name : map::get_list()) log(name); });
-			cmd->add_subcommand("name", "Print the name of the current map")
-				->callback([]() { log(map::get_name()); });
-			cmd->add_subcommand("open", "Open a map")
-				->add_option_function<std::string>("name", map::open, "The name of the map");
-			cmd->add_subcommand("close", "Close the current map")
-				->callback(map::close);
-		}
-
-		// RML
-		{
-			auto cmd = _app.add_subcommand("rml", "Handle RML documents");
-			cmd->add_subcommand("list", "List all loaded documents")
-				->callback([]() { for (const auto& name : rml::get_list()) log(name); });
-			cmd->add_subcommand("show", "Show a document")
-				->add_option_function<std::string>("name", rml::show, "The name of the document");
-			cmd->add_subcommand("hide", "Hide a document")
-				->add_option_function<std::string>("name", rml::hide, "The name of the document");
-		}
 	}
 
 	void update()
@@ -146,7 +119,8 @@ namespace console
         if (!_visible)
 			return;
 		
-		if (ImGui::Begin("Console"))
+		ImGui::SetNextWindowBgAlpha(0.35f);
+		if (ImGui::Begin("Console", &_visible))
 		{
 			ImGui::SetWindowFontScale(2.f);
 

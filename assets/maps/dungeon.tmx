@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="60" height="40" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="4">
  <tileset firstgid="1" name="dungeon" tilewidth="16" tileheight="16" tilecount="625" columns="25">
-  <image source="../tilesets/Pixel Crawler - FREE - 1.8/Environment/Dungeon Prison/Assets/Tiles.png" width="400" height="400"/>
+  <image source="../tilesets/dungeon.png" width="400" height="400"/>
   <tile id="451">
    <animation>
     <frame tileid="451" duration="100"/>
@@ -16,7 +16,7 @@
   </wangsets>
  </tileset>
  <tileset firstgid="626" name="mana_seed_human" tilewidth="64" tileheight="64" tilecount="64" columns="8">
-  <image source="../tilesets/characters/mana_seed_human.png" width="512" height="512"/>
+  <image source="../tilesets/mana_seed_human.png" width="512" height="512"/>
   <tile id="0" type="idle_d"/>
   <tile id="8" type="idle_u"/>
   <tile id="16" type="idle_r"/>

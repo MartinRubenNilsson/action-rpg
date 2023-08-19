@@ -22,12 +22,20 @@
     <ClCompile Include="rml_data_bindings.cpp">
       <Filter>rml</Filter>
     </ClCompile>
-    <ClCompile Include="console.cpp" />
     <ClCompile Include="map.cpp">
       <Filter>map</Filter>
     </ClCompile>
     <ClCompile Include="math_vectors.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="audio.cpp">
+      <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands.cpp">
+      <Filter>console</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,12 +65,17 @@
     <ClInclude Include="rml_data_bindings.h">
       <Filter>rml</Filter>
     </ClInclude>
-    <ClInclude Include="console.h" />
     <ClInclude Include="map.h">
       <Filter>map</Filter>
     </ClInclude>
     <ClInclude Include="math_vectors.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="audio.h">
+      <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>console</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -77,6 +90,12 @@
     </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{fff1760b-f79a-4c10-886f-a39f2230c48d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{1da6159c-bc5a-43d9-9e98-d5e1e32a5579}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="console">
+      <UniqueIdentifier>{c1397a93-51e2-4458-ab20-242be6dbecef}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -2,9 +2,13 @@
 
 namespace map
 {
+	// Loads all tilesets in the assets/tilesets directory.
+	// NOT safe to call multiple times!
+	void load_tilesets();
+
 	// (Re)loads all TMX maps in the assets/maps directory.
 	// If a map is already open, it is closed first.
-	void load_all();
+	void load_maps();
 
 	// Returns a list of names of all loaded maps.
 	std::vector<std::string> get_list();

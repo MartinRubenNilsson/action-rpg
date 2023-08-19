@@ -45,7 +45,7 @@ namespace rml
 		Backend::PresentFrame();
 	}
 
-	void load_all()
+	void load_fonts_and_documents()
 	{
 		// Load all TTF fonts.
 		for (const auto& entry : std::filesystem::directory_iterator("assets/fonts"))

@@ -168,19 +168,19 @@ Rml::RenderInterface* Backend::GetRenderInterface()
 	return &data->render_interface;
 }
 
-void Backend::ProcessEvent(Rml::Context* context, const sf::Event& ev)
+void Backend::ProcessEvent(Rml::Context* context, const sf::Event& event)
 {
 	RMLUI_ASSERT(data && context);
 
-	switch (ev.type)
+	switch (event.type)
 	{
 	case sf::Event::Resized:
 		UpdateWindowDimensions(context);
 		break;
 	default:
 	{
-		sf::Event ev_copy = ev;
-		RmlSFML::InputHandler(context, ev_copy);
+		sf::Event event_copy = event;
+		RmlSFML::InputHandler(context, event_copy);
 		break;
 	}
 	}

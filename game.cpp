@@ -89,7 +89,7 @@ namespace game
 		}
 	}
 
-	void _update_view(entt::registry& registry, float dt)
+	void _update_view(entt::registry& registry)
 	{
 		sf::View view = get_window().getView();
 
@@ -118,16 +118,19 @@ namespace game
 		get_window().setView(view);
 	}
 
-	void update(entt::registry& registry, float dt)
+	void update(float dt)
 	{
+		auto& registry = map::get_registry();
 		_find_and_store_player_entity(registry);
 		_update_player(registry, dt);
 		_update_tiles(registry, dt);
-		_update_view(registry, dt);
+		_update_view(registry);
 	}
 	 
-	void render(const entt::registry& registry, sf::RenderWindow& window)
+	void render(sf::RenderWindow& window)
 	{
+		auto& registry = map::get_registry();
+
 		// Draw all sprites.
 		for (auto [entity, sprite] : registry.view<sf::Sprite>().each())
 			window.draw(sprite);
