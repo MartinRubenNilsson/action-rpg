@@ -1,14 +1,25 @@
 #include "game.h"
 #include "ecs_tiles.h"
 #include "math_vectors.h"
+#include "map.h"
+
+extern sf::RenderWindow& get_window();
 
 namespace game
 {
 	entt::entity _player_entity = entt::null;
 
-	void set_player_entity(entt::entity entity)
+	void _find_and_store_player_entity(entt::registry& registry)
 	{
-		_player_entity = entity;
+		_player_entity = entt::null;
+		for (auto [entity, name] : registry.view<std::string>().each())
+		{
+			if (name == "player")
+			{
+				_player_entity = entity;
+				break;
+			}
+		}
 	}
 
 	void _update_player(entt::registry& registry, float dt)
@@ -78,12 +89,43 @@ namespace game
 		}
 	}
 
-	void update(entt::registry& registry, float dt)
+	void _update_view(entt::registry& registry, float dt)
 	{
-		_update_player(registry, dt);
-		_update_tiles(registry, dt);
+		sf::View view = get_window().getView();
+
+		// Center the view on the player.
+		if (registry.valid(_player_entity))
+		{
+			auto& sprite = registry.get<sf::Sprite>(_player_entity);
+			view.setCenter(sprite.getPosition());
+		}
+
+		// Keep the view within the bounds of the map.
+		sf::FloatRect view_bounds(
+			view.getCenter() - view.getSize() / 2.f,
+			view.getSize());
+		sf::FloatRect map_bounds = map::get_bounds();
+		if (view_bounds.left < map_bounds.left)
+			view_bounds.left = map_bounds.left;
+		if (view_bounds.left + view_bounds.width > map_bounds.left + map_bounds.width)
+			view_bounds.left = map_bounds.left + map_bounds.width - view_bounds.width;
+		if (view_bounds.top < map_bounds.top)
+			view_bounds.top = map_bounds.top;
+		if (view_bounds.top + view_bounds.height > map_bounds.top + map_bounds.height)
+			view_bounds.top = map_bounds.top + map_bounds.height - view_bounds.height;
+
+		view = sf::View(view_bounds);
+		get_window().setView(view);
 	}
 
+	void update(entt::registry& registry, float dt)
+	{
+		_find_and_store_player_entity(registry);
+		_update_player(registry, dt);
+		_update_tiles(registry, dt);
+		_update_view(registry, dt);
+	}
+	 
 	void render(const entt::registry& registry, sf::RenderWindow& window)
 	{
 		// Draw all sprites.

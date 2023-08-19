@@ -2,14 +2,14 @@
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
-#include "game.h"
 #include "ecs_tiles.h"
 
 namespace map
 {
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
 	std::string _name; // The name of the currently open map.
-	entt::registry _registry; // Contains the deserialized version of the currently open map.
+	tmx::Map* _map = nullptr; // A pointer to the currently open map.
+	entt::registry _registry; 
 
 	void load_all()
 	{
@@ -34,27 +34,32 @@ namespace map
 		return names;
 	}
 
-	const std::string& get_name()
-	{
+	const std::string& get_name() {
 		return _name;
 	}
 
-	entt::registry& get_registry()
-	{
+	entt::registry& get_registry() {
 		return _registry;
+	}
+
+	sf::FloatRect get_bounds(){
+		if (!_map) return sf::FloatRect();
+		tmx::FloatRect bounds = _map->getBounds();
+		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
 	bool open(const std::string& name)
 	{
 		if (!_name_to_map.contains(name))
 			return false;
-		const auto& map = _name_to_map.at(name);
 
 		close(); // Close the current map.
+
 		_name = name;
+		_map = &_name_to_map.at(name);
 
 		// Iterate through all the tilesets in the map and load their textures.
-		for (const auto& tileset : map.getTilesets())
+		for (const auto& tileset : _map->getTilesets())
 		{
 			sf::Texture texture;
 			if (!texture.loadFromFile(tileset.getImagePath()))
@@ -67,7 +72,7 @@ namespace map
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
 		// This ensures that sprites on the higher layers are drawn on top.
-		for (const auto& layer : std::ranges::reverse_view(map.getLayers()))
+		for (const auto& layer : std::ranges::reverse_view(_map->getLayers()))
 		{
 			tmx::Layer::Type layer_type = layer->getType();
 			if (layer_type == tmx::Layer::Type::Tile)
@@ -97,7 +102,7 @@ namespace map
 						// Calculate the tile's position.
 						uint32_t col = tile_index % tile_layer.getSize().x;
 						uint32_t row = tile_index / tile_layer.getSize().x; // Using x is intentional.
-						sf::Vector2f position(col * map.getTileSize().x, row * map.getTileSize().y);
+						sf::Vector2f position(col * _map->getTileSize().x, row * _map->getTileSize().y);
 
 						// Create a sprite for the tile.
 						sf::Sprite sprite(texture, tile_component.get_texture_rect());
@@ -149,11 +154,9 @@ namespace map
 
 						// Create an entity for the object.
 						entt::entity entity = _registry.create();
+						_registry.emplace<std::string>(entity, object.getName());
 						_registry.emplace<ecs::Tile>(entity, tile_component);
 						_registry.emplace<sf::Sprite>(entity, sprite);
-
-						if (object.getName() == "player")
-							game::set_player_entity(entity);
 
 						break;
 					}
@@ -167,7 +170,7 @@ namespace map
 	void close()
 	{
 		_name.clear();
+		_map = nullptr;
 		_registry.clear();
-		game::set_player_entity();
 	}
 }

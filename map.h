@@ -2,7 +2,7 @@
 
 namespace map
 {
-	// Loads all TMX maps in the assets/maps directory.
+	// (Re)loads all TMX maps in the assets/maps directory.
 	// If a map is already open, it is closed first.
 	void load_all();
 
@@ -13,13 +13,18 @@ namespace map
 	// If no map is open, returns an empty string.
 	const std::string& get_name();
 
-	// Returns an internal registry containing the deserialized version of the currently open map.
+	// Returns a reference to the registry of the currently open map.
+	// If no map is open, the returned registry is empty.
 	entt::registry& get_registry();
 
-	// Deserializes the map with the given name into the internal registry.
+	// Returns the bounds of the currently open map.
+	// If no map is open, returns an empty rectangle.
+	sf::FloatRect get_bounds();
+
+	// Opens the map with the given name.
 	// If a map is already open, it is closed first.
 	bool open(const std::string& name);
 
-	// Clears the internal registry.
+	// Closes the currently open map.
 	void close();
 }

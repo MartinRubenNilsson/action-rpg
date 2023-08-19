@@ -14,6 +14,11 @@
 
 sf::RenderWindow _window;
 
+sf::RenderWindow& get_window()
+{
+	return _window;
+}
+
 void close_window()
 {
     _window.close();

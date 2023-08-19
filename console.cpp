@@ -37,6 +37,7 @@ namespace console
 	bool _visible = false;
 	bool _reclaim_focus = false;
 
+	// Handles command history navigation
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
 	{
 		if (_command_history.empty()) return 0;
