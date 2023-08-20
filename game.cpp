@@ -185,7 +185,7 @@ namespace game
 	void render(sf::RenderWindow& window)
 	{
 		auto& registry = map::get_registry();
-
+		
 		// Draw all sprites.
 		for (auto [entity, sprite] : registry.view<sf::Sprite>().each())
 			window.draw(sprite);

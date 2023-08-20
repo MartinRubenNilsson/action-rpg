@@ -192,6 +192,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="math_vectors.cpp" />
+    <ClCompile Include="physics_debug.cpp" />
     <ClCompile Include="rml.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="math_vectors.h" />
+    <ClInclude Include="physics_debug.h" />
     <ClInclude Include="rml.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Backend.h" />

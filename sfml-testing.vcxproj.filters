@@ -37,6 +37,9 @@
     <ClCompile Include="console_commands.cpp">
       <Filter>console</Filter>
     </ClCompile>
+    <ClCompile Include="physics_debug.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -77,6 +80,9 @@
     <ClInclude Include="console.h">
       <Filter>console</Filter>
     </ClInclude>
+    <ClInclude Include="physics_debug.h">
+      <Filter>physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rml">
@@ -96,6 +102,9 @@
     </Filter>
     <Filter Include="console">
       <UniqueIdentifier>{c1397a93-51e2-4458-ab20-242be6dbecef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="physics">
+      <UniqueIdentifier>{27d29c38-832a-492b-a39c-7054ff93afad}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

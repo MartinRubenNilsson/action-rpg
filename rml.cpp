@@ -8,14 +8,14 @@ namespace rml
 
 	extern void _create_data_bindings();
 
-	void initialize(sf::RenderWindow* window)
+	void initialize(sf::RenderWindow& window)
 	{
-		Backend::Initialize(window);
+		Backend::Initialize(&window);
 		Rml::SetSystemInterface(Backend::GetSystemInterface());
 		Rml::SetRenderInterface(Backend::GetRenderInterface());
 		Rml::Initialise();
 
-		Rml::Vector2i window_size(window->getSize().x, window->getSize().y);
+		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
 		_context = Rml::CreateContext("main", window_size);
 
 		_create_data_bindings();

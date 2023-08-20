@@ -2,11 +2,12 @@
 
 namespace rml
 {
-	void initialize(sf::RenderWindow* window);
+	// The window must be kept alive until shutdown() is called.
+	void initialize(sf::RenderWindow& window);
 	void shutdown();
 	void process_event(const sf::Event& event);
 	void update();
-	void render(); // Uses OpenGL, so push and pop the OpenGL states before and after calling this function.
+	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 
 	// Loads all TTF fonts in the assets/fonts folder,
 	// and all RML documents in the assets/rml folder.

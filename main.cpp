@@ -41,8 +41,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     // INITIALIZATION
 
     ImGui::SFML::Init(_window);
-    rml::initialize(&_window);
-    map::initialize();
+    rml::initialize(_window);
+    map::initialize(_window);
     console::initialize();
 
     // LOAD ASSETS
@@ -63,6 +63,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     // GAME LOOP
 
     sf::Clock clock;
+    bool debug_draw_physics = false;
     while (_window.isOpen())
     {
         // EVENT HANDLING
@@ -72,8 +73,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
         {
             ImGui::SFML::ProcessEvent(_window, event);
             rml::process_event(event);
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1)
-				console::toggle_visible();
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if        (event.key.code == sf::Keyboard::F1) {
+				    console::toggle_visible();
+                } else if (event.key.code == sf::Keyboard::F2) {
+                    debug_draw_physics = !debug_draw_physics;
+                }
+            }
             if (event.type == sf::Event::Closed)
                 _window.close();
         }
@@ -90,9 +97,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
         _window.clear();
         game::render(_window);
-        _window.pushGLStates();
-        rml::render(); // Uses OpenGL, so we need to push and pop the OpenGL states before and after.
-        _window.popGLStates();
+        rml::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
+        _window.resetGLStates();
+        if (debug_draw_physics)
+            map::get_world().DebugDraw();
         ImGui::SFML::Render(_window);
         _window.display();
     }
