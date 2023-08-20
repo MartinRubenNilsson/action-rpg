@@ -100,19 +100,33 @@ namespace game
 			view.setCenter(sprite.getPosition());
 		}
 
-		// Keep the view within the bounds of the map.
+		// Keep the view within the bounds of the map,
+		// unless the map is smaller than the view,
+		// in which case the view is centered on the map.
 		sf::FloatRect view_bounds(
-			view.getCenter() - view.getSize() / 2.f,
+			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 		sf::FloatRect map_bounds = map::get_bounds();
-		if (view_bounds.left < map_bounds.left)
-			view_bounds.left = map_bounds.left;
-		if (view_bounds.left + view_bounds.width > map_bounds.left + map_bounds.width)
-			view_bounds.left = map_bounds.left + map_bounds.width - view_bounds.width;
-		if (view_bounds.top < map_bounds.top)
-			view_bounds.top = map_bounds.top;
-		if (view_bounds.top + view_bounds.height > map_bounds.top + map_bounds.height)
-			view_bounds.top = map_bounds.top + map_bounds.height - view_bounds.height;
+
+		if (view_bounds.width < map_bounds.width)
+		{
+			if (view_bounds.left < map_bounds.left)
+				view_bounds.left = map_bounds.left;
+			if (view_bounds.left + view_bounds.width > map_bounds.left + map_bounds.width)
+				view_bounds.left = map_bounds.left + map_bounds.width - view_bounds.width;
+		} else {
+			view_bounds.left = map_bounds.left + map_bounds.width / 2.f - view_bounds.width / 2.f;
+		}
+
+		if (view_bounds.height < map_bounds.height)
+		{
+			if (view_bounds.top < map_bounds.top)
+				view_bounds.top = map_bounds.top;
+			if (view_bounds.top + view_bounds.height > map_bounds.top + map_bounds.height)
+				view_bounds.top = map_bounds.top + map_bounds.height - view_bounds.height;
+		} else {
+			view_bounds.top = map_bounds.top + map_bounds.height / 2.f - view_bounds.height / 2.f;
+		}
 
 		view = sf::View(view_bounds);
 		get_window().setView(view);
