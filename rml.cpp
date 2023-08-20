@@ -8,7 +8,7 @@ namespace rml
 
 	extern void _create_data_bindings();
 
-	void startup(sf::RenderWindow* window)
+	void initialize(sf::RenderWindow* window)
 	{
 		Backend::Initialize(window);
 		Rml::SetSystemInterface(Backend::GetSystemInterface());
@@ -21,7 +21,7 @@ namespace rml
 		_create_data_bindings();
 	}
 
-	void cleanup()
+	void shutdown()
 	{
 		Rml::RemoveContext(_context->GetName());
 		Rml::Shutdown();

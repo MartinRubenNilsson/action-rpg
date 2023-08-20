@@ -4,24 +4,52 @@
 #include <tmxlite/ObjectGroup.hpp>
 #include "ecs_tiles.h"
 
+#define GRAVITY b2Vec2(0, 0)
+
 namespace map
 {
-	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_texture;
+	struct Impl
+	{
+		// IMPORTANT: The registry must be destroyed BEFORE the world,
+		// and must therefore be declared AFTER the world in this struct.
+		// 
+		// This is because the registry contains pointers to Box2D bodies,
+		// and when these pointers are destroyed, a callback is invoked that
+		// calls b2World::DestroyBody(). If by that time the world (and the
+		// bodies) have already been destroyed, the program will crash.
+
+		std::string name;
+		tmx::Map* map = nullptr;
+		b2World world = GRAVITY;
+		entt::registry registry;
+	};
+
+	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_tileset_texture;
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
-	std::string _name; // The name of the currently open map.
-	tmx::Map* _map = nullptr; // A pointer to the currently open map.
-	entt::registry _registry; // The registry of the currently open map.
+	std::unique_ptr<Impl> _impl;
+
+	void initialize()
+	{
+		_impl = std::make_unique<Impl>();
+	}
+
+	void shutdown()
+	{
+		_impl = nullptr;
+		_name_to_map.clear();
+		_path_to_tileset_texture.clear();
+	}
 
 	void load_tilesets()
 	{
-		_path_to_texture.clear();
+		assert(_path_to_tileset_texture.empty() && "load_tilesets() should only be called once.");
 		for (const auto& entry : std::filesystem::directory_iterator("assets/tilesets"))
 		{
 			if (entry.path().extension() != ".png")
 				continue;
 			sf::Texture texture;
 			if (texture.loadFromFile(entry.path().string()))
-				_path_to_texture.emplace(entry.path(), std::move(texture));
+				_path_to_tileset_texture.emplace(entry.path(), std::move(texture));
 		}
 	}
 
@@ -49,17 +77,25 @@ namespace map
 	}
 
 	const std::string& get_name() {
-		return _name;
-	}
-
-	entt::registry& get_registry() {
-		return _registry;
+		return _impl->name;
 	}
 
 	sf::FloatRect get_bounds(){
-		if (!_map) return sf::FloatRect();
-		tmx::FloatRect bounds = _map->getBounds();
+		if (!_impl->map) return sf::FloatRect();
+		tmx::FloatRect bounds = _impl->map->getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
+	}
+
+	b2World& get_world() {
+		return _impl->world;
+	}
+
+	entt::registry& get_registry() {
+		return _impl->registry;
+	}
+
+	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
+		_impl->world.DestroyBody(registry.get<b2Body*>(entity));
 	}
 
 	bool open(const std::string& name)
@@ -69,13 +105,17 @@ namespace map
 
 		close(); // Close the current map.
 
-		_name = name;
-		_map = &_name_to_map.at(name);
+		_impl->name = name;
+		auto map = _impl->map = &_name_to_map.at(name);
+		auto& registry = _impl->registry;
+
+		// Setup callbacks for when entities are destroyed.
+		registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
 		// This ensures that sprites on the higher layers are drawn on top.
-		for (const auto& layer : std::ranges::reverse_view(_map->getLayers()))
+		for (const auto& layer : std::ranges::reverse_view(map->getLayers()))
 		{
 			tmx::Layer::Type layer_type = layer->getType();
 			if (layer_type == tmx::Layer::Type::Tile)
@@ -93,7 +133,7 @@ namespace map
 						continue;
 
 					// Find the tileset that contains the tile.
-					for (const auto& tileset : _map->getTilesets())
+					for (const auto& tileset : map->getTilesets())
 					{
 						if (!tileset.hasTile(tile.ID))
 							continue;
@@ -104,18 +144,20 @@ namespace map
 						// Calculate the tile's position.
 						uint32_t col = tile_index % tile_layer.getSize().x;
 						uint32_t row = tile_index / tile_layer.getSize().x; // Using x is intentional.
-						sf::Vector2f position(col * _map->getTileSize().x, row * _map->getTileSize().y);
+						sf::Vector2f position(
+							col * (float)map->getTileSize().x,
+							row * (float)map->getTileSize().y);
 
 						// Create a sprite for the tile.
 						sf::Sprite sprite(
-							_path_to_texture.at(tileset.getImagePath()),
+							_path_to_tileset_texture.at(tileset.getImagePath()),
 							tile_component.get_texture_rect());
 						sprite.setPosition(position);
 
 						// Create an entity for the tile.
-						entt::entity entity = _registry.create();
-						_registry.emplace<ecs::Tile>(entity, tile_component);
-						_registry.emplace<sf::Sprite>(entity, sprite);
+						entt::entity entity = registry.create();
+						registry.emplace<ecs::Tile>(entity, tile_component);
+						registry.emplace<sf::Sprite>(entity, sprite);
 
 						break;
 					}
@@ -134,7 +176,7 @@ namespace map
 						continue;
 
 					// Find the tileset that contains the object.
-					for (const auto& tileset : _map->getTilesets())
+					for (const auto& tileset : _impl->map->getTilesets())
 					{
 						if (!tileset.hasTile(object.getTileID()))
 							continue;
@@ -148,20 +190,22 @@ namespace map
 
 						tmx::FloatRect aabb = object.getAABB();
 						sf::Vector2f position(aabb.left + aabb.width / 2, aabb.top - aabb.height / 2);
-						sf::Vector2f origin(tileset.getTileSize().x / 2, tileset.getTileSize().y / 2);
+						sf::Vector2f origin(
+							(float)tileset.getTileSize().x / 2,
+							(float)tileset.getTileSize().y / 2);
 
 						// Create a sprite for the object.
 						sf::Sprite sprite(
-							_path_to_texture.at(tileset.getImagePath()),
+							_path_to_tileset_texture.at(tileset.getImagePath()),
 							tile_component.get_texture_rect());
 						sprite.setPosition(position);
 						sprite.setOrigin(origin);
 
 						// Create an entity for the object.
-						entt::entity entity = _registry.create();
-						_registry.emplace<std::string>(entity, object.getName());
-						_registry.emplace<ecs::Tile>(entity, tile_component);
-						_registry.emplace<sf::Sprite>(entity, sprite);
+						entt::entity entity = registry.create();
+						registry.emplace<std::string>(entity, object.getName());
+						registry.emplace<ecs::Tile>(entity, tile_component);
+						registry.emplace<sf::Sprite>(entity, sprite);
 
 						break;
 					}
@@ -174,8 +218,6 @@ namespace map
 
 	void close()
 	{
-		_name.clear();
-		_map = nullptr;
-		_registry.clear();
+		_impl = std::make_unique<Impl>();
 	}
 }

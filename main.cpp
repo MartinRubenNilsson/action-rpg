@@ -9,8 +9,11 @@
 #include "rml_data_bindings.h"
 #include "console.h"
 
-#define VIEW_WIDTH 480
-#define VIEW_HEIGHT 320
+#define TILE_SIZE 16
+#define VIEW_WIDTH (TILE_SIZE * 24)
+#define VIEW_HEIGHT (TILE_SIZE * 18)
+#define WINDOW_WIDTH (VIEW_WIDTH * 3)
+#define WINDOW_HEIGHT (VIEW_HEIGHT * 3)
 
 sf::RenderWindow _window;
 
@@ -28,18 +31,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     // CREATE WINDOW
 
-    sf::VideoMode video_mode(VIEW_WIDTH * 3, VIEW_HEIGHT * 3);
+    sf::VideoMode video_mode(WINDOW_WIDTH, WINDOW_HEIGHT);
     sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
     _window.create(video_mode, "Hello, SFML!", style);
 
     sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
     _window.setView(view);
 
-    // STARTUP
+    // INITIALIZATION
 
     ImGui::SFML::Init(_window);
-    rml::startup(&_window);
-    console::startup();
+    rml::initialize(&_window);
+    map::initialize();
+    console::initialize();
 
     // LOAD ASSETS
 
@@ -93,9 +97,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
         _window.display();
     }
 
-    // CLEANUP
+    // SHUTDOWN
 
-    rml::cleanup();
+    map::shutdown();
+    rml::shutdown();
     ImGui::SFML::Shutdown();
 
 	return 0;

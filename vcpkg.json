@@ -5,6 +5,7 @@
     "cli11",
     "rmlui",
     "tmxlite",
-    "entt"
+    "entt",
+    "box2d"
   ]
 }

@@ -93,9 +93,9 @@ namespace game
 	{
 		sf::View view = get_window().getView();
 
-		// Center the view on the player.
 		if (registry.valid(_player_entity))
 		{
+			// Center the view on the player.
 			auto& sprite = registry.get<sf::Sprite>(_player_entity);
 			view.setCenter(sprite.getPosition());
 		}
@@ -103,6 +103,7 @@ namespace game
 		// Keep the view within the bounds of the map,
 		// unless the map is smaller than the view,
 		// in which case the view is centered on the map.
+
 		sf::FloatRect view_bounds(
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());

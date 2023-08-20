@@ -60,7 +60,7 @@ namespace console
 	// Defined in console_commands.cpp
 	extern void _setup_commands(CLI::App& app);
 
-	void startup()
+	void initialize()
 	{
 		// SETUP IMGUI STYLE
 		{
