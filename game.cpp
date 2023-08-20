@@ -3,11 +3,24 @@
 #include "math_vectors.h"
 #include "map.h"
 
+#define PHYSICS_TIME_STEP (1.f / 60.f)
+
 extern sf::RenderWindow& get_window();
 
 namespace game
 {
+	float _physics_time_accumulator = 0.f;
 	entt::entity _player_entity = entt::null;
+
+	void _simulate_physics(b2World& world, float dt)
+	{
+		_physics_time_accumulator += dt;
+		while (_physics_time_accumulator > PHYSICS_TIME_STEP)
+		{
+			_physics_time_accumulator -= PHYSICS_TIME_STEP;
+			world.Step(PHYSICS_TIME_STEP, 8, 3);
+		}
+	}
 
 	void _find_and_store_player_entity(entt::registry& registry)
 	{
@@ -28,7 +41,6 @@ namespace game
 			return;
 
 		auto& tile = registry.get<ecs::Tile>(_player_entity);
-		auto& sprite = registry.get<sf::Sprite>(_player_entity);
 
 		// Set the player's direction based on which keys are pressed.
 		sf::Vector2f velocity;
@@ -66,25 +78,49 @@ namespace game
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 			{
 				type = "run";
-				velocity *= 160.f;
+				velocity *= 9.5f;
 			}
 			else
 			{
 				type = "walk";
-				velocity *= 90.f;
+				velocity *= 5.5f;
 			}
 		}
 		tile.set_type(type + "_" + direction_char);
-		sprite.move(velocity * dt);
+
+		// Apply the velocity to the player's physics body.
+		auto& body = registry.get<b2Body*>(_player_entity);
+		body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
 	}
 
 	void _update_tiles(entt::registry& registry, float dt)
 	{
-		for (auto [entity, tile, sprite] : 
-			registry.view<ecs::Tile, sf::Sprite>().each())
+		for (auto [entity, tile] : registry.view<ecs::Tile>().each())
 		{
 			if (tile.has_animation())
 				tile.animation_time += dt;
+		}
+	}
+
+	void _update_sprites(entt::registry& registry)
+	{
+		sf::Vector2u map_tile_size = map::get_tile_size();
+
+		// Update the sprites' positions to match their physics bodies.
+		for (auto [entity, sprite, body] :
+			registry.view<sf::Sprite, b2Body*>().each())
+		{
+			auto world_position = body->GetPosition();
+			sf::Vector2f pixel_position(
+				world_position.x * map_tile_size.x,
+				world_position.y * map_tile_size.y);
+			sprite.setPosition(pixel_position);
+		}
+
+		// Update the sprites' texture rects to match their tiles.
+		for (auto [entity, sprite, tile] :
+			registry.view<sf::Sprite, ecs::Tile>().each())
+		{
 			sprite.setTextureRect(tile.get_texture_rect());
 		}
 	}
@@ -135,10 +171,14 @@ namespace game
 
 	void update(float dt)
 	{
+		auto& world = map::get_world();
+		_simulate_physics(world, dt);
+
 		auto& registry = map::get_registry();
 		_find_and_store_player_entity(registry);
 		_update_player(registry, dt);
 		_update_tiles(registry, dt);
+		_update_sprites(registry);
 		_update_view(registry);
 	}
 	 

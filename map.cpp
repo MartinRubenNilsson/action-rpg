@@ -86,6 +86,14 @@ namespace map
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
+	const sf::Vector2u& get_tile_size()
+	{
+		if (!_impl->map) return sf::Vector2u();
+		return sf::Vector2u(
+			_impl->map->getTileSize().x,
+			_impl->map->getTileSize().y);
+	}
+
 	b2World& get_world() {
 		return _impl->world;
 	}
@@ -106,16 +114,14 @@ namespace map
 		close(); // Close the current map.
 
 		_impl->name = name;
-		auto map = _impl->map = &_name_to_map.at(name);
-		auto& registry = _impl->registry;
+		_impl->map = &_name_to_map.at(name);
 
-		// Setup callbacks for when entities are destroyed.
-		registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
+		const sf::Vector2u map_tile_size = get_tile_size();
 
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
 		// This ensures that sprites on the higher layers are drawn on top.
-		for (const auto& layer : std::ranges::reverse_view(map->getLayers()))
+		for (const auto& layer : std::ranges::reverse_view(_impl->map->getLayers()))
 		{
 			tmx::Layer::Type layer_type = layer->getType();
 			if (layer_type == tmx::Layer::Type::Tile)
@@ -133,31 +139,59 @@ namespace map
 						continue;
 
 					// Find the tileset that contains the tile.
-					for (const auto& tileset : map->getTilesets())
+					for (const auto& tileset : _impl->map->getTilesets())
 					{
 						if (!tileset.hasTile(tile.ID))
 							continue;
 
+						// PITFALL: The litetmx documentations says that getSize() returns
+						// the size in pixels, but it actually returns the size in tiles.
+						uint32_t layer_width_in_tiles = tile_layer.getSize().x;
+
+						// Calculate the position(s) of the tile.
+						sf::Vector2f world_position(
+							tile_index % layer_width_in_tiles + 0.5f,
+							tile_index / layer_width_in_tiles + 0.5f);
+						sf::Vector2f pixel_position(
+							world_position.x * map_tile_size.x,
+							world_position.y * map_tile_size.y);
+						sf::Vector2f sprite_origin( // in pixels
+							map_tile_size.x / 2.0f,
+							map_tile_size.y / 2.0f);
+
 						// Create a tile component for the tile.
 						ecs::Tile tile_component(&tileset, tile.ID);
 
-						// Calculate the tile's position.
-						uint32_t col = tile_index % tile_layer.getSize().x;
-						uint32_t row = tile_index / tile_layer.getSize().x; // Using x is intentional.
-						sf::Vector2f position(
-							col * (float)map->getTileSize().x,
-							row * (float)map->getTileSize().y);
-
-						// Create a sprite for the tile.
+						// Create a sprite component for the tile.
 						sf::Sprite sprite(
 							_path_to_tileset_texture.at(tileset.getImagePath()),
 							tile_component.get_texture_rect());
-						sprite.setPosition(position);
+						sprite.setPosition(pixel_position);
+						sprite.setOrigin(sprite_origin);
 
-						// Create an entity for the tile.
-						entt::entity entity = registry.create();
-						registry.emplace<ecs::Tile>(entity, tile_component);
-						registry.emplace<sf::Sprite>(entity, sprite);
+						// If the tile has at least one collider,
+						// create a static body component for it.
+						b2Body* body = nullptr;
+						if (tile_component.has_colliders())
+						{
+							b2BodyDef body_def;
+							body_def.type = b2_staticBody;
+							body_def.position.x = world_position.x;
+							body_def.position.y = world_position.y;
+
+							if (body = _impl->world.CreateBody(&body_def))
+							{
+								b2PolygonShape shape;
+								shape.SetAsBox(0.5f, 0.5f);
+								body->CreateFixture(&shape, 0.f);
+							}
+						}
+
+						// Create an entity for the tile and add the components to it.
+						entt::entity entity = _impl->registry.create();
+						_impl->registry.emplace<ecs::Tile>(entity, tile_component);
+						_impl->registry.emplace<sf::Sprite>(entity, sprite);
+						if (body) _impl->registry.emplace<b2Body*>(entity, body);
 
 						break;
 					}
@@ -181,37 +215,68 @@ namespace map
 						if (!tileset.hasTile(object.getTileID()))
 							continue;
 
+						// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
+						// but SFML uses the top-left corner of the sprite for the sprite's position.
+
+						tmx::FloatRect aabb = object.getAABB();
+
+						// Calculate the position(s) of the object.
+						sf::Vector2f pixel_position( // center of the AABB
+							aabb.left + aabb.width / 2,
+							aabb.top - aabb.height / 2); // PITFALL: getAABB().top is the bottom of the AABB.
+						sf::Vector2f world_position(
+							pixel_position.x / map_tile_size.x,
+							pixel_position.y / map_tile_size.y);
+						sf::Vector2f sprite_origin( // in pixels
+							tileset.getTileSize().x / 2.0f,
+							tileset.getTileSize().y / 2.0f);
+
 						// Create a tile component for the object.
 						ecs::Tile tile_component(&tileset, object.getTileID());
 
-						// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
-						// but SFML uses the top-left corner of the sprite for the sprite's position.
-						// Moreover, getAABB().top is actually the bottom of the AABB, not the top.
-
-						tmx::FloatRect aabb = object.getAABB();
-						sf::Vector2f position(aabb.left + aabb.width / 2, aabb.top - aabb.height / 2);
-						sf::Vector2f origin(
-							(float)tileset.getTileSize().x / 2,
-							(float)tileset.getTileSize().y / 2);
-
-						// Create a sprite for the object.
+						// Create a sprite component for the object.
 						sf::Sprite sprite(
 							_path_to_tileset_texture.at(tileset.getImagePath()),
 							tile_component.get_texture_rect());
-						sprite.setPosition(position);
-						sprite.setOrigin(origin);
+						sprite.setPosition(pixel_position);
+						sprite.setOrigin(sprite_origin);
 
-						// Create an entity for the object.
-						entt::entity entity = registry.create();
-						registry.emplace<std::string>(entity, object.getName());
-						registry.emplace<ecs::Tile>(entity, tile_component);
-						registry.emplace<sf::Sprite>(entity, sprite);
+						// If the object has at least one collider,
+						// create a dynamic body component for it.
+						b2Body* body = nullptr;
+						if (tile_component.has_colliders())
+						{
+							b2BodyDef body_def;
+							body_def.type = b2_dynamicBody;
+							body_def.position.x = world_position.x;
+							body_def.position.y = world_position.y;
+
+							if (body = _impl->world.CreateBody(&body_def))
+							{
+								b2CircleShape shape;
+								shape.m_radius = 0.25f;
+								b2FixtureDef fixture_def;
+								fixture_def.shape = &shape;
+								fixture_def.density = 1.0f;
+								body->CreateFixture(&fixture_def);
+							}
+						}
+
+						// Create an entity for the object and add the components to it.
+						entt::entity entity = _impl->registry.create();
+						_impl->registry.emplace<std::string>(entity, object.getName());
+						_impl->registry.emplace<ecs::Tile>(entity, tile_component);
+						_impl->registry.emplace<sf::Sprite>(entity, sprite);
+						if (body) _impl->registry.emplace<b2Body*>(entity, body);
 
 						break;
 					}
 				}
 			}
 		}
+
+		// Setup callbacks for when entities are destroyed.
+		_impl->registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 
 		return true;
 	}

@@ -1,6 +1,4 @@
 #include "ecs_tiles.h"
-#include <tmxlite/Map.hpp>
-#include <tmxlite/Tileset.hpp>
 
 namespace tmx
 {
@@ -48,35 +46,36 @@ namespace tmx
 
 namespace ecs
 {
-	Tile::Tile(const void* tileset, uint32_t id)
+	Tile::Tile(const const tmx::Tileset* tileset, uint32_t id)
 		: _tileset(tileset)
-		, _tile(static_cast<const tmx::Tileset*>(tileset)->getTile(id))
+		, _tile(tileset->getTile(id))
 	{
+		assert(_tile && "Tile ID not found in tileset.");
 	}
 
 	bool Tile::has_animation() const
 	{
-		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
-		return !tile->animation.frames.empty();
+		return !_tile->animation.frames.empty();
+	}
+
+	bool Tile::has_colliders() const
+	{
+		return !_tile->objectGroup.getObjects().empty();
 	}
 
 	uint32_t Tile::get_id() const
 	{
-		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
-		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
-		return tile->ID + tileset->getFirstGID();
+		return _tile->ID + _tileset->getFirstGID();
 	}
 
 	const std::string& Tile::get_type() const
 	{
-		auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
-		return tile->type;
+		return _tile->type;
 	}
 
 	bool Tile::set_type(const std::string& type)
 	{
-		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
-		for (const auto& tile : tileset->getTiles())
+		for (const auto& tile : _tileset->getTiles())
 		{
 			if (tile.type == type)
 			{
@@ -91,11 +90,7 @@ namespace ecs
 	{
 		uint32_t id = get_id();
 		if (has_animation())
-		{
-			auto tile = static_cast<const tmx::Tileset::Tile*>(_tile);
-			id = tmx::_get_tile_id_at_time(tile->animation, animation_time * 1000);
-		}
-		auto tileset = static_cast<const tmx::Tileset*>(_tileset);
-		return tmx::_get_texture_rect(*tileset, id);
+			id = tmx::_get_tile_id_at_time(_tile->animation, animation_time * 1000);
+		return tmx::_get_texture_rect(*_tileset, id);
 	}
 }

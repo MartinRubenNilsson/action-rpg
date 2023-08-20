@@ -24,6 +24,10 @@ namespace map
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
 
+	// Returns the size of a tile in the currently open map.
+	// If no map is open, returns (0, 0).
+	const sf::Vector2u& get_tile_size();
+
 	// Returns a reference to the physics world of the currently open map.
 	// If no map is open, the returned world is empty.
 	b2World& get_world();

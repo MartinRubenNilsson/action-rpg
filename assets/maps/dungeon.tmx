@@ -1,7 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="4">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="4">
  <tileset firstgid="1" name="dungeon" tilewidth="16" tileheight="16" tilecount="625" columns="25">
   <image source="../tilesets/dungeon.png" width="400" height="400"/>
+  <tile id="0">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="1">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="2">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="25">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="26">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="27">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="50">
+   <objectgroup draworder="index" id="3">
+    <object id="2" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="51">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="52">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
   <tile id="451">
    <animation>
     <frame tileid="451" duration="100"/>
@@ -81,7 +126,13 @@
  </tileset>
  <tileset firstgid="626" name="mana_seed_human" tilewidth="64" tileheight="64" tilecount="64" columns="8">
   <image source="../tilesets/mana_seed_human.png" width="512" height="512"/>
-  <tile id="0" type="idle_d"/>
+  <tile id="0" type="idle_d">
+   <objectgroup draworder="index" id="2">
+    <object id="2" x="25.2727" y="33.6364" width="12.7273" height="12.7273">
+     <ellipse/>
+    </object>
+   </objectgroup>
+  </tile>
   <tile id="8" type="idle_u"/>
   <tile id="16" type="idle_r"/>
   <tile id="24" type="idle_l"/>
@@ -200,7 +251,7 @@
 31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31
 </data>
  </layer>
- <layer id="7" name="moss" width="30" height="30" visible="0">
+ <layer id="7" name="moss" width="30" height="30">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -268,7 +319,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="4" name="characters" visible="0">
+ <objectgroup id="4" name="characters">
   <object id="3" name="player" gid="626" x="70" y="109.25" width="64" height="64"/>
  </objectgroup>
 </map>
