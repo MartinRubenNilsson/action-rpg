@@ -204,7 +204,7 @@ namespace console
 		{
 			_app.parse(command_line); // throws
 		}
-		catch (const CLI::CallForHelp&)
+		catch (const CLI::CallForHelp&) // thrown by -h or --help
 		{
 			log(_app.help());
 		}

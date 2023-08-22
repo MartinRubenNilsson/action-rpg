@@ -20,7 +20,7 @@ namespace physics
 	private:
 		sf::Vector2f _world_to_pixels(const b2Vec2& vec) const;
 
-		sf::RenderWindow& _window;
+		sf::RenderWindow& window;
 		sf::Vector2u _tile_size;
 	};
 }

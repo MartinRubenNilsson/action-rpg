@@ -6,6 +6,7 @@
     "rmlui",
     "tmxlite",
     "entt",
-    "box2d"
+    "box2d",
+    "behaviortree-cpp"
   ]
 }

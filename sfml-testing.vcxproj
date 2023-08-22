@@ -188,6 +188,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
+    <ClCompile Include="behavior.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="game.cpp" />
@@ -213,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio.h" />
+    <ClInclude Include="behavior.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="math_vectors.h" />

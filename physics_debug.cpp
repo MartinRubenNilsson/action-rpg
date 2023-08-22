@@ -12,7 +12,7 @@ namespace physics
 	};
 
 	DebugDrawSFML::DebugDrawSFML(sf::RenderWindow& window)
-		: _window(window)
+		: window(window)
 	{
 	}
 
@@ -28,7 +28,7 @@ namespace physics
 		polygon.setFillColor(sf::Color::Transparent);
 		polygon.setOutlineThickness(1.0f);
 		polygon.setOutlineColor(_b2_to_sf(color));
-		_window.draw(polygon);
+		window.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
@@ -37,7 +37,7 @@ namespace physics
 		for (int32 i = 0; i < vertexCount; ++i)
 			polygon.setPoint(i, _world_to_pixels(vertices[i]));
 		polygon.setFillColor(_b2_to_sf(color));
-		_window.draw(polygon);
+		window.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
@@ -50,7 +50,7 @@ namespace physics
 		circle.setFillColor(sf::Color::Transparent);
 		circle.setOutlineThickness(1.0f);
 		circle.setOutlineColor(_b2_to_sf(color));
-		_window.draw(circle);
+		window.draw(circle);
 	}
 
 	void DebugDrawSFML::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
@@ -63,7 +63,7 @@ namespace physics
 		circle.setPosition(_world_to_pixels(center));
 		circle.setOrigin(radius_in_pixels, radius_in_pixels);
 		circle.setFillColor(_b2_to_sf(color));
-		_window.draw(circle);
+		window.draw(circle);
 	}
 
 	void DebugDrawSFML::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
