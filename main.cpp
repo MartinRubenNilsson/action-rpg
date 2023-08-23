@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     physics::initialize();
     behavior::initialize();
     ecs::initialize();
-    console::initialize();
+    console::initialize(window);
 
     // LOAD ASSETS
 

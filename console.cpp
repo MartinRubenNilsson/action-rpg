@@ -60,7 +60,7 @@ namespace console
 	// Defined in console_commands.cpp
 	extern void _setup_commands(CLI::App& app);
 
-	void initialize()
+	void initialize(sf::RenderWindow& window)
 	{
 		// SETUP IMGUI STYLE
 		{
@@ -107,6 +107,34 @@ namespace console
 			style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
 			style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
 			style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+		}
+
+		// SETUP CONSOLE COMMANDS
+		{
+			_app.add_subcommand("clear", "Clear the console")
+				->callback(clear);
+		}
+
+		// SETUP WINDOW COMMANDS
+		{
+			auto window_cmd = _app.add_subcommand("window", "Manage the window");
+			{
+				window_cmd->add_subcommand("close", "Close the window")
+					->callback([&window]() { window.close(); });
+			}
+			{
+				auto set_title_cmd = window_cmd->add_subcommand("set_title", "Set the window title");
+				static std::string title;
+				set_title_cmd->add_option("title", title, "The new title of the window")->required();
+				set_title_cmd->callback([&window]() { window.setTitle(title); });
+			}
+			{
+				auto set_size_cmd = window_cmd->add_subcommand("set_size", "Set the window size");
+				static sf::Vector2u size;
+				set_size_cmd->add_option("x", size.x, "The new width of the window")->required();
+				set_size_cmd->add_option("y", size.y, "The new height of the window")->required();
+				set_size_cmd->callback([&window]() { window.setSize(size); });
+			}
 		}
 
 		_setup_commands(_app);

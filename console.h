@@ -2,7 +2,7 @@
 
 namespace console
 {
-	void initialize();
+	void initialize(sf::RenderWindow& window);
 	void update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
 	void toggle_visible();
 	void clear();

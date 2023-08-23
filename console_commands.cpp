@@ -4,16 +4,18 @@
 #include "rml.h"
 #include "audio.h"
 
-extern void close_window();
-
 namespace console
 {
 	void _setup_commands(CLI::App& app)
 	{
-		app.add_subcommand("exit", "Exit the game")->callback(close_window);
-		app.add_subcommand("clear", "Clear the console")->callback(clear);
+		// SETUP SOUND COMMANDS
+		{
+			auto cmd = app.add_subcommand("sound", "Handle sounds");
+			cmd->add_subcommand("play", "Play a sound")
+				->add_option_function<std::string>("name", audio::play_sound, "The name of the sound");
+		}
 
-		// MAP
+		// SETUP MAP COMMANDS
 		{
 			auto cmd = app.add_subcommand("map", "Handle maps");
 			cmd->add_subcommand("list", "List all loaded maps")
@@ -26,7 +28,7 @@ namespace console
 				->callback(map::close);
 		}
 
-		// RML
+		// SETUP RML COMMANDS
 		{
 			auto cmd = app.add_subcommand("rml", "Handle RML documents");
 			cmd->add_subcommand("list", "List all loaded documents")
@@ -35,13 +37,6 @@ namespace console
 				->add_option_function<std::string>("name", rml::show, "The name of the document");
 			cmd->add_subcommand("hide", "Hide a document")
 				->add_option_function<std::string>("name", rml::hide, "The name of the document");
-		}
-
-		// SOUND
-		{
-			auto cmd = app.add_subcommand("sound", "Handle sounds");
-			cmd->add_subcommand("play", "Play a sound")
-				->add_option_function<std::string>("name", audio::play_sound, "The name of the sound");
 		}
 	}
 }

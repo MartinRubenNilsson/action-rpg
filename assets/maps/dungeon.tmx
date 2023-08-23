@@ -323,7 +323,7 @@
   <object id="3" name="player" gid="626" x="70" y="109.25" width="64" height="64"/>
   <object id="4" name="enemy" gid="626" x="109" y="155" width="64" height="64">
    <properties>
-    <property name="behavior" value="enemy"/>
+    <property name="behavior" value="enemy_"/>
    </properties>
   </object>
  </objectgroup>
