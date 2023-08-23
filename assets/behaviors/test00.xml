@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="hello_world">
+  <BehaviorTree ID="bruh">
     <AlwaysSuccess/>
   </BehaviorTree>
 
+  <BehaviorTree ID="hello_world">
+    <do_stuff/>
+  </BehaviorTree>
+
   <!-- Description of Node Models (used by Groot) -->
-  <TreeNodesModel/>
+  <TreeNodesModel>
+    <Condition ID="do_stuff"/>
+  </TreeNodesModel>
 
 </root>

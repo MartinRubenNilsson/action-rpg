@@ -2,45 +2,15 @@
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
+#include "ecs.h"
 #include "ecs_tiles.h"
-#include "physics_debug.h"
+#include "physics.h"
 
 namespace map
 {
 	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_tileset_texture;
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
 	decltype(_name_to_map)::iterator _current_map = _name_to_map.end();
-
-	std::unique_ptr<b2World> _world;
-	std::unique_ptr<physics::DebugDrawSFML> _debug_draw;
-	entt::registry _registry;
-
-	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
-		_world->DestroyBody(registry.get<b2Body*>(entity));
-	}
-
-	void initialize(sf::RenderWindow& window)
-	{
-		// Setup Box2D physics world.
-		b2Vec2 gravity(0, 0);
-		_world = std::make_unique<b2World>(gravity);
-		_debug_draw = std::make_unique<physics::DebugDrawSFML>(window);
-		_debug_draw->SetFlags(b2Draw::e_shapeBit);
-		_world->SetDebugDraw(_debug_draw.get());
-
-		// Setup callbacks for when entities are destroyed.
-		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
-	}
-
-	void shutdown()
-	{
-		_registry.clear();
-		_current_map = _name_to_map.end();
-		_world = nullptr;
-		_debug_draw = nullptr;
-		_name_to_map.clear();
-		_path_to_tileset_texture.clear();
-	}
 
 	void load_tilesets()
 	{
@@ -96,27 +66,20 @@ namespace map
 			_current_map->second.getTileSize().y);
 	}
 
-	b2World& get_world() {
-		return *_world;
-	}
-
-	entt::registry& get_registry() {
-		return _registry;
-	}
-
 	bool open(const std::string& name)
 	{
-		_current_map = _name_to_map.find(name);
-		if (_current_map == _name_to_map.end())
+		auto new_map = _name_to_map.find(name);
+		if (new_map == _name_to_map.end())
 			return false;
 
-		_registry.clear();
+		close();
+		_current_map = new_map;
 
 		const tmx::Map& map = _current_map->second;
 		const sf::Vector2u tile_size(
 			map.getTileSize().x,
 			map.getTileSize().y);
-		_debug_draw->SetTileSize(tile_size);
+		auto& registry = ecs::get_registry();
 
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
@@ -160,14 +123,14 @@ namespace map
 							 tile_size.y / 2.0f);
 
 						// Create an entity for the tile.
-						entt::entity entity = _registry.create();
+						entt::entity entity = registry.create();
 
 						// Add a tile component to the entity.
-						auto& ecs_tile = _registry.emplace<ecs::Tile>(entity,
+						auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
 							&tileset, tile.ID);
 
 						// Add a sprite component to the entity.
-						auto& sprite = _registry.emplace<sf::Sprite>(entity,
+						auto& sprite = registry.emplace<sf::Sprite>(entity,
 							_path_to_tileset_texture.at(tileset.getImagePath()),
 							ecs_tile.get_texture_rect());
 						sprite.setPosition(pixel_position);
@@ -182,14 +145,14 @@ namespace map
 							body_def.position.x = world_position.x;
 							body_def.position.y = world_position.y;
 
-							if (b2Body* body = _world->CreateBody(&body_def))
+							if (b2Body* body = physics::get_world().CreateBody(&body_def))
 							{
 								b2PolygonShape shape;
 								shape.SetAsBox(0.5f, 0.5f);
 								body->CreateFixture(&shape, 0.f);
 								//body->SetUserData((void*)entity);
 
-								_registry.emplace<b2Body*>(entity, body);
+								registry.emplace<b2Body*>(entity, body);
 							}
 						}
 
@@ -232,17 +195,17 @@ namespace map
 							tileset.getTileSize().y / 2.0f);
 
 						// Create an entity for the object.
-						entt::entity entity = _registry.create();
+						entt::entity entity = registry.create();
 
 						// Add the object's name as a component to the entity.
-						_registry.emplace<std::string>(entity, object.getName());
+						registry.emplace<std::string>(entity, object.getName());
 
 						// Add a tile component to the entity.
-						auto& ecs_tile = _registry.emplace<ecs::Tile>(entity,
+						auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
 							&tileset, object.getTileID());
 
 						// Add a sprite component to the entity.
-						auto& sprite = _registry.emplace<sf::Sprite>(entity,
+						auto& sprite = registry.emplace<sf::Sprite>(entity,
 							_path_to_tileset_texture.at(tileset.getImagePath()),
 							ecs_tile.get_texture_rect());
 						sprite.setPosition(pixel_position);
@@ -257,7 +220,7 @@ namespace map
 							body_def.position.x = world_position.x;
 							body_def.position.y = world_position.y;
 
-							if (b2Body* body = _world->CreateBody(&body_def))
+							if (b2Body* body = physics::get_world().CreateBody(&body_def))
 							{
 								b2CircleShape shape;
 								shape.m_radius = 0.25f;
@@ -267,7 +230,7 @@ namespace map
 								body->CreateFixture(&fixture_def);
 								//body->SetUserData((void*)entity);
 
-								_registry.emplace<b2Body*>(entity, body);
+								registry.emplace<b2Body*>(entity, body);
 							}
 						}
 
@@ -282,7 +245,7 @@ namespace map
 
 	void close()
 	{
-		_registry.clear();
 		_current_map = _name_to_map.end();
+		ecs::get_registry().clear();
 	}
 }

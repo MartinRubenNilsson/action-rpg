@@ -3,10 +3,11 @@
 #include <Windows.h>
 #include <imgui-SFML.h>
 #include "audio.h"
+#include "physics.h"
 #include "rml.h"
 #include "map.h"
 #include "behavior.h"
-#include "game.h"
+#include "ecs.h"
 #include "rml_data_bindings.h"
 #include "console.h"
 
@@ -44,7 +45,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     ImGui::SFML::Init(window);
     rml::initialize(window);
-    map::initialize(window);
+    physics::initialize();
+    behavior::initialize();
+    ecs::initialize();
     console::initialize();
 
     // LOAD ASSETS
@@ -53,7 +56,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     rml::load_fonts_and_documents();
     map::load_tilesets();
     map::load_maps();
-    behavior::load_behavior_trees();
+    behavior::load_trees();
 
     // OTHER STUFF
 
@@ -110,14 +113,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
         ImGui::SFML::Update(window, dt);
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         rml::update();
-        game::update(dt.asSeconds());
+        physics::update(dt.asSeconds());
+        ecs::update(dt.asSeconds());
 
         // RENDERING
 
         window.clear();
-        game::render(window);
+        ecs::render(window);
         if (debug_draw_physics)
-            map::get_world().DebugDraw();
+            physics::debug_draw(window);
         rml::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
         window.resetGLStates();
         ImGui::SFML::Render(window);
@@ -126,7 +130,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     // SHUTDOWN
 
-    map::shutdown();
+    ecs::shutdown();
+    physics::shutdown();
     rml::shutdown();
     ImGui::SFML::Shutdown();
 

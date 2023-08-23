@@ -42,8 +42,11 @@
     <ClCompile Include="behavior.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
-    <ClCompile Include="game.cpp">
-      <Filter>game</Filter>
+    <ClCompile Include="physics.cpp">
+      <Filter>physics</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs.cpp">
+      <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -90,8 +93,11 @@
     <ClInclude Include="behavior.h">
       <Filter>behavior</Filter>
     </ClInclude>
-    <ClInclude Include="game.h">
-      <Filter>game</Filter>
+    <ClInclude Include="physics.h">
+      <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,9 +124,6 @@
     </Filter>
     <Filter Include="behavior">
       <UniqueIdentifier>{e9215716-816e-4e89-b7f4-716d8fb5a9d5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="game">
-      <UniqueIdentifier>{48e4d89f-8450-4d09-80a8-41f997ef8a55}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

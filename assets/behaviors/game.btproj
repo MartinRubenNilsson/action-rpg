@@ -2,5 +2,8 @@
 <root BTCPP_format="4" project_name="Project">
     <include path="test00.xml"/>
     <!-- Description of Node Models (used by Groot) -->
-    <TreeNodesModel/>
+    <TreeNodesModel>
+        <Condition ID="do_stuff"/>
+        <Condition ID="do_stuff2"/>
+    </TreeNodesModel>
 </root>
