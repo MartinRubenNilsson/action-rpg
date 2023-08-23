@@ -54,9 +54,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     audio::load_music_and_sounds();
     rml::load_fonts_and_documents();
+    behavior::load_trees();
     map::load_tilesets();
     map::load_maps();
-    behavior::load_trees();
 
     // OTHER STUFF
 
@@ -65,19 +65,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     // EXECUTE CONSOLE COMMANDS
 
     console::execute("map open dungeon");
-
-    // TEST BEHAVIOR TREE
-    {
-        try
-        {
-            BT::Tree tree = behavior::create_tree("hello_world");
-            tree.tickOnce();
-        }
-        catch (const std::runtime_error& e)
-        {
-            console::log_error(e.what());
-        }
-    }
 
     // GAME LOOP
 

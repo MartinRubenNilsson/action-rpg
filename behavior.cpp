@@ -1,15 +1,33 @@
 #include "behavior.h"
 #include <behaviortree_cpp/xml_parsing.h> // writeTreeNodesModelXML()
+#include "console.h"
 
 namespace behavior
 {
-	BT::BehaviorTreeFactory _factory;
-
-	BT::NodeStatus do_stuff(BT::TreeNode& node)
+	struct ConsoleLogNode : BT::SyncActionNode
 	{
-		std::cout << "Doing stuff..." << std::endl;
-		return BT::NodeStatus::SUCCESS;
-	}
+		ConsoleLogNode(const std::string& name, const BT::NodeConfig& config)
+			: BT::SyncActionNode(name, config)
+		{}
+
+		static BT::PortsList providedPorts() {
+			//return { BT::InputPort<std::string>("message") };
+			return {};
+		}
+
+		BT::NodeStatus tick() override
+		{
+			//auto message = getInput<std::string>("message");
+			//if (!message)
+			//	throw BT::RuntimeError("missing required input [message]: ", message.error());
+			//console::log(message.value());
+			static int i = 0;
+			console::log("Hello, world: " + std::to_string(i++));
+			return BT::NodeStatus::SUCCESS;
+		}
+	};
+
+	BT::BehaviorTreeFactory _factory;
 
 	// Writes "models" of all registered tree nodes to a file,
 	// which can be imported into Groot2 to make it aware of the nodes.
@@ -23,8 +41,7 @@ namespace behavior
 
 	void initialize()
 	{
-		_factory.registerSimpleCondition("do_stuff", do_stuff);
-		_factory.registerSimpleCondition("do_stuff2", do_stuff);
+		_factory.registerNodeType<ConsoleLogNode>("ConsoleLog");
 		_write_tree_node_models();
 	}
 
@@ -32,8 +49,18 @@ namespace behavior
 	{
 		for (const auto& entry : std::filesystem::directory_iterator("assets/behaviors"))
 		{
-			if (entry.path().extension() == ".xml")
+			if (entry.path().extension() != ".xml")
+				continue;
+
+			try
+			{
 				_factory.registerBehaviorTreeFromFile(entry.path().string());
+			}
+			catch (const BT::RuntimeError& error)
+			{
+				console::log_error("Failed to load behavior tree from file: " + entry.path().generic_string());
+				console::log_error(error.what());
+			}
 		}
 	}
 

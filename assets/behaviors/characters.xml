@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="bruh">
-    <AlwaysSuccess/>
-  </BehaviorTree>
-
-  <BehaviorTree ID="hello_world">
-    <do_stuff/>
+  <BehaviorTree ID="enemy">
+    <Delay delay_msec="1000">
+      <ConsoleLog/>
+    </Delay>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Condition ID="do_stuff"/>
+    <Action ID="ConsoleLog"/>
   </TreeNodesModel>
 
 </root>

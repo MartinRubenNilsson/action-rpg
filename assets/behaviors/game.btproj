@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" project_name="Project">
-    <include path="test00.xml"/>
+    <include path="characters.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
-        <Condition ID="do_stuff"/>
-        <Condition ID="do_stuff2"/>
+        <Action ID="ConsoleLog"/>
     </TreeNodesModel>
 </root>

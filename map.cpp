@@ -5,12 +5,14 @@
 #include "ecs.h"
 #include "ecs_tiles.h"
 #include "physics.h"
+#include "behavior.h"
+#include "console.h"
 
 namespace map
 {
 	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_tileset_texture;
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
-	decltype(_name_to_map)::iterator _current_map = _name_to_map.end();
+	decltype(_name_to_map)::iterator _current_map_it = _name_to_map.end();
 
 	void load_tilesets()
 	{
@@ -37,7 +39,7 @@ namespace map
 				continue;
 			_name_to_map.emplace(entry.path().stem().string(), std::move(map));
 		}
-		_current_map = _name_to_map.end();
+		_current_map_it = _name_to_map.end();
 	}
 
 	std::vector<std::string> get_list()
@@ -49,33 +51,33 @@ namespace map
 	}
 
 	std::string get_name() {
-		return _current_map != _name_to_map.end() ? _current_map->first : "";
+		return _current_map_it != _name_to_map.end() ? _current_map_it->first : "";
 	}
 
 	sf::FloatRect get_bounds(){
-		if (_current_map == _name_to_map.end()) return sf::FloatRect();
-		tmx::FloatRect bounds = _current_map->second.getBounds();
+		if (_current_map_it == _name_to_map.end()) return sf::FloatRect();
+		tmx::FloatRect bounds = _current_map_it->second.getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
 	sf::Vector2u get_tile_size()
 	{
-		if (_current_map == _name_to_map.end()) return sf::Vector2u();
+		if (_current_map_it == _name_to_map.end()) return sf::Vector2u();
 		return sf::Vector2u(
-			_current_map->second.getTileSize().x,
-			_current_map->second.getTileSize().y);
+			_current_map_it->second.getTileSize().x,
+			_current_map_it->second.getTileSize().y);
 	}
 
 	bool open(const std::string& name)
 	{
-		auto new_map = _name_to_map.find(name);
-		if (new_map == _name_to_map.end())
+		auto new_map_it = _name_to_map.find(name);
+		if (new_map_it == _name_to_map.end())
 			return false;
 
 		close();
-		_current_map = new_map;
+		_current_map_it = new_map_it;
 
-		const tmx::Map& map = _current_map->second;
+		const tmx::Map& map = _current_map_it->second;
 		const sf::Vector2u tile_size(
 			map.getTileSize().x,
 			map.getTileSize().y);
@@ -234,6 +236,26 @@ namespace map
 							}
 						}
 
+						// If the objects has a property named "behavior",
+						// add a behavior tree component to the entity.
+						for (const auto& prop : object.getProperties())
+						{
+							if (prop.getName() == "behavior" &&
+								prop.getType() == tmx::Property::Type::String)
+							{
+								try
+								{
+									BT::Tree tree = behavior::create_tree(prop.getStringValue());
+									registry.emplace<BT::Tree>(entity, std::move(tree));
+								}
+								catch (const std::runtime_error& error)
+								{
+									console::log_error("Failed to create behavior tree for entity.");
+									console::log_error(error.what());
+								}
+							}
+						}
+
 						break;
 					}
 				}
@@ -245,7 +267,7 @@ namespace map
 
 	void close()
 	{
-		_current_map = _name_to_map.end();
+		_current_map_it = _name_to_map.end();
 		ecs::get_registry().clear();
 	}
 }

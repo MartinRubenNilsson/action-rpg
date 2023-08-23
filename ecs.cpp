@@ -3,6 +3,7 @@
 #include "math_vectors.h"
 #include "physics.h"
 #include "map.h"
+#include "behavior.h"
 
 extern sf::RenderWindow& get_window();
 
@@ -97,6 +98,12 @@ namespace ecs
 		body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
 	}
 
+	void _update_behavior_trees()
+	{
+		for (auto [entity, tree] : _registry.view<BT::Tree>().each())
+			tree.tickOnce();
+	}
+
 	void _update_animated_tiles(float dt)
 	{
 		for (auto [entity, tile] : _registry.view<ecs::Tile>().each())
@@ -177,6 +184,7 @@ namespace ecs
 	{
 		_find_and_store_player_entity();
 		_update_player(dt);
+		_update_behavior_trees();
 		_update_animated_tiles(dt);
 		_update_sprites();
 		_update_view();

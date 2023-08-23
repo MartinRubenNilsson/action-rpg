@@ -36,6 +36,7 @@ namespace physics
 		DebugDrawSFML debug_draw(window);
 		debug_draw.SetFlags(b2Draw::e_shapeBit);
 		debug_draw.SetTileSize(sf::Vector2u(16, 16));
+		_world->SetDebugDraw(&debug_draw);
 		_world->DebugDraw();
 	}
 

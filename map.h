@@ -25,10 +25,6 @@ namespace map
 	// If no map is open, returns (0, 0).
 	sf::Vector2u get_tile_size();
 
-	// Returns a reference to the ECS registry of the current map.
-	// If no map is open, the returned registry is empty.
-	entt::registry& get_registry();
-
 	// Opens the map with the given name.
 	// If a map is already open, it is closed first.
 	bool open(const std::string& name);

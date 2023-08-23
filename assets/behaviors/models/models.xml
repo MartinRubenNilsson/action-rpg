@@ -1,6 +1,5 @@
 <root BTCPP_format = "4">
     <TreeNodesModel>
-        <Condition ID="do_stuff"/>
-        <Condition ID="do_stuff2"/>
+        <Action ID="ConsoleLog"/>
     </TreeNodesModel>
 </root>
