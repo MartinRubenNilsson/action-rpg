@@ -17,18 +17,6 @@
 #define WINDOW_WIDTH (VIEW_WIDTH * 3)
 #define WINDOW_HEIGHT (VIEW_HEIGHT * 3)
 
-sf::RenderWindow* _window_ptr = nullptr;
-
-sf::RenderWindow& get_window()
-{
-	return *_window_ptr;
-}
-
-void close_window()
-{
-    _window_ptr->close();
-}
-
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     // CREATE WINDOW
@@ -36,7 +24,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     sf::VideoMode video_mode(WINDOW_WIDTH, WINDOW_HEIGHT);
     sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
     sf::RenderWindow window(video_mode, "Hello, SFML!", style);
-    _window_ptr = &window;
 
     sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
     window.setView(view);

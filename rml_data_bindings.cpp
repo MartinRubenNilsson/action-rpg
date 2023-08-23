@@ -1,8 +1,6 @@
 #include "rml_data_bindings.h"
 #include <RmlUi/Core.h>
 
-extern void close_window();
-
 namespace rml
 {
 	extern Rml::Context* _context;
@@ -33,7 +31,7 @@ namespace rml
 
 	void _quit_game(Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&)
 	{
-		close_window();
+		//close_window();
 	}
 
 	// CREATE BINDINGS

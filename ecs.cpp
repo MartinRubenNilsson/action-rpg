@@ -5,8 +5,6 @@
 #include "map.h"
 #include "behavior.h"
 
-extern sf::RenderWindow& get_window();
-
 namespace ecs
 {
 	entt::registry _registry;
@@ -136,9 +134,9 @@ namespace ecs
 		}
 	}
 
-	void _update_view()
+	void _update_view(sf::RenderWindow& window)
 	{
-		sf::View view = get_window().getView();
+		sf::View view = window.getView();
 
 		if (_registry.valid(_player_entity))
 		{
@@ -177,7 +175,7 @@ namespace ecs
 		}
 
 		view = sf::View(view_bounds);
-		get_window().setView(view);
+		window.setView(view);
 	}
 
 	void update(float dt)
@@ -187,13 +185,18 @@ namespace ecs
 		_update_behavior_trees();
 		_update_animated_tiles(dt);
 		_update_sprites();
-		_update_view();
+	}
+
+	void _render_sprites(sf::RenderWindow& window)
+	{
+		for (auto [entity, sprite] : _registry.view<sf::Sprite>().each())
+			window.draw(sprite);
 	}
 	 
 	void render(sf::RenderWindow& window)
 	{
-		for (auto [entity, sprite] : _registry.view<sf::Sprite>().each())
-			window.draw(sprite);
+		_update_view(window);
+		_render_sprites(window);
 	}
 
 	entt::registry& get_registry() {
