@@ -4,45 +4,21 @@
 
 namespace behavior
 {
-	struct ConsoleLogNode : BT::SyncActionNode
-	{
-		ConsoleLogNode(const std::string& name, const BT::NodeConfig& config)
-			: BT::SyncActionNode(name, config)
-		{}
-
-		static BT::PortsList providedPorts() {
-			//return { BT::InputPort<std::string>("message") };
-			return {};
-		}
-
-		BT::NodeStatus tick() override
-		{
-			//auto message = getInput<std::string>("message");
-			//if (!message)
-			//	throw BT::RuntimeError("missing required input [message]: ", message.error());
-			//console::log(message.value());
-			static int i = 0;
-			console::log("Hello, world: " + std::to_string(i++));
-			return BT::NodeStatus::SUCCESS;
-		}
-	};
-
 	BT::BehaviorTreeFactory _factory;
 
-	// Writes "models" of all registered tree nodes to a file,
-	// which can be imported into Groot2 to make it aware of the nodes.
-	void _write_tree_node_models()
+	extern void _register_nodes(BT::BehaviorTreeFactory& factory);
+
+	void register_nodes()
 	{
-		std::string models_xml = BT::writeTreeNodesModelXML(_factory);
-		models_xml.insert(5, " BTCPP_format = \"4\""); // add format version so Groot2 doesn't complain
-		std::ofstream file("assets/behaviors/models/models.xml");
-		file << models_xml;
+		_register_nodes(_factory);
 	}
 
-	void initialize()
+	void write_node_models(const std::string& path)
 	{
-		_factory.registerNodeType<ConsoleLogNode>("ConsoleLog");
-		_write_tree_node_models();
+		std::string models_xml = BT::writeTreeNodesModelXML(_factory);
+		models_xml.insert(5, " BTCPP_format = \"4\""); // add missing format version so Groot2 doesn't complain
+		std::ofstream file(path);
+		file << models_xml;
 	}
 
 	void load_trees()
@@ -64,8 +40,16 @@ namespace behavior
 		}
 	}
 
-	BT::Tree create_tree(const std::string& tree_id)
+	BT::Tree create_tree(const std::string& name, BT::Blackboard::Ptr blackboard) {
+		return _factory.createTree(name, blackboard);
+	}
+
+	void set_entity(BT::Tree& tree, entt::entity entity)
 	{
-		return _factory.createTree(tree_id);
+		tree.applyVisitor([entity](BT::TreeNode* node)
+			{
+				if (auto entity_node = dynamic_cast<EntityNode*>(node))
+					entity_node->entity = entity;
+			});
 	}
 }

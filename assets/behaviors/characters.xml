@@ -2,13 +2,23 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="enemy">
     <Delay delay_msec="1000">
-      <ConsoleLog/>
+      <Sequence>
+        <ConsoleLog message="I&apos;m outta here!"/>
+        <SetLifeSpan life_span="0"/>
+      </Sequence>
     </Delay>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="ConsoleLog"/>
+    <Action ID="ConsoleLog">
+      <input_port name="message"
+                  type="std::string">test</input_port>
+    </Action>
+    <Action ID="SetLifeSpan">
+      <input_port name="life_span"
+                  type="float">The remaining life span</input_port>
+    </Action>
   </TreeNodesModel>
 
 </root>

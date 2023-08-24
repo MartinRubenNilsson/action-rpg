@@ -42,7 +42,7 @@ namespace map
 		_current_map_it = _name_to_map.end();
 	}
 
-	std::vector<std::string> get_list()
+	std::vector<std::string> get_map_names()
 	{
 		std::vector<std::string> names;
 		for (const auto& [name, map] : _name_to_map)
@@ -115,8 +115,8 @@ namespace map
 
 						// Calculate the position(s) of the tile.
 						sf::Vector2f world_position(
-							tile_index % layer_width_in_tiles + 0.5f,
-							tile_index / layer_width_in_tiles + 0.5f);
+							tile_index % layer_width_in_tiles,
+							tile_index / layer_width_in_tiles);
 						sf::Vector2f pixel_position(
 							world_position.x * tile_size.x,
 							world_position.y * tile_size.y);
@@ -142,20 +142,14 @@ namespace map
 						// add a box2d body component to the entity.
 						if (ecs_tile.has_colliders())
 						{
-							b2BodyDef body_def;
-							body_def.type = b2_staticBody;
-							body_def.position.x = world_position.x;
-							body_def.position.y = world_position.y;
+							sf::FloatRect aabb;
+							aabb.left = world_position.x;
+							aabb.top = world_position.y;
+							aabb.width = 1.f;
+							aabb.height = 1.f;
 
-							if (b2Body* body = physics::get_world().CreateBody(&body_def))
-							{
-								b2PolygonShape shape;
-								shape.SetAsBox(0.5f, 0.5f);
-								body->CreateFixture(&shape, 0.f);
-								//body->SetUserData((void*)entity);
-
+							if (b2Body* body = physics::create_static_aabb(aabb, (uintptr_t)entity))
 								registry.emplace<b2Body*>(entity, body);
-							}
 						}
 
 						break;
@@ -246,6 +240,7 @@ namespace map
 								try
 								{
 									BT::Tree tree = behavior::create_tree(prop.getStringValue());
+									behavior::set_entity(tree, entity);
 									registry.emplace<BT::Tree>(entity, std::move(tree));
 								}
 								catch (const std::runtime_error& error)

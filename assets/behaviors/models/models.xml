@@ -1,5 +1,10 @@
 <root BTCPP_format = "4">
     <TreeNodesModel>
-        <Action ID="ConsoleLog"/>
+        <Action ID="ConsoleLog">
+            <input_port name="message" type="std::string">The message to log</input_port>
+        </Action>
+        <Action ID="SetLifeSpan">
+            <input_port name="life_span" type="float">The remaining life span</input_port>
+        </Action>
     </TreeNodesModel>
 </root>

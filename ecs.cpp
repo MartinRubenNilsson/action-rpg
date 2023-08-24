@@ -1,7 +1,7 @@
 #include "ecs.h"
+#include "ecs_components.h"
 #include "ecs_tiles.h"
 #include "math_vectors.h"
-#include "physics.h"
 #include "map.h"
 #include "behavior.h"
 
@@ -11,7 +11,8 @@ namespace ecs
 	entt::entity _player_entity = entt::null;
 
 	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
-		physics::get_world().DestroyBody(registry.get<b2Body*>(entity));
+		auto body = registry.get<b2Body*>(entity);
+		body->GetWorld()->DestroyBody(body);
 	}
 
 	void initialize()
@@ -102,9 +103,19 @@ namespace ecs
 			tree.tickOnce();
 	}
 
+	void _update_life_spans(float dt)
+	{
+		for (auto [entity, life_span] : _registry.view<LifeSpan>().each())
+		{
+			life_span.value -= dt;
+			if (life_span.value <= 0)
+				_registry.destroy(entity);
+		}
+	}
+
 	void _update_animated_tiles(float dt)
 	{
-		for (auto [entity, tile] : _registry.view<ecs::Tile>().each())
+		for (auto [entity, tile] : _registry.view<Tile>().each())
 		{
 			if (tile.has_animation())
 				tile.animation_time += dt;
@@ -183,6 +194,7 @@ namespace ecs
 		_find_and_store_player_entity();
 		_update_player(dt);
 		_update_behavior_trees();
+		_update_life_spans(dt);
 		_update_animated_tiles(dt);
 		_update_sprites();
 	}

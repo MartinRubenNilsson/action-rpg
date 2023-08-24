@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     ImGui::SFML::Init(window);
     rml::initialize(window);
     physics::initialize();
-    behavior::initialize();
+    behavior::register_nodes();
     ecs::initialize();
     console::initialize(window);
 
@@ -47,6 +47,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     // OTHER STUFF
 
+    behavior::write_node_models("assets/behaviors/models/models.xml"); // should only be done in debug builds
     audio::play_music("quiet_and_falling");
 
     // EXECUTE CONSOLE COMMANDS

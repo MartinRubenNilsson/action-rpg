@@ -43,4 +43,23 @@ namespace physics
 	b2World& get_world() {
 		return *_world;
 	}
+
+	b2Body* create_static_aabb(const sf::FloatRect& aabb, uintptr_t user_data)
+	{
+		b2BodyDef body_def;
+		body_def.type = b2_staticBody;
+		body_def.position.x = aabb.left + aabb.width / 2;
+		body_def.position.y = aabb.top + aabb.height / 2;
+		body_def.userData.pointer = user_data;
+
+		b2Body* body = _world->CreateBody(&body_def);
+		if (!body)
+			return nullptr;
+
+		b2PolygonShape shape;
+		shape.SetAsBox(aabb.width / 2, aabb.height / 2);
+		body->CreateFixture(&shape, 0.f);
+
+		return body;
+	}
 }

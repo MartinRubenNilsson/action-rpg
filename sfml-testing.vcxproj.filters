@@ -48,6 +48,12 @@
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="behavior_nodes.cpp">
+      <Filter>behavior</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_components.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -97,6 +103,9 @@
       <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_components.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>

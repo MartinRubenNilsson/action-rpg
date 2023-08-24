@@ -4,16 +4,13 @@
 namespace rml
 {
 	extern Rml::Context* _context;
-
 	Rml::DataModelHandle data_model_handle;
 
-	bool is_variable_dirty(const std::string& name)
-	{
+	bool is_variable_dirty(const std::string& name) {
 		return data_model_handle.IsVariableDirty(name);
 	}
 
-	void dirty_variable(const std::string& name)
-	{
+	void dirty_variable(const std::string& name) {
 		data_model_handle.DirtyVariable(name);
 	}
 
