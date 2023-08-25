@@ -1,14 +1,5 @@
 #include "console.h"
-#include "ecs_components.h"
-
-namespace BT
-{
-	template<>
-	std::string toStr<entt::entity>(entt::entity entity)
-	{
-		return std::to_string(static_cast<entt::id_type>(entity));
-	}
-}
+#include "ecs_common.h"
 
 namespace behavior
 {

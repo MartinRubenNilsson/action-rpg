@@ -51,8 +51,11 @@
     <ClCompile Include="behavior_nodes.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_components.cpp">
+    <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="map_internal.cpp">
+      <Filter>map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -105,8 +108,11 @@
     <ClInclude Include="ecs.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_components.h">
+    <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="map_internal.h">
+      <Filter>map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

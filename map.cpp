@@ -1,30 +1,14 @@
 #include "map.h"
-#include <tmxlite/Map.hpp>
-#include <tmxlite/TileLayer.hpp>
-#include <tmxlite/ObjectGroup.hpp>
-#include "ecs.h"
-#include "ecs_tiles.h"
-#include "physics.h"
-#include "behavior.h"
-#include "console.h"
+#include "map_internal.h"
 
 namespace map
 {
-	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_tileset_texture;
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
 	decltype(_name_to_map)::iterator _current_map_it = _name_to_map.end();
+	// TODO: add _new_map_it to support deferred map loading
 
-	void load_tilesets()
-	{
-		assert(_path_to_tileset_texture.empty() && "load_tilesets() should only be called once.");
-		for (const auto& entry : std::filesystem::directory_iterator("assets/tilesets"))
-		{
-			if (entry.path().extension() != ".png")
-				continue;
-			sf::Texture texture;
-			if (texture.loadFromFile(entry.path().string()))
-				_path_to_tileset_texture.emplace(entry.path(), std::move(texture));
-		}
+	void load_tilesets() {
+		load_tilesets_impl();
 	}
 
 	void load_maps()
@@ -42,7 +26,7 @@ namespace map
 		_current_map_it = _name_to_map.end();
 	}
 
-	std::vector<std::string> get_map_names()
+	std::vector<std::string> get_loaded_maps()
 	{
 		std::vector<std::string> names;
 		for (const auto& [name, map] : _name_to_map)
@@ -50,11 +34,29 @@ namespace map
 		return names;
 	}
 
+	bool open(const std::string& map_name)
+	{
+		auto new_map_it = _name_to_map.find(map_name);
+		if (new_map_it == _name_to_map.end())
+			return false;
+		close_impl();
+		open_impl(new_map_it->first, new_map_it->second);
+		_current_map_it = new_map_it;
+		return true;
+	}
+
+	void close()
+	{
+		close_impl();
+		_current_map_it = _name_to_map.end();
+	}
+
 	std::string get_name() {
 		return _current_map_it != _name_to_map.end() ? _current_map_it->first : "";
 	}
 
-	sf::FloatRect get_bounds(){
+	sf::FloatRect get_bounds()
+	{
 		if (_current_map_it == _name_to_map.end()) return sf::FloatRect();
 		tmx::FloatRect bounds = _current_map_it->second.getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
@@ -66,203 +68,5 @@ namespace map
 		return sf::Vector2u(
 			_current_map_it->second.getTileSize().x,
 			_current_map_it->second.getTileSize().y);
-	}
-
-	bool open(const std::string& name)
-	{
-		auto new_map_it = _name_to_map.find(name);
-		if (new_map_it == _name_to_map.end())
-			return false;
-
-		close();
-		_current_map_it = new_map_it;
-
-		const tmx::Map& map = _current_map_it->second;
-		const sf::Vector2u tile_size(
-			map.getTileSize().x,
-			map.getTileSize().y);
-		auto& registry = ecs::get_registry();
-
-		// Iterate through all the layers in the map in reverse order
-		// so that sprites on the lower layers are created first.
-		// This ensures that sprites on the higher layers are drawn on top.
-		for (const auto& layer : std::ranges::reverse_view(map.getLayers()))
-		{
-			tmx::Layer::Type layer_type = layer->getType();
-			if (layer_type == tmx::Layer::Type::Tile)
-			{
-				const auto& tile_layer = layer->getLayerAs<tmx::TileLayer>();
-				const auto& tiles = tile_layer.getTiles();
-
-				// Iterate through all the tiles in the layer.
-				for (uint32_t tile_index = 0; tile_index < tiles.size(); ++tile_index)
-				{
-					const auto& tile = tiles[tile_index];
-
-					// Skip empty tiles.
-					if (tile.ID == 0)
-						continue;
-
-					// Find the tileset that contains the tile.
-					for (const auto& tileset : map.getTilesets())
-					{
-						if (!tileset.hasTile(tile.ID))
-							continue;
-
-						// PITFALL: The litetmx documentations says that getSize() returns
-						// the size in pixels, but it actually returns the size in tiles.
-						uint32_t layer_width_in_tiles = tile_layer.getSize().x;
-
-						// Calculate the position(s) of the tile.
-						sf::Vector2f world_position(
-							tile_index % layer_width_in_tiles,
-							tile_index / layer_width_in_tiles);
-						sf::Vector2f pixel_position(
-							world_position.x * tile_size.x,
-							world_position.y * tile_size.y);
-						sf::Vector2f sprite_origin( // in pixels
-							 tile_size.x / 2.0f,
-							 tile_size.y / 2.0f);
-
-						// Create an entity for the tile.
-						entt::entity entity = registry.create();
-
-						// Add a tile component to the entity.
-						auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
-							&tileset, tile.ID);
-
-						// Add a sprite component to the entity.
-						auto& sprite = registry.emplace<sf::Sprite>(entity,
-							_path_to_tileset_texture.at(tileset.getImagePath()),
-							ecs_tile.get_texture_rect());
-						sprite.setPosition(pixel_position);
-						sprite.setOrigin(sprite_origin);
-
-						// If the tile has at least one collider,
-						// add a box2d body component to the entity.
-						if (ecs_tile.has_colliders())
-						{
-							sf::FloatRect aabb;
-							aabb.left = world_position.x;
-							aabb.top = world_position.y;
-							aabb.width = 1.f;
-							aabb.height = 1.f;
-
-							if (b2Body* body = physics::create_static_aabb(aabb, (uintptr_t)entity))
-								registry.emplace<b2Body*>(entity, body);
-						}
-
-						break;
-					}
-				}
-			}
-			else if (layer_type == tmx::Layer::Type::Object)
-			{
-				const auto& object_group = layer->getLayerAs<tmx::ObjectGroup>();
-				const auto& objects = object_group.getObjects();
-
-				// Iterate through all objects in the layer.
-				for (const auto& object : objects)
-				{
-					// Skip objects that aren't tiles.
-					if (object.getTileID() == 0)
-						continue;
-
-					// Find the tileset that contains the object.
-					for (const auto& tileset : map.getTilesets())
-					{
-						if (!tileset.hasTile(object.getTileID()))
-							continue;
-
-						// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
-						// but SFML uses the top-left corner of the sprite for the sprite's position.
-
-						tmx::FloatRect aabb = object.getAABB();
-
-						// Calculate the position(s) of the object.
-						sf::Vector2f pixel_position( // center of the AABB
-							aabb.left + aabb.width / 2,
-							aabb.top - aabb.height / 2); // PITFALL: getAABB().top is the bottom of the AABB.
-						sf::Vector2f world_position(
-							pixel_position.x / tile_size.x,
-							pixel_position.y / tile_size.y);
-						sf::Vector2f sprite_origin( // in pixels
-							tileset.getTileSize().x / 2.0f,
-							tileset.getTileSize().y / 2.0f);
-
-						// Create an entity for the object.
-						entt::entity entity = registry.create();
-
-						// Add the object's name as a component to the entity.
-						registry.emplace<std::string>(entity, object.getName());
-
-						// Add a tile component to the entity.
-						auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
-							&tileset, object.getTileID());
-
-						// Add a sprite component to the entity.
-						auto& sprite = registry.emplace<sf::Sprite>(entity,
-							_path_to_tileset_texture.at(tileset.getImagePath()),
-							ecs_tile.get_texture_rect());
-						sprite.setPosition(pixel_position);
-						sprite.setOrigin(sprite_origin);
-
-						// If the object has at least one collider,
-						// create a dynamic body component for it.
-						if (ecs_tile.has_colliders())
-						{
-							b2BodyDef body_def;
-							body_def.type = b2_dynamicBody;
-							body_def.position.x = world_position.x;
-							body_def.position.y = world_position.y;
-
-							if (b2Body* body = physics::get_world().CreateBody(&body_def))
-							{
-								b2CircleShape shape;
-								shape.m_radius = 0.25f;
-								b2FixtureDef fixture_def;
-								fixture_def.shape = &shape;
-								fixture_def.density = 1.0f;
-								body->CreateFixture(&fixture_def);
-								//body->SetUserData((void*)entity);
-
-								registry.emplace<b2Body*>(entity, body);
-							}
-						}
-
-						// If the objects has a property named "behavior",
-						// add a behavior tree component to the entity.
-						for (const auto& prop : object.getProperties())
-						{
-							if (prop.getName() == "behavior" &&
-								prop.getType() == tmx::Property::Type::String)
-							{
-								try
-								{
-									BT::Tree tree = behavior::create_tree(prop.getStringValue());
-									behavior::set_entity(tree, entity);
-									registry.emplace<BT::Tree>(entity, std::move(tree));
-								}
-								catch (const std::runtime_error& error)
-								{
-									console::log_error("Failed to create behavior tree for entity.");
-									console::log_error(error.what());
-								}
-							}
-						}
-
-						break;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-
-	void close()
-	{
-		_current_map_it = _name_to_map.end();
-		ecs::get_registry().clear();
 	}
 }

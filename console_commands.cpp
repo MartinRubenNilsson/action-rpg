@@ -19,7 +19,7 @@ namespace console
 		{
 			auto cmd = app.add_subcommand("map", "Handle maps");
 			cmd->add_subcommand("list", "List all loaded maps")
-				->callback([]() { for (const auto& name : map::get_map_names()) log(name); });
+				->callback([]() { for (const auto& name : map::get_loaded_maps()) log(name); });
 			cmd->add_subcommand("name", "Print the name of the current map")
 				->callback([]() { log(map::get_name()); });
 			cmd->add_subcommand("open", "Open a map")

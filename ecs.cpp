@@ -1,5 +1,5 @@
 #include "ecs.h"
-#include "ecs_components.h"
+#include "ecs_common.h"
 #include "ecs_tiles.h"
 #include "math_vectors.h"
 #include "map.h"
@@ -29,9 +29,9 @@ namespace ecs
 	void _find_and_store_player_entity()
 	{
 		_player_entity = entt::null;
-		for (auto [entity, name] : _registry.view<std::string>().each())
+		for (auto [entity, type] : _registry.view<Type>().each())
 		{
-			if (name == "player")
+			if (type.value == "player")
 			{
 				_player_entity = entity;
 				break;

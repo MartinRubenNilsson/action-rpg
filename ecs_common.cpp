@@ -1,4 +1,4 @@
-#include "ecs_components.h"
+#include "ecs_common.h"
 
 namespace ecs
 {

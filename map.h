@@ -11,7 +11,14 @@ namespace map
 	void load_maps();
 
 	// Returns a list of names of all loaded maps.
-	std::vector<std::string> get_map_names();
+	std::vector<std::string> get_loaded_maps();
+
+	// Opens the map with the given name.
+	// If a map is already open, it is closed first.
+	bool open(const std::string& map_name);
+
+	// Closes the current map.
+	void close();
 
 	// Returns the name of the current map.
 	// If no map is open, returns an empty string.
@@ -24,11 +31,4 @@ namespace map
 	// Returns the size of a tile in the current map.
 	// If no map is open, returns (0, 0).
 	sf::Vector2u get_tile_size();
-
-	// Opens the map with the given name.
-	// If a map is already open, it is closed first.
-	bool open(const std::string& name);
-
-	// Closes the current map.
-	void close();
 }

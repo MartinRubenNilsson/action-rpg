@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="enemy">
-    <Delay delay_msec="1000">
+    <Delay delay_msec="2000">
       <Sequence>
         <ConsoleLog message="I&apos;m outta here!"/>
         <SetLifeSpan life_span="0"/>

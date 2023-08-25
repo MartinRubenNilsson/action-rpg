@@ -35,7 +35,7 @@ namespace physics
 	void debug_draw(sf::RenderWindow& window) {
 		DebugDrawSFML debug_draw(window);
 		debug_draw.SetFlags(b2Draw::e_shapeBit);
-		debug_draw.SetTileSize(sf::Vector2u(16, 16));
+		debug_draw.SetTileSize(sf::Vector2u(16, 16)); // TODO: remove hardcoded value
 		_world->SetDebugDraw(&debug_draw);
 		_world->DebugDraw();
 	}
@@ -44,7 +44,10 @@ namespace physics
 		return *_world;
 	}
 
-	b2Body* create_static_aabb(const sf::FloatRect& aabb, uintptr_t user_data)
+	b2Body* create_static_aabb(
+		const sf::FloatRect& aabb,
+		uintptr_t user_data,
+		bool sensor)
 	{
 		b2BodyDef body_def;
 		body_def.type = b2_staticBody;
@@ -58,7 +61,12 @@ namespace physics
 
 		b2PolygonShape shape;
 		shape.SetAsBox(aabb.width / 2, aabb.height / 2);
-		body->CreateFixture(&shape, 0.f);
+
+		b2FixtureDef fixture_def;
+		fixture_def.shape = &shape;
+		fixture_def.isSensor = sensor;
+
+		body->CreateFixture(&fixture_def);
 
 		return body;
 	}
