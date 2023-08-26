@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="11" nextobjectid="6">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="12" nextobjectid="8">
  <tileset firstgid="1" name="dungeon" tilewidth="16" tileheight="16" tilecount="625" columns="25">
   <image source="../tilesets/dungeon.png" width="400" height="400"/>
   <tile id="0">
@@ -320,14 +320,14 @@
 </data>
  </layer>
  <objectgroup id="4" name="characters">
-  <object id="3" name="me irl" type="player" gid="626" x="70" y="109.25" width="64" height="64"/>
-  <object id="4" name="enemy" gid="626" x="109" y="155" width="64" height="64">
+  <object id="3" name="player" type="player" gid="626" x="90" y="180.583" width="64" height="64"/>
+  <object id="4" name="enemy" gid="626" x="203" y="160" width="64" height="64">
    <properties>
     <property name="behavior" value="enemy"/>
    </properties>
   </object>
  </objectgroup>
  <objectgroup id="10" name="triggers">
-  <object id="5" name="level change trigger" type="trigger" x="18.6667" y="94" width="36" height="64.3333"/>
+  <object id="5" name="level change trigger" type="trigger" x="38" y="63.3333" width="36" height="64.3333"/>
  </objectgroup>
 </map>

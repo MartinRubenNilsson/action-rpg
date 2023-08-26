@@ -4,11 +4,20 @@
 #include "math_vectors.h"
 #include "map.h"
 #include "behavior.h"
+#include "physics.h"
 
 namespace ecs
 {
 	entt::registry _registry;
-	entt::entity _player_entity = entt::null;
+	std::unordered_set<entt::entity> _entities_to_destroy;
+	entt::entity _player_entity = entt::null; // TODO: move to own module
+
+	void _destroy_entities()
+	{
+		for (entt::entity entity : _entities_to_destroy)
+			if (_registry.valid(entity))
+				_registry.destroy(entity);
+	}
 
 	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
 		auto body = registry.get<b2Body*>(entity);
@@ -24,6 +33,30 @@ namespace ecs
 	void shutdown()
 	{
 		_registry.clear();
+	}
+
+	void _process_physics_contacts()
+	{
+		b2World& world = physics::get_world();
+		for (b2Contact* contact = world.GetContactList(); contact; contact = contact->GetNext())
+		{
+			if (!contact->IsTouching())
+				continue;
+
+			b2Fixture* fixture_a = contact->GetFixtureA();
+			b2Fixture* fixture_b = contact->GetFixtureB();
+			b2Body* body_a = fixture_a->GetBody();
+			b2Body* body_b = fixture_b->GetBody();
+			entt::entity entity_a = (entt::entity)body_a->GetUserData().pointer;
+			entt::entity entity_b = (entt::entity)body_b->GetUserData().pointer;
+
+			if ((has_type(entity_a, "player") && has_type(entity_b, "trigger")) ||
+				(has_type(entity_a, "trigger") && has_type(entity_b, "player")))
+			{
+				destroy_deferred(entity_a);
+				destroy_deferred(entity_b);
+			}
+		}
 	}
 
 	void _find_and_store_player_entity()
@@ -191,10 +224,12 @@ namespace ecs
 
 	void update(float dt)
 	{
+		_process_physics_contacts();
 		_find_and_store_player_entity();
 		_update_player(dt);
 		_update_behavior_trees();
 		_update_life_spans(dt);
+		_destroy_entities();
 		_update_animated_tiles(dt);
 		_update_sprites();
 	}
@@ -213,5 +248,9 @@ namespace ecs
 
 	entt::registry& get_registry() {
 		return _registry;
+	}
+
+	void destroy_deferred(entt::entity entity) {
+		_entities_to_destroy.emplace(entity);
 	}
 }

@@ -46,9 +46,9 @@ namespace tmx
 
 namespace ecs
 {
-	Tile::Tile(const const tmx::Tileset* tileset, uint32_t id)
+	Tile::Tile(const const tmx::Tileset* tileset, uint32_t tile_id)
 		: _tileset(tileset)
-		, _tile(tileset->getTile(id))
+		, _tile(tileset->getTile(tile_id))
 	{
 		assert(_tile && "Tile ID not found in tileset.");
 	}
@@ -65,6 +65,8 @@ namespace ecs
 
 	uint32_t Tile::get_id() const
 	{
+		// The tile ID is local to the tileset, so we need to add the global tile ID
+		// of the first tile in the tileset in order to get the global tile ID.
 		return _tile->ID + _tileset->getFirstGID();
 	}
 
@@ -92,5 +94,15 @@ namespace ecs
 		if (has_animation())
 			id = tmx::_get_tile_id_at_time(_tile->animation, animation_time * 1000);
 		return tmx::_get_texture_rect(*_tileset, id);
+	}
+
+	const tmx::Property* Tile::get_property(const std::string& name) const
+	{
+		for (const auto& prop : _tile->properties)
+		{
+			if (prop.getName() == name)
+				return &prop;
+		}
+		return nullptr;
 	}
 }

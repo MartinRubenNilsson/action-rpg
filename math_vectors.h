@@ -3,6 +3,9 @@
 
 namespace sf
 {
+	Vector2f operator*(const Vector2f& left, const Vector2f& right);
+	Vector2f operator/(const Vector2f& left, const Vector2f& right);
+
 	bool is_zero(const Vector2f& v);
 	float len_sqr(const Vector2f& v);
 	float len(const Vector2f& v);

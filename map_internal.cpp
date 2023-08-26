@@ -1,6 +1,7 @@
 #include "map_internal.h"
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
+#include "math_vectors.h"
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_tiles.h"
@@ -42,7 +43,7 @@ namespace map
 	void _process_tile_layer(
 		const std::string& map_name,
 		const tmx::Map& map,
-		const tmx::TileLayer& layer)
+		const tmx::TileLayer& tile_layer)
 	{
 		auto& registry = ecs::get_registry();
 
@@ -53,7 +54,7 @@ namespace map
 		{
 			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
 			{
-				const auto& tile = layer.getTiles()[tile_y * tile_count.x + tile_x];
+				const auto& tile = tile_layer.getTiles()[tile_y * tile_count.x + tile_x];
 				if (tile.ID == 0) continue; // Skip empty tiles.
 
 				auto tileset = tmx::_get_tileset(map, tile.ID);
@@ -66,7 +67,6 @@ namespace map
 					_path_to_tileset_texture.at(tileset->getImagePath()),
 					ecs_tile.get_texture_rect());
 				sprite.setPosition(tile_x * tile_size.x, tile_y * tile_size.y);
-				sprite.setOrigin(tile_size.x / 2.0f, tile_size.y / 2.0f);
 
 				// If the tile has at least one collider,
 				// add a box2d body component to the entity.
@@ -92,52 +92,69 @@ namespace map
 	{
 		auto& registry = ecs::get_registry();
 
+		tmx::Vector2u tile_size = map.getTileSize();
+
 		for (const tmx::Object& object : object_group.getObjects())
 		{
-			// Create an entity for the object and add its name and type as components.
+			// TODO: Use the UID of the object to create the entity.
 			entt::entity entity = registry.create();
 			registry.emplace<ecs::Name>(entity, object.getName());
 			registry.emplace<ecs::Type>(entity, object.getType());
 
-			// TODO: Refactor here
+			// PITFALL: getAABB() returns the object AABB *before* rotating.
+			tmx::FloatRect object_aabb = object.getAABB();
+
+			// PITFALL: For tile objects only, aabb.top is the *bottom* of the AABB.
+			// This is confusing, so we'll change it here to make it consistent.
+			if (object.getTileID() != 0)
+				object_aabb.top -= object_aabb.height;
+
 			tmx::Object::Shape shape = object.getShape();
 			if (shape == tmx::Object::Shape::Rectangle)
 			{
-				// This case includes both rectangles and tiles.
-				//TODO: handle triggers
+				// NOTE: This case includes both rectangles and tiles.
+				// The object is a tile if and only if its tile ID is non-zero.
 
-				// Skip objects that aren't tiles.
-				if (object.getTileID() == 0) continue;
+				// If object isn't a tile, consider it a trigger/sensor.
+				if (object.getTileID() == 0) 
+				{
+					sf::FloatRect trigger_aabb;
+					trigger_aabb.left   = object_aabb.left   / tile_size.x;
+					trigger_aabb.top    = object_aabb.top    / tile_size.y;
+					trigger_aabb.width  = object_aabb.width  / tile_size.x;
+					trigger_aabb.height = object_aabb.height / tile_size.y;
+
+					if (b2Body* body = physics::create_static_aabb(trigger_aabb, (uintptr_t)entity, true))
+						registry.emplace<b2Body*>(entity, body);
+
+					continue;
+				}
 
 				auto tileset = tmx::_get_tileset(map, object.getTileID());
 				assert(tileset && "Tileset not found."); // Should never happen.
-
-				// PITFALL: Tiled uses the bottom-left corner of the tile for the object's position,
-				// but SFML uses the top-left corner of the sprite for the sprite's position.
-
-				tmx::FloatRect aabb = object.getAABB();
-
-				// Calculate the position(s) of the object.
-				sf::Vector2f pixel_position( // center of the AABB
-					aabb.left + aabb.width / 2,
-					aabb.top - aabb.height / 2); // PITFALL: getAABB().top is the bottom of the AABB.
-				sf::Vector2f world_position(
-					pixel_position.x / map.getTileSize().x,
-					pixel_position.y / map.getTileSize().y);
-				sf::Vector2f sprite_origin( // in pixels
-					tileset->getTileSize().x / 2.0f,
-					tileset->getTileSize().y / 2.0f);
 
 				// Add a tile component to the entity.
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
 					tileset, object.getTileID());
 
+				sf::Vector2f aabb_center(
+					object_aabb.left + object_aabb.width / 2,
+					object_aabb.top + object_aabb.height / 2);
+				sf::Vector2f world_position(
+					aabb_center.x / tile_size.x,
+					aabb_center.y / tile_size.y);
+
+				// PITFALL: Tiled treats the bottom-left corner as the object position,
+				// but SFML treats the top-left corner as the sprite position by default.
+
 				// Add a sprite component to the entity.
 				auto& sprite = registry.emplace<sf::Sprite>(entity,
 					_path_to_tileset_texture.at(tileset->getImagePath()),
 					ecs_tile.get_texture_rect());
-				sprite.setPosition(pixel_position);
-				sprite.setOrigin(sprite_origin);
+				sprite.setPosition(aabb_center);
+				sprite.setOrigin(
+					tileset->getTileSize().x / 2.0f,
+					tileset->getTileSize().y / 2.0f);
 
 				if (ecs_tile.has_colliders())
 				{
@@ -189,6 +206,9 @@ namespace map
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
+		// TODO: precreate all object entities, so they are reserved in the registry.
+		// This will allow us to use the entity's UID as the object's UID in Tiled.
+
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
 		// This ensures that sprites on the higher layers are drawn on top.

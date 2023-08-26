@@ -8,5 +8,8 @@ namespace ecs
 	void render(sf::RenderWindow& window);
 
 	entt::registry& get_registry();
+
+	// Mark an entity for destruction at the end of the frame.
+	void destroy_deferred(entt::entity entity);
 }
 

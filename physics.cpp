@@ -51,8 +51,8 @@ namespace physics
 	{
 		b2BodyDef body_def;
 		body_def.type = b2_staticBody;
-		body_def.position.x = aabb.left + aabb.width / 2;
-		body_def.position.y = aabb.top + aabb.height / 2;
+		body_def.position.x = aabb.left;
+		body_def.position.y = aabb.top;
 		body_def.userData.pointer = user_data;
 
 		b2Body* body = _world->CreateBody(&body_def);
@@ -60,7 +60,10 @@ namespace physics
 			return nullptr;
 
 		b2PolygonShape shape;
-		shape.SetAsBox(aabb.width / 2, aabb.height / 2);
+		shape.SetAsBox(
+			aabb.width / 2.f, aabb.height / 2.f,
+			b2Vec2(aabb.width / 2.f, aabb.height / 2.f),
+			0.f);
 
 		b2FixtureDef fixture_def;
 		fixture_def.shape = &shape;
