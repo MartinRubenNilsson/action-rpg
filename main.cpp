@@ -4,11 +4,11 @@
 #include <imgui-SFML.h>
 #include "audio.h"
 #include "physics.h"
-#include "rml.h"
+#include "ui.h"
 #include "map.h"
 #include "behavior.h"
 #include "ecs.h"
-#include "rml_data_bindings.h"
+#include "ui_bindings.h"
 #include "console.h"
 
 #define TILE_SIZE 16
@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // INITIALIZATION
 
     ImGui::SFML::Init(window);
-    rml::initialize(window);
+    ui::initialize(window);
     physics::initialize();
     behavior::register_nodes();
     ecs::initialize();
@@ -40,7 +40,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // LOAD ASSETS
 
     audio::load_music_and_sounds();
-    rml::load_fonts_and_documents();
+    ui::load_fonts_and_documents();
     behavior::load_trees();
     map::load_tilesets();
     map::load_maps();
@@ -68,7 +68,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         while (window.pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(window, event);
-            rml::process_event(event);
+            ui::process_event(event);
 
             if      (event.type == sf::Event::Closed)
             {
@@ -91,7 +91,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         physics::update(dt.asSeconds());
         ecs::update(dt.asSeconds());
-        rml::update();
+        ui::update();
 
         // RENDERING
 
@@ -99,7 +99,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         ecs::render(window);
         if (debug_draw_physics)
             physics::debug_draw(window);
-        rml::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
+        ui::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
         window.resetGLStates();
         ImGui::SFML::Render(window);
         window.display();
@@ -109,7 +109,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     ecs::shutdown();
     physics::shutdown();
-    rml::shutdown();
+    ui::shutdown();
     ImGui::SFML::Shutdown();
 
 	return 0;

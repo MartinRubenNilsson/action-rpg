@@ -1,17 +1,21 @@
-#include "rml_data_bindings.h"
+#include "ui_bindings.h"
 #include <RmlUi/Core.h>
 
-namespace rml
+namespace ui
 {
 	extern Rml::Context* _context;
-	Rml::DataModelHandle data_model_handle;
+	Rml::DataModelHandle _data_model_handle;
 
 	bool is_variable_dirty(const std::string& name) {
-		return data_model_handle.IsVariableDirty(name);
+		return _data_model_handle.IsVariableDirty(name);
 	}
 
 	void dirty_variable(const std::string& name) {
-		data_model_handle.DirtyVariable(name);
+		_data_model_handle.DirtyVariable(name);
+	}
+
+	void dirty_all_variables() {
+		_data_model_handle.DirtyAllVariables();
 	}
 
 	// DATA VARIABLES
@@ -33,12 +37,11 @@ namespace rml
 
 	// CREATE BINDINGS
 
-	void _create_data_bindings()
+	void _create_bindings()
 	{
 		auto data_model = _context->CreateDataModel("data_model");
-		if (!data_model)
-			return;
-		data_model_handle = data_model.GetModelHandle();
+		if (!data_model) return;
+		_data_model_handle = data_model.GetModelHandle();
 
 		// DATA VARIABLES
 

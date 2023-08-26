@@ -2,7 +2,7 @@
 #include <CLI/CLI.hpp>
 #include "audio.h"
 #include "map.h"
-#include "rml.h"
+#include "ui.h"
 
 namespace console
 {
@@ -19,7 +19,7 @@ namespace console
 		{
 			auto cmd = app.add_subcommand("map", "Handle maps");
 			cmd->add_subcommand("list", "List all loaded maps")
-				->callback([]() { for (const auto& name : map::get_maps_name()) log(name); });
+				->callback([]() { for (const auto& name : map::get_loaded_maps()) log(name); });
 			cmd->add_subcommand("name", "Print the name of the current map")
 				->callback([]() { log(map::get_name()); });
 			cmd->add_subcommand("open", "Open a map")
@@ -32,11 +32,11 @@ namespace console
 		{
 			auto cmd = app.add_subcommand("rml", "Handle RML documents");
 			cmd->add_subcommand("list", "List all loaded documents")
-				->callback([]() { for (const auto& name : rml::get_list()) log(name); });
+				->callback([]() { for (const auto& name : ui::get_loaded_documents()) log(name); });
 			cmd->add_subcommand("show", "Show a document")
-				->add_option_function<std::string>("name", rml::show, "The name of the document");
+				->add_option_function<std::string>("name", ui::show, "The name of the document");
 			cmd->add_subcommand("hide", "Hide a document")
-				->add_option_function<std::string>("name", rml::hide, "The name of the document");
+				->add_option_function<std::string>("name", ui::hide, "The name of the document");
 		}
 	}
 }

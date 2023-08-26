@@ -26,7 +26,7 @@ namespace map
 		_current_map_it = _name_to_map.end();
 	}
 
-	std::vector<std::string> get_maps_name()
+	std::vector<std::string> get_loaded_maps()
 	{
 		std::vector<std::string> names;
 		for (const auto& [name, map] : _name_to_map)

@@ -3,23 +3,14 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp">
-      <Filter>rml</Filter>
-    </ClCompile>
-    <ClCompile Include="RmlUi_Platform_SFML.cpp">
-      <Filter>rml</Filter>
-    </ClCompile>
-    <ClCompile Include="RmlUi_Renderer_GL2.cpp">
-      <Filter>rml</Filter>
-    </ClCompile>
-    <ClCompile Include="rml.cpp">
-      <Filter>rml</Filter>
+    <ClCompile Include="ui.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ecs_tiles.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="rml_data_bindings.cpp">
-      <Filter>rml</Filter>
+    <ClCompile Include="ui_bindings.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
       <Filter>map</Filter>
@@ -60,32 +51,29 @@
     <ClCompile Include="ecs_behaviors.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp">
+      <Filter>ui\rml</Filter>
+    </ClCompile>
+    <ClCompile Include="RmlUi_Platform_SFML.cpp">
+      <Filter>ui\rml</Filter>
+    </ClCompile>
+    <ClCompile Include="RmlUi_Renderer_GL2.cpp">
+      <Filter>ui\rml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="RmlUi_Renderer_GL2.h">
-      <Filter>rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Backend.h">
-      <Filter>rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Include_Windows.h">
-      <Filter>rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Platform_SFML.h">
-      <Filter>rml</Filter>
-    </ClInclude>
-    <ClInclude Include="rml.h">
-      <Filter>rml</Filter>
+    <ClInclude Include="ui.h">
+      <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ecs_tiles.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="rml_data_bindings.h">
-      <Filter>rml</Filter>
+    <ClInclude Include="ui_bindings.h">
+      <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
       <Filter>map</Filter>
@@ -120,11 +108,20 @@
     <ClInclude Include="ecs_behaviors.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="RmlUi_Renderer_GL2.h">
+      <Filter>ui\rml</Filter>
+    </ClInclude>
+    <ClInclude Include="RmlUi_Backend.h">
+      <Filter>ui\rml</Filter>
+    </ClInclude>
+    <ClInclude Include="RmlUi_Include_Windows.h">
+      <Filter>ui\rml</Filter>
+    </ClInclude>
+    <ClInclude Include="RmlUi_Platform_SFML.h">
+      <Filter>ui\rml</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="rml">
-      <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ecs">
       <UniqueIdentifier>{f1d0e233-c8b6-45ea-9899-c05d6aa201d9}</UniqueIdentifier>
     </Filter>
@@ -145,6 +142,12 @@
     </Filter>
     <Filter Include="behavior">
       <UniqueIdentifier>{e9215716-816e-4e89-b7f4-716d8fb5a9d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\rml">
+      <UniqueIdentifier>{134e0648-b6e8-466e-8524-bb93caffb9c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

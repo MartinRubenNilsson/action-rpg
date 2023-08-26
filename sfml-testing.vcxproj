@@ -199,13 +199,13 @@
     <ClCompile Include="math_vectors.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="physics_debug.cpp" />
-    <ClCompile Include="rml.cpp" />
+    <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp" />
     <ClCompile Include="RmlUi_Platform_SFML.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2.cpp" />
-    <ClCompile Include="rml_data_bindings.cpp" />
+    <ClCompile Include="ui_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -228,13 +228,13 @@
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physics_debug.h" />
-    <ClInclude Include="rml.h" />
+    <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Backend.h" />
     <ClInclude Include="RmlUi_Include_Windows.h" />
     <ClInclude Include="RmlUi_Platform_SFML.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h" />
-    <ClInclude Include="rml_data_bindings.h" />
+    <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_tiles.h" />
   </ItemGroup>

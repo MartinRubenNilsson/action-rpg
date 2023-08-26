@@ -1,12 +1,12 @@
-﻿#include "rml.h"
+﻿#include "ui.h"
 #include "RmlUi_Backend.h"
 #include <RmlUi/Core.h>
 
-namespace rml
+namespace ui
 {
 	Rml::Context* _context = nullptr;
 
-	extern void _create_data_bindings();
+	extern void _create_bindings();
 
 	void initialize(sf::RenderWindow& window)
 	{
@@ -18,7 +18,7 @@ namespace rml
 		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
 		_context = Rml::CreateContext("main", window_size);
 
-		_create_data_bindings();
+		_create_bindings();
 	}
 
 	void shutdown()
@@ -28,13 +28,11 @@ namespace rml
 		Backend::Shutdown();
 	}
 
-	void process_event(const sf::Event& event)
-	{
+	void process_event(const sf::Event& event) {
 		Backend::ProcessEvent(_context, event);
 	}
 
-	void update()
-	{
+	void update() {
 		_context->Update();
 	}
 
@@ -66,7 +64,7 @@ namespace rml
 		}
 	}
 
-	std::vector<std::string> get_list()
+	std::vector<std::string> get_loaded_documents()
 	{
 		std::vector<std::string> names;
 		for (int i = 0; i < _context->GetNumDocuments(); ++i)
@@ -74,15 +72,15 @@ namespace rml
 		return names;
 	}
 
-	void show(const std::string& name)
+	void show(const std::string& document_name)
 	{
-		if (auto document = _context->GetDocument(name))
+		if (auto document = _context->GetDocument(document_name))
 			document->Show();
 	}
 
-	void hide(const std::string& name)
+	void hide(const std::string& document_name)
 	{
-		if (auto document = _context->GetDocument(name))
+		if (auto document = _context->GetDocument(document_name))
 			document->Hide();
 	}
 }

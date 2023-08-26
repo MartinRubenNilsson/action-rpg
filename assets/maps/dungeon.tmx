@@ -326,9 +326,8 @@
     <property name="behavior" value="enemy"/>
    </properties>
   </object>
-  <object id="8" name="thing" gid="644" x="161" y="229" width="64" height="64"/>
  </objectgroup>
  <objectgroup id="10" name="triggers">
-  <object id="5" name="level change trigger" type="trigger" x="38" y="63.3333" width="36" height="64.3333"/>
+  <object id="5" name="map change trigger" type="trigger" x="38" y="63.3333" width="36" height="64.3333"/>
  </objectgroup>
 </map>
