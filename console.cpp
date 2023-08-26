@@ -243,18 +243,42 @@ namespace console
 		}
 	}
 
+	std::string _implode(
+		const std::vector<std::string>& strings,
+		const std::string& separator)
+	{
+		std::string result;
+		for (size_t i = 0; i < strings.size(); ++i)
+		{
+			result += strings[i];
+			if (i < strings.size() - 1)
+				result += separator;
+		}
+		return result;
+	}
+
 	void execute_script(const std::string& script_name)
 	{
-		std::filesystem::path script_path = "assets/scripts/" + script_name;
-		script_path.replace_extension(".script");
-		std::ifstream script_file(script_path);
-		if (!script_file)
+		static std::vector<std::string> stack;
+		if (std::find(stack.begin(), stack.end(), script_name) != stack.end())
 		{
-			log_error("Failed to open script file: " + script_path.generic_string());
+			log_error("Script recursion detected: " + _implode(stack, " -> "));
 			return;
 		}
-		std::string line;
-		while (std::getline(script_file, line))
-			execute(line);
+		stack.push_back(script_name);
+		{
+			std::filesystem::path script_path = "assets/scripts/" + script_name;
+			script_path.replace_extension(".script");
+			std::ifstream script_file(script_path);
+			if (!script_file)
+			{
+				log_error("Failed to open script: " + script_path.generic_string());
+				return;
+			}
+			std::string line;
+			while (std::getline(script_file, line))
+				execute(line);
+		}
+		stack.pop_back();
 	}
 }
