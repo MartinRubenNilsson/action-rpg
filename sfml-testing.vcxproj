@@ -193,6 +193,7 @@
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="ecs.cpp" />
+    <ClCompile Include="ecs_behaviors.cpp" />
     <ClCompile Include="ecs_common.cpp" />
     <ClCompile Include="map_internal.cpp" />
     <ClCompile Include="math_vectors.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="behavior.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="ecs.h" />
+    <ClInclude Include="ecs_behaviors.h" />
     <ClInclude Include="ecs_common.h" />
     <ClInclude Include="map_internal.h" />
     <ClInclude Include="math_vectors.h" />

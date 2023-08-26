@@ -57,6 +57,9 @@
     <ClCompile Include="map_internal.cpp">
       <Filter>map</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_behaviors.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="map_internal.h">
       <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_behaviors.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

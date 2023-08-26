@@ -46,6 +46,8 @@ namespace tmx
 
 namespace ecs
 {
+	extern entt::registry _registry;
+
 	Tile::Tile(const const tmx::Tileset* tileset, uint32_t tile_id)
 		: _tileset(tileset)
 		, _tile(tileset->getTile(tile_id))
@@ -104,5 +106,14 @@ namespace ecs
 				return &prop;
 		}
 		return nullptr;
+	}
+
+	void update_animated_tiles(float dt)
+	{
+		for (auto [entity, tile] : _registry.view<Tile>().each())
+		{
+			if (tile.has_animation())
+				tile.animation_time += dt;
+		}
 	}
 }

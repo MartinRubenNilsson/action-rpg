@@ -23,4 +23,6 @@ namespace ecs
 		const tmx::Tileset* _tileset = nullptr;
 		const tmx::Tileset::Tile* _tile = nullptr;
 	};
+
+	void update_animated_tiles(float dt);
 }

@@ -4,7 +4,7 @@
     <Delay delay_msec="2000">
       <Sequence>
         <ConsoleLog message="I&apos;m outta here!"/>
-        <SetLifeSpan life_span="0"/>
+        <DestroySelf/>
       </Sequence>
     </Delay>
   </BehaviorTree>
@@ -15,10 +15,7 @@
       <input_port name="message"
                   type="std::string">test</input_port>
     </Action>
-    <Action ID="SetLifeSpan">
-      <input_port name="life_span"
-                  type="float">The remaining life span</input_port>
-    </Action>
+    <Action ID="DestroySelf"/>
   </TreeNodesModel>
 
 </root>

@@ -146,15 +146,6 @@ namespace ecs
 		}
 	}
 
-	void _update_animated_tiles(float dt)
-	{
-		for (auto [entity, tile] : _registry.view<Tile>().each())
-		{
-			if (tile.has_animation())
-				tile.animation_time += dt;
-		}
-	}
-
 	void _update_sprites()
 	{
 		sf::Vector2u map_tile_size = map::get_tile_size();
@@ -230,7 +221,7 @@ namespace ecs
 		_update_behavior_trees();
 		_update_life_spans(dt);
 		_destroy_entities();
-		_update_animated_tiles(dt);
+		update_animated_tiles(dt);
 		_update_sprites();
 	}
 

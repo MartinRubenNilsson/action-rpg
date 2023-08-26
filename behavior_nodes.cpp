@@ -1,5 +1,7 @@
 #include "console.h"
+#include "ecs.h"
 #include "ecs_common.h"
+#include "ecs_behaviors.h"
 
 namespace behavior
 {
@@ -22,12 +24,22 @@ namespace behavior
 		}
 	};
 
-	struct EntityNode
+	struct DestroySelfNode : BT::SyncActionNode, ecs::EntityNode
 	{
-		entt::entity entity;
+		DestroySelfNode(const std::string& name, const BT::NodeConfig& config)
+			: BT::SyncActionNode(name, config)
+		{}
+
+		static BT::PortsList providedPorts() { return {}; }
+
+		BT::NodeStatus tick() override
+		{
+			ecs::destroy_deferred(entity);
+			return BT::NodeStatus::SUCCESS;
+		}
 	};
 
-	struct SetLifeSpanNode : BT::SyncActionNode, EntityNode
+	struct SetLifeSpanNode : BT::SyncActionNode, ecs::EntityNode
 	{
 		SetLifeSpanNode(const std::string& name, const BT::NodeConfig& config)
 			: BT::SyncActionNode(name, config)
@@ -47,6 +59,7 @@ namespace behavior
 	void _register_nodes(BT::BehaviorTreeFactory& factory)
 	{
 		factory.registerNodeType<ConsoleLogNode>("ConsoleLog");
+		factory.registerNodeType<DestroySelfNode>("DestroySelf");
 		factory.registerNodeType<SetLifeSpanNode>("SetLifeSpan");
 	}
 }

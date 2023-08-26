@@ -6,6 +6,7 @@
         <Action ID="ConsoleLog">
             <input_port name="message" type="std::string">test</input_port>
         </Action>
+        <Action ID="DestroySelf"/>
         <Action ID="SetLifeSpan">
             <input_port name="life_span" type="float">The remaining life span</input_port>
         </Action>

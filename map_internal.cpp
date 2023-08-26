@@ -5,8 +5,8 @@
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_tiles.h"
+#include "ecs_behaviors.h"
 #include "physics.h"
-#include "behavior.h"
 #include "console.h"
 
 namespace tmx
@@ -98,8 +98,8 @@ namespace map
 		{
 			// TODO: Use the UID of the object to create the entity.
 			entt::entity entity = registry.create();
-			registry.emplace<ecs::Name>(entity, object.getName());
-			registry.emplace<ecs::Type>(entity, object.getType());
+			ecs::set_name(entity, object.getName());
+			ecs::set_type(entity, object.getType());
 
 			// PITFALL: getAABB() returns the object AABB *before* rotating.
 			tmx::FloatRect object_aabb = object.getAABB();
@@ -187,17 +187,7 @@ namespace map
 					if (prop.getName() == "behavior" &&
 						prop.getType() == tmx::Property::Type::String)
 					{
-						try
-						{
-							BT::Tree tree = behavior::create_tree(prop.getStringValue());
-							behavior::set_entity(tree, entity);
-							registry.emplace<BT::Tree>(entity, std::move(tree));
-						}
-						catch (const std::runtime_error& error)
-						{
-							console::log_error("Failed to create behavior tree for entity.");
-							console::log_error(error.what());
-						}
+						ecs::set_behavior_tree(entity, prop.getStringValue());
 					}
 				}
 			}

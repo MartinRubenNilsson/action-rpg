@@ -8,8 +8,7 @@ namespace behavior
 
 	extern void _register_nodes(BT::BehaviorTreeFactory& factory);
 
-	void register_nodes()
-	{
+	void register_nodes() {
 		_register_nodes(_factory);
 	}
 
@@ -42,14 +41,5 @@ namespace behavior
 
 	BT::Tree create_tree(const std::string& name, BT::Blackboard::Ptr blackboard) {
 		return _factory.createTree(name, blackboard);
-	}
-
-	void set_entity(BT::Tree& tree, entt::entity entity)
-	{
-		tree.applyVisitor([entity](BT::TreeNode* node)
-			{
-				if (auto entity_node = dynamic_cast<EntityNode*>(node))
-					entity_node->entity = entity;
-			});
 	}
 }
