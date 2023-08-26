@@ -32,4 +32,10 @@ namespace ecs
 		}
 		return true;
 	}
+
+	void update_behavior_trees()
+	{
+		for (auto [entity, tree] : _registry.view<BT::Tree>().each())
+			tree.tickOnce();
+	}
 }

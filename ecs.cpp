@@ -1,6 +1,7 @@
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_tiles.h"
+#include "ecs_behaviors.h"
 #include "math_vectors.h"
 #include "map.h"
 #include "behavior.h"
@@ -130,12 +131,6 @@ namespace ecs
 		body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
 	}
 
-	void _update_behavior_trees()
-	{
-		for (auto [entity, tree] : _registry.view<BT::Tree>().each())
-			tree.tickOnce();
-	}
-
 	void _update_life_spans(float dt)
 	{
 		for (auto [entity, life_span] : _registry.view<LifeSpan>().each())
@@ -218,7 +213,7 @@ namespace ecs
 		_process_physics_contacts();
 		_find_and_store_player_entity();
 		_update_player(dt);
-		_update_behavior_trees();
+		update_behavior_trees();
 		_update_life_spans(dt);
 		_destroy_entities();
 		update_animated_tiles(dt);
@@ -242,6 +237,6 @@ namespace ecs
 	}
 
 	void destroy_deferred(entt::entity entity) {
-		_entities_to_destroy.emplace(entity);
+		_entities_to_destroy.insert(entity);
 	}
 }

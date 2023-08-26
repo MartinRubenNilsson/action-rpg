@@ -113,6 +113,9 @@ namespace console
 		{
 			_app.add_subcommand("clear", "Clear the console")
 				->callback(clear);
+			_app.add_subcommand("script", "Execute a console script")
+				->add_option_function<std::string>("name", execute_script, "The name of the script")
+				->required();
 		}
 
 		// SETUP WINDOW COMMANDS
@@ -137,6 +140,7 @@ namespace console
 			}
 		}
 
+		// SETUP OTHER COMMANDS
 		_setup_commands(_app);
 
 		log("Type -h or --help for a list of commands");
@@ -207,18 +211,15 @@ namespace console
 			_reclaim_focus = true;
 	}
 
-	void clear()
-	{
+	void clear() {
 		_history.clear();
 	}
 
-	void log(const std::string& message)
-	{
+	void log(const std::string& message) {
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
 	}
 
-	void log_error(const std::string& message)
-	{
+	void log_error(const std::string& message) {
 		_history.emplace_back(message, _red);
 	}
 
@@ -240,5 +241,20 @@ namespace console
 		{
 			_history.emplace_back(parse_error.what(), _yellow);
 		}
+	}
+
+	void execute_script(const std::string& script_name)
+	{
+		std::filesystem::path script_path = "assets/scripts/" + script_name;
+		script_path.replace_extension(".script");
+		std::ifstream script_file(script_path);
+		if (!script_file)
+		{
+			log_error("Failed to open script file: " + script_path.generic_string());
+			return;
+		}
+		std::string line;
+		while (std::getline(script_file, line))
+			execute(line);
 	}
 }

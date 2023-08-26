@@ -13,5 +13,7 @@ namespace ecs
 		entt::entity entity,
 		const std::string& tree_name,
 		BT::Blackboard::Ptr blackboard = BT::Blackboard::create());
+
+	void update_behavior_trees();
 }
 

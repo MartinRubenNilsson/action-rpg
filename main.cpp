@@ -17,7 +17,7 @@
 #define WINDOW_WIDTH (VIEW_WIDTH * 3)
 #define WINDOW_HEIGHT (VIEW_HEIGHT * 3)
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
     // CREATE WINDOW
 
@@ -47,12 +47,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
     // OTHER STUFF
 
+#ifdef _DEBUG
     behavior::write_node_models("assets/behaviors/models/models.xml"); // should only be done in debug builds
-    audio::play_music("quiet_and_falling");
+#endif
 
-    // EXECUTE CONSOLE COMMANDS
+    // EXECUTE STARTUP COMMANDS
 
-    console::execute("map open dungeon");
+    if (strlen(command_line) > 0)
+        console::execute(command_line);
 
     // GAME LOOP
 

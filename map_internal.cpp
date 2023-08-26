@@ -96,8 +96,9 @@ namespace map
 
 		for (const tmx::Object& object : object_group.getObjects())
 		{
-			// TODO: Use the UID of the object to create the entity.
-			entt::entity entity = registry.create();
+			// At this point, each object should already have an entity created for it.
+			// (See _create_object_entities() below.)
+			entt::entity entity = (entt::entity)object.getUID();
 			ecs::set_name(entity, object.getName());
 			ecs::set_type(entity, object.getType());
 
@@ -193,11 +194,32 @@ namespace map
 			}
 		}
 	}
+	
+	void _create_object_entities(const tmx::Map& map)
+	{
+		std::unordered_set<entt::entity> entities_to_create;
+		for (const auto& layer : map.getLayers())
+		{
+			if (layer->getType() != tmx::Layer::Type::Object)
+				continue;
+			auto object_group = layer->getLayerAs<tmx::ObjectGroup>();
+			for (const auto& object : object_group.getObjects())
+				entities_to_create.insert((entt::entity)object.getUID());
+		}
+		for (entt::entity entity : entities_to_create)
+		{
+			entt::entity created_entity = ecs::get_registry().create(entity);
+			assert(entity == created_entity && "Entity ID already in use."); // == is correct here.
+		}
+	}
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
-		// TODO: precreate all object entities, so they are reserved in the registry.
-		// This will allow us to use the entity's UID as the object's UID in Tiled.
+		// Both EnTT and Tiled use uint32_t as their underlying ID type.
+		// This means that we can use the object IDs from Tiled directly as entity IDs.
+		// To ensure that these IDs are reserved (i.e. not used by any other entities),
+		// we first create an empty entity for each object in the map.
+		_create_object_entities(map);
 
 		// Iterate through all the layers in the map in reverse order
 		// so that sprites on the lower layers are created first.
