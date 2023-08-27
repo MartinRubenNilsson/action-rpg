@@ -94,14 +94,13 @@ namespace map
 
 		tmx::Vector2u tile_size = map.getTileSize();
 
-		for (const tmx::Object& object : object_group.getObjects())
+		for (const auto& object : object_group.getObjects())
 		{
 			// At this point, the object should already have had an
 			// entity created for it in _create_object_entities().
 			entt::entity entity = (entt::entity)object.getUID();
 			assert(ecs::get_registry().valid(entity) && "Entity not found.");
-			ecs::set_name(entity, object.getName());
-			ecs::set_type(entity, object.getType());
+			ecs::get_registry().emplace<const tmx::Object*>(entity, &object);
 
 			// PITFALL: getAABB() returns the object AABB *before* rotating.
 			tmx::FloatRect object_aabb = object.getAABB();
@@ -189,7 +188,7 @@ namespace map
 					if (prop.getName() == "behavior" &&
 						prop.getType() == tmx::Property::Type::String)
 					{
-						ecs::set_behavior_tree(entity, prop.getStringValue());
+						ecs::emplace_behavior_tree(entity, prop.getStringValue());
 					}
 				}
 			}

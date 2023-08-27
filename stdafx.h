@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <tmxlite/Object.hpp>
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
 #include <behaviortree_cpp/bt_factory.h>

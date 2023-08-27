@@ -15,9 +15,10 @@ namespace ecs
 	void _find_and_store_player_entity()
 	{
 		_player_entity = entt::null;
-		for (auto [entity, type] : _registry.view<Type>().each())
+		for (auto [entity, object] :
+			_registry.view<const tmx::Object*>().each())
 		{
-			if (type.value == "player")
+			if (object->getType() == "player")
 			{
 				_player_entity = entity;
 				break;
