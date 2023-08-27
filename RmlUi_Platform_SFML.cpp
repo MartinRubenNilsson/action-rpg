@@ -94,7 +94,7 @@ void SystemInterface_SFML::GetClipboardText(Rml::String& text)
 	text = sf::Clipboard::getString();
 }
 
-bool RmlSFML::InputHandler(Rml::Context* context, sf::Event& ev)
+bool RmlSFML::InputHandler(Rml::Context* context, const sf::Event& ev)
 {
 	bool result = true;
 

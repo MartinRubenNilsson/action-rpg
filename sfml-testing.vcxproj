@@ -202,7 +202,7 @@
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
-    <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp" />
+    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp" />
     <ClCompile Include="RmlUi_Platform_SFML.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2.cpp" />
     <ClCompile Include="ui_bindings.cpp" />
@@ -228,9 +228,9 @@
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physics_debug.h" />
+    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
-    <ClInclude Include="RmlUi_Backend.h" />
     <ClInclude Include="RmlUi_Include_Windows.h" />
     <ClInclude Include="RmlUi_Platform_SFML.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h" />

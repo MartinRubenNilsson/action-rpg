@@ -51,7 +51,7 @@
     <ClCompile Include="ecs_behaviors.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="RmlUi_Backend_SFML_GL2.cpp">
+    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
       <Filter>ui\rml</Filter>
     </ClCompile>
     <ClCompile Include="RmlUi_Platform_SFML.cpp">
@@ -111,13 +111,13 @@
     <ClInclude Include="RmlUi_Renderer_GL2.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
-    <ClInclude Include="RmlUi_Backend.h">
-      <Filter>ui\rml</Filter>
-    </ClInclude>
     <ClInclude Include="RmlUi_Include_Windows.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Platform_SFML.h">
+      <Filter>ui\rml</Filter>
+    </ClInclude>
+    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
   </ItemGroup>

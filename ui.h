@@ -9,7 +9,7 @@ namespace ui
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 
 	// Loads all TTF fonts in the assets/fonts folder,
-	// and all RML documents in the assets/rml folder.
+	// and all RML documents in the assets/ui folder.
 	void load_fonts_and_documents();
 
 	// Returns a list of names of all loaded RML documents.

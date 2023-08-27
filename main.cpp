@@ -8,7 +8,6 @@
 #include "map.h"
 #include "behavior.h"
 #include "ecs.h"
-#include "ui_bindings.h"
 #include "console.h"
 
 #define TILE_SIZE 16

@@ -75,7 +75,7 @@ namespace RmlSFML {
 
 // Applies input on the context based on the given SFML event.
 // @return True if the event is still propagating, false if it was handled by the context.
-bool InputHandler(Rml::Context* context, sf::Event& ev);
+bool InputHandler(Rml::Context* context, const sf::Event& ev);
 
 // Converts the SFML key to RmlUi key.
 Rml::Input::KeyIdentifier ConvertKey(sf::Keyboard::Key sfml_key);
