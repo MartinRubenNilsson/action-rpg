@@ -8,17 +8,17 @@ namespace console
 {
 	void _setup_commands(CLI::App& app)
 	{
-		// SETUP SOUND COMMANDS
+		// AUDIO
 		{
-			auto cmd = app.add_subcommand("sound", "Handle sounds");
-			cmd->add_subcommand("play", "Play a sound")
-				->add_option_function<std::string>("name", audio::play_sound, "The name of the sound")
+			auto cmd = app.add_subcommand("audio", "Manage audio");
+			cmd->add_subcommand("play", "Play an audio event")
+				->add_option_function<std::string>("name", audio::play_sound, "The name of the sound event")
 				->required();
 		}
 
-		// SETUP MAP COMMANDS
+		// MAP
 		{
-			auto cmd = app.add_subcommand("map", "Handle maps");
+			auto cmd = app.add_subcommand("map", "Manage maps");
 			cmd->add_subcommand("list", "List all loaded maps")
 				->callback([]() { for (const auto& name : map::get_loaded_maps()) log(name); });
 			cmd->add_subcommand("name", "Print the name of the current map")
@@ -30,9 +30,9 @@ namespace console
 				->callback(map::close);
 		}
 
-		// SETUP UI COMMANDS
+		// UI
 		{
-			auto cmd = app.add_subcommand("ui", "Handle UI");
+			auto cmd = app.add_subcommand("ui", "Manage UI documents");
 			cmd->add_subcommand("list", "List all loaded documents")
 				->callback([]() { for (const auto& name : ui::get_loaded_documents()) log(name); });
 			cmd->add_subcommand("show", "Show a document")

@@ -2,6 +2,7 @@
 #define NOMINMAX
 #include <Windows.h>
 #include <imgui-SFML.h>
+#include <imgui.h>
 #include "audio.h"
 #include "physics.h"
 #include "ui.h"
@@ -21,8 +22,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // CREATE WINDOW
 
     sf::VideoMode video_mode(WINDOW_WIDTH, WINDOW_HEIGHT);
-    sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
-    sf::RenderWindow window(video_mode, "Hello, SFML!", style);
+    sf::RenderWindow window(video_mode, "Hello, SFML!");
 
     sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
     window.setView(view);
@@ -67,20 +67,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         while (window.pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(window, event);
-            ui::process_event(event);
 
-            if      (event.type == sf::Event::Closed)
-            {
+            if (event.type == sf::Event::Closed) {
                 window.close();
-            }
-            else if (event.type == sf::Event::KeyPressed)
+            } else if (event.type == sf::Event::KeyPressed)
             {
-                if        (event.key.code == sf::Keyboard::F1) {
-				    console::toggle_visible();
-                } else if (event.key.code == sf::Keyboard::F2) {
+                if (event.key.code == sf::Keyboard::F1) {
+                    console::toggle_visible();
+                }
+                else if (event.key.code == sf::Keyboard::F2) {
                     debug_draw_physics = !debug_draw_physics;
                 }
             }
+
+            if (ImGui::GetIO().WantCaptureKeyboard)
+			    continue;
+
+            console::process_event(event);
+            ui::process_event(event);
         }
 
         // UPDATING

@@ -1,2 +1,3 @@
-map open dungeon
-ui show main_menu
+//ui show test
+bind o "map open dungeon"
+bind p "map close"

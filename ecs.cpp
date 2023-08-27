@@ -18,6 +18,7 @@ namespace ecs
 		for (entt::entity entity : _entities_to_destroy)
 			if (_registry.valid(entity))
 				_registry.destroy(entity);
+		_entities_to_destroy.clear();
 	}
 
 	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {

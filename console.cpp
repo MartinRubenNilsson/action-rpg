@@ -29,6 +29,7 @@ namespace console
 	std::vector<std::string> _command_history;
 	std::vector<std::string>::iterator _command_history_it = _command_history.end();
 	std::vector<std::pair<std::string, ImColor>> _history;
+	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 	bool _visible = false;
 	bool _reclaim_focus = false;
 
@@ -109,6 +110,9 @@ namespace console
 			style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 		}
 
+		_app.set_help_flag("-h,--help", "Print a help message");
+		_app.set_help_all_flag("--help-all", "Print help messages for all subcommands");
+
 		// SETUP CONSOLE COMMANDS
 		{
 			_app.add_subcommand("clear", "Clear the console")
@@ -116,6 +120,23 @@ namespace console
 			_app.add_subcommand("script", "Execute a console script")
 				->add_option_function<std::string>("name", execute_script, "The name of the script")
 				->required();
+			{
+				static std::string key_string;
+				static std::string command_line;
+				auto bind_cmd = _app.add_subcommand("bind", "Bind a key to a console command");
+				bind_cmd->add_option("key", key_string, "The key to bind")
+					->required();
+				bind_cmd->add_option("command", command_line, "The command to execute")
+					->required();
+				bind_cmd->callback([](){ console::bind(key_string, command_line); });
+			}
+			{
+				static std::string key_string;
+				auto bind_cmd = _app.add_subcommand("unbind", "Unbind a key");
+				bind_cmd->add_option("key", key_string, "The key to unbind")
+					->required();
+				bind_cmd->callback([]() { console::unbind(key_string); });
+			}
 		}
 
 		// SETUP WINDOW COMMANDS
@@ -128,14 +149,17 @@ namespace console
 			{
 				auto set_title_cmd = window_cmd->add_subcommand("set_title", "Set the window title");
 				static std::string title;
-				set_title_cmd->add_option("title", title, "The new title of the window")->required();
+				set_title_cmd->add_option("title", title, "The new title of the window")
+					->required();
 				set_title_cmd->callback([&window]() { window.setTitle(title); });
 			}
 			{
 				auto set_size_cmd = window_cmd->add_subcommand("set_size", "Set the window size");
 				static sf::Vector2u size;
-				set_size_cmd->add_option("x", size.x, "The new width of the window")->required();
-				set_size_cmd->add_option("y", size.y, "The new height of the window")->required();
+				set_size_cmd->add_option("x", size.x, "The new width of the window")
+					->required();
+				set_size_cmd->add_option("y", size.y, "The new height of the window")
+					->required();
 				set_size_cmd->callback([&window]() { window.setSize(size); });
 			}
 		}
@@ -204,6 +228,11 @@ namespace console
         ImGui::End();
 	}
 
+	void process_event(const sf::Event& event) {
+		if (event.type == sf::Event::KeyPressed && _key_bindings.contains(event.key.code))
+			execute(_key_bindings[event.key.code]);
+	}
+
 	void toggle_visible()
 	{
 		_visible = !_visible;
@@ -219,12 +248,17 @@ namespace console
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
 	}
 
-	void log_error(const std::string& message) {
+	void log_error(const std::string& message, bool make_visible)
+	{
 		_history.emplace_back(message, _red);
+		if (make_visible) _visible = true;
 	}
 
 	void execute(const std::string& command_line)
 	{
+		if (command_line.starts_with("//"))
+			return; // ignore commented commands
+
 		_command_history.push_back(command_line);
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, _blue);
@@ -237,9 +271,13 @@ namespace console
 		{
 			log(_app.help());
 		}
+		catch (const CLI::CallForAllHelp&) // thrown by --help-all
+		{
+			log(_app.help("", CLI::AppFormatMode::All));
+		}
 		catch (const CLI::ParseError& parse_error)
 		{
-			_history.emplace_back(parse_error.what(), _yellow);
+			log_error(parse_error.what());
 		}
 	}
 
@@ -280,5 +318,29 @@ namespace console
 				execute(line);
 		}
 		stack.pop_back();
+	}
+
+	void bind(sf::Keyboard::Key key, const std::string& command_line) {
+		_key_bindings[key] = command_line;
+	}
+
+	void bind(const std::string& key_string, const std::string& command_line)
+	{
+		auto key = magic_enum::enum_cast<sf::Keyboard::Key>(
+			key_string, magic_enum::case_insensitive);
+		if (key.has_value()) bind(key.value(), command_line);
+		else log_error("Failed to bind key: " + key_string);
+	}
+
+	void unbind(sf::Keyboard::Key key) {
+		_key_bindings.erase(key);
+	}
+
+	void unbind(const std::string& key_string)
+	{
+		auto key = magic_enum::enum_cast<sf::Keyboard::Key>(
+			key_string, magic_enum::case_insensitive);
+		if (key.has_value()) unbind(key.value());
+		else log_error("Failed to unbind key: " + key_string);
 	}
 }

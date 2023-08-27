@@ -36,7 +36,7 @@ namespace ui
 
 	void shutdown()
 	{
-		Rml::RemoveContext(_context->GetName());
+		Rml::RemoveContext(_context->GetName()); _context = nullptr;
 		Rml::Shutdown();
 		delete _system_interface; _system_interface = nullptr;
 		delete _render_interface; _render_interface = nullptr;

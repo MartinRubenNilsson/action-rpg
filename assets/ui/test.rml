@@ -1,0 +1,10 @@
+<rml>
+<head>
+	<link type="text/rcss" href="styles/test.rcss"/>
+</head>
+<body>
+	<h1>Main Menu</h1>
+	<p>Play</p>
+	<p>Quit</p>
+</body>
+</rml>

@@ -96,9 +96,10 @@ namespace map
 
 		for (const tmx::Object& object : object_group.getObjects())
 		{
-			// At this point, each object should already have an entity created for it.
-			// (See _create_object_entities() below.)
+			// At this point, the object should already have had an
+			// entity created for it in _create_object_entities().
 			entt::entity entity = (entt::entity)object.getUID();
+			assert(ecs::get_registry().valid(entity) && "Entity not found.");
 			ecs::set_name(entity, object.getName());
 			ecs::set_type(entity, object.getType());
 
