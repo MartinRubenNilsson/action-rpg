@@ -3,6 +3,13 @@
 #include "ecs_common.h"
 #include "ecs_behaviors.h"
 
+#define CHECK_INPUT(name) \
+	if (!name) \
+	{ \
+		console::log_error(__FUNCTION__ "(): missing input \"" #name "\""); \
+		return BT::NodeStatus::FAILURE; \
+	}
+
 namespace behavior
 {
 	struct ConsoleLogNode : BT::SyncActionNode
@@ -18,7 +25,7 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			auto message = getInput<std::string>("message");
-			assert(message);
+			CHECK_INPUT(message)
 			console::log(message.value());
 			return BT::NodeStatus::SUCCESS;
 		}

@@ -39,6 +39,10 @@ namespace behavior
 		}
 	}
 
+	std::vector<std::string> get_loaded_trees() {
+		return _factory.registeredBehaviorTrees();
+	}
+
 	BT::Tree create_tree(const std::string& name, BT::Blackboard::Ptr blackboard) {
 		return _factory.createTree(name, blackboard);
 	}

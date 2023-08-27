@@ -12,6 +12,14 @@ namespace ecs
 			entity_node->entity = entity;
 	}
 
+	bool behavior_tree_exists(const std::string& tree_name)
+	{
+		for (const auto& loaded_tree : behavior::get_loaded_trees())
+			if (loaded_tree == tree_name)
+				return true;
+		return false;
+	}
+
 	bool set_behavior_tree(
 		entt::entity entity,
 		const std::string& tree_name,

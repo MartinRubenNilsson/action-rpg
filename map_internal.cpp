@@ -66,15 +66,17 @@ namespace map
 				auto& sprite = registry.emplace<sf::Sprite>(entity,
 					_path_to_tileset_texture.at(tileset->getImagePath()),
 					ecs_tile.get_texture_rect());
-				sprite.setPosition(tile_x * tile_size.x, tile_y * tile_size.y);
+				sprite.setPosition(
+					(float)tile_x * tile_size.x,
+					(float)tile_y * tile_size.y);
 
 				// If the tile has at least one collider,
 				// add a box2d body component to the entity.
 				if (ecs_tile.has_colliders())
 				{
 					sf::FloatRect aabb;
-					aabb.left = tile_x;
-					aabb.top = tile_y;
+					aabb.left = (float)tile_x;
+					aabb.top = (float)tile_y;
 					aabb.width = 1.f;
 					aabb.height = 1.f;
 
@@ -83,6 +85,36 @@ namespace map
 				}
 			}
 		}
+	}
+
+	BT::Blackboard::Ptr _create_blackboard_from_object(const tmx::Object& object)
+	{
+		BT::Blackboard::Ptr blackboard = BT::Blackboard::create();
+		for (const auto& prop : object.getProperties())
+		{
+			switch (prop.getType())
+			{
+			case tmx::Property::Type::Boolean:
+				blackboard->set(prop.getName(), prop.getBoolValue());
+				break;
+			case tmx::Property::Type::Float:
+				blackboard->set(prop.getName(), prop.getFloatValue());
+				break;
+			case tmx::Property::Type::Int:
+				blackboard->set(prop.getName(), prop.getIntValue());
+				break;
+			case tmx::Property::Type::String:
+				blackboard->set(prop.getName(), prop.getStringValue());
+				break;
+				//TODO: handle object types
+			}
+		}
+		// NOTE: Setting the name and type last will override any properties
+		// with the same name. This is intentional, since the name and type
+		// are special properties that may be used by the behavior tree.
+		blackboard->set("name", object.getName());
+		blackboard->set("type", object.getType());
+		return blackboard;
 	}
 
 	void _process_object_group(
@@ -97,7 +129,7 @@ namespace map
 		for (const auto& object : object_group.getObjects())
 		{
 			// At this point, the object should already have had an
-			// entity created for it in _create_object_entities().
+			// entity created for it by _create_object_entities().
 			entt::entity entity = (entt::entity)object.getUID();
 			assert(ecs::get_registry().valid(entity) && "Entity not found.");
 			ecs::get_registry().emplace<const tmx::Object*>(entity, &object);
@@ -181,15 +213,12 @@ namespace map
 					}
 				}
 
-				// If the objects has a property named "behavior",
+				// If there is a behavior tree whose name matches the object type,
 				// add a behavior tree component to the entity.
-				for (const auto& prop : object.getProperties())
+				if (ecs::behavior_tree_exists(object.getType()))
 				{
-					if (prop.getName() == "behavior" &&
-						prop.getType() == tmx::Property::Type::String)
-					{
-						ecs::set_behavior_tree(entity, prop.getStringValue());
-					}
+					auto blackboard = _create_blackboard_from_object(object);
+					ecs::set_behavior_tree(entity, object.getType(), blackboard);
 				}
 			}
 		}
