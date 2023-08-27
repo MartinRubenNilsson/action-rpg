@@ -34,7 +34,7 @@ namespace behavior
 
 		BT::NodeStatus tick() override
 		{
-			ecs::destroy_deferred(entity);
+			ecs::mark_for_destruction(entity);
 			return BT::NodeStatus::SUCCESS;
 		}
 	};

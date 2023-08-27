@@ -188,7 +188,7 @@ namespace map
 					if (prop.getName() == "behavior" &&
 						prop.getType() == tmx::Property::Type::String)
 					{
-						ecs::emplace_behavior_tree(entity, prop.getStringValue());
+						ecs::set_behavior_tree(entity, prop.getStringValue());
 					}
 				}
 			}

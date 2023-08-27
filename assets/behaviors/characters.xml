@@ -2,10 +2,7 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="enemy">
     <Delay delay_msec="2000">
-      <Sequence>
-        <ConsoleLog message="I&apos;m outta here!"/>
-        <DestroySelf/>
-      </Sequence>
+      <ConsoleLog message="I&apos;m an evil enemy!!!"/>
     </Delay>
   </BehaviorTree>
 
@@ -15,7 +12,6 @@
       <input_port name="message"
                   type="std::string">test</input_port>
     </Action>
-    <Action ID="DestroySelf"/>
   </TreeNodesModel>
 
 </root>

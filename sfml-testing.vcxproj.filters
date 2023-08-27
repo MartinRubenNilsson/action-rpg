@@ -60,10 +60,10 @@
     <ClCompile Include="RmlUi_Renderer_GL2.cpp">
       <Filter>ui\rml</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_physics.cpp">
+    <ClCompile Include="ecs_player.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_player.cpp">
+    <ClCompile Include="ecs_physics.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,10 +126,10 @@
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_physics.h">
+    <ClInclude Include="ecs_player.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_player.h">
+    <ClInclude Include="ecs_physics.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>

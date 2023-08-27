@@ -9,7 +9,7 @@ namespace ecs
 	// "tree_name" is the name of the tree in the Groot2 editor, which is
 	// the same as the attribute <BehaviorTree ID = "tree_name"> in the XML file.
 	// Does not throw if the tree does not exist, but returns false.
-	bool emplace_behavior_tree(
+	bool set_behavior_tree(
 		entt::entity entity,
 		const std::string& tree_name,
 		BT::Blackboard::Ptr blackboard = BT::Blackboard::create());

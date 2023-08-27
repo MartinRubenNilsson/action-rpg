@@ -12,7 +12,7 @@ namespace ecs
 			entity_node->entity = entity;
 	}
 
-	bool emplace_behavior_tree(
+	bool set_behavior_tree(
 		entt::entity entity,
 		const std::string& tree_name,
 		BT::Blackboard::Ptr blackboard)

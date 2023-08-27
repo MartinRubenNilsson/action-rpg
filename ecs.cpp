@@ -9,15 +9,6 @@
 namespace ecs
 {
 	entt::registry _registry;
-	std::unordered_set<entt::entity> _entities_to_destroy;
-
-	void _destroy_entities()
-	{
-		for (entt::entity entity : _entities_to_destroy)
-			if (_registry.valid(entity))
-				_registry.destroy(entity);
-		_entities_to_destroy.clear();
-	}
 
 	void initialize() {
 		initialize_physics();
@@ -25,16 +16,6 @@ namespace ecs
 
 	void shutdown() {
 		_registry.clear();
-	}
-
-	void _update_life_spans(float dt)
-	{
-		for (auto [entity, life_span] : _registry.view<LifeSpan>().each())
-		{
-			life_span.value -= dt;
-			if (life_span.value <= 0)
-				_registry.destroy(entity);
-		}
 	}
 
 	void _update_sprite_positions()
@@ -100,11 +81,10 @@ namespace ecs
 
 	void update(float dt)
 	{
-		update_physics();
 		update_player();
 		update_behavior_trees();
-		_update_life_spans(dt);
-		_destroy_entities();
+		update_life_spans(dt);
+		destroy_marked_entities();
 		update_tile_animation_times(dt);
 		update_tile_sprite_texture_rects();
 		_update_sprite_positions();
@@ -124,9 +104,5 @@ namespace ecs
 
 	entt::registry& get_registry() {
 		return _registry;
-	}
-
-	void destroy_deferred(entt::entity entity) {
-		_entities_to_destroy.insert(entity);
 	}
 }

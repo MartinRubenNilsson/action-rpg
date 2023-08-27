@@ -321,7 +321,7 @@
  </layer>
  <objectgroup id="4" name="characters">
   <object id="3" name="player" type="player" gid="626" x="90" y="180.583" width="64" height="64"/>
-  <object id="4" name="enemy" gid="626" x="203" y="160" width="64" height="64">
+  <object id="4" name="enemy" type="enemy" gid="626" x="203" y="160" width="64" height="64">
    <properties>
     <property name="behavior" value="enemy"/>
    </properties>
