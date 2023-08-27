@@ -24,5 +24,6 @@ namespace ecs
 		const tmx::Tileset::Tile* _tile = nullptr;
 	};
 
-	void update_animated_tiles(float dt);
+	void update_tile_animation_times(float dt);
+	void update_tile_sprite_texture_rects();
 }

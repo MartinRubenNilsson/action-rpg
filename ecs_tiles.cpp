@@ -108,12 +108,21 @@ namespace ecs
 		return nullptr;
 	}
 
-	void update_animated_tiles(float dt)
+	void update_tile_animation_times(float dt)
 	{
 		for (auto [entity, tile] : _registry.view<Tile>().each())
 		{
 			if (tile.has_animation())
 				tile.animation_time += dt;
+		}
+	}
+
+	void update_tile_sprite_texture_rects()
+	{
+		for (auto [entity, sprite, tile] :
+			_registry.view<sf::Sprite, Tile>().each())
+		{
+			sprite.setTextureRect(tile.get_texture_rect());
 		}
 	}
 }
