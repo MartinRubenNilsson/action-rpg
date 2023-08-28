@@ -6,18 +6,18 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	void _set_entity(entt::entity entity, BT::TreeNode* node)
-	{
-		if (auto entity_node = dynamic_cast<EntityNode*>(node))
-			entity_node->entity = entity;
-	}
-
 	bool behavior_tree_exists(const std::string& tree_name)
 	{
 		for (const auto& loaded_tree : behavior::get_loaded_trees())
 			if (loaded_tree == tree_name)
 				return true;
 		return false;
+	}
+
+	void _set_entity(entt::entity entity, BT::TreeNode* node)
+	{
+		if (auto entity_node = dynamic_cast<EntityNode*>(node))
+			entity_node->entity = entity;
 	}
 
 	bool set_behavior_tree(

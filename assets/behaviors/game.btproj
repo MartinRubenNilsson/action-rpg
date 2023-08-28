@@ -3,8 +3,14 @@
     <include path="characters.xml"/>
     <!-- Description of Node Models (used by Groot) -->
     <TreeNodesModel>
+        <Action ID="ConsoleExecute">
+            <input_port name="command" type="std::string">The command line to execute</input_port>
+        </Action>
         <Action ID="ConsoleLog">
-            <input_port name="message" type="std::string">test</input_port>
+            <input_port name="message" type="std::string">The message to log</input_port>
+        </Action>
+        <Action ID="ConsoleLogError">
+            <input_port name="message" type="std::string">The message to log</input_port>
         </Action>
         <Action ID="DestroySelf"/>
         <Action ID="SetLifeSpan">

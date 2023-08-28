@@ -4,8 +4,8 @@
 namespace map
 {
 	std::unordered_map<std::string, tmx::Map> _name_to_map;
-	decltype(_name_to_map)::iterator _current_map_it = _name_to_map.end();
-	// TODO: add _new_map_it to support deferred map loading
+	decltype(_name_to_map)::iterator _curr_map_it = _name_to_map.end();
+	decltype(_name_to_map)::iterator _next_map_it = _name_to_map.end();
 
 	void load_tilesets() {
 		load_tilesets_impl();
@@ -23,7 +23,8 @@ namespace map
 				continue;
 			_name_to_map.emplace(entry.path().stem().string(), std::move(map));
 		}
-		_current_map_it = _name_to_map.end();
+		_curr_map_it = _name_to_map.end();
+		_next_map_it = _name_to_map.end();
 	}
 
 	std::vector<std::string> get_loaded_maps()
@@ -36,37 +37,41 @@ namespace map
 
 	bool open(const std::string& map_name)
 	{
-		auto new_map_it = _name_to_map.find(map_name);
-		if (new_map_it == _name_to_map.end())
-			return false;
-		close_impl();
-		open_impl(new_map_it->first, new_map_it->second);
-		_current_map_it = new_map_it;
-		return true;
+		_next_map_it = _name_to_map.find(map_name);
+		return _next_map_it != _name_to_map.end();
 	}
 
-	void close()
+	void close() {
+		_next_map_it = _name_to_map.end();
+	}
+
+	void update()
 	{
-		close_impl();
-		_current_map_it = _name_to_map.end();
+		if (_next_map_it == _curr_map_it)
+			return;
+		if (_curr_map_it != _name_to_map.end())
+			close_impl();
+		if (_next_map_it != _name_to_map.end())
+			open_impl(_next_map_it->first, _next_map_it->second);
+		_curr_map_it = _next_map_it;
 	}
 
 	std::string get_name() {
-		return _current_map_it != _name_to_map.end() ? _current_map_it->first : "";
+		return _curr_map_it != _name_to_map.end() ? _curr_map_it->first : "";
 	}
 
 	sf::FloatRect get_bounds()
 	{
-		if (_current_map_it == _name_to_map.end()) return sf::FloatRect();
-		tmx::FloatRect bounds = _current_map_it->second.getBounds();
+		if (_curr_map_it == _name_to_map.end()) return sf::FloatRect();
+		tmx::FloatRect bounds = _curr_map_it->second.getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
 	}
 
 	sf::Vector2u get_tile_size()
 	{
-		if (_current_map_it == _name_to_map.end()) return sf::Vector2u();
+		if (_curr_map_it == _name_to_map.end()) return sf::Vector2u();
 		return sf::Vector2u(
-			_current_map_it->second.getTileSize().x,
-			_current_map_it->second.getTileSize().y);
+			_curr_map_it->second.getTileSize().x,
+			_curr_map_it->second.getTileSize().y);
 	}
 }

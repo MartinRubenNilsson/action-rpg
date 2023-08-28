@@ -2,15 +2,15 @@
 <root BTCPP_format="4">
   <BehaviorTree ID="enemy">
     <Delay delay_msec="2000">
-      <ConsoleLog message="{message}"/>
+      <ConsoleExecute command="map close"/>
     </Delay>
   </BehaviorTree>
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
-    <Action ID="ConsoleLog">
-      <input_port name="message"
-                  type="std::string">test</input_port>
+    <Action ID="ConsoleExecute">
+      <input_port name="command"
+                  type="std::string">The command line to execute</input_port>
     </Action>
   </TreeNodesModel>
 

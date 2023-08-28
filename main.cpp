@@ -92,6 +92,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+        map::update();
         physics::update(dt.asSeconds());
         ecs::update(dt.asSeconds());
         ui::update();

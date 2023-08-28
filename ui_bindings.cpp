@@ -43,12 +43,7 @@ namespace ui
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();
 
-		// DATA VARIABLES
-
 		data_model.Bind("test_string", &test_string);
-
-		// EVENT CALLBACKS
-
 		data_model.BindEventCallback("play_game", _play_game);
 		data_model.BindEventCallback("quit_game", _quit_game);
 	}

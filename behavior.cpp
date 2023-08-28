@@ -6,9 +6,12 @@ namespace behavior
 {
 	BT::BehaviorTreeFactory _factory;
 
+	extern void _register_console_nodes(BT::BehaviorTreeFactory& factory);
 	extern void _register_nodes(BT::BehaviorTreeFactory& factory);
 
-	void register_nodes() {
+	void register_nodes()
+	{
+		_register_console_nodes(_factory);
 		_register_nodes(_factory);
 	}
 

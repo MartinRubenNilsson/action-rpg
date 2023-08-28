@@ -12,25 +12,6 @@
 
 namespace behavior
 {
-	struct ConsoleLogNode : BT::SyncActionNode
-	{
-		ConsoleLogNode(const std::string& name, const BT::NodeConfig& config)
-			: BT::SyncActionNode(name, config)
-		{}
-
-		static BT::PortsList providedPorts() {
-			return { BT::InputPort<std::string>("message", "", "The message to log") };
-		}
-
-		BT::NodeStatus tick() override
-		{
-			auto message = getInput<std::string>("message");
-			CHECK_INPUT(message)
-			console::log(message.value());
-			return BT::NodeStatus::SUCCESS;
-		}
-	};
-
 	struct DestroySelfNode : BT::SyncActionNode, ecs::EntityNode
 	{
 		DestroySelfNode(const std::string& name, const BT::NodeConfig& config)
@@ -58,14 +39,15 @@ namespace behavior
 
 		BT::NodeStatus tick() override
 		{
-			ecs::set_life_span(entity, getInput<float>("life_span").value());
+			auto life_span = getInput<float>("life_span");
+			CHECK_INPUT(life_span)
+			ecs::set_life_span(entity, life_span.value());
 			return BT::NodeStatus::SUCCESS;
 		}
 	};
 
 	void _register_nodes(BT::BehaviorTreeFactory& factory)
 	{
-		factory.registerNodeType<ConsoleLogNode>("ConsoleLog");
 		factory.registerNodeType<DestroySelfNode>("DestroySelf");
 		factory.registerNodeType<SetLifeSpanNode>("SetLifeSpan");
 	}
