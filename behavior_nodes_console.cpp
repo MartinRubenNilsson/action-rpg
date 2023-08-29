@@ -1,4 +1,4 @@
-#include "behavior_nodes.h"
+#include "behavior_internal.h"
 #include "console.h"
 
 namespace behavior
@@ -16,7 +16,7 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			auto message = getInput<std::string>("message");
-			CHECK_INPUT(message)
+			if (!message) return BT::NodeStatus::FAILURE;
 			console::log(message.value());
 			return BT::NodeStatus::SUCCESS;
 		}
@@ -35,7 +35,7 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			auto message = getInput<std::string>("message");
-			CHECK_INPUT(message)
+			if (!message) return BT::NodeStatus::FAILURE;
 			console::log_error(message.value());
 			return BT::NodeStatus::SUCCESS;
 		}
@@ -54,13 +54,13 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			auto command = getInput<std::string>("command");
-			CHECK_INPUT(command)
+			if (!command) return BT::NodeStatus::FAILURE;
 			console::execute(command.value());
 			return BT::NodeStatus::SUCCESS;
 		}
 	};
 
-	void _register_console_nodes(BT::BehaviorTreeFactory& factory)
+	void _register_nodes_console(BT::BehaviorTreeFactory& factory)
 	{
 		factory.registerNodeType<ConsoleLogNode>("ConsoleLog");
 		factory.registerNodeType<ConsoleLogErrorNode>("ConsoleLogError");

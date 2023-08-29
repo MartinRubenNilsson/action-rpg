@@ -39,7 +39,7 @@
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="behavior_nodes.cpp">
+    <ClCompile Include="behavior_nodes_ecs.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
     <ClCompile Include="ecs_common.cpp">
@@ -67,6 +67,9 @@
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="behavior_nodes_console.cpp">
+      <Filter>behavior</Filter>
+    </ClCompile>
+    <ClCompile Include="behavior_nodes_player.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
   </ItemGroup>
@@ -135,7 +138,7 @@
     <ClInclude Include="ecs_physics.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="behavior_nodes.h">
+    <ClInclude Include="behavior_internal.h">
       <Filter>behavior</Filter>
     </ClInclude>
   </ItemGroup>

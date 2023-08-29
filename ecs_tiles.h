@@ -1,6 +1,5 @@
 #pragma once
 #include <tmxlite/Tileset.hpp>
-#include <tmxlite/Property.hpp>
 
 namespace ecs
 {
@@ -13,17 +12,16 @@ namespace ecs
 
 		bool has_animation() const;
 		bool has_colliders() const;
+		const std::string& get_tileset_name() const;
 		uint32_t get_id() const; // Global tile ID.
 		const std::string& get_type() const; // "Type" is called "Class" in the Tiled editor.
 		bool set_type(const std::string& type);
 		sf::IntRect get_texture_rect() const;
-		const tmx::Property* get_property(const std::string& name) const;
 
 	private:
 		const tmx::Tileset* _tileset = nullptr;
 		const tmx::Tileset::Tile* _tile = nullptr;
 	};
 
-	void update_tile_animation_times(float dt);
-	void update_tile_sprite_texture_rects();
+	void update_tiles(float dt);
 }

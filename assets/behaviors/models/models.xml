@@ -1,5 +1,8 @@
 <root BTCPP_format = "4">
     <TreeNodesModel>
+        <Action ID="ApproachPlayer">
+            <input_port name="speed" type="float">The movement speed to use</input_port>
+        </Action>
         <Action ID="ConsoleExecute">
             <input_port name="command" type="std::string">The command line to execute</input_port>
         </Action>
@@ -10,6 +13,9 @@
             <input_port name="message" type="std::string">The message to log</input_port>
         </Action>
         <Action ID="DestroySelf"/>
+        <Condition ID="IsPlayerInRange">
+            <input_port name="radius" type="float">The radius of the range</input_port>
+        </Condition>
         <Action ID="SetLifeSpan">
             <input_port name="life_span" type="float">The remaining life span</input_port>
         </Action>

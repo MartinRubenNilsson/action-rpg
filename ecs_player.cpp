@@ -1,6 +1,5 @@
 #include "ecs_player.h"
 #include "ecs_common.h"
-#include "ecs_tiles.h"
 #include "math_vectors.h"
 
 namespace ecs
@@ -8,8 +7,18 @@ namespace ecs
 	extern entt::registry _registry;
 	entt::entity _player_entity = entt::null;
 
+	bool player_exists() {
+		return _registry.valid(_player_entity);
+	}
+
 	entt::entity get_player_entity() {
 		return _player_entity;
+	}
+
+	sf::Vector2f get_player_position() {
+		if (auto body = _registry.try_get<b2Body*>(_player_entity))
+			return vector_cast<sf::Vector2f>((*body)->GetPosition());
+		return sf::Vector2f();
 	}
 
 	void _find_and_store_player_entity()
@@ -31,57 +40,21 @@ namespace ecs
 		if (!_registry.valid(_player_entity))
 			return;
 
-		auto& tile = _registry.get<ecs::Tile>(_player_entity);
-
-		// Set the player's direction based on which keys are pressed.
 		sf::Vector2f velocity;
-		char direction_char = tile.get_type().empty() ? ' ' : tile.get_type().back();
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			velocity.x -= 1;
-			direction_char = 'l';
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			velocity.x += 1;
-			direction_char = 'r';
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			velocity.y -= 1;
-			direction_char = 'u';
-		}
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			velocity.y += 1;
-			direction_char = 'd';
-		}
+		velocity.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+		velocity.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+		velocity.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+		velocity.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
 
-		sf::normalize_safe(velocity);
+		normalize_safe(velocity);
 
-		std::string type = "idle";
-		if (sf::is_zero(velocity))
-		{
-			tile.animation_time = 0;
-		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+			velocity *= 9.5f;
 		else
-		{
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
-			{
-				type = "run";
-				velocity *= 9.5f;
-			}
-			else
-			{
-				type = "walk";
-				velocity *= 5.5f;
-			}
-		}
-		tile.set_type(type + "_" + direction_char);
+			velocity *= 5.5f;
 
-		// Apply the velocity to the player's physics body.
-		auto& body = _registry.get<b2Body*>(_player_entity);
-		body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
+		auto body = _registry.get<b2Body*>(_player_entity);
+		set_linear_velocity(body, velocity);
 	}
 
 	void update_player()

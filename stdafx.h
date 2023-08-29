@@ -15,3 +15,4 @@
 #include <box2d/box2d.h>
 #include <behaviortree_cpp/bt_factory.h>
 #include <magic_enum.hpp>
+#include "math_vectors.h"

@@ -85,8 +85,7 @@ namespace ecs
 		update_behavior_trees();
 		update_life_spans(dt);
 		destroy_marked_entities();
-		update_tile_animation_times(dt);
-		update_tile_sprite_texture_rects();
+		update_tiles(dt);
 		_update_sprite_positions();
 	}
 

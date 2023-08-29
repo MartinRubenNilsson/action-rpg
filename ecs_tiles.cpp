@@ -55,14 +55,16 @@ namespace ecs
 		assert(_tile && "Tile ID not found in tileset.");
 	}
 
-	bool Tile::has_animation() const
-	{
+	bool Tile::has_animation() const {
 		return !_tile->animation.frames.empty();
 	}
 
-	bool Tile::has_colliders() const
-	{
+	bool Tile::has_colliders() const {
 		return !_tile->objectGroup.getObjects().empty();
+	}
+
+	const std::string& Tile::get_tileset_name() const {
+		return _tileset->getName();
 	}
 
 	uint32_t Tile::get_id() const
@@ -72,8 +74,7 @@ namespace ecs
 		return _tile->ID + _tileset->getFirstGID();
 	}
 
-	const std::string& Tile::get_type() const
-	{
+	const std::string& Tile::get_type() const {
 		return _tile->type;
 	}
 
@@ -98,17 +99,7 @@ namespace ecs
 		return tmx::_get_texture_rect(*_tileset, id);
 	}
 
-	const tmx::Property* Tile::get_property(const std::string& name) const
-	{
-		for (const auto& prop : _tile->properties)
-		{
-			if (prop.getName() == name)
-				return &prop;
-		}
-		return nullptr;
-	}
-
-	void update_tile_animation_times(float dt)
+	void _update_tile_animation_times(float dt)
 	{
 		for (auto [entity, tile] : _registry.view<Tile>().each())
 		{
@@ -117,12 +108,45 @@ namespace ecs
 		}
 	}
 
-	void update_tile_sprite_texture_rects()
+	void _update_tile_types()
+	{
+		for (auto [entity, tile, body] :
+			_registry.view<Tile, b2Body*>().each())
+		{
+			std::string current_type = tile.get_type();
+			sf::Vector2f velocity = get_linear_velocity(body);
+			std::string tileset_name = tile.get_tileset_name();
+			if (tileset_name == "naked_human")
+			{
+				std::string action = "idle";
+				char direction = current_type.empty() ? ' ' : current_type.back();
+				if (is_zero(velocity))
+				{
+					tile.animation_time = 0; // should probably be done elsewhere
+				}
+				else
+				{
+					action = (length(velocity) > 9) ? "run" : "walk";
+					direction = get_direction(velocity);
+				}
+				tile.set_type(action + "_" + direction);
+			}
+		}
+	}
+
+	void _update_tile_sprite_texture_rects()
 	{
 		for (auto [entity, sprite, tile] :
 			_registry.view<sf::Sprite, Tile>().each())
 		{
 			sprite.setTextureRect(tile.get_texture_rect());
 		}
+	}
+
+	void update_tiles(float dt)
+	{
+		_update_tile_animation_times(dt);
+		_update_tile_types();
+		_update_tile_sprite_texture_rects();
 	}
 }

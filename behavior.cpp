@@ -1,4 +1,5 @@
 #include "behavior.h"
+#include "behavior_internal.h"
 #include <behaviortree_cpp/xml_parsing.h> // writeTreeNodesModelXML()
 #include "console.h"
 
@@ -6,13 +7,11 @@ namespace behavior
 {
 	BT::BehaviorTreeFactory _factory;
 
-	extern void _register_console_nodes(BT::BehaviorTreeFactory& factory);
-	extern void _register_nodes(BT::BehaviorTreeFactory& factory);
-
 	void register_nodes()
 	{
-		_register_console_nodes(_factory);
-		_register_nodes(_factory);
+		_register_nodes_console(_factory);
+		_reigster_nodes_ecs(_factory);
+		_register_nodes_player(_factory);
 	}
 
 	void write_node_models(const std::string& path)

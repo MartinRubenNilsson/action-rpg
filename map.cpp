@@ -70,8 +70,6 @@ namespace map
 	sf::Vector2u get_tile_size()
 	{
 		if (_curr_map_it == _name_to_map.end()) return sf::Vector2u();
-		return sf::Vector2u(
-			_curr_map_it->second.getTileSize().x,
-			_curr_map_it->second.getTileSize().y);
+		return vector_cast<sf::Vector2u>(_curr_map_it->second.getTileSize());
 	}
 }
