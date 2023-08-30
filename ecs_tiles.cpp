@@ -48,7 +48,7 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	Tile::Tile(const const tmx::Tileset* tileset, uint32_t tile_id)
+	Tile::Tile(const tmx::Tileset* tileset, uint32_t tile_id)
 		: _tileset(tileset)
 		, _tile(tileset->getTile(tile_id))
 	{
@@ -60,7 +60,7 @@ namespace ecs
 	}
 
 	bool Tile::has_colliders() const {
-		return !_tile->objectGroup.getObjects().empty();
+		return !_tile->objectGroup.getObjects().empty(); //TODO: remove
 	}
 
 	const std::string& Tile::get_tileset_name() const {
@@ -95,7 +95,10 @@ namespace ecs
 	{
 		uint32_t id = get_id();
 		if (has_animation())
-			id = tmx::_get_tile_id_at_time(_tile->animation, animation_time * 1000);
+		{
+			uint32_t time_ms = uint32_t(animation_time * 1000);
+			id = tmx::_get_tile_id_at_time(_tile->animation, time_ms);
+		}
 		return tmx::_get_texture_rect(*_tileset, id);
 	}
 

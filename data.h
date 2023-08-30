@@ -2,15 +2,15 @@
 
 namespace data
 {
-	struct Dialog
+	struct Text
 	{
 		std::string id;
-		std::string text;
+		std::string content;
 	};
 
-	void load_dialogs();
+	void load_texts();
 
-	// Returns nullptr if the dialog is not found.
-	const Dialog* get_dialog(const std::string& id);
+	// Returns nullptr if the text is not found.
+	const Text* get_text(const std::string& id);
 }
 

@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     behavior::load_trees();
     map::load_tilesets();
     map::load_maps();
-    data::load_dialogs();
+    data::load_texts();
 
     // OTHER STUFF
 

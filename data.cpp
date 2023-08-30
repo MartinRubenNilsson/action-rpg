@@ -7,18 +7,18 @@
 
 namespace data
 {
-	std::vector<Dialog> _dialogs;
+	std::vector<Text> _texts;
 
-	void load_dialogs()
+	void load_texts()
 	{
 		try
 		{
-			io::CSVReader<2> dialogs_csv("assets/data/dialogs.csv");
-			dialogs_csv.read_header(io::ignore_no_column, "id", "text");
-			_dialogs.clear();
-			Dialog dialog;
-			while (dialogs_csv.read_row(dialog.id, dialog.text))
-				_dialogs.push_back(dialog);
+			io::CSVReader<2> texts_csv("assets/data/texts.csv");
+			texts_csv.read_header(io::ignore_no_column, "id", "english");
+			_texts.clear();
+			Text text;
+			while (texts_csv.read_row(text.id, text.content))
+				_texts.push_back(text);
 		}
 		catch (const io::error::base& error)
 		{
@@ -26,9 +26,9 @@ namespace data
 		}
 	}
 
-	const Dialog* get_dialog(const std::string& id)
+	const Text* get_text(const std::string& id)
 	{
-		for (const auto& dialog : _dialogs)
+		for (const auto& dialog : _texts)
 			if (dialog.id == id)
 				return &dialog;
 		return nullptr;

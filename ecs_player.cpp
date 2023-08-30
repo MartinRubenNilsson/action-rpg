@@ -17,7 +17,7 @@ namespace ecs
 
 	sf::Vector2f get_player_position() {
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			return vector_cast<sf::Vector2f>((*body)->GetPosition());
+			return get_position(*body);
 		return sf::Vector2f();
 	}
 
