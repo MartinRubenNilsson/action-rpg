@@ -8,6 +8,7 @@
     "entt",
     "box2d",
     "behaviortree-cpp",
-    "magic-enum"
+    "magic-enum",
+    "fast-cpp-csv-parser"
   ]
 }

@@ -38,9 +38,28 @@ namespace behavior
 		}
 	};
 
+	struct StopMovingNode : BT::SyncActionNode, EntityNode
+	{
+		StopMovingNode(const std::string& name, const BT::NodeConfig& config)
+			: BT::SyncActionNode(name, config)
+		{}
+
+		static BT::PortsList providedPorts() {
+			return {};
+		}
+
+		BT::NodeStatus tick() override
+		{
+			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
+			set_linear_velocity(handle.get<b2Body*>(), sf::Vector2f());
+			return BT::NodeStatus::SUCCESS;
+		}
+	};
+
 	void _reigster_nodes_ecs(BT::BehaviorTreeFactory& factory)
 	{
 		factory.registerNodeType<DestroySelfNode>("DestroySelf");
 		factory.registerNodeType<SetLifeSpanNode>("SetLifeSpan");
+		factory.registerNodeType<StopMovingNode>("StopMoving");
 	}
 }
