@@ -10,6 +10,7 @@
 #include "behavior.h"
 #include "ecs.h"
 #include "console.h"
+#include "data.h"
 
 #define TILE_SIZE 16
 #define VIEW_WIDTH (TILE_SIZE * 24)
@@ -43,6 +44,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     behavior::load_trees();
     map::load_tilesets();
     map::load_maps();
+    data::load_dialogs();
 
     // OTHER STUFF
 

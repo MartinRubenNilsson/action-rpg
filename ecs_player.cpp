@@ -35,7 +35,7 @@ namespace ecs
 		}
 	}
 
-	void _update_player_velocity_and_tile()
+	void _update_player_velocity()
 	{
 		if (!_registry.valid(_player_entity))
 			return;
@@ -60,7 +60,7 @@ namespace ecs
 	void update_player()
 	{
 		_find_and_store_player_entity();
-		_update_player_velocity_and_tile();
+		_update_player_velocity();
 	}
 }
 

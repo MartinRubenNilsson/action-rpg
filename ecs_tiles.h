@@ -11,7 +11,7 @@ namespace ecs
 		float animation_time = 0.0f; // In seconds.
 
 		bool has_animation() const;
-		bool has_colliders() const;
+		bool has_colliders() const; //TODO: remove
 		const std::string& get_tileset_name() const;
 		uint32_t get_id() const; // Global tile ID.
 		const std::string& get_type() const; // "Type" is called "Class" in the Tiled editor.
