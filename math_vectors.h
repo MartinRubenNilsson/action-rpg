@@ -24,11 +24,3 @@ sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t); // Lin
 // Returns the direction (one of 'r', 'l', 'u', 'd') in which v roughly points.
 // Behavior is undefined if v is zero.
 char get_direction(const sf::Vector2f& v);
-
-class b2Body;
-void set_position(b2Body* body, const sf::Vector2f& position);
-sf::Vector2f get_position(const b2Body* body);
-void set_linear_velocity(b2Body* body, const sf::Vector2f& velocity);
-sf::Vector2f get_linear_velocity(const b2Body* body);
-float get_linear_speed(const b2Body* body);
-

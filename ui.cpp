@@ -83,6 +83,12 @@ namespace ui
 		}
 	}
 
+	void reload_style_sheets()
+	{
+		for (int i = 0; i < _context->GetNumDocuments(); ++i)
+			_context->GetDocument(i)->ReloadStyleSheet();
+	}
+
 	std::vector<std::string> get_loaded_documents()
 	{
 		std::vector<std::string> names;

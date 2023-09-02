@@ -1,6 +1,7 @@
 #include "ecs_player.h"
 #include "ecs_common.h"
 #include "math_vectors.h"
+#include "utility_b2.h"
 
 namespace ecs
 {
@@ -17,7 +18,7 @@ namespace ecs
 
 	sf::Vector2f get_player_position() {
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			return get_position(*body);
+			return b2::get_position(**body);
 		return sf::Vector2f();
 	}
 
@@ -53,8 +54,8 @@ namespace ecs
 		else
 			velocity *= 5.5f;
 
-		auto body = _registry.get<b2Body*>(_player_entity);
-		set_linear_velocity(body, velocity);
+		b2Body& body = *_registry.get<b2Body*>(_player_entity);
+		b2::set_linear_velocity(body, velocity);
 	}
 
 	void update_player()

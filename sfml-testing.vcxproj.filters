@@ -75,6 +75,9 @@
     <ClCompile Include="data.cpp">
       <Filter>data</Filter>
     </ClCompile>
+    <ClCompile Include="utility_b2.cpp">
+      <Filter>utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -147,6 +150,9 @@
     <ClInclude Include="data.h">
       <Filter>data</Filter>
     </ClInclude>
+    <ClInclude Include="utility_b2.h">
+      <Filter>utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -178,6 +184,9 @@
     </Filter>
     <Filter Include="data">
       <UniqueIdentifier>{97904d1b-982a-4e1a-821e-9913a2eb0177}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utility">
+      <UniqueIdentifier>{7e350a7d-7e6e-4bcc-8186-fe2a105806ba}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 #include "behavior_internal.h"
 #include "ecs_player.h"
+#include "utility_b2.h"
 
 namespace behavior
 {
@@ -17,12 +18,12 @@ namespace behavior
 		{
 			if (!ecs::player_exists()) return BT::NodeStatus::FAILURE;
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			b2Body* body = handle.get<b2Body*>();
+			b2Body& body = *handle.get<b2Body*>();
 
 			auto radius = getInput<float>("radius");
 			if (!radius) return BT::NodeStatus::FAILURE;
 
-			sf::Vector2f position = get_position(body);
+			sf::Vector2f position = b2::get_position(body);
 			sf::Vector2f player_position = ecs::get_player_position();
 			float distance = length(player_position - position);
 
@@ -46,16 +47,16 @@ namespace behavior
 		{
 			if (!ecs::player_exists()) return BT::NodeStatus::FAILURE;
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			b2Body* body = handle.get<b2Body*>();
+			b2Body& body = *handle.get<b2Body*>();
 
 			auto speed = getInput<float>("speed");
 			if (!speed) return BT::NodeStatus::FAILURE;
 
-			sf::Vector2f position = get_position(body);
+			sf::Vector2f position = b2::get_position(body);
 			sf::Vector2f player_position = ecs::get_player_position();
 			sf::Vector2f direction = normalize(player_position - position);
 			sf::Vector2f velocity = direction * speed.value();
-			set_linear_velocity(body, velocity);
+			b2::set_linear_velocity(body, velocity);
 
 			return BT::NodeStatus::SUCCESS;
 		}

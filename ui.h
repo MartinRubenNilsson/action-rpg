@@ -12,6 +12,10 @@ namespace ui
 	// and all RML documents in the assets/ui folder.
 	void load_fonts_and_documents();
 
+	// Reloads all RML documents' style sheets from <style> tags
+	// and external style sheets, but not inline "style" attributes.
+	void reload_style_sheets();
+
 	// Returns a list of names of all loaded RML documents.
 	std::vector<std::string> get_loaded_documents();
 

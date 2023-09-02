@@ -24,7 +24,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     sf::VideoMode video_mode(WINDOW_WIDTH, WINDOW_HEIGHT);
     sf::RenderWindow window(video_mode, "Hello, SFML!");
-
     sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
     window.setView(view);
 
@@ -70,9 +69,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         {
             ImGui::SFML::ProcessEvent(window, event);
 
-            if (event.type == sf::Event::Closed) {
+            if (event.type == sf::Event::Closed)
+            {
                 window.close();
-            } else if (event.type == sf::Event::KeyPressed)
+            }
+            //else if (event.type == sf::Event::Resized)
+            //{
+            //    view.setSize(event.size.width, event.size.height);
+            //    window.setView(view);
+            //}
+            else if (event.type == sf::Event::KeyPressed)
             {
                 if (event.key.code == sf::Keyboard::F1) {
                     console::toggle_visible();

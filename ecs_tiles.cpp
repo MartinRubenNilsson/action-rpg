@@ -1,4 +1,5 @@
 #include "ecs_tiles.h"
+#include "utility_b2.h"
 
 namespace tmx
 {
@@ -117,7 +118,7 @@ namespace ecs
 			_registry.view<Tile, b2Body*>().each())
 		{
 			std::string current_type = tile.get_type();
-			sf::Vector2f velocity = get_linear_velocity(body);
+			sf::Vector2f velocity = b2::get_linear_velocity(*body);
 			std::string tileset_name = tile.get_tileset_name();
 			if (tileset_name == "naked_human")
 			{

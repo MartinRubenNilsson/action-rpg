@@ -1,10 +1,8 @@
 <rml>
 <head>
-	<link type="text/rcss" href="styles/rml.rcss"/>
-	<link type="text/rcss" href="styles/window.rcss"/>
+	<link type="text/rcss" href="style.rcss"/>
 </head>
-<body data-model="data_model">
+<body>
 	<p>Hello, world!</p>
-	<button data-event-click="console_log('You clicked me!!!')">Log message</button>
 </body>
 </rml>
