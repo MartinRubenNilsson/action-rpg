@@ -1,5 +1,6 @@
-#include "ecs_tiles.h"
+#include "ecs_graphics.h"
 #include "utility_b2.h"
+#include "map.h"
 
 namespace tmx
 {
@@ -103,15 +104,6 @@ namespace ecs
 		return tmx::_get_texture_rect(*_tileset, id);
 	}
 
-	void _update_tile_animation_times(float dt)
-	{
-		for (auto [entity, tile] : _registry.view<Tile>().each())
-		{
-			if (tile.has_animation())
-				tile.animation_time += dt;
-		}
-	}
-
 	void _update_tile_types()
 	{
 		for (auto [entity, tile, body] :
@@ -138,19 +130,44 @@ namespace ecs
 		}
 	}
 
-	void _update_tile_sprite_texture_rects()
+	void _update_tile_animation_times(float dt)
 	{
-		for (auto [entity, sprite, tile] :
-			_registry.view<sf::Sprite, Tile>().each())
+		for (auto [entity, tile] : _registry.view<Tile>().each())
+		{
+			if (tile.has_animation())
+				tile.animation_time += dt;
+		}
+	}
+
+	void _update_sprite_texture_rects()
+	{
+		for (auto [entity, sprite, tile]
+			: _registry.view<Sprite, Tile>().each())
 		{
 			sprite.setTextureRect(tile.get_texture_rect());
 		}
 	}
 
-	void update_tiles(float dt)
+	void _update_sprite_positions()
 	{
-		_update_tile_animation_times(dt);
+		sf::Vector2u map_tile_size = map::get_tile_size();
+
+		for (auto [entity, sprite, body] :
+			_registry.view<Sprite, b2Body*>().each())
+		{
+			sf::Vector2f world_position = b2::get_position(*body);
+			sf::Vector2f pixel_position(
+				world_position.x * map_tile_size.x,
+				world_position.y * map_tile_size.y);
+			sprite.setPosition(pixel_position);
+		}
+	}
+
+	void update_graphics(float dt)
+	{
 		_update_tile_types();
-		_update_tile_sprite_texture_rects();
+		_update_tile_animation_times(dt);
+		_update_sprite_texture_rects();
+		_update_sprite_positions();
 	}
 }

@@ -14,6 +14,7 @@ namespace ui
 	{
 		_render_interface.SetViewport(size.x, size.y);
 		_context->SetDimensions(size);
+		//_context->SetDensityIndependentPixelRatio(1.0f); // TODO
 	}
 
 	void initialize(sf::RenderWindow& window)

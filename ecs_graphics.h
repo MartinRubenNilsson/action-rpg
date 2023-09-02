@@ -23,5 +23,10 @@ namespace ecs
 		const tmx::Tileset::Tile* _tile = nullptr;
 	};
 
-	void update_tiles(float dt);
+	struct Sprite : sf::Sprite
+	{
+		float depth = 0.f; // Sprites with lower depth values are drawn first.
+	};
+
+	void update_graphics(float dt);
 }

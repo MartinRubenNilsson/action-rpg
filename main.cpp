@@ -18,6 +18,8 @@
 #define WINDOW_WIDTH (VIEW_WIDTH * 3)
 #define WINDOW_HEIGHT (VIEW_HEIGHT * 3)
 
+bool window_has_focus = false;
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
     // CREATE WINDOW
@@ -94,6 +96,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
             console::process_event(event);
             ui::process_event(event);
         }
+
+        window_has_focus = window.hasFocus();
 
         // UPDATING
 

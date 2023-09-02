@@ -3,6 +3,8 @@
 #include "math_vectors.h"
 #include "utility_b2.h"
 
+extern bool window_has_focus;
+
 namespace ecs
 {
 	extern entt::registry _registry;
@@ -41,15 +43,20 @@ namespace ecs
 		if (!_registry.valid(_player_entity))
 			return;
 
+		//TODO: if window don't have focus, don't update player
+
 		sf::Vector2f velocity;
-		velocity.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-		velocity.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-		velocity.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-		velocity.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+		if (window_has_focus)
+		{
+			velocity.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+			velocity.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+			velocity.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+			velocity.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+		}
 
 		normalize_safe(velocity);
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+		if (window_has_focus && sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 			velocity *= 9.5f;
 		else
 			velocity *= 5.5f;

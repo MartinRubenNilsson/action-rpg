@@ -6,7 +6,7 @@
     <ClCompile Include="ui.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_tiles.cpp">
+    <ClCompile Include="ecs_graphics.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="ui_bindings.cpp">
@@ -87,7 +87,7 @@
     <ClInclude Include="ui.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_tiles.h">
+    <ClInclude Include="ecs_graphics.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ui_bindings.h">

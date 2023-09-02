@@ -3,6 +3,8 @@
 	<link type="text/rcss" href="style.rcss"/>
 </head>
 <body>
-	<p>Hello, world!</p>
+	<div class="textbox">
+		<p>Hello, world!</p>
+	</div>
 </body>
 </rml>

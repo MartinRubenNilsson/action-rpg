@@ -1,9 +1,9 @@
 #include "ecs.h"
+#include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_behaviors.h"
-#include "ecs_tiles.h"
-#include "ecs_common.h"
+#include "ecs_graphics.h"
 #include "map.h"
 
 namespace ecs
@@ -18,22 +18,6 @@ namespace ecs
 		_registry.clear();
 	}
 
-	void _update_sprite_positions()
-	{
-		sf::Vector2u map_tile_size = map::get_tile_size();
-
-		// Update the sprites' positions to match their physics bodies.
-		for (auto [entity, sprite, body] :
-			_registry.view<sf::Sprite, b2Body*>().each())
-		{
-			auto world_position = body->GetPosition();
-			sf::Vector2f pixel_position(
-				world_position.x * map_tile_size.x,
-				world_position.y * map_tile_size.y);
-			sprite.setPosition(pixel_position);
-		}
-	}
-
 	void _update_view(sf::RenderWindow& window)
 	{
 		sf::View view = window.getView();
@@ -42,7 +26,7 @@ namespace ecs
 		if (_registry.valid(player_entity))
 		{
 			// Center the view on the player.
-			auto& sprite = _registry.get<sf::Sprite>(player_entity);
+			auto& sprite = _registry.get<Sprite>(player_entity);
 			view.setCenter(sprite.getPosition());
 		}
 
@@ -85,14 +69,26 @@ namespace ecs
 		update_behavior_trees();
 		update_life_spans(dt);
 		destroy_marked_entities();
-		update_tiles(dt);
-		_update_sprite_positions();
+		update_graphics(dt);
 	}
 
 	void _render_sprites(sf::RenderWindow& window)
 	{
-		for (auto [entity, sprite] : _registry.view<sf::Sprite>().each())
-			window.draw(sprite);
+		std::vector<Sprite*> sprites;
+
+		// Collect all sprites.
+		for (auto [entity, sprite] : _registry.view<ecs::Sprite>().each())
+			sprites.push_back(&sprite);
+
+		// Sort sprites by depth, then by y position.
+		std::ranges::sort(sprites, [](Sprite* a, Sprite* b) {
+			if (a->depth != b->depth) return a->depth < b->depth;
+			return a->getPosition().y < b->getPosition().y;
+		});
+
+		// Draw sprites.
+		for (auto sprite : sprites)
+			window.draw(*sprite);
 	}
 	 
 	void render(sf::RenderWindow& window)
