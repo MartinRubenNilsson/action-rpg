@@ -74,11 +74,21 @@ namespace ecs
 
 	void _render_sprites(sf::RenderWindow& window)
 	{
+		// Compute the view global bounds.
+		// PITFALL: We are assuming that the view isn't rotated.
+		sf::View view = window.getView();
+		sf::FloatRect view_bounds(
+			view.getCenter() - view.getSize() / 2.f, // top left
+			view.getSize());
+
 		std::vector<Sprite*> sprites;
 
-		// Collect all sprites.
+		// Collect all sprites in view.
 		for (auto [entity, sprite] : _registry.view<ecs::Sprite>().each())
-			sprites.push_back(&sprite);
+		{
+			if (view_bounds.intersects(sprite.getGlobalBounds()))
+				sprites.push_back(&sprite);
+		}
 
 		// Sort sprites by depth, then by y position.
 		std::ranges::sort(sprites, [](Sprite* a, Sprite* b) {
