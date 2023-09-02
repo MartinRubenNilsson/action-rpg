@@ -2,28 +2,13 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <CLI/CLI.hpp>
+#include "ui_bindings.h"
+
+#define COLOR_COMMAND IM_COL32( 38, 139, 210, 255)
+#define COLOR_ERROR   IM_COL32(220,  50,  47, 255)
 
 namespace console
 {
-	// Solarized color palette
-
-	const ImColor _base03  = IM_COL32(  0,  43,  54, 255);
-	const ImColor _base02  = IM_COL32(  7,  54,  66, 255);
-	const ImColor _base01  = IM_COL32( 88, 110, 117, 255);
-	const ImColor _base00  = IM_COL32(101, 123, 131, 255);
-	const ImColor _base0   = IM_COL32(131, 148, 150, 255);
-	const ImColor _base1   = IM_COL32(147, 161, 161, 255);
-	const ImColor _base2   = IM_COL32(238, 232, 213, 255);
-	const ImColor _base3   = IM_COL32(253, 246, 227, 255);
-	const ImColor _yellow  = IM_COL32(181, 137,   0, 255);
-	const ImColor _orange  = IM_COL32(203,  75,  22, 255);
-	const ImColor _red     = IM_COL32(220,  50,  47, 255);
-	const ImColor _magenta = IM_COL32(211,  54, 130, 255);
-	const ImColor _violet  = IM_COL32(108, 113, 196, 255);
-	const ImColor _blue    = IM_COL32( 38, 139, 210, 255);
-	const ImColor _cyan    = IM_COL32( 42, 161, 152, 255);
-	const ImColor _green   = IM_COL32(133, 153,   0, 255);
-
 	CLI::App _app("Console", "");
 	std::string _command_line;
 	std::vector<std::string> _command_history;
@@ -167,6 +152,9 @@ namespace console
 		// SETUP OTHER COMMANDS
 		_setup_commands(_app);
 
+		// SETUP UI BINDINGS
+		ui::console_log = console::log;
+
 		log("Type -h or --help for a list of commands");
 	}
 
@@ -250,7 +238,7 @@ namespace console
 
 	void log_error(const std::string& message, bool make_visible)
 	{
-		_history.emplace_back(message, _red);
+		_history.emplace_back(message, COLOR_ERROR);
 		if (make_visible) _visible = true;
 	}
 
@@ -261,7 +249,7 @@ namespace console
 
 		_command_history.push_back(command_line);
 		_command_history_it = _command_history.end();
-		_history.emplace_back(command_line, _blue);
+		_history.emplace_back(command_line, COLOR_COMMAND);
 
 		try
 		{

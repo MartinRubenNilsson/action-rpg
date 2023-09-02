@@ -2,3 +2,4 @@ bind q "window close"
 bind o "map open dungeon"
 bind p "map close"
 map open dungeon
+ui show textbox

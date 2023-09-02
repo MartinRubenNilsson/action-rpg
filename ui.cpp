@@ -2,44 +2,39 @@
 #include <RmlUi/Core.h>
 #include "RmlUi_Platform_SFML.h"
 #include "RmlUi_Renderer_GL2_SFML.h"
+#include "ui_bindings.h"
 
 namespace ui
 {
-	SystemInterface_SFML* _system_interface = nullptr;
-	RenderInterface_GL2_SFML* _render_interface = nullptr;
+	SystemInterface_SFML _system_interface;
+	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 
 	void _on_window_resize(const Rml::Vector2i& size)
 	{
-		_render_interface->SetViewport(size.x, size.y);
+		_render_interface.SetViewport(size.x, size.y);
 		_context->SetDimensions(size);
 	}
 
-	extern void _create_bindings();
-
 	void initialize(sf::RenderWindow& window)
 	{
-		_system_interface = new SystemInterface_SFML();
-		_system_interface->SetWindow(&window); // So that the system interface can set the mouse cursor.
-		_render_interface = new RenderInterface_GL2_SFML();
+		_system_interface.SetWindow(&window); // So that the system interface can set the mouse cursor.
 
-		Rml::SetSystemInterface(_system_interface);
-		Rml::SetRenderInterface(_render_interface);
+		Rml::SetSystemInterface(&_system_interface);
+		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
 
 		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
 		_context = Rml::CreateContext("main", window_size);
 		_on_window_resize(window_size);
 
-		_create_bindings();
+		create_bindings();
 	}
 
 	void shutdown()
 	{
 		Rml::RemoveContext(_context->GetName()); _context = nullptr;
 		Rml::Shutdown();
-		delete _system_interface; _system_interface = nullptr;
-		delete _render_interface; _render_interface = nullptr;
 	}
 
 	void process_event(const sf::Event& event)
@@ -56,14 +51,15 @@ namespace ui
 	}
 
 	void update() {
+		dirty_all_variables();
 		_context->Update();
 	}
 
 	void render()
 	{
-		_render_interface->BeginFrame();
+		_render_interface.BeginFrame();
 		_context->Render();
-		_render_interface->EndFrame();
+		_render_interface.EndFrame();
 	}
 
 	void load_fonts_and_documents()

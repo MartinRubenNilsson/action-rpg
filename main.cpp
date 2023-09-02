@@ -31,11 +31,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // INITIALIZATION
 
     ImGui::SFML::Init(window);
-    ui::initialize(window);
     physics::initialize();
     behavior::register_nodes();
     ecs::initialize();
     console::initialize(window);
+    ui::initialize(window);
 
     // LOAD ASSETS
 

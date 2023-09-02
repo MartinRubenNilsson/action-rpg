@@ -25,8 +25,10 @@ sf::Vector2f normalize(const sf::Vector2f& v) {
 	return v / length(v);
 }
 
-sf::Vector2f normalize_safe(const sf::Vector2f& v) {
-	if (float l = length(v)) return v / l;
+sf::Vector2f normalize_safe(const sf::Vector2f& v)
+{
+	if (float l = length(v))
+		return v / l;
 	return sf::Vector2f(0, 0);
 }
 
@@ -39,10 +41,18 @@ float cross(const sf::Vector2f& a, const sf::Vector2f& b) {
 }
 
 float angle_between(const sf::Vector2f& a, const sf::Vector2f& b) {
-	return std::acos(dot(a, b) / (length(a) * length(b))); // TODO: Check for division by zero
+	return std::acos(dot(a, b) / (length(a) * length(b)));
 }
 
-sf::Vector2f rotate(const sf::Vector2f& v, float angle) {
+float angle_between_safe(const sf::Vector2f& a, const sf::Vector2f& b)
+{
+	if (float l = length(a) * length(b))
+		return std::acos(dot(a, b) / l);
+	return 0;
+}
+
+sf::Vector2f rotate(const sf::Vector2f& v, float angle)
+{
 	float c = std::cos(angle);
 	float s = std::sin(angle);
 	return sf::Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
@@ -57,7 +67,8 @@ char get_direction(const sf::Vector2f& v)
 	if (v.x >=  abs(v.y)) return 'r';
 	if (v.x <= -abs(v.y)) return 'l';
 	if (v.y >=  abs(v.x)) return 'd';
-	return 'u';
+	if (v.y <= -abs(v.x)) return 'u';
+	return ' '; // This should never happen.
 }
 
 void set_position(b2Body* body, const sf::Vector2f& position) {
