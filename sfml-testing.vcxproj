@@ -219,6 +219,7 @@
     </ClCompile>
     <ClCompile Include="ecs_graphics.cpp" />
     <ClCompile Include="utility_b2.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -229,6 +230,7 @@
     <ClInclude Include="behavior_internal.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
+    <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_behaviors.h" />
     <ClInclude Include="ecs_common.h" />
@@ -248,6 +250,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_graphics.h" />
     <ClInclude Include="utility_b2.h" />
+    <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

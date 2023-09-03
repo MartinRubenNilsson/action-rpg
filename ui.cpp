@@ -10,11 +10,10 @@ namespace ui
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 
-	void _on_window_resize(const Rml::Vector2i& size)
+	void _on_window_resized(const Rml::Vector2i& new_size)
 	{
-		_render_interface.SetViewport(size.x, size.y);
-		_context->SetDimensions(size);
-		//_context->SetDensityIndependentPixelRatio(1.0f); // TODO
+		_render_interface.SetViewport(new_size.x, new_size.y);
+		_context->SetDimensions(new_size);
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -25,9 +24,9 @@ namespace ui
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
 
-		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
-		_context = Rml::CreateContext("main", window_size);
-		_on_window_resize(window_size);
+		Rml::Vector2i size(window.getSize().x, window.getSize().y);
+		_context = Rml::CreateContext("main", size);
+		_on_window_resized(size);
 
 		create_bindings();
 	}
@@ -41,17 +40,12 @@ namespace ui
 	void process_event(const sf::Event& event)
 	{
 		if (event.type == sf::Event::Resized)
-		{
-			Rml::Vector2i size(event.size.width, event.size.height);
-			_on_window_resize(size);
-		}
-		else
-		{
-			RmlSFML::InputHandler(_context, event);
-		}
+			_on_window_resized(Rml::Vector2i(event.size.width, event.size.height));
+		RmlSFML::InputHandler(_context, event);
 	}
 
-	void update() {
+	void update()
+	{
 		dirty_all_variables();
 		_context->Update();
 	}

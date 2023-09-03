@@ -5,10 +5,6 @@ namespace ecs
 	extern entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
 
-	void mark_for_destruction(entt::entity entity) {
-		_entities_to_destroy.insert(entity);
-	}
-
 	std::string get_name(entt::entity entity)
 	{
 		std::string name;
@@ -29,6 +25,12 @@ namespace ecs
 	{
 		if (!_registry.valid(entity)) return;
 		_registry.emplace_or_replace<LifeSpan>(entity, life_span);
+	}
+
+	void mark_for_destruction(entt::entity entity)
+	{
+		if (!_registry.valid(entity)) return;
+		_entities_to_destroy.insert(entity);
 	}
 
 	void _update_life_spans(float dt)

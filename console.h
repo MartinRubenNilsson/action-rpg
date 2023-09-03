@@ -2,10 +2,11 @@
 
 namespace console
 {
-	void initialize(sf::RenderWindow& window);
+	void initialize();
 	void update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
 	void process_event(const sf::Event& event);
 
+	void set_visible(bool visible);
 	void toggle_visible();
 	void clear();
 	void log(const std::string& message);

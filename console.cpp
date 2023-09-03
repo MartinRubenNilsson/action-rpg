@@ -46,7 +46,7 @@ namespace console
 	// Defined in console_commands.cpp
 	extern void _setup_commands(CLI::App& app);
 
-	void initialize(sf::RenderWindow& window)
+	void initialize()
 	{
 		// SETUP IMGUI STYLE
 		{
@@ -98,58 +98,7 @@ namespace console
 		_app.set_help_flag("-h,--help", "Print a help message");
 		_app.set_help_all_flag("--help-all", "Print help messages for all subcommands");
 
-		// SETUP CONSOLE COMMANDS
-		{
-			_app.add_subcommand("clear", "Clear the console")
-				->callback(clear);
-			_app.add_subcommand("script", "Execute a console script")
-				->add_option_function<std::string>("name", execute_script, "The name of the script")
-				->required();
-			{
-				static std::string key_string;
-				static std::string command_line;
-				auto bind_cmd = _app.add_subcommand("bind", "Bind a key to a console command");
-				bind_cmd->add_option("key", key_string, "The key to bind")
-					->required();
-				bind_cmd->add_option("command", command_line, "The command to execute")
-					->required();
-				bind_cmd->callback([](){ console::bind(key_string, command_line); });
-			}
-			{
-				static std::string key_string;
-				auto bind_cmd = _app.add_subcommand("unbind", "Unbind a key");
-				bind_cmd->add_option("key", key_string, "The key to unbind")
-					->required();
-				bind_cmd->callback([]() { console::unbind(key_string); });
-			}
-		}
-
-		// SETUP WINDOW COMMANDS
-		{
-			auto window_cmd = _app.add_subcommand("window", "Manage the window");
-			{
-				window_cmd->add_subcommand("close", "Close the window")
-					->callback([&window]() { window.close(); });
-			}
-			{
-				auto set_title_cmd = window_cmd->add_subcommand("set_title", "Set the window title");
-				static std::string title;
-				set_title_cmd->add_option("title", title, "The new title of the window")
-					->required();
-				set_title_cmd->callback([&window]() { window.setTitle(title); });
-			}
-			{
-				auto set_size_cmd = window_cmd->add_subcommand("set_size", "Set the window size");
-				static sf::Vector2u size;
-				set_size_cmd->add_option("x", size.x, "The new width of the window")
-					->required();
-				set_size_cmd->add_option("y", size.y, "The new height of the window")
-					->required();
-				set_size_cmd->callback([&window]() { window.setSize(size); });
-			}
-		}
-
-		// SETUP OTHER COMMANDS
+		// SETUP COMMANDS
 		_setup_commands(_app);
 
 		// SETUP UI BINDINGS
@@ -221,11 +170,16 @@ namespace console
 			execute(_key_bindings[event.key.code]);
 	}
 
+	void set_visible(bool visible)
+	{
+		_visible = visible;
+		if (_visible) _reclaim_focus = true;
+	}
+
 	void toggle_visible()
 	{
 		_visible = !_visible;
-		if (_visible)
-			_reclaim_focus = true;
+		if (_visible) _reclaim_focus = true;
 	}
 
 	void clear() {

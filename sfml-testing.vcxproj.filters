@@ -78,6 +78,7 @@
     <ClCompile Include="utility_b2.cpp">
       <Filter>utility</Filter>
     </ClCompile>
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -153,6 +154,8 @@
     <ClInclude Include="utility_b2.h">
       <Filter>utility</Filter>
     </ClInclude>
+    <ClInclude Include="window.h" />
+    <ClInclude Include="defines.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

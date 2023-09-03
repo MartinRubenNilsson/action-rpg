@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
+#include "window.h"
 #include "audio.h"
 #include "physics.h"
 #include "ui.h"
@@ -12,30 +13,21 @@
 #include "console.h"
 #include "data.h"
 
-#define TILE_SIZE 16
-#define VIEW_WIDTH (TILE_SIZE * 24)
-#define VIEW_HEIGHT (TILE_SIZE * 18)
-#define WINDOW_WIDTH (VIEW_WIDTH * 3)
-#define WINDOW_HEIGHT (VIEW_HEIGHT * 3)
-
 bool window_has_focus = false;
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
     // CREATE WINDOW
 
-    sf::VideoMode video_mode(WINDOW_WIDTH, WINDOW_HEIGHT);
-    sf::RenderWindow window(video_mode, "Hello, SFML!");
-    sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
-    window.setView(view);
+    sf::RenderWindow& window = window::create();
 
-    // INITIALIZATION
+    // INITIALIZE SUBSYSTEMS
 
     ImGui::SFML::Init(window);
     physics::initialize();
     behavior::register_nodes();
     ecs::initialize();
-    console::initialize(window);
+    console::initialize();
     ui::initialize(window);
 
     // LOAD ASSETS
