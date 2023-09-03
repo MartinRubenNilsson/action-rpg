@@ -13,7 +13,7 @@
 
 .textbox {
 	position: absolute;
-	width: 20em;
+	width: 22em;
 	height: 2.2em;
 	padding: 1em;
 	background: black;

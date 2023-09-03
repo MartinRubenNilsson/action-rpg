@@ -1,0 +1,57 @@
+Console
+Usage: [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print a help message
+  --help-all                  Print help messages for all subcommands
+
+Subcommands:
+exit
+  Exit the game
+
+clear
+  Clear the console
+
+script
+  Execute a console script
+  Positionals:
+    name TEXT REQUIRED          The name of the script
+
+bind
+  Bind a key to a console command
+  Positionals:
+    key TEXT REQUIRED           The key to bind
+    command TEXT REQUIRED       The command to execute
+
+unbind
+  Unbind a key
+  Positionals:
+    key TEXT REQUIRED           The key to unbind
+
+window
+  Manage the window
+  Subcommands:
+    close                       Close the window
+    set_title                   Set the window title
+    set_scale                   Set the window scale
+
+audio
+  Manage audio
+  Subcommands:
+    play                        Play an audio event
+
+map
+  Manage maps
+  Subcommands:
+    list                        List all loaded maps
+    name                        Print the name of the current map
+    open                        Open a map
+    close                       Close the current map
+
+ui
+  Manage UI documents
+  Subcommands:
+    reload                      Reload all style sheets
+    show                        Show a document
+    hide                        Hide a document
+

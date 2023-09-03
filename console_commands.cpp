@@ -9,10 +9,14 @@ namespace console
 {
 	void _setup_commands(CLI::App& app)
 	{
-		// CONSOLE
+		// GENERAL
 		{
 			app.add_subcommand("exit", "Exit the game")
 				->callback(window::close);
+		}
+
+		// CONSOLE
+		{
 			app.add_subcommand("clear", "Clear the console")
 				->callback(console::clear);
 			app.add_subcommand("script", "Execute a console script")
@@ -45,6 +49,9 @@ namespace console
 			cmd->add_subcommand("set_title", "Set the window title")
 				->add_option_function<std::string>("title", window::set_title, "The new title of the window")
 				->required();
+			cmd->add_subcommand("set_scale", "Set the window scale")
+				->add_option_function<int32_t>("title", window::set_scale, "The new scale of the window")
+				->required();
 		}
 
 		// AUDIO
@@ -74,8 +81,6 @@ namespace console
 			auto cmd = app.add_subcommand("ui", "Manage UI documents");
 			cmd->add_subcommand("reload", "Reload all style sheets")
 				->callback(ui::reload_style_sheets);
-			cmd->add_subcommand("list", "List all loaded documents")
-				->callback([]() { for (const auto& name : ui::get_loaded_documents()) log(name); });
 			cmd->add_subcommand("show", "Show a document")
 				->add_option_function<std::string>("name", ui::show, "The name of the document")
 				->required();

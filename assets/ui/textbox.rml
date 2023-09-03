@@ -5,10 +5,8 @@
 <body>
 	<div class="fullscreen-container">
 		<div class="textbox">
-			<p>
-				Hello, world! My name is Martin Nilsson
-				and I'm the best programmer in the world!
-			</p>
+			<!-- TODO: image -->
+			<p id="textbox-text"></p>
 		</div>
 	</div>
 </body>

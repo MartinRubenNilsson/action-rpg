@@ -218,6 +218,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ecs_graphics.cpp" />
+    <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="utility_b2.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
@@ -230,7 +231,6 @@
     <ClInclude Include="behavior_internal.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
-    <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_behaviors.h" />
     <ClInclude Include="ecs_common.h" />
@@ -249,6 +249,7 @@
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_graphics.h" />
+    <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="utility_b2.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>

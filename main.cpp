@@ -13,7 +13,7 @@
 #include "console.h"
 #include "data.h"
 
-bool window_has_focus = false;
+#include "ui_textbox.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
@@ -42,8 +42,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // OTHER STUFF
 
 #ifdef _DEBUG
-    behavior::write_node_models("assets/behaviors/models/models.xml"); // should only be done in debug builds
+    console::write_help_file("assets/scripts/help.txt");
+    behavior::write_node_models_file("assets/behaviors/models/models.xml");
 #endif
+
+    ui::set_textbox_text(
+        "Hello, world! My name is <span style='color: red;'>Martin Nilsson</span> "
+        "and I'm the best programmer in the world!");
 
     // EXECUTE STARTUP COMMANDS
 
@@ -86,8 +91,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
             console::process_event(event);
             ui::process_event(event);
         }
-
-        window_has_focus = window.hasFocus();
 
         // UPDATING
 

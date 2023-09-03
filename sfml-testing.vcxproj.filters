@@ -79,6 +79,9 @@
       <Filter>utility</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp" />
+    <ClCompile Include="ui_textbox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -155,7 +158,9 @@
       <Filter>utility</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />
-    <ClInclude Include="defines.h" />
+    <ClInclude Include="ui_textbox.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

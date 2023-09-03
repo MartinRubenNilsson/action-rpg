@@ -21,4 +21,6 @@ namespace console
 	void bind(const std::string& key_string, const std::string& command_line);
 	void unbind(sf::Keyboard::Key key);
 	void unbind(const std::string& key_string);
+
+	void write_help_file(const std::string& path);
 }

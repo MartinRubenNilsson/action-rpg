@@ -1,18 +1,21 @@
 #include "window.h"
-#include "defines.h"
 
 namespace window
 {
 	sf::RenderWindow _window;
+	uint32_t _scale = 5;
 
 	sf::RenderWindow& create()
 	{
-		sf::VideoMode video_mode(VIEW_WIDTH * 5, VIEW_HEIGHT * 5);
+		sf::VideoMode video_mode(
+			_scale * WINDOW_VIEW_WIDTH,
+			_scale * WINDOW_VIEW_HEIGHT);
 		std::string title = "Untitled RPG";
 		sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
 		_window.create(video_mode, title, style);
 
-		sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
+		sf::View view(sf::FloatRect(
+			0, 0, WINDOW_VIEW_WIDTH, WINDOW_VIEW_HEIGHT));
 		_window.setView(view);
 
 		return _window;
@@ -28,6 +31,17 @@ namespace window
 
 	bool has_focus() {
 		return _window.hasFocus();
+	}
+
+	void set_scale(uint32_t scale) {
+		_scale = std::clamp(scale, WINDOW_SCALE_MIN, WINDOW_SCALE_MAX);
+		_window.setSize(sf::Vector2u(
+			_scale * WINDOW_VIEW_WIDTH,
+			_scale * WINDOW_VIEW_HEIGHT));
+	}
+
+	uint32_t get_scale() {
+		return _scale;
 	}
 }
 

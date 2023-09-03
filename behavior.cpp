@@ -14,7 +14,7 @@ namespace behavior
 		_register_nodes_player(_factory);
 	}
 
-	void write_node_models(const std::string& path)
+	void write_node_models_file(const std::string& path)
 	{
 		std::string models_xml = BT::writeTreeNodesModelXML(_factory);
 		models_xml.insert(5, " BTCPP_format = \"4\""); // add missing format version so Groot2 doesn't complain
