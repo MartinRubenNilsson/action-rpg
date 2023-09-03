@@ -61,6 +61,10 @@ namespace ecs
 		return !_tile->animation.frames.empty();
 	}
 
+	float Tile::get_animation_duration() const {
+		return tmx::_get_total_duration_in_ms(_tile->animation) / 1000.f;
+	}
+
 	bool Tile::has_colliders() const {
 		return !_tile->objectGroup.getObjects().empty(); //TODO: remove
 	}
@@ -135,7 +139,7 @@ namespace ecs
 		for (auto [entity, tile] : _registry.view<Tile>().each())
 		{
 			if (tile.has_animation())
-				tile.animation_time += dt;
+				tile.animation_time += tile.animation_speed * dt;
 		}
 	}
 

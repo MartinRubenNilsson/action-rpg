@@ -12,6 +12,5 @@ namespace ecs
 	std::string get_type(entt::entity entity);
 	void set_life_span(entt::entity entity, float life_span);
 
-	void update_life_spans(float dt);
-	void destroy_marked_entities();
+	void update_common(float dt);
 }

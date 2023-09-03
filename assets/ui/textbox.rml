@@ -1,10 +1,15 @@
 <rml>
 <head>
-	<link type="text/rcss" href="style.rcss"/>
+	<link type="text/rcss" href="styles.rcss"/>
 </head>
 <body>
-	<div class="textbox">
-		<p>Hello, world!</p>
+	<div class="fullscreen-container">
+		<div class="textbox">
+			<p>
+				Hello, world! My name is Martin Nilsson
+				and I'm the best programmer in the world!
+			</p>
+		</div>
 	</div>
 </body>
 </rml>

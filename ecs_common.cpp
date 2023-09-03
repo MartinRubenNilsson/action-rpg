@@ -31,7 +31,7 @@ namespace ecs
 		_registry.emplace_or_replace<LifeSpan>(entity, life_span);
 	}
 
-	void update_life_spans(float dt)
+	void _update_life_spans(float dt)
 	{
 		for (auto [entity, life_span] : _registry.view<LifeSpan>().each())
 		{
@@ -41,11 +41,17 @@ namespace ecs
 		}
 	}
 
-	void destroy_marked_entities()
+	void _destroy_marked_entities()
 	{
 		for (entt::entity entity : _entities_to_destroy)
 			if (_registry.valid(entity))
 				_registry.destroy(entity);
 		_entities_to_destroy.clear();
+	}
+
+	void update_common(float dt)
+	{
+		_update_life_spans(dt);
+		_destroy_marked_entities();
 	}
 }

@@ -1,0 +1,25 @@
+* {
+	font-family: LatoLatin;
+	font-size: 5vh;
+	line-height: 1.2em;
+	color: white;
+}
+
+.fullscreen-container {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+}
+
+.textbox {
+	position: absolute;
+	width: 20em;
+	height: 2.2em;
+	padding: 1em;
+	background: black;
+	border: 0.2em;
+	border-radius: 0.4em;
+	left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    bottom: 1em; /* Position 1em from the bottom */
+}

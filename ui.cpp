@@ -42,7 +42,7 @@ namespace ui
 	{
 		if (event.type == sf::Event::Resized)
 		{
-			Rml::Vector2i size(event.size.height, event.size.height);
+			Rml::Vector2i size(event.size.width, event.size.height);
 			_on_window_resize(size);
 		}
 		else

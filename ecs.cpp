@@ -67,15 +67,13 @@ namespace ecs
 	{
 		update_player();
 		update_behavior_trees();
-		update_life_spans(dt);
-		destroy_marked_entities();
+		update_common(dt);
 		update_graphics(dt);
 	}
 
 	void _render_sprites(sf::RenderWindow& window)
 	{
-		// Compute the view global bounds.
-		// PITFALL: We are assuming that the view isn't rotated.
+		// Compute the view bounds (assuming no rotation).
 		sf::View view = window.getView();
 		sf::FloatRect view_bounds(
 			view.getCenter() - view.getSize() / 2.f, // top left
@@ -83,21 +81,22 @@ namespace ecs
 
 		std::vector<Sprite*> sprites;
 
-		// Collect all sprites in view.
-		for (auto [entity, sprite] : _registry.view<ecs::Sprite>().each())
+		// Collect all visible sprites in view.
+		for (auto [entity, sprite] : _registry.view<Sprite>().each())
 		{
+			if (!sprite.visible) continue;
 			if (view_bounds.intersects(sprite.getGlobalBounds()))
 				sprites.push_back(&sprite);
 		}
 
 		// Sort sprites by depth, then by y position.
-		std::ranges::sort(sprites, [](Sprite* a, Sprite* b) {
+		std::ranges::sort(sprites, [](const Sprite* a, const Sprite* b) {
 			if (a->depth != b->depth) return a->depth < b->depth;
 			return a->getPosition().y < b->getPosition().y;
 		});
 
 		// Draw sprites.
-		for (auto sprite : sprites)
+		for (Sprite* sprite : sprites)
 			window.draw(*sprite);
 	}
 	 
