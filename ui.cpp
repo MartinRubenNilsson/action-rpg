@@ -4,6 +4,7 @@
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "ui_bindings.h"
 #include "defines.h"
+#include "ui_textbox.h"
 
 namespace ui
 {
@@ -81,6 +82,8 @@ namespace ui
 				continue;
 			document->SetId(entry.path().stem().string());
 		}
+
+		add_textbox_event_listeners();
 	}
 
 	void reload_style_sheets()

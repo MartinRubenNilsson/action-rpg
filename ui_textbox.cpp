@@ -6,22 +6,21 @@ namespace ui
 {
 	extern Rml::Context* _context;
 
-	// TODO: make event listener
-
-	struct EventListener : Rml::EventListener
+	struct TextboxEventListener : Rml::EventListener
 	{
 		void ProcessEvent(Rml::Event& event) override
 		{
-			if (event == "keydown")
+			if (event == Rml::EventId::Keydown)
 			{
-				console::log_error("Shit");
+
 			}
 		}
-	};
+	} _textbox_event_listener;
 
-	void initialize_textbox()
+	void add_textbox_event_listeners()
 	{
-
+		if (auto document = _context->GetDocument("textbox"))
+			document->AddEventListener(Rml::EventId::Keydown, &_textbox_event_listener);
 	}
 
 	void set_textbox_text(const std::string& rml)
@@ -30,9 +29,4 @@ namespace ui
 			if (auto element = document->GetElementById("textbox-text"))
 				element->SetInnerRML(rml.c_str());
 	}
-
-	//void update_textbox()
-	//{
-	//	// TODO
-	//}
 }

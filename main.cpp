@@ -67,27 +67,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         sf::Event event;
         while (window.pollEvent(event))
         {
+            if (event.type == sf::Event::Closed)
+                window.close();
+            if (event.type == sf::Event::KeyPressed)
+            {
+                if (event.key.code == sf::Keyboard::F1)
+                    console::toggle_visible();
+                if (event.key.code == sf::Keyboard::F2)
+                    debug_draw_physics = !debug_draw_physics;
+            }
+
             ImGui::SFML::ProcessEvent(window, event);
+            if (event.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
+				continue;
+
             console::process_event(event);
             ui::process_event(event);
-
-            switch (event.type)
-            {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed:
-                switch (event.key.code)
-                {
-                case sf::Keyboard::F1:
-                    console::toggle_visible();
-                    break;
-                case sf::Keyboard::F2:  
-                    debug_draw_physics = !debug_draw_physics;
-                    break;
-                }
-                break;
-            }
         }
 
         // UPDATING

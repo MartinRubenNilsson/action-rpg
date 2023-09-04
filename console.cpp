@@ -115,13 +115,13 @@ namespace console
 		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 		ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 
-		ImGuiWindowFlags flags =
+		ImGuiWindowFlags window_flags =
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings;
 
-		if (ImGui::Begin("Console", &_visible, flags))
+		if (ImGui::Begin("Console", &_visible, window_flags))
 		{
 			ImGui::SetWindowFontScale(2.f);
 
