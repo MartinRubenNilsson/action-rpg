@@ -78,7 +78,7 @@ namespace console
 
 		// UI
 		{
-			auto cmd = app.add_subcommand("ui", "Manage UI documents");
+			auto cmd = app.add_subcommand("ui", "Manage UI");
 			cmd->add_subcommand("reload", "Reload all style sheets")
 				->callback(ui::reload_style_sheets);
 			cmd->add_subcommand("show", "Show a document")

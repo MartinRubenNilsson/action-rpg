@@ -2,7 +2,7 @@
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
 </head>
-<body>
+<body data-model="data_model">
 	<div class="fullscreen-container">
 		<div class="textbox">
 			<!-- TODO: image -->

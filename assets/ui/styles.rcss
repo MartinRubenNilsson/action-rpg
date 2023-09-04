@@ -1,6 +1,6 @@
 * {
 	font-family: alagard;
-	font-size: 5vh;
+	font-size: 4vh;
 	line-height: 1.2em;
 	color: white;
 }
@@ -13,12 +13,12 @@
 
 .textbox {
 	position: absolute;
-	width: 22em;
-	height: 2.2em;
+	width: 25em;
+	height: 3.4em;
 	padding: 1em;
 	background: black;
 	border: 0.12em;
 	left: 50%;
     transform: translateX(-50%);
-    bottom: 1em;
+    bottom: 0.5em;
 }

@@ -5,6 +5,8 @@ namespace ui
 {
 	extern Rml::Context* _context;
 
+	// TODO: make event listener
+
 	void set_textbox_text(const std::string& rml)
 	{
 		if (auto document = _context->GetDocument("textbox"))

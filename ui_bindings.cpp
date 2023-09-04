@@ -3,16 +3,16 @@
 
 namespace ui
 {
+	extern Rml::Context* _context;
+	Rml::DataModelHandle _data_model_handle;
+
 	// DATA VARIABLES
 
-	std::string test_string;
+	std::string test_string = "Bruh";
 
 	// EVENT CALLBACKS
 
 	void (*console_log)(const std::string& message) = nullptr;
-
-	extern Rml::Context* _context;
-	Rml::DataModelHandle _data_model_handle;
 
 	void create_bindings()
 	{

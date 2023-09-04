@@ -12,6 +12,6 @@ namespace ui
 
 	void create_bindings();
 	bool is_variable_dirty(const std::string& name);
-	void dirty_all_variables(); // Called automatically by ui::Update().
+	void dirty_all_variables(); // Called by ui::update().
 }
 
