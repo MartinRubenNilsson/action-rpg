@@ -109,11 +109,19 @@ namespace console
 
 	void update()
 	{
-        if (!_visible)
-			return;
-		
-		ImGui::SetNextWindowBgAlpha(0.35f);
-		if (ImGui::Begin("Console", &_visible))
+        if (!_visible) return;
+
+		ImGui::SetNextWindowPos(ImVec2(0, 0));
+		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+		ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+
+		ImGuiWindowFlags flags =
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoSavedSettings;
+
+		if (ImGui::Begin("Console", &_visible, flags))
 		{
 			ImGui::SetWindowFontScale(2.f);
 

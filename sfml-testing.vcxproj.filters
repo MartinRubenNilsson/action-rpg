@@ -161,6 +161,7 @@
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="defines.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

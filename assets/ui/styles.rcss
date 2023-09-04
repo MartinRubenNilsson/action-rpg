@@ -1,6 +1,6 @@
 * {
 	font-family: alagard;
-	font-size: 4vh;
+	font-size: 8dp;
 	line-height: 1.2em;
 	color: white;
 }
@@ -17,7 +17,7 @@
 	height: 3.4em;
 	padding: 1em;
 	background: black;
-	border: 0.12em;
+	border: 1dp;
 	left: 50%;
     transform: translateX(-50%);
     bottom: 0.5em;

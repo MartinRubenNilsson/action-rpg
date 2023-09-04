@@ -49,7 +49,7 @@ map
     close                       Close the current map
 
 ui
-  Manage UI documents
+  Manage UI
   Subcommands:
     reload                      Reload all style sheets
     show                        Show a document

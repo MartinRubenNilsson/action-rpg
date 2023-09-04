@@ -231,6 +231,7 @@
     <ClInclude Include="behavior_internal.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
+    <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_behaviors.h" />
     <ClInclude Include="ecs_common.h" />

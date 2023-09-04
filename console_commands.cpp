@@ -50,7 +50,7 @@ namespace console
 				->add_option_function<std::string>("title", window::set_title, "The new title of the window")
 				->required();
 			cmd->add_subcommand("set_scale", "Set the window scale")
-				->add_option_function<int32_t>("title", window::set_scale, "The new scale of the window")
+				->add_option_function<uint32_t>("title", window::set_scale, "The new scale of the window")
 				->required();
 		}
 

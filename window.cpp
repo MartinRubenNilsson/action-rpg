@@ -1,4 +1,5 @@
 #include "window.h"
+#include "defines.h"
 
 namespace window
 {

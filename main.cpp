@@ -67,6 +67,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         sf::Event event;
         while (window.pollEvent(event))
         {
+            ImGui::SFML::ProcessEvent(window, event);
+            console::process_event(event);
+            ui::process_event(event);
+
             switch (event.type)
             {
             case sf::Event::Closed:
@@ -84,13 +88,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
                 }
                 break;
             }
-
-            ImGui::SFML::ProcessEvent(window, event);
-            if (ImGui::GetIO().WantCaptureKeyboard)
-			    continue;
-
-            console::process_event(event);
-            ui::process_event(event);
         }
 
         // UPDATING

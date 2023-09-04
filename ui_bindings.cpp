@@ -16,7 +16,7 @@ namespace ui
 
 	void create_bindings()
 	{
-		auto data_model = _context->CreateDataModel("data_model");
+		auto data_model = _context->CreateDataModel("data-model");
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();
 

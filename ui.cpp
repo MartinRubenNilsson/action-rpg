@@ -3,6 +3,7 @@
 #include "RmlUi_Platform_SFML.h"
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "ui_bindings.h"
+#include "defines.h"
 
 namespace ui
 {
@@ -14,6 +15,10 @@ namespace ui
 	{
 		_render_interface.SetViewport(new_size.x, new_size.y);
 		_context->SetDimensions(new_size);
+		float dp_ratio_x = (float)new_size.x / (float)WINDOW_VIEW_WIDTH;
+		float dp_ratio_y = (float)new_size.y / (float)WINDOW_VIEW_HEIGHT;
+		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
+		_context->SetDensityIndependentPixelRatio(dp_ratio);
 	}
 
 	void initialize(sf::RenderWindow& window)
