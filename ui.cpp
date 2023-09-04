@@ -52,6 +52,7 @@ namespace ui
 
 	void update()
 	{
+		update_textbox();
 		dirty_all_variables();
 		_context->Update();
 	}
@@ -82,8 +83,6 @@ namespace ui
 				continue;
 			document->SetId(entry.path().stem().string());
 		}
-
-		add_textbox_event_listeners();
 	}
 
 	void reload_style_sheets()
