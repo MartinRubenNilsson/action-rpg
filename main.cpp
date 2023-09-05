@@ -46,7 +46,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     behavior::write_node_models_file("assets/behaviors/models/models.xml");
 #endif
 
-    ui::set_textbox_sprite("iron-helmet");
+    ui::set_textbox_sprite("icon-Red-Potion-2");
     ui::set_textbox_text(
         "Hello, world! My name is <span style='color: red;'>Martin</span> "
         "and I'm the best programmer ever!<br/>"

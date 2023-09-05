@@ -1,9 +1,4 @@
-@spritesheet 
-{
-	src: iron_helmet.png;
-	
-	iron-helmet: 0px 0px 32px 32px;
-}
+
 
 * {
 	font-family: pixelmix;

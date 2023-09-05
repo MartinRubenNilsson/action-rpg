@@ -1,6 +1,7 @@
 <rml>
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
+	<link type="text/rcss" href="spritesheet_icons.rcss"/>
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container">
