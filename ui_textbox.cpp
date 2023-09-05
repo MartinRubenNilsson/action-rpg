@@ -1,6 +1,6 @@
 #include "ui_textbox.h"
-#include <RmlUi/Core/TypeConverter.h>
 #include <RmlUi/Core.h>
+#include "ui_bindings.h"
 #include "console.h"
 
 namespace ui
@@ -16,7 +16,7 @@ namespace ui
 				// PITFALL: Attempting to get a parameter of type
 				// Rml::Input::KeyIdentifier will crash the program.
 				int key = event.GetParameter<int>("key_identifier", 0);
-				set_textbox_text("Key pressed: " + std::to_string(key));
+				//set_textbox_text("Key pressed: " + std::to_string(key));
 			}
 		}
 	} _textbox_event_listener;
@@ -30,10 +30,7 @@ namespace ui
 		}
 	}
 
-	void set_textbox_text(const std::string& rml)
-	{
-		if (auto document = _context->GetDocument("textbox"))
-			if (auto element = document->GetElementById("textbox-text"))
-				element->SetInnerRML(rml.c_str());
+	void set_textbox_text(const std::string& rml) {
+		textbox_text = rml;
 	}
 }

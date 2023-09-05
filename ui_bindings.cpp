@@ -8,21 +8,25 @@ namespace ui
 
 	// DATA VARIABLES
 
-	std::string test_string = "Bruh";
+	std::string textbox_sprite = "iron-helmet";
+	std::string textbox_text;
 
 	// EVENT CALLBACKS
 
 	void (*console_log)(const std::string& message) = nullptr;
 
+	// INTERFACE  - DON'T TOUCH
+
 	void create_bindings()
 	{
-		auto data_model = _context->CreateDataModel("data-model");
+		auto data_model = _context->CreateDataModel("data_model");
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();
 
 		// DATA VARIABLES
 
-		data_model.Bind("test_string", &test_string);
+		data_model.Bind("textbox_sprite", &textbox_sprite);
+		data_model.Bind("textbox_text", &textbox_text);
 
 		// EVENT CALLBACKS
 

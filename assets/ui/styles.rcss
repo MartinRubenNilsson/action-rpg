@@ -1,7 +1,14 @@
+@spritesheet 
+{
+	src: iron_helmet.png;
+	
+	iron-helmet: 0px 0px 32px 32px;
+}
+
 * {
 	font-family: alagard;
 	font-size: 8dp;
-	line-height: 1.2em;
+	line-height: 10dp;
 	color: white;
 }
 
@@ -13,12 +20,17 @@
 
 .textbox {
 	position: absolute;
-	width: 25em;
-	height: 3.4em;
-	padding: 1em;
+	width: 200dp;
+	height: 32dp;
+	padding: 6dp;
 	background: black;
 	border: 1dp;
 	left: 50%;
     transform: translateX(-50%);
     bottom: 0.5em;
+}
+
+.textbox > img {
+	width: 32dp;
+	height: 32dp;
 }

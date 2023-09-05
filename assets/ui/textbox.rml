@@ -2,11 +2,11 @@
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
 </head>
-<body data-model="data-model">
+<body data-model="data_model">
 	<div class="fullscreen-container">
 		<div class="textbox">
-			<!-- TODO: image -->
-			<p id="textbox-text"></p>
+			<img data-attr-sprite="textbox_sprite">
+			<p data-rml="textbox_text"></p>
 		</div>
 	</div>
 </body>
