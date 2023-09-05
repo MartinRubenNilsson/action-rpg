@@ -5,9 +5,9 @@
 <body data-model="data_model">
 	<div class="fullscreen-container">
 		<div class="textbox">
-			<p data-rml="textbox_text"></p>
 			<img data-if="textbox_sprite_is_set"
-				 data-attr-sprite="textbox_sprite">
+				 data-attr-sprite="textbox_sprite" />
+			<p data-rml="textbox_text"></p>
 		</div>
 	</div>
 </body>

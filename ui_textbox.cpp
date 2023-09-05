@@ -33,7 +33,7 @@ namespace ui
 	void set_textbox_text(const std::string& text) {
 		textbox_text = text;
 	}
-
+	 
 	void set_textbox_sprite(const std::string& sprite) {
 		textbox_sprite = sprite;
 		textbox_sprite_is_set = !sprite.empty();

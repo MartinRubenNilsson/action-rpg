@@ -6,7 +6,7 @@
 }
 
 * {
-	font-family: alagard;
+	font-family: pixelmix;
 	font-size: 8dp;
 	line-height: 10dp;
 	color: white;
@@ -19,10 +19,9 @@
 }
 
 .textbox {
+	display: inline-block;
 	position: absolute;
-	width: 200dp;
-	height: 32dp;
-	padding: 6dp;
+	padding: 4dp;
 	background: black;
 	border: 1dp;
 	left: 50%;
@@ -31,6 +30,16 @@
 }
 
 .textbox > img {
+	display: inline-block;
+	vertical-align: top;
 	width: 32dp;
+	height: 32dp;
+	margin-right: 5dp
+}
+
+.textbox > p {
+	display: inline-block;
+	vertical-align: top;
+	width: 220dp;
 	height: 32dp;
 }

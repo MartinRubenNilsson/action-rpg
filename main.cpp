@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     ui::set_textbox_sprite("iron-helmet");
     ui::set_textbox_text(
         "Hello, world! My name is <span style='color: red;'>Martin Nilsson</span> "
-        "and I'm the best programmer in the world!");
+        "and I'm the best programmer in the world! And nothing can stop me!");
 
     // EXECUTE STARTUP COMMANDS
 
