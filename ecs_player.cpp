@@ -50,7 +50,7 @@ namespace ecs
 			velocity.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
 			velocity.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
 			normalize_safe(velocity);
-			velocity *= sf::Keyboard::isKeyPressed(sf::Keyboard::X) ? 9.5f : 5.5f;
+			velocity *= sf::Keyboard::isKeyPressed(sf::Keyboard::X) ? 8.5f : 4.5f;
 		}
 
 		b2Body& body = *_registry.get<b2Body*>(_player_entity);

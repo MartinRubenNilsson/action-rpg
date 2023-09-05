@@ -126,7 +126,7 @@ namespace ecs
 				}
 				else
 				{
-					action = (length(velocity) > 9) ? "run" : "walk";
+					action = (length(velocity) > 7) ? "run" : "walk";
 					direction = get_direction(velocity);
 				}
 				tile.set_type(action + "_" + direction);
