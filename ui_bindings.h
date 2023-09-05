@@ -1,17 +1,20 @@
 #pragma once
 
+// THIS FILE IS FOR INTERNAL USE ONLY.
+// DO NOT INCLUDE OUTSIDE OF THE UI MODULE.
+
 namespace ui
 {
 	// DATA VARIABLES
 
-	extern std::string textbox_sprite;
 	extern std::string textbox_text; // Technically not text, but RML.
+	extern std::string textbox_sprite;
 
 	// EVENT CALLBACKS
 
 	extern void (*console_log)(const std::string& message);
 
-	// INTERFACE - DON'T TOUCH
+	// INTERFACE
 
 	void create_bindings();
 	bool is_variable_dirty(const std::string& name);

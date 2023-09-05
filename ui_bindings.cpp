@@ -8,14 +8,14 @@ namespace ui
 
 	// DATA VARIABLES
 
-	std::string textbox_sprite = "iron-helmet";
 	std::string textbox_text;
+	std::string textbox_sprite;
 
 	// EVENT CALLBACKS
 
 	void (*console_log)(const std::string& message) = nullptr;
 
-	// INTERFACE  - DON'T TOUCH
+	// INTERFACE
 
 	void create_bindings()
 	{
@@ -25,8 +25,8 @@ namespace ui
 
 		// DATA VARIABLES
 
-		data_model.Bind("textbox_sprite", &textbox_sprite);
 		data_model.Bind("textbox_text", &textbox_text);
+		data_model.Bind("textbox_sprite", &textbox_sprite);
 
 		// EVENT CALLBACKS
 

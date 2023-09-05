@@ -4,6 +4,6 @@ namespace ui
 {
 	void update_textbox();
 
-	// The "text" variable is technically not text, but RML.
-	void set_textbox_text(const std::string& text);
+	void set_textbox_text(const std::string& text); // Technically not text, but RML.
+	void set_textbox_sprite(const std::string& sprite);
 }

@@ -2,7 +2,6 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <CLI/CLI.hpp>
-#include "ui_bindings.h"
 
 #define COLOR_COMMAND IM_COL32( 38, 139, 210, 255)
 #define COLOR_ERROR   IM_COL32(220,  50,  47, 255)
@@ -98,11 +97,7 @@ namespace console
 		_app.set_help_flag("-h,--help", "Print a help message");
 		_app.set_help_all_flag("--help-all", "Print help messages for all subcommands");
 
-		// SETUP COMMANDS
 		_setup_commands(_app);
-
-		// SETUP UI BINDINGS
-		ui::console_log = console::log;
 
 		log("Type -h or --help for a list of commands");
 	}

@@ -2,8 +2,9 @@
 #include <RmlUi/Core.h>
 #include "RmlUi_Platform_SFML.h"
 #include "RmlUi_Renderer_GL2_SFML.h"
-#include "ui_bindings.h"
 #include "defines.h"
+#include "console.h"
+#include "ui_bindings.h"
 #include "ui_textbox.h"
 
 namespace ui
@@ -33,6 +34,8 @@ namespace ui
 		Rml::Vector2i size(window.getSize().x, window.getSize().y);
 		_context = Rml::CreateContext("main", size);
 		_on_window_resized(size);
+
+		console_log = console::log;
 
 		create_bindings();
 	}
