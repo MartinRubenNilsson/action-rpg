@@ -21,7 +21,7 @@
 .textbox {
 	display: inline-block;
 	position: absolute;
-	padding: 4dp;
+	padding: 5dp;
 	background: black;
 	border: 1dp;
 	left: 50%;
@@ -40,6 +40,6 @@
 .textbox > p {
 	display: inline-block;
 	vertical-align: top;
-	width: 220dp;
+	width: 220dp; /* TODO: tweak */
 	height: 32dp;
 }
