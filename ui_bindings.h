@@ -9,6 +9,7 @@ namespace ui
 
 	extern std::string textbox_text; // Technically not text, but RML.
 	extern std::string textbox_sprite;
+	extern bool textbox_sprite_is_set;
 
 	// EVENT CALLBACKS
 

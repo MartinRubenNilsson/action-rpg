@@ -10,6 +10,7 @@ namespace ui
 
 	std::string textbox_text;
 	std::string textbox_sprite;
+	bool textbox_sprite_is_set = false;
 
 	// EVENT CALLBACKS
 
@@ -27,6 +28,7 @@ namespace ui
 
 		data_model.Bind("textbox_text", &textbox_text);
 		data_model.Bind("textbox_sprite", &textbox_sprite);
+		data_model.Bind("textbox_sprite_is_set", &textbox_sprite_is_set);
 
 		// EVENT CALLBACKS
 
