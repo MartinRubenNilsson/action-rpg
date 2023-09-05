@@ -41,7 +41,7 @@ bool RenderInterface_GL2_SFML::LoadTexture(
 	file_interface->Close(file_handle);
 
 	sf::Texture* texture = new sf::Texture();
-	texture->setSmooth(true);
+	//texture->setSmooth(true); // CHANGE: commented out
 
 	bool success = texture->loadFromMemory(buffer, buffer_size);
 
@@ -66,7 +66,7 @@ bool RenderInterface_GL2_SFML::GenerateTexture(
 	const Rml::Vector2i& source_dimensions)
 {
 	sf::Texture* texture = new sf::Texture();
-	texture->setSmooth(true);
+	//texture->setSmooth(true); // CHANGE: commented out
 
 	if (!texture->create(source_dimensions.x, source_dimensions.y))
 	{
