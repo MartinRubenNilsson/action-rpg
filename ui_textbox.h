@@ -2,6 +2,9 @@
 
 namespace ui
 {
-	void set_textbox_text(const std::string& text); // Technically not text, but RML.
-	void set_textbox_sprite(const std::string& sprite); // Empty string hides the sprite.
+	// Technically not text, but RML.
+	void set_textbox_text(const std::string& text);
+	
+	// Empty string hides the sprite.
+	void set_textbox_sprite(const std::string& sprite);
 }

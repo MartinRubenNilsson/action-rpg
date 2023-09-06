@@ -1,5 +1,3 @@
-
-
 * {
 	font-family: pixelmix;
 	font-size: 8dp;
@@ -24,7 +22,7 @@
     bottom: 0.5em;
 }
 
-.textbox > img {
+.textbox-sprite {
 	display: inline-block;
 	vertical-align: top;
 	width: 32dp;
@@ -32,7 +30,7 @@
 	margin-right: 5dp
 }
 
-.textbox > p {
+.textbox-text {
 	display: inline-block;
 	vertical-align: top;
 	width: 220dp; /* TODO: tweak */
