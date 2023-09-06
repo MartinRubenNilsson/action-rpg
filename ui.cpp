@@ -23,6 +23,11 @@ namespace ui
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
 	}
 
+	// Wraps console::log so that it can be bound in ui_bindings.cpp.
+	void _console_log(const std::string& message) {
+		console::log(message);
+	}
+
 	void initialize(sf::RenderWindow& window)
 	{
 		_system_interface.SetWindow(&window); // So that the system interface can set the mouse cursor.
@@ -34,8 +39,6 @@ namespace ui
 		Rml::Vector2i size(window.getSize().x, window.getSize().y);
 		_context = Rml::CreateContext("main", size);
 		_on_window_resized(size);
-
-		console_log = console::log;
 
 		create_bindings();
 	}
@@ -55,7 +58,6 @@ namespace ui
 
 	void update()
 	{
-		update_textbox();
 		dirty_all_variables();
 		_context->Update();
 	}

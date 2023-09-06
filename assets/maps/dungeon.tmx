@@ -320,7 +320,7 @@
 </data>
  </layer>
  <objectgroup id="10" name="triggers">
-  <object id="5" name="goto dungeon" type="trigger_map" x="28.833" y="67.5" width="36" height="64.3333">
+  <object id="5" name="goto dungeon" type="trigger_map" x="16.833" y="60.5" width="36" height="64.3333">
    <properties>
     <property name="map" value="dungeon"/>
    </properties>

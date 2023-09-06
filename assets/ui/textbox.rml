@@ -3,11 +3,12 @@
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheet_icons.rcss"/>
 </head>
-<body data-model="data_model">
+<body data-model="data_model"
+	data-event-keydown="on_textbox_keydown">
 	<div class="fullscreen-container">
 		<div class="textbox">
 			<img data-if="textbox_sprite_is_set"
-				 data-attr-sprite="textbox_sprite" />
+				data-attr-sprite="textbox_sprite" />
 			<p data-rml="textbox_text"></p>
 		</div>
 	</div>

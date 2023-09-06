@@ -3,20 +3,29 @@
 
 namespace ui
 {
-	extern Rml::Context* _context;
-	Rml::DataModelHandle _data_model_handle;
-
 	// DATA VARIABLES
 
-	std::string textbox_text;
-	std::string textbox_sprite;
-	bool textbox_sprite_is_set = false;
+	extern std::string _textbox_text;
+	extern std::string _textbox_sprite;
+	extern bool _textbox_sprite_is_set;
 
 	// EVENT CALLBACKS
 
-	void (*console_log)(const std::string& message) = nullptr;
+	extern void _console_log(const std::string& message);
+	extern void _on_textbox_keydown(int key);
 
-	// INTERFACE
+	// FUNCTIONS
+
+	extern Rml::Context* _context;
+	Rml::DataModelHandle _data_model_handle;
+
+	bool is_variable_dirty(const std::string& name) {
+		return _data_model_handle.IsVariableDirty(name);
+	}
+
+	void dirty_all_variables() {
+		_data_model_handle.DirtyAllVariables();
+	}
 
 	void create_bindings()
 	{
@@ -26,25 +35,21 @@ namespace ui
 
 		// DATA VARIABLES
 
-		data_model.Bind("textbox_text", &textbox_text);
-		data_model.Bind("textbox_sprite", &textbox_sprite);
-		data_model.Bind("textbox_sprite_is_set", &textbox_sprite_is_set);
+		data_model.Bind("textbox_text", &_textbox_text);
+		data_model.Bind("textbox_sprite", &_textbox_sprite);
+		data_model.Bind("textbox_sprite_is_set", &_textbox_sprite_is_set);
 
 		// EVENT CALLBACKS
 
 		data_model.BindEventCallback("console_log",
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList& args) {
-				if (!console_log) return;
 				if (args.size() != 1) return;
-				console_log(args[0].Get<std::string>());
+				_console_log(args[0].Get<std::string>());
 			});
-	}
-
-	bool is_variable_dirty(const std::string& name) {
-		return _data_model_handle.IsVariableDirty(name);
-	}
-
-	void dirty_all_variables() {
-		_data_model_handle.DirtyAllVariables();
+		data_model.BindEventCallback("on_textbox_keydown",
+			[](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList&) {
+				if (event != Rml::EventId::Keydown) return;
+				_on_textbox_keydown(event.GetParameter<int>("key_identifier", 0));
+			});
 	}
 }
