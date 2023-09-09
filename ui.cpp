@@ -56,8 +56,9 @@ namespace ui
 		RmlSFML::InputHandler(_context, event);
 	}
 
-	void update()
+	void update(float dt)
 	{
+		update_textbox(dt);
 		dirty_all_variables();
 		_context->Update();
 	}

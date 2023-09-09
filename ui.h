@@ -5,7 +5,7 @@ namespace ui
 	void initialize(sf::RenderWindow& window);
 	void shutdown();
 	void process_event(const sf::Event& event);
-	void update();
+	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 
 	// Loads all TTF fonts in the assets/fonts folder,

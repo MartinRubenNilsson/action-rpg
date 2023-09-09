@@ -14,7 +14,7 @@
 .textbox {
 	display: inline-block;
 	position: absolute;
-	padding: 5dp;
+	padding: 6dp;
 	background: black;
 	border: 1dp;
 	left: 50%;
@@ -27,7 +27,7 @@
 	vertical-align: top;
 	width: 32dp;
 	height: 32dp;
-	margin-right: 5dp
+	margin-right: 6dp
 }
 
 .textbox-text {

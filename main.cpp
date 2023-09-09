@@ -94,7 +94,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         map::update();
         physics::update(dt.asSeconds());
         ecs::update(dt.asSeconds());
-        ui::update();
+        ui::update(dt.asSeconds());
 
         // RENDERING
 
