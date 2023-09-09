@@ -2,15 +2,21 @@
 
 namespace ui
 {
+	struct TextboxEntry
+	{
+		std::string text; // RML markdown
+		std::string sprite;
+
+		bool empty() const;
+	};
+
 	void update_textbox(float dt);
 
-	bool is_textbox_open();
-	void open_textbox();
-	void close_textbox();
-
-	// Technically not text, but RML.
+	bool is_textbox_visible();
+	bool is_textbox_typing();
+	void skip_textbox_typing();
+	void push_textbox_entry(const TextboxEntry& entry);
+	void pop_textbox_entry();
 	void set_textbox_text(const std::string& text);
-	
-	// Empty string hides the sprite.
 	void set_textbox_sprite(const std::string& sprite);
 }

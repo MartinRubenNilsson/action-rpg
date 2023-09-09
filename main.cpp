@@ -46,11 +46,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     behavior::write_node_models_file("assets/behaviors/models/models.xml");
 #endif
 
-    ui::set_textbox_sprite("icon-red-potion-2");
-    ui::set_textbox_text(
-        "Hello, world! My name is <span style='color: red;'>Martin</span> "
-        "and I'm the best programmer ever!<br/>"
-        "<span style='color: #ffd700;'>...and good-lookin', too!</span>");
+    {
+        ui::TextboxEntry textbox_entry;
+        textbox_entry.text =
+            "Hello, world! My name is <span style='color: red;'>Martin</span> "
+            "and I'm the best programmer ever!<br/>"
+            "<span style='color: #ffd700;'>...and good-lookin', too!</span>";
+        textbox_entry.sprite = "icon-red-potion-2";
+        ui::push_textbox_entry(textbox_entry);
+    }
+    
+    {
+        ui::TextboxEntry textbox_entry;
+        textbox_entry.text =
+            "What's your name? And I'm sure you're a splendid programmer, too!";
+        ui::push_textbox_entry(textbox_entry);
+    }
+
+    ui::pop_textbox_entry();
+
 
     // EXECUTE STARTUP COMMANDS
 
