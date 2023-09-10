@@ -241,6 +241,17 @@
     <ClInclude Include="ecs_common.h" />
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />
+    <ClInclude Include="fmod.h" />
+    <ClInclude Include="fmod.hpp" />
+    <ClInclude Include="fmod_codec.h" />
+    <ClInclude Include="fmod_common.h" />
+    <ClInclude Include="fmod_dsp.h" />
+    <ClInclude Include="fmod_dsp_effects.h" />
+    <ClInclude Include="fmod_errors.h" />
+    <ClInclude Include="fmod_output.h" />
+    <ClInclude Include="fmod_studio.h" />
+    <ClInclude Include="fmod_studio.hpp" />
+    <ClInclude Include="fmod_studio_common.h" />
     <ClInclude Include="map_internal.h" />
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics.h" />

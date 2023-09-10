@@ -47,7 +47,7 @@ namespace ecs
 
 		if (type_a == "enemy" && type_b == "player")
 		{
-			audio::play_sound("150_00");
+			//audio::play_sound("150_00");
 			mark_for_destruction(entity_a);
 			mark_for_destruction(entity_b);
 		}

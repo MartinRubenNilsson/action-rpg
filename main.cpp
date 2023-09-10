@@ -19,9 +19,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     sf::RenderWindow& window = window::create();
 
-    // INITIALIZE SUBSYSTEMS
+    // INITIALIZE
 
     ImGui::SFML::Init(window);
+    audio::initialize();
     physics::initialize();
     behavior::register_nodes();
     ecs::initialize();
@@ -30,7 +31,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     // LOAD ASSETS
 
-    audio::load_music_and_sounds();
+    //audio::load_music_and_sounds();
     map::load_tilesets();
     map::load_maps();
     behavior::load_trees();
@@ -78,17 +79,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
             ui::process_event(event);
         }
 
-        // UPDATING
+        // UPDATE
 
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         map::update();
+        audio::update();
         physics::update(dt.asSeconds());
         ecs::update(dt.asSeconds());
         ui::update(dt.asSeconds());
 
-        // RENDERING
+        // RENDER
 
         window.clear();
         ecs::render(window);
@@ -105,6 +107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     ecs::shutdown();
     physics::shutdown();
     ui::shutdown();
+    audio::shutdown();
     ImGui::SFML::Shutdown();
 
 	return 0;

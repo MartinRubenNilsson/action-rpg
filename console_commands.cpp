@@ -54,9 +54,9 @@ namespace console
 		// AUDIO
 		{
 			auto cmd = app.add_subcommand("audio", "Manage audio");
-			cmd->add_subcommand("play", "Play an audio event")
-				->add_option_function<std::string>("name", audio::play_sound, "The name of the sound event")
-				->required();
+			//cmd->add_subcommand("play", "Play an audio event")
+			//	->add_option_function<std::string>("name", audio::play_sound, "The name of the sound event")
+			//	->required();
 		}
 
 		// MAP

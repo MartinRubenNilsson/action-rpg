@@ -162,6 +162,39 @@
     <ClInclude Include="data.h">
       <Filter>data</Filter>
     </ClInclude>
+    <ClInclude Include="fmod_studio_common.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod.hpp">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_codec.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_common.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_dsp.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_dsp_effects.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_errors.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_output.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_studio.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="fmod_studio.hpp">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -196,6 +229,9 @@
     </Filter>
     <Filter Include="utility">
       <UniqueIdentifier>{7e350a7d-7e6e-4bcc-8186-fe2a105806ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="audio\fmod">
+      <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

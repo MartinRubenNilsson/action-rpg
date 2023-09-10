@@ -1,54 +1,36 @@
 #include "audio.h"
-#include <SFML/Audio.hpp>
+#include "fmod_studio.hpp"
+
+#ifdef _DEBUG
+#pragma comment(lib, "fmodL_vc.lib")
+#pragma comment(lib, "fmodstudioL_vc.lib")
+#else
+#pragma comment(lib, "fmod_vc.lib")
+#pragma comment(lib, "fmodstudio_vc.lib")
+#endif
+
+#define AUDIO_MAX_CHANNELS 512
 
 namespace audio
 {
-	std::unordered_map<std::string, sf::Music> _name_to_music;
-	std::unordered_map<std::string, sf::SoundBuffer> _name_to_sound_buffer;
-	std::vector<sf::Sound> _sounds;
+	FMOD::Studio::System* _system = nullptr;
 
-	void load_music_and_sounds()
+	void initialize()
 	{
-		_name_to_music.clear();
-		_name_to_sound_buffer.clear();
-		_sounds.clear();
-
-		for (const auto& entry : std::filesystem::directory_iterator("assets/audio/music"))
-		{
-			if (entry.path().extension() != ".ogg")
-				continue;
-			std::string name = entry.path().stem().string();
-			sf::Music& music = _name_to_music[name];
-			if (!music.openFromFile(entry.path().string()))
-			{
-				_name_to_music.erase(name);
-				continue;
-			}
-			music.setLoop(true);
-		}
-		
-		for (const auto& entry : std::filesystem::directory_iterator("assets/audio/sounds"))
-		{
-			if (entry.path().extension() != ".wav")
-				continue;
-			sf::SoundBuffer sound_buffer;
-			if (sound_buffer.loadFromFile(entry.path().string()))
-				_name_to_sound_buffer.emplace(entry.path().stem().string(), sound_buffer);
-		}
+		FMOD::Studio::System::create(&_system);
+		_system->initialize(
+			AUDIO_MAX_CHANNELS,
+			FMOD_STUDIO_INIT_NORMAL,
+			FMOD_INIT_NORMAL,
+			nullptr);
 	}
 
-	void play_music(const std::string& name)
-	{
-		auto it = _name_to_music.find(name);
-		if (it != _name_to_music.end())
-			it->second.play();
+	void shutdown() {
+		_system->release();
 	}
 
-	void play_sound(const std::string& name)
-	{
-		auto it = _name_to_sound_buffer.find(name);
-		if (it != _name_to_sound_buffer.end())
-			_sounds.emplace_back(it->second).play();
+	void update() {
+		_system->update();
 	}
 }
 
