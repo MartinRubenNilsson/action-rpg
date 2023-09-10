@@ -70,5 +70,17 @@ namespace audio
 		event_instance->start();
 		event_instance->release();
 	}
+
+	void stop_all()
+	{
+		FMOD::Studio::Bus* master_bus = nullptr;
+		FMOD_RESULT result = _system->getBus("bus:/", &master_bus);
+		if (result != FMOD_OK)
+		{
+			console::log_error("Failed to get audio master bus");
+			return;
+		}
+		master_bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
+	}
 }
 
