@@ -1,5 +1,6 @@
 #include "audio.h"
 #include "fmod_studio.hpp"
+#include "console.h"
 
 #ifdef _DEBUG
 #pragma comment(lib, "fmodL_vc.lib")
@@ -31,6 +32,43 @@ namespace audio
 
 	void update() {
 		_system->update();
+	}
+
+	void load_banks()
+	{
+		for (const auto& entry : std::filesystem::directory_iterator("assets/audio/banks"))
+		{
+			if (entry.path().extension() != ".bank")
+				continue;
+			FMOD::Studio::Bank *bank = nullptr;
+			FMOD_RESULT result = _system->loadBankFile(
+				entry.path().string().c_str(),
+				FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
+			if (result != FMOD_OK)
+				console::log_error("Failed to load audio bank: " + entry.path().string());
+		}
+	}
+
+	void play(const std::string& event_path)
+	{
+		FMOD::Studio::EventDescription* event_description = nullptr;
+		FMOD_RESULT result = _system->getEvent(event_path.c_str(), &event_description);
+		if (result != FMOD_OK)
+		{
+			console::log_error("Failed to get audio event description: " + event_path);
+			return;
+		}
+
+		FMOD::Studio::EventInstance* event_instance = nullptr;
+		result = event_description->createInstance(&event_instance);
+		if (result != FMOD_OK)
+		{
+			console::log_error("Failed to create audio event instance: " + event_path);
+			return;
+		}
+
+		event_instance->start();
+		event_instance->release();
 	}
 }
 

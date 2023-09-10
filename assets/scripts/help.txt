@@ -37,6 +37,8 @@ window
 
 audio
   Manage audio
+  Subcommands:
+    play                        Play an audio event
 
 map
   Manage maps
