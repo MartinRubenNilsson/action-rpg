@@ -21,7 +21,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     // INITIALIZE
 
-    ImGui::SFML::Init(window);
+    ImGui::SFML::Init(window, false);
+    ImGui::GetIO().Fonts->AddFontFromFileTTF(
+        "assets/fonts/Consolas.ttf", 24);
+    ImGui::SFML::UpdateFontTexture();
+
     audio::initialize();
     physics::initialize();
     behavior::register_nodes();

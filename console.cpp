@@ -55,7 +55,7 @@ namespace console
 			style.WindowRounding = 5.3f;
 			style.FrameRounding = 2.3f;
 			style.ScrollbarRounding = 0;
-			
+
 			style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
 			style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 			style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
@@ -118,8 +118,6 @@ namespace console
 
 		if (ImGui::Begin("Console", &_visible, window_flags))
 		{
-			ImGui::SetWindowFontScale(2.f);
-
 			// HISTORY
 			{
 				float reserved_height = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
