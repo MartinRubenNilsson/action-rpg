@@ -72,15 +72,15 @@
     <ClCompile Include="behavior_nodes_player.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
-    <ClCompile Include="data.cpp">
-      <Filter>data</Filter>
-    </ClCompile>
     <ClCompile Include="utility_b2.cpp">
       <Filter>utility</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="data.cpp">
+      <Filter>data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,9 +151,6 @@
     <ClInclude Include="behavior_internal.h">
       <Filter>behavior</Filter>
     </ClInclude>
-    <ClInclude Include="data.h">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="utility_b2.h">
       <Filter>utility</Filter>
     </ClInclude>
@@ -162,6 +159,9 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="defines.h" />
+    <ClInclude Include="data.h">
+      <Filter>data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

@@ -1,5 +1,8 @@
 #pragma once
 
+class b2ContactListener;
+class b2Body;
+
 namespace physics
 {
 	void initialize();
@@ -7,7 +10,10 @@ namespace physics
 	void update(float dt);
 	void debug_draw(sf::RenderWindow& window);
 
-	b2World& get_world();
+	void set_contact_listener(b2ContactListener* listener);
+
+	b2Body* create_body(const b2BodyDef* def);
+	void destroy_body(b2Body* body);
 
 	// The position of the body in the physics world will be top left corner of the AABB.
 	b2Body* create_static_aabb(

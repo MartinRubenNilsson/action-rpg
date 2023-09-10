@@ -32,8 +32,8 @@ window
   Manage the window
   Subcommands:
     close                       Close the window
-    set_title                   Set the window title
-    set_scale                   Set the window scale
+    title                       Set the window title
+    scale                       Set the window scale
 
 audio
   Manage audio
@@ -43,7 +43,6 @@ audio
 map
   Manage maps
   Subcommands:
-    list                        List all loaded maps
     name                        Print the name of the current map
     open                        Open a map
     close                       Close the current map
@@ -54,4 +53,10 @@ ui
     reload                      Reload all style sheets
     show                        Show a document
     hide                        Hide a document
+
+textbox
+  Manage the textbox
+  Subcommands:
+    add                         Add textbox entries to the end of the queue
+    set                         Set the queue to the given textbox entries
 

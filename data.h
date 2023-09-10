@@ -2,15 +2,17 @@
 
 namespace data
 {
-	struct Text
+	struct TextboxEntry
 	{
-		std::string id;
-		std::string content;
+		std::string name;
+		int index = 0;
+		std::string sprite;
+		std::string text; // RML markdown
+		float typing_speed = 0.f; // chars per second, 0 = instant
 	};
 
-	void load_texts();
+	void load_textbox_table();
 
-	// Returns nullptr if the text is not found.
-	const Text* get_text(const std::string& id);
+	std::vector<TextboxEntry> get_textbox_entries(const std::string& name);
 }
 

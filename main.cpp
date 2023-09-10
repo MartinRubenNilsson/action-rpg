@@ -13,8 +13,6 @@
 #include "console.h"
 #include "data.h"
 
-#include "ui_textbox.h"
-
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
     // CREATE WINDOW
@@ -33,11 +31,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // LOAD ASSETS
 
     audio::load_music_and_sounds();
-    ui::load_fonts_and_documents();
-    behavior::load_trees();
     map::load_tilesets();
     map::load_maps();
-    data::load_texts();
+    behavior::load_trees();
+    ui::load_fonts_and_documents();
+    data::load_textbox_table();
 
     // OTHER STUFF
 
@@ -45,26 +43,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     console::write_help_file("assets/scripts/help.txt");
     behavior::write_node_models_file("assets/behaviors/models/models.xml");
 #endif
-
-    {
-        ui::TextboxEntry textbox_entry;
-        textbox_entry.text =
-            "Hello, world! My name is <span style='color: red;'>Martin</span> "
-            "and I'm the best programmer ever!<br/>"
-            "<span style='color: #ffd700;'>...and good-lookin', too!</span>";
-        textbox_entry.sprite = "icon-red-potion-2";
-        ui::push_textbox_entry(textbox_entry);
-    }
-    
-    {
-        ui::TextboxEntry textbox_entry;
-        textbox_entry.text =
-            "What's your name? And I'm sure you're a splendid programmer, too!";
-        ui::push_textbox_entry(textbox_entry);
-    }
-
-    ui::pop_textbox_entry();
-
 
     // EXECUTE STARTUP COMMANDS
 

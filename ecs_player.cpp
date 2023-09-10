@@ -3,6 +3,7 @@
 #include "math_vectors.h"
 #include "utility_b2.h"
 #include "window.h"
+#include "console.h"
 
 namespace ecs
 {
@@ -43,7 +44,7 @@ namespace ecs
 			return;
 
 		sf::Vector2f velocity;
-		if (window::has_focus())
+		if (window::has_focus() && !console::is_visible())
 		{
 			velocity.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
 			velocity.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);

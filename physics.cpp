@@ -1,10 +1,10 @@
 #include "physics.h"
 #include "physics_debug.h"
 
-#define GRAVITY b2Vec2(0, 0)
-#define TIME_STEP (1.f / 60.f)
-#define VELOCITY_ITERATIONS 8
-#define POSITION_ITERATIONS 3
+#define PHYSICS_GRAVITY b2Vec2(0, 0)
+#define PHYSICS_TIME_STEP (1.f / 60.f)
+#define PHYSICS_VELOCITY_ITERATIONS 8
+#define PHYSICS_POSITION_ITERATIONS 3
 
 namespace physics
 {
@@ -12,7 +12,7 @@ namespace physics
 	float _time_accumulator = 0.f;
 
 	void initialize() {
-		_world = std::make_unique<b2World>(GRAVITY);
+		_world = std::make_unique<b2World>(PHYSICS_GRAVITY);
 	}
 
 	void shutdown() {
@@ -22,13 +22,13 @@ namespace physics
 	void update(float dt)
 	{
 		_time_accumulator += dt;
-		while (_time_accumulator > TIME_STEP)
+		while (_time_accumulator > PHYSICS_TIME_STEP)
 		{
-			_time_accumulator -= TIME_STEP;
+			_time_accumulator -= PHYSICS_TIME_STEP;
 			_world->Step(
-				TIME_STEP,
-				VELOCITY_ITERATIONS,
-				POSITION_ITERATIONS);
+				PHYSICS_TIME_STEP,
+				PHYSICS_VELOCITY_ITERATIONS,
+				PHYSICS_POSITION_ITERATIONS);
 		}
 	}
 
@@ -40,8 +40,16 @@ namespace physics
 		_world->DebugDraw();
 	}
 
-	b2World& get_world() {
-		return *_world;
+	void set_contact_listener(b2ContactListener* listener) {
+		_world->SetContactListener(listener);
+	}
+
+	b2Body* create_body(const b2BodyDef* def) {
+		return _world->CreateBody(def);
+	}
+
+	void destroy_body(b2Body* body) {
+		_world->DestroyBody(body);
 	}
 
 	b2Body* create_static_aabb(

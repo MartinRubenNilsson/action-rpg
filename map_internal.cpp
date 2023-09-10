@@ -209,7 +209,7 @@ namespace map
 					body_def.position.y = world_position.y;
 					body_def.userData.pointer = (uintptr_t)entity;
 
-					if (b2Body* body = physics::get_world().CreateBody(&body_def))
+					if (b2Body* body = physics::create_body(&body_def))
 					{
 						b2CircleShape shape;
 						shape.m_radius = 0.25f;
@@ -285,6 +285,6 @@ namespace map
 	}
 
 	void close_impl() {
-		ecs::get_registry().clear();
+		ecs::clear_registry();
 	}
 }

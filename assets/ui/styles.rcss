@@ -1,7 +1,7 @@
 * {
-	font-family: pixelmix;
-	font-size: 8dp;
-	line-height: 10dp;
+	font-family: Mozart NBP;
+	font-size: 16dp;
+	line-height: 10.6666666667dp;
 	color: white;
 }
 
@@ -19,7 +19,7 @@
 	border: 1dp;
 	left: 50%;
     transform: translateX(-50%);
-    bottom: 0.5em;
+    bottom: 6dp;
 }
 
 .textbox-sprite {
@@ -33,6 +33,7 @@
 .textbox-text {
 	display: inline-block;
 	vertical-align: top;
-	width: 220dp; /* TODO: tweak */
+	width: 256dp; /* TODO: tweak */
 	height: 32dp;
+	/* white-space: pre-wrap; */
 }

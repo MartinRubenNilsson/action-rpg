@@ -173,6 +173,10 @@ namespace console
 			execute(_key_bindings[event.key.code]);
 	}
 
+	bool is_visible() {
+		return _visible;
+	}
+
 	void set_visible(bool visible)
 	{
 		_visible = visible;

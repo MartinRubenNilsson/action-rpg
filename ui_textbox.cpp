@@ -1,71 +1,55 @@
 #include "ui_textbox.h"
 #include <RmlUi/Core.h>
 #include "ui.h"
-#include "console.h"
-
-#define FADE_DURATION 0.125f
-#define TIME_PER_CHAR 0.025f
+#include "data.h"
 
 namespace ui
 {
-	bool TextboxEntry::empty() const {
-		return text.empty() && sprite.empty();
-	}
-
-	extern Rml::Context* _context;
-
-	// These variables are bound to the data model in ui_bindings.cpp.
-
-	std::string _textbox_text; // RML markdown
-	std::string _textbox_sprite;
-	bool _textbox_sprite_is_set = false;
-
-	// These variables are used internally in this file.
-
-	static std::deque<TextboxEntry> _queued_entries;
-	static TextboxEntry _current_entry;
-	static size_t _plain_text_chars_to_show = 0;
-	static float _time_accumulator = 0.f;
-
-	// Returns true if the character at index is a plain text character.
-	// RML tags are not counted as plain text characters.
-	bool _is_plain_text_char(const std::string& rml, size_t index)
+	// Returns true if the character at pos is a plain text character,
+	// defined as a character that is not part of an RML tag.
+	bool _is_plain_text(const std::string& rml, size_t pos)
 	{
-		for (size_t i = index; i < rml.size(); ++i)
+		for (size_t i = pos; i < rml.size(); ++i)
 		{
-			if (rml[i] == '<') return i != index;
+			if (rml[i] == '<') return i != pos;
 			if (rml[i] == '>') return false;
 		}
 		return true;
 	}
 
-	size_t _get_num_plain_text_chars(const std::string& rml)
+	// Returns the number of plain text characters in the given RML string.
+	size_t _get_plain_text_length(const std::string& rml)
 	{
 		size_t count = 0;
 		for (size_t i = 0; i < rml.size(); ++i)
-		{
-			if (_is_plain_text_char(rml, i))
+			if (_is_plain_text(rml, i))
 				++count;
-		}
 		return count;
 	}
 
-	// Replaces all but the first n plain text characters with spaces.
-	// RML tags are left untouched.
-	void _show_n_plain_text_chars(std::string& rml, size_t n)
+	// Replaces all plain text characters after the given count with spaces.
+	void _create_plain_text_substr(std::string& rml, size_t count)
 	{
-		size_t count = 0;
+		size_t current_count = 0;
 		for (size_t i = 0; i < rml.size(); ++i)
 		{
-			if (_is_plain_text_char(rml, i))
+			if (_is_plain_text(rml, i))
 			{
-				if (count < n)
-					++count;
+				if (current_count < count)
+					++current_count;
 				else
 					rml[i] = ' ';
 			}
 		}
 	}
+
+	extern Rml::Context* _context;
+
+	// These variables and functions are bound to the data model in ui_bindings.cpp.
+
+	std::string _textbox_text; // RML string
+	std::string _textbox_sprite;
+	bool _textbox_sprite_is_set = false;
 
 	void _on_textbox_keydown(int key)
 	{
@@ -74,18 +58,31 @@ namespace ui
 
 		if (key == Rml::Input::KI_C)
 			if (!is_textbox_typing())
-				pop_textbox_entry();
+				advance_textbox();
 
 		if (key == Rml::Input::KI_X)
-			skip_textbox_typing();
+			if (is_textbox_typing())
+				skip_textbox_typing();
+			else
+				advance_textbox();
 	}
+
+	// These variables are only to be used internally in this file.
+
+	std::deque<data::TextboxEntry> _queued_entries;
+	std::optional<data::TextboxEntry> _current_entry;
+	size_t _current_plain_text_length = 0;
+	float _typing_time_accumulator = 0.f;
 
 	void update_textbox(float dt)
 	{
 		auto doc = _context->GetDocument("textbox");
 		if (!doc) return;
 
-		if (_current_entry.empty())
+		if (!_current_entry && !_queued_entries.empty())
+			advance_textbox();
+
+		if (!_current_entry)
 		{
 			doc->Hide();
 			return;
@@ -93,27 +90,35 @@ namespace ui
 
 		doc->Show();
 
-		_textbox_text = _current_entry.text;
-		_textbox_sprite = _current_entry.sprite;
+		_textbox_text = _current_entry->text;
+		_textbox_sprite = _current_entry->sprite;
 		_textbox_sprite_is_set = !_textbox_sprite.empty();
 
-		size_t plain_text_chars = _get_num_plain_text_chars(_textbox_text);
+		size_t max_length = _get_plain_text_length(_textbox_text);
 
-		if (_plain_text_chars_to_show >= plain_text_chars)
+		if (_current_plain_text_length >= max_length)
 		{
-			_plain_text_chars_to_show = plain_text_chars;
-			_time_accumulator = 0.f;
+			_current_plain_text_length = max_length;
+			_typing_time_accumulator = 0.f;
 			return;
 		}
 
-		_time_accumulator += dt;
-		if (_time_accumulator >= TIME_PER_CHAR)
+		if (_current_entry->typing_speed > 0.f)
 		{
-			_time_accumulator -= TIME_PER_CHAR;
-			++_plain_text_chars_to_show;
+			float seconds_per_char = 1.f / _current_entry->typing_speed;
+			_typing_time_accumulator += dt;
+			if (_typing_time_accumulator >= seconds_per_char)
+			{
+				_typing_time_accumulator -= seconds_per_char;
+				++_current_plain_text_length;
+			}
 		}
-		
-		_show_n_plain_text_chars(_textbox_text, _plain_text_chars_to_show);
+		else
+		{
+			_current_plain_text_length = max_length;
+		}
+
+		_create_plain_text_substr(_textbox_text, _current_plain_text_length);
 	}
 
 	bool is_textbox_visible()
@@ -124,53 +129,37 @@ namespace ui
 	}
 
 	bool is_textbox_typing() {
-		return _plain_text_chars_to_show <
-			_get_num_plain_text_chars(_current_entry.text);
+		return _current_plain_text_length <
+			_get_plain_text_length(_textbox_text);
 	}
 
 	void skip_textbox_typing() {
-		_plain_text_chars_to_show =
-			_get_num_plain_text_chars(_current_entry.text);
+		_current_plain_text_length =
+			_get_plain_text_length(_textbox_text);
 	}
 
-	//void open_textbox()
-	//{
-	// float opacity = doc->GetProperty("opacity")->Get<float>();
-	//	if (auto doc = _context->GetDocument("textbox"))
-	//	{
-	//		doc->Animate("opacity", Rml::Property(1.0f, Rml::Property::NUMBER), FADE_DURATION);
-	//		// TODO: Play sound.
-	//	}
-	//}
-	//
-	//void close_textbox()
-	//{
-	//	if (auto doc = _context->GetDocument("textbox"))
-	//	{
-	//		doc->Animate("opacity", Rml::Property(0.0f, Rml::Property::NUMBER), FADE_DURATION);
-	//		// TODO: Play sound.
-	//	}
-	//}
-
-	void push_textbox_entry(const TextboxEntry& entry) {
-		_queued_entries.push_back(entry);
-	}
-
-	void pop_textbox_entry()
+	void advance_textbox()
 	{
-		_current_entry = {};
-		_plain_text_chars_to_show = 0;
-		_time_accumulator = 0.f;
+		_current_entry.reset();
+		_current_plain_text_length = 0;
+		_typing_time_accumulator = 0.f;
 		if (_queued_entries.empty()) return;
 		_current_entry = _queued_entries.front();
 		_queued_entries.pop_front();
 	}
 
-	void set_textbox_text(const std::string& text) {
-		_current_entry.text = text;
+	void add_textbox_entries(const std::string& name)
+	{
+		auto entries = data::get_textbox_entries(name);
+		std::ranges::copy(entries, std::back_inserter(_queued_entries));
 	}
-	
-	void set_textbox_sprite(const std::string& sprite) {
-		_current_entry.sprite = sprite;
+
+	void set_textbox_entries(const std::string& name)
+	{
+		_queued_entries.clear();
+		add_textbox_entries(name);
 	}
+
+	// float opacity = doc->GetProperty("opacity")->Get<float>();
+	// doc->Animate("opacity", Rml::Property(1.0f, Rml::Property::NUMBER), FADE_DURATION);
 }

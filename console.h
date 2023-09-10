@@ -6,6 +6,7 @@ namespace console
 	void update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
 	void process_event(const sf::Event& event);
 
+	bool is_visible();
 	void set_visible(bool visible);
 	void toggle_visible();
 	void clear();

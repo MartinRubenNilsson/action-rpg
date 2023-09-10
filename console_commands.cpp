@@ -4,6 +4,7 @@
 #include "audio.h"
 #include "map.h"
 #include "ui.h"
+#include "ui_textbox.h"
 
 namespace console
 {
@@ -13,10 +14,6 @@ namespace console
 		{
 			app.add_subcommand("exit", "Exit the game")
 				->callback(window::close);
-		}
-
-		// CONSOLE
-		{
 			app.add_subcommand("clear", "Clear the console")
 				->callback(console::clear);
 			app.add_subcommand("script", "Execute a console script")
@@ -46,10 +43,10 @@ namespace console
 			auto cmd = app.add_subcommand("window", "Manage the window");
 			cmd->add_subcommand("close", "Close the window")
 				->callback(window::close);
-			cmd->add_subcommand("set_title", "Set the window title")
+			cmd->add_subcommand("title", "Set the window title")
 				->add_option_function<std::string>("title", window::set_title, "The new title of the window")
 				->required();
-			cmd->add_subcommand("set_scale", "Set the window scale")
+			cmd->add_subcommand("scale", "Set the window scale")
 				->add_option_function<uint32_t>("title", window::set_scale, "The new scale of the window")
 				->required();
 		}
@@ -65,8 +62,6 @@ namespace console
 		// MAP
 		{
 			auto cmd = app.add_subcommand("map", "Manage maps");
-			cmd->add_subcommand("list", "List all loaded maps")
-				->callback([]() { for (const auto& name : map::get_loaded_maps()) log(name); });
 			cmd->add_subcommand("name", "Print the name of the current map")
 				->callback([]() { log(map::get_name()); });
 			cmd->add_subcommand("open", "Open a map")
@@ -86,6 +81,20 @@ namespace console
 				->required();
 			cmd->add_subcommand("hide", "Hide a document")
 				->add_option_function<std::string>("name", ui::hide, "The name of the document")
+				->required();
+			
+		}
+
+		// UI - TEXTBOX
+		{
+			auto cmd = app.add_subcommand("textbox", "Manage the textbox");
+			cmd->add_subcommand("add", "Add textbox entries to the end of the queue")
+				->add_option_function<std::string>("name",
+					ui::add_textbox_entries, "The name of the entries")
+				->required();
+			cmd->add_subcommand("set", "Set the queue to the given textbox entries")
+				->add_option_function<std::string>("name",
+					ui::set_textbox_entries, "The name of the entries")
 				->required();
 		}
 	}

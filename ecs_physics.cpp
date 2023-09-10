@@ -14,15 +14,13 @@ namespace ecs
 	extern entt::registry _registry;
 	ContactListener _contact_listener;
 
-	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity)
-	{
-		auto body = registry.get<b2Body*>(entity);
-		body->GetWorld()->DestroyBody(body);
+	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
+		physics::destroy_body(registry.get<b2Body*>(entity));
 	}
 
 	void initialize_physics()
 	{
-		physics::get_world().SetContactListener(&_contact_listener);
+		physics::set_contact_listener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
 

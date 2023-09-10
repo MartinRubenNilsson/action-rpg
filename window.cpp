@@ -19,6 +19,8 @@ namespace window
 			0, 0, WINDOW_VIEW_WIDTH, WINDOW_VIEW_HEIGHT));
 		_window.setView(view);
 
+		_window.setKeyRepeatEnabled(false);
+
 		return _window;
 	}
 

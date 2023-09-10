@@ -2,21 +2,28 @@
 
 namespace ui
 {
-	struct TextboxEntry
-	{
-		std::string text; // RML markdown
-		std::string sprite;
-
-		bool empty() const;
-	};
-
 	void update_textbox(float dt);
 
+	// Returns true if the textbox is visible.
 	bool is_textbox_visible();
+
+	// Returns true if the typing animation is in progress.
 	bool is_textbox_typing();
+
+	// Skips the typing animation and displays the full text.
 	void skip_textbox_typing();
-	void push_textbox_entry(const TextboxEntry& entry);
-	void pop_textbox_entry();
-	void set_textbox_text(const std::string& text);
-	void set_textbox_sprite(const std::string& sprite);
+
+	// Advances the textbox to the next entry in the queue.
+	// If the queue is empty, the textbox will be hidden.
+	void advance_textbox();
+
+	// Adds the given entries to the end of the queue.
+	// If the queue was empty, the textbox will be shown
+	// and the first entry in the queue will be displayed.
+	void add_textbox_entries(const std::string& name);
+
+	// Sets the queue to only contain the given entries.
+	// If the queue was empty, the textbox will be shown
+	// and the first entry in the queue will be displayed.
+	void set_textbox_entries(const std::string& name);
 }
