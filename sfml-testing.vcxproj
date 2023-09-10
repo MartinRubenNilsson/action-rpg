@@ -101,6 +101,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,6 +127,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -151,6 +153,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,6 +179,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <ForcedUsingFiles>
       </ForcedUsingFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -58,13 +58,13 @@ namespace ui
 
 		if (key == Rml::Input::KI_C)
 			if (!is_textbox_typing())
-				advance_textbox();
+				advance_textbox_entry();
 
 		if (key == Rml::Input::KI_X)
 			if (is_textbox_typing())
 				skip_textbox_typing();
 			else
-				advance_textbox();
+				advance_textbox_entry();
 	}
 
 	// These variables are only to be used internally in this file.
@@ -80,7 +80,7 @@ namespace ui
 		if (!doc) return;
 
 		if (!_current_entry && !_queued_entries.empty())
-			advance_textbox();
+			advance_textbox_entry();
 
 		if (!_current_entry)
 		{
@@ -138,7 +138,7 @@ namespace ui
 			_get_plain_text_length(_textbox_text);
 	}
 
-	void advance_textbox()
+	void advance_textbox_entry()
 	{
 		_current_entry.reset();
 		_current_plain_text_length = 0;

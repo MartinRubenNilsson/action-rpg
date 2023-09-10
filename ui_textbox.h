@@ -15,7 +15,7 @@ namespace ui
 
 	// Advances the textbox to the next entry in the queue.
 	// If the queue is empty, the textbox will be hidden.
-	void advance_textbox();
+	void advance_textbox_entry();
 
 	// Adds the given entries to the end of the queue.
 	// If the queue was empty, the textbox will be shown
