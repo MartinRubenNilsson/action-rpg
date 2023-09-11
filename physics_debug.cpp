@@ -16,15 +16,15 @@ namespace physics
 	{
 	}
 
-	void DebugDrawSFML::SetTileSize(const sf::Vector2u& tile_size) {
-		_tile_size = tile_size;
-	}
-
 	void DebugDrawSFML::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 	{
 		sf::ConvexShape polygon(vertexCount);
 		for (int32 i = 0; i < vertexCount; ++i)
-			polygon.setPoint(i, _world_to_pixels(vertices[i]));
+		{
+			float px_x = vertices[i].x * PIXELS_PER_METER;
+			float px_y = vertices[i].y * PIXELS_PER_METER;
+			polygon.setPoint(i, sf::Vector2f(px_x, px_y));
+		}
 		polygon.setFillColor(sf::Color::Transparent);
 		polygon.setOutlineThickness(1.0f);
 		polygon.setOutlineColor(_b2_to_sf(color));
@@ -35,18 +35,24 @@ namespace physics
 	{
 		sf::ConvexShape polygon(vertexCount);
 		for (int32 i = 0; i < vertexCount; ++i)
-			polygon.setPoint(i, _world_to_pixels(vertices[i]));
+		{
+			float px_x = vertices[i].x * PIXELS_PER_METER;
+			float px_y = vertices[i].y * PIXELS_PER_METER;
+			polygon.setPoint(i, sf::Vector2f(px_x, px_y));
+		}
 		polygon.setFillColor(_b2_to_sf(color));
 		window.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
 	{
-		float radius_in_pixels = radius * _tile_size.x;
+		float px_center_x = center.x * PIXELS_PER_METER;
+		float px_center_y = center.y * PIXELS_PER_METER;
+		float px_radius = radius * PIXELS_PER_METER;
 
-		sf::CircleShape circle(radius_in_pixels);
-		circle.setPosition(_world_to_pixels(center));
-		circle.setOrigin(radius_in_pixels, radius_in_pixels);
+		sf::CircleShape circle(px_radius);
+		circle.setPosition(px_center_x, px_center_y);
+		circle.setOrigin(px_radius, px_radius);
 		circle.setFillColor(sf::Color::Transparent);
 		circle.setOutlineThickness(1.0f);
 		circle.setOutlineColor(_b2_to_sf(color));
@@ -57,11 +63,13 @@ namespace physics
 	{
 		// TODO: What is axis?
 
-		float radius_in_pixels = radius * _tile_size.x;
+		float px_center_x = center.x * PIXELS_PER_METER;
+		float px_center_y = center.y * PIXELS_PER_METER;
+		float px_radius = radius * PIXELS_PER_METER;
 
-		sf::CircleShape circle(radius_in_pixels);
-		circle.setPosition(_world_to_pixels(center));
-		circle.setOrigin(radius_in_pixels, radius_in_pixels);
+		sf::CircleShape circle(px_radius);
+		circle.setPosition(px_center_x, px_center_y);
+		circle.setOrigin(px_radius, px_radius);
 		circle.setFillColor(_b2_to_sf(color));
 		window.draw(circle);
 	}
@@ -76,13 +84,6 @@ namespace physics
 
 	void DebugDrawSFML::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
 	{
-	}
-
-	sf::Vector2f DebugDrawSFML::_world_to_pixels(const b2Vec2& vec) const
-	{
-		return sf::Vector2f(
-			vec.x * _tile_size.x,
-			vec.y * _tile_size.y);
 	}
 }
 

@@ -42,6 +42,8 @@ namespace ecs
 	{
 		if (!_registry.valid(_player_entity))
 			return;
+		if (!_registry.all_of<b2Body*>(_player_entity))
+			return;
 
 		sf::Vector2f velocity;
 		if (window::has_focus() && !console::is_visible())

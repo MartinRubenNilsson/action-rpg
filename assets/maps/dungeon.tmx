@@ -128,7 +128,9 @@
   <image source="../tilesets/mana_seed_human.png" width="512" height="512"/>
   <tile id="0" type="idle_d">
    <objectgroup draworder="index" id="2">
-    <object id="2" x="25.2727" y="33.6364" width="12.7273" height="12.7273">
+    <object id="3" x="2.90909" y="8.72727" width="18.6794" height="9.64593"/>
+    <object id="4" x="50.3732" y="14.3923" width="8.26794" height="9.33971"/>
+    <object id="6" x="23.5789" y="24.0383" width="8.72727" height="8.72727">
      <ellipse/>
     </object>
    </objectgroup>
@@ -320,7 +322,7 @@
 </data>
  </layer>
  <objectgroup id="10" name="triggers">
-  <object id="5" name="goto dungeon" type="trigger_map" x="16.833" y="60.5" width="36" height="64.3333">
+  <object id="5" name="goto dungeon" type="trigger_map" x="18.833" y="91" width="36" height="64.3333">
    <properties>
     <property name="map" value="dungeon"/>
    </properties>
@@ -337,7 +339,7 @@
   </object>
  </objectgroup>
  <objectgroup id="4" name="characters">
-  <object id="3" name="player" type="player" gid="626" x="37.3333" y="233.916" width="64" height="64"/>
+  <object id="3" name="player" type="player" gid="626" x="100.333" y="182.916" width="64" height="64"/>
   <object id="4" name="very evil enemy" type="enemy" gid="626" x="213" y="151.333" width="64" height="64">
    <properties>
     <property name="message" value="Hello, evil world!"/>

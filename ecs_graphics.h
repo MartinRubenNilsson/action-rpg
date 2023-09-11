@@ -14,13 +14,17 @@ namespace ecs
 		bool has_animation() const;
 		float get_animation_duration() const; // In seconds.
 
-		bool has_colliders() const; //TODO: remove
-
 		const std::string& get_tileset_name() const;
+
 		uint32_t get_id() const; // Global tile ID.
-		const std::string& get_type() const; // "Type" is called "Class" in the Tiled editor.
+		bool set_id(uint32_t tile_id);
+		const std::string& get_type() const; // "Type" is called "Class" in Tiled.
 		bool set_type(const std::string& type);
+
 		sf::IntRect get_texture_rect() const;
+
+		auto get_tileset() const { return _tileset; }
+		auto get_tile() const { return _tile; }
 
 	private:
 		const tmx::Tileset* _tileset = nullptr;

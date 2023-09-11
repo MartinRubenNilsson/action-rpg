@@ -24,20 +24,68 @@ namespace tmx
 
 namespace map
 {
-	std::unordered_map<std::filesystem::path, sf::Texture> _path_to_tileset_texture;
+	std::unordered_map<std::filesystem::path, sf::Texture> _tileset_textures;
 
-	// TODO: make own unit for loading of tilesets/textures
+	// todo: hot reloading
 	void load_tilesets_impl()
 	{
-		assert(_path_to_tileset_texture.empty() && "load_tilesets() should only be called once.");
+		assert(_tileset_textures.empty() && "load_tilesets() should only be called once.");
 		for (const auto& entry : std::filesystem::directory_iterator("assets/tilesets"))
 		{
 			if (entry.path().extension() != ".png")
 				continue;
 			sf::Texture texture;
 			if (texture.loadFromFile(entry.path().string()))
-				_path_to_tileset_texture.emplace(entry.path(), std::move(texture));
+				_tileset_textures.emplace(entry.path(), std::move(texture));
 		}
+	}
+
+	// Returns a pointer to a Box2D shape for the given object.
+	// The pointer returned is only valid until the next call,
+	// so the caller should not store it nor delete it.
+	b2Shape* _get_shape(const tmx::Object& object)
+	{
+		static b2PolygonShape polygon_shape;
+		static b2CircleShape circle_shape;
+		//b2ChainShape chain_shape;
+		//b2EdgeShape edge_shape;
+
+		const auto& aabb = object.getAABB();
+		float hw = aabb.width / 2.0f;
+		float hh = aabb.height / 2.0f;
+		b2Vec2 center(aabb.left + hw, aabb.top + hh);
+
+		// Convert from pixels to meters.
+		hw *= METERS_PER_PIXEL;
+		hh *= METERS_PER_PIXEL;
+		center.x *= METERS_PER_PIXEL;
+		center.y *= METERS_PER_PIXEL;
+
+		switch (object.getShape())
+		{
+		case tmx::Object::Shape::Rectangle:
+		{
+			polygon_shape = b2PolygonShape();
+			polygon_shape.SetAsBox(hw, hh, center, 0.0f);
+			return &polygon_shape;
+		}
+		case tmx::Object::Shape::Ellipse:
+		{
+			circle_shape = b2CircleShape();
+			circle_shape.m_p = center;
+			circle_shape.m_radius = hw;
+			return &circle_shape;
+		}
+		case tmx::Object::Shape::Point:
+			break; // Not supported.
+		case tmx::Object::Shape::Polygon:
+			break; // Not supported.
+		case tmx::Object::Shape::Polyline:
+			break; // Not supported.
+		case tmx::Object::Shape::Text:
+			break; // Not supported.
+		}
+		return nullptr;
 	}
 
 	void _process_tile_layer(
@@ -48,53 +96,57 @@ namespace map
 	{
 		auto& registry = ecs::get_registry();
 
-		tmx::Vector2u map_tile_count = map.getTileCount();
-		tmx::Vector2u map_tile_size = map.getTileSize();
+		tmx::Vector2u tile_count = map.getTileCount();
+		tmx::Vector2u tile_size = map.getTileSize();
+		const auto& tiles = tile_layer.getTiles();
 
-		for (uint32_t tile_y = 0; tile_y < map_tile_count.y; tile_y++)
+		for (uint32_t tile_y = 0; tile_y < tile_count.y; tile_y++)
 		{
-			for (uint32_t tile_x = 0; tile_x < map_tile_count.x; tile_x++)
+			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
 			{
-				const auto& tile = tile_layer.getTiles()[tile_y * map_tile_count.x + tile_x];
+				const auto& tile = tiles[tile_y * tile_count.x + tile_x];
 				if (tile.ID == 0) continue; // Skip empty tiles.
 
 				auto tileset = tmx::_get_tileset(map, tile.ID);
-				assert(tileset && "Tileset not found."); // Should never happen.
+				assert(tileset && "Tileset not found.");
 
-				// Create an entity for the tile.
+				float position_x = (float)tile_x * tile_size.x;
+				float position_y = (float)tile_y * tile_size.y;
+
 				entt::entity entity = registry.create();
-
-				// Add a tile component to the entity.
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile.ID);
-
-				// Add a sprite component to the entity.
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_path_to_tileset_texture.at(tileset->getImagePath()));
+				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_sprite.setPosition(
-					(float)tile_x * map_tile_size.x,
-					(float)tile_y * map_tile_size.y);
-				ecs_sprite.setOrigin(0.f, 0.f); // top-left corner
+				ecs_sprite.setPosition(position_x, position_y);
 				ecs_sprite.depth = (float)layer_index;
 
-				// If the tile has at least one collider,
-				// add a box2d body component to the entity.
-				if (ecs_tile.has_colliders())
-				{
-					sf::FloatRect aabb;
-					aabb.left = (float)tile_x;
-					aabb.top = (float)tile_y;
-					aabb.width = 1.f;
-					aabb.height = 1.f;
+				const auto& colliders = ecs_tile.get_tile()->objectGroup.getObjects();
+				if (colliders.empty())
+					continue;
 
-					if (b2Body* body = physics::create_static_aabb(aabb, (uintptr_t)entity))
-						registry.emplace<b2Body*>(entity, body);
+				b2BodyDef body_def;
+				body_def.type = b2_staticBody;
+				body_def.position.x = position_x * METERS_PER_PIXEL;
+				body_def.position.y = position_y * METERS_PER_PIXEL;
+				body_def.fixedRotation = true;
+				body_def.userData.pointer = (uintptr_t)entity;
+
+				b2Body* body = physics::create_body(&body_def);
+				assert(body && "Failed to create body.");
+
+				for (const tmx::Object& collider : colliders)
+				{
+					if (b2Shape* shape = _get_shape(collider))
+						body->CreateFixture(shape, 0.0f);
 				}
+
+				registry.emplace<b2Body*>(entity, body);
 			}
 		}
 	}
 
-	BT::Blackboard::Ptr _create_blackboard_from_object(const tmx::Object& object)
+	BT::Blackboard::Ptr _create_blackboard(const tmx::Object& object)
 	{
 		BT::Blackboard::Ptr blackboard = BT::Blackboard::create();
 		for (const auto& prop : object.getProperties())
@@ -139,100 +191,70 @@ namespace map
 			// At this point, the object should already have had an
 			// entity created for it by _create_object_entities().
 			entt::entity entity = (entt::entity)object.getUID();
-			assert(registry.valid(entity) && "Entity not found.");
+			assert(registry.valid(entity) && "Entity not found."); // Should never happen.
+
 			registry.emplace<const tmx::Object*>(entity, &object);
 
-			// PITFALL: getAABB() returns the object AABB *before* rotating.
-			tmx::FloatRect object_aabb = object.getAABB();
-
-			// PITFALL: For tile objects only, aabb.top is the *bottom* of the AABB.
-			// This is confusing, so we'll change it here to make it consistent.
-			if (object.getTileID() != 0)
-				object_aabb.top -= object_aabb.height;
-
-			tmx::Object::Shape shape = object.getShape();
-			if (shape == tmx::Object::Shape::Rectangle)
+			if (ecs::behavior_tree_exists(object.getType()))
 			{
-				// NOTE: This case includes both rectangles and tiles.
-				// The object is a tile if and only if its tile ID is non-zero.
+				auto blackboard = _create_blackboard(object);
+				ecs::set_behavior_tree(entity, object.getType(), blackboard);
+			}
 
-				// If object isn't a tile, consider it a trigger/sensor.
-				if (object.getTileID() == 0) 
-				{
-					sf::FloatRect trigger_aabb;
-					trigger_aabb.left   = object_aabb.left   / map_tile_size.x;
-					trigger_aabb.top    = object_aabb.top    / map_tile_size.y;
-					trigger_aabb.width  = object_aabb.width  / map_tile_size.x;
-					trigger_aabb.height = object_aabb.height / map_tile_size.y;
+			tmx::FloatRect aabb = object.getAABB();
+			std::vector<tmx::Object> colliders;
 
-					if (b2Body* body = physics::create_static_aabb(trigger_aabb, (uintptr_t)entity, true))
-						registry.emplace<b2Body*>(entity, body);
+			if (uint32_t tile_id = object.getTileID()) // If object is a tile
+			{
+				// While other objects use the top-left corner of the AABB as the position,
+				// tiles use the bottom-left. Confusingly, tmxlite still stores the position
+				// in the top-left corner of the AABB, so we need to manually adjust it here.
+				aabb.top -= aabb.height;
 
-					continue;
-				}
-
-				auto tileset = tmx::_get_tileset(map, object.getTileID());
+				auto tileset = tmx::_get_tileset(map, tile_id);
 				assert(tileset && "Tileset not found."); // Should never happen.
 
-				// Add a tile component to the entity.
-				auto& ecs_tile = registry.emplace<ecs::Tile>(entity,
-					tileset, object.getTileID());
-
-				sf::Vector2f aabb_center(
-					object_aabb.left + object_aabb.width / 2,
-					object_aabb.top + object_aabb.height / 2);
-				sf::Vector2f world_position(
-					aabb_center.x / map_tile_size.x,
-					aabb_center.y / map_tile_size.y);
-
-				// PITFALL: Tiled treats the bottom-left corner as the object position,
-				// but SFML treats the top-left corner as the sprite position by default.
-
-				// Add a sprite component to the entity.
+				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile_id);
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_path_to_tileset_texture.at(tileset->getImagePath()));
+				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_sprite.setPosition(aabb_center);
-				ecs_sprite.setOrigin(
-					tileset->getTileSize().x / 2.0f,
-					tileset->getTileSize().y / 2.0f);
+				ecs_sprite.setPosition(aabb.left, aabb.top);
 				ecs_sprite.depth = (float)layer_index;
 
-				if (ecs_tile.has_colliders())
-				{
-					// If the object has at least one collider,
-					// create a dynamic body component for it.
-
-					b2BodyDef body_def;
-					body_def.type = b2_dynamicBody;
-					body_def.position.x = world_position.x;
-					body_def.position.y = world_position.y;
-					body_def.userData.pointer = (uintptr_t)entity;
-
-					if (b2Body* body = physics::create_body(&body_def))
-					{
-						b2CircleShape shape;
-						shape.m_radius = 0.25f;
-						b2FixtureDef fixture_def;
-						fixture_def.shape = &shape;
-						fixture_def.density = 1.0f;
-						body->CreateFixture(&fixture_def);
-
-						registry.emplace<b2Body*>(entity, body);
-					}
-				}
-
-				// If there is a behavior tree whose name matches the object type,
-				// add a behavior tree component to the entity.
-				if (ecs::behavior_tree_exists(object.getType()))
-				{
-					auto blackboard = _create_blackboard_from_object(object);
-					ecs::set_behavior_tree(entity, object.getType(), blackboard);
-				}
+				colliders = ecs_tile.get_tile()->objectGroup.getObjects();
 			}
-		}
+			else // If object is not a tile
+			{
+				colliders.push_back(object);
+			}
+
+			if (colliders.empty())
+				continue;
+
+			b2BodyDef body_def;
+			body_def.type = b2_dynamicBody;
+			body_def.position.x = aabb.left * METERS_PER_PIXEL;
+			body_def.position.y = aabb.top * METERS_PER_PIXEL;
+			body_def.fixedRotation = true;
+			body_def.userData.pointer = (uintptr_t)entity;
+
+			b2Body* body = physics::create_body(&body_def);
+			assert(body && "Failed to create body.");
+
+			for (const tmx::Object& collider : colliders)
+			{
+				if (b2Shape* shape = _get_shape(collider))
+					body->CreateFixture(shape, 0.0f);
+			}
+
+			registry.emplace<b2Body*>(entity, body);
+		} 
 	}
-	
+
+	// Both EnTT and Tiled use uint32_t as their underlying ID type.
+	// This means that we can use the object IDs from Tiled directly as entity IDs.
+	// To ensure that these IDs are reserved (i.e. not used by any other entities),
+	// this function creates an empty entity for each object in the map.
 	void _create_object_entities(const tmx::Map& map)
 	{
 		std::unordered_set<entt::entity> entities_to_create;
@@ -253,10 +275,6 @@ namespace map
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
-		// Both EnTT and Tiled use uint32_t as their underlying ID type.
-		// This means that we can use the object IDs from Tiled directly as entity IDs.
-		// To ensure that these IDs are reserved (i.e. not used by any other entities),
-		// we first create an empty entity for each object in the map.
 		_create_object_entities(map);
 
 		// Layer 0 is the bottom-most layer, layer 1 is the next layer above that, etc.

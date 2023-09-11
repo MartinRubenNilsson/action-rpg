@@ -90,9 +90,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         map::update();
         audio::update();
-        physics::update(dt.asSeconds());
-        ecs::update(dt.asSeconds());
         ui::update(dt.asSeconds());
+        if (!ui::should_pause_game())
+        {
+            physics::update(dt.asSeconds());
+            ecs::update(dt.asSeconds());
+        }
 
         // RENDER
 

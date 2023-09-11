@@ -3,7 +3,6 @@
 #include "RmlUi_Platform_SFML.h"
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "defines.h"
-#include "console.h"
 #include "ui_bindings.h"
 #include "ui_textbox.h"
 
@@ -21,11 +20,6 @@ namespace ui
 		float dp_ratio_y = (float)new_size.y / (float)WINDOW_VIEW_HEIGHT;
 		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
-	}
-
-	// Wraps console::log so that it can be bound in ui_bindings.cpp.
-	void _console_log(const std::string& message) {
-		console::log(message);
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -68,6 +62,10 @@ namespace ui
 		_render_interface.BeginFrame();
 		_context->Render();
 		_render_interface.EndFrame();
+	}
+
+	bool should_pause_game() {
+		return is_textbox_visible();
 	}
 
 	void load_fonts_and_documents()

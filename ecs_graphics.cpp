@@ -1,6 +1,5 @@
 #include "ecs_graphics.h"
 #include "utility_b2.h"
-#include "map.h"
 
 namespace tmx
 {
@@ -65,10 +64,6 @@ namespace ecs
 		return tmx::_get_total_duration_in_ms(_tile->animation) / 1000.f;
 	}
 
-	bool Tile::has_colliders() const {
-		return !_tile->objectGroup.getObjects().empty(); //TODO: remove
-	}
-
 	const std::string& Tile::get_tileset_name() const {
 		return _tileset->getName();
 	}
@@ -78,6 +73,19 @@ namespace ecs
 		// The tile ID is local to the tileset, so we need to add the global tile ID
 		// of the first tile in the tileset in order to get the global tile ID.
 		return _tile->ID + _tileset->getFirstGID();
+	}
+
+	bool Tile::set_id(uint32_t tile_id)
+	{
+		for (const auto& tile : _tileset->getTiles())
+		{
+			if (tile.ID == tile_id)
+			{
+				_tile = &tile;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	const std::string& Tile::get_type() const {
@@ -154,16 +162,13 @@ namespace ecs
 
 	void _update_sprite_positions()
 	{
-		sf::Vector2u map_tile_size = map::get_tile_size();
-
 		for (auto [entity, sprite, body] :
 			_registry.view<Sprite, b2Body*>().each())
 		{
 			sf::Vector2f world_position = b2::get_position(*body);
-			sf::Vector2f pixel_position(
-				world_position.x * map_tile_size.x,
-				world_position.y * map_tile_size.y);
-			sprite.setPosition(pixel_position);
+			sprite.setPosition(
+				world_position.x * PIXELS_PER_METER,
+				world_position.y * PIXELS_PER_METER);
 		}
 	}
 

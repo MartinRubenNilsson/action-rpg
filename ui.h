@@ -7,6 +7,7 @@ namespace ui
 	void process_event(const sf::Event& event);
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
+	bool should_pause_game();
 
 	// Loads all TTF fonts in the assets/fonts folder,
 	// and all RML documents in the assets/ui folder.

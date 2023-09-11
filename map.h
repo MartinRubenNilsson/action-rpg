@@ -14,12 +14,12 @@ namespace map
 	std::vector<std::string> get_loaded_maps();
 
 	// Requests that the map with the given name be opened.
-	// (The map will not be opened until update() is called.)
+	// The map will not be opened until update() is called.
 	// Returns true if the map was found, false otherwise.
 	bool open(const std::string& map_name);
 
 	// Requests that the current map be closed.
-	// (The map will not be closed until update() is called.)
+	// The map will not be closed until update() is called.
 	void close();
 
 	// Executes the open/close requests made by open() and close().

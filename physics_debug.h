@@ -7,8 +7,6 @@ namespace physics
 	public:
 		DebugDrawSFML(sf::RenderWindow& window);
 
-		void SetTileSize(const sf::Vector2u& tile_size);
-
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
 		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
 		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override;
@@ -18,10 +16,7 @@ namespace physics
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override;
 
 	private:
-		sf::Vector2f _world_to_pixels(const b2Vec2& vec) const;
-
 		sf::RenderWindow& window;
-		sf::Vector2u _tile_size;
 	};
 }
 

@@ -1,5 +1,6 @@
 #include "ui_bindings.h"
 #include <RmlUi/Core.h>
+#include "console.h"
 
 namespace ui
 {
@@ -11,7 +12,10 @@ namespace ui
 
 	// EVENT CALLBACKS
 
-	extern void _console_log(const std::string& message);
+	void _console_log(const std::string& message) {
+		console::log(message);
+	}
+
 	extern void _on_textbox_keydown(int key);
 
 	// FUNCTIONS
