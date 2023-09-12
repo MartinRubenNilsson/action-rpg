@@ -32,8 +32,8 @@ namespace physics
 		}
 	}
 
-	void debug_draw(sf::RenderWindow& window) {
-		DebugDrawSFML debug_draw(window);
+	void debug_draw(sf::RenderTarget& render_target) {
+		DebugDrawSFML debug_draw(render_target);
 		debug_draw.SetFlags(b2Draw::e_shapeBit);
 		_world->SetDebugDraw(&debug_draw);
 		_world->DebugDraw();
@@ -49,35 +49,5 @@ namespace physics
 
 	void destroy_body(b2Body* body) {
 		_world->DestroyBody(body);
-	}
-
-	b2Body* create_static_aabb(
-		const sf::FloatRect& aabb,
-		uintptr_t user_data,
-		bool sensor)
-	{
-		b2BodyDef body_def;
-		body_def.type = b2_staticBody;
-		body_def.position.x = aabb.left;
-		body_def.position.y = aabb.top;
-		body_def.userData.pointer = user_data;
-
-		b2Body* body = _world->CreateBody(&body_def);
-		if (!body)
-			return nullptr;
-
-		b2PolygonShape shape;
-		shape.SetAsBox(
-			aabb.width / 2.f, aabb.height / 2.f,
-			b2Vec2(aabb.width / 2.f, aabb.height / 2.f),
-			0.f);
-
-		b2FixtureDef fixture_def;
-		fixture_def.shape = &shape;
-		fixture_def.isSensor = sensor;
-
-		body->CreateFixture(&fixture_def);
-
-		return body;
 	}
 }

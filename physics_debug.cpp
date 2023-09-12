@@ -2,6 +2,8 @@
 
 namespace physics
 {
+	// TODO: frustum culling
+
 	sf::Color _b2_to_sf(const b2Color& color)
 	{
 		return sf::Color(
@@ -11,8 +13,8 @@ namespace physics
 			static_cast<sf::Uint8>(color.a * 255));
 	};
 
-	DebugDrawSFML::DebugDrawSFML(sf::RenderWindow& window)
-		: window(window)
+	DebugDrawSFML::DebugDrawSFML(sf::RenderTarget& render_target)
+		: _render_target(render_target)
 	{
 	}
 
@@ -28,7 +30,7 @@ namespace physics
 		polygon.setFillColor(sf::Color::Transparent);
 		polygon.setOutlineThickness(1.0f);
 		polygon.setOutlineColor(_b2_to_sf(color));
-		window.draw(polygon);
+		_render_target.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
@@ -41,7 +43,7 @@ namespace physics
 			polygon.setPoint(i, sf::Vector2f(px_x, px_y));
 		}
 		polygon.setFillColor(_b2_to_sf(color));
-		window.draw(polygon);
+		_render_target.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
@@ -56,7 +58,7 @@ namespace physics
 		circle.setFillColor(sf::Color::Transparent);
 		circle.setOutlineThickness(1.0f);
 		circle.setOutlineColor(_b2_to_sf(color));
-		window.draw(circle);
+		_render_target.draw(circle);
 	}
 
 	void DebugDrawSFML::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
@@ -71,7 +73,7 @@ namespace physics
 		circle.setPosition(px_center_x, px_center_y);
 		circle.setOrigin(px_radius, px_radius);
 		circle.setFillColor(_b2_to_sf(color));
-		window.draw(circle);
+		_render_target.draw(circle);
 	}
 
 	void DebugDrawSFML::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
