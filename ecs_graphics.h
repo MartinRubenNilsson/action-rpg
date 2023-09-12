@@ -6,7 +6,8 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile(const tmx::Tileset* tileset, uint32_t tile_id);
+		Tile(const tmx::Tileset* tileset,
+			const tmx::Tileset::Tile* tile);
 		
 		float animation_time = 0.0f; // In seconds.
 		float animation_speed = 1.0f; // 1 is normal speed, 2 is double speed, etc.
@@ -22,9 +23,6 @@ namespace ecs
 		bool set_type(const std::string& type);
 
 		sf::IntRect get_texture_rect() const;
-
-		auto get_tileset() const { return _tileset; }
-		auto get_tile() const { return _tile; }
 
 	private:
 		const tmx::Tileset* _tileset = nullptr;

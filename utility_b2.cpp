@@ -12,6 +12,10 @@ namespace b2
 		return vector_cast<sf::Vector2f>(body.GetPosition());
 	}
 
+	sf::Vector2f get_world_center(const b2Body& body) {
+		return vector_cast<sf::Vector2f>(body.GetWorldCenter());
+	}
+
 	void set_linear_velocity(b2Body& body, const sf::Vector2f& velocity) {
 		body.SetLinearVelocity(vector_cast<b2Vec2>(velocity));
 	}

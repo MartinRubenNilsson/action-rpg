@@ -106,10 +106,6 @@ namespace ecs
 		_render_sprites(window);
 	}
 
-	void clear_registry() {
-		_registry.clear();
-	}
-
 	entt::registry& get_registry() {
 		return _registry;
 	}

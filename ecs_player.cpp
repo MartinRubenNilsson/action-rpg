@@ -18,9 +18,9 @@ namespace ecs
 		return _player_entity;
 	}
 
-	sf::Vector2f get_player_position() {
+	sf::Vector2f get_player_center() {
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			return b2::get_position(**body);
+			return b2::get_world_center(**body);
 		return sf::Vector2f();
 	}
 

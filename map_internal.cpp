@@ -9,19 +9,6 @@
 #include "physics.h"
 #include "console.h"
 
-namespace tmx
-{
-	const Tileset* _get_tileset(const Map& map, uint32_t tile_id)
-	{
-		for (const auto& tileset : map.getTilesets())
-		{
-			if (tileset.hasTile(tile_id))
-				return &tileset;
-		}
-		return nullptr;
-	}
-}
-
 namespace map
 {
 	std::unordered_map<std::filesystem::path, sf::Texture> _tileset_textures;
@@ -40,50 +27,12 @@ namespace map
 		}
 	}
 
-	// Returns a pointer to a Box2D shape for the given object.
-	// The pointer returned is only valid until the next call,
-	// so the caller should not store it nor delete it.
-	b2Shape* _get_shape(const tmx::Object& object)
+	const tmx::Tileset* _get_tileset(const tmx::Map& map, uint32_t tile_id)
 	{
-		static b2PolygonShape polygon_shape;
-		static b2CircleShape circle_shape;
-		//b2ChainShape chain_shape;
-		//b2EdgeShape edge_shape;
-
-		const auto& aabb = object.getAABB();
-		float hw = aabb.width / 2.0f;
-		float hh = aabb.height / 2.0f;
-		b2Vec2 center(aabb.left + hw, aabb.top + hh);
-
-		// Convert from pixels to meters.
-		hw *= METERS_PER_PIXEL;
-		hh *= METERS_PER_PIXEL;
-		center.x *= METERS_PER_PIXEL;
-		center.y *= METERS_PER_PIXEL;
-
-		switch (object.getShape())
+		for (const auto& tileset : map.getTilesets())
 		{
-		case tmx::Object::Shape::Rectangle:
-		{
-			polygon_shape = b2PolygonShape();
-			polygon_shape.SetAsBox(hw, hh, center, 0.0f);
-			return &polygon_shape;
-		}
-		case tmx::Object::Shape::Ellipse:
-		{
-			circle_shape = b2CircleShape();
-			circle_shape.m_p = center;
-			circle_shape.m_radius = hw;
-			return &circle_shape;
-		}
-		case tmx::Object::Shape::Point:
-			break; // Not supported.
-		case tmx::Object::Shape::Polygon:
-			break; // Not supported.
-		case tmx::Object::Shape::Polyline:
-			break; // Not supported.
-		case tmx::Object::Shape::Text:
-			break; // Not supported.
+			if (tileset.hasTile(tile_id))
+				return &tileset;
 		}
 		return nullptr;
 	}
@@ -104,24 +53,26 @@ namespace map
 		{
 			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
 			{
-				const auto& tile = tiles[tile_y * tile_count.x + tile_x];
-				if (tile.ID == 0) continue; // Skip empty tiles.
+				auto [tile_id, flip_flags] = tiles[tile_y * tile_count.x + tile_x];
+				if (tile_id == 0) continue; // Skip empty tiles.
 
-				auto tileset = tmx::_get_tileset(map, tile.ID);
+				auto tileset = _get_tileset(map, tile_id);
 				assert(tileset && "Tileset not found.");
+				auto tile = tileset->getTile(tile_id);
+				assert(tile && "Tile not found.");
 
 				float position_x = (float)tile_x * tile_size.x;
 				float position_y = (float)tile_y * tile_size.y;
 
 				entt::entity entity = registry.create();
-				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile.ID);
+				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
 				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
 				ecs_sprite.setPosition(position_x, position_y);
 				ecs_sprite.depth = (float)layer_index;
 
-				const auto& colliders = ecs_tile.get_tile()->objectGroup.getObjects();
+				const auto& colliders = tile->objectGroup.getObjects();
 				if (colliders.empty())
 					continue;
 
@@ -137,8 +88,30 @@ namespace map
 
 				for (const tmx::Object& collider : colliders)
 				{
-					if (b2Shape* shape = _get_shape(collider))
-						body->CreateFixture(shape, 0.0f);
+					float hw = collider.getAABB().width / 2.0f;
+					float hh = collider.getAABB().height / 2.0f;
+					hw *= METERS_PER_PIXEL;
+					hh *= METERS_PER_PIXEL;
+					b2Vec2 center(hw, hh);
+
+					switch (collider.getShape())
+					{
+					case tmx::Object::Shape::Rectangle:
+					{
+						b2PolygonShape shape;
+						shape.SetAsBox(hw, hh, center, 0.f);
+						body->CreateFixture(&shape, 0.0f);
+						break;
+					}
+					case tmx::Object::Shape::Ellipse:
+					{
+						b2CircleShape shape;
+						shape.m_p = center;
+						shape.m_radius = hw;
+						body->CreateFixture(&shape, 0.0f);
+						break;
+					} 
+					}
 				}
 
 				registry.emplace<b2Body*>(entity, body);
@@ -184,70 +157,139 @@ namespace map
 	{
 		auto& registry = ecs::get_registry();
 
-		tmx::Vector2u map_tile_size = map.getTileSize();
-
 		for (const auto& object : object_group.getObjects())
 		{
 			// At this point, the object should already have had an
 			// entity created for it by _create_object_entities().
 			entt::entity entity = (entt::entity)object.getUID();
-			assert(registry.valid(entity) && "Entity not found."); // Should never happen.
-
+			assert(registry.valid(entity) && "Entity not found.");
 			registry.emplace<const tmx::Object*>(entity, &object);
 
 			if (ecs::behavior_tree_exists(object.getType()))
 			{
 				auto blackboard = _create_blackboard(object);
-				ecs::set_behavior_tree(entity, object.getType(), blackboard);
+				ecs::emplace_behavior_tree(entity, object.getType(), blackboard);
 			}
-
-			tmx::FloatRect aabb = object.getAABB();
-			std::vector<tmx::Object> colliders;
 
 			if (uint32_t tile_id = object.getTileID()) // If object is a tile
 			{
 				// While other objects use the top-left corner of the AABB as the position,
 				// tiles use the bottom-left. Confusingly, tmxlite still stores the position
-				// in the top-left corner of the AABB, so we need to manually adjust it here.
+				// in the top-left corner of the AABB, so we manually adjust it here.
+				auto aabb = object.getAABB();
 				aabb.top -= aabb.height;
 
-				auto tileset = tmx::_get_tileset(map, tile_id);
-				assert(tileset && "Tileset not found."); // Should never happen.
+				auto tileset = _get_tileset(map, tile_id);
+				assert(tileset && "Tileset not found.");
+				auto tile = tileset->getTile(tile_id);
+				assert(tile && "Tile not found.");
 
-				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile_id);
+				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
 				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
 				ecs_sprite.setPosition(aabb.left, aabb.top);
 				ecs_sprite.depth = (float)layer_index;
 
-				colliders = ecs_tile.get_tile()->objectGroup.getObjects();
+				const auto& colliders = tile->objectGroup.getObjects();
+				if (colliders.empty())
+					continue;
+
+				b2BodyDef body_def;
+				body_def.type = b2_dynamicBody;
+				body_def.fixedRotation = true;
+				body_def.position.x = aabb.left * METERS_PER_PIXEL;
+				body_def.position.y = aabb.top * METERS_PER_PIXEL;
+				body_def.userData.pointer = (uintptr_t)entity;
+
+				b2Body* body = physics::create_body(&body_def);
+				assert(body && "Failed to create body.");
+				registry.emplace<b2Body*>(entity, body);
+
+				for (const tmx::Object& collider : colliders)
+				{
+					auto collider_aabb = collider.getAABB();
+					collider_aabb.left *= METERS_PER_PIXEL;
+					collider_aabb.top *= METERS_PER_PIXEL;
+					collider_aabb.width *= METERS_PER_PIXEL;
+					collider_aabb.height *= METERS_PER_PIXEL;
+
+					float hw = collider_aabb.width / 2.0f;
+					float hh = collider_aabb.height / 2.0f;
+					b2Vec2 center(collider_aabb.left + hw, collider_aabb.top + hh);
+
+					switch (collider.getShape())
+					{
+					case tmx::Object::Shape::Rectangle:
+					{
+						b2PolygonShape shape;
+						shape.SetAsBox(hw, hh, center, 0.f);
+						body->CreateFixture(&shape, 1.f);
+						break;
+					}
+					case tmx::Object::Shape::Ellipse:
+					{
+						b2CircleShape shape;
+						shape.m_p = center;
+						shape.m_radius = hw;
+						body->CreateFixture(&shape, 1.f);
+						break;
+					}
+					}
+				}
 			}
 			else // If object is not a tile
 			{
-				colliders.push_back(object);
+				auto collider_aabb = object.getAABB();
+				collider_aabb.left *= METERS_PER_PIXEL;
+				collider_aabb.top *= METERS_PER_PIXEL;
+				collider_aabb.width *= METERS_PER_PIXEL;
+				collider_aabb.height *= METERS_PER_PIXEL;
+
+				b2BodyDef body_def;
+				body_def.type = b2_staticBody;
+				body_def.fixedRotation = true;
+				body_def.position.x = collider_aabb.left;
+				body_def.position.y = collider_aabb.top;
+				body_def.userData.pointer = (uintptr_t)entity;
+
+				b2Body* body = physics::create_body(&body_def);
+				assert(body && "Failed to create body.");
+				registry.emplace<b2Body*>(entity, body);
+
+				float hw = collider_aabb.width / 2.0f;
+				float hh = collider_aabb.height / 2.0f;
+				b2Vec2 center(hw, hh);
+
+				switch (object.getShape())
+				{
+				case tmx::Object::Shape::Rectangle:
+				{
+					b2PolygonShape shape;
+					shape.SetAsBox(hw, hh, center, 0.f);
+					b2FixtureDef fixture_def;
+
+					fixture_def.shape = &shape;
+					//fixture_def.isSensor = true;
+					body->CreateFixture(&fixture_def);
+
+					break;
+				}
+				case tmx::Object::Shape::Ellipse:
+				{
+					b2CircleShape shape;
+					shape.m_p = center;
+					shape.m_radius = hw;
+
+					b2FixtureDef fixture_def;
+					fixture_def.shape = &shape;
+					//fixture_def.isSensor = true;
+					body->CreateFixture(&fixture_def);
+
+					break;
+				}
+				}
 			}
-
-			if (colliders.empty())
-				continue;
-
-			b2BodyDef body_def;
-			body_def.type = b2_dynamicBody;
-			body_def.position.x = aabb.left * METERS_PER_PIXEL;
-			body_def.position.y = aabb.top * METERS_PER_PIXEL;
-			body_def.fixedRotation = true;
-			body_def.userData.pointer = (uintptr_t)entity;
-
-			b2Body* body = physics::create_body(&body_def);
-			assert(body && "Failed to create body.");
-
-			for (const tmx::Object& collider : colliders)
-			{
-				if (b2Shape* shape = _get_shape(collider))
-					body->CreateFixture(shape, 0.0f);
-			}
-
-			registry.emplace<b2Body*>(entity, body);
 		} 
 	}
 
@@ -269,7 +311,7 @@ namespace map
 		for (entt::entity entity : entities_to_create)
 		{
 			entt::entity created_entity = ecs::get_registry().create(entity);
-			assert(entity == created_entity && "Entity ID already in use."); // == is correct here.
+			assert(entity == created_entity && "Entity ID already in use.");
 		}
 	}
 
@@ -303,6 +345,6 @@ namespace map
 	}
 
 	void close_impl() {
-		ecs::clear_registry();
+		ecs::get_registry().clear();
 	}
 }

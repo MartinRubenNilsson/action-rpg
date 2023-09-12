@@ -1,5 +1,6 @@
 #include "ecs_physics.h"
 #include "physics.h"
+#include <tmxlite/Object.hpp>
 #include "ecs_common.h"
 #include "audio.h"
 

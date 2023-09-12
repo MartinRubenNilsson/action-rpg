@@ -49,11 +49,10 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	Tile::Tile(const tmx::Tileset* tileset, uint32_t tile_id)
+	Tile::Tile(const tmx::Tileset* tileset, const tmx::Tileset::Tile* tile)
 		: _tileset(tileset)
-		, _tile(tileset->getTile(tile_id))
+		, _tile(tile)
 	{
-		assert(_tile && "Tile ID not found in tileset.");
 	}
 
 	bool Tile::has_animation() const {

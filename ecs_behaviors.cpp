@@ -21,7 +21,7 @@ namespace ecs
 			entity_node->handle = entt::handle(_registry, entity);
 	}
 
-	bool set_behavior_tree(
+	bool emplace_behavior_tree(
 		entt::entity entity,
 		const std::string& tree_name,
 		BT::Blackboard::Ptr blackboard)
@@ -31,7 +31,7 @@ namespace ecs
 		{
 			BT::Tree tree = behavior::create_tree(tree_name, blackboard); // throws std::runtime_error
 			tree.applyVisitor(std::bind_front(_set_entity, entity));
-			_registry.emplace_or_replace<BT::Tree>(entity, std::move(tree));
+			_registry.emplace<BT::Tree>(entity, std::move(tree));
 			return true;
 		}
 		catch (const std::runtime_error& error)
