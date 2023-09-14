@@ -32,19 +32,24 @@ namespace physics
 		}
 	}
 
-	void debug_draw(sf::RenderTarget& render_target) {
+	void debug_draw(sf::RenderTarget& render_target)
+	{
 		DebugDrawSFML debug_draw(render_target);
 		debug_draw.SetFlags(b2Draw::e_shapeBit);
 		_world->SetDebugDraw(&debug_draw);
 		_world->DebugDraw();
 	}
 
+	void set_contact_filter(b2ContactFilter* filter) {
+		_world->SetContactFilter(filter);
+	}
+
 	void set_contact_listener(b2ContactListener* listener) {
 		_world->SetContactListener(listener);
 	}
 
-	b2Body* create_body(const b2BodyDef* def) {
-		return _world->CreateBody(def);
+	b2Body* create_body(const b2BodyDef* body_def) {
+		return _world->CreateBody(body_def);
 	}
 
 	void destroy_body(b2Body* body) {

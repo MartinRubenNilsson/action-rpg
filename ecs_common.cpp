@@ -28,7 +28,7 @@ namespace ecs
 		return type;
 	}
 
-	bool get_bool(entt::entity entity, std::string& name, bool& value)
+	bool get_bool(entt::entity entity, const std::string& name, bool& value)
 	{
 		if (auto object = _try_get_object(entity))
 		{
@@ -45,7 +45,7 @@ namespace ecs
 		return false;
 	}
 
-	bool get_float(entt::entity entity, std::string& name, float& value)
+	bool get_float(entt::entity entity, const std::string& name, float& value)
 	{
 		if (auto object = _try_get_object(entity))
 		{
@@ -62,7 +62,7 @@ namespace ecs
 		return false;
 	}
 
-	bool get_int(entt::entity entity, std::string& name, int& value)
+	bool get_int(entt::entity entity, const std::string& name, int& value)
 	{
 		if (auto object = _try_get_object(entity))
 		{
@@ -79,7 +79,7 @@ namespace ecs
 		return false;
 	}
 
-	bool get_string(entt::entity entity, std::string& name, std::string& value)
+	bool get_string(entt::entity entity, const std::string& name, std::string& value)
 	{
 		if (auto object = _try_get_object(entity))
 		{
@@ -96,7 +96,7 @@ namespace ecs
 		return false;
 	}
 
-	bool get_entity(entt::entity entity, std::string& name, entt::entity& value)
+	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value)
 	{
 		if (auto object = _try_get_object(entity))
 		{

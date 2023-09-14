@@ -261,16 +261,18 @@ namespace map
 				float hh = collider_aabb.height / 2.0f;
 				b2Vec2 center(hw, hh);
 
+				bool is_sensor = object.getType().starts_with("trigger");
+
 				switch (object.getShape())
 				{
 				case tmx::Object::Shape::Rectangle:
 				{
 					b2PolygonShape shape;
 					shape.SetAsBox(hw, hh, center, 0.f);
-					b2FixtureDef fixture_def;
 
+					b2FixtureDef fixture_def;
 					fixture_def.shape = &shape;
-					//fixture_def.isSensor = true;
+					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
 
 					break;
@@ -283,7 +285,7 @@ namespace map
 
 					b2FixtureDef fixture_def;
 					fixture_def.shape = &shape;
-					//fixture_def.isSensor = true;
+					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
 
 					break;
