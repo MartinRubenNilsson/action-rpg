@@ -49,13 +49,13 @@ namespace audio
 		}
 	}
 
-	void play(const std::string& event_path)
+	void play(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_description = nullptr;
-		FMOD_RESULT result = _system->getEvent(event_path.c_str(), &event_description);
+		FMOD_RESULT result = _system->getEvent(path.c_str(), &event_description);
 		if (result != FMOD_OK)
 		{
-			console::log_error("Failed to get audio event description: " + event_path);
+			console::log_error("Failed to get audio event description: " + path);
 			return;
 		}
 
@@ -63,7 +63,7 @@ namespace audio
 		result = event_description->createInstance(&event_instance);
 		if (result != FMOD_OK)
 		{
-			console::log_error("Failed to create audio event instance: " + event_path);
+			console::log_error("Failed to create audio event instance: " + path);
 			return;
 		}
 

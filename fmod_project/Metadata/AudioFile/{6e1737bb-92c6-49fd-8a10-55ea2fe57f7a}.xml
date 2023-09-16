@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="AudioFile" id="{6e1737bb-92c6-49fd-8a10-55ea2fe57f7a}">
 		<property name="assetPath">
-			<value>sfx_bell.wav</value>
+			<value>snd_bell1.wav</value>
 		</property>
 		<property name="frequencyInKHz">
 			<value>32</value>

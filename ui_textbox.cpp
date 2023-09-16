@@ -2,6 +2,7 @@
 #include <RmlUi/Core.h>
 #include "ui.h"
 #include "data.h"
+#include "audio.h"
 
 namespace ui
 {
@@ -25,6 +26,22 @@ namespace ui
 			if (_is_plain_text(rml, i))
 				++count;
 		return count;
+	}
+
+	// Returns the character at pos in the implicitly defined plain text string.
+	char _get_plain_text_char(const std::string& rml, size_t pos)
+	{
+		size_t count = 0;
+		for (size_t i = 0; i < rml.size(); ++i)
+		{
+			if (_is_plain_text(rml, i))
+			{
+				if (count == pos)
+					return rml[i];
+				++count;
+			}
+		}
+		return '\0';
 	}
 
 	// Replaces all plain text characters after the given count with spaces.
@@ -103,13 +120,15 @@ namespace ui
 			return;
 		}
 
-		if (_current_entry->typing_speed > 0.f)
+		if (_current_entry->speed > 0.f)
 		{
-			float seconds_per_char = 1.f / _current_entry->typing_speed;
+			float seconds_per_char = 1.f / _current_entry->speed;
 			_typing_time_accumulator += dt;
 			if (_typing_time_accumulator >= seconds_per_char)
 			{
 				_typing_time_accumulator -= seconds_per_char;
+				if (isalnum(_get_plain_text_char(_textbox_text, _current_plain_text_length)))
+					audio::play("event:/" + _current_entry->sound);
 				++_current_plain_text_length;
 			}
 		}

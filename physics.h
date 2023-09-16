@@ -1,9 +1,5 @@
 #pragma once
 
-class b2ContactFilter;
-class b2ContactListener;
-class b2Body;
-
 namespace physics
 {
 	void initialize();

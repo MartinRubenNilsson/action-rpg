@@ -18,13 +18,14 @@ namespace data
 	{
 		try
 		{
-			CSVReader<5> table_csv("assets/data/textbox.csv");
+			CSVReader<6> table_csv("assets/data/textbox.csv");
 			table_csv.read_header(io::ignore_no_column,
 				"name",
 				"index",
 				"sprite",
 				"text",
-				"typing_speed");
+				"speed",
+				"sound");
 			std::vector<TextboxEntry> table;
 			TextboxEntry entry;
 			while (table_csv.read_row(
@@ -32,7 +33,8 @@ namespace data
 				entry.index,
 				entry.sprite,
 				entry.text,
-				entry.typing_speed))
+				entry.speed,
+				entry.sound))
 			{
 				table.push_back(entry);
 			}
