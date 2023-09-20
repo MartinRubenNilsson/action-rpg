@@ -18,6 +18,10 @@ namespace ecs
 		_registry.clear();
 	}
 
+	void process_event(const sf::Event& event) {
+		process_event_player(event);
+	}
+
 	void _update_view(sf::RenderWindow& window)
 	{
 		sf::View view = window.getView();

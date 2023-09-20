@@ -15,15 +15,12 @@
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
-    // CREATE WINDOW
-
     sf::RenderWindow& window = window::create();
 
     // INITIALIZE
 
     ImGui::SFML::Init(window, false);
-    ImGui::GetIO().Fonts->AddFontFromFileTTF(
-        "assets/fonts/Consolas.ttf", 24);
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
     ImGui::SFML::UpdateFontTexture();
 
     audio::initialize();
@@ -56,8 +53,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
     // GAME LOOP
 
-    sf::Clock clock;
+    bool pause_game = false;
     bool debug_draw_physics = false;
+
+    sf::Clock clock;
     while (window.isOpen())
     {
         // EVENT HANDLING
@@ -69,6 +68,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
                 window.close();
             if (event.type == sf::Event::KeyPressed)
             {
+                if (event.key.code == sf::Keyboard::Escape)
+                    pause_game = !pause_game;
                 if (event.key.code == sf::Keyboard::F1)
                     console::toggle_visible();
                 if (event.key.code == sf::Keyboard::F2)
@@ -81,6 +82,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 
             console::process_event(event);
             ui::process_event(event);
+
+            if (!pause_game && !ui::should_pause_game())
+                ecs::process_event(event);
         }
 
         // UPDATE
@@ -91,7 +95,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
-        if (!ui::should_pause_game())
+        if (!pause_game && !ui::should_pause_game())
         {
             physics::update(dt.asSeconds());
             ecs::update(dt.asSeconds());

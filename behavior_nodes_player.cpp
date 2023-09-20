@@ -23,7 +23,7 @@ namespace behavior
 			auto radius = getInput<float>("radius");
 			if (!radius) return BT::NodeStatus::FAILURE;
 
-			sf::Vector2f center = b2::get_world_center(body);
+			sf::Vector2f center = get_world_center(body);
 			sf::Vector2f player_center = ecs::get_player_center();
 			float distance = length(player_center - center);
 
@@ -52,11 +52,11 @@ namespace behavior
 			auto speed = getInput<float>("speed");
 			if (!speed) return BT::NodeStatus::FAILURE;
 
-			sf::Vector2f position = b2::get_world_center(body);
+			sf::Vector2f position = get_world_center(body);
 			sf::Vector2f player_position = ecs::get_player_center();
 			sf::Vector2f direction = normalize(player_position - position);
 			sf::Vector2f velocity = direction * speed.value();
-			b2::set_linear_velocity(body, velocity);
+			set_linear_velocity(body, velocity);
 
 			return BT::NodeStatus::SUCCESS;
 		}

@@ -4,6 +4,9 @@ namespace ecs
 {
 	struct LifeSpan { float value = 0.f; };
 
+	entt::entity find_entity_by_name(const std::string& name);
+	entt::entity find_entity_by_type(const std::string& type);
+
 	std::string get_name(entt::entity entity);
 	std::string get_type(entt::entity entity);
 	bool get_bool(entt::entity entity, const std::string& name, bool& value);

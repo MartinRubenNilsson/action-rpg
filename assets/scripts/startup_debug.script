@@ -1,5 +1,4 @@
 bind o "map open dungeon"
 bind p "map close"
 bind r "ui reload"
-bind t "textbox set blue_grate"
 map open dungeon

@@ -12,8 +12,8 @@ sf::Vector2f operator/(const sf::Vector2f& left, const sf::Vector2f& right);
 bool is_zero(const sf::Vector2f& v);
 float length_squared(const sf::Vector2f& v);
 float length(const sf::Vector2f& v);
-sf::Vector2f normalize(const sf::Vector2f& v);
-sf::Vector2f normalize_safe(const sf::Vector2f& v); // Returns zero vector if v is zero
+[[nodiscard]] sf::Vector2f normalize(const sf::Vector2f& v);
+[[nodiscard]] sf::Vector2f normalize_safe(const sf::Vector2f& v); // Returns zero vector if v is zero
 float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
 float cross(const sf::Vector2f& a, const sf::Vector2f& b); // 2D cross product, aka determinant
 float angle_between(const sf::Vector2f& a, const sf::Vector2f& b); // Returns angle in radians

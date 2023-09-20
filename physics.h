@@ -12,5 +12,7 @@ namespace physics
 
 	b2Body* create_body(const b2BodyDef* body_def);
 	void destroy_body(b2Body* body);
+
+	std::vector<b2Fixture*> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max);
 }
 

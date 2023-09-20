@@ -32,6 +32,16 @@ namespace ecs
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
 
+	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
+	{
+		std::vector<entt::entity> entities;
+		for (b2Fixture* fixture : physics::query_aabb(min, max))
+			entities.push_back((entt::entity)fixture->GetBody()->GetUserData().pointer);
+		std::sort(entities.begin(), entities.end());
+		entities.erase(std::unique(entities.begin(), entities.end()), entities.end());
+		return entities;
+	}
+
 	bool ContactFilter::ShouldCollide(b2Fixture* fixture_a, b2Fixture* fixture_b) {
 		return true;
 	}

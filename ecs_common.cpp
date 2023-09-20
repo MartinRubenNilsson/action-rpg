@@ -12,6 +12,26 @@ namespace ecs
 		return nullptr;
 	}
 
+	entt::entity find_entity_by_name(const std::string& name)
+	{
+		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
+		{
+			if (object->getName() == name)
+				return entity;
+		}
+		return entt::null;
+	}
+
+	entt::entity find_entity_by_type(const std::string& type)
+	{
+		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
+		{
+			if (object->getType() == type)
+				return entity;
+		}
+		return entt::null;
+	}
+
 	std::string get_name(entt::entity entity)
 	{
 		std::string name;

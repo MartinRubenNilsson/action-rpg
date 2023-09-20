@@ -38,6 +38,7 @@ namespace physics
 		debug_draw.SetFlags(b2Draw::e_shapeBit);
 		_world->SetDebugDraw(&debug_draw);
 		_world->DebugDraw();
+		_world->SetDebugDraw(nullptr);
 	}
 
 	void set_contact_filter(b2ContactFilter* filter) {
@@ -54,5 +55,26 @@ namespace physics
 
 	void destroy_body(b2Body* body) {
 		_world->DestroyBody(body);
+	}
+
+	std::vector<b2Fixture*> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
+	{
+		struct QueryCallback : public b2QueryCallback
+		{
+			std::vector<b2Fixture*> fixtures;
+
+			bool ReportFixture(b2Fixture* fixture) override
+			{
+				fixtures.push_back(fixture);
+				return true;
+			}
+		};
+
+		QueryCallback callback;
+		b2AABB aabb;
+		aabb.lowerBound = b2Vec2(min.x, min.y);
+		aabb.upperBound = b2Vec2(max.x, max.y);
+		_world->QueryAABB(&callback, aabb);
+		return callback.fixtures;
 	}
 }

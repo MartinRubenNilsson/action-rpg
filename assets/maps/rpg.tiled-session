@@ -1,0 +1,38 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "dungeon.tmx": {
+            "scale": 1.78125,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 238.31578947368422,
+                "y": 238.03508771929822
+            }
+        },
+        "dungeon.tmx#dungeon": {
+            "scaleInDock": 1
+        },
+        "dungeon.tmx#naked_human": {
+            "scaleInDock": 1
+        }
+    },
+    "last.worldFilePath": "C:/Users/marti/source/repos/sfml-testing/assets/maps",
+    "loadedWorlds": [
+        "C:/Users/marti/source/repos/sfml-testing/assets/maps/worldtest.world"
+    ],
+    "openFiles": [
+        "dungeon.tmx"
+    ],
+    "project": "rpg.tiled-project",
+    "recentFiles": [
+        "dungeon.tmx"
+    ]
+}

@@ -1,14 +1,26 @@
 #include "ecs_player.h"
 #include "ecs_common.h"
+#include "ecs_physics.h"
 #include "math_vectors.h"
 #include "utility_b2.h"
-#include "window.h"
 #include "console.h"
+#include "window.h"
+#include "ui_textbox.h"
+
+#define PLAYER_WALK_SPEED 4.5f
+#define PLAYER_RUN_SPEED 8.5f
 
 namespace ecs
 {
 	extern entt::registry _registry;
+
 	entt::entity _player_entity = entt::null;
+
+	sf::Vector2f _player_input_direction;
+	bool _player_input_run = false;
+	bool _player_input_interact = false;
+
+	sf::Vector2f _player_direction;
 
 	bool player_exists() {
 		return _registry.valid(_player_entity);
@@ -20,50 +32,87 @@ namespace ecs
 
 	sf::Vector2f get_player_center() {
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			return b2::get_world_center(**body);
+			return get_world_center(**body);
 		return sf::Vector2f();
 	}
 
-	void _find_and_store_player_entity()
+	void _update_player_inputs()
 	{
-		_player_entity = entt::null;
-		for (auto [entity, object] :
-			_registry.view<const tmx::Object*>().each())
+		_player_input_direction.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+		_player_input_direction.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+		_player_input_direction.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+		_player_input_direction.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+		_player_input_direction = normalize_safe(_player_input_direction);
+
+		_player_input_run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+	}
+
+	void _clear_player_inputs()
+	{
+		_player_input_direction = sf::Vector2f();
+		_player_input_run = false;
+		_player_input_interact = false;
+	}
+
+	void process_event_player(const sf::Event& event)
+	{
+		if (event.type == sf::Event::KeyPressed)
 		{
-			if (object->getType() == "player")
-			{
-				_player_entity = entity;
-				break;
-			}
+			if (event.key.code == sf::Keyboard::C)
+				_player_input_interact = true;
 		}
 	}
 
-	void _update_player_velocity()
+	void update_player()
 	{
+		_player_entity = find_entity_by_type("player");
+
 		if (!_registry.valid(_player_entity))
 			return;
 		if (!_registry.all_of<b2Body*>(_player_entity))
 			return;
 
-		sf::Vector2f velocity;
+		b2Body& body = *_registry.get<b2Body*>(_player_entity);
+		const sf::Vector2f center = get_world_center(body);
+
+		// UPDATE INPUTS
+
 		if (window::has_focus() && !console::is_visible())
+			_update_player_inputs();
+
+		// UPDATE VELOCITY
+
+		const float input_speed = _player_input_run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
+		const sf::Vector2f input_velocity = _player_input_direction * input_speed;
+		set_linear_velocity(body, input_velocity);
+
+		// UPDATE DIRECTION
+
+		if (!is_zero(_player_input_direction))
+			_player_direction = _player_input_direction;
+
+		// INTERACT
+
+		if (_player_input_interact)
 		{
-			velocity.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-			velocity.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-			velocity.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-			velocity.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-			normalize_safe(velocity);
-			velocity *= sf::Keyboard::isKeyPressed(sf::Keyboard::X) ? 8.5f : 4.5f;
+			sf::Vector2f aabb_center = center + _player_direction;
+			sf::Vector2f aabb_min = aabb_center - sf::Vector2f(0.5f, 0.5f);
+			sf::Vector2f aabb_max = aabb_center + sf::Vector2f(0.5f, 0.5f);
+			for (entt::entity entity : query_aabb(aabb_min, aabb_max))
+			{
+				if (entity == _player_entity)
+					continue;
+				{
+					std::string text;
+					if (get_string(entity, "text", text))
+						ui::set_textbox_entries(text);
+				}
+			}
 		}
 
-		b2Body& body = *_registry.get<b2Body*>(_player_entity);
-		b2::set_linear_velocity(body, velocity);
-	}
+		// CLEANUP
 
-	void update_player()
-	{
-		_find_and_store_player_entity();
-		_update_player_velocity();
+		_clear_player_inputs();
 	}
 }
 

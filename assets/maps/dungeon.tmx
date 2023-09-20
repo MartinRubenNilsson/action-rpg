@@ -48,11 +48,24 @@
    </objectgroup>
   </tile>
   <tile id="451">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
    <animation>
     <frame tileid="451" duration="100"/>
     <frame tileid="454" duration="100"/>
     <frame tileid="457" duration="100"/>
    </animation>
+  </tile>
+  <tile id="454">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
+  </tile>
+  <tile id="457">
+   <objectgroup draworder="index" id="2">
+    <object id="1" x="0" y="0" width="16" height="16"/>
+   </objectgroup>
   </tile>
   <wangsets>
    <wangset name="ground" type="corner" tile="30">
@@ -320,7 +333,7 @@
 </data>
  </layer>
  <objectgroup id="10" name="triggers">
-  <object id="5" name="goto dungeon" type="trigger_map" x="18.833" y="91" width="36" height="64.3333">
+  <object id="5" name="goto dungeon" type="trigger_map" x="31.1839" y="187" width="36" height="64.3333">
    <properties>
     <property name="map" value="dungeon"/>
    </properties>
@@ -342,9 +355,6 @@
    <properties>
     <property name="message" value="Hello, evil world!"/>
    </properties>
-  </object>
-  <object id="13" x="67" y="193.5" width="22.5" height="22.5">
-   <ellipse/>
   </object>
  </objectgroup>
 </map>

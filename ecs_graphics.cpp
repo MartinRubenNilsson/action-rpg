@@ -121,7 +121,7 @@ namespace ecs
 			_registry.view<Tile, b2Body*>().each())
 		{
 			std::string current_type = tile.get_type();
-			sf::Vector2f velocity = b2::get_linear_velocity(*body);
+			sf::Vector2f velocity = get_linear_velocity(*body);
 			std::string tileset_name = tile.get_tileset_name();
 			if (tileset_name == "naked_human")
 			{
@@ -164,10 +164,9 @@ namespace ecs
 		for (auto [entity, sprite, body] :
 			_registry.view<Sprite, b2Body*>().each())
 		{
-			sf::Vector2f world_position = b2::get_position(*body);
-			sprite.setPosition(
-				world_position.x * PIXELS_PER_METER,
-				world_position.y * PIXELS_PER_METER);
+			sf::Vector2f world_position = get_position(*body);
+			sf::Vector2f pixel_position = world_position * PIXELS_PER_METER;
+			sprite.setPosition(pixel_position);
 		}
 	}
 

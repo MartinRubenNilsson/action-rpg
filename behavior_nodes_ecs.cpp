@@ -52,7 +52,7 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			b2::set_linear_velocity(*handle.get<b2Body*>(), sf::Vector2f());
+			set_linear_velocity(*handle.get<b2Body*>(), sf::Vector2f());
 			return BT::NodeStatus::SUCCESS;
 		}
 	};
