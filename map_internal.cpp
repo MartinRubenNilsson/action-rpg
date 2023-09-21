@@ -1,6 +1,7 @@
 #include "map_internal.h"
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
+#include <tmxlite/LayerGroup.hpp>
 #include "math_vectors.h"
 #include "ecs.h"
 #include "ecs_common.h"
@@ -46,8 +47,8 @@ namespace map
 	void _process_tile_layer(
 		const std::string& map_name,
 		const tmx::Map& map,
-		const tmx::TileLayer& tile_layer,
-		size_t layer_index)
+		size_t layer_index,
+		const tmx::TileLayer& tile_layer)
 	{
 		auto& registry = ecs::get_registry();
 
@@ -158,15 +159,15 @@ namespace map
 	void _process_object_group(
 		const std::string& map_name,
 		const tmx::Map& map,
-		const tmx::ObjectGroup& object_group,
-		size_t layer_index)
+		size_t layer_index,
+		const tmx::ObjectGroup& object_group)
 	{
 		auto& registry = ecs::get_registry();
 
 		for (const auto& object : object_group.getObjects())
 		{
-			// At this point, the object should already have had an
-			// entity created for it by _create_object_entities().
+			// At this point, the object should already have had
+			// an entity created for it by open_impl().
 			entt::entity entity = (entt::entity)object.getUID();
 			assert(registry.valid(entity) && "Entity not found.");
 			registry.emplace<const tmx::Object*>(entity, &object);
@@ -299,34 +300,49 @@ namespace map
 		} 
 	}
 
-	// Both EnTT and Tiled use uint32_t as their underlying ID type.
-	// This means that we can use the object IDs from Tiled directly as entity IDs.
-	// To ensure that these IDs are reserved (i.e. not used by any other entities),
-	// this function creates an empty entity for each object in the map.
-	void _create_object_entities(const tmx::Map& map)
+	std::vector<tmx::Layer*> _unpack_layer_groups(
+		const std::vector<tmx::Layer::Ptr>& layers)
 	{
-		std::unordered_set<entt::entity> entities_to_create;
-		for (const auto& layer : map.getLayers())
+		std::vector<tmx::Layer*> unpacked_layers;
+		for (const auto& layer : layers)
 		{
-			if (layer->getType() != tmx::Layer::Type::Object)
-				continue;
-			auto object_group = layer->getLayerAs<tmx::ObjectGroup>();
-			for (const auto& object : object_group.getObjects())
-				entities_to_create.insert((entt::entity)object.getUID());
+			if (layer->getType() == tmx::Layer::Type::Group)
+			{
+				auto unpacked_sublayers = _unpack_layer_groups(
+					layer->getLayerAs<tmx::LayerGroup>().getLayers());
+				unpacked_layers.insert(unpacked_layers.end(),
+					unpacked_sublayers.begin(), unpacked_sublayers.end());
+			}
+			else
+			{
+				unpacked_layers.push_back(layer.get());
+			}
 		}
-		for (entt::entity entity : entities_to_create)
-		{
-			entt::entity created_entity = ecs::get_registry().create(entity);
-			assert(entity == created_entity && "Entity ID already in use.");
-		}
+		return unpacked_layers;
 	}
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
-		_create_object_entities(map);
+		auto layers = _unpack_layer_groups(map.getLayers());
 
+		// Create an empty entity for each object in the map.
+		for (const auto& layer : layers)
+		{
+			if (layer->getType() == tmx::Layer::Type::Object)
+			{
+				for (const auto& object : layer->getLayerAs<tmx::ObjectGroup>().getObjects())
+				{
+					// Both EnTT and Tiled use uint32_t as their underlying ID type.
+					// This means that we can use the object IDs from Tiled directly.
+					entt::entity entity = (entt::entity)object.getUID();
+					entt::entity created_entity = ecs::get_registry().create(entity);
+					assert(entity == created_entity && "Entity ID already in use.");
+				}
+			}
+		}
+
+		// Process layers from bottom to top.
 		// Layer 0 is the bottom-most layer, layer 1 is the next layer above that, etc.
-		const auto& layers = map.getLayers();
 		for (size_t layer_index = 0; layer_index < layers.size(); layer_index++)
 		{
 			const auto& layer = layers[layer_index];
@@ -334,18 +350,16 @@ namespace map
 			{
 			case tmx::Layer::Type::Tile:
 			{
-				_process_tile_layer(map_name, map,
-					layer->getLayerAs<tmx::TileLayer>(),
-					layer_index);
-				break;
+				_process_tile_layer(map_name, map, layer_index,
+					layer->getLayerAs<tmx::TileLayer>());
 			}
+			break;
 			case tmx::Layer::Type::Object:
 			{
-				_process_object_group(map_name, map,
-					layer->getLayerAs<tmx::ObjectGroup>(),
-					layer_index);
-				break;
+				_process_object_group(map_name, map, layer_index,
+					layer->getLayerAs<tmx::ObjectGroup>());
 			}
+			break;
 			}
 		}
 	}

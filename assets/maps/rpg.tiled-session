@@ -13,18 +13,19 @@
             "scaleInEditor": 2
         },
         "dungeon.tmx": {
-            "scale": 1.78125,
-            "selectedLayer": 5,
+            "scale": 4,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 237.75438596491227,
-                "y": 162.80701754385962
+                "x": 134.375,
+                "y": 90.25
             }
         },
         "dungeon.tmx#dungeon": {
             "scaleInDock": 1
         },
         "dungeon.tmx#naked_human": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         }
     },
     "last.worldFilePath": "C:/Users/marti/source/repos/sfml-testing/assets/maps",
