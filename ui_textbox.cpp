@@ -6,19 +6,19 @@
 
 namespace ui
 {
-	// Returns true if the character at pos is a plain text character,
+	// Returns true if the character at rml_pos is plain text,
 	// defined as a character that is not part of an RML tag.
-	bool _is_plain_text(const std::string& rml, size_t pos)
+	bool _is_plain_text(const std::string& rml, size_t rml_pos)
 	{
-		for (size_t i = pos; i < rml.size(); ++i)
+		for (size_t i = rml_pos; i < rml.size(); ++i)
 		{
-			if (rml[i] == '<') return i != pos;
+			if (rml[i] == '<') return i != rml_pos;
 			if (rml[i] == '>') return false;
 		}
 		return true;
 	}
 
-	// Returns the number of plain text characters in the given RML string.
+	// Returns the number of plain text characters.
 	size_t _get_plain_text_length(const std::string& rml)
 	{
 		size_t count = 0;
@@ -28,38 +28,39 @@ namespace ui
 		return count;
 	}
 
-	// Returns the character at pos in the implicitly defined plain text string.
-	char _get_plain_text_char(const std::string& rml, size_t pos)
+	// Returns the plain text character at plain_text_pos,
+	// or '\0' if plain_text_pos >= _get_plain_text_length(rml).
+	char _get_plain_text_char(const std::string& rml, size_t plain_text_pos)
 	{
-		size_t count = 0;
+		size_t current_plain_text_pos = 0;
 		for (size_t i = 0; i < rml.size(); ++i)
 		{
 			if (_is_plain_text(rml, i))
 			{
-				if (count == pos)
+				if (current_plain_text_pos == plain_text_pos)
 					return rml[i];
-				++count;
+				++current_plain_text_pos;
 			}
 		}
 		return '\0';
 	}
 
-	// Replaces all graphical plain text characters from pos to the end of the
-	// string with non-breaking spaces. This is used to prevent the text from
-	// jumping around when it is being typed out.
+	// Replaces all graphical plain text characters from plain_text_pos to the
+	// end of the string with non-breaking spaces. This is used to prevent the
+	// text from jumping around when it is being typed out.
 	std::string _replace_graphical_plain_text_with_nbsp(
-		const std::string& rml, size_t pos)
+		const std::string& rml, size_t plain_text_pos)
 	{
 		std::string result;
-		size_t current_pos = 0;
+		size_t current_plain_text_pos = 0;
 		for (size_t i = 0; i < rml.size(); ++i)
 		{
 			std::string current_char = rml.substr(i, 1);
 			if (_is_plain_text(rml, i))
 			{
-				if (current_pos >= pos && isgraph(rml[i]))
+				if (current_plain_text_pos >= plain_text_pos && isgraph(rml[i]))
 					current_char = "&nbsp;";
-				++current_pos;
+				++current_plain_text_pos;
 			}
 			result += current_char;
 		}
@@ -133,7 +134,7 @@ namespace ui
 			if (_typing_time_accumulator >= seconds_per_char)
 			{
 				_typing_time_accumulator -= seconds_per_char;
-				if (isalnum(_get_plain_text_char(_textbox_text, _current_plain_text_length)))
+				if (isgraph(_get_plain_text_char(_textbox_text, _current_plain_text_length)))
 					audio::play("event:/" + _current_entry->sound);
 				++_current_plain_text_length;
 			}
