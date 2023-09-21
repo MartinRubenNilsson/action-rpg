@@ -2,9 +2,9 @@
 
 namespace map
 {
-	// Loads all tilesets in the assets/tilesets directory.
-	// This function should only be called once.
-	void load_tilesets();
+	// Reloads all textures referenced by any map that
+	// has been opened at least once.
+	void reload_textures();
 
 	// Loads all TMX maps in the assets/maps directory.
 	// This function should only be called once.
@@ -32,8 +32,4 @@ namespace map
 	// Returns the bounds of the current map.
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
-
-	// Returns the size of a tile in the current map.
-	// If no map is open, returns (0, 0).
-	sf::Vector2u get_tile_size();
 }

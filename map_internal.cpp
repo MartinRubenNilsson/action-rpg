@@ -11,20 +11,26 @@
 
 namespace map
 {
-	std::unordered_map<std::filesystem::path, sf::Texture> _tileset_textures;
+	std::unordered_map<std::filesystem::path,
+		std::unique_ptr<sf::Texture>> _textures;
 
-	// todo: hot reloading
-	void load_tilesets_impl()
+	sf::Texture& _get_texture(const std::filesystem::path& path)
 	{
-		assert(_tileset_textures.empty() && "load_tilesets() should only be called once.");
-		for (const auto& entry : std::filesystem::directory_iterator("assets/tilesets"))
+		auto& texture = _textures[path];
+		if (!texture)
 		{
-			if (entry.path().extension() != ".png")
-				continue;
-			sf::Texture texture;
-			if (texture.loadFromFile(entry.path().string()))
-				_tileset_textures.emplace(entry.path(), std::move(texture));
+			texture = std::make_unique<sf::Texture>();
+			if (!texture->loadFromFile(path.string()))
+				console::log_error("Failed to load texture: " + path.string());
 		}
+		return *texture;
+	}
+
+	void reload_textures_impl()
+	{
+		for (auto& [path, texture] : _textures)
+			if (!texture->loadFromFile(path.string()))
+				console::log_error("Failed to reload texture: " + path.string());
 	}
 
 	const tmx::Tileset* _get_tileset(const tmx::Map& map, uint32_t tile_id)
@@ -67,7 +73,7 @@ namespace map
 				entt::entity entity = registry.create();
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
+				ecs_sprite.setTexture(_get_texture(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
 				ecs_sprite.setPosition(position_x, position_y);
 				ecs_sprite.depth = (float)layer_index;
@@ -186,7 +192,7 @@ namespace map
 
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
 				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_tileset_textures.at(tileset->getImagePath()));
+				ecs_sprite.setTexture(_get_texture(tileset->getImagePath()));
 				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
 				ecs_sprite.setPosition(aabb.left, aabb.top);
 				ecs_sprite.depth = (float)layer_index;
@@ -260,8 +266,6 @@ namespace map
 				float hw = collider_aabb.width / 2.0f;
 				float hh = collider_aabb.height / 2.0f;
 				b2Vec2 center(hw, hh);
-
-				bool is_sensor = object.getType().starts_with("trigger");
 
 				switch (object.getShape())
 				{

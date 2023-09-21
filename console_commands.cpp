@@ -72,6 +72,8 @@ namespace console
 				->required();
 			cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
+			cmd->add_subcommand("reload", "Reload all textures used by the current map")
+				->callback(map::reload_textures);
 		}
 
 		// UI

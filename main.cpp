@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     // LOAD ASSETS
 
     audio::load_banks();
-    map::load_tilesets();
+    map::reload_textures();
     map::load_maps();
     behavior::load_trees();
     ui::load_fonts_and_documents();

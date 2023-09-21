@@ -7,8 +7,8 @@ namespace map
 	decltype(_maps)::iterator _curr_map_it = _maps.end();
 	decltype(_maps)::iterator _next_map_it = _maps.end();
 
-	void load_tilesets() {
-		load_tilesets_impl();
+	void reload_textures() {
+		reload_textures_impl();
 	}
 
 	void load_maps()
@@ -65,11 +65,5 @@ namespace map
 		if (_curr_map_it == _maps.end()) return sf::FloatRect();
 		tmx::FloatRect bounds = _curr_map_it->second.getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
-	}
-
-	sf::Vector2u get_tile_size()
-	{
-		if (_curr_map_it == _maps.end()) return sf::Vector2u();
-		return vector_cast<sf::Vector2u>(_curr_map_it->second.getTileSize());
 	}
 }
