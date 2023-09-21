@@ -232,16 +232,16 @@ namespace map
 						b2PolygonShape shape;
 						shape.SetAsBox(hw, hh, center, 0.f);
 						body->CreateFixture(&shape, 1.f);
-						break;
 					}
+					break;
 					case tmx::Object::Shape::Ellipse:
 					{
 						b2CircleShape shape;
 						shape.m_p = center;
 						shape.m_radius = hw;
 						body->CreateFixture(&shape, 1.f);
-						break;
 					}
+					break;
 					}
 				}
 			}
@@ -279,9 +279,8 @@ namespace map
 					fixture_def.shape = &shape;
 					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
-
-					break;
 				}
+				break;
 				case tmx::Object::Shape::Ellipse:
 				{
 					b2CircleShape shape;
@@ -292,9 +291,8 @@ namespace map
 					fixture_def.shape = &shape;
 					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
-
-					break;
 				}
+				break;
 				}
 			}
 		} 

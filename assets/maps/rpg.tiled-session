@@ -13,11 +13,15 @@
             "scaleInEditor": 2
         },
         "dungeon.tmx": {
+            "expandedGroupLayers": [
+                14,
+                15
+            ],
             "scale": 4,
-            "selectedLayer": 4,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 134.375,
-                "y": 90.25
+                "x": 134.125,
+                "y": 90
             }
         },
         "dungeon.tmx#dungeon": {

@@ -44,20 +44,26 @@ namespace ui
 		return '\0';
 	}
 
-	// Replaces all plain text characters after the given count with spaces.
-	void _create_plain_text_substr(std::string& rml, size_t count)
+	// Replaces all graphical plain text characters from pos to the end of the
+	// string with non-breaking spaces. This is used to prevent the text from
+	// jumping around when it is being typed out.
+	std::string _replace_graphical_plain_text_with_nbsp(
+		const std::string& rml, size_t pos)
 	{
-		size_t current_count = 0;
+		std::string result;
+		size_t current_pos = 0;
 		for (size_t i = 0; i < rml.size(); ++i)
 		{
+			std::string current_char = rml.substr(i, 1);
 			if (_is_plain_text(rml, i))
 			{
-				if (current_count < count)
-					++current_count;
-				else
-					rml[i] = ' ';
+				if (current_pos >= pos && isgraph(rml[i]))
+					current_char = "&nbsp;";
+				++current_pos;
 			}
+			result += current_char;
 		}
+		return result;
 	}
 
 	extern Rml::Context* _context;
@@ -137,7 +143,8 @@ namespace ui
 			_current_plain_text_length = max_length;
 		}
 
-		_create_plain_text_substr(_textbox_text, _current_plain_text_length);
+		_textbox_text = _replace_graphical_plain_text_with_nbsp(
+			_textbox_text, _current_plain_text_length);
 	}
 
 	bool is_textbox_visible()
