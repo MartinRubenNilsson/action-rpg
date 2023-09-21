@@ -6,6 +6,7 @@
 #include "console.h"
 #include "window.h"
 #include "ui_textbox.h"
+#include "audio.h"
 
 #define PLAYER_WALK_SPEED 4.5f
 #define PLAYER_RUN_SPEED 8.5f
@@ -103,9 +104,11 @@ namespace ecs
 				if (entity == _player_entity)
 					continue;
 				{
-					std::string text;
-					if (get_string(entity, "text", text))
-						ui::set_textbox_entries(text);
+					std::string string;
+					if (get_string(entity, "text", string))
+						ui::set_textbox_entries(string);
+					if (get_string(entity, "sound", string))
+						audio::play("event:/" + string);
 				}
 			}
 		}

@@ -3,18 +3,21 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "dungeon.tmx",
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "": {
+            "scaleInEditor": 2
+        },
         "dungeon.tmx": {
             "scale": 1.78125,
-            "selectedLayer": 0,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 238.31578947368422,
-                "y": 238.03508771929822
+                "x": 237.75438596491227,
+                "y": 162.80701754385962
             }
         },
         "dungeon.tmx#dungeon": {
