@@ -48,6 +48,8 @@ namespace ecs
 
 	void ContactListener::BeginContact(b2Contact* contact)
 	{
+		// WARNING: You cannot create/destroy Box2D entities inside this callback.
+
 		b2Fixture* fixture_a = contact->GetFixtureA();
 		b2Fixture* fixture_b = contact->GetFixtureB();
 		b2Body* body_a = fixture_a->GetBody();
@@ -69,21 +71,20 @@ namespace ecs
 			std::swap(type_a, type_b);
 		}
 
-		// If player touches enemy, destroy both.
 		if (type_a == "enemy" && type_b == "player")
 		{
+			// Destroy both enemy and player (suicide mission lol).
 			//audio::play_sound("150_00");
 			mark_for_destruction(entity_a);
 			mark_for_destruction(entity_b);
 		}
 
-		// If player touches trigger
 		if (type_a == "player" && type_b == "trigger")
 		{
 			std::string string;
 			if (get_string(entity_b, "map", string))
 			{
-				map::open(string);
+				map::open(string, true);
 				// TODO: get player spawn position
 			}
 		}
