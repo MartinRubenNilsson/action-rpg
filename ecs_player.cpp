@@ -103,6 +103,14 @@ namespace ecs
 			{
 				if (entity == _player_entity)
 					continue;
+
+				std::string type = get_type(entity);
+
+				if (type.starts_with("enemy"))
+				{
+					mark_for_destruction(entity);
+				}
+				else
 				{
 					std::string string;
 					if (get_string(entity, "text", string))

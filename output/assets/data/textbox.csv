@@ -1,0 +1,3 @@
+name,index,sprite,text,speed,sound
+blue_grate,0,,"You stick your hands inside the blue grate. Feeling around with your hands, you find...",25,snd_txt1
+blue_grate,1,icon-golden-key,...an expensive-looking <span style='color: #ffd700'>golden key</span>!<br/>Score!,25,snd_txt1

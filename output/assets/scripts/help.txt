@@ -1,0 +1,64 @@
+Console
+Usage: [OPTIONS] [SUBCOMMAND]
+
+Options:
+  -h,--help                   Print a help message
+  --help-all                  Print help messages for all subcommands
+
+Subcommands:
+exit
+  Exit the game
+
+clear
+  Clear the console
+
+script
+  Execute a console script
+  Positionals:
+    name TEXT REQUIRED          The name of the script
+
+bind
+  Bind a key to a console command
+  Positionals:
+    key TEXT REQUIRED           The key to bind
+    command TEXT REQUIRED       The command to execute
+
+unbind
+  Unbind a key
+  Positionals:
+    key TEXT REQUIRED           The key to unbind
+
+window
+  Manage the window
+  Subcommands:
+    close                       Close the window
+    title                       Set the window title
+    scale                       Set the window scale
+
+audio
+  Manage audio
+  Subcommands:
+    play                        Play an audio event
+    stop_all                    Stop all audio events
+
+map
+  Manage maps
+  Subcommands:
+    name                        Print the name of the current map
+    open                        Open a map
+    close                       Close the current map
+    reload                      Reload all textures used by the current map
+
+ui
+  Manage UI
+  Subcommands:
+    reload                      Reload all style sheets
+    show                        Show a document
+    hide                        Hide a document
+
+textbox
+  Manage the textbox
+  Subcommands:
+    add                         Add textbox entries to the end of the queue
+    set                         Set the queue to the given textbox entries
+
