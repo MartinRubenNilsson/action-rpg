@@ -4,6 +4,7 @@
 		<property name="builtBanksOutputDirectory">
 			<value>../output/assets/audio</value>
 		</property>
+		<property name="builtBanksEncryptionKey" />
 		<relationship name="masterEventFolder">
 			<destination>{2193e7ff-7646-43d4-b0ee-a4f2213d8c77}</destination>
 		</relationship>

@@ -79,8 +79,8 @@
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="data.cpp">
-      <Filter>data</Filter>
+    <ClCompile Include="tables.cpp">
+      <Filter>tables</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -159,8 +159,8 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="defines.h" />
-    <ClInclude Include="data.h">
-      <Filter>data</Filter>
+    <ClInclude Include="tables.h">
+      <Filter>tables</Filter>
     </ClInclude>
     <ClInclude Include="fmod_studio_common.h">
       <Filter>audio\fmod</Filter>
@@ -224,14 +224,14 @@
     <Filter Include="ui\rml">
       <UniqueIdentifier>{134e0648-b6e8-466e-8524-bb93caffb9c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="data">
-      <UniqueIdentifier>{97904d1b-982a-4e1a-821e-9913a2eb0177}</UniqueIdentifier>
-    </Filter>
     <Filter Include="utility">
       <UniqueIdentifier>{7e350a7d-7e6e-4bcc-8186-fe2a105806ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="audio\fmod">
       <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tables">
+      <UniqueIdentifier>{97904d1b-982a-4e1a-821e-9913a2eb0177}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

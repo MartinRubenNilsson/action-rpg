@@ -1,6 +1,6 @@
 #pragma once
 
-namespace data
+namespace tables
 {
 	struct TextboxEntry
 	{
@@ -12,7 +12,7 @@ namespace data
 		std::string sound;
 	};
 
-	void load_textbox_table();
+	void load_tables();
 
 	std::vector<TextboxEntry> get_textbox_entries(const std::string& name);
 }

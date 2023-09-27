@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.6.33829.357
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sfml-testing", "sfml-testing.vcxproj", "{0E37F4EC-F122-4BA3-B411-881D28C62C87}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "action-rpg", "action-rpg.vcxproj", "{0E37F4EC-F122-4BA3-B411-881D28C62C87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +20,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {2BD671E7-C71B-42B4-A251-DAA7618D7DC0}
+		SolutionGuid = {25A9DB6B-E0A2-48B6-996E-3236696B4072}
 	EndGlobalSection
 EndGlobal

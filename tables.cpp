@@ -1,4 +1,4 @@
-#include "data.h"
+#include "tables.h"
 #pragma warning(disable : 4996) // 'strncpy': This function or variable may be unsafe.
 #pragma warning(disable : 4267)	// 'return': conversion from 'size_t' to 'int', possible loss of data
 #pragma warning(disable : 4244) // 'return': conversion from 'std::streamsize' to 'int', possible loss of data
@@ -6,7 +6,7 @@
 #include <fast-cpp-csv-parser/csv.h>
 #include "console.h"
 
-namespace data
+namespace tables
 {
 	template <unsigned column_count>
 	using CSVReader = io::CSVReader<column_count,
@@ -14,11 +14,12 @@ namespace data
 
 	std::vector<TextboxEntry> _textbox_table;
 
-	void load_textbox_table()
+	void load_tables()
 	{
+		// LOAD TEXTBOX TABLE
 		try
 		{
-			CSVReader<6> table_csv("assets/data/textbox.csv");
+			CSVReader<6> table_csv("assets/tables/textbox.csv");
 			table_csv.read_header(io::ignore_no_column,
 				"name",
 				"index",

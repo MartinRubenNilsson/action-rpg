@@ -16,6 +16,7 @@
     <ProjectGuid>{0e37f4ec-f122-4ba3-b411-881d28c62c87}</ProjectGuid>
     <RootNamespace>sfmltesting</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>action-rpg</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -123,7 +124,7 @@
     <ClCompile Include="behavior_nodes_player.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
-    <ClCompile Include="data.cpp" />
+    <ClCompile Include="tables.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_behaviors.cpp" />
     <ClCompile Include="ecs_common.cpp" />
@@ -157,7 +158,7 @@
     <ClInclude Include="behavior.h" />
     <ClInclude Include="behavior_internal.h" />
     <ClInclude Include="console.h" />
-    <ClInclude Include="data.h" />
+    <ClInclude Include="tables.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_behaviors.h" />

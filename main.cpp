@@ -11,7 +11,7 @@
 #include "behavior.h"
 #include "ecs.h"
 #include "console.h"
-#include "data.h"
+#include "tables.h"
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
 {
@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
     map::load_maps();
     behavior::load_trees();
     ui::load_fonts_and_documents();
-    data::load_textbox_table();
+    tables::load_tables();
 
     // OTHER STUFF
 

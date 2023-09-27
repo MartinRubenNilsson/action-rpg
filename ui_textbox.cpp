@@ -1,7 +1,7 @@
 #include "ui_textbox.h"
 #include <RmlUi/Core.h>
 #include "ui.h"
-#include "data.h"
+#include "tables.h"
 #include "audio.h"
 
 namespace ui
@@ -93,8 +93,8 @@ namespace ui
 
 	// These variables are only to be used internally in this file.
 
-	std::deque<data::TextboxEntry> _queued_entries;
-	std::optional<data::TextboxEntry> _current_entry;
+	std::deque<tables::TextboxEntry> _queued_entries;
+	std::optional<tables::TextboxEntry> _current_entry;
 	size_t _current_plain_text_length = 0;
 	float _typing_time_accumulator = 0.f;
 
@@ -177,7 +177,7 @@ namespace ui
 
 	void add_textbox_entries(const std::string& name)
 	{
-		auto entries = data::get_textbox_entries(name);
+		auto entries = tables::get_textbox_entries(name);
 		std::ranges::copy(entries, std::back_inserter(_queued_entries));
 	}
 
