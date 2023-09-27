@@ -43,7 +43,7 @@ namespace ecs
 		_player_input_direction.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 		_player_input_direction.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
 		_player_input_direction.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-		_player_input_direction = normalize_safe(_player_input_direction);
+		_player_input_direction = normalize(_player_input_direction);
 
 		_player_input_run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
 	}

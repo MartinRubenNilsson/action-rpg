@@ -69,6 +69,7 @@ namespace ecs
 			std::swap(type_a, type_b);
 		}
 
+		// If player touches enemy, destroy both.
 		if (type_a == "enemy" && type_b == "player")
 		{
 			//audio::play_sound("150_00");
@@ -76,11 +77,15 @@ namespace ecs
 			mark_for_destruction(entity_b);
 		}
 
-		if (type_a == "player" && type_b == "trigger_map")
+		// If player touches trigger
+		if (type_a == "player" && type_b == "trigger")
 		{
-			std::string map_name;
-			if (get_string(entity_b, "map", map_name))
-				map::open(map_name);
+			std::string string;
+			if (get_string(entity_b, "map", string))
+			{
+				map::open(string);
+				// TODO: get player spawn position
+			}
 		}
 	}
 

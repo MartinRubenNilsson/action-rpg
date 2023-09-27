@@ -21,11 +21,6 @@ float length(const sf::Vector2f& v) {
 }
 
 sf::Vector2f normalize(const sf::Vector2f& v) {
-	return v / length(v);
-}
-
-sf::Vector2f normalize_safe(const sf::Vector2f& v)
-{
 	if (float l = length(v))
 		return v / l;
 	return sf::Vector2f(0, 0);
