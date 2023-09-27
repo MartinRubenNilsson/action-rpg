@@ -173,6 +173,9 @@ namespace map
 			assert(registry.valid(entity) && "Entity not found.");
 			registry.emplace<const tmx::Object*>(entity, &object);
 
+			if (object.getName() == "the_point")
+				continue;
+
 			if (ecs::behavior_tree_exists(object.getType()))
 			{
 				auto blackboard = _create_blackboard(object);
@@ -370,7 +373,8 @@ namespace map
 	void set_spawnpoint_impl(const std::string& entity_name)
 	{
 		ecs::set_player_entity(ecs::find_entity_by_name("player"));
-		entt::entity spawnpoint_entity = ecs::find_entity_by_name("the_point");
+		if (entity_name == "player") return;
+		entt::entity spawnpoint_entity = ecs::find_entity_by_name(entity_name);
 		if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
 		{
 			tmx::Vector2f position = (*object)->getPosition();

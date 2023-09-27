@@ -335,7 +335,7 @@
  <objectgroup id="10" name="triggers">
   <object id="5" name="trigger_dungeon" type="trigger" x="16.8506" y="192.281" width="46" height="79.3333">
    <properties>
-    <property name="map" value="dungeon"/>
+    <property name="map" value="martin_test"/>
     <property name="spawnpoint" value="the_point"/>
    </properties>
   </object>
