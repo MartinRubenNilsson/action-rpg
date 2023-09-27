@@ -13,7 +13,11 @@
 #include "console.h"
 #include "tables.h"
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR command_line, int)
+int WINAPI WinMain(
+    _In_ HINSTANCE,
+    _In_opt_ HINSTANCE,
+    _In_ PSTR command_line,
+    _In_ int)
 {
     sf::RenderWindow& window = window::create();
 
