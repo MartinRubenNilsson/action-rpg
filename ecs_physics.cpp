@@ -3,6 +3,7 @@
 #include "audio.h"
 #include "map.h"
 #include "ecs_common.h"
+#include "ecs_player.h"
 
 namespace ecs
 {
@@ -84,8 +85,11 @@ namespace ecs
 			std::string string;
 			if (get_string(entity_b, "map", string))
 			{
-				map::open(string, true);
-				// TODO: get player spawn position
+				if (map::open(string, true))
+				{
+					if (get_string(entity_b, "spawnpoint", string))
+						map::set_spawnpoint(string);
+				}
 			}
 		}
 	}

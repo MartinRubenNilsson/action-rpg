@@ -9,6 +9,7 @@ namespace ecs
 
 	std::string get_name(entt::entity entity);
 	std::string get_type(entt::entity entity);
+
 	bool get_bool(entt::entity entity, const std::string& name, bool& value);
 	bool get_float(entt::entity entity, const std::string& name, float& value);
 	bool get_int(entt::entity entity, const std::string& name, int& value);

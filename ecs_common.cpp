@@ -14,6 +14,7 @@ namespace ecs
 
 	entt::entity find_entity_by_name(const std::string& name)
 	{
+		if (name.empty()) return entt::null;
 		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
 		{
 			if (object->getName() == name)
@@ -24,6 +25,7 @@ namespace ecs
 
 	entt::entity find_entity_by_type(const std::string& type)
 	{
+		if (type.empty()) return entt::null;
 		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
 		{
 			if (object->getType() == type)

@@ -26,12 +26,11 @@ namespace ecs
 	{
 		sf::View view = window.getView();
 
-		entt::entity player_entity = get_player_entity();
-		if (_registry.valid(player_entity))
+		if (player_exists())
 		{
-			// Center the view on the player.
-			auto& sprite = _registry.get<Sprite>(player_entity);
-			view.setCenter(sprite.getPosition());
+			sf::Vector2f center = get_player_center();
+			center *= PIXELS_PER_METER;
+			view.setCenter(center);
 		}
 
 		// Keep the view within the bounds of the map,

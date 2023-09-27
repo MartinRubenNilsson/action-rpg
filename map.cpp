@@ -7,7 +7,22 @@ namespace map
 	std::unordered_map<std::string, tmx::Map> _maps;
 	decltype(_maps)::iterator _curr_map_it = _maps.end();
 	decltype(_maps)::iterator _next_map_it = _maps.end();
-	bool _force_open = false;
+	bool _force_open = false; // if true, open the next map even if it's the current one
+	std::string _spawnpoint_entity_name; // entity to spawn the player at when opening a map
+
+	void update()
+	{
+		if (_force_open || _next_map_it != _curr_map_it)
+		{
+			if (_curr_map_it != _maps.end())
+				close_impl();
+			if (_next_map_it != _maps.end())
+				open_impl(_next_map_it->first, _next_map_it->second);
+			set_spawnpoint_impl(_spawnpoint_entity_name);
+		}
+		_curr_map_it = _next_map_it;
+		_force_open = false;
+	}
 
 	void reload_textures() {
 		reload_textures_impl();
@@ -54,19 +69,6 @@ namespace map
 		_next_map_it = _maps.end();
 	}
 
-	void update()
-	{
-		if (_force_open || _next_map_it != _curr_map_it)
-		{
-			if (_curr_map_it != _maps.end())
-				close_impl(_curr_map_it->first, _curr_map_it->second);
-			if (_next_map_it != _maps.end())
-				open_impl(_next_map_it->first, _next_map_it->second);
-		}
-		_curr_map_it = _next_map_it;
-		_force_open = false;
-	}
-
 	std::string get_name() {
 		return _curr_map_it != _maps.end() ? _curr_map_it->first : "";
 	}
@@ -76,5 +78,9 @@ namespace map
 		if (_curr_map_it == _maps.end()) return sf::FloatRect();
 		tmx::FloatRect bounds = _curr_map_it->second.getBounds();
 		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
+	}
+
+	void set_spawnpoint(const std::string& entity_name) {
+		_spawnpoint_entity_name = entity_name;
 	}
 }

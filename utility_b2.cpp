@@ -10,6 +10,12 @@ sf::Vector2f get_position(const b2Body& body) {
 	return vector_cast<sf::Vector2f>(body.GetPosition());
 }
 
+void set_world_center(b2Body& body, const sf::Vector2f& center)
+{
+	sf::Vector2 displacement = center - get_world_center(body);
+	set_position(body, get_position(body) + displacement);
+}
+
 sf::Vector2f get_world_center(const b2Body& body) {
 	return vector_cast<sf::Vector2f>(body.GetWorldCenter());
 }

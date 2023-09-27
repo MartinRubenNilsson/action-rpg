@@ -2,6 +2,9 @@
 
 namespace map
 {
+	// Executes the open/close requests made by open(), reopen(), and close().
+	void update();
+
 	// Reloads all textures referenced by any map that
 	// has been opened at least once.
 	void reload_textures();
@@ -27,14 +30,17 @@ namespace map
 	// The map will not be closed until update() is called.
 	void close();
 
-	// Executes the open/close requests made by open() and close().
-	void update();
-
 	// Returns the name of the current map.
 	// If no map is open, returns an empty string.
 	std::string get_name();
 
-	// Returns the bounds of the current map.
+	// Returns the bounds of the current map in pixels.
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
+
+	// Sets the name of the entity that should be used as
+	// the player's starting position when a map is opened.
+	// You may call this function before or after open(),
+	// as long as you call it before update().
+	void set_spawnpoint(const std::string& entity_name);
 }

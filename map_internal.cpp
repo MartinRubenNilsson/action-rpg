@@ -7,6 +7,7 @@
 #include "ecs_common.h"
 #include "ecs_graphics.h"
 #include "ecs_behaviors.h"
+#include "ecs_player.h"
 #include "physics.h"
 #include "console.h"
 
@@ -362,11 +363,19 @@ namespace map
 		}
 	}
 
-	void close_impl(const std::string& map_name, const tmx::Map& map)
-	{
-		// Currently we don't need to use the arguments
-		// when closing, but we might at some point.
-
+	void close_impl() {
 		ecs::get_registry().clear();
+	}
+
+	void set_spawnpoint_impl(const std::string& entity_name)
+	{
+		ecs::set_player_entity(ecs::find_entity_by_name("player"));
+		entt::entity spawnpoint_entity = ecs::find_entity_by_name("the_point");
+		if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+		{
+			tmx::Vector2f position = (*object)->getPosition();
+			position *= METERS_PER_PIXEL;
+			ecs::set_player_center(sf::Vector2f(position.x, position.y));
+		}
 	}
 }

@@ -80,6 +80,10 @@ namespace console
 				->callback(map::close);
 			cmd->add_subcommand("reload", "Reload all textures used by the current map")
 				->callback(map::reload_textures);
+			cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
+				->add_option_function<std::string>("name", map::set_spawnpoint,
+					"The name of the spawnpoint entity")
+				->required();
 		}
 
 		// UI

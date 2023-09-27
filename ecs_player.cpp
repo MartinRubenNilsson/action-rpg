@@ -27,8 +27,18 @@ namespace ecs
 		return _registry.valid(_player_entity);
 	}
 
+	void set_player_entity(entt::entity entity) {
+		_player_entity = entity;
+	}
+
 	entt::entity get_player_entity() {
 		return _player_entity;
+	}
+
+	void set_player_center(const sf::Vector2f& center)
+	{
+		if (auto body = _registry.try_get<b2Body*>(_player_entity))
+			set_world_center(**body, center);
 	}
 
 	sf::Vector2f get_player_center() {
@@ -66,7 +76,7 @@ namespace ecs
 
 	void update_player()
 	{
-		_player_entity = find_entity_by_type("player");
+		_player_entity = ecs::find_entity_by_name("player");
 
 		if (!_registry.valid(_player_entity))
 			return;

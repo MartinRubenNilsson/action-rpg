@@ -49,6 +49,7 @@ map
     reopen                      Reopen the current map
     close                       Close the current map
     reload                      Reload all textures used by the current map
+    spawnpoint                  Set the player spawnpoint entity
 
 ui
   Manage UI
