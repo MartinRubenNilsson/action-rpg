@@ -15,8 +15,13 @@ namespace map
 
 	// Requests that the map with the given name be opened.
 	// The map will not be opened until update() is called.
+	// If the map is already open, it will not be re-opened unless force_open is true.
 	// Returns true if the map was found, false otherwise.
-	bool open(const std::string& map_name);
+	bool open(const std::string& map_name, bool force_open = false);
+
+	// Requests that the current map be re-opened.
+	// Does nothing if no map is currently open.
+	void reopen();
 
 	// Requests that the current map be closed.
 	// The map will not be closed until update() is called.

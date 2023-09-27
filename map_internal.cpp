@@ -362,7 +362,11 @@ namespace map
 		}
 	}
 
-	void close_impl() {
+	void close_impl(const std::string& map_name, const tmx::Map& map)
+	{
+		// Currently we don't need to use the arguments
+		// when closing, but we might at some point.
+
 		ecs::get_registry().clear();
 	}
 }

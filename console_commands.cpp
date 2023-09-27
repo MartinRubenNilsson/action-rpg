@@ -57,7 +57,6 @@ namespace console
 			cmd->add_subcommand("play", "Play an audio event")
 				->add_option_function<std::string>("path", audio::play, "The path of the sound event")
 				->required();
-
 			cmd->add_subcommand("stop_all", "Stop all audio events")
 				->callback(audio::stop_all);
 		}
@@ -67,9 +66,16 @@ namespace console
 			auto cmd = app.add_subcommand("map", "Manage maps");
 			cmd->add_subcommand("name", "Print the name of the current map")
 				->callback([]() { log(map::get_name()); });
-			cmd->add_subcommand("open", "Open a map")
-				->add_option_function<std::string>("name", map::open, "The name of the map")
-				->required();
+			{
+				auto cmd_open = cmd->add_subcommand("open", "Open a map");
+				static std::string map_name;
+				static bool force_open = false;
+				cmd_open->add_option("name", map_name, "The name of the map")->required();
+				cmd_open->add_flag("-f,--force", force_open, "Force the map to open");
+				cmd_open->callback([]() { map::open(map_name, force_open); });
+			}
+			cmd->add_subcommand("reopen", "Reopen the current map")
+				->callback(map::reopen);
 			cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
 			cmd->add_subcommand("reload", "Reload all textures used by the current map")

@@ -46,6 +46,7 @@ map
   Subcommands:
     name                        Print the name of the current map
     open                        Open a map
+    reopen                      Reopen the current map
     close                       Close the current map
     reload                      Reload all textures used by the current map
 

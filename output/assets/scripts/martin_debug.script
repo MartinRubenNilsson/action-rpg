@@ -1,0 +1,4 @@
+bind o "map open martin_test"
+bind p "map close"
+bind r "ui reload"
+map open martin_test

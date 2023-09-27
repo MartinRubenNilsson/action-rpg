@@ -1,11 +1,13 @@
 #include "map.h"
 #include "map_internal.h"
+#include "console.h"
 
 namespace map
 {
 	std::unordered_map<std::string, tmx::Map> _maps;
 	decltype(_maps)::iterator _curr_map_it = _maps.end();
 	decltype(_maps)::iterator _next_map_it = _maps.end();
+	bool _force_open = false;
 
 	void reload_textures() {
 		reload_textures_impl();
@@ -35,10 +37,17 @@ namespace map
 		return names;
 	}
 
-	bool open(const std::string& map_name)
+	bool open(const std::string& map_name, bool force_open)
 	{
 		_next_map_it = _maps.find(map_name);
+		_force_open = force_open;
 		return _next_map_it != _maps.end();
+	}
+
+	void reopen()
+	{
+		_next_map_it = _curr_map_it;
+		_force_open = true;
 	}
 
 	void close() {
@@ -47,13 +56,15 @@ namespace map
 
 	void update()
 	{
-		if (_next_map_it == _curr_map_it)
-			return;
-		if (_curr_map_it != _maps.end())
-			close_impl();
-		if (_next_map_it != _maps.end())
-			open_impl(_next_map_it->first, _next_map_it->second);
+		if (_force_open || _next_map_it != _curr_map_it)
+		{
+			if (_curr_map_it != _maps.end())
+				close_impl(_curr_map_it->first, _curr_map_it->second);
+			if (_next_map_it != _maps.end())
+				open_impl(_next_map_it->first, _next_map_it->second);
+		}
 		_curr_map_it = _next_map_it;
+		_force_open = false;
 	}
 
 	std::string get_name() {
