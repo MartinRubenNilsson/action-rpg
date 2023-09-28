@@ -72,15 +72,15 @@
     <ClCompile Include="behavior_nodes_player.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
-    <ClCompile Include="utility_b2.cpp">
-      <Filter>utility</Filter>
-    </ClCompile>
     <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="tables.cpp">
       <Filter>tables</Filter>
+    </ClCompile>
+    <ClCompile Include="physics_helpers.cpp">
+      <Filter>physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -151,9 +151,6 @@
     <ClInclude Include="behavior_internal.h">
       <Filter>behavior</Filter>
     </ClInclude>
-    <ClInclude Include="utility_b2.h">
-      <Filter>utility</Filter>
-    </ClInclude>
     <ClInclude Include="window.h" />
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
@@ -195,6 +192,9 @@
     <ClInclude Include="fmod_studio.hpp">
       <Filter>audio\fmod</Filter>
     </ClInclude>
+    <ClInclude Include="physics_helpers.h">
+      <Filter>physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -223,9 +223,6 @@
     </Filter>
     <Filter Include="ui\rml">
       <UniqueIdentifier>{134e0648-b6e8-466e-8524-bb93caffb9c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="utility">
-      <UniqueIdentifier>{7e350a7d-7e6e-4bcc-8186-fe2a105806ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="audio\fmod">
       <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>

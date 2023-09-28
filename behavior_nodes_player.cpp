@@ -1,6 +1,6 @@
 #include "behavior_internal.h"
 #include "ecs_player.h"
-#include "utility_b2.h"
+#include "physics_helpers.h"
 
 namespace behavior
 {
@@ -18,7 +18,7 @@ namespace behavior
 		{
 			if (!ecs::player_exists()) return BT::NodeStatus::FAILURE;
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			b2Body& body = *handle.get<b2Body*>();
+			auto body = handle.get<b2Body*>();
 
 			auto radius = getInput<float>("radius");
 			if (!radius) return BT::NodeStatus::FAILURE;
@@ -47,7 +47,7 @@ namespace behavior
 		{
 			if (!ecs::player_exists()) return BT::NodeStatus::FAILURE;
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			b2Body& body = *handle.get<b2Body*>();
+			auto body = handle.get<b2Body*>();
 
 			auto speed = getInput<float>("speed");
 			if (!speed) return BT::NodeStatus::FAILURE;

@@ -2,7 +2,7 @@
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "math_vectors.h"
-#include "utility_b2.h"
+#include "physics_helpers.h"
 #include "console.h"
 #include "window.h"
 #include "ui_textbox.h"
@@ -38,12 +38,12 @@ namespace ecs
 	void set_player_center(const sf::Vector2f& center)
 	{
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			set_world_center(**body, center);
+			set_world_center(*body, center);
 	}
 
 	sf::Vector2f get_player_center() {
 		if (auto body = _registry.try_get<b2Body*>(_player_entity))
-			return get_world_center(**body);
+			return get_world_center(*body);
 		return sf::Vector2f();
 	}
 
@@ -83,7 +83,7 @@ namespace ecs
 		if (!_registry.all_of<b2Body*>(_player_entity))
 			return;
 
-		b2Body& body = *_registry.get<b2Body*>(_player_entity);
+		auto body = _registry.get<b2Body*>(_player_entity);
 		const sf::Vector2f center = get_world_center(body);
 
 		// UPDATE INPUTS

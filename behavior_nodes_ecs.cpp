@@ -1,7 +1,7 @@
 #include "behavior_internal.h"
 #include "ecs_behaviors.h"
 #include "ecs_common.h"
-#include "utility_b2.h"
+#include "physics_helpers.h"
 
 namespace behavior
 {
@@ -52,7 +52,7 @@ namespace behavior
 		BT::NodeStatus tick() override
 		{
 			if (!handle.all_of<b2Body*>()) return BT::NodeStatus::FAILURE;
-			set_linear_velocity(*handle.get<b2Body*>(), sf::Vector2f());
+			set_linear_velocity(handle.get<b2Body*>(), sf::Vector2f());
 			return BT::NodeStatus::SUCCESS;
 		}
 	};
