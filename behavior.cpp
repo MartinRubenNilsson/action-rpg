@@ -45,7 +45,7 @@ namespace behavior
 		return _factory.registeredBehaviorTrees();
 	}
 
-	BT::Tree create_tree(const std::string& name, BT::Blackboard::Ptr blackboard) {
-		return _factory.createTree(name, blackboard);
+	BT::Tree create_tree(const std::string& name) {
+		return _factory.createTree(name);
 	}
 }

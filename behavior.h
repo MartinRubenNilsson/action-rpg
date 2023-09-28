@@ -1,4 +1,5 @@
 #pragma once
+#include <behaviortree_cpp/bt_factory.h>
 
 namespace behavior
 {
@@ -20,7 +21,6 @@ namespace behavior
 	// "name" is the name of the tree in the Groot2 editor, which is
 	// the same as the attribute <BehaviorTree ID = "name"> in the XML file.
 	// Throws std::runtime_error if the tree is not found.
-	BT::Tree create_tree(const std::string& name,
-		BT::Blackboard::Ptr blackboard = BT::Blackboard::create());
+	BT::Tree create_tree(const std::string& name);
 }
 

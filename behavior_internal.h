@@ -1,4 +1,5 @@
 #pragma once
+#include <behaviortree_cpp/bt_factory.h>
 #include <behaviortree_cpp/basic_types.h>
 #include "console.h"
 #include <SFML/System/Vector2.hpp>
