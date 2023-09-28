@@ -5,19 +5,12 @@ namespace ecs
 	extern entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
 
-	const tmx::Object* _try_get_object(entt::entity entity)
-	{
-		if (auto object = _registry.try_get<const tmx::Object*>(entity))
-			return *object;
-		return nullptr;
-	}
-
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
+		for (auto [entity, name_component] : _registry.view<Name>().each())
 		{
-			if (object->getName() == name)
+			if (name_component.value == name)
 				return entity;
 		}
 		return entt::null;
@@ -26,27 +19,39 @@ namespace ecs
 	entt::entity find_entity_by_type(const std::string& type)
 	{
 		if (type.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tmx::Object*>().each())
+		for (auto [entity, type_component] : _registry.view<Type>().each())
 		{
-			if (object->getType() == type)
+			if (type_component.value == type)
 				return entity;
 		}
 		return entt::null;
 	}
 
+	void set_name(entt::entity entity, const std::string& name)
+	{
+		if (!_registry.valid(entity)) return;
+		_registry.emplace_or_replace<Name>(entity, name);
+	}
+
 	std::string get_name(entt::entity entity)
 	{
 		std::string name;
-		if (auto object = _try_get_object(entity))
-			name = object->getName();
+		if (auto ptr = _registry.try_get<Name>(entity))
+			name = ptr->value;
 		return name;
+	}
+
+	void set_type(entt::entity entity, const std::string& type)
+	{
+		if (!_registry.valid(entity)) return;
+		_registry.emplace_or_replace<Type>(entity, type);
 	}
 
 	std::string get_type(entt::entity entity)
 	{
 		std::string type;
-		if (auto object = _try_get_object(entity))
-			type = object->getType();
+		if (auto ptr = _registry.try_get<Type>(entity))
+			type = ptr->value;
 		return type;
 	}
 
@@ -70,16 +75,16 @@ namespace ecs
 	void _set_property(entt::entity entity, const std::string& name, const T& value)
 	{
 		if (!_registry.valid(entity)) return;
-		auto& properties = _registry.get_or_emplace<Properties>(entity).properties;
-		for (auto& property : properties)
+		auto& props = _registry.get_or_emplace<Properties>(entity).properties;
+		for (auto& prop : props)
 		{
-			if (property.name == name)
+			if (prop.name == name)
 			{
-				property.value = value;
+				prop.value = value;
 				return;
 			}
 		}
-		properties.emplace_back(name, value);
+		props.emplace_back(name, value);
 	}
 
 	template <typename T>

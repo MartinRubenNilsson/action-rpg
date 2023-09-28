@@ -69,7 +69,7 @@ namespace ecs
 	void update(float dt)
 	{
 		update_player();
-		update_behavior_trees();
+		update_behaviors();
 		update_common(dt);
 		update_graphics(dt);
 	}

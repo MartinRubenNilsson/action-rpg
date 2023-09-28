@@ -2,6 +2,9 @@
 
 namespace ecs
 {
+	struct Name { std::string value; };
+	struct Type { std::string value; };
+
 	struct Property
 	{
 		std::string name;
@@ -14,7 +17,10 @@ namespace ecs
 
 	entt::entity find_entity_by_name(const std::string& name);
 	entt::entity find_entity_by_type(const std::string& type);
+
+	void set_name(entt::entity entity, const std::string& name);
 	std::string get_name(entt::entity entity);
+	void set_type(entt::entity entity, const std::string& type);
 	std::string get_type(entt::entity entity);
 
 	void set_properties(entt::entity entity, const Properties& properties);

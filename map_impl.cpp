@@ -127,36 +127,6 @@ namespace map
 		}
 	}
 
-	BT::Blackboard::Ptr _create_blackboard(const tmx::Object& object)
-	{
-		BT::Blackboard::Ptr blackboard = BT::Blackboard::create();
-		for (const auto& prop : object.getProperties())
-		{
-			switch (prop.getType())
-			{
-			case tmx::Property::Type::Boolean:
-				blackboard->set(prop.getName(), prop.getBoolValue());
-				break;
-			case tmx::Property::Type::Float:
-				blackboard->set(prop.getName(), prop.getFloatValue());
-				break;
-			case tmx::Property::Type::Int:
-				blackboard->set(prop.getName(), prop.getIntValue());
-				break;
-			case tmx::Property::Type::String:
-				blackboard->set(prop.getName(), prop.getStringValue());
-				break;
-				//TODO: handle object types
-			}
-		}
-		// NOTE: Setting the name and type last will override any properties
-		// with the same name. This is intentional, since the name and type
-		// are special properties that may be used by the behavior tree.
-		blackboard->set("name", object.getName());
-		blackboard->set("type", object.getType());
-		return blackboard;
-	}
-
 	void _process_object_group(
 		const std::string& map_name,
 		const tmx::Map& map,
@@ -167,20 +137,14 @@ namespace map
 
 		for (const auto& object : object_group.getObjects())
 		{
-			// At this point, the object should already have had
-			// an entity created for it by open_impl().
+			// At this point, the object should already have had an entity created for it.
 			entt::entity entity = (entt::entity)object.getUID();
 			assert(registry.valid(entity) && "Entity not found.");
 			registry.emplace<const tmx::Object*>(entity, &object);
 
-			if (object.getName() == "the_point")
-				continue;
-
-			if (ecs::behavior_tree_exists(object.getType()))
-			{
-				auto blackboard = _create_blackboard(object);
-				ecs::emplace_behavior_tree(entity, object.getType(), blackboard);
-			}
+			// TODO: move this somewhere else
+			if (ecs::behavior_exists(object.getType()))
+				ecs::set_behavior(entity, object.getType());
 
 			if (uint32_t tile_id = object.getTileID()) // If object is a tile
 			{
@@ -328,7 +292,9 @@ namespace map
 		auto& registry = ecs::get_registry();
 		auto layers = _unpack_layer_groups(map.getLayers());
 
-		// Create an empty entity for each object in the map.
+		// Create an empty entity for each object in the map using its UID.
+		// We do this before processing any layers so that we can be sure that
+		// none of the entity IDs are already in use.
 		for (const auto& layer : layers)
 		{
 			if (layer->getType() == tmx::Layer::Type::Object)
@@ -336,7 +302,8 @@ namespace map
 				for (const auto& object : layer->getLayerAs<tmx::ObjectGroup>().getObjects())
 				{
 					// Both EnTT and Tiled use uint32_t as their underlying ID type.
-					// This means that we can safely cast between them.
+					// This makes it safe to cast between them, so we can create
+					// an entity with the same ID as the object's UID.
 					entt::entity entity = (entt::entity)object.getUID();
 					entt::entity created_entity = registry.create(entity);
 					assert(entity == created_entity && "Entity ID already in use.");
@@ -369,6 +336,9 @@ namespace map
 		// Convert Tiled object properties to ECS properties.
 		for (auto [entity, object] : registry.view<const tmx::Object*>().each())
 		{
+			registry.emplace<ecs::Name>(entity, object->getName());
+			registry.emplace<ecs::Type>(entity, object->getType());
+
 			auto& props = registry.emplace<ecs::Properties>(entity).properties;
 			for (const auto& prop : object->getProperties())
 			{
