@@ -13,7 +13,7 @@
 #include "console.h"
 #include "tables.h"
 
-int WINAPI WinMain(
+int APIENTRY WinMain(
     _In_ HINSTANCE,
     _In_opt_ HINSTANCE,
     _In_ PSTR command_line,
