@@ -50,16 +50,48 @@ namespace ecs
 		return type;
 	}
 
-	bool get_bool(entt::entity entity, const std::string& name, bool& value)
+	void set_properties(entt::entity entity, const Properties& properties)
 	{
-		if (auto object = _try_get_object(entity))
+		if (!_registry.valid(entity)) return;
+		_registry.emplace_or_replace<Properties>(entity, properties);
+	}
+
+	bool get_properties(entt::entity entity, Properties& properties)
+	{
+		if (auto ptr = _registry.try_get<Properties>(entity))
 		{
-			for (const auto& prop : object->getProperties())
+			properties = *ptr;
+			return true;
+		}
+		return false;
+	}
+
+	template <typename T>
+	void _set_property(entt::entity entity, const std::string& name, const T& value)
+	{
+		if (!_registry.valid(entity)) return;
+		auto& properties = _registry.get_or_emplace<Properties>(entity).properties;
+		for (auto& property : properties)
+		{
+			if (property.name == name)
 			{
-				if (prop.getType() == tmx::Property::Type::Boolean &&
-					prop.getName() == name)
+				property.value = value;
+				return;
+			}
+		}
+		properties.emplace_back(name, value);
+	}
+
+	template <typename T>
+	bool _get_property(entt::entity entity, const std::string& name, T& value)
+	{
+		if (auto ptr = _registry.try_get<Properties>(entity))
+		{
+			for (const auto& prop : ptr->properties)
+			{
+				if (prop.name == name && std::holds_alternative<T>(prop.value))
 				{
-					value = prop.getBoolValue();
+					value = std::get<T>(prop.value);
 					return true;
 				}
 			}
@@ -67,72 +99,44 @@ namespace ecs
 		return false;
 	}
 
-	bool get_float(entt::entity entity, const std::string& name, float& value)
-	{
-		if (auto object = _try_get_object(entity))
-		{
-			for (const auto& prop : object->getProperties())
-			{
-				if (prop.getType() == tmx::Property::Type::Float &&
-					prop.getName() == name)
-				{
-					value = prop.getFloatValue();
-					return true;
-				}
-			}
-		}
-		return false;
+	void set_bool(entt::entity entity, const std::string& name, bool value) {
+		_set_property(entity, name, value);
 	}
 
-	bool get_int(entt::entity entity, const std::string& name, int& value)
-	{
-		if (auto object = _try_get_object(entity))
-		{
-			for (const auto& prop : object->getProperties())
-			{
-				if (prop.getType() == tmx::Property::Type::Int &&
-					prop.getName() == name)
-				{
-					value = prop.getIntValue();
-					return true;
-				}
-			}
-		}
-		return false;
+	bool get_bool(entt::entity entity, const std::string& name, bool& value) {
+		return _get_property(entity, name, value);
 	}
 
-	bool get_string(entt::entity entity, const std::string& name, std::string& value)
-	{
-		if (auto object = _try_get_object(entity))
-		{
-			for (const auto& prop : object->getProperties())
-			{
-				if (prop.getType() == tmx::Property::Type::String &&
-					prop.getName() == name)
-				{
-					value = prop.getStringValue();
-					return true;
-				}
-			}
-		}
-		return false;
+	void set_float(entt::entity entity, const std::string& name, float value) {
+		_set_property(entity, name, value);
 	}
 
-	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value)
-	{
-		if (auto object = _try_get_object(entity))
-		{
-			for (const auto& prop : object->getProperties())
-			{
-				if (prop.getType() == tmx::Property::Type::Object &&
-					prop.getName() == name)
-				{
-					value = (entt::entity)prop.getObjectValue();
-					return true;
-				}
-			}
-		}
-		return false;
+	bool get_float(entt::entity entity, const std::string& name, float& value) {
+		return _get_property(entity, name, value);
+	}
+
+	void set_int(entt::entity entity, const std::string& name, int value) {
+		_set_property(entity, name, value);
+	}
+
+	bool get_int(entt::entity entity, const std::string& name, int& value) {
+		return _get_property(entity, name, value);
+	}
+
+	void set_string(entt::entity entity, const std::string& name, const std::string& value) {
+		_set_property(entity, name, value);
+	}
+
+	bool get_string(entt::entity entity, const std::string& name, std::string& value) {
+		return _get_property(entity, name, value);
+	}
+
+	void set_entity(entt::entity entity, const std::string& name, entt::entity value) {
+		_set_property(entity, name, value);
+	}
+
+	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value) {
+		return _get_property(entity, name, value);
 	}
 
 	void set_life_span(entt::entity entity, float life_span)

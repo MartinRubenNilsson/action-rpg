@@ -130,7 +130,7 @@
     <ClCompile Include="ecs_common.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
-    <ClCompile Include="map_internal.cpp" />
+    <ClCompile Include="map_impl.cpp" />
     <ClCompile Include="math_vectors.cpp" />
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="physics_debug.cpp" />
@@ -176,7 +176,7 @@
     <ClInclude Include="fmod_studio.h" />
     <ClInclude Include="fmod_studio.hpp" />
     <ClInclude Include="fmod_studio_common.h" />
-    <ClInclude Include="map_internal.h" />
+    <ClInclude Include="map_impl.h" />
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics.h" />
     <ClInclude Include="physics_debug.h" />

@@ -1,4 +1,4 @@
-#include "map_internal.h"
+#include "map_impl.h"
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
 #include <tmxlite/LayerGroup.hpp>
@@ -325,6 +325,7 @@ namespace map
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
+		auto& registry = ecs::get_registry();
 		auto layers = _unpack_layer_groups(map.getLayers());
 
 		// Create an empty entity for each object in the map.
@@ -335,9 +336,9 @@ namespace map
 				for (const auto& object : layer->getLayerAs<tmx::ObjectGroup>().getObjects())
 				{
 					// Both EnTT and Tiled use uint32_t as their underlying ID type.
-					// This means that we can use the object IDs from Tiled directly.
+					// This means that we can safely cast between them.
 					entt::entity entity = (entt::entity)object.getUID();
-					entt::entity created_entity = ecs::get_registry().create(entity);
+					entt::entity created_entity = registry.create(entity);
 					assert(entity == created_entity && "Entity ID already in use.");
 				}
 			}
@@ -364,6 +365,35 @@ namespace map
 			break;
 			}
 		}
+
+		// Convert Tiled object properties to ECS properties.
+		for (auto [entity, object] : registry.view<const tmx::Object*>().each())
+		{
+			auto& props = registry.emplace<ecs::Properties>(entity).properties;
+			for (const auto& prop : object->getProperties())
+			{
+				switch (prop.getType())
+				{
+				case tmx::Property::Type::Boolean:
+					props.emplace_back(prop.getName(), prop.getBoolValue());
+					break;
+				case tmx::Property::Type::Float:
+					props.emplace_back(prop.getName(), prop.getFloatValue());
+					break;
+				case tmx::Property::Type::Int:
+					props.emplace_back(prop.getName(), prop.getIntValue());
+					break;
+				case tmx::Property::Type::String:
+					props.emplace_back(prop.getName(), prop.getStringValue());
+					break;
+				case tmx::Property::Type::Object:
+					props.emplace_back(prop.getName(), (entt::entity)prop.getObjectValue());
+				}
+			}
+		}
+
+		// Initialize the player entity.
+		ecs::set_player_entity(ecs::find_entity_by_name("player"));
 	}
 
 	void close_impl() {
@@ -372,7 +402,6 @@ namespace map
 
 	void set_spawnpoint_impl(const std::string& entity_name)
 	{
-		ecs::set_player_entity(ecs::find_entity_by_name("player"));
 		if (entity_name == "player") return;
 		entt::entity spawnpoint_entity = ecs::find_entity_by_name(entity_name);
 		if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))

@@ -45,7 +45,7 @@
     <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="map_internal.cpp">
+    <ClCompile Include="map_impl.cpp">
       <Filter>map</Filter>
     </ClCompile>
     <ClCompile Include="ecs_behaviors.cpp">
@@ -124,7 +124,7 @@
     <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="map_internal.h">
+    <ClInclude Include="map_impl.h">
       <Filter>map</Filter>
     </ClInclude>
     <ClInclude Include="ecs_behaviors.h">

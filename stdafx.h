@@ -10,7 +10,9 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
 #include <tmxlite/Object.hpp>
 #include <entt/entt.hpp>

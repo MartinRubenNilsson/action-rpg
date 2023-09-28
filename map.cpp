@@ -1,5 +1,5 @@
 #include "map.h"
-#include "map_internal.h"
+#include "map_impl.h"
 #include "console.h"
 
 namespace map
