@@ -18,7 +18,7 @@ namespace ui
 	void reload_style_sheets();
 
 	// Returns a list of names of all loaded RML documents.
-	std::vector<std::string> get_loaded_documents();
+	std::vector<std::string> get_document_names();
 
 	// Shows the RML document with the given name.
 	void show(const std::string& document_name);

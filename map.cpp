@@ -44,7 +44,7 @@ namespace map
 		_next_map_it = _maps.end();
 	}
 
-	std::vector<std::string> get_loaded_maps()
+	std::vector<std::string> get_map_names()
 	{
 		std::vector<std::string> names;
 		for (const auto& [name, map] : _maps)

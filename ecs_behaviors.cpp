@@ -10,7 +10,7 @@ namespace ecs
 
 	bool behavior_exists(const std::string& tree_name)
 	{
-		for (const auto& loaded_tree : behavior::get_loaded_trees())
+		for (const auto& loaded_tree : behavior::get_tree_names())
 			if (loaded_tree == tree_name)
 				return true;
 		return false;

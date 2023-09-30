@@ -41,7 +41,7 @@ namespace behavior
 		}
 	}
 
-	std::vector<std::string> get_loaded_trees() {
+	std::vector<std::string> get_tree_names() {
 		return _factory.registeredBehaviorTrees();
 	}
 

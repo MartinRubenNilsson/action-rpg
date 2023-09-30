@@ -14,7 +14,7 @@ namespace map
 	void load_maps();
 
 	// Returns a list of names of all loaded maps.
-	std::vector<std::string> get_loaded_maps();
+	std::vector<std::string> get_map_names();
 
 	// Requests that the map with the given name be opened.
 	// The map will not be opened until update() is called.

@@ -16,7 +16,7 @@ namespace behavior
 	void load_trees();
 
 	// Returns a list of names of all loaded trees.
-	std::vector<std::string> get_loaded_trees();
+	std::vector<std::string> get_tree_names();
 
 	// "name" is the name of the tree in the Groot2 editor, which is
 	// the same as the attribute <BehaviorTree ID = "name"> in the XML file.

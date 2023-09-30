@@ -95,7 +95,7 @@ namespace ui
 			_context->GetDocument(i)->ReloadStyleSheet();
 	}
 
-	std::vector<std::string> get_loaded_documents()
+	std::vector<std::string> get_document_names()
 	{
 		std::vector<std::string> names;
 		for (int i = 0; i < _context->GetNumDocuments(); ++i)
