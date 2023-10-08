@@ -229,7 +229,7 @@ namespace FMOD
         FMOD_RESULT F_API addSyncPoint           (unsigned int offset, FMOD_TIMEUNIT offsettype, const char *name, FMOD_SYNCPOINT **point);
         FMOD_RESULT F_API deleteSyncPoint        (FMOD_SYNCPOINT *point);
 
-        // Functions also in Channel class but here they are the 'default' to save having to change it in Channel all the time.
+        // Functions also in Channel class but here they are the 'default' to data having to change it in Channel all the time.
         FMOD_RESULT F_API setMode                (FMOD_MODE mode);
         FMOD_RESULT F_API getMode                (FMOD_MODE *mode);
         FMOD_RESULT F_API setLoopCount           (int loopcount);

@@ -202,7 +202,7 @@ FMOD_RESULT F_API FMOD_Sound_AddSyncPoint               (FMOD_SOUND *sound, unsi
 FMOD_RESULT F_API FMOD_Sound_DeleteSyncPoint            (FMOD_SOUND *sound, FMOD_SYNCPOINT *point);
 
 /*
-     Functions also in Channel class but here they are the 'default' to save having to change it in Channel all the time.
+     Functions also in Channel class but here they are the 'default' to data having to change it in Channel all the time.
 */
 
 FMOD_RESULT F_API FMOD_Sound_SetMode                    (FMOD_SOUND *sound, FMOD_MODE mode);

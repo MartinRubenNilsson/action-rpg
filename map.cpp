@@ -19,8 +19,8 @@ namespace map
 	std::unordered_map<std::string, tmx::Map> _maps;
 	decltype(_maps)::iterator _current_map_it = _maps.end();
 	decltype(_maps)::iterator _next_map_it = _maps.end();
-	bool _force_open = false; // if true, open the next map even if it's the same as the current one
-	std::string _spawnpoint_entity_name; // entity to spawn the player at when opening the next map
+	bool _force_open = false; // if true, open the next current_map even if it's the same as the current one
+	std::string _spawnpoint_entity_name; // entity to spawn the player at when opening the next current_map
 
 	sf::Texture& _get_texture(const std::filesystem::path& path)
 	{
@@ -312,9 +312,9 @@ namespace map
 
 		if (_current_map_it != _maps.end())
 		{
-			const auto& [map_name, map] = *_current_map_it;
+			const auto& [current_map_name, current_map] = *_current_map_it;
 
-			for (const auto& prop : map.getProperties())
+			for (const auto& prop : current_map.getProperties())
 			{
 				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
 					current_music = prop.getStringValue();
@@ -325,17 +325,17 @@ namespace map
 
 		if (_next_map_it != _maps.end())
 		{
-			const auto& [map_name, map] = *_next_map_it;
+			const auto& [next_map_name, next_map] = *_next_map_it;
 
-			for (const auto& prop : map.getProperties())
+			for (const auto& prop : next_map.getProperties())
 			{
 				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
 					next_music = prop.getStringValue();
 			}
 
-			auto layers = _unpack_layer_groups(map.getLayers());
+			auto layers = _unpack_layer_groups(next_map.getLayers());
 
-			// Create an empty entity for each object in the map using its UID.
+			// Create an empty entity for each object in the current_map using its UID.
 			// We do this before processing any layers so that we can be sure that
 			// none of the entity IDs are already in use.
 			for (const auto& layer : layers)
@@ -363,13 +363,13 @@ namespace map
 				{
 				case tmx::Layer::Type::Tile:
 				{
-					_process_tile_layer(map_name, map, layer_index,
+					_process_tile_layer(next_map_name, next_map, layer_index,
 						layer->getLayerAs<tmx::TileLayer>());
 				}
 				break;
 				case tmx::Layer::Type::Object:
 				{
-					_process_object_group(map_name, map, layer_index,
+					_process_object_group(next_map_name, next_map, layer_index,
 						layer->getLayerAs<tmx::ObjectGroup>());
 				}
 				break;
