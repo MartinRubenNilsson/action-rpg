@@ -51,6 +51,15 @@ map
     reload                      Reload all textures used by the current map
     spawnpoint                  Set the player spawnpoint entity
 
+data
+  Manage data
+  Subcommands:
+    load                        Load data from a JSON file
+    save                        Save data to a JSON file
+    dump                        Dump all data as a string to the console
+    set_bool                    Set a data bool
+    get_bool                    Get a data bool
+
 ui
   Manage UI
   Subcommands:

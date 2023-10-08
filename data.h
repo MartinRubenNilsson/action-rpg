@@ -7,8 +7,10 @@ namespace data
 	// The name parameter is the name of the file, without
 	// the .json extension.
 
+	void clear();
 	bool load(const std::string& name);
 	void save(const std::string& name);
+	std::string dump();
 
 	void set_bool(const std::string& key, bool value);
 	bool get_bool(const std::string& key, bool& value);
