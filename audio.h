@@ -25,6 +25,9 @@ namespace audio
 	// If the event is not one-shot, it may keep playing indefinitely.
 	void play(const std::string& path);
 
+	// Stops all event instances with the given path.
+	void stop(const std::string& path);
+
 	// Stops all event instances.
 	void stop_all();
 }

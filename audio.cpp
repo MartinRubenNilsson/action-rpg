@@ -76,9 +76,8 @@ namespace audio
 	bool is_playing(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		if (!_get_event_desc(path, &event_desc))
-			return false;
-		for (const auto& event_instance : _get_event_instances(event_desc))
+		if (!_get_event_desc(path, &event_desc)) return false;
+		for (auto event_instance : _get_event_instances(event_desc))
 		{
 			FMOD_STUDIO_PLAYBACK_STATE state;
 			event_instance->getPlaybackState(&state);
@@ -91,8 +90,7 @@ namespace audio
 	void play(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		if (!_get_event_desc(path, &event_desc))
-			return;
+		if (!_get_event_desc(path, &event_desc)) return;
 
 		FMOD::Studio::EventInstance* event_instance = nullptr;
 		FMOD_RESULT result = event_desc->createInstance(&event_instance);
@@ -104,6 +102,14 @@ namespace audio
 
 		event_instance->start();
 		event_instance->release();
+	}
+
+	void stop(const std::string& path)
+	{
+		FMOD::Studio::EventDescription* event_desc = nullptr;
+		if (!_get_event_desc(path, &event_desc)) return;
+		for (auto event_instance : _get_event_instances(event_desc))
+			event_instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 	}
 
 	void stop_all()
