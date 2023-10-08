@@ -10,6 +10,9 @@
 
 #define PLAYER_WALK_SPEED 4.5f
 #define PLAYER_RUN_SPEED 8.5f
+bool _player_in_stealth_mode = false;
+float _player_noise_level = 0.0f;
+
 
 namespace ecs
 {
@@ -56,6 +59,10 @@ namespace ecs
 		_player_input_direction = normalize(_player_input_direction);
 
 		_player_input_run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)) {
+			_player_in_stealth_mode = !_player_in_stealth_mode;
+		}
 	}
 
 	void _clear_player_inputs()
@@ -72,6 +79,11 @@ namespace ecs
 			if (event.key.code == sf::Keyboard::C)
 				_player_input_interact = true;
 		}
+	}
+
+	// NEW: Function to update noise level
+	void update_noise_level() {
+		_player_noise_level = _player_in_stealth_mode ? 0.1f : 1.0f;
 	}
 
 	void update_player()
@@ -91,11 +103,14 @@ namespace ecs
 		if (window::has_focus() && !console::is_visible())
 			_update_player_inputs();
 
-		// UPDATE VELOCITY
-
-		const float input_speed = _player_input_run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
+		// NEW: Update velocity considering stealth mode
+		const float input_speed = (_player_input_run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED) * (_player_in_stealth_mode ? 0.5f : 1.0f);
 		const sf::Vector2f input_velocity = _player_input_direction * input_speed;
 		set_linear_velocity(body, input_velocity);
+
+		// NEW: Update noise level
+		update_noise_level();
+
 
 		// UPDATE DIRECTION
 

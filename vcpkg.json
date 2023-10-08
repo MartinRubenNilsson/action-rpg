@@ -1,4 +1,5 @@
 {
+<<<<<<< Updated upstream
   "dependencies": [
     "sfml",
     "imgui-sfml",
@@ -12,4 +13,18 @@
     "fast-cpp-csv-parser",
     "nlohmann-json"
   ]
+=======
+    "dependencies": [
+        "sfml",
+        "imgui-sfml",
+        "cli11",
+        "rmlui",
+        "tmxlite",
+        "entt",
+        "box2d",
+        "behaviortree-cpp",
+        "magic-enum",
+        "fast-cpp-csv-parser"
+    ]
+>>>>>>> Stashed changes
 }
