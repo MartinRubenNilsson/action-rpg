@@ -10,7 +10,7 @@
 #pragma comment(lib, "fmodstudio_vc.lib")
 #endif
 
-#define AUDIO_MAX_CHANNELS 512
+#define MAX_AUDIO_CHANNELS 512
 
 namespace audio
 {
@@ -18,16 +18,20 @@ namespace audio
 
 	void initialize()
 	{
-		FMOD::Studio::System::create(&_system);
-		_system->initialize(
-			AUDIO_MAX_CHANNELS,
+		FMOD_RESULT result = FMOD::Studio::System::create(&_system);
+		assert(result == FMOD_OK);
+		result = _system->initialize(
+			MAX_AUDIO_CHANNELS,
 			FMOD_STUDIO_INIT_NORMAL,
 			FMOD_INIT_NORMAL,
 			nullptr);
+		assert(result == FMOD_OK);
 	}
 
-	void shutdown() {
+	void shutdown()
+	{
 		_system->release();
+		_system = nullptr;
 	}
 
 	void update() {
@@ -44,23 +48,54 @@ namespace audio
 			FMOD_RESULT result = _system->loadBankFile(
 				entry.path().string().c_str(),
 				FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
-			if (result != FMOD_OK)
-				console::log_error("Failed to load audio bank: " + entry.path().string());
+			assert(result == FMOD_OK);
 		}
+	}
+
+	bool _get_event_desc(const std::string& path, FMOD::Studio::EventDescription** desc)
+	{
+		FMOD_RESULT result = _system->getEvent(path.c_str(), desc);
+		if (result != FMOD_OK)
+		{
+			console::log_error("Failed to get audio event description: " + path);
+			return false;
+		}
+		return true;
+	}
+
+	std::vector<FMOD::Studio::EventInstance*>
+		_get_event_instances(const FMOD::Studio::EventDescription* desc)
+	{
+		int count = 0;
+		desc->getInstanceCount(&count);
+		std::vector<FMOD::Studio::EventInstance*> instances(count);
+		desc->getInstanceList(instances.data(), count, &count);
+		return instances;
+	}
+
+	bool is_playing(const std::string& path)
+	{
+		FMOD::Studio::EventDescription* event_desc = nullptr;
+		if (!_get_event_desc(path, &event_desc))
+			return false;
+		for (const auto& event_instance : _get_event_instances(event_desc))
+		{
+			FMOD_STUDIO_PLAYBACK_STATE state;
+			event_instance->getPlaybackState(&state);
+			if (state == FMOD_STUDIO_PLAYBACK_PLAYING)
+				return true;
+		}
+		return false;
 	}
 
 	void play(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		FMOD_RESULT result = _system->getEvent(path.c_str(), &event_desc);
-		if (result != FMOD_OK)
-		{
-			console::log_error("Failed to get audio event description: " + path);
+		if (!_get_event_desc(path, &event_desc))
 			return;
-		}
 
 		FMOD::Studio::EventInstance* event_instance = nullptr;
-		result = event_desc->createInstance(&event_instance);
+		FMOD_RESULT result = event_desc->createInstance(&event_instance);
 		if (result != FMOD_OK)
 		{
 			console::log_error("Failed to create audio event instance: " + path);
@@ -75,11 +110,7 @@ namespace audio
 	{
 		FMOD::Studio::Bus* master_bus = nullptr;
 		FMOD_RESULT result = _system->getBus("bus:/", &master_bus);
-		if (result != FMOD_OK)
-		{
-			console::log_error("Failed to get audio master bus");
-			return;
-		}
+		assert(result == FMOD_OK);
 		master_bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
 	}
 }

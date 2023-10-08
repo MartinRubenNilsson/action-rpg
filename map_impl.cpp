@@ -10,11 +10,11 @@
 #include "ecs_player.h"
 #include "physics.h"
 #include "console.h"
+#include "audio.h"
 
 namespace map
 {
-	std::unordered_map<std::filesystem::path,
-		std::unique_ptr<sf::Texture>> _textures;
+	std::unordered_map<std::filesystem::path, std::unique_ptr<sf::Texture>> _textures;
 
 	sf::Texture& _get_texture(const std::filesystem::path& path)
 	{
@@ -289,6 +289,20 @@ namespace map
 
 	void open_impl(const std::string& map_name, const tmx::Map& map)
 	{
+		for (const auto& property : map.getProperties())
+		{
+			if (property.getName() == "music" &&
+				property.getType() == tmx::Property::Type::String)
+			{
+				std::string event_path = "event:/" + property.getStringValue();
+				if (!audio::is_playing(event_path))
+				{
+					audio::stop_all();
+					audio::play(event_path);
+				}
+			}
+		}
+
 		auto& registry = ecs::get_registry();
 		auto layers = _unpack_layer_groups(map.getLayers());
 
@@ -364,6 +378,8 @@ namespace map
 
 		// Initialize the player entity.
 		ecs::set_player_entity(ecs::find_entity_by_name("player"));
+
+		// TODO: Initialize enemies, NPCS, etc. here.
 	}
 
 	void close_impl() {

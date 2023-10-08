@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="16" height="16" tilewidth="16" tileheight="16" infinite="0" nextlayerid="17" nextobjectid="18">
+ <properties>
+  <property name="music" value="mus_deservioli"/>
+ </properties>
  <tileset firstgid="1" name="dungeon" tilewidth="16" tileheight="16" tilecount="625" columns="25">
   <image source="../tilesets/dungeon.png" width="400" height="400"/>
   <tile id="0">
