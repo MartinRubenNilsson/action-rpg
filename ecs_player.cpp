@@ -101,7 +101,7 @@ namespace ecs
 		// UPDATE INPUTS
 
 		if (window::has_focus() && !console::is_visible())
-			_update_player_inputs();
+			_update_player_inputs(); 
 
 		// NEW: Update velocity considering stealth mode
 		const float input_speed = (_player_input_run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED) * (_player_in_stealth_mode ? 0.5f : 1.0f);
