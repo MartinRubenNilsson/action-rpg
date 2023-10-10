@@ -361,5 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-/vcpkg_installed/x64-windows
+
+# Other stuff
+/vcpkg_installed/
 /output/assets/maps/action-rpg.tiled-session

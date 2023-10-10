@@ -54,11 +54,18 @@ map
 data
   Manage data
   Subcommands:
+    clear                       Clear all data
     load                        Load data from a JSON file
     save                        Save data to a JSON file
     dump                        Dump all data as a string to the console
     set_bool                    Set a data bool
     get_bool                    Get a data bool
+    set_int                     Set a data int
+    get_int                     Get a data int
+    set_float                   Set a data float
+    get_float                   Get a data float
+    set_string                  Set a data string
+    get_string                  Get a data string
 
 ui
   Manage UI
