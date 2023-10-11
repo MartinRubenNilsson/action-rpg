@@ -1,0 +1,6 @@
+map close
+log "Hello..."
+sleep 4
+log "...world!"
+sleep 2
+script martin_debug.script

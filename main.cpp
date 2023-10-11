@@ -75,7 +75,7 @@ int APIENTRY WinMain(
                 if (event.key.code == sf::Keyboard::Escape)
                     pause_game = !pause_game;
                 if (event.key.code == sf::Keyboard::F1)
-                    console::toggle_visible();
+                    console::toggle_show();
                 if (event.key.code == sf::Keyboard::F2)
                     debug_draw_physics = !debug_draw_physics;
             }
@@ -95,7 +95,7 @@ int APIENTRY WinMain(
 
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
-        console::update(); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+        console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         map::update();
         audio::update();
         ui::update(dt.asSeconds());

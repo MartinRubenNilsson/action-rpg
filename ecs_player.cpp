@@ -88,7 +88,7 @@ namespace ecs
 
 		// UPDATE INPUTS
 
-		if (window::has_focus() && !console::is_visible())
+		if (window::has_focus() && !console::is_showing())
 			_update_player_inputs();
 
 		// UPDATE VELOCITY

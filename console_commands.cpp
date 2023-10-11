@@ -11,12 +11,16 @@ namespace console
 {
 	void _setup_commands(CLI::App& app)
 	{
-		// GENERAL
+		// CONSOLE
 		{
-			app.add_subcommand("exit", "Exit the game")
-				->callback(window::close);
 			app.add_subcommand("clear", "Clear the console")
 				->callback(console::clear);
+			app.add_subcommand("sleep", "Sleep for a number of seconds")
+				->add_option_function<float>("seconds", console::sleep, "The number of seconds")
+				->required();
+			app.add_subcommand("log", "Log a message to the console")
+				->add_option_function<std::string>("message", console::log, "The message to log")
+				->required();
 			app.add_subcommand("script", "Execute a console script")
 				->add_option_function<std::string>("name", console::execute_script, "The name of the script")
 				->required();

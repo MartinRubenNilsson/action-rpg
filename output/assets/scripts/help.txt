@@ -6,11 +6,18 @@ Options:
   --help-all                  Print help messages for all subcommands
 
 Subcommands:
-exit
-  Exit the game
-
 clear
   Clear the console
+
+sleep
+  Sleep for a number of seconds
+  Positionals:
+    seconds FLOAT REQUIRED      The number of seconds
+
+log
+  Log a message to the console
+  Positionals:
+    message TEXT REQUIRED       The message to log
 
 script
   Execute a console script

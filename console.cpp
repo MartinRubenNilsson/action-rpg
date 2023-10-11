@@ -1,4 +1,5 @@
 #include "console.h"
+#include <deque>
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #include <CLI/CLI.hpp>
@@ -9,13 +10,15 @@
 namespace console
 {
 	CLI::App _app("Console", "");
+	bool _show = false;
+	bool _reclaim_focus = false;
+	float _sleep_timer = 0.f;
 	std::string _command_line;
+	std::deque<std::string> _command_queue;
 	std::vector<std::string> _command_history;
 	std::vector<std::string>::iterator _command_history_it = _command_history.end();
 	std::vector<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
-	bool _visible = false;
-	bool _reclaim_focus = false;
 
 	// Handles command history navigation
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
@@ -102,9 +105,27 @@ namespace console
 		log("Type -h or --help for a list of commands");
 	}
 
-	void update()
+	void update(float dt)
 	{
-        if (!_visible) return;
+		// UPDATE SLEEP TIMER
+
+		if (_sleep_timer > 0.f) {
+			_sleep_timer -= dt;
+			if (_sleep_timer < 0.f)
+				_sleep_timer = 0.f;
+		}
+
+		// EXECUTE COMMAND QUEUE
+
+		while (!_sleep_timer && !_command_queue.empty())
+		{
+			execute(_command_queue.front());
+			_command_queue.pop_front();
+		}
+
+		// SHOW CONSOLE WINDOW
+
+		if (!_show) return;
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
@@ -116,11 +137,12 @@ namespace console
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings;
 
-		if (ImGui::Begin("Console", &_visible, window_flags))
+		if (ImGui::Begin("Console", &_show, window_flags))
 		{
 			// HISTORY
 			{
-				float reserved_height = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
+				float reserved_height = ImGui::GetStyle().ItemSpacing.y +
+					ImGui::GetFrameHeightWithSpacing();
 				if (ImGui::BeginChild(
 					"History",
 					ImVec2(0, -reserved_height), // Leave room for 1 separator + 1 input text
@@ -139,7 +161,7 @@ namespace console
 
 			ImGui::Separator();
 
-            // COMMAND LINE
+			// COMMAND LINE
 
 			ImGui::PushItemWidth(-1); // Use all available width
 			if (ImGui::InputText(
@@ -163,7 +185,7 @@ namespace console
 				ImGui::SetKeyboardFocusHere(-1); // Auto focus command line
 			_reclaim_focus = false;
 		}
-        ImGui::End();
+		ImGui::End();
 	}
 
 	void process_event(const sf::Event& event) {
@@ -171,40 +193,50 @@ namespace console
 			execute(_key_bindings[event.key.code]);
 	}
 
-	bool is_visible() {
-		return _visible;
+	bool is_showing() {
+		return _show;
 	}
 
-	void set_visible(bool visible)
+	void show(bool show)
 	{
-		_visible = visible;
-		if (_visible) _reclaim_focus = true;
+		_show = show;
+		if (_show) _reclaim_focus = true;
 	}
 
-	void toggle_visible()
+	void toggle_show()
 	{
-		_visible = !_visible;
-		if (_visible) _reclaim_focus = true;
+		_show = !_show;
+		if (_show) _reclaim_focus = true;
 	}
 
 	void clear() {
 		_history.clear();
 	}
 
+	void sleep(float seconds) {
+		_sleep_timer = seconds;
+	}
+
 	void log(const std::string& message) {
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
 	}
 
-	void log_error(const std::string& message, bool make_visible)
+	void log_error(const std::string& message, bool show_console)
 	{
 		_history.emplace_back(message, COLOR_ERROR);
-		if (make_visible) _visible = true;
+		if (show_console) _show = true;
 	}
 
-	void execute(const std::string& command_line)
+	void execute(const std::string& command_line, bool defer)
 	{
 		if (command_line.starts_with("//"))
-			return; // ignore commented commands
+			return; // ignore comments
+
+		if (defer)
+		{
+			_command_queue.push_back(command_line);
+			return;
+		}
 
 		_command_history.push_back(command_line);
 		_command_history_it = _command_history.end();
@@ -228,43 +260,19 @@ namespace console
 		}
 	}
 
-	std::string _implode(
-		const std::vector<std::string>& strings,
-		const std::string& separator)
-	{
-		std::string result;
-		for (size_t i = 0; i < strings.size(); ++i)
-		{
-			result += strings[i];
-			if (i < strings.size() - 1)
-				result += separator;
-		}
-		return result;
-	}
-
 	void execute_script(const std::string& script_name)
 	{
-		static std::vector<std::string> stack;
-		if (std::find(stack.begin(), stack.end(), script_name) != stack.end())
+		std::filesystem::path script_path = "assets/scripts/" + script_name;
+		script_path.replace_extension(".script");
+		std::ifstream script_file(script_path);
+		if (!script_file)
 		{
-			log_error("Script recursion detected: " + _implode(stack, " -> "));
+			log_error("Failed to open script: " + script_path.generic_string());
 			return;
 		}
-		stack.push_back(script_name);
-		{
-			std::filesystem::path script_path = "assets/scripts/" + script_name;
-			script_path.replace_extension(".script");
-			std::ifstream script_file(script_path);
-			if (!script_file)
-			{
-				log_error("Failed to open script: " + script_path.generic_string());
-				return;
-			}
-			std::string line;
-			while (std::getline(script_file, line))
-				execute(line);
-		}
-		stack.pop_back();
+		std::string command_line;
+		while (std::getline(script_file, command_line))
+			execute(command_line, true);
 	}
 
 	void bind(sf::Keyboard::Key key, const std::string& command_line) {
