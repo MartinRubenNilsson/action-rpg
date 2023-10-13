@@ -1,8 +1,10 @@
 #include "ecs_graphics.h"
+#include "defines.h"
 #include "physics_helpers.h"
 
 namespace tmx
 {
+	//TODO: dont hijack tmx namespace
 	sf::IntRect _get_texture_rect(const Tileset& tileset, uint32_t tile_id)
 	{
 		if (!tileset.hasTile(tile_id))

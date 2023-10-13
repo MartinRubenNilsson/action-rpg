@@ -9,7 +9,7 @@
 
 namespace console
 {
-	void _setup_commands(CLI::App& app)
+	void _initialize_commands(CLI::App& app)
 	{
 		// CONSOLE
 		{

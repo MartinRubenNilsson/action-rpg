@@ -46,7 +46,7 @@ namespace console
 	}
 
 	// Defined in console_commands.cpp
-	extern void _setup_commands(CLI::App& app);
+	extern void _initialize_commands(CLI::App& app);
 
 	void initialize()
 	{
@@ -100,7 +100,7 @@ namespace console
 		_app.set_help_flag("-h,--help", "Print a help message");
 		_app.set_help_all_flag("--help-all", "Print help messages for all subcommands");
 
-		_setup_commands(_app);
+		_initialize_commands(_app);
 
 		log("Type -h or --help for a list of commands");
 	}

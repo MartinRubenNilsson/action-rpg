@@ -1,4 +1,5 @@
 #include "map.h"
+#include "defines.h"
 #include <tmxlite/Map.hpp>
 #include <tmxlite/TileLayer.hpp>
 #include <tmxlite/ObjectGroup.hpp>
@@ -12,6 +13,7 @@
 #include "ecs_graphics.h"
 #include "ecs_behaviors.h"
 #include "ecs_player.h"
+#include "ecs_camera.h"
 
 namespace map
 {
@@ -286,20 +288,6 @@ namespace map
 		return unpacked_layers;
 	}
 
-	void _initialize_player()
-	{
-		ecs::set_player_entity(ecs::find_entity_by_name("player"));
-
-		if (_spawnpoint_entity_name == "player") return;
-		entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
-		if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
-		{
-			tmx::Vector2f position = (*object)->getPosition();
-			position *= METERS_PER_PIXEL;
-			ecs::set_player_center(sf::Vector2f(position.x, position.y));
-		}
-	}
-
 	void update()
 	{
 		if (_next_map_it == _current_map_it && !_force_open)
@@ -405,7 +393,32 @@ namespace map
 				}
 			}
 
-			_initialize_player();
+			/// INITIALIZE PLAYER
+
+			entt::entity player_entity = ecs::find_entity_by_name("player");
+			ecs::set_player_entity(player_entity);
+			if (registry.valid(player_entity))
+			{
+				auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(player_entity);
+				player_camera.follow_target = player_entity;
+				player_camera.confining_box =
+				{
+					next_map.getBounds().left * METERS_PER_PIXEL,
+					next_map.getBounds().top * METERS_PER_PIXEL,
+					next_map.getBounds().width * METERS_PER_PIXEL,
+					next_map.getBounds().height * METERS_PER_PIXEL
+				};
+
+				// TODO: put spawnpoint entity name in data?
+				if (_spawnpoint_entity_name == "player") return;
+				entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
+				if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+				{
+					tmx::Vector2f position = (*object)->getPosition();
+					position *= METERS_PER_PIXEL;
+					ecs::set_player_center(sf::Vector2f(position.x, position.y));
+				}
+			}
 		}
 
 		if (current_music != next_music)

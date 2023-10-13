@@ -1,4 +1,5 @@
 #include "physics_debug.h"
+#include "defines.h"
 
 namespace physics
 {
