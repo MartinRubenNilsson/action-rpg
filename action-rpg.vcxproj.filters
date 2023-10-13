@@ -85,6 +85,9 @@
     <ClCompile Include="ecs_camera.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_console_commands.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -199,6 +202,9 @@
       <Filter>data</Filter>
     </ClInclude>
     <ClInclude Include="ecs_camera.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_console_commands.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>

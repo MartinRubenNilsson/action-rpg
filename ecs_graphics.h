@@ -3,6 +3,9 @@
 
 namespace ecs
 {
+	// TODO: make it easier for client code to create a tile of a specific type,
+	// without having to know the tileset name or tile ID.
+
 	class Tile
 	{
 	public:
@@ -22,6 +25,7 @@ namespace ecs
 		const std::string& get_type() const; // "Type" is called "Class" in Tiled.
 		bool set_type(const std::string& type);
 
+		// TODO: const sf::Texture* get_texture() const
 		sf::IntRect get_texture_rect() const;
 
 	private:

@@ -6,6 +6,7 @@
 #include "data.h"
 #include "ui.h"
 #include "ui_textbox.h"
+#include "ecs_console_commands.h"
 
 namespace console
 {
@@ -203,6 +204,21 @@ namespace console
 				->add_option_function<std::string>("name",
 					ui::set_textbox_entries, "The name of the entries")
 				->required();
+		}
+
+		// ECS
+		{
+			auto ecs_cmd = app.add_subcommand("ecs", "Manage the ECS");
+			{
+				auto cmd = ecs_cmd->add_subcommand("set_camera_priority", "Set the priority of a camera");
+				static std::string entity_name;
+				static float priority;
+				cmd->add_option("entity_name", entity_name, "The name of the camera entity")
+					->required();
+				cmd->add_option("priority", priority, "The priority of the camera")
+					->required();
+				cmd->callback([]() { ecs::set_camera_priority(entity_name, priority); });
+			}
 		}
 	}
 }

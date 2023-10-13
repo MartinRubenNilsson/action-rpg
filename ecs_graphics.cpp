@@ -145,8 +145,7 @@ namespace ecs
 
 	void _update_tile_animation_times(float dt)
 	{
-		for (auto [entity, tile] : _registry.view<Tile>().each())
-		{
+		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (tile.has_animation())
 				tile.animation_time += tile.animation_speed * dt;
 		}
@@ -154,21 +153,15 @@ namespace ecs
 
 	void _update_sprite_texture_rects()
 	{
-		for (auto [entity, sprite, tile]
-			: _registry.view<Sprite, Tile>().each())
-		{
+		for (auto [entity, sprite, tile] : _registry.view<Sprite, Tile>().each()) {
 			sprite.setTextureRect(tile.get_texture_rect());
 		}
 	}
 
 	void _update_sprite_positions()
 	{
-		for (auto [entity, sprite, body] :
-			_registry.view<Sprite, b2Body*>().each())
-		{
-			sf::Vector2f world_position = get_position(body);
-			sf::Vector2f pixel_position = world_position * PIXELS_PER_METER;
-			sprite.setPosition(pixel_position);
+		for (auto [entity, sprite, body] : _registry.view<Sprite, b2Body*>().each()) {
+			sprite.setPosition(get_position(body) * PIXELS_PER_METER);
 		}
 	}
 

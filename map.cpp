@@ -393,30 +393,46 @@ namespace map
 				}
 			}
 
-			/// INITIALIZE PLAYER
-
-			entt::entity player_entity = ecs::find_entity_by_name("player");
-			ecs::set_player_entity(player_entity);
-			if (registry.valid(player_entity))
+			// Compute the map's bounding box in world space units (meters).
+			sf::FloatRect map_bounding_box =
 			{
-				auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(player_entity);
-				player_camera.follow_target = player_entity;
-				player_camera.confining_box =
-				{
-					next_map.getBounds().left * METERS_PER_PIXEL,
-					next_map.getBounds().top * METERS_PER_PIXEL,
-					next_map.getBounds().width * METERS_PER_PIXEL,
-					next_map.getBounds().height * METERS_PER_PIXEL
-				};
+				next_map.getBounds().left * METERS_PER_PIXEL,
+				next_map.getBounds().top * METERS_PER_PIXEL,
+				next_map.getBounds().width * METERS_PER_PIXEL,
+				next_map.getBounds().height * METERS_PER_PIXEL
+			};
 
-				// TODO: put spawnpoint entity name in data?
-				if (_spawnpoint_entity_name == "player") return;
-				entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
-				if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+			// Initialize entities.
+			for (auto [entity, object] : registry.view<const tmx::Object*>().each())
+			{
+				auto [x, y] = object->getPosition() * METERS_PER_PIXEL;
+
+				if (object->getType() == "player")
 				{
-					tmx::Vector2f position = (*object)->getPosition();
-					position *= METERS_PER_PIXEL;
-					ecs::set_player_center(sf::Vector2f(position.x, position.y));
+					ecs::set_player_entity(entity);
+
+					auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(entity);
+					player_camera.priority = 1.f;
+					player_camera.follow = entity;
+					player_camera.confining_box = map_bounding_box;
+
+					// TODO: put spawnpoint entity name in data?
+					if (_spawnpoint_entity_name == "player") return;
+					entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
+					if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+					{
+						tmx::Vector2f position = (*object)->getPosition();
+						position *= METERS_PER_PIXEL;
+						ecs::set_player_center(sf::Vector2f(position.x, position.y));
+					}
+				}
+				else if (object->getType() == "camera")
+				{
+					auto& camera = registry.emplace<ecs::Camera>(entity);
+					camera.view.setCenter(x, y);
+					ecs::get_float(entity, "priority", camera.priority);
+					ecs::get_entity(entity, "follow", camera.follow);
+					camera.confining_box = map_bounding_box;
 				}
 			}
 		}

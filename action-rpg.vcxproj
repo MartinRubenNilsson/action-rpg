@@ -126,6 +126,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="data.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
+    <ClCompile Include="ecs_console_commands.cpp" />
     <ClCompile Include="tables.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_behaviors.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="ecs_camera.h" />
+    <ClInclude Include="ecs_console_commands.h" />
     <ClInclude Include="tables.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />

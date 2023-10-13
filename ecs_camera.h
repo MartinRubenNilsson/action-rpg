@@ -2,13 +2,18 @@
 
 namespace ecs
 {
+	// IMPORTANT: Camera views use world space units (meters), not pixels!
+
+	sf::View get_default_camera_view();
+
 	struct Camera
 	{
-		// Uses world space units (meters), not pixels.
-		sf::View view = { { 0.f, 0.f }, { VIEW_WIDTH, VIEW_HEIGHT } };
-		float priority = 0.f;
-		entt::entity follow_target = entt::null;
+		sf::View view = get_default_camera_view();
+		float priority = 0.f; // The highest priority camera is used as the current camera.
+		entt::entity follow = entt::null;
 		sf::FloatRect confining_box; // If width or height is 0, that dimension is not constrained.
+
+		// TODO: impulse/noise to shake the camera.
 	};
 
 	void update_cameras(float dt);

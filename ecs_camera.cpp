@@ -9,14 +9,18 @@ namespace ecs
 
 	sf::View _current_camera_view;
 
+	sf::View get_default_camera_view() {
+		return sf::View(sf::FloatRect(0.f, 0.f, VIEW_WIDTH, VIEW_HEIGHT));
+	}
+
 	void update_cameras(float dt)
 	{
 		for (auto [entity, camera] : _registry.view<Camera>().each())
 		{
-			if (_registry.valid(camera.follow_target) &&
-				_registry.all_of<b2Body*>(camera.follow_target))
+			if (_registry.valid(camera.follow) &&
+				_registry.all_of<b2Body*>(camera.follow))
 			{
-				b2Body* body = _registry.get<b2Body*>(camera.follow_target);
+				b2Body* body = _registry.get<b2Body*>(camera.follow);
 				camera.view.setCenter(get_world_center(body));
 			}
 
@@ -59,10 +63,20 @@ namespace ecs
 			camera.view.reset(camera_box);
 		}
 
-		// TODO: interpolation
-		for (auto [entity, camera] : _registry.view<Camera>().each()) {
-			_current_camera_view = camera.view;
+		// Find the camera with the highest priority.
+		// If there are multiple cameras with the same priority,
+		// the first one found is used.
+
+		Camera* highest_priority_camera = nullptr;
+		for (auto [entity, camera] : _registry.view<Camera>().each())
+		{
+			if (!highest_priority_camera || camera.priority > highest_priority_camera->priority)
+				highest_priority_camera = &camera;
 		}
+
+		_current_camera_view = get_default_camera_view();
+		if (highest_priority_camera)
+			_current_camera_view = highest_priority_camera->view;
 	}
 
 	const sf::View& get_current_camera_view() {

@@ -87,3 +87,8 @@ textbox
     add                         Add textbox entries to the end of the queue
     set                         Set the queue to the given textbox entries
 
+ecs
+  Manage the ECS
+  Subcommands:
+    set_camera_priority         Set the priority of a camera
+

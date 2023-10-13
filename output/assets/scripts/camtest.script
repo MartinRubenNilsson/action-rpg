@@ -1,0 +1,6 @@
+sleep 4
+ecs set_camera_priority cam1 2
+sleep 4
+ecs set_camera_priority cam2 3
+sleep 4
+ecs set_camera_priority player 4
