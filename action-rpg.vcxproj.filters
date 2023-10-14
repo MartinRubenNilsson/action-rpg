@@ -88,6 +88,9 @@
     <ClCompile Include="ecs_console_commands.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="random_noise.cpp">
+      <Filter>random</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -207,6 +210,9 @@
     <ClInclude Include="ecs_console_commands.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="random_noise.h">
+      <Filter>random</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -244,6 +250,9 @@
     </Filter>
     <Filter Include="data">
       <UniqueIdentifier>{02ea1c31-4958-4d9d-8f28-c350f7884137}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="random">
+      <UniqueIdentifier>{fb500b78-a275-45ca-b853-96dc33ba7965}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

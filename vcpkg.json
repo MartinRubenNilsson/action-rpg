@@ -10,6 +10,7 @@
     "behaviortree-cpp",
     "magic-enum",
     "fast-cpp-csv-parser",
-    "nlohmann-json"
+    "nlohmann-json",
+    "libnoise"
   ]
 }
