@@ -210,14 +210,11 @@ namespace console
 		{
 			auto ecs_cmd = app.add_subcommand("ecs", "Manage the ECS");
 			{
-				auto cmd = ecs_cmd->add_subcommand("set_camera_priority", "Set the priority of a camera");
+				auto cmd = ecs_cmd->add_subcommand("activate_camera", "Activate a camera");
 				static std::string entity_name;
-				static float priority;
 				cmd->add_option("entity_name", entity_name, "The name of the camera entity")
 					->required();
-				cmd->add_option("priority", priority, "The priority of the camera")
-					->required();
-				cmd->callback([]() { ecs::set_camera_priority(entity_name, priority); });
+				cmd->callback([]() { ecs::activate_camera(entity_name); });
 			}
 			{
 				auto cmd = ecs_cmd->add_subcommand("add_camera_trauma", "Add trauma to a camera");

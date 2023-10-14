@@ -412,9 +412,9 @@ namespace map
 					ecs::set_player_entity(entity);
 
 					auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(entity);
-					player_camera.priority = 1.f;
 					player_camera.follow = entity;
 					player_camera.confining_rect = map_bounding_box;
+					ecs::activate_camera(entity, true);
 
 					// TODO: put spawnpoint entity name in data?
 					if (_spawnpoint_entity_name == "player") return;
@@ -430,7 +430,6 @@ namespace map
 				{
 					auto& camera = registry.emplace<ecs::Camera>(entity);
 					camera.view.setCenter(x, y);
-					ecs::get_float(entity, "priority", camera.priority);
 					ecs::get_entity(entity, "follow", camera.follow);
 					camera.confining_rect = map_bounding_box;
 				}

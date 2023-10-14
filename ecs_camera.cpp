@@ -4,21 +4,21 @@
 #include "physics_helpers.h"
 #include "random_noise.h"
 #include "console.h"
+#include <tweeny/easing.h>
 
 namespace ecs
 {
 	extern entt::registry _registry;
 
-	float _shake_time = 0.f;
-	sf::View _current_camera_view;
-	
-	sf::View get_default_camera_view() {
-		return sf::View(sf::FloatRect(0.f, 0.f, VIEW_WIDTH, VIEW_HEIGHT));
-	}
+	const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, VIEW_WIDTH, VIEW_HEIGHT));
+	const float CAMERA_BLEND_DURATION = 1.f;
 
-	sf::View get_current_camera_view() {
-		return _current_camera_view;
-	}
+	entt::entity _active_camera_entity = entt::null;
+	sf::View _last_camera_view = DEFAULT_CAMERA_VIEW;
+	sf::View _active_camera_view = DEFAULT_CAMERA_VIEW;
+	sf::View _blended_camera_view = DEFAULT_CAMERA_VIEW;
+	float _camera_shake_time = 0.f;
+	float _camera_blend_time = CAMERA_BLEND_DURATION;
 
 	// Assumes that the view has a rotation angle of 0.
 	sf::FloatRect _get_rect(const sf::View& view)
@@ -68,7 +68,9 @@ namespace ecs
 
 	void update_cameras(float dt)
 	{
-		_shake_time += dt;
+		// Update timers.
+		_camera_shake_time += dt;
+		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, CAMERA_BLEND_DURATION);
 
 		for (auto [entity, camera] : _registry.view<Camera>().each())
 		{
@@ -93,9 +95,9 @@ namespace ecs
 				float total_shake_amplitude = camera.shake_amplitude *
 					camera.trauma * camera.trauma;
 				shake_offset.x = total_shake_amplitude *
-					random::perlin_noise_f(0, camera.shake_frequency * _shake_time);
+					random::perlin_noise_f(0, camera.shake_frequency * _camera_shake_time);
 				shake_offset.y = total_shake_amplitude *
-					random::perlin_noise_f(1, camera.shake_frequency * _shake_time);
+					random::perlin_noise_f(1, camera.shake_frequency * _camera_shake_time);
 			}
 			camera._shaky_view = camera.view;
 			camera._shaky_view.move(shake_offset);
@@ -104,18 +106,35 @@ namespace ecs
 			_confine(camera._shaky_view, camera.confining_rect);
 		}
 
-		// Find the camera with the highest priority and use its view.
-		// If there are multiple cameras with the same priority, the first one found is used.
-
-		Camera* highest_priority_camera = nullptr;
-		for (auto [entity, camera] : _registry.view<Camera>().each())
-		{
-			if (!highest_priority_camera || camera.priority > highest_priority_camera->priority)
-				highest_priority_camera = &camera;
+		// Update the active camera view.
+		if (auto camera = _registry.try_get<Camera>(_active_camera_entity)) {
+			_active_camera_view = camera->_shaky_view;
+		} else {
+			_active_camera_view = DEFAULT_CAMERA_VIEW;
 		}
 
-		_current_camera_view = get_default_camera_view();
-		if (highest_priority_camera)
-			_current_camera_view = highest_priority_camera->_shaky_view;
+		// Update the blended camera view.
+		float blend_factor = _camera_blend_time / CAMERA_BLEND_DURATION;
+		_blended_camera_view.setCenter(
+			tweeny::easing::exponentialOut.run(blend_factor,
+				_last_camera_view.getCenter(),
+				_active_camera_view.getCenter()));
+	}
+
+	bool activate_camera(entt::entity entity, bool hard_cut)
+	{
+		if (!_registry.try_get<Camera>(entity)) return false;
+		_active_camera_entity = entity;
+		_last_camera_view = _active_camera_view;
+		_camera_blend_time = hard_cut ? CAMERA_BLEND_DURATION : 0.f;
+		return true;
+	}
+
+	const sf::View& get_active_camera_view() {
+		return _active_camera_view;
+	}
+
+	const sf::View& get_blended_camera_view() {
+		return _blended_camera_view;
 	}
 }

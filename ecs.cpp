@@ -34,9 +34,9 @@ namespace ecs
 	 
 	void render(sf::RenderWindow& window)
 	{
-		// Set the window view to the current camera view,
+		// Set the window view to the active camera view,
 		// converted from world space to pixel space.
-		sf::View view = ecs::get_current_camera_view();
+		sf::View view = ecs::get_blended_camera_view();
 		view.setCenter(view.getCenter() * PIXELS_PER_METER);
 		view.setSize(view.getSize() * PIXELS_PER_METER);
 		window.setView(view);

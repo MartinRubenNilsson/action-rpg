@@ -7,15 +7,12 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	bool set_camera_priority(const std::string& entity_name, float priority)
+	bool activate_camera(const std::string& entity_name)
 	{
 		for (auto [entity, name, camera] : _registry.view<Name, Camera>().each())
 		{
 			if (name.value == entity_name)
-			{
-				camera.priority = priority;
-				return true;
-			}
+				return activate_camera(entity);
 		}
 		return false;
 	}

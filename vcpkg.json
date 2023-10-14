@@ -11,6 +11,7 @@
     "magic-enum",
     "fast-cpp-csv-parser",
     "nlohmann-json",
-    "libnoise"
+    "libnoise",
+    "tweeny"
   ]
 }

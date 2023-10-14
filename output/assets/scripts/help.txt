@@ -90,6 +90,6 @@ textbox
 ecs
   Manage the ECS
   Subcommands:
-    set_camera_priority         Set the priority of a camera
+    activate_camera             Activate a camera
     add_camera_trauma           Add trauma to a camera
 
