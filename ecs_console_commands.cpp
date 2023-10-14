@@ -19,4 +19,17 @@ namespace ecs
 		}
 		return false;
 	}
+
+	bool add_camera_trauma(const std::string& entity_name, float trauma)
+	{
+		for (auto [entity, name, camera] : _registry.view<Name, Camera>().each())
+		{
+			if (name.value == entity_name)
+			{
+				camera.trauma += trauma;
+				return true;
+			}
+		}
+		return false;
+	}
 }

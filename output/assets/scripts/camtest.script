@@ -1,6 +1,21 @@
-sleep 4
+sleep 1
+
+ecs add_camera_trauma player 0.8
+audio play event:/snd_screenshake
+
+sleep 0.5
+
+ecs add_camera_trauma player 0.8
+audio play event:/snd_screenshake
+
+sleep 0.5
+
+ecs add_camera_trauma player 0.8
+audio play event:/snd_screenshake
+
+sleep 2
 ecs set_camera_priority cam1 2
 sleep 4
-ecs set_camera_priority cam2 3
+ecs set_camera_priority enemy_cam 3
 sleep 4
 ecs set_camera_priority player 4

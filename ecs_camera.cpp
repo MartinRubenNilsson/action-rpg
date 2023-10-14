@@ -72,8 +72,7 @@ namespace ecs
 
 		for (auto [entity, camera] : _registry.view<Camera>().each())
 		{
-			// If the camera has a follow target, center the camera view on the target.
-
+			// If the camera has a follow target, center the view on the target.
 			if (_registry.valid(camera.follow) &&
 				_registry.all_of<b2Body*>(camera.follow))
 			{
@@ -81,20 +80,27 @@ namespace ecs
 					_registry.get<b2Body*>(camera.follow)));
 			}
 
-			// Confine the camera view.
-
+			// Confine the view.
 			_confine(camera.view, camera.confining_rect);
 
-			// Compute the camera's shaky view.
+			// Update the trauma.
+			camera.trauma -= camera.trauma_decay * dt;
+			camera.trauma = std::clamp(camera.trauma, 0.f, 1.f);
 
+			// Compute the shaky view.
 			sf::Vector2f shake_offset;
-			shake_offset.x = random::perlin_noise_f(0, _shake_time) * 0.1f;
-			shake_offset.y = random::perlin_noise_f(1, _shake_time) * 0.1f;
+			if (camera.shake_amplitude && camera.shake_frequency && camera.trauma) {
+				float total_shake_amplitude = camera.shake_amplitude *
+					camera.trauma * camera.trauma;
+				shake_offset.x = total_shake_amplitude *
+					random::perlin_noise_f(0, camera.shake_frequency * _shake_time);
+				shake_offset.y = total_shake_amplitude *
+					random::perlin_noise_f(1, camera.shake_frequency * _shake_time);
+			}
 			camera._shaky_view = camera.view;
-			//camera._shaky_view.move(shake_offset);
-			
-			// Confine the camera's shaky view.
+			camera._shaky_view.move(shake_offset);
 
+			// Confine the shaky view.
 			_confine(camera._shaky_view, camera.confining_rect);
 		}
 

@@ -219,6 +219,16 @@ namespace console
 					->required();
 				cmd->callback([]() { ecs::set_camera_priority(entity_name, priority); });
 			}
+			{
+				auto cmd = ecs_cmd->add_subcommand("add_camera_trauma", "Add trauma to a camera");
+				static std::string entity_name;
+				static float trauma;
+				cmd->add_option("entity_name", entity_name, "The name of the camera entity")
+					->required();
+				cmd->add_option("trauma", trauma, "The amount of trauma to add")
+					->required();
+				cmd->callback([]() { ecs::add_camera_trauma(entity_name, trauma); });
+			}
 		}
 	}
 }
