@@ -18,13 +18,9 @@ namespace map
 
 	// Requests that the map with the given name be opened.
 	// The map will not be opened until update() is called.
-	// If the map is already open, it will not be re-opened unless force_open is true.
+	// If the map is already open, it will not be re-opened unless force is true.
 	// Returns true if the map was found, false otherwise.
-	bool open(const std::string& map_name, bool force_open = false);
-
-	// Requests that the current map be re-opened.
-	// Does nothing if no map is currently open.
-	void reopen();
+	bool open(const std::string& map_name, bool force = false);
 
 	// Requests that the current map be closed.
 	// The map will not be closed until update() is called.
@@ -34,9 +30,11 @@ namespace map
 	// If no map is open, returns an empty string.
 	std::string get_name();
 
-	// Returns the bounds of the current map in pixels.
+	// Returns the bounds of the current map in world space units (meters).
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
+
+	entt::entity create_entity(const std::string& template_name);
 
 	// Sets the name of the entity that should be used as
 	// the player's starting position when a map is opened.

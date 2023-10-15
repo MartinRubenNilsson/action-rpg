@@ -125,63 +125,233 @@ namespace map
 		}
 	}
 
-	void _process_object_group(
-		const std::string& map_name,
-		const tmx::Map& map,
-		size_t layer_index,
-		const tmx::ObjectGroup& object_group)
+	std::vector<tmx::Layer*> _unpack_layer_groups(const std::vector<tmx::Layer::Ptr>& layers)
 	{
-		auto& registry = ecs::get_registry();
-
-		for (const auto& object : object_group.getObjects())
+		std::vector<tmx::Layer*> unpacked_layers;
+		for (const auto& layer : layers)
 		{
-			// At this point, the object should already have had an entity created for it.
-			entt::entity entity = (entt::entity)object.getUID();
-			assert(registry.valid(entity) && "Entity not found.");
-			registry.emplace<const tmx::Object*>(entity, &object);
-
-			// TODO: move this somewhere else
-			if (ecs::behavior_exists(object.getType()))
-				ecs::set_behavior(entity, object.getType());
-
-			if (uint32_t tile_id = object.getTileID()) // If object is a tile
+			if (layer->getType() == tmx::Layer::Type::Group)
 			{
-				// While other objects use the top-left corner of the AABB as the position,
-				// tiles use the bottom-left. Confusingly, tmxlite still stores the position
-				// in the top-left corner of the AABB, so we manually adjust it here.
-				auto aabb = object.getAABB();
-				aabb.top -= aabb.height;
+				auto unpacked_sublayers = _unpack_layer_groups(
+					layer->getLayerAs<tmx::LayerGroup>().getLayers());
+				unpacked_layers.insert(unpacked_layers.end(),
+					unpacked_sublayers.begin(), unpacked_sublayers.end());
+			}
+			else
+			{
+				unpacked_layers.push_back(layer.get());
+			}
+		}
+		return unpacked_layers;
+	}
 
-				const tmx::Tileset* tileset = nullptr;
-				if (!object.getTilesetName().empty())
+	entt::entity _create_entity(const tmx::Object& object, float depth); // forward declaration
+
+	void update()
+	{
+		if (_next_map_it == _current_map_it && !_force_open)
+			return;
+
+		auto& registry = ecs::get_registry();
+		std::string current_music;
+
+		// CLOSE CURRENT MAP
+
+		if (_current_map_it != _maps.end())
+		{
+			const auto& [map_name, map] = *_current_map_it;
+
+			for (const auto& prop : map.getProperties())
+			{
+				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
+					current_music = prop.getStringValue();
+			}
+
+			registry.clear();
+		}
+
+		// OPEN NEXT MAP
+
+		_current_map_it = _next_map_it;
+		_force_open = false;
+
+		if (_current_map_it != _maps.end())
+		{
+			const auto& [map_name, map] = *_current_map_it;
+
+			for (const auto& prop : map.getProperties())
+			{
+				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
 				{
-					tileset = &map.getTemplateTilesets().at(object.getTilesetName());
-				}
-				else
-				{
-					for (const auto& ts : map.getTilesets())
+					std::string next_music = prop.getStringValue();
+					if (current_music != next_music)
 					{
-						if (ts.hasTile(tile_id))
-						{
-							tileset = &ts;
-							break;
-						}
+						if (!current_music.empty())
+							audio::stop("event:/" + current_music);
+						if (!next_music.empty())
+							audio::play("event:/" + next_music);
 					}
 				}
-				assert(tileset && "Tileset not found.");
-				auto tile = tileset->getTile(tile_id);
-				assert(tile && "Tile not found.");
+			}
 
-				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
-				ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
-				ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_tile.sprite.setPosition(aabb.left, aabb.top);
-				ecs_tile.depth = (float)layer_index;
+			auto layers = _unpack_layer_groups(map.getLayers());
 
-				const auto& colliders = tile->objectGroup.getObjects();
-				if (colliders.empty())
+			// Create entities from object layers first. This is because we want
+			// to ensure that the object GUIDs are free to use as entity IDs.
+			for (size_t layer_index = 0; layer_index < layers.size(); layer_index++)
+			{
+				const auto& layer = layers[layer_index];
+				if (layer->getType() != tmx::Layer::Type::Object)
 					continue;
+				auto& object_group = layer->getLayerAs<tmx::ObjectGroup>();
+				for (const auto& object : object_group.getObjects())
+					_create_entity(object, (float)layer_index);
+			}
 
+			// Process tile layers second.
+			for (size_t layer_index = 0; layer_index < layers.size(); layer_index++)
+			{
+				const auto& layer = layers[layer_index];
+				if (layer->getType() == tmx::Layer::Type::Tile)
+				{
+					_process_tile_layer(map_name, map, layer_index,
+						layer->getLayerAs<tmx::TileLayer>());
+				}
+			}
+		}
+	}
+
+	void reload_textures()
+	{
+		for (auto& [path, texture] : _textures)
+			if (!texture->loadFromFile(path.string()))
+				console::log_error("Failed to reload texture: " + path.string());
+	}
+
+	void load_maps()
+	{
+		assert(_maps.empty() && "load_maps() should only be called once.");
+		for (const auto& entry : std::filesystem::directory_iterator("assets/tiled/maps"))
+		{
+			if (entry.path().extension() != ".tmx")
+				continue;
+			tmx::Map map;
+			if (!map.load(entry.path().string()))
+				continue;
+			_maps.emplace(entry.path().stem().string(), std::move(map));
+		}
+		_current_map_it = _maps.end();
+		_next_map_it = _maps.end();
+	}
+
+	std::vector<std::string> get_map_names()
+	{
+		std::vector<std::string> names;
+		for (const auto& [name, map] : _maps)
+			names.push_back(name);
+		return names;
+	}
+
+	bool open(const std::string& map_name, bool force)
+	{
+		_next_map_it = _maps.find(map_name);
+		_force_open = force;
+		return _next_map_it != _maps.end();
+	}
+
+	void close() {
+		_next_map_it = _maps.end();
+	}
+
+	std::string get_name() {
+		return _current_map_it != _maps.end() ? _current_map_it->first : "";
+	}
+
+	sf::FloatRect get_bounds()
+	{
+		if (_current_map_it == _maps.end()) return sf::FloatRect();
+		tmx::FloatRect bounds = _current_map_it->second.getBounds();
+		return sf::FloatRect(
+			bounds.left * METERS_PER_PIXEL,
+			bounds.top * METERS_PER_PIXEL,
+			bounds.width * METERS_PER_PIXEL,
+			bounds.height * METERS_PER_PIXEL);
+	}
+
+	entt::entity _create_entity(const tmx::Object& object, float depth)
+	{
+		if (_current_map_it == _maps.end())
+			return entt::null; // No map is open.
+
+		const auto& [map_name, map] = *_current_map_it;
+		auto& registry = ecs::get_registry();
+
+		// Attempt to use the object's UID as the entity identifier.
+		// If the identifier is already in use, a new one will be generated.
+		entt::entity entity = registry.create((entt::entity)object.getUID());
+
+		registry.emplace<ecs::Name>(entity, object.getName());
+		registry.emplace<ecs::Type>(entity, object.getType());
+
+		auto& props = registry.emplace<ecs::Properties>(entity).properties;
+		for (const auto& prop : object.getProperties())
+		{
+			switch (prop.getType())
+			{
+			case tmx::Property::Type::Boolean:
+				props.emplace_back(prop.getName(), prop.getBoolValue());
+				break;
+			case tmx::Property::Type::Float:
+				props.emplace_back(prop.getName(), prop.getFloatValue());
+				break;
+			case tmx::Property::Type::Int:
+				props.emplace_back(prop.getName(), prop.getIntValue());
+				break;
+			case tmx::Property::Type::String:
+				props.emplace_back(prop.getName(), prop.getStringValue());
+				break;
+			case tmx::Property::Type::Object:
+				props.emplace_back(prop.getName(), (entt::entity)prop.getObjectValue());
+			}
+		}
+
+		if (uint32_t tile_id = object.getTileID()) // If object is a tile
+		{
+			// While other objects use the top-left corner of the AABB as the position,
+			// tiles use the bottom-left. Confusingly, tmxlite still stores the position
+			// in the top-left corner of the AABB, so we manually adjust it here.
+			auto aabb = object.getAABB();
+			aabb.top -= aabb.height;
+
+			const tmx::Tileset* tileset = nullptr;
+			if (!object.getTilesetName().empty()) // If object is derived from a template
+			{
+				tileset = &map.getTemplateTilesets().at(object.getTilesetName());
+			}
+			else
+			{
+				for (const auto& ts : map.getTilesets())
+				{
+					if (ts.hasTile(tile_id))
+					{
+						tileset = &ts;
+						break;
+					}
+				}
+			}
+			assert(tileset && "Tileset not found.");
+			auto tile = tileset->getTile(tile_id);
+			assert(tile && "Tile not found.");
+
+			auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
+			ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
+			ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
+			ecs_tile.sprite.setPosition(aabb.left, aabb.top);
+			ecs_tile.depth = depth;
+
+			const auto& colliders = tile->objectGroup.getObjects();
+			if (!colliders.empty())
+			{
 				b2BodyDef body_def;
 				body_def.type = b2_dynamicBody;
 				body_def.fixedRotation = true;
@@ -225,299 +395,102 @@ namespace map
 					}
 				}
 			}
-			else // If object is not a tile
-			{
-				auto collider_aabb = object.getAABB();
-				collider_aabb.left *= METERS_PER_PIXEL;
-				collider_aabb.top *= METERS_PER_PIXEL;
-				collider_aabb.width *= METERS_PER_PIXEL;
-				collider_aabb.height *= METERS_PER_PIXEL;
-
-				b2BodyDef body_def;
-				body_def.type = b2_staticBody;
-				body_def.fixedRotation = true;
-				body_def.position.x = collider_aabb.left;
-				body_def.position.y = collider_aabb.top;
-				body_def.userData.pointer = (uintptr_t)entity;
-
-				b2Body* body = physics::create_body(&body_def);
-				assert(body && "Failed to create body.");
-				registry.emplace<b2Body*>(entity, body);
-
-				float hw = collider_aabb.width / 2.0f;
-				float hh = collider_aabb.height / 2.0f;
-				b2Vec2 center(hw, hh);
-
-				switch (object.getShape())
-				{
-				case tmx::Object::Shape::Rectangle:
-				{
-					b2PolygonShape shape;
-					shape.SetAsBox(hw, hh, center, 0.f);
-
-					b2FixtureDef fixture_def;
-					fixture_def.shape = &shape;
-					fixture_def.isSensor = true;
-					body->CreateFixture(&fixture_def);
-				}
-				break;
-				case tmx::Object::Shape::Ellipse:
-				{
-					b2CircleShape shape;
-					shape.m_p = center;
-					shape.m_radius = hw;
-
-					b2FixtureDef fixture_def;
-					fixture_def.shape = &shape;
-					fixture_def.isSensor = true;
-					body->CreateFixture(&fixture_def);
-				}
-				break;
-				}
-			}
 		}
-	}
-
-	std::vector<tmx::Layer*> _unpack_layer_groups(
-		const std::vector<tmx::Layer::Ptr>& layers)
-	{
-		std::vector<tmx::Layer*> unpacked_layers;
-		for (const auto& layer : layers)
+		else // If object is not a tile
 		{
-			if (layer->getType() == tmx::Layer::Type::Group)
+			auto collider_aabb = object.getAABB();
+			collider_aabb.left *= METERS_PER_PIXEL;
+			collider_aabb.top *= METERS_PER_PIXEL;
+			collider_aabb.width *= METERS_PER_PIXEL;
+			collider_aabb.height *= METERS_PER_PIXEL;
+
+			b2BodyDef body_def;
+			body_def.type = b2_staticBody;
+			body_def.fixedRotation = true;
+			body_def.position.x = collider_aabb.left;
+			body_def.position.y = collider_aabb.top;
+			body_def.userData.pointer = (uintptr_t)entity;
+
+			b2Body* body = physics::create_body(&body_def);
+			assert(body && "Failed to create body.");
+			registry.emplace<b2Body*>(entity, body);
+
+			float hw = collider_aabb.width / 2.0f;
+			float hh = collider_aabb.height / 2.0f;
+			b2Vec2 center(hw, hh);
+
+			switch (object.getShape())
 			{
-				auto unpacked_sublayers = _unpack_layer_groups(
-					layer->getLayerAs<tmx::LayerGroup>().getLayers());
-				unpacked_layers.insert(unpacked_layers.end(),
-					unpacked_sublayers.begin(), unpacked_sublayers.end());
+			case tmx::Object::Shape::Rectangle:
+			{
+				b2PolygonShape shape;
+				shape.SetAsBox(hw, hh, center, 0.f);
+
+				b2FixtureDef fixture_def;
+				fixture_def.shape = &shape;
+				fixture_def.isSensor = true;
+				body->CreateFixture(&fixture_def);
 			}
-			else
+			break;
+			case tmx::Object::Shape::Ellipse:
 			{
-				unpacked_layers.push_back(layer.get());
+				b2CircleShape shape;
+				shape.m_p = center;
+				shape.m_radius = hw;
+
+				b2FixtureDef fixture_def;
+				fixture_def.shape = &shape;
+				fixture_def.isSensor = true;
+				body->CreateFixture(&fixture_def);
+			}
+			break;
 			}
 		}
-		return unpacked_layers;
-	}
 
-	void update()
-	{
-		if (_next_map_it == _current_map_it && !_force_open)
-			return;
+		if (ecs::behavior_exists(object.getType()))
+			ecs::set_behavior(entity, object.getType());
 
-		auto& registry = ecs::get_registry();
+		auto [x, y] = object.getPosition() * METERS_PER_PIXEL;
 
-		std::string current_music;
-		std::string next_music;
-
-		if (_current_map_it != _maps.end())
+		if (object.getType() == "player")
 		{
-			const auto& [current_map_name, current_map] = *_current_map_it;
+			ecs::set_player_entity(entity);
 
-			for (const auto& prop : current_map.getProperties())
+			auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(entity);
+			player_camera.follow = entity;
+			player_camera.confining_rect = get_bounds();
+			ecs::activate_camera(entity, true);
+
+			// TODO: put spawnpoint entity name in data?
+			if (_spawnpoint_entity_name != "player")
 			{
-				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
-					current_music = prop.getStringValue();
+				entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
+				if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+				{
+					tmx::Vector2f position = (*object)->getPosition();
+					position *= METERS_PER_PIXEL;
+					ecs::set_player_center(sf::Vector2f(position.x, position.y));
+				}
 			}
-
-			registry.clear();
 		}
-
-		if (_next_map_it != _maps.end())
+		else if (object.getType() == "camera")
 		{
-			const auto& [next_map_name, next_map] = *_next_map_it;
-
-			for (const auto& prop : next_map.getProperties())
-			{
-				if (prop.getName() == "music" && prop.getType() == tmx::Property::Type::String)
-					next_music = prop.getStringValue();
-			}
-
-			auto layers = _unpack_layer_groups(next_map.getLayers());
-
-			// Create an empty entity for each object in the current_map using its UID.
-			// We do this before processing any layers so that we can be sure that
-			// none of the entity IDs are already in use.
-			for (const auto& layer : layers)
-			{
-				if (layer->getType() == tmx::Layer::Type::Object)
-				{
-					for (const auto& object : layer->getLayerAs<tmx::ObjectGroup>().getObjects())
-					{
-						// Both EnTT and Tiled use uint32_t as their underlying ID type.
-						// This makes it safe to cast between them, so we can create
-						// an entity with the same ID as the object's UID.
-						entt::entity entity = (entt::entity)object.getUID();
-						entt::entity created_entity = registry.create(entity);
-						assert(entity == created_entity && "Entity ID already in use.");
-					}
-				}
-			}
-
-			// Process layers from bottom to top.
-			// Layer 0 is the bottom-most layer, layer 1 is the next layer above that, etc.
-			for (size_t layer_index = 0; layer_index < layers.size(); layer_index++)
-			{
-				const auto& layer = layers[layer_index];
-				switch (layer->getType())
-				{
-				case tmx::Layer::Type::Tile:
-				{
-					_process_tile_layer(next_map_name, next_map, layer_index,
-						layer->getLayerAs<tmx::TileLayer>());
-				}
-				break;
-				case tmx::Layer::Type::Object:
-				{
-					_process_object_group(next_map_name, next_map, layer_index,
-						layer->getLayerAs<tmx::ObjectGroup>());
-				}
-				break;
-				}
-			}
-
-			// Convert Tiled object properties to ECS properties.
-			for (auto [entity, object] : registry.view<const tmx::Object*>().each())
-			{
-				registry.emplace<ecs::Name>(entity, object->getName());
-				registry.emplace<ecs::Type>(entity, object->getType());
-
-				auto& props = registry.emplace<ecs::Properties>(entity).properties;
-				for (const auto& prop : object->getProperties())
-				{
-					switch (prop.getType())
-					{
-					case tmx::Property::Type::Boolean:
-						props.emplace_back(prop.getName(), prop.getBoolValue());
-						break;
-					case tmx::Property::Type::Float:
-						props.emplace_back(prop.getName(), prop.getFloatValue());
-						break;
-					case tmx::Property::Type::Int:
-						props.emplace_back(prop.getName(), prop.getIntValue());
-						break;
-					case tmx::Property::Type::String:
-						props.emplace_back(prop.getName(), prop.getStringValue());
-						break;
-					case tmx::Property::Type::Object:
-						props.emplace_back(prop.getName(), (entt::entity)prop.getObjectValue());
-					}
-				}
-			}
-
-			// Compute the map's bounding rect in world space units (meters).
-			sf::FloatRect map_bounds =
-			{
-				next_map.getBounds().left * METERS_PER_PIXEL,
-				next_map.getBounds().top * METERS_PER_PIXEL,
-				next_map.getBounds().width * METERS_PER_PIXEL,
-				next_map.getBounds().height * METERS_PER_PIXEL
-			};
-
-			// Initialize entities.
-			for (auto [entity, object] : registry.view<const tmx::Object*>().each())
-			{
-				auto [x, y] = object->getPosition() * METERS_PER_PIXEL;
-
-				if (object->getType() == "player")
-				{
-					ecs::set_player_entity(entity);
-
-					auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(entity);
-					player_camera.follow = entity;
-					player_camera.confining_rect = map_bounds;
-					ecs::activate_camera(entity, true);
-
-					auto& tile = registry.get<ecs::Tile>(entity);
-
-					// TODO: put spawnpoint entity name in data?
-					if (_spawnpoint_entity_name == "player") return;
-					entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
-					if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
-					{
-						tmx::Vector2f position = (*object)->getPosition();
-						position *= METERS_PER_PIXEL;
-						ecs::set_player_center(sf::Vector2f(position.x, position.y));
-					}
-				}
-				else if (object->getType() == "camera")
-				{
-					auto& camera = registry.emplace<ecs::Camera>(entity);
-					camera.view.setCenter(x, y);
-					ecs::get_entity(entity, "follow", camera.follow);
-					camera.confining_rect = map_bounds;
-				}
-			}
+			auto& camera = registry.emplace<ecs::Camera>(entity);
+			camera.view.setCenter(x, y);
+			ecs::get_entity(entity, "follow", camera.follow);
+			camera.confining_rect = get_bounds();
 		}
 
-		if (current_music != next_music)
-		{
-			if (!current_music.empty())
-				audio::stop("event:/" + current_music);
-			if (!next_music.empty())
-				audio::play("event:/" + next_music);
-		}
-
-		_current_map_it = _next_map_it;
-		_force_open = false;
+		return entity;
 	}
 
-	void reload_textures()
+	entt::entity create_entity(const std::string& template_name)
 	{
-		for (auto& [path, texture] : _textures)
-			if (!texture->loadFromFile(path.string()))
-				console::log_error("Failed to reload texture: " + path.string());
-	}
-
-	void load_maps()
-	{
-		assert(_maps.empty() && "load_maps() should only be called once.");
-		for (const auto& entry : std::filesystem::directory_iterator("assets/tiled/maps"))
-		{
-			if (entry.path().extension() != ".tmx")
-				continue;
-			tmx::Map map;
-			if (!map.load(entry.path().string()))
-				continue;
-			_maps.emplace(entry.path().stem().string(), std::move(map));
-		}
-		_current_map_it = _maps.end();
-		_next_map_it = _maps.end();
-	}
-
-	std::vector<std::string> get_map_names()
-	{
-		std::vector<std::string> names;
-		for (const auto& [name, map] : _maps)
-			names.push_back(name);
-		return names;
-	}
-
-	bool open(const std::string& map_name, bool force_open)
-	{
-		_next_map_it = _maps.find(map_name);
-		_force_open = force_open;
-		return _next_map_it != _maps.end();
-	}
-
-	void reopen()
-	{
-		_next_map_it = _current_map_it;
-		_force_open = true;
-	}
-
-	void close() {
-		_next_map_it = _maps.end();
-	}
-
-	std::string get_name() {
-		return _current_map_it != _maps.end() ? _current_map_it->first : "";
-	}
-
-	sf::FloatRect get_bounds()
-	{
-		if (_current_map_it == _maps.end()) return sf::FloatRect();
-		tmx::FloatRect bounds = _current_map_it->second.getBounds();
-		return sf::FloatRect(bounds.left, bounds.top, bounds.width, bounds.height);
+		if (_current_map_it == _maps.end()) return entt::null;
+		std::string template_filename = "assets/tiled/templates/" + template_name + ".tx";
+		auto object_it = _current_map_it->second.getTemplateObjects().find(template_filename);
+		// TODO: finish this
+		return entt::null;
 	}
 
 	void set_spawnpoint(const std::string& entity_name) {

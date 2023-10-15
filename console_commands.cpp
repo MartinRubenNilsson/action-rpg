@@ -28,19 +28,19 @@ namespace console
 			{
 				static std::string key_string;
 				static std::string command_line;
-				auto bind_cmd = app.add_subcommand("bind", "Bind a key to a console command");
-				bind_cmd->add_option("key", key_string, "The key to bind")
+				auto cmd = app.add_subcommand("bind", "Bind a key to a console command");
+				cmd->add_option("key", key_string, "The key to bind")
 					->required();
-				bind_cmd->add_option("command", command_line, "The command to execute")
+				cmd->add_option("command", command_line, "The command to execute")
 					->required();
-				bind_cmd->callback([]() { console::bind(key_string, command_line); });
+				cmd->callback([]() { console::bind(key_string, command_line); });
 			}
 			{
 				static std::string key_string;
-				auto bind_cmd = app.add_subcommand("unbind", "Unbind a key");
-				bind_cmd->add_option("key", key_string, "The key to unbind")
+				auto cmd = app.add_subcommand("unbind", "Unbind a key");
+				cmd->add_option("key", key_string, "The key to unbind")
 					->required();
-				bind_cmd->callback([]() { console::unbind(key_string); });
+				cmd->callback([]() { console::unbind(key_string); });
 			}
 		}
 
@@ -69,24 +69,22 @@ namespace console
 
 		// MAP
 		{
-			auto cmd = app.add_subcommand("map", "Manage maps");
-			cmd->add_subcommand("name", "Print the name of the current map")
+			auto map_cmd = app.add_subcommand("map", "Manage maps");
+			map_cmd->add_subcommand("name", "Print the name of the current map")
 				->callback([]() { log(map::get_name()); });
 			{
-				auto cmd_open = cmd->add_subcommand("open", "Open a map");
+				auto cmd = map_cmd->add_subcommand("open", "Open a map");
 				static std::string map_name;
-				static bool force_open = false;
-				cmd_open->add_option("name", map_name, "The name of the map")->required();
-				cmd_open->add_flag("-f,--force", force_open, "Force the map to open");
-				cmd_open->callback([]() { map::open(map_name, force_open); });
+				static bool force = false;
+				cmd->add_option("name", map_name, "The name of the map")->required();
+				cmd->add_flag("-f,--force", force, "Force the map to open");
+				cmd->callback([]() { map::open(map_name, force); });
 			}
-			cmd->add_subcommand("reopen", "Reopen the current map")
-				->callback(map::reopen);
-			cmd->add_subcommand("close", "Close the current map")
+			map_cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
-			cmd->add_subcommand("reload", "Reload all textures used by the current map")
+			map_cmd->add_subcommand("reload", "Reload all textures used by the current map")
 				->callback(map::reload_textures);
-			cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
+			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
 				->add_option_function<std::string>("name", map::set_spawnpoint,
 					"The name of the spawnpoint entity")
 				->required();
@@ -94,84 +92,84 @@ namespace console
 
 		// DATA
 		{
-			auto cmd = app.add_subcommand("data", "Manage data");
-			cmd->add_subcommand("clear", "Clear all data")
+			auto data_cmd = app.add_subcommand("data", "Manage data");
+			data_cmd->add_subcommand("clear", "Clear all data")
 				->callback(data::clear);
-			cmd->add_subcommand("load", "Load data from a JSON file")
+			data_cmd->add_subcommand("load", "Load data from a JSON file")
 				->add_option_function<std::string>("name", data::load, "The name of the file")
 				->required();
-			cmd->add_subcommand("save", "Save data to a JSON file")
+			data_cmd->add_subcommand("save", "Save data to a JSON file")
 				->add_option_function<std::string>("name", data::save, "The name of the file")
 				->required();
-			cmd->add_subcommand("dump", "Dump all data as a string to the console")
+			data_cmd->add_subcommand("dump", "Dump all data as a string to the console")
 				->callback([]() { log(data::dump()); });
 			{
-				auto cmd_set = cmd->add_subcommand("set_bool", "Set a data bool");
+				auto cmd = data_cmd->add_subcommand("set_bool", "Set a data bool");
 				static std::string key;
 				static bool value;
-				cmd_set->add_option("key", key, "The key of the data")->required();
-				cmd_set->add_option("value", value, "The value of the data")->required();
-				cmd_set->callback([]() { data::set_bool(key, value); });
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->add_option("value", value, "The value of the data")->required();
+				cmd->callback([]() { data::set_bool(key, value); });
 			}
 			{
-				auto cmd_get = cmd->add_subcommand("get_bool", "Get a data bool");
+				auto cmd = data_cmd->add_subcommand("get_bool", "Get a data bool");
 				static std::string key;
-				cmd_get->add_option("key", key, "The key of the data")->required();
-				cmd_get->callback([]() {
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->callback([]() {
 					bool value;
 					if (data::get_bool(key, value)) log(std::to_string(value));
 					else log_error("Failed to get data bool: " + key);
 				});
 			}
 			{
-				auto cmd_set = cmd->add_subcommand("set_int", "Set a data int");
+				auto cmd = data_cmd->add_subcommand("set_int", "Set a data int");
 				static std::string key;
 				static int value;
-				cmd_set->add_option("key", key, "The key of the data")->required();
-				cmd_set->add_option("value", value, "The value of the data")->required();
-				cmd_set->callback([]() { data::set_int(key, value); });
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->add_option("value", value, "The value of the data")->required();
+				cmd->callback([]() { data::set_int(key, value); });
 			}
 			{
-				auto cmd_get = cmd->add_subcommand("get_int", "Get a data int");
+				auto cmd = data_cmd->add_subcommand("get_int", "Get a data int");
 				static std::string key;
-				cmd_get->add_option("key", key, "The key of the data")->required();
-				cmd_get->callback([]() {
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->callback([]() {
 					int value;
 					if (data::get_int(key, value)) log(std::to_string(value));
 					else log_error("Failed to get data int: " + key);
 				});
 			}
 			{
-				auto cmd_set = cmd->add_subcommand("set_float", "Set a data float");
+				auto cmd = data_cmd->add_subcommand("set_float", "Set a data float");
 				static std::string key;
 				static float value;
-				cmd_set->add_option("key", key, "The key of the data")->required();
-				cmd_set->add_option("value", value, "The value of the data")->required();
-				cmd_set->callback([]() { data::set_float(key, value); });
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->add_option("value", value, "The value of the data")->required();
+				cmd->callback([]() { data::set_float(key, value); });
 			}
 			{
-				auto cmd_get = cmd->add_subcommand("get_float", "Get a data float");
+				auto cmd = data_cmd->add_subcommand("get_float", "Get a data float");
 				static std::string key;
-				cmd_get->add_option("key", key, "The key of the data")->required();
-				cmd_get->callback([]() {
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->callback([]() {
 					float value;
 					if (data::get_float(key, value)) log(std::to_string(value));
 					else log_error("Failed to get data float: " + key);
 				});
 			}
 			{
-				auto cmd_set = cmd->add_subcommand("set_string", "Set a data string");
+				auto cmd = data_cmd->add_subcommand("set_string", "Set a data string");
 				static std::string key;
 				static std::string value;
-				cmd_set->add_option("key", key, "The key of the data")->required();
-				cmd_set->add_option("value", value, "The value of the data")->required();
-				cmd_set->callback([]() { data::set_string(key, value); });
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->add_option("value", value, "The value of the data")->required();
+				cmd->callback([]() { data::set_string(key, value); });
 			}
 			{
-				auto cmd_get = cmd->add_subcommand("get_string", "Get a data string");
+				auto cmd = data_cmd->add_subcommand("get_string", "Get a data string");
 				static std::string key;
-				cmd_get->add_option("key", key, "The key of the data")->required();
-				cmd_get->callback([]() {
+				cmd->add_option("key", key, "The key of the data")->required();
+				cmd->callback([]() {
 					std::string value;
 					if (data::get_string(key, value)) log(value);
 					else log_error("Failed to get data string: " + key);
