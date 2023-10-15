@@ -82,7 +82,7 @@
   </properties>
  </objectgroup>
  <objectgroup id="4" name="characters">
-  <object id="3" name="player" type="player" gid="626" x="100.333" y="182.916" width="64" height="64"/>
+  <object id="3" template="../templates/player.tx" type="player" x="100.333" y="182.916"/>
  </objectgroup>
  <objectgroup id="16" name="misc"/>
 </map>

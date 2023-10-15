@@ -36,16 +36,6 @@ namespace map
 		return *texture;
 	}
 
-	const tmx::Tileset* _get_tileset(const tmx::Map& map, uint32_t tile_id)
-	{
-		for (const auto& tileset : map.getTilesets())
-		{
-			if (tileset.hasTile(tile_id))
-				return &tileset;
-		}
-		return nullptr;
-	}
-
 	void _process_tile_layer(
 		const std::string& map_name,
 		const tmx::Map& map,
@@ -63,9 +53,17 @@ namespace map
 			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
 			{
 				auto [tile_id, flip_flags] = tiles[tile_y * tile_count.x + tile_x];
-				if (tile_id == 0) continue; // Skip empty tiles.
+				if (!tile_id) continue; // Skip empty tiles.
 
-				auto tileset = _get_tileset(map, tile_id);
+				const tmx::Tileset *tileset = nullptr;
+				for (const auto& ts : map.getTilesets())
+				{
+					if (ts.hasTile(tile_id))
+					{
+						tileset = &ts;
+						break;
+					}
+				}
 				assert(tileset && "Tileset not found.");
 				auto tile = tileset->getTile(tile_id);
 				assert(tile && "Tile not found.");
@@ -154,7 +152,22 @@ namespace map
 				auto aabb = object.getAABB();
 				aabb.top -= aabb.height;
 
-				auto tileset = _get_tileset(map, tile_id);
+				const tmx::Tileset* tileset = nullptr;
+				if (!object.getTilesetName().empty())
+				{
+					tileset = &map.getTemplateTilesets().at(object.getTilesetName());
+				}
+				else
+				{
+					for (const auto& ts : map.getTilesets())
+					{
+						if (ts.hasTile(tile_id))
+						{
+							tileset = &ts;
+							break;
+						}
+					}
+				}
 				assert(tileset && "Tileset not found.");
 				auto tile = tileset->getTile(tile_id);
 				assert(tile && "Tile not found.");
@@ -415,7 +428,6 @@ namespace map
 					ecs::activate_camera(entity, true);
 
 					auto& tile = registry.get<ecs::Tile>(entity);
-					tile.set_id(tile.get_id());
 
 					// TODO: put spawnpoint entity name in data?
 					if (_spawnpoint_entity_name == "player") return;

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <tileset firstgid="1" source="../tilesets/naked_human.tsx"/>
+ <object name="very evil enemy" type="enemy" gid="1" width="64" height="64">
+  <properties>
+   <property name="message" value="Hello, evil world!"/>
+  </properties>
+ </object>
+</template>

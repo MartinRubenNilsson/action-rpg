@@ -31,11 +31,11 @@
             "scaleInDock": 1
         },
         "maps/dungeon.tmx": {
-            "scale": 1.2191666666666667,
-            "selectedLayer": 0,
+            "scale": 2,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 237.45727956254274,
-                "y": 348.59876965140114
+                "x": 185.25,
+                "y": 149.5
             }
         },
         "maps/dungeon.tmx#dungeon": {
@@ -47,11 +47,15 @@
             "scaleInEditor": 1
         },
         "maps/martin_test.tmx": {
-            "scale": 1.2191666666666667,
-            "selectedLayer": 0,
+            "expandedObjectLayers": [
+                10,
+                4
+            ],
+            "scale": 1.5,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 237.45727956254274,
-                "y": 347.7785372522214
+                "x": 204.33333333333331,
+                "y": 179.33333333333337
             }
         },
         "maps/martin_test.tmx#dungeon": {
@@ -64,10 +68,10 @@
         },
         "maps/martin_test2.tmx": {
             "scale": 2.2859374999999997,
-            "selectedLayer": 0,
+            "selectedLayer": 5,
             "viewCenter": {
                 "x": 128.39371155160632,
-                "y": 185.4818865345181
+                "y": 126.86261107313742
             }
         },
         "maps/martin_test2.tmx#dungeon": {
@@ -117,6 +121,7 @@
     },
     "last.externalTilesetPath": "C:/Users/marti/source/repos/sfml-testing/output/assets/tiled/tilesets",
     "last.imagePath": "C:/Users/marti/source/repos/sfml-testing/output/assets/tiled/tilesets",
+    "last.objectTemplatePath": "C:/Users/marti/source/repos/sfml-testing/output/assets/tiled/templates",
     "openFiles": [
         "dungeon.tmx",
         "martin_test2.tmx",
@@ -125,10 +130,10 @@
     "project": "action-rpg.tiled-project",
     "property.type": "float",
     "recentFiles": [
-        "maps/martin_test2.tmx",
         "tilesets/naked_human.tsx",
-        "tilesets/dungeon.tsx",
         "maps/martin_test.tmx",
+        "maps/martin_test2.tmx",
+        "tilesets/dungeon.tsx",
         "maps/dungeon.tmx",
         "dungeon.tmx",
         "martin_test2.tmx",
