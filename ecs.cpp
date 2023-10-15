@@ -46,24 +46,24 @@ namespace ecs
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 
-		// Collect all visible sprites in view.
-		std::vector<Sprite*> sprites;
-		for (auto [entity, sprite] : _registry.view<Sprite>().each())
+		// Collect all visible tiles in view.
+		std::vector<Tile*> tiles;
+		for (auto [entity, tile] : _registry.view<Tile>().each())
 		{
-			if (!sprite.visible) continue;
-			if (view_bounds.intersects(sprite.getGlobalBounds()))
-				sprites.push_back(&sprite);
+			if (!tile.visible) continue;
+			if (view_bounds.intersects(tile.sprite.getGlobalBounds()))
+				tiles.push_back(&tile);
 		}
 
-		// Sort sprites by depth, then by y position.
-		std::ranges::sort(sprites, [](const Sprite* a, const Sprite* b) {
+		// Sort tiles by depth, then by y position.
+		std::ranges::sort(tiles, [](const Tile* a, const Tile* b) {
 			if (a->depth != b->depth) return a->depth < b->depth;
-			return a->getPosition().y < b->getPosition().y;
+			return a->sprite.getPosition().y < b->sprite.getPosition().y;
 		});
 
-		// Draw sprites.
-		for (Sprite* sprite : sprites)
-			window.draw(*sprite);
+		// Draw tiles.
+		for (Tile* tile : tiles)
+			window.draw(tile->sprite);
 	}
 
 	entt::registry& get_registry() {

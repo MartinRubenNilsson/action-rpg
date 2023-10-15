@@ -12,6 +12,9 @@ namespace ecs
 		Tile(const tmx::Tileset* tileset,
 			const tmx::Tileset::Tile* tile);
 		
+		sf::Sprite sprite; // Uses pixel coordinates.
+		bool visible = true; // If false, the tile is not drawn.
+		float depth = 0.f; // Tiles with lower depth values are drawn first.
 		float animation_time = 0.0f; // In seconds.
 		float animation_speed = 1.0f; // 1 is normal speed, 2 is double speed, etc.
 
@@ -31,12 +34,6 @@ namespace ecs
 	private:
 		const tmx::Tileset* _tileset = nullptr;
 		const tmx::Tileset::Tile* _tile = nullptr;
-	};
-
-	struct Sprite : sf::Sprite
-	{
-		bool visible = true; // If false, the sprite is not drawn.
-		float depth = 0.f; // Sprites with lower depth values are drawn first.
 	};
 
 	void update_graphics(float dt);

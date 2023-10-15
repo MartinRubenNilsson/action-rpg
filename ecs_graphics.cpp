@@ -67,7 +67,7 @@ namespace ecs
 
 	uint32_t Tile::get_id() const
 	{
-		// The tile ID is local to the tileset, so we need to add the global tile ID
+		// _tile->ID is local to the tileset, so we need to add the global tile ID
 		// of the first tile in the tileset in order to get the global tile ID.
 		return _tile->ID + _tileset->getFirstGID();
 	}
@@ -136,33 +136,26 @@ namespace ecs
 		}
 	}
 
-	void _update_tile_animation_times(float dt)
+	void _update_tile_animations(float dt)
 	{
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (tile.has_animation())
 				tile.animation_time += tile.animation_speed * dt;
+			tile.sprite.setTextureRect(tile.get_texture_rect());
 		}
 	}
 
-	void _update_sprite_texture_rects()
+	void _update_tile_sprite_positions()
 	{
-		for (auto [entity, sprite, tile] : _registry.view<Sprite, Tile>().each()) {
-			sprite.setTextureRect(tile.get_texture_rect());
-		}
-	}
-
-	void _update_sprite_positions()
-	{
-		for (auto [entity, sprite, body] : _registry.view<Sprite, b2Body*>().each()) {
-			sprite.setPosition(get_position(body) * PIXELS_PER_METER);
+		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
+			tile.sprite.setPosition(get_position(body) * PIXELS_PER_METER);
 		}
 	}
 
 	void update_graphics(float dt)
 	{
 		_update_tile_types();
-		_update_tile_animation_times(dt);
-		_update_sprite_texture_rects();
-		_update_sprite_positions();
+		_update_tile_animations(dt);
+		_update_tile_sprite_positions();
 	}
 }

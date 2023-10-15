@@ -75,11 +75,10 @@ namespace map
 
 				entt::entity entity = registry.create();
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
-				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_get_texture(tileset->getImagePath()));
-				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_sprite.setPosition(position_x, position_y);
-				ecs_sprite.depth = (float)layer_index;
+				ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
+				ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
+				ecs_tile.sprite.setPosition(position_x, position_y);
+				ecs_tile.depth = (float)layer_index;
 
 				const auto& colliders = tile->objectGroup.getObjects();
 				if (colliders.empty())
@@ -161,11 +160,10 @@ namespace map
 				assert(tile && "Tile not found.");
 
 				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
-				auto& ecs_sprite = registry.emplace<ecs::Sprite>(entity);
-				ecs_sprite.setTexture(_get_texture(tileset->getImagePath()));
-				ecs_sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_sprite.setPosition(aabb.left, aabb.top);
-				ecs_sprite.depth = (float)layer_index;
+				ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
+				ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
+				ecs_tile.sprite.setPosition(aabb.left, aabb.top);
+				ecs_tile.depth = (float)layer_index;
 
 				const auto& colliders = tile->objectGroup.getObjects();
 				if (colliders.empty())
