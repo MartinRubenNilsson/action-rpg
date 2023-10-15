@@ -194,6 +194,7 @@ namespace console
 		}
 
 		// UI - TEXTBOX
+		//TODO: make subcommand of ui command
 		{
 			auto cmd = app.add_subcommand("textbox", "Manage the textbox");
 			cmd->add_subcommand("add", "Add textbox entries to the end of the queue")

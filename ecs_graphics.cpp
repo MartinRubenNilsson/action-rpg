@@ -2,10 +2,11 @@
 #include "defines.h"
 #include "physics_helpers.h"
 
-namespace tmx
+namespace ecs
 {
-	//TODO: dont hijack tmx namespace
-	sf::IntRect _get_texture_rect(const Tileset& tileset, uint32_t tile_id)
+	extern entt::registry _registry;
+
+	sf::IntRect _get_texture_rect(const tmx::Tileset& tileset, uint32_t tile_id)
 	{
 		if (!tileset.hasTile(tile_id))
 			return sf::IntRect();
@@ -13,14 +14,14 @@ namespace tmx
 		uint32_t id_within_tileset = tile_id - tileset.getFirstGID();
 		uint32_t x = id_within_tileset % tileset.getColumnCount();
 		uint32_t y = id_within_tileset / tileset.getColumnCount();
-		Vector2u tile_size = tileset.getTileSize();
+		tmx::Vector2u tile_size = tileset.getTileSize();
 		uint32_t left = tileset.getMargin() + (tile_size.x + tileset.getSpacing()) * x;
 		uint32_t top = tileset.getMargin() + (tile_size.y + tileset.getSpacing()) * y;
 
 		return sf::IntRect(left, top, tile_size.x, tile_size.y);
 	}
 
-	uint32_t _get_total_duration_in_ms(const Tileset::Tile::Animation& animation)
+	uint32_t _get_total_duration_in_ms(const tmx::Tileset::Tile::Animation& animation)
 	{
 		uint32_t total_duration = 0;
 		for (const auto& frame : animation.frames)
@@ -28,10 +29,10 @@ namespace tmx
 		return total_duration;
 	}
 
-	uint32_t _get_tile_id_at_time(const Tileset::Tile::Animation& animation, uint32_t time_in_ms)
+	uint32_t _get_tile_id_at_time(const tmx::Tileset::Tile::Animation& animation, uint32_t time_in_ms)
 	{
 		uint32_t total_duration = _get_total_duration_in_ms(animation);
-		if (total_duration == 0)
+		if (!total_duration)
 			return UINT32_MAX;
 
 		uint32_t time = time_in_ms % total_duration;
@@ -45,11 +46,6 @@ namespace tmx
 
 		return UINT32_MAX; // Should never happen.
 	}
-}
-
-namespace ecs
-{
-	extern entt::registry _registry;
 
 	Tile::Tile(const tmx::Tileset* tileset, const tmx::Tileset::Tile* tile)
 		: _tileset(tileset)
@@ -62,7 +58,7 @@ namespace ecs
 	}
 
 	float Tile::get_animation_duration() const {
-		return tmx::_get_total_duration_in_ms(_tile->animation) / 1000.f;
+		return _get_total_duration_in_ms(_tile->animation) / 1000.f;
 	}
 
 	const std::string& Tile::get_tileset_name() const {
@@ -78,13 +74,10 @@ namespace ecs
 
 	bool Tile::set_id(uint32_t tile_id)
 	{
-		for (const auto& tile : _tileset->getTiles())
+		if (auto tile = _tileset->getTile(tile_id))
 		{
-			if (tile.ID == tile_id)
-			{
-				_tile = &tile;
-				return true;
-			}
+			_tile = tile;
+			return true;
 		}
 		return false;
 	}
@@ -112,9 +105,9 @@ namespace ecs
 		if (has_animation())
 		{
 			uint32_t time_ms = uint32_t(animation_time * 1000);
-			id = tmx::_get_tile_id_at_time(_tile->animation, time_ms);
+			id = _get_tile_id_at_time(_tile->animation, time_ms);
 		}
-		return tmx::_get_texture_rect(*_tileset, id);
+		return _get_texture_rect(*_tileset, id);
 	}
 
 	void _update_tile_types()

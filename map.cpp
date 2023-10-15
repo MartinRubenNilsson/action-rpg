@@ -393,8 +393,8 @@ namespace map
 				}
 			}
 
-			// Compute the map's bounding box in world space units (meters).
-			sf::FloatRect map_bounding_box =
+			// Compute the map's bounding rect in world space units (meters).
+			sf::FloatRect map_bounds =
 			{
 				next_map.getBounds().left * METERS_PER_PIXEL,
 				next_map.getBounds().top * METERS_PER_PIXEL,
@@ -413,8 +413,11 @@ namespace map
 
 					auto& player_camera = ecs::get_registry().emplace<ecs::Camera>(entity);
 					player_camera.follow = entity;
-					player_camera.confining_rect = map_bounding_box;
+					player_camera.confining_rect = map_bounds;
 					ecs::activate_camera(entity, true);
+
+					auto& tile = registry.get<ecs::Tile>(entity);
+					tile.set_id(tile.get_id());
 
 					// TODO: put spawnpoint entity name in data?
 					if (_spawnpoint_entity_name == "player") return;
@@ -431,7 +434,7 @@ namespace map
 					auto& camera = registry.emplace<ecs::Camera>(entity);
 					camera.view.setCenter(x, y);
 					ecs::get_entity(entity, "follow", camera.follow);
-					camera.confining_rect = map_bounding_box;
+					camera.confining_rect = map_bounds;
 				}
 			}
 		}

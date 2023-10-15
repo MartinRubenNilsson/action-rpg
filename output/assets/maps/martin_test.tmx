@@ -378,7 +378,6 @@
   <object id="20" name="enemy_cam" type="camera" x="299.785" y="140.524">
    <properties>
     <property name="follow" type="object" value="4"/>
-    <property name="priority" type="float" value="0"/>
    </properties>
    <point/>
   </object>

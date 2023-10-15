@@ -2,9 +2,6 @@
 
 namespace physics
 {
-	// TODO: maybe this can be used to
-	// do some cool shading techniques?
-
 	class DebugDrawSFML : public b2Draw
 	{
 	public:
