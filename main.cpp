@@ -37,7 +37,6 @@ int APIENTRY WinMain(
     // LOAD ASSETS
 
     audio::load_banks();
-    map::reload_textures();
     map::load_maps();
     behavior::load_trees();
     ui::load_fonts_and_documents();

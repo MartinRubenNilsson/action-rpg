@@ -2,6 +2,8 @@
 
 namespace ecs
 {
+	// TODO: make Player component
+
 	bool player_exists();
 	void set_player_entity(entt::entity entity);
 	entt::entity get_player_entity();

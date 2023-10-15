@@ -2,19 +2,16 @@
 
 namespace map
 {
-	// Executes the open/close requests made by open(), reopen(), and close().
-	void update();
-
-	// Reloads all textures referenced by any map that
-	// has been opened at least once.
-	void reload_textures();
-
 	// Loads all TMX maps in the assets/tiled/maps directory.
-	// This function should only be called once.
+	// This function should be called once at startup.
 	void load_maps();
 
 	// Returns a list of names of all loaded maps.
 	std::vector<std::string> get_map_names();
+
+	// Reloads all textures referenced by any map that
+	// has been opened at least once.
+	void reload_textures();
 
 	// Requests that the map with the given name be opened.
 	// The map will not be opened until update() is called.
@@ -26,6 +23,10 @@ namespace map
 	// The map will not be closed until update() is called.
 	void close();
 
+	// Executes the requests made by open() and close().
+	// This function should be called once per frame.
+	void update();
+
 	// Returns the name of the current map.
 	// If no map is open, returns an empty string.
 	std::string get_name();
@@ -34,7 +35,13 @@ namespace map
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
 
-	entt::entity create_entity(const std::string& template_name);
+	// Creates an entity from the given Tiled object template,
+	// which must be used at least once in the current map.
+	// Returns entt::null if the template was not found.
+	entt::entity create_entity(
+		const std::string& template_name,
+		const sf::Vector2f& position, // In world space units (meters).
+		float depth = 100.f);
 
 	// Sets the name of the entity that should be used as
 	// the player's starting position when a map is opened.

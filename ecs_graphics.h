@@ -13,7 +13,7 @@ namespace ecs
 			const tmx::Tileset::Tile* tile);
 		
 		sf::Sprite sprite; // Uses pixel coordinates.
-		bool visible = true; // If false, the tile is not drawn.
+		bool visible = true;
 		float depth = 0.f; // Tiles with lower depth values are drawn first.
 		float animation_time = 0.0f; // In seconds.
 		float animation_speed = 1.0f; // 1 is normal speed, 2 is double speed, etc.

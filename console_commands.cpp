@@ -70,20 +70,30 @@ namespace console
 		// MAP
 		{
 			auto map_cmd = app.add_subcommand("map", "Manage maps");
-			map_cmd->add_subcommand("name", "Print the name of the current map")
-				->callback([]() { log(map::get_name()); });
+			map_cmd->add_subcommand("reload_textures", "Reload all textures referenced by any map")
+				->callback(map::reload_textures);
 			{
 				auto cmd = map_cmd->add_subcommand("open", "Open a map");
 				static std::string map_name;
 				static bool force = false;
-				cmd->add_option("name", map_name, "The name of the map")->required();
+				cmd->add_option("map_name", map_name, "The name of the map")->required();
 				cmd->add_flag("-f,--force", force, "Force the map to open");
 				cmd->callback([]() { map::open(map_name, force); });
 			}
 			map_cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
-			map_cmd->add_subcommand("reload", "Reload all textures used by the current map")
-				->callback(map::reload_textures);
+			{
+				auto cmd = map_cmd->add_subcommand("create_entity", "Create an entity from a template");
+				static std::string template_name;
+				static float x;
+				static float y;
+				static float depth = 100.f;
+				cmd->add_option("template_name", template_name, "The name of the template")->required();
+				cmd->add_option("x", x, "The x position of the entity")->required();
+				cmd->add_option("y", y, "The y position of the entity")->required();
+				cmd->add_option("depth", depth, "The depth of the entity");
+				cmd->callback([]() { map::create_entity(template_name, { x, y }, depth); });
+			}
 			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
 				->add_option_function<std::string>("name", map::set_spawnpoint,
 					"The name of the spawnpoint entity")

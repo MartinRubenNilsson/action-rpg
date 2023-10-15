@@ -31,11 +31,14 @@
             "scaleInDock": 1
         },
         "maps/dungeon.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
             "scale": 2,
             "selectedLayer": 5,
             "viewCenter": {
                 "x": 185.25,
-                "y": 149.5
+                "y": 149
             }
         },
         "maps/dungeon.tmx#dungeon": {
@@ -52,7 +55,7 @@
                 4
             ],
             "scale": 1.5,
-            "selectedLayer": 5,
+            "selectedLayer": 7,
             "viewCenter": {
                 "x": 204.33333333333331,
                 "y": 179.33333333333337
@@ -67,11 +70,14 @@
             "scaleInEditor": 1
         },
         "maps/martin_test2.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
             "scale": 2.2859374999999997,
             "selectedLayer": 5,
             "viewCenter": {
                 "x": 128.39371155160632,
-                "y": 126.86261107313742
+                "y": 125.9876965140123
             }
         },
         "maps/martin_test2.tmx#dungeon": {

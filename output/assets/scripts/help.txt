@@ -51,10 +51,10 @@ audio
 map
   Manage maps
   Subcommands:
-    name                        Print the name of the current map
+    reload_textures             Reload all textures referenced by any map
     open                        Open a map
     close                       Close the current map
-    reload                      Reload all textures used by the current map
+    create_entity               Create an entity from a template
     spawnpoint                  Set the player spawnpoint entity
 
 data

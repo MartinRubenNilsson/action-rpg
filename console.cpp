@@ -299,10 +299,10 @@ namespace console
 		else log_error("Failed to unbind key: " + key_string);
 	}
 
-	void write_help_file(const std::string& path)
+	void write_help_file(const std::string& filename)
 	{
-		std::ofstream help_file(path);
-		if (!help_file) log_error("Failed to create help file: " + path);
-		else help_file << _app.help("", CLI::AppFormatMode::All);
+		std::ofstream file(filename);
+		if (!file) log_error("Failed to create help file: " + filename);
+		else file << _app.help("", CLI::AppFormatMode::All);
 	}
 }
