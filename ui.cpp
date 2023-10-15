@@ -89,7 +89,7 @@ namespace ui
 		}
 	}
 
-	void reload_style_sheets()
+	void reload_styles()
 	{
 		for (int i = 0; i < _context->GetNumDocuments(); ++i)
 			_context->GetDocument(i)->ReloadStyleSheet();

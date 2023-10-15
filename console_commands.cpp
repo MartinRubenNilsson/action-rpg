@@ -70,7 +70,7 @@ namespace console
 		// MAP
 		{
 			auto map_cmd = app.add_subcommand("map", "Manage maps");
-			map_cmd->add_subcommand("reload_textures", "Reload all textures referenced by any map")
+			map_cmd->add_subcommand("reload_textures", "Reload all textures in use by any map")
 				->callback(map::reload_textures);
 			{
 				auto cmd = map_cmd->add_subcommand("open", "Open a map");
@@ -83,7 +83,7 @@ namespace console
 			map_cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
 			{
-				auto cmd = map_cmd->add_subcommand("create_entity", "Create an entity from a template");
+				auto cmd = map_cmd->add_subcommand("spawn", "Spawn an entity from a template");
 				static std::string template_name;
 				static float x;
 				static float y;
@@ -92,7 +92,7 @@ namespace console
 				cmd->add_option("x", x, "The x position of the entity")->required();
 				cmd->add_option("y", y, "The y position of the entity")->required();
 				cmd->add_option("depth", depth, "The depth of the entity");
-				cmd->callback([]() { map::create_entity(template_name, { x, y }, depth); });
+				cmd->callback([]() { map::spawn(template_name, { x, y }, depth); });
 			}
 			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
 				->add_option_function<std::string>("name", map::set_spawnpoint,
@@ -189,30 +189,26 @@ namespace console
 
 		// UI
 		{
-			auto cmd = app.add_subcommand("ui", "Manage UI");
-			cmd->add_subcommand("reload", "Reload all style sheets")
-				->callback(ui::reload_style_sheets);
-			cmd->add_subcommand("show", "Show a document")
+			auto ui_cmd = app.add_subcommand("ui", "Manage UI");
+			ui_cmd->add_subcommand("reload_styles", "Reload all style sheets")
+				->callback(ui::reload_styles);
+			ui_cmd->add_subcommand("show", "Show a document")
 				->add_option_function<std::string>("name", ui::show, "The name of the document")
 				->required();
-			cmd->add_subcommand("hide", "Hide a document")
+			ui_cmd->add_subcommand("hide", "Hide a document")
 				->add_option_function<std::string>("name", ui::hide, "The name of the document")
 				->required();
-			
-		}
-
-		// UI - TEXTBOX
-		//TODO: make subcommand of ui command
-		{
-			auto cmd = app.add_subcommand("textbox", "Manage the textbox");
-			cmd->add_subcommand("add", "Add textbox entries to the end of the queue")
-				->add_option_function<std::string>("name",
-					ui::add_textbox_entries, "The name of the entries")
-				->required();
-			cmd->add_subcommand("set", "Set the queue to the given textbox entries")
-				->add_option_function<std::string>("name",
-					ui::set_textbox_entries, "The name of the entries")
-				->required();
+			{
+				auto cmd = ui_cmd->add_subcommand("textbox", "Manage the textbox");
+				cmd->add_subcommand("add", "Add textbox entries to the end of the queue")
+					->add_option_function<std::string>("name",
+						ui::add_textbox_entries, "The name of the entries")
+					->required();
+				cmd->add_subcommand("set", "Set the queue to the given textbox entries")
+					->add_option_function<std::string>("name",
+						ui::set_textbox_entries, "The name of the entries")
+					->required();
+			}
 		}
 
 		// ECS

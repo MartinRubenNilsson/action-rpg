@@ -78,7 +78,7 @@ namespace map
 		return *texture;
 	}
 
-	entt::entity _create_entity(
+	entt::entity _spawn(
 		const tmx::Object& object,
 		const sf::Vector2f* position, // If null, use object position.
 		float depth)
@@ -464,7 +464,7 @@ namespace map
 					continue;
 				auto& object_group = layer->getLayerAs<tmx::ObjectGroup>();
 				for (const auto& object : object_group.getObjects())
-					_create_entity(object, nullptr, (float)layer_index);
+					_spawn(object, nullptr, (float)layer_index);
 			}
 
 			// Create entities from tile layers second.
@@ -494,7 +494,7 @@ namespace map
 			bounds.height * METERS_PER_PIXEL);
 	}
 
-	entt::entity create_entity(
+	entt::entity spawn(
 		const std::string& template_name,
 		const sf::Vector2f& position,
 		float depth)
@@ -508,7 +508,7 @@ namespace map
 			console::log_error("Entity template not found: " + template_name);
 			return entt::null;
 		}
-		return _create_entity(object_it->second, &position, 10.f);
+		return _spawn(object_it->second, &position, 10.f);
 	}
 
 	void set_spawnpoint(const std::string& entity_name) {

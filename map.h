@@ -35,10 +35,10 @@ namespace map
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
 
-	// Creates an entity from the given Tiled object template,
+	// Spawns an entity from the given Tiled object template,
 	// which must be used at least once in the current map.
 	// Returns entt::null if the template was not found.
-	entt::entity create_entity(
+	entt::entity spawn(
 		const std::string& template_name,
 		const sf::Vector2f& position, // In world space units (meters).
 		float depth = 100.f);

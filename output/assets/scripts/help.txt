@@ -51,10 +51,10 @@ audio
 map
   Manage maps
   Subcommands:
-    reload_textures             Reload all textures referenced by any map
+    reload_textures             Reload all textures in use by any map
     open                        Open a map
     close                       Close the current map
-    create_entity               Create an entity from a template
+    spawn                       Spawn an entity from a template
     spawnpoint                  Set the player spawnpoint entity
 
 data
@@ -76,15 +76,10 @@ data
 ui
   Manage UI
   Subcommands:
-    reload                      Reload all style sheets
+    reload_styles               Reload all style sheets
     show                        Show a document
     hide                        Hide a document
-
-textbox
-  Manage the textbox
-  Subcommands:
-    add                         Add textbox entries to the end of the queue
-    set                         Set the queue to the given textbox entries
+    textbox                     Manage the textbox
 
 ecs
   Manage the ECS
