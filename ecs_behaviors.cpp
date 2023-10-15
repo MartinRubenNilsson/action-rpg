@@ -1,6 +1,6 @@
 #include "ecs_behaviors.h"
 #include "behavior.h"
-#include "behavior_internal.h"
+#include "behavior_nodes.h"
 #include "ecs_common.h"
 #include "console.h"
 
@@ -8,7 +8,7 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	bool behavior_exists(const std::string& tree_name)
+	bool behavior_tree_exists(const std::string& tree_name)
 	{
 		for (const auto& loaded_tree : behavior::get_tree_names())
 			if (loaded_tree == tree_name)
@@ -22,7 +22,7 @@ namespace ecs
 			entity_node->handle = entt::handle(_registry, entity);
 	}
 
-	bool set_behavior(entt::entity entity, const std::string& tree_name)
+	bool emplace_behavior_tree(entt::entity entity, const std::string& tree_name)
 	{
 		if (!_registry.valid(entity)) return false;
 		try
@@ -40,9 +40,9 @@ namespace ecs
 		return false;
 	}
 
-	void update_behaviors()
+	void update_behavior_trees()
 	{
-		// Sync blackboard properties with ECS properties
+		// Write ECS properties to blackboard properties
 		for (auto [entity, tree, properties]
 			: _registry.view<BT::Tree, Properties>().each())
 		{
@@ -75,7 +75,7 @@ namespace ecs
 
 		// TODO
 		// 
-		//// Sync ECS properties with blackboard properties
+		//// Write blackboard properties to ECS properties
 		//for (auto [entity, tree, properties]
 		//	: _registry.view<BT::Tree, Properties>().each())
 		//{

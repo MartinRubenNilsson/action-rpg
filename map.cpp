@@ -10,7 +10,7 @@
 #include "math_vectors.h"
 #include "ecs.h"
 #include "ecs_common.h"
-#include "ecs_graphics.h"
+#include "ecs_tiles.h"
 #include "ecs_behaviors.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
@@ -78,6 +78,113 @@ namespace map
 		return *texture;
 	}
 
+	std::vector<tmx::Layer*> _unpack_layer_groups(const std::vector<tmx::Layer::Ptr>& layers)
+	{
+		std::vector<tmx::Layer*> unpacked_layers;
+		for (const auto& layer : layers)
+		{
+			if (layer->getType() == tmx::Layer::Type::Group)
+			{
+				auto unpacked_sublayers = _unpack_layer_groups(
+					layer->getLayerAs<tmx::LayerGroup>().getLayers());
+				unpacked_layers.insert(unpacked_layers.end(),
+					unpacked_sublayers.begin(), unpacked_sublayers.end());
+			}
+			else
+			{
+				unpacked_layers.push_back(layer.get());
+			}
+		}
+		return unpacked_layers;
+	}
+
+	void _create_tiles(
+		const tmx::Map& map,
+		const tmx::TileLayer& tile_layer,
+		float depth)
+	{
+		tmx::Vector2u tile_count = map.getTileCount();
+		tmx::Vector2u tile_size = map.getTileSize();
+		const auto& tiles = tile_layer.getTiles();
+		auto& registry = ecs::get_registry();
+
+		for (uint32_t tile_y = 0; tile_y < tile_count.y; tile_y++)
+		{
+			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
+			{
+				auto [tile_id, flip_flags] = tiles[tile_y * tile_count.x + tile_x];
+				if (!tile_id) continue; // Skip empty tiles.
+
+				const tmx::Tileset *tileset = nullptr;
+				for (const auto& ts : map.getTilesets())
+				{
+					if (ts.hasTile(tile_id))
+					{
+						tileset = &ts;
+						break;
+					}
+				}
+				assert(tileset && "Tileset not found.");
+				auto tile = tileset->getTile(tile_id);
+				assert(tile && "Tile not found.");
+
+				float x = (float)tile_x * tile_size.x; // In pixels.
+				float y = (float)tile_y * tile_size.y; // In pixels.
+
+				entt::entity entity = registry.create();
+				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
+				ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
+				ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
+				ecs_tile.sprite.setPosition(x, y);
+				ecs_tile.depth = depth;
+
+				const auto& colliders = tile->objectGroup.getObjects();
+				if (colliders.empty())
+					continue;
+
+				b2BodyDef body_def;
+				body_def.type = b2_staticBody;
+				body_def.position.x = x * METERS_PER_PIXEL;
+				body_def.position.y = y * METERS_PER_PIXEL;
+				body_def.fixedRotation = true;
+				body_def.userData.pointer = (uintptr_t)entity;
+
+				b2Body* body = physics::create_body(&body_def);
+				assert(body && "Failed to create body.");
+
+				for (const tmx::Object& collider : colliders)
+				{
+					float hw = collider.getAABB().width / 2.0f;
+					float hh = collider.getAABB().height / 2.0f;
+					hw *= METERS_PER_PIXEL;
+					hh *= METERS_PER_PIXEL;
+					b2Vec2 center(hw, hh);
+
+					switch (collider.getShape())
+					{
+					case tmx::Object::Shape::Rectangle:
+					{
+						b2PolygonShape shape;
+						shape.SetAsBox(hw, hh, center, 0.f);
+						body->CreateFixture(&shape, 0.0f);
+						break;
+					}
+					case tmx::Object::Shape::Ellipse:
+					{
+						b2CircleShape shape;
+						shape.m_p = center;
+						shape.m_radius = hw;
+						body->CreateFixture(&shape, 0.0f);
+						break;
+					}
+					}
+				}
+
+				registry.emplace<b2Body*>(entity, body);
+			}
+		}
+	}
+
 	entt::entity _spawn(
 		const tmx::Object& object,
 		const sf::Vector2f* position, // If null, use object position.
@@ -95,28 +202,6 @@ namespace map
 
 		registry.emplace<ecs::Name>(entity, object.getName());
 		registry.emplace<ecs::Type>(entity, object.getType());
-
-		auto& props = registry.emplace<ecs::Properties>(entity).properties;
-		for (const auto& prop : object.getProperties())
-		{
-			switch (prop.getType())
-			{
-			case tmx::Property::Type::Boolean:
-				props.emplace_back(prop.getName(), prop.getBoolValue());
-				break;
-			case tmx::Property::Type::Float:
-				props.emplace_back(prop.getName(), prop.getFloatValue());
-				break;
-			case tmx::Property::Type::Int:
-				props.emplace_back(prop.getName(), prop.getIntValue());
-				break;
-			case tmx::Property::Type::String:
-				props.emplace_back(prop.getName(), prop.getStringValue());
-				break;
-			case tmx::Property::Type::Object:
-				props.emplace_back(prop.getName(), (entt::entity)prop.getObjectValue());
-			}
-		}
 
 		float x = object.getAABB().left * METERS_PER_PIXEL;
 		float y = object.getAABB().top * METERS_PER_PIXEL;
@@ -263,8 +348,34 @@ namespace map
 			}
 		}
 
-		if (ecs::behavior_exists(object.getType()))
-			ecs::set_behavior(entity, object.getType());
+		auto& props = registry.emplace<ecs::Properties>(entity).properties;
+		for (const auto& prop : object.getProperties())
+		{
+			switch (prop.getType())
+			{
+			case tmx::Property::Type::Boolean:
+				props.emplace_back(prop.getName(), prop.getBoolValue());
+				break;
+			case tmx::Property::Type::Float:
+				props.emplace_back(prop.getName(), prop.getFloatValue());
+				break;
+			case tmx::Property::Type::Int:
+				props.emplace_back(prop.getName(), prop.getIntValue());
+				break;
+			case tmx::Property::Type::String:
+				props.emplace_back(prop.getName(), prop.getStringValue());
+				break;
+			case tmx::Property::Type::Object:
+				props.emplace_back(prop.getName(), (entt::entity)prop.getObjectValue());
+			}
+		}
+
+		std::string behavior;
+		if (ecs::get_string(entity, "behavior", behavior))
+		{
+			if (ecs::behavior_tree_exists(behavior))
+				ecs::emplace_behavior_tree(entity, behavior);
+		}
 
 		if (object.getType() == "player")
 		{
@@ -297,113 +408,6 @@ namespace map
 		}
 
 		return entity;
-	}
-
-	void _create_tiles(
-		const tmx::Map& map,
-		const tmx::TileLayer& tile_layer,
-		float depth)
-	{
-		tmx::Vector2u tile_count = map.getTileCount();
-		tmx::Vector2u tile_size = map.getTileSize();
-		const auto& tiles = tile_layer.getTiles();
-		auto& registry = ecs::get_registry();
-
-		for (uint32_t tile_y = 0; tile_y < tile_count.y; tile_y++)
-		{
-			for (uint32_t tile_x = 0; tile_x < tile_count.x; tile_x++)
-			{
-				auto [tile_id, flip_flags] = tiles[tile_y * tile_count.x + tile_x];
-				if (!tile_id) continue; // Skip empty tiles.
-
-				const tmx::Tileset *tileset = nullptr;
-				for (const auto& ts : map.getTilesets())
-				{
-					if (ts.hasTile(tile_id))
-					{
-						tileset = &ts;
-						break;
-					}
-				}
-				assert(tileset && "Tileset not found.");
-				auto tile = tileset->getTile(tile_id);
-				assert(tile && "Tile not found.");
-
-				float x = (float)tile_x * tile_size.x; // In pixels.
-				float y = (float)tile_y * tile_size.y; // In pixels.
-
-				entt::entity entity = registry.create();
-				auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tileset, tile);
-				ecs_tile.sprite.setTexture(_get_texture(tileset->getImagePath()));
-				ecs_tile.sprite.setTextureRect(ecs_tile.get_texture_rect());
-				ecs_tile.sprite.setPosition(x, y);
-				ecs_tile.depth = depth;
-
-				const auto& colliders = tile->objectGroup.getObjects();
-				if (colliders.empty())
-					continue;
-
-				b2BodyDef body_def;
-				body_def.type = b2_staticBody;
-				body_def.position.x = x * METERS_PER_PIXEL;
-				body_def.position.y = y * METERS_PER_PIXEL;
-				body_def.fixedRotation = true;
-				body_def.userData.pointer = (uintptr_t)entity;
-
-				b2Body* body = physics::create_body(&body_def);
-				assert(body && "Failed to create body.");
-
-				for (const tmx::Object& collider : colliders)
-				{
-					float hw = collider.getAABB().width / 2.0f;
-					float hh = collider.getAABB().height / 2.0f;
-					hw *= METERS_PER_PIXEL;
-					hh *= METERS_PER_PIXEL;
-					b2Vec2 center(hw, hh);
-
-					switch (collider.getShape())
-					{
-					case tmx::Object::Shape::Rectangle:
-					{
-						b2PolygonShape shape;
-						shape.SetAsBox(hw, hh, center, 0.f);
-						body->CreateFixture(&shape, 0.0f);
-						break;
-					}
-					case tmx::Object::Shape::Ellipse:
-					{
-						b2CircleShape shape;
-						shape.m_p = center;
-						shape.m_radius = hw;
-						body->CreateFixture(&shape, 0.0f);
-						break;
-					}
-					}
-				}
-
-				registry.emplace<b2Body*>(entity, body);
-			}
-		}
-	}
-
-	std::vector<tmx::Layer*> _unpack_layer_groups(const std::vector<tmx::Layer::Ptr>& layers)
-	{
-		std::vector<tmx::Layer*> unpacked_layers;
-		for (const auto& layer : layers)
-		{
-			if (layer->getType() == tmx::Layer::Type::Group)
-			{
-				auto unpacked_sublayers = _unpack_layer_groups(
-					layer->getLayerAs<tmx::LayerGroup>().getLayers());
-				unpacked_layers.insert(unpacked_layers.end(),
-					unpacked_sublayers.begin(), unpacked_sublayers.end());
-			}
-			else
-			{
-				unpacked_layers.push_back(layer.get());
-			}
-		}
-		return unpacked_layers;
 	}
 
 	void update()

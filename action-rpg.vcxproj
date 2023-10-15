@@ -119,9 +119,7 @@
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="behavior.cpp" />
-    <ClCompile Include="behavior_nodes_ecs.cpp" />
-    <ClCompile Include="behavior_nodes_console.cpp" />
-    <ClCompile Include="behavior_nodes_player.cpp" />
+    <ClCompile Include="behavior_nodes.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="data.cpp" />
@@ -148,7 +146,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ecs_graphics.cpp" />
+    <ClCompile Include="ecs_tiles.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="window.cpp" />
@@ -159,7 +157,7 @@
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="behavior.h" />
-    <ClInclude Include="behavior_internal.h" />
+    <ClInclude Include="behavior_nodes.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="ecs_camera.h" />
@@ -194,7 +192,7 @@
     <ClInclude Include="RmlUi_Renderer_GL2.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ecs_graphics.h" />
+    <ClInclude Include="ecs_tiles.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="physics_helpers.h" />
     <ClInclude Include="window.h" />

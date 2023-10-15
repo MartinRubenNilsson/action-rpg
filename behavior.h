@@ -9,7 +9,7 @@ namespace behavior
 
 	// Writes so-called "models" of all registered nodes to a special XML file,
 	// which can be loaded by the Groot2 editor to make them available for use.
-	void write_node_models_file(const std::string& path);
+	void write_node_models_file(const std::string& filename);
 
 	// Loads all behavior tree XML files in the assets/behaviors directory.
 	// This function should only be called once.

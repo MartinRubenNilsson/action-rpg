@@ -6,7 +6,7 @@
     <ClCompile Include="ui.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_graphics.cpp">
+    <ClCompile Include="ecs_tiles.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="ui_bindings.cpp">
@@ -39,9 +39,6 @@
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="behavior_nodes_ecs.cpp">
-      <Filter>behavior</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -63,10 +60,7 @@
     <ClCompile Include="ecs_physics.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="behavior_nodes_console.cpp">
-      <Filter>behavior</Filter>
-    </ClCompile>
-    <ClCompile Include="behavior_nodes_player.cpp">
+    <ClCompile Include="behavior_nodes.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp" />
@@ -100,7 +94,7 @@
     <ClInclude Include="ui.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_graphics.h">
+    <ClInclude Include="ecs_tiles.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ui_bindings.h">
@@ -154,7 +148,7 @@
     <ClInclude Include="ecs_physics.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="behavior_internal.h">
+    <ClInclude Include="behavior_nodes.h">
       <Filter>behavior</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />

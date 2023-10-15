@@ -3,6 +3,7 @@
  <tileset firstgid="1" source="../tilesets/naked_human.tsx"/>
  <object name="very evil enemy" type="enemy" gid="1" width="64" height="64">
   <properties>
+   <property name="behavior" value="enemy"/>
    <property name="message" value="Hello, evil world!"/>
   </properties>
  </object>

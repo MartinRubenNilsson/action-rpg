@@ -1,5 +1,5 @@
 #include "behavior.h"
-#include "behavior_internal.h"
+#include "behavior_nodes.h"
 #include <behaviortree_cpp/xml_parsing.h> // writeTreeNodesModelXML()
 #include "console.h"
 
@@ -7,18 +7,15 @@ namespace behavior
 {
 	BT::BehaviorTreeFactory _factory;
 
-	void register_nodes()
-	{
-		_register_nodes_console(_factory);
-		_reigster_nodes_ecs(_factory);
-		_register_nodes_player(_factory);
+	void register_nodes() {
+		_register_nodes(_factory);
 	}
 
-	void write_node_models_file(const std::string& path)
+	void write_node_models_file(const std::string& filename)
 	{
 		std::string models_xml = BT::writeTreeNodesModelXML(_factory);
 		models_xml.insert(5, " BTCPP_format = \"4\""); // add missing format version so Groot2 doesn't complain
-		std::ofstream file(path);
+		std::ofstream file(filename);
 		file << models_xml;
 	}
 

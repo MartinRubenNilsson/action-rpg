@@ -4,7 +4,7 @@
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_behaviors.h"
-#include "ecs_graphics.h"
+#include "ecs_tiles.h"
 #include "ecs_camera.h"
 
 namespace ecs
@@ -26,9 +26,9 @@ namespace ecs
 	void update(float dt)
 	{
 		update_player();
-		update_behaviors();
+		update_behavior_trees();
 		update_common(dt);
-		update_graphics(dt);
+		update_tiles(dt);
 		update_cameras(dt);
 	}
 	 

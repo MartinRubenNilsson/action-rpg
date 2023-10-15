@@ -134,7 +134,7 @@
         "martin_test.tmx"
     ],
     "project": "action-rpg.tiled-project",
-    "property.type": "float",
+    "property.type": "string",
     "recentFiles": [
         "tilesets/naked_human.tsx",
         "maps/martin_test.tmx",
