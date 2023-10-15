@@ -459,7 +459,7 @@ namespace map
 	void load_maps()
 	{
 		assert(_maps.empty() && "load_maps() should only be called once.");
-		for (const auto& entry : std::filesystem::directory_iterator("assets/maps"))
+		for (const auto& entry : std::filesystem::directory_iterator("assets/tiled/maps"))
 		{
 			if (entry.path().extension() != ".tmx")
 				continue;

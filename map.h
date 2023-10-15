@@ -9,7 +9,7 @@ namespace map
 	// has been opened at least once.
 	void reload_textures();
 
-	// Loads all TMX maps in the assets/maps directory.
+	// Loads all TMX maps in the assets/tiled/maps directory.
 	// This function should only be called once.
 	void load_maps();
 
