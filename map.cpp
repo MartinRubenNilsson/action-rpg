@@ -379,8 +379,7 @@ namespace map
 
 		if (object.getType() == "player")
 		{
-			ecs::set_player_entity(entity);
-
+			auto& player = registry.emplace<ecs::Player>(entity);
 			auto& camera = ecs::get_registry().emplace<ecs::Camera>(entity);
 			camera.follow = entity;
 			camera.confining_rect = get_bounds();

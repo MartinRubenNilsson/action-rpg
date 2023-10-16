@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="22">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="18" nextobjectid="23">
  <properties>
   <property name="music" value="mus_quiet"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/dungeon.tsx"/>
  <tileset firstgid="626" source="../tilesets/naked_human.tsx"/>
+ <tileset firstgid="690" source="../tilesets/effects/fire_spritesheet.tsx"/>
  <layer id="6" name="floor" width="30" height="30">
   <data encoding="csv">
 31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
@@ -138,6 +139,7 @@
  <objectgroup id="4" name="characters">
   <object id="3" template="../templates/player.tx" type="player" x="100.333" y="182.916"/>
   <object id="4" template="../templates/enemy.tx" type="enemy" x="213" y="151.333"/>
+  <object id="22" gid="690" x="59.3333" y="260" width="100" height="100"/>
  </objectgroup>
  <objectgroup id="17" name="cameras">
   <object id="19" name="cam1" type="camera" x="177.373" y="272.93">

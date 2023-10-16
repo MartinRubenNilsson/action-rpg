@@ -25,7 +25,7 @@ namespace ecs
 
 	void update(float dt)
 	{
-		update_player();
+		update_player(dt);
 		update_behavior_trees();
 		update_common(dt);
 		update_tiles(dt);
