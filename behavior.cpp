@@ -51,13 +51,74 @@ namespace behavior
 		}
 	};
 
-	// CONSOLE NODES
+	// DECORATORS
+
+	struct SucceederNode : DecoratorNode
+	{
+		Status update(float dt) override
+		{
+			child->update(dt);
+			return SUCCESS;
+		}
+	};
+
+	struct InverterNode : DecoratorNode
+	{
+		Status update(float dt) override
+		{
+			switch (child->update(dt))
+			{
+			case SUCCESS:
+				return FAILURE;
+			case FAILURE:
+				return SUCCESS;
+			default:
+				return RUNNING;
+			}
+		}
+	};
+
+	struct CooldownNode : DecoratorNode
+	{
+		float cooldown_time = 0.f;
+		float time_left = 0.f;
+
+		Status update(float dt) override
+		{
+			if (time_left > 0.f)
+			{
+				time_left -= dt;
+				return FAILURE;
+			}
+			Status child_status = child->update(dt);
+			if (child_status != RUNNING)
+				time_left = cooldown_time;
+			return child_status;
+		}
+	};
+
+	// LEAVES
+
+	struct WaitNode : Node
+	{
+		float wait_time = 0.f;
+		float time_elapsed = 0.f;
+
+		Status update(float dt) override
+		{
+			time_elapsed += dt;
+			if (time_elapsed >= wait_time)
+			{
+				time_elapsed = 0.0f;
+				return SUCCESS;
+			}
+			return RUNNING;
+		}
+	};
 
 	struct ConsoleLogNode : Node
 	{
 		std::string message;
-
-		ConsoleLogNode(const std::string& message) : message(message) {}
 
 		Status update(float dt) override
 		{
@@ -70,8 +131,6 @@ namespace behavior
 	{
 		std::string command_line;
 
-		ConsoleExecuteNode(const std::string& command_line) : command_line(command_line) {}
-
 		Status update(float dt) override
 		{
 			console::execute(command_line);
@@ -81,19 +140,60 @@ namespace behavior
 
 	// FACTORY FUNCTIONS
 
-	CompositeNode::Ptr create_selector_node() {
-		return std::make_shared<SelectorNode>();
+	Node::Ptr create_selector_node(const std::vector<Node::Ptr>& children)
+	{
+		auto node = std::make_shared<SelectorNode>();
+		node->children = children;
+		return node;
 	}
 
-	CompositeNode::Ptr create_sequence_node() {
-		return std::make_shared<SequenceNode>();
+	Node::Ptr create_sequence_node(const std::vector<Node::Ptr>& children)
+	{
+		auto node = std::make_shared<SequenceNode>();
+		node->children = children;
+		return node;
     }
 
-	Node::Ptr create_console_log_node(const std::string& message) {
-		return std::make_shared<ConsoleLogNode>(message);
+	Node::Ptr create_succeeder_node(Node::Ptr child)
+	{
+		auto node = std::make_shared<SucceederNode>();
+		node->child = child;
+		return node;
 	}
 
-	Node::Ptr create_console_execute_node(const std::string& command_line) {
-		return std::make_shared<ConsoleExecuteNode>(command_line);
+	Node::Ptr create_inverter_node(Node::Ptr child)
+	{
+		auto node = std::make_shared<InverterNode>();
+		node->child = child;
+		return node;
+	}
+
+	Node::Ptr create_cooldown_node(Node::Ptr child, float cooldown_time)
+	{
+		auto node = std::make_shared<CooldownNode>();
+		node->child = child;
+		node->cooldown_time = cooldown_time;
+		return node;
+	}
+
+	Node::Ptr create_wait_node(float wait_time)
+	{
+		auto node = std::make_shared<WaitNode>();
+		node->wait_time = wait_time;
+		return node;
+	}
+
+	Node::Ptr create_console_log_node(const std::string& message)
+	{
+		auto node = std::make_shared<ConsoleLogNode>();
+		node->message = message;
+		return node;
+	}
+
+	Node::Ptr create_console_execute_node(const std::string& command_line)
+	{
+		auto node = std::make_shared<ConsoleExecuteNode>();
+		node->command_line = command_line;
+		return node;
 	}
 }

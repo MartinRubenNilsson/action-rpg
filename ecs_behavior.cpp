@@ -14,8 +14,6 @@ namespace ecs
 	{
 		entt::entity entity;
 
-		DestroySelfNode(entt::entity entity) : entity(entity) {}
-
 		Status update(float dt) override
 		{
 			ecs::mark_for_destruction(entity);
@@ -26,8 +24,6 @@ namespace ecs
 	struct StopMovingNode : Node
 	{
 		entt::handle handle;
-
-		StopMovingNode(entt::entity entity) : handle(_registry, entity) {}
 
 		Status update(float dt) override
 		{
@@ -41,8 +37,6 @@ namespace ecs
 	struct IsPlayerInRangeNode : DecoratorNode
 	{
 		entt::handle handle;
-
-		IsPlayerInRangeNode(entt::entity entity) : handle(_registry, entity) {}
 
 		Status update(float dt) override
 		{
@@ -62,8 +56,6 @@ namespace ecs
 	{
 		entt::handle handle;
 
-		ApproachPlayerNode(entt::entity entity) : handle(_registry, entity) {}
-
 		Status update(float dt) override
 		{
 			if (!player_exists()) return FAILURE;
@@ -81,18 +73,35 @@ namespace ecs
 		}
 	};
 
+	Node::Ptr _create_is_player_in_range_node(Node::Ptr child, entt::entity entity)
+	{
+		auto node = std::make_shared<IsPlayerInRangeNode>();
+		node->child = child;
+		node->handle = entt::handle(_registry, entity);
+		return node;
+	}
+
+	Node::Ptr _create_approach_player_node(entt::entity entity)
+	{
+		auto node = std::make_shared<ApproachPlayerNode>();
+		node->handle = entt::handle(_registry, entity);
+		return node;
+	}
+
+	Node::Ptr _create_stop_moving_node(entt::entity entity)
+	{
+		auto node = std::make_shared<StopMovingNode>();
+		node->handle = entt::handle(_registry, entity);
+		return node;
+	}
+
 	Node::Ptr _create_enemy_behavior(entt::entity entity)
 	{
-		auto approach_player = std::make_shared<ApproachPlayerNode>(entity);
-		auto stop_moving = std::make_shared<StopMovingNode>(entity);
-
-		auto is_player_in_range = std::make_shared<IsPlayerInRangeNode>(entity);
-		is_player_in_range->child = approach_player;
-
-		auto root = create_selector_node();
-		root->children = { is_player_in_range, stop_moving };
-
-		return root;
+		return
+			create_selector_node({
+				_create_is_player_in_range_node(
+					_create_approach_player_node(entity), entity),
+				_create_stop_moving_node(entity)});
 	}
 
 	bool emplace_behavior(entt::entity entity, const std::string& behavior_name)
