@@ -37,17 +37,16 @@ namespace ecs
 	struct IsPlayerInRangeNode : DecoratorNode
 	{
 		entt::handle handle;
+		float range = 0.f;
 
 		Status update(float dt) override
 		{
 			if (!player_exists()) return FAILURE;
 			if (!handle.valid()) return FAILURE;
 			if (!handle.all_of<b2Body*>()) return FAILURE;
-			float radius;
-			if (!get_float(handle.entity(), "radius", radius)) return FAILURE;
 			sf::Vector2f center = get_world_center(handle.get<b2Body*>());
 			sf::Vector2f player_center = get_player_center();
-			if (length(player_center - center) > radius) return FAILURE;
+			if (length(player_center - center) > range) return FAILURE;
 			return child->update(dt);
 		}
 	};
@@ -73,11 +72,12 @@ namespace ecs
 		}
 	};
 
-	Node::Ptr _create_is_player_in_range_node(Node::Ptr child, entt::entity entity)
+	Node::Ptr _create_is_player_in_range_node(entt::entity entity, float range, Node::Ptr child)
 	{
 		auto node = std::make_shared<IsPlayerInRangeNode>();
-		node->child = child;
 		node->handle = entt::handle(_registry, entity);
+		node->range = range;
+		node->child = child;
 		return node;
 	}
 
@@ -99,20 +99,21 @@ namespace ecs
 	{
 		return
 			create_selector_node({
-				_create_is_player_in_range_node(
-					_create_approach_player_node(entity), entity),
+				_create_is_player_in_range_node(entity, 7.f,
+					_create_approach_player_node(entity)),
 				_create_stop_moving_node(entity)});
 	}
 
 	bool emplace_behavior(entt::entity entity, const std::string& behavior_name)
 	{
-		if (behavior_name == "enemy")
-		{
-			_registry.emplace_or_replace<Node::Ptr>(entity, _create_enemy_behavior(entity));
-			return true;
-		}
+		Node::Ptr node;
 
-		return false;
+		if (behavior_name == "enemy")
+			node = _create_enemy_behavior(entity);
+
+		if (!node) return false;
+		_registry.emplace_or_replace<Node::Ptr>(entity, node);
+		return true;
 	}
 
 	void update_behaviors(float dt)

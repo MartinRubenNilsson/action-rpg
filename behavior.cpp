@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "behavior.h"
 #include "console.h"
 
