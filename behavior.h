@@ -24,6 +24,13 @@ namespace behavior
 		std::vector<Node::Ptr> children;
 	};
 
+	struct DecoratorNode : public Node
+	{
+		using Ptr = std::shared_ptr<DecoratorNode>;
+
+		Node::Ptr child;
+	};
+
 	CompositeNode::Ptr create_selector_node();
 	CompositeNode::Ptr create_sequence_node();
 

@@ -38,7 +38,7 @@ namespace ecs
 		}
 	};
 
-	struct IsPlayerInRangeNode : Node
+	struct IsPlayerInRangeNode : DecoratorNode
 	{
 		entt::handle handle;
 
@@ -53,7 +53,8 @@ namespace ecs
 			if (!get_float(handle.entity(), "radius", radius)) return FAILURE;
 			sf::Vector2f center = get_world_center(handle.get<b2Body*>());
 			sf::Vector2f player_center = get_player_center();
-			return (length(player_center - center) <= radius) ? SUCCESS: FAILURE;
+			if (length(player_center - center) > radius) return FAILURE;
+			return child->update(dt);
 		}
 	};
 
@@ -82,15 +83,14 @@ namespace ecs
 
 	Node::Ptr _create_enemy_behavior(entt::entity entity)
 	{
-		auto is_player_in_range = std::make_shared<IsPlayerInRangeNode>(entity);
 		auto approach_player = std::make_shared<ApproachPlayerNode>(entity);
 		auto stop_moving = std::make_shared<StopMovingNode>(entity);
 
-		auto approach_player_in_range = create_sequence_node();
-		approach_player_in_range->children = { is_player_in_range, approach_player };
+		auto is_player_in_range = std::make_shared<IsPlayerInRangeNode>(entity);
+		is_player_in_range->child = approach_player;
 
 		auto root = create_selector_node();
-		root->children = { approach_player_in_range, stop_moving };
+		root->children = { is_player_in_range, stop_moving };
 
 		return root;
 	}

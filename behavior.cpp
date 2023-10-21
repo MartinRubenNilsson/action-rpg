@@ -13,7 +13,6 @@ namespace behavior
 		{
 			for (size_t child_index = last_child_index; child_index < children.size(); ++child_index)
 			{
-				assert(children[child_index]);
 				switch (children[child_index]->update(dt))
 				{
 				case RUNNING:
@@ -37,7 +36,6 @@ namespace behavior
 		{
 			for (size_t child_index = last_child_index; child_index < children.size(); ++child_index)
 			{
-				assert(children[child_index]);
 				switch (children[child_index]->update(dt))
 				{
 				case RUNNING:
