@@ -108,6 +108,26 @@ namespace behavior
 		}
 	};
 
+	struct TimeLimitNode : DecoratorNode
+	{
+		float time_limit = 0.f;
+		float time_elapsed = 0.f;
+
+		Status update(float dt) override
+		{
+			time_elapsed += dt;
+			if (time_elapsed >= time_limit)
+			{
+				time_elapsed = 0.0f;
+				return FAILURE;
+			}
+			Status child_status = child->update(dt);
+			if (child_status != RUNNING)
+				time_elapsed = 0.0f;
+			return child_status;
+		}
+	};
+
 	// LEAVES
 
 	struct WaitNode : Node
@@ -183,6 +203,14 @@ namespace behavior
 	{
 		auto node = std::make_shared<CooldownNode>();
 		node->cooldown_time = cooldown_time;
+		node->child = child;
+		return node;
+	}
+
+	NodePtr create_time_limit_node(float time_limit, NodePtr child)
+	{
+		auto node = std::make_shared<TimeLimitNode>();
+		node->time_limit = time_limit;
 		node->child = child;
 		return node;
 	}

@@ -25,6 +25,7 @@ namespace behavior
 	NodePtr create_succeeder_node(NodePtr child);
 	NodePtr create_inverter_node(NodePtr child);
 	NodePtr create_cooldown_node(float cooldown_time, NodePtr child);
+	NodePtr create_time_limit_node(float time_limit, NodePtr child);
 
 	// LEAVES
 	NodePtr create_wait_node(float wait_time);
