@@ -65,6 +65,12 @@ namespace map
 	void close() {
 		_next_map_it = _maps.end();
 	}
+
+	void reset()
+	{
+		_next_map_it = _current_map_it;
+		_force_open = true;
+	}
 	
 	sf::Texture& _get_texture(const std::filesystem::path& path)
 	{

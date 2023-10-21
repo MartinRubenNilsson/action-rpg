@@ -23,7 +23,11 @@ namespace map
 	// The map will not be closed until update() is called.
 	void close();
 
-	// Executes the requests made by open() and close().
+	// Requests that the current map be reset.
+	// The map will not be reset until update() is called.
+	void reset();
+
+	// Executes the requests made by open(), close(), and reset().
 	// This function should be called once per frame.
 	void update();
 

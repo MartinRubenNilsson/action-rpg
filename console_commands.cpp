@@ -82,6 +82,8 @@ namespace console
 			}
 			map_cmd->add_subcommand("close", "Close the current map")
 				->callback(map::close);
+			map_cmd->add_subcommand("reset", "Reset the current map")
+				->callback(map::reset);
 			{
 				auto cmd = map_cmd->add_subcommand("spawn", "Spawn an entity from a template");
 				static std::string template_name;
