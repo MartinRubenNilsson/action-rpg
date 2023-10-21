@@ -82,6 +82,9 @@
     <ClCompile Include="random_noise.cpp">
       <Filter>random</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_behavior_nodes.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -200,6 +203,9 @@
     </ClInclude>
     <ClInclude Include="random_noise.h">
       <Filter>random</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_behavior_nodes.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

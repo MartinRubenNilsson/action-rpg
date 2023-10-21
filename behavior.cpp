@@ -6,6 +6,11 @@ namespace behavior
 {
 	// COMPOSITES
 
+	struct CompositeNode : Node
+	{
+		std::vector<NodePtr> children;
+	};
+
 	struct SelectorNode : CompositeNode
 	{
 		size_t last_child_index = 0;
@@ -53,6 +58,11 @@ namespace behavior
 	};
 
 	// DECORATORS
+
+	struct DecoratorNode : Node
+	{
+		NodePtr child;
+	};
 
 	struct SucceederNode : DecoratorNode
 	{
@@ -141,57 +151,57 @@ namespace behavior
 
 	// FACTORY FUNCTIONS
 
-	Node::Ptr create_selector_node(const std::vector<Node::Ptr>& children)
+	NodePtr create_selector_node(const std::vector<NodePtr>& children)
 	{
 		auto node = std::make_shared<SelectorNode>();
 		node->children = children;
 		return node;
 	}
 
-	Node::Ptr create_sequence_node(const std::vector<Node::Ptr>& children)
+	NodePtr create_sequence_node(const std::vector<NodePtr>& children)
 	{
 		auto node = std::make_shared<SequenceNode>();
 		node->children = children;
 		return node;
     }
 
-	Node::Ptr create_succeeder_node(Node::Ptr child)
+	NodePtr create_succeeder_node(NodePtr child)
 	{
 		auto node = std::make_shared<SucceederNode>();
 		node->child = child;
 		return node;
 	}
 
-	Node::Ptr create_inverter_node(Node::Ptr child)
+	NodePtr create_inverter_node(NodePtr child)
 	{
 		auto node = std::make_shared<InverterNode>();
 		node->child = child;
 		return node;
 	}
 
-	Node::Ptr create_cooldown_node(Node::Ptr child, float cooldown_time)
+	NodePtr create_cooldown_node(float cooldown_time, NodePtr child)
 	{
 		auto node = std::make_shared<CooldownNode>();
-		node->child = child;
 		node->cooldown_time = cooldown_time;
+		node->child = child;
 		return node;
 	}
 
-	Node::Ptr create_wait_node(float wait_time)
+	NodePtr create_wait_node(float wait_time)
 	{
 		auto node = std::make_shared<WaitNode>();
 		node->wait_time = wait_time;
 		return node;
 	}
 
-	Node::Ptr create_console_log_node(const std::string& message)
+	NodePtr create_console_log_node(const std::string& message)
 	{
 		auto node = std::make_shared<ConsoleLogNode>();
 		node->message = message;
 		return node;
 	}
 
-	Node::Ptr create_console_execute_node(const std::string& command_line)
+	NodePtr create_console_execute_node(const std::string& command_line)
 	{
 		auto node = std::make_shared<ConsoleExecuteNode>();
 		node->command_line = command_line;
