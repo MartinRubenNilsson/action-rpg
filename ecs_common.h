@@ -13,8 +13,6 @@ namespace ecs
 
 	struct Properties { std::vector<Property> properties; };
 
-	struct LifeSpan { float value = 0.f; };
-
 	entt::entity find_entity_by_name(const std::string& name);
 	entt::entity find_entity_by_type(const std::string& type);
 
@@ -35,8 +33,6 @@ namespace ecs
 	bool get_string(entt::entity entity, const std::string& name, std::string& value);
 	void set_entity(entt::entity entity, const std::string& name, entt::entity value);
 	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value);
-
-	void set_life_span(entt::entity entity, float life_span);
 
 	// Marks an entity to be destroyed at the end of the frame.
 	// Calling this function is almost always preferable

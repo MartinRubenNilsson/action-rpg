@@ -144,26 +144,10 @@ namespace ecs
 		return _get_property(entity, name, value);
 	}
 
-	void set_life_span(entt::entity entity, float life_span)
-	{
-		if (!_registry.valid(entity)) return;
-		_registry.emplace_or_replace<LifeSpan>(entity, life_span);
-	}
-
 	void mark_for_destruction(entt::entity entity)
 	{
 		if (!_registry.valid(entity)) return;
 		_entities_to_destroy.insert(entity);
-	}
-
-	void _update_life_spans(float dt)
-	{
-		for (auto [entity, life_span] : _registry.view<LifeSpan>().each())
-		{
-			life_span.value -= dt;
-			if (life_span.value <= 0)
-				mark_for_destruction(entity);
-		}
 	}
 
 	void _destroy_marked_entities()
@@ -176,7 +160,6 @@ namespace ecs
 
 	void update_common(float dt)
 	{
-		_update_life_spans(dt);
 		_destroy_marked_entities();
 	}
 }
