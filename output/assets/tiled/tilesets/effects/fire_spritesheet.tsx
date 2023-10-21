@@ -2,6 +2,11 @@
 <tileset version="1.10" tiledversion="1.10.2" name="fire_spritesheet" tilewidth="100" tileheight="100" tilecount="64" columns="8">
  <image source="fire_spritesheet.png" width="800" height="800"/>
  <tile id="0">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="48.5646" y="70.3349" width="6.9378" height="6.9378">
+    <ellipse/>
+   </object>
+  </objectgroup>
   <animation>
    <frame tileid="0" duration="20"/>
    <frame tileid="1" duration="20"/>

@@ -5,6 +5,8 @@
   <properties>
    <property name="behavior" value="enemy"/>
    <property name="message" value="Hello, evil world!"/>
+   <property name="radius" type="float" value="7"/>
+   <property name="speed" type="float" value="3"/>
   </properties>
  </object>
 </template>

@@ -119,7 +119,6 @@
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="behavior.cpp" />
-    <ClCompile Include="behavior_nodes.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="data.cpp" />
@@ -128,7 +127,7 @@
     <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="tables.cpp" />
     <ClCompile Include="ecs.cpp" />
-    <ClCompile Include="ecs_behaviors.cpp" />
+    <ClCompile Include="ecs_behavior.cpp" />
     <ClCompile Include="ecs_common.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
@@ -157,7 +156,6 @@
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="behavior.h" />
-    <ClInclude Include="behavior_nodes.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="ecs_camera.h" />
@@ -166,7 +164,7 @@
     <ClInclude Include="tables.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
-    <ClInclude Include="ecs_behaviors.h" />
+    <ClInclude Include="ecs_behavior.h" />
     <ClInclude Include="ecs_common.h" />
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />

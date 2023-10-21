@@ -11,7 +11,7 @@
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_tiles.h"
-#include "ecs_behaviors.h"
+#include "ecs_behavior.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
 
@@ -372,10 +372,7 @@ namespace map
 
 		std::string behavior;
 		if (ecs::get_string(entity, "behavior", behavior))
-		{
-			if (ecs::behavior_tree_exists(behavior))
-				ecs::emplace_behavior_tree(entity, behavior);
-		}
+			ecs::emplace_behavior(entity, behavior);
 
 		if (object.getType() == "player")
 		{
@@ -479,6 +476,10 @@ namespace map
 				auto& tile_layer = layer->getLayerAs<tmx::TileLayer>();
 				_create_tiles(map, tile_layer, (float)layer_index);
 			}
+		}
+		else
+		{
+			audio::stop_all();
 		}
 	}
 

@@ -29,7 +29,6 @@ int APIENTRY WinMain(
 
     audio::initialize();
     physics::initialize();
-    behavior::register_nodes();
     ecs::initialize();
     console::initialize();
     ui::initialize(window);
@@ -38,7 +37,6 @@ int APIENTRY WinMain(
 
     audio::load_banks();
     map::load_maps();
-    behavior::load_trees();
     ui::load_fonts_and_documents();
     tables::load_tables();
 
@@ -46,7 +44,6 @@ int APIENTRY WinMain(
 
 #ifdef _DEBUG
     console::write_help_file("assets/scripts/help.txt");
-    behavior::write_node_models_file("assets/behaviors/models/models.xml");
 #endif
 
     // EXECUTE STARTUP COMMANDS

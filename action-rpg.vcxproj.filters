@@ -42,7 +42,7 @@
     <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_behaviors.cpp">
+    <ClCompile Include="ecs_behavior.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
@@ -59,9 +59,6 @@
     </ClCompile>
     <ClCompile Include="ecs_physics.cpp">
       <Filter>ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="behavior_nodes.cpp">
-      <Filter>behavior</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
@@ -127,7 +124,7 @@
     <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_behaviors.h">
+    <ClInclude Include="ecs_behavior.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Renderer_GL2.h">
@@ -147,9 +144,6 @@
     </ClInclude>
     <ClInclude Include="ecs_physics.h">
       <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="behavior_nodes.h">
-      <Filter>behavior</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />
     <ClInclude Include="ui_textbox.h">

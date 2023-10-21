@@ -1,48 +1,101 @@
 #include "behavior.h"
-#include "behavior_nodes.h"
-#include <behaviortree_cpp/xml_parsing.h> // writeTreeNodesModelXML()
 #include "console.h"
 
 namespace behavior
 {
-	BT::BehaviorTreeFactory _factory;
+	// COMPOSITES
 
-	void register_nodes() {
-		_register_nodes(_factory);
-	}
-
-	void write_node_models_file(const std::string& filename)
+	struct SelectorNode : CompositeNode
 	{
-		std::string models_xml = BT::writeTreeNodesModelXML(_factory);
-		models_xml.insert(5, " BTCPP_format = \"4\""); // add missing format version so Groot2 doesn't complain
-		std::ofstream file(filename);
-		file << models_xml;
-	}
+		size_t last_child_index = 0;
 
-	void load_trees()
-	{
-		for (const auto& entry : std::filesystem::directory_iterator("assets/behaviors"))
+		Status update(float dt) override
 		{
-			if (entry.path().extension() != ".xml")
-				continue;
-
-			try
+			for (size_t child_index = last_child_index; child_index < children.size(); ++child_index)
 			{
-				_factory.registerBehaviorTreeFromFile(entry.path().string());
+				assert(children[child_index]);
+				switch (children[child_index]->update(dt))
+				{
+				case RUNNING:
+					last_child_index = child_index;
+					return RUNNING;
+				case SUCCESS:
+					last_child_index = 0;
+					return SUCCESS;
+				}
 			}
-			catch (const BT::RuntimeError& error)
-			{
-				console::log_error("Failed to load behavior tree from file: " + entry.path().generic_string());
-				console::log_error(error.what());
-			}
+			last_child_index = 0;
+			return FAILURE;
 		}
+	};
+
+    struct SequenceNode : CompositeNode
+	{
+		size_t last_child_index = 0;
+
+		Status update(float dt) override
+		{
+			for (size_t child_index = last_child_index; child_index < children.size(); ++child_index)
+			{
+				assert(children[child_index]);
+				switch (children[child_index]->update(dt))
+				{
+				case RUNNING:
+					last_child_index = child_index;
+					return RUNNING;
+				case FAILURE:
+					last_child_index = 0;
+					return FAILURE;
+				}
+			}
+			last_child_index = 0;
+			return SUCCESS;
+		}
+	};
+
+	// CONSOLE NODES
+
+	struct ConsoleLogNode : Node
+	{
+		std::string message;
+
+		ConsoleLogNode(const std::string& message) : message(message) {}
+
+		Status update(float dt) override
+		{
+			console::log(message);
+			return SUCCESS;
+		}
+	};
+
+	struct ConsoleExecuteNode : Node
+	{
+		std::string command_line;
+
+		ConsoleExecuteNode(const std::string& command_line) : command_line(command_line) {}
+
+		Status update(float dt) override
+		{
+			console::execute(command_line);
+			return SUCCESS;
+		}
+	};
+
+	// FACTORY FUNCTIONS
+
+	CompositeNode::Ptr create_selector_node() {
+		return std::make_shared<SelectorNode>();
 	}
 
-	std::vector<std::string> get_tree_names() {
-		return _factory.registeredBehaviorTrees();
+	CompositeNode::Ptr create_sequence_node() {
+		return std::make_shared<SequenceNode>();
+    }
+
+	Node::Ptr create_console_log_node(const std::string& message) {
+		return std::make_shared<ConsoleLogNode>(message);
 	}
 
-	BT::Tree create_tree(const std::string& name) {
-		return _factory.createTree(name);
+	Node::Ptr create_console_execute_node(const std::string& command_line) {
+		return std::make_shared<ConsoleExecuteNode>(command_line);
 	}
 }
