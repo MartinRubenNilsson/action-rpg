@@ -17,6 +17,14 @@ namespace behavior
 
 	using NodePtr = std::shared_ptr<Node>;
 
+	struct CompositeNode : Node {
+		std::vector<NodePtr> children;
+	};
+
+	struct DecoratorNode : Node {
+		NodePtr child;
+	};
+
 	// COMPOSITES
 	NodePtr create_selector_node(const std::vector<NodePtr>& children);
 	NodePtr create_sequence_node(const std::vector<NodePtr>& children);

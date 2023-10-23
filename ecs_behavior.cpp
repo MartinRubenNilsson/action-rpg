@@ -14,7 +14,7 @@ namespace ecs
 					create_selector_node({
 						create_is_player_in_range_node(entity, 1.f,
 							create_console_execute_node("map reset")),
-						create_approach_player_node(entity, 3.f)})),
+						create_approach_player_node(entity)})),
 				create_stop_moving_node(entity)});
 	}
 

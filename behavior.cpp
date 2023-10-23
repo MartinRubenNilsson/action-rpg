@@ -6,11 +6,6 @@ namespace behavior
 {
 	// COMPOSITES
 
-	struct CompositeNode : Node
-	{
-		std::vector<NodePtr> children;
-	};
-
 	struct SelectorNode : CompositeNode
 	{
 		size_t last_child_index = 0;
@@ -58,11 +53,6 @@ namespace behavior
 	};
 
 	// DECORATORS
-
-	struct DecoratorNode : Node
-	{
-		NodePtr child;
-	};
 
 	struct SucceederNode : DecoratorNode
 	{

@@ -125,6 +125,7 @@
     <ClCompile Include="ecs_behavior_nodes.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
     <ClCompile Include="ecs_console_commands.cpp" />
+    <ClCompile Include="random.cpp" />
     <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="tables.cpp" />
     <ClCompile Include="ecs.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="ecs_behavior_nodes.h" />
     <ClInclude Include="ecs_camera.h" />
     <ClInclude Include="ecs_console_commands.h" />
+    <ClInclude Include="random.h" />
     <ClInclude Include="random_noise.h" />
     <ClInclude Include="tables.h" />
     <ClInclude Include="defines.h" />

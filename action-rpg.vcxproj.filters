@@ -85,6 +85,9 @@
     <ClCompile Include="ecs_behavior_nodes.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="random.cpp">
+      <Filter>random</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -206,6 +209,9 @@
     </ClInclude>
     <ClInclude Include="ecs_behavior_nodes.h">
       <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="random.h">
+      <Filter>random</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
