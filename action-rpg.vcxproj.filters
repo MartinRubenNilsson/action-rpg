@@ -88,6 +88,9 @@
     <ClCompile Include="random.cpp">
       <Filter>random</Filter>
     </ClCompile>
+    <ClCompile Include="tiled.cpp">
+      <Filter>tiled</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -213,6 +216,9 @@
     <ClInclude Include="random.h">
       <Filter>random</Filter>
     </ClInclude>
+    <ClInclude Include="tiled.h">
+      <Filter>tiled</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -253,6 +259,9 @@
     </Filter>
     <Filter Include="random">
       <UniqueIdentifier>{fb500b78-a275-45ca-b853-96dc33ba7965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tiled">
+      <UniqueIdentifier>{6b60417d-4b8d-484b-a07f-0ba1149de84b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

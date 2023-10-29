@@ -9,6 +9,12 @@ namespace random
 
 	std::default_random_engine _engine(std::random_device{}());
 
+	bool coin_flip(float probability_of_true)
+	{
+		std::bernoulli_distribution dist(probability_of_true);
+		return dist(_engine);
+	}
+
 	float range_f(float min, float max)
 	{
 		std::uniform_real_distribution<float> dist(min, max);

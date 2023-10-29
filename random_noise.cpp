@@ -6,7 +6,7 @@ namespace random
 {
 	noise::module::Perlin _perlin;
 
-	double perlin_noise(double x, double y, double z) {
+	double perlin_noise_d(double x, double y, double z) {
 		return _perlin.GetValue(x, y, z);
 	}
 

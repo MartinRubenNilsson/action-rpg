@@ -12,6 +12,7 @@
 #include "ecs.h"
 #include "console.h"
 #include "tables.h"
+#include "tiled.h"
 
 int APIENTRY WinMain(
     _In_ HINSTANCE,
@@ -37,6 +38,7 @@ int APIENTRY WinMain(
 
     audio::load_banks();
     map::load_maps();
+    tiled::load_assets(); //todo
     ui::load_fonts_and_documents();
     tables::load_tables();
 
