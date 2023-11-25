@@ -21,14 +21,14 @@ int APIENTRY WinMain(
     _In_ PSTR command_line,
     _In_ int)
 {
-    sf::RenderWindow& window = window::create();
+    sf::RenderWindow window;
 
     // INITIALIZE
 
+    window::initialize(window);
     ImGui::SFML::Init(window, false);
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
     ImGui::SFML::UpdateFontTexture();
-
     audio::initialize();
     physics::initialize();
     ecs::initialize();
@@ -126,7 +126,6 @@ int APIENTRY WinMain(
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
-    window::destroy();
 
 	return 0;
 }

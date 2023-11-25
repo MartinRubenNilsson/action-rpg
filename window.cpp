@@ -3,12 +3,12 @@
 
 namespace window
 {
-	std::unique_ptr<sf::RenderWindow> _window;
+	sf::RenderWindow* _window = nullptr;
 	uint32_t _scale = 5;
 
-	sf::RenderWindow& create()
+	void initialize(sf::RenderWindow& window)
 	{
-		_window = std::make_unique<sf::RenderWindow>();
+		_window = &window;
 
 		sf::VideoMode video_mode(
 			_scale * VIEW_PIXEL_WIDTH,
@@ -20,14 +20,7 @@ namespace window
 		sf::View view(sf::FloatRect(
 			0, 0, VIEW_PIXEL_WIDTH, VIEW_PIXEL_HEIGHT));
 		_window->setView(view);
-
 		_window->setKeyRepeatEnabled(false);
-
-		return *_window;
-	}
-
-	void destroy() {
-		_window.reset();
 	}
 
 	void close() {

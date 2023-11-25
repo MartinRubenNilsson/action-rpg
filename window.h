@@ -2,9 +2,7 @@
 
 namespace window
 {
-	sf::RenderWindow& create();
-	void destroy();
-
+	void initialize(sf::RenderWindow& window);
 	void close();
 	void set_title(const std::string& title);
 	bool has_focus();
