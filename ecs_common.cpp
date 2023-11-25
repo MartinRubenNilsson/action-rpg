@@ -1,4 +1,5 @@
 #include "ecs_common.h"
+#include "tiled.h"
 
 namespace ecs
 {
@@ -8,9 +9,9 @@ namespace ecs
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, name_component] : _registry.view<Name>().each())
+		for (auto [entity, object] : _registry.view<tiled::Object>().each())
 		{
-			if (name_component.value == name)
+			if (object.name == name)
 				return entity;
 		}
 		return entt::null;
@@ -19,63 +20,35 @@ namespace ecs
 	entt::entity find_entity_by_type(const std::string& type)
 	{
 		if (type.empty()) return entt::null;
-		for (auto [entity, type_component] : _registry.view<Type>().each())
+		for (auto [entity, object] : _registry.view<tiled::Object>().each())
 		{
-			if (type_component.value == type)
+			if (object.class_ == type)
 				return entity;
 		}
 		return entt::null;
 	}
 
-	void set_name(entt::entity entity, const std::string& name)
-	{
-		if (!_registry.valid(entity)) return;
-		_registry.emplace_or_replace<Name>(entity, name);
-	}
-
 	std::string get_name(entt::entity entity)
 	{
 		std::string name;
-		if (auto ptr = _registry.try_get<Name>(entity))
-			name = ptr->value;
+		if (auto ptr = _registry.try_get<tiled::Object>(entity))
+			name = ptr->name;
 		return name;
-	}
-
-	void set_type(entt::entity entity, const std::string& type)
-	{
-		if (!_registry.valid(entity)) return;
-		_registry.emplace_or_replace<Type>(entity, type);
 	}
 
 	std::string get_type(entt::entity entity)
 	{
 		std::string type;
-		if (auto ptr = _registry.try_get<Type>(entity))
-			type = ptr->value;
+		if (auto ptr = _registry.try_get<tiled::Object>(entity))
+			type = ptr->class_;
 		return type;
-	}
-
-	void set_properties(entt::entity entity, const Properties& properties)
-	{
-		if (!_registry.valid(entity)) return;
-		_registry.emplace_or_replace<Properties>(entity, properties);
-	}
-
-	bool get_properties(entt::entity entity, Properties& properties)
-	{
-		if (auto ptr = _registry.try_get<Properties>(entity))
-		{
-			properties = *ptr;
-			return true;
-		}
-		return false;
 	}
 
 	template <typename T>
 	void _set_property(entt::entity entity, const std::string& name, const T& value)
 	{
 		if (!_registry.valid(entity)) return;
-		auto& props = _registry.get_or_emplace<Properties>(entity).properties;
+		auto& props = _registry.get_or_emplace<std::vector<tiled::Property>>(entity);
 		for (auto& prop : props)
 		{
 			if (prop.name == name)
@@ -90,9 +63,9 @@ namespace ecs
 	template <typename T>
 	bool _get_property(entt::entity entity, const std::string& name, T& value)
 	{
-		if (auto ptr = _registry.try_get<Properties>(entity))
+		if (auto props = _registry.try_get<std::vector<tiled::Property>>(entity))
 		{
-			for (const auto& prop : ptr->properties)
+			for (const auto& prop : *props)
 			{
 				if (prop.name == name && std::holds_alternative<T>(prop.value))
 				{

@@ -3,76 +3,75 @@
 #include <pugixml.hpp>
 #include "console.h"
 
+#define _MAX_TILESET_COUNT 128
+#define _MAX_TEMPLATE_COUNT 128
+#define _MAX_MAP_COUNT 128
+
 namespace tiled
 {
-	std::vector<std::pair<std::filesystem::path, sf::Texture>> _images;
-	std::vector<std::pair<std::filesystem::path, Tileset>> _tilesets;
-	std::vector<std::pair<std::filesystem::path, Object>> _templates;
-	std::vector<std::pair<std::filesystem::path, Map>> _maps;
+	std::vector<Tileset> _tilesets;
+	std::vector<Object> _templates;
+	std::vector<Map> _maps;
 
 	void _load_property(const pugi::xml_node& node, Property& prop)
 	{
 		prop.name = node.attribute("name").as_string();
-		std::string type = node.attribute("type").as_string();
-		if (type.empty()) { // default type is string
+		const pugi::char_t* type = node.attribute("type").as_string("string"); // default type is string
+		if (strcmp(type, "string") == 0) {
 			prop.value = node.attribute("value").as_string();
-		} else if (type == "int") {
+		} else if (strcmp(type, "int") == 0) {
 			prop.value = node.attribute("value").as_int();
-		} else if (type == "float") {
+		} else if (strcmp(type, "float") == 0) {
 			prop.value = node.attribute("value").as_float();
-		} else if (type == "bool") {
+		} else if (strcmp(type, "bool") == 0) {
 			prop.value = node.attribute("value").as_bool();
-		} else if (type == "color") {
+		} else if (strcmp(type, "color") == 0) {
 			// TODO
-		} else if (type == "file") {
+		} else if (strcmp(type, "file") == 0) {
 			// TODO
-		} else if (type == "object") {
-			prop.value = node.attribute("value").as_uint(); // 0 when no object is referenced
-		} else if (type == "class") {
+		} else if (strcmp(type, "object") == 0) {
+			uint32_t id = node.attribute("value").as_uint(); // 0 when no object is referenced
+			prop.value = id ? (entt::entity)id : entt::null;
+		} else if (strcmp(type, "class") == 0) {
 			// TODO
 		} else {
 			assert(false);
 		}
 	}
 
-	void _load_properties(const pugi::xml_node& node, std::vector<Property>& properties)
-	{
-		for (auto prop_node : node.children("property"))
-			_load_property(prop_node, properties.emplace_back());
-	}
-
 	void _load_object(const pugi::xml_node& node, Object& object)
 	{
-		if (auto template_attribute = node.attribute("template"))
+		for (pugi::xml_node prop_node : node.child("properties").children("property"))
 		{
-			for (const auto& [template_path, template_object] : _templates)
+			std::string prop_name = prop_node.attribute("name").as_string();
+			bool found = false;
+			for (Property& prop : object.properties)
 			{
-				if (template_path == template_attribute.as_string())
+				if (prop.name == prop_name)
 				{
-					object = template_object;
+					found = true;
+					_load_property(prop_node, prop);
 					break;
 				}
 			}
+			if (!found)
+				_load_property(prop_node, object.properties.emplace_back());
 		}
-		if (auto id = node.attribute("id"))
-			object.id = id.as_uint();
-		if (auto name = node.attribute("name"))
+		if (pugi::xml_attribute id = node.attribute("id"))
+			object.entity = (entt::entity)id.as_uint();
+		if (pugi::xml_attribute name = node.attribute("name"))
 			object.name = name.as_string();
-		if (auto type = node.attribute("type"))
+		if (pugi::xml_attribute type = node.attribute("type")) // SIC: "type", not "class"
 			object.class_ = type.as_string();
-		if (auto x = node.attribute("x"))
+		if (pugi::xml_attribute x = node.attribute("x"))
 			object.position.x = x.as_float();
-		if (auto y = node.attribute("y"))
+		if (pugi::xml_attribute y = node.attribute("y"))
 			object.position.y = y.as_float();
-		if (auto width = node.attribute("width"))
+		if (pugi::xml_attribute width = node.attribute("width"))
 			object.size.x = width.as_float();
-		if (auto height = node.attribute("height"))
+		if (pugi::xml_attribute height = node.attribute("height"))
 			object.size.y = height.as_float();
-		if (auto gid = node.attribute("gid"))
-		{
-			object.type = ObjectType::Tile;
-		}
-		else if (node.child("ellipse"))
+		if (node.child("ellipse"))
 		{
 			object.type = ObjectType::Ellipse;
 		}
@@ -80,194 +79,77 @@ namespace tiled
 		{
 			object.type = ObjectType::Point;
 		}
-		else if (auto polygon = node.child("polygon"))
+		else if (pugi::xml_node polygon = node.child("polygon"))
 		{
 			object.type = ObjectType::Polygon;
 			object.points.clear();
-			for (auto point : polygon.children("point"))
+			for (pugi::xml_node point : polygon.children("point"))
 			{
-				float x = point.attribute("x").as_float();
-				float y = point.attribute("y").as_float();
-				object.points.emplace_back(x, y);
+				object.points.emplace_back(
+					point.attribute("x").as_float(),
+					point.attribute("y").as_float());
 			}
 		}
-		else if (auto polyline = node.child("polyline"))
+		else if (pugi::xml_node polyline = node.child("polyline"))
 		{
 			object.type = ObjectType::Polyline;
 			object.points.clear();
-			for (auto point : polyline.children("point"))
+			for (pugi::xml_node point : polyline.children("point"))
 			{
-				float x = point.attribute("x").as_float();
-				float y = point.attribute("y").as_float();
-				object.points.emplace_back(x, y);
+				object.points.emplace_back(
+					point.attribute("x").as_float(),
+					point.attribute("y").as_float());
 			}
-		}
-		else
-		{
-			object.type = ObjectType::Rectangle;
-		}
-		_load_properties(node.child("properties"), object.properties);
-	}
-
-	struct TilesetInstance
-	{
-		uint32_t id = UINT32_MAX;
-		uint32_t first_gid = UINT32_MAX; // The global tile ID of the first tile in the tileset.
-	};
-
-	TileInstance _resolve_gid(const TilesetInstance* tilesets, size_t size, uint32_t gid)
-	{
-		TileInstance tile;
-		for (size_t i = 0; i < size; ++i)
-		{
-			TilesetInstance tileset = tilesets[i];
-			if (tileset.id < _tilesets.size() && 
-				gid >= tileset.first_gid &&
-				gid < tileset.first_gid + _tilesets[tileset.id].second.tile_count)
-			{
-				tile.tileset_id = tileset.id;
-				tile.id = gid - tileset.first_gid;
-				break;
-			}
-		}
-		return tile;
-	}
-
-	bool _is_layer_type(const char* str)
-	{
-		if (strcmp(str, "layer") == 0) return true;
-		if (strcmp(str, "objectgroup") == 0) return true;
-		if (strcmp(str, "imagelayer") == 0) return true;
-		if (strcmp(str, "group") == 0) return true;
-		return false;
-	}
-
-	LayerType _parse_layer_type(const char* str)
-	{
-		if (strcmp(str, "layer") == 0) return LayerType::Tile;
-		if (strcmp(str, "objectgroup") == 0) return LayerType::Object;
-		if (strcmp(str, "imagelayer") == 0) return LayerType::Image;
-		if (strcmp(str, "group") == 0) return LayerType::Group;
-		assert(false);
-	}
-
-	void _load_layer_recursive(const pugi::xml_node& node, std::vector<Layer>& layers, uint32_t parent_index,
-		const std::vector<TilesetInstance>& tilesets)
-	{
-		uint32_t index = layers.size();
-		Layer& layer = layers.emplace_back();
-		layer.index = index;
-		layer.parent_index = parent_index;
-		layer.type = _parse_layer_type(node.name());
-		layer.name = node.attribute("name").as_string();
-		layer.class_ = node.attribute("class").as_string();
-		layer.width = node.attribute("width").as_uint();
-		layer.height = node.attribute("height").as_uint();
-		_load_properties(node.child("properties"), layer.properties);
-		switch (layer.type)
-		{
-		case LayerType::Tile:
-		{
-			auto data_node = node.child("data");
-			if (strcmp(data_node.attribute("encoding").as_string(), "csv") != 0)
-			{
-				console::log_error("Only CSV encoding is supported.");
-				layer.width = 0;
-				layer.height = 0;
-				break;
-			}
-			std::vector<uint32_t> gids;
-			{
-				std::stringstream ss(data_node.text().as_string());
-				for (uint32_t gid; ss >> gid;) {
-					gids.push_back(gid);
-					if (ss.peek() == ',')
-						ss.ignore();
-				}
-			}
-			assert(gids.size() == layer.width * layer.height);
-			layer.tiles.resize(gids.size());
-			for (size_t i = 0; i < gids.size(); ++i)
-				layer.tiles[i] = _resolve_gid(tilesets.data(), tilesets.size(), gids[i]);
-			break;
-		}
-		case LayerType::Object:
-		{
-			for (pugi::xml_node object_node : node.children("object"))
-				_load_object(object_node, layer.objects.emplace_back());
-			break;
-		}
-		case LayerType::Image:
-		{
-			// TODO
-			break;
-		}
-		case LayerType::Group:
-		{
-			for (pugi::xml_node child_node : node.children())
-				if (_is_layer_type(child_node.name()))
-					_load_layer_recursive(child_node, layers, index, tilesets);
-			break;
-		}
 		}
 	}
 
-	TilesetInstance _load_tileset(const pugi::xml_node& node, const std::filesystem::path& parent_path)
-	{
-		TilesetInstance tileset;
-		auto source_attribute = node.attribute("source");
-		if (!source_attribute)
-		{
-			console::log_error("Embedded tilesets are not supported.");
-			return tileset;
-		}
-		auto path = (parent_path / source_attribute.as_string()).lexically_normal();
-		for (uint32_t tileset_id = 0; tileset_id < _tilesets.size(); ++tileset_id)
-		{
-			if (_tilesets[tileset_id].first == path)
-			{
-				tileset.id = tileset_id;
-				tileset.first_gid = node.attribute("firstgid").as_uint();
-				break;
-			}
-		}
-		return tileset;
+	bool _is_tile_layer(const char* str) { return strcmp(str, "layer") == 0; }
+	bool _is_object_layer(const char* str) { return strcmp(str, "objectgroup") == 0; }
+	bool _is_image_layer(const char* str) { return strcmp(str, "imagelayer") == 0; }
+	bool _is_group_layer(const char* str) { return strcmp(str, "group") == 0; }
+	bool _is_layer(const char* str) {
+		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
 
 	void load_assets()
 	{
-		_images.clear();
 		_tilesets.clear();
 		_templates.clear();
 		_maps.clear();
+		_tilesets.reserve(_MAX_TILESET_COUNT);
+		_templates.reserve(_MAX_TEMPLATE_COUNT);
+		_maps.reserve(_MAX_MAP_COUNT);
 
 		// Find assets
-		for (const auto& entry : std::filesystem::recursive_directory_iterator("assets/tiled"))
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::recursive_directory_iterator("assets/tiled"))
 		{
 			if (!entry.is_regular_file()) continue;
 			std::string extension = entry.path().extension().string();
-			if (extension == ".png")
-				_images.emplace_back().first = entry.path();
-			else if (extension == ".tsx")
-				_tilesets.emplace_back().first = entry.path();
+			if (extension == ".tsx")
+			{
+				assert(_tilesets.size() < _MAX_TILESET_COUNT);
+				_tilesets.emplace_back().path = entry.path().lexically_normal();
+			}
 			else if (extension == ".tx")
-				_templates.emplace_back().first = entry.path();
+			{
+				assert(_templates.size() < _MAX_TEMPLATE_COUNT);
+				_templates.emplace_back().path = entry.path().lexically_normal();
+			}
 			else if (extension == ".tmx")
-				_maps.emplace_back().first = entry.path();
+			{
+				assert(_maps.size() < _MAX_MAP_COUNT);
+				_maps.emplace_back().path = entry.path().lexically_normal();
+			}
 		}
 
-		// Load images
-		for (auto& [path, image] : _images)
-			if (!image.loadFromFile(path.string()))
-				console::log_error("Failed to load image: " + path.string());
-
 		// Load tilesets
-		for (auto& [path, tileset] : _tilesets)
+		for (Tileset& tileset : _tilesets)
 		{
 			pugi::xml_document doc;
-			if (!doc.load_file(path.string().c_str()))
+			if (!doc.load_file(tileset.path.string().c_str()))
 			{
-				console::log_error("Failed to load tileset: " + path.string());
+				console::log_error("Failed to load tileset: " + tileset.path.string());
 				continue;
 			}
 			pugi::xml_node tileset_node = doc.child("tileset");
@@ -279,70 +161,91 @@ namespace tiled
 			tileset.columns = tileset_node.attribute("columns").as_uint();
 			tileset.spacing = tileset_node.attribute("spacing").as_uint();
 			tileset.margin = tileset_node.attribute("margin").as_uint();
-			_load_properties(tileset_node.child("properties"), tileset.properties);
+			tileset.image_path = tileset.path.parent_path();
+			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
+			tileset.image_path = tileset.image_path.lexically_normal();
+			tileset.reload_image();
+			for (pugi::xml_node prop_node : tileset_node.child("properties").children("property"))
+				_load_property(prop_node, tileset.properties.emplace_back());
 			tileset.tiles.resize(tileset.tile_count);
-			{
-				std::filesystem::path image_path = path.parent_path();
-				image_path /= tileset_node.child("image").attribute("source").as_string();
-				image_path = image_path.lexically_normal();
-				for (uint32_t i = 0; i < _images.size(); ++i)
-					if (_images[i].first == image_path)
-						for (Tile& tile : tileset.tiles)
-							tile.sprite.setTexture(_images[i].second);
-			}
 			for (uint32_t i = 0; i < tileset.tile_count; ++i)
 			{
 				Tile& tile = tileset.tiles[i];
-				sf::IntRect rect;
-				rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
-				rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
-				rect.width = tileset.tile_width;
-				rect.height = tileset.tile_height;
-				tile.sprite.setTextureRect(rect);
+				tile.tileset = &tileset;
+				tile.sprite.setTexture(tileset.image);
+				sf::IntRect texture_rect;
+				texture_rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
+				texture_rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
+				texture_rect.width = tileset.tile_width;
+				texture_rect.height = tileset.tile_height;
+				tile.sprite.setTextureRect(texture_rect);
 			}
-			for (auto tile_node : tileset_node.children("tile"))
+			for (pugi::xml_node tile_node : tileset_node.children("tile"))
 			{
-				uint32_t id = tile_node.attribute("id").as_uint();
-				Tile& tile = tileset.tiles[id];
-				tile.class_ = tile_node.attribute("type").as_string();
-				_load_properties(tile_node.child("properties"), tile.properties);
+				Tile& tile = tileset.tiles.at(tile_node.attribute("id").as_uint());
+				tile.class_ = tile_node.attribute("type").as_string(); // SIC: "type", not "class"
+				for (pugi::xml_node prop_node : tile_node.child("properties").children("property"))
+					_load_property(prop_node, tile.properties.emplace_back());
+				for (pugi::xml_node object_node : tile_node.child("objectgroup").children("object"))
+					_load_object(object_node, tile.objects.emplace_back());
 				for (pugi::xml_node frame_node : tile_node.child("animation").children("frame"))
 				{
 					Frame& frame = tile.animation.emplace_back();
-					frame.tile_id = frame_node.attribute("tileid").as_uint();
 					frame.duration = frame_node.attribute("duration").as_uint();
+					frame.tile = &tileset.tiles.at(frame_node.attribute("tileid").as_uint());
 				}
-				for (pugi::xml_node object_node : tile_node.child("objectgroup").children("object"))
-					_load_object(object_node, tile.objects.emplace_back());
 			}
 		}
 
 		// Load templates
-		for (auto& [path, object] : _templates)
+		for (Object& template_ : _templates)
 		{
 			pugi::xml_document doc;
-			if (!doc.load_file(path.string().c_str()))
+			if (!doc.load_file(template_.path.string().c_str()))
 			{
-				console::log_error("Failed to load template: " + path.string());
+				console::log_error("Failed to load template: " + template_.path.string());
 				continue;
 			}
 			pugi::xml_node template_node = doc.child("template");
-			_load_object(template_node.child("object"), object);
+			pugi::xml_node object_node = template_node.child("object");
+			_load_object(object_node, template_);
 			if (pugi::xml_node tileset_node = template_node.child("tileset"))
 			{
-				TilesetInstance tileset = _load_tileset(tileset_node, path.parent_path());
-				uint32_t gid = tileset_node.attribute("gid").as_uint();
-				object.tile = _resolve_gid(&tileset, 1, gid);
+				pugi::xml_attribute source_attribute = tileset_node.attribute("source");
+				if (!source_attribute)
+				{
+					console::log_error("Embedded tilesets are not supported: " + template_.path.string());
+					continue;
+				}
+				std::filesystem::path tileset_path = template_.path.parent_path();
+				tileset_path /= source_attribute.as_string();
+				tileset_path = tileset_path.lexically_normal();
+				bool found = false;
+				for (const Tileset& tileset : _tilesets)
+				{
+					if (tileset.path == tileset_path)
+					{
+						found = true;
+						uint32 tile_id =
+							object_node.attribute("gid").as_uint() -
+							tileset_node.attribute("firstgid").as_uint();
+						template_.type = ObjectType::Tile;
+						template_.tile = &tileset.tiles.at(tile_id);
+						break;
+					}
+				}
+				if (!found)
+					console::log_error("Failed to find tileset: " + tileset_path.string());
 			}
 		}
 
 		// Load maps
-		for (auto& [path, map] : _maps)
+		for (Map& map : _maps)
 		{
 			pugi::xml_document doc;
-			if (!doc.load_file(path.string().c_str()))
+			if (!doc.load_file(map.path.string().c_str()))
 			{
-				console::log_error("Failed to load map: " + path.string());
+				console::log_error("Failed to load map: " + map.path.string());
 				continue;
 			}
 			pugi::xml_node map_node = doc.child("map");
@@ -351,37 +254,216 @@ namespace tiled
 			map.height = map_node.attribute("height").as_uint();
 			map.tile_width = map_node.attribute("tilewidth").as_uint();
 			map.tile_height = map_node.attribute("tileheight").as_uint();
-			_load_properties(map_node.child("properties"), map.properties);
-			std::vector<TilesetInstance> tilesets;
+			for (pugi::xml_node prop_node : map_node.child("properties").children("property"))
+				_load_property(prop_node, map.properties.emplace_back());
+
+			// Find referenced tilesets
+			struct ReferencedTileset
+			{
+				const Tileset* tileset = nullptr;
+				uint32_t first_gid = UINT32_MAX; // The global tile ID of the first tile in the tileset.
+			};
+			std::vector<ReferencedTileset> referenced_tilesets;
 			for (pugi::xml_node tileset_node : map_node.children("tileset"))
-				tilesets.push_back(_load_tileset(tileset_node, path.parent_path()));
-			for (pugi::xml_node child_node : map_node.children())
-				if (_is_layer_type(child_node.name()))
-					_load_layer_recursive(child_node, map.layers, UINT32_MAX, tilesets);
+			{
+				pugi::xml_attribute source_attribute = tileset_node.attribute("source");
+				if (!source_attribute)
+				{
+					console::log_error("Embedded tilesets are not supported: " + map.path.string());
+					continue;
+				}
+				std::filesystem::path tileset_path = map.path.parent_path();
+				tileset_path /= source_attribute.as_string();
+				tileset_path = tileset_path.lexically_normal();
+				bool found = false;
+				for (const Tileset& tileset : _tilesets)
+				{
+					if (tileset.path == tileset_path)
+					{
+						found = true;
+						referenced_tilesets.emplace_back(&tileset, tileset_node.attribute("firstgid").as_uint());
+						break;
+					}
+				}
+				if (!found)
+					console::log_error("Failed to find tileset: " + tileset_path.string());
+			}
+
+			// Load layers
+			std::vector<pugi::xml_node> layer_node_stack;
+			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children()))
+				if (_is_layer(child_node.name()))
+					layer_node_stack.push_back(child_node);
+			while (!layer_node_stack.empty())
+			{
+				pugi::xml_node layer_node = layer_node_stack.back();
+				layer_node_stack.pop_back();
+
+				Layer& layer = map.layers.emplace_back();
+				layer.index = (uint32_t)map.layers.size() - 1u;
+				layer.name = layer_node.attribute("name").as_string();
+				layer.class_ = layer_node.attribute("class").as_string();
+				layer.width = layer_node.attribute("width").as_uint();
+				layer.height = layer_node.attribute("height").as_uint();
+				for (pugi::xml_node prop_node : layer_node.child("properties").children("property"))
+					_load_property(prop_node, layer.properties.emplace_back());
+				if (_is_tile_layer(layer_node.name()))
+				{
+					pugi::xml_node data_node = layer_node.child("data");
+					if (strcmp(data_node.attribute("encoding").as_string(), "csv") != 0)
+					{
+						console::log_error("Only CSV encoding is supported: " + map.path.string());
+						layer.width = 0;
+						layer.height = 0;
+						continue;
+					}
+					std::vector<uint32_t> gids;
+					gids.reserve(layer.width * layer.height);
+					{
+						std::stringstream ss(data_node.text().as_string());
+						for (uint32_t gid; ss >> gid;) {
+							gids.push_back(gid);
+							if (ss.peek() == ',')
+								ss.ignore();
+						}
+					}
+					assert(gids.size() == layer.width * layer.height);
+					layer.tiles.resize(gids.size());
+					for (size_t i = 0; i < gids.size(); ++i)
+					{
+						if (!gids[i]) continue; // 0 means no tile
+						for (const auto& [tileset, first_gid] : referenced_tilesets)
+						{
+							if (gids[i] >= first_gid && gids[i] < first_gid + tileset->tile_count)
+							{
+								layer.tiles[i] = &tileset->tiles[gids[i] - first_gid];
+								break;
+							}
+						}
+					}
+				}
+				else if (_is_object_layer(layer_node.name()))
+				{
+					for (pugi::xml_node object_node : layer_node.children("object"))
+					{
+						Object& object = layer.objects.emplace_back();
+						if (pugi::xml_attribute template_attribute = object_node.attribute("template"))
+						{
+							std::filesystem::path template_path = map.path.parent_path();
+							template_path /= template_attribute.as_string();
+							template_path = template_path.lexically_normal();
+							bool found = false;
+							for (const Object& template_ : _templates)
+							{
+								if (template_.path == template_path)
+								{
+									found = true;
+									object = template_;
+									break;
+								}
+							}
+							if (!found)
+								console::log_error("Failed to find template: " + template_path.string());
+						}
+						_load_object(object_node, object);
+						if (pugi::xml_attribute gid_attribute = object_node.attribute("gid"))
+						{
+							uint32_t gid = gid_attribute.as_uint();
+							bool found = false;
+							for (const auto& [tileset, first_gid] : referenced_tilesets)
+							{
+								if (gid >= first_gid && gid < first_gid + tileset->tile_count)
+								{
+									found = true;
+									object.type = ObjectType::Tile;
+									object.tile = &tileset->tiles[gid - first_gid];
+									break;
+								}
+							}
+							if (!found)
+								console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+						}
+					}
+				}
+				else if (_is_image_layer(layer_node.name()))
+				{
+					// TODO
+				}
+				else if (_is_group_layer(layer_node.name()))
+				{
+					for (pugi::xml_node child_node : std::ranges::reverse_view(layer_node.children()))
+						if (_is_layer(child_node.name()))
+							layer_node_stack.push_back(child_node);
+				}
+				else
+				{
+					assert(false);
+				}
+			}
 		}
 	}
 
-	const Tile* find_tile(TileInstance tile)
-	{
-		if (tile.tileset_id >= _tilesets.size()) return nullptr;
-		const Tileset& tileset = _tilesets[tile.tileset_id].second;
-		if (tile.id >= tileset.tiles.size()) return nullptr;
-		return &tileset.tiles[tile.id];
+	const std::vector<Tileset>& get_tilesets() {
+		return _tilesets;
 	}
 
-	const Map* find_map(const std::string& filename)
-	{
-		for (const auto& [path, map] : _maps)
-			if (path.filename() == filename)
-				return &map;
-		return nullptr;
+	const std::vector<Object>& get_templates() {
+		return _templates;
 	}
 
-	uint32_t get_total_duration(const std::vector<Frame>& animation)
+	const std::vector<Map>& get_maps() {
+		return _maps;
+	}
+
+	bool Tile::is_animated() const {
+		return !animation.empty();
+	}
+
+	uint32_t Tile::get_animation_duration() const
 	{
 		uint32_t total_duration = 0;
 		for (const Frame& frame : animation)
 			total_duration += frame.duration;
 		return total_duration;
+	}
+
+	const Tile* Tile::query_animation(uint32_t time_in_ms) const
+	{
+		uint32_t total_duration = get_animation_duration();
+		if (!total_duration)
+			return nullptr;
+
+		uint32_t time = time_in_ms % total_duration;
+		uint32_t current_time = 0;
+		for (const Frame& frame : animation)
+		{
+			current_time += frame.duration;
+			if (time < current_time)
+				return frame.tile;
+		}
+
+		return nullptr; // Should never happen.
+	}
+
+	bool Tileset::reload_image()
+	{
+		bool success = image.loadFromFile(image_path.string());
+		if (!success)
+			console::log_error("Failed to load tileset image: " + image_path.string());
+		return success;
+	}
+
+	const Tile* Tileset::find_tile(const std::string& class_) const
+	{
+		if (class_.empty())
+			return nullptr;
+		for (const Tile& tile : tiles)
+			if (tile.class_ == class_)
+				return &tile;
+		return nullptr;
+	}
+
+	std::string Map::get_name() const {
+		return path.stem().string();
 	}
 }

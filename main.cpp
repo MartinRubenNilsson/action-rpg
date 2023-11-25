@@ -37,8 +37,7 @@ int APIENTRY WinMain(
     // LOAD ASSETS
 
     audio::load_banks();
-    map::load_maps();
-    tiled::load_assets(); //todo
+    tiled::load_assets();
     ui::load_fonts_and_documents();
     tables::load_tables();
 

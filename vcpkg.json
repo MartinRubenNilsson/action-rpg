@@ -4,7 +4,6 @@
     "imgui-sfml",
     "cli11",
     "rmlui",
-    "tmxlite",
     "entt",
     "box2d",
     "magic-enum",

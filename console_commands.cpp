@@ -70,8 +70,8 @@ namespace console
 		// MAP
 		{
 			auto map_cmd = app.add_subcommand("map", "Manage maps");
-			map_cmd->add_subcommand("reload_textures", "Reload all textures in use by any map")
-				->callback(map::reload_textures);
+			//map_cmd->add_subcommand("reload_textures", "Reload all textures in use by any map")
+			//	->callback(map::reload_textures);
 			{
 				auto cmd = map_cmd->add_subcommand("open", "Open a map");
 				static std::string map_name;

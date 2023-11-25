@@ -51,7 +51,6 @@ audio
 map
   Manage maps
   Subcommands:
-    reload_textures             Reload all textures in use by any map
     open                        Open a map
     close                       Close the current map
     reset                       Reset the current map
