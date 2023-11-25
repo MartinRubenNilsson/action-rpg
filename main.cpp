@@ -1,5 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
+#include "stdafx.h"
 #include <Windows.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
@@ -13,6 +12,8 @@
 #include "console.h"
 #include "tables.h"
 #include "tiled.h"
+
+#pragma comment(lib, "winmm") // SFML requires this
 
 int APIENTRY WinMain(
     _In_ HINSTANCE,
@@ -114,6 +115,10 @@ int APIENTRY WinMain(
         window.display();
     }
 
+    // UNLOAD ASSETS
+
+    tiled::unload_assets(); // Ensures sf::Texture objects are destroyed before main() returns.
+
     // SHUTDOWN
 
     ecs::shutdown();
@@ -121,6 +126,7 @@ int APIENTRY WinMain(
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
+    window::destroy();
 
 	return 0;
 }

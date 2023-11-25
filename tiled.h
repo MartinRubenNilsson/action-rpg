@@ -102,6 +102,7 @@ namespace tiled
 	};
 
 	void load_assets();
+	void unload_assets();
 
 	const std::vector<Tileset>& get_tilesets();
 	const std::vector<Object>& get_templates();

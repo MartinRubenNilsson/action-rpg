@@ -439,6 +439,13 @@ namespace tiled
 		}
 	}
 
+	void unload_assets()
+	{
+		_tilesets.clear();
+		_templates.clear();
+		_maps.clear();
+	}
+
 	const std::vector<Tileset>& get_tilesets() {
 		return _tilesets;
 	}
