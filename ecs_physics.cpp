@@ -57,8 +57,8 @@ namespace ecs
 		b2Body* body_b = fixture_b->GetBody();
 		entt::entity entity_a = (entt::entity)body_a->GetUserData().pointer;
 		entt::entity entity_b = (entt::entity)body_b->GetUserData().pointer;
-		std::string type_a = get_type(entity_a);
-		std::string type_b = get_type(entity_b);
+		std::string type_a = get_class(entity_a);
+		std::string type_b = get_class(entity_b);
 		if (type_a.empty() || type_b.empty())
 			return;
 

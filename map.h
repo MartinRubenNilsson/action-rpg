@@ -28,7 +28,7 @@ namespace map
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
 
-	// Spawns an entity from the given Tiled object template.
+	// Spawns an entity from the given object template.
 	// Returns entt::null if the template was not found.
 	entt::entity spawn(
 		const std::string& template_name,

@@ -7,7 +7,7 @@
 #include "math_vectors.h"
 #include "ecs.h"
 #include "ecs_common.h"
-#include "ecs_tiles.h"
+#include "ecs_graphics.h"
 #include "ecs_behavior.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
@@ -24,7 +24,7 @@ namespace map
 		_next_map = nullptr;
 		for (const tiled::Map& map : tiled::get_maps())
 		{
-			if (map.get_name() == map_name)
+			if (map.name == map_name)
 			{
 				_next_map = &map;
 				break;
@@ -50,14 +50,15 @@ namespace map
 		float depth)
 	{
 		if (!_current_map)
-			return entt::null; // No map is open.
+			return entt::null;
 
 		auto& registry = ecs::get_registry();
 
 		// Attempt to use the object's UID as the entity identifier.
 		// If the identifier is already in use, a new one will be generated.
 		entt::entity entity = registry.create(object.entity);
-		registry.emplace<tiled::Object>(entity, object);
+		registry.emplace<const tiled::Object*>(entity, &object);
+		registry.emplace<std::vector<tiled::Property>>(entity, object.properties);
 
 		float x = object.position.x * METERS_PER_PIXEL;
 		float y = object.position.y * METERS_PER_PIXEL;
@@ -82,16 +83,19 @@ namespace map
 		if (object.type == tiled::ObjectType::Tile)
 		{
 			assert(object.tile && "Tile not found.");
+			registry.emplace<const tiled::Tile*>(entity, object.tile);
+			{
+				ecs::Sprite &sprite = registry.emplace<ecs::Sprite>(entity);
+				sprite.sprite = object.tile->sprite;
+				sprite.sprite.setPosition(x * PIXELS_PER_METER, y * PIXELS_PER_METER);
+				sprite.depth = depth;
+			}
+			if (!object.tile->animation.empty())
+				registry.emplace<ecs::Animation>(entity);
 
-			auto& ecs_tile = registry.emplace<ecs::Tile>(entity, object.tile);
-			ecs_tile.sprite = object.tile->sprite;
-			ecs_tile.sprite.setPosition(
-				x * PIXELS_PER_METER,
-				y * PIXELS_PER_METER);
-			ecs_tile.depth = depth;
+			// LOAD COLLIDERS
 
-			const auto& colliders = object.tile->objects;
-			if (!colliders.empty())
+			if (!object.tile->objects.empty())
 			{
 				b2BodyDef body_def;
 				body_def.type = b2_dynamicBody;
@@ -104,31 +108,31 @@ namespace map
 				assert(body && "Failed to create body.");
 				registry.emplace<b2Body*>(entity, body);
 
-				for (const tiled::Object& collider : colliders)
+				for (const tiled::Object& tile_object : object.tile->objects)
 				{
-					float x = collider.position.x * METERS_PER_PIXEL;
-					float y = collider.position.y * METERS_PER_PIXEL;
-					float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
-					float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
+					float x = tile_object.position.x * METERS_PER_PIXEL;
+					float y = tile_object.position.y * METERS_PER_PIXEL;
+					float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
+					float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
 					b2Vec2 center(x + hw, y + hh);
 
-					switch (collider.type)
+					switch (tile_object.type)
 					{
 					case tiled::ObjectType::Rectangle:
 					{
 						b2PolygonShape shape;
 						shape.SetAsBox(hw, hh, center, 0.f);
 						body->CreateFixture(&shape, 1.f);
+						break;
 					}
-					break;
 					case tiled::ObjectType::Ellipse:
 					{
 						b2CircleShape shape;
 						shape.m_p = center;
 						shape.m_radius = hw;
 						body->CreateFixture(&shape, 1.f);
+						break;
 					}
-					break;
 					}
 				}
 			}
@@ -178,19 +182,23 @@ namespace map
 			}
 		}
 
-		registry.emplace<std::vector<tiled::Property>>(entity, object.properties);
-
 		std::string behavior;
 		if (ecs::get_string(entity, "behavior", behavior))
 			ecs::emplace_behavior(entity, behavior);
 
 		if (object.class_ == "player")
 		{
-			auto& player = registry.emplace<ecs::Player>(entity);
-			auto& camera = ecs::get_registry().emplace<ecs::Camera>(entity);
+			ecs::Player& player = registry.emplace<ecs::Player>(entity);
+			ecs::Camera& camera = registry.emplace<ecs::Camera>(entity);
 			camera.follow = entity;
 			camera.confining_rect = get_bounds();
 			ecs::activate_camera(entity, true);
+			if (object.tile)
+			{
+				ecs::Animation& anim = registry.emplace_or_replace<ecs::Animation>(entity);
+				anim.type = ecs::AnimationType::PLAYER;
+			}
+			
 
 			// Broken at the moment
 			//// TODO: put spawnpoint entity name in data?
@@ -204,6 +212,14 @@ namespace map
 			//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
 			//	}
 			//}
+		}
+		else if (object.class_ == "enemy")
+		{
+			if (object.tile)
+			{
+				ecs::Animation& anim = registry.emplace_or_replace<ecs::Animation>(entity);
+				anim.type = ecs::AnimationType::PLAYER;
+			}
 		}
 		else if (object.class_ == "camera")
 		{
@@ -279,14 +295,20 @@ namespace map
 						float y = (float)tile_y * _current_map->tile_height; // In pixels.
 
 						entt::entity entity = registry.create();
-						auto& ecs_tile = registry.emplace<ecs::Tile>(entity, tile);
-						ecs_tile.sprite = tile->sprite;
-						ecs_tile.sprite.setPosition(x, y);
-						ecs_tile.depth = (float)layer.index;
+						registry.emplace<const tiled::Tile*>(entity, tile);
+						{
+							ecs::Sprite &sprite = registry.emplace<ecs::Sprite>(entity);
+							sprite.sprite = tile->sprite;
+							sprite.sprite.setPosition(x, y);
+							sprite.depth = (float)layer.index;
+						}
+						if (!tile->animation.empty())
+							registry.emplace<ecs::Animation>(entity);
 
-						const auto& colliders = tile->objects;
-						if (colliders.empty())
+						if (tile->objects.empty())
 							continue;
+
+						// LOAD COLLIDERS
 
 						b2BodyDef body_def;
 						body_def.type = b2_staticBody;
@@ -298,13 +320,13 @@ namespace map
 						b2Body* body = physics::create_body(&body_def);
 						assert(body && "Failed to create body.");
 
-						for (const tiled::Object& collider : colliders)
+						for (const tiled::Object& tile_object : tile->objects)
 						{
-							float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
-							float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
+							float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
+							float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
 							b2Vec2 center(hw, hh);
 
-							switch (collider.type)
+							switch (tile_object.type)
 							{
 							case tiled::ObjectType::Rectangle:
 							{
@@ -336,29 +358,24 @@ namespace map
 	}
 
 	std::string get_name() {
-		return _current_map ? _current_map->get_name() : "";
+		return _current_map ? _current_map->name : "";
 	}
 
 	sf::FloatRect get_bounds()
 	{
-		if (_current_map) return sf::FloatRect();
+		if (!_current_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
 			_current_map->width * _current_map->tile_width * METERS_PER_PIXEL,
 			_current_map->height * _current_map->tile_height * METERS_PER_PIXEL);
 	}
 
-	entt::entity spawn(
-		const std::string& template_name,
-		const sf::Vector2f& position,
-		float depth)
+	entt::entity spawn(const std::string& template_name, const sf::Vector2f& position, float depth)
 	{
 		if (!_current_map)
 			return entt::null;
 		for (const tiled::Object& object : tiled::get_templates())
-		{
 			if (object.name == template_name)
 				return _spawn(object, &position, depth);
-		}
 		console::log_error("Entity template not found: " + template_name);
 		return entt::null;
 	}

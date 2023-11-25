@@ -40,6 +40,9 @@ namespace tiled
 		const Tile* tile = nullptr;
 	};
 
+	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
+	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
+
 	struct Tileset;
 
 	struct Tile
@@ -48,13 +51,11 @@ namespace tiled
 		std::string class_;
 		std::vector<Property> properties;
 		std::vector<Object>	objects;
-		std::vector<Frame> animation;
+		std::vector<Frame> animation; // nonempty if tile is animated
 		const Tileset* tileset = nullptr;
-
-		bool is_animated() const;
-		uint32_t get_animation_duration() const; // in milliseconds
-		const Tile* query_animation(uint32_t time_in_ms) const;
 	};
+
+	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_);
 
 	struct Tileset
 	{
@@ -73,7 +74,6 @@ namespace tiled
 		uint32_t margin = 0; // in pixels
 
 		bool reload_image();
-		const Tile* find_tile(const std::string& class_) const;
 	};
 
 	struct Layer
@@ -91,6 +91,7 @@ namespace tiled
 	struct Map
 	{
 		std::filesystem::path path;
+		std::string name; // the filename without extension
 		std::string class_;
 		std::vector<Property> properties;
 		std::vector<Layer> layers;
@@ -98,8 +99,6 @@ namespace tiled
 		uint32_t height = 0; // in tiles
 		uint32_t tile_width = 0; // in pixels
 		uint32_t tile_height = 0; // in pixels
-
-		std::string get_name() const;
 	};
 
 	void load_assets();

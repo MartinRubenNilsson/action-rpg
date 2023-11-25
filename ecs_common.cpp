@@ -9,20 +9,20 @@ namespace ecs
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<tiled::Object>().each())
+		for (auto [entity, object] : _registry.view<const tiled::Object*>().each())
 		{
-			if (object.name == name)
+			if (object->name == name)
 				return entity;
 		}
 		return entt::null;
 	}
 
-	entt::entity find_entity_by_type(const std::string& type)
+	entt::entity find_entity_by_class(const std::string& class_)
 	{
-		if (type.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<tiled::Object>().each())
+		if (class_.empty()) return entt::null;
+		for (auto [entity, object] : _registry.view<const tiled::Object*>().each())
 		{
-			if (object.class_ == type)
+			if (object->class_ == class_)
 				return entity;
 		}
 		return entt::null;
@@ -31,16 +31,16 @@ namespace ecs
 	std::string get_name(entt::entity entity)
 	{
 		std::string name;
-		if (auto ptr = _registry.try_get<tiled::Object>(entity))
-			name = ptr->name;
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			name = (*object)->name;
 		return name;
 	}
 
-	std::string get_type(entt::entity entity)
+	std::string get_class(entt::entity entity)
 	{
 		std::string type;
-		if (auto ptr = _registry.try_get<tiled::Object>(entity))
-			type = ptr->class_;
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			type = (*object)->class_;
 		return type;
 	}
 

@@ -36,6 +36,7 @@ namespace ecs
 	void update_cameras(float dt);
 
 	bool activate_camera(entt::entity entity, bool hard_cut = false);
+	bool add_camera_trauma(entt::entity entity, float trauma);
 
 	const sf::View& get_active_camera_view(); // Hard-cuts when activating new camera.
 	const sf::View& get_blended_camera_view(); // Smoothly transitions between cameras.

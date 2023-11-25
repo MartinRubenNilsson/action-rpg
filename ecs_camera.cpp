@@ -107,7 +107,7 @@ namespace ecs
 		}
 
 		// Update the active camera view.
-		if (auto camera = _registry.try_get<Camera>(_active_camera_entity)) {
+		if (Camera* camera = _registry.try_get<Camera>(_active_camera_entity)) {
 			_active_camera_view = camera->_shaky_view;
 		} else {
 			_active_camera_view = DEFAULT_CAMERA_VIEW;
@@ -128,6 +128,15 @@ namespace ecs
 		_last_camera_view = _active_camera_view;
 		_camera_blend_time = hard_cut ? CAMERA_BLEND_DURATION : 0.f;
 		return true;
+	}
+
+	bool add_camera_trauma(entt::entity entity, float trauma)
+	{
+		if (Camera* camera = _registry.try_get<Camera>(entity)) {
+			camera->trauma += trauma;
+			return true;
+		}
+		return false;
 	}
 
 	const sf::View& get_active_camera_view() {

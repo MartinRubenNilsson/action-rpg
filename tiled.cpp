@@ -111,6 +111,41 @@ namespace tiled
 		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
 
+	uint32_t get_animation_duration(const std::vector<Frame>& animation)
+	{
+		uint32_t duration = 0;
+		for (const Frame& frame : animation)
+			duration += frame.duration;
+		return duration;
+	}
+
+	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms)
+	{
+		uint32_t total_duration = get_animation_duration(animation);
+		if (!total_duration)
+			return nullptr;
+
+		uint32_t time = time_in_ms % total_duration;
+		uint32_t current_time = 0;
+		for (const Frame& frame : animation)
+		{
+			current_time += frame.duration;
+			if (time < current_time)
+				return frame.tile;
+		}
+
+		return nullptr; // Should never happen.
+	}
+
+	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_)
+	{
+		if (class_.empty()) return nullptr;
+		for (const Tile& tile : tiles)
+			if (tile.class_ == class_)
+				return &tile;
+		return nullptr;
+	}
+
 	void load_assets()
 	{
 		_tilesets.clear();
@@ -249,6 +284,7 @@ namespace tiled
 				continue;
 			}
 			pugi::xml_node map_node = doc.child("map");
+			map.name = map.path.stem().string();
 			map.class_ = map_node.attribute("class").as_string();
 			map.width = map_node.attribute("width").as_uint();
 			map.height = map_node.attribute("height").as_uint();
@@ -415,55 +451,11 @@ namespace tiled
 		return _maps;
 	}
 
-	bool Tile::is_animated() const {
-		return !animation.empty();
-	}
-
-	uint32_t Tile::get_animation_duration() const
-	{
-		uint32_t total_duration = 0;
-		for (const Frame& frame : animation)
-			total_duration += frame.duration;
-		return total_duration;
-	}
-
-	const Tile* Tile::query_animation(uint32_t time_in_ms) const
-	{
-		uint32_t total_duration = get_animation_duration();
-		if (!total_duration)
-			return nullptr;
-
-		uint32_t time = time_in_ms % total_duration;
-		uint32_t current_time = 0;
-		for (const Frame& frame : animation)
-		{
-			current_time += frame.duration;
-			if (time < current_time)
-				return frame.tile;
-		}
-
-		return nullptr; // Should never happen.
-	}
-
 	bool Tileset::reload_image()
 	{
 		bool success = image.loadFromFile(image_path.string());
 		if (!success)
 			console::log_error("Failed to load tileset image: " + image_path.string());
 		return success;
-	}
-
-	const Tile* Tileset::find_tile(const std::string& class_) const
-	{
-		if (class_.empty())
-			return nullptr;
-		for (const Tile& tile : tiles)
-			if (tile.class_ == class_)
-				return &tile;
-		return nullptr;
-	}
-
-	std::string Map::get_name() const {
-		return path.stem().string();
 	}
 }

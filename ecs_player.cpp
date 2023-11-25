@@ -72,7 +72,7 @@ namespace ecs
 					if (entity == player_entity)
 						continue;
 
-					std::string type = get_type(entity);
+					std::string type = get_class(entity);
 
 					if (type.starts_with("enemy"))
 					{

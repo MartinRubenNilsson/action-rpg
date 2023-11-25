@@ -4,7 +4,7 @@
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_behavior.h"
-#include "ecs_tiles.h"
+#include "ecs_graphics.h"
 #include "ecs_camera.h"
 
 namespace ecs
@@ -28,7 +28,7 @@ namespace ecs
 		update_player(dt);
 		update_behaviors(dt);
 		update_common(dt);
-		update_tiles(dt);
+		update_graphics(dt);
 		update_cameras(dt);
 	}
 	 
@@ -46,24 +46,23 @@ namespace ecs
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 
-		// Collect all visible tiles in view.
-		std::vector<Tile*> tiles;
-		for (auto [entity, tile] : _registry.view<Tile>().each())
+		// Collect all sprites in view.
+		std::vector<Sprite*> sprites;
+		for (auto [entity, sprite] : _registry.view<Sprite>().each())
 		{
-			if (!tile.visible) continue;
-			if (view_bounds.intersects(tile.sprite.getGlobalBounds()))
-				tiles.push_back(&tile);
+			if (view_bounds.intersects(sprite.sprite.getGlobalBounds()))
+				sprites.push_back(&sprite);
 		}
 
-		// Sort tiles by depth, then by y position.
-		std::ranges::sort(tiles, [](const Tile* a, const Tile* b) {
-			if (a->depth != b->depth) return a->depth < b->depth;
-			return a->sprite.getPosition().y < b->sprite.getPosition().y;
+		// Sort sprites by depth, then by y position.
+		std::ranges::sort(sprites, [](const Sprite* lhs, const Sprite* rhs) {
+			if (lhs->depth != rhs->depth) return lhs->depth < rhs->depth;
+			return lhs->sprite.getPosition().y < rhs->sprite.getPosition().y;
 		});
 
-		// Draw tiles.
-		for (Tile* tile : tiles)
-			window.draw(tile->sprite);
+		// Draw sprites.
+		for (Sprite* sprite : sprites)
+			window.draw(sprite->sprite);
 	}
 
 	entt::registry& get_registry() {
