@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <Windows.h>
 #include <imgui-SFML.h>
 #include <imgui.h>
 #include "window.h"
@@ -14,12 +13,13 @@
 #include "tiled.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
+#ifdef _DEBUG
+#pragma comment(lib, "sfml-main-d")
+#else
+#pragma comment(lib, "sfml-main")
+#endif
 
-int APIENTRY WinMain(
-    _In_ HINSTANCE,
-    _In_opt_ HINSTANCE,
-    _In_ PSTR command_line,
-    _In_ int)
+int main(int argc, char* argv[])
 {
     sf::RenderWindow window;
 
@@ -50,8 +50,7 @@ int APIENTRY WinMain(
 
     // EXECUTE STARTUP COMMANDS
 
-    if (strlen(command_line) > 0)
-        console::execute(command_line);
+    console::execute(argc, argv);
 
     // GAME LOOP
 

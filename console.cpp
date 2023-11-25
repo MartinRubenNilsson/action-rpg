@@ -260,6 +260,19 @@ namespace console
 		}
 	}
 
+	void execute(int argc, char* argv[])
+	{
+		if (argc == 1) return;
+		std::string command_line;
+		for (int i = 1; i < argc; ++i)
+		{
+			command_line += argv[i];
+			if (i < argc - 1)
+				command_line += ' ';
+		}
+		execute(command_line);
+	}
+
 	void execute_script(const std::string& script_name)
 	{
 		std::filesystem::path script_path = "assets/scripts/" + script_name;
