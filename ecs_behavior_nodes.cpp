@@ -36,7 +36,7 @@ namespace ecs
 
 		Status update(float dt) override
 		{
-			mark_for_destruction(entity);
+			destroy_at_end_of_frame(entity);
 			return SUCCESS;
 		}
 	};
@@ -73,6 +73,18 @@ namespace ecs
 		}
 	};
 
+	struct HurtPlayerNode : Node
+	{
+		int health_to_remove = 0;
+
+		Status update(float dt) override
+		{
+			if (!player_exists()) return FAILURE;
+			hurt_player(health_to_remove);
+			return SUCCESS;
+		}
+	};
+
 	NodePtr create_is_player_in_range_node(entt::entity entity, float range, NodePtr child)
 	{
 		auto node = std::make_shared<IsPlayerInRangeNode>();
@@ -94,6 +106,13 @@ namespace ecs
 		auto node = std::make_shared<ApproachPlayerNode>();
 		node->handle = entt::handle(_registry, entity);
 		get_float(entity, "speed", node->speed);
+		return node;
+	}
+
+	NodePtr create_hurt_player_node(int health_to_remove)
+	{
+		auto node = std::make_shared<HurtPlayerNode>();
+		node->health_to_remove = health_to_remove;
 		return node;
 	}
 

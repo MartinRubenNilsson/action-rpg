@@ -1,0 +1,10 @@
+<rml>
+<head>
+	<link type="text/rcss" href="styles.rcss"/>
+</head>
+<body data-model="data_model">
+	<div class="fullscreen-container">
+		<p>Health: {{hud_player_health}}</p>
+	</div>
+</body>
+</rml>

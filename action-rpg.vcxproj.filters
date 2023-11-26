@@ -91,6 +91,9 @@
     <ClCompile Include="tiled.cpp">
       <Filter>tiled</Filter>
     </ClCompile>
+    <ClCompile Include="ui_hud.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -218,6 +221,9 @@
     </ClInclude>
     <ClInclude Include="tiled.h">
       <Filter>tiled</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_hud.h">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

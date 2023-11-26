@@ -151,6 +151,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ecs_graphics.cpp" />
+    <ClCompile Include="ui_hud.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="window.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_graphics.h" />
+    <ClInclude Include="ui_hud.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="physics_helpers.h" />
     <ClInclude Include="window.h" />

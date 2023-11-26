@@ -73,14 +73,6 @@ namespace ecs
 			std::swap(type_a, type_b);
 		}
 
-		if (type_a == "enemy" && type_b == "player")
-		{
-			// Destroy both enemy and player (suicide mission lol).
-			//audio::play_sound("150_00");
-			mark_for_destruction(entity_a);
-			mark_for_destruction(entity_b);
-		}
-
 		if (type_a == "player" && type_b == "trigger")
 		{
 			std::string string;

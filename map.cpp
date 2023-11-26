@@ -11,6 +11,7 @@
 #include "ecs_behavior.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
+#include "ui_hud.h"
 
 namespace map
 {
@@ -182,9 +183,16 @@ namespace map
 			}
 		}
 
-		std::string behavior;
-		if (ecs::get_string(entity, "behavior", behavior))
-			ecs::emplace_behavior(entity, behavior);
+		// EMPLACE BEHAVIOR
+		{
+			std::string behavior;
+			if (ecs::get_string(entity, "behavior", behavior))
+			{
+				auto type = magic_enum::enum_cast<ecs::BehaviorType>(behavior, magic_enum::case_insensitive);
+				if (type.has_value()) ecs::emplace_behavior(entity, type.value());
+				else console::log_error("Unknown behavior type: " + behavior);
+			}
+		}
 
 		if (object.class_ == "player")
 		{
@@ -239,17 +247,13 @@ namespace map
 
 		auto& registry = ecs::get_registry();
 		std::string current_music;
+		std::string next_music;
 
 		// CLOSE CURRENT MAP
 
 		if (_current_map)
 		{
-			for (const tiled::Property& prop : _current_map->properties)
-			{
-				if (prop.name == "music" && std::holds_alternative<std::string>(prop.value))
-					current_music = std::get<std::string>(prop.value);
-			}
-
+			tiled::get(_current_map->properties, "music", current_music);
 			registry.clear();
 		}
 
@@ -258,21 +262,22 @@ namespace map
 		_current_map = _next_map;
 		_force_open = false;
 
-		if (_current_map)
+		if (!_current_map) // If there is no next map to open
 		{
-			for (const tiled::Property& prop : _current_map->properties)
+			ui::set_hud_visible(false);
+			audio::stop_all();
+		}
+		else // If there is a next map to open
+		{
+			ui::set_hud_visible(true);
+
+			tiled::get(_current_map->properties, "music", next_music);
+			if (current_music != next_music)
 			{
-				if (prop.name == "music" && std::holds_alternative<std::string>(prop.value))
-				{
-					std::string next_music = std::get<std::string>(prop.value);
-					if (current_music != next_music)
-					{
-						if (!current_music.empty())
-							audio::stop("event:/" + current_music);
-						if (!next_music.empty())
-							audio::play("event:/" + next_music);
-					}
-				}
+				if (!current_music.empty())
+					audio::stop("event:/" + current_music);
+				if (!next_music.empty())
+					audio::play("event:/" + next_music);
 			}
 
 			// Create object entities first. This is because we want
@@ -350,10 +355,6 @@ namespace map
 					}
 				}
 			}
-		}
-		else
-		{
-			audio::stop_all();
 		}
 	}
 

@@ -1,4 +1,3 @@
 bind o "map open martin_test"
 bind p "map close"
-bind t "ecs add_camera_trauma player 0.7"
 map open martin_test

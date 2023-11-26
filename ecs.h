@@ -9,7 +9,6 @@ namespace ecs
 	void render(sf::RenderWindow& window);
 	entt::registry& get_registry();
 
-	// Marks an entity to be destroyed at the end of the frame.
-	void mark_for_destruction(entt::entity entity);
+	void destroy_at_end_of_frame(entt::entity entity);
 }
 

@@ -100,7 +100,7 @@ namespace ui
 
 	void update_textbox(float dt)
 	{
-		auto doc = _context->GetDocument("textbox");
+		Rml::ElementDocument* doc = _context->GetDocument("textbox");
 		if (!doc) return;
 
 		if (!_current_entry && !_queued_entries.empty())
@@ -150,7 +150,7 @@ namespace ui
 
 	bool is_textbox_visible()
 	{
-		if (auto doc = _context->GetDocument("textbox"))
+		if (const Rml::ElementDocument* doc = _context->GetDocument("textbox"))
 			return doc->IsVisible();
 		return false;
 	}

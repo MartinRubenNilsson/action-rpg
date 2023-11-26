@@ -4,13 +4,8 @@ namespace ui
 {
 	void update_textbox(float dt);
 
-	// Returns true if the textbox is visible.
 	bool is_textbox_visible();
-
-	// Returns true if the typing animation is in progress.
 	bool is_textbox_typing();
-
-	// Skips the typing animation and displays the full text.
 	void skip_textbox_typing();
 
 	// Advances the textbox to the next entry in the queue.

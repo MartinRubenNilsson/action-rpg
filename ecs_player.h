@@ -2,15 +2,24 @@
 
 namespace ecs
 {
+	struct PlayerInput
+	{
+		sf::Vector2f direction;
+		bool run = false;
+		bool interact = false;
+	};
+
+	struct PlayerState
+	{
+		sf::Vector2f direction; // normalized
+		int health = 3;
+		float hurt_cooldown_timer = 0.f; // time left until player can be hurt again
+	};
+
 	struct Player
 	{
-		// INPUTS
-		sf::Vector2f input_direction;
-		bool input_run = false;
-		bool input_interact = false;
-
-		// STATE
-		sf::Vector2f direction;
+		PlayerInput input;
+		PlayerState state;
 	};
 
 	void process_event_player(const sf::Event& event);
@@ -18,4 +27,6 @@ namespace ecs
 
 	bool player_exists();
 	sf::Vector2f get_player_center();
+
+	void hurt_player(int health_to_remove);
 }

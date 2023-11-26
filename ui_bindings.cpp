@@ -6,6 +6,7 @@ namespace ui
 {
 	// DATA VARIABLES
 
+	extern int hud_player_health;
 	extern std::string _textbox_text;
 	extern std::string _textbox_sprite;
 	extern bool _textbox_sprite_is_set;
@@ -33,12 +34,13 @@ namespace ui
 
 	void create_bindings()
 	{
-		auto data_model = _context->CreateDataModel("data_model");
+		Rml::DataModelConstructor data_model = _context->CreateDataModel("data_model");
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();
 
 		// DATA VARIABLES
 
+		data_model.Bind("hud_player_health", &hud_player_health);
 		data_model.Bind("textbox_text", &_textbox_text);
 		data_model.Bind("textbox_sprite", &_textbox_sprite);
 		data_model.Bind("textbox_sprite_is_set", &_textbox_sprite_is_set);

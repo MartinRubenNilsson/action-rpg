@@ -50,7 +50,7 @@ namespace tables
 	std::vector<TextboxEntry> get_textbox_entries(const std::string& name)
 	{
 		std::vector<TextboxEntry> entries;
-		for (const auto& entry : _textbox_table)
+		for (const TextboxEntry& entry : _textbox_table)
 		{
 			if (entry.name == name)
 				entries.push_back(entry);

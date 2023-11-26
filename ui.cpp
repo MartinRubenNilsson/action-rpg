@@ -25,15 +25,12 @@ namespace ui
 	void initialize(sf::RenderWindow& window)
 	{
 		_system_interface.SetWindow(&window); // So that the system interface can set the mouse cursor.
-
 		Rml::SetSystemInterface(&_system_interface);
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
-
-		Rml::Vector2i size(window.getSize().x, window.getSize().y);
-		_context = Rml::CreateContext("main", size);
-		_on_window_resized(size);
-
+		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
+		_context = Rml::CreateContext("main", window_size);
+		_on_window_resized(window_size);
 		create_bindings();
 	}
 
@@ -82,10 +79,10 @@ namespace ui
 		{
 			if (entry.path().extension() != ".rml")
 				continue;
-			auto document = _context->LoadDocument(entry.path().string());
-			if (!document)
+			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
+			if (!doc)
 				continue;
-			document->SetId(entry.path().stem().string());
+			doc->SetId(entry.path().stem().string());
 		}
 	}
 
@@ -105,13 +102,13 @@ namespace ui
 
 	void show(const std::string& document_name)
 	{
-		if (auto document = _context->GetDocument(document_name))
-			document->Show();
+		if (Rml::ElementDocument* doc = _context->GetDocument(document_name))
+			doc->Show();
 	}
 
 	void hide(const std::string& document_name)
 	{
-		if (auto document = _context->GetDocument(document_name))
-			document->Hide();
+		if (Rml::ElementDocument* doc = _context->GetDocument(document_name))
+			doc->Hide();
 	}
 }

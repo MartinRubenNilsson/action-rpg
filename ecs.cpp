@@ -24,7 +24,7 @@ namespace ecs
 		process_event_player(event);
 	}
 
-	void _destroy_marked_entities()
+	void _destroy_entities()
 	{
 		for (entt::entity entity : _entities_to_destroy)
 			if (_registry.valid(entity))
@@ -36,7 +36,7 @@ namespace ecs
 	{
 		update_player(dt);
 		update_behaviors(dt);
-		_destroy_marked_entities();
+		_destroy_entities();
 		update_graphics(dt);
 		update_cameras(dt);
 	}
@@ -78,7 +78,7 @@ namespace ecs
 		return _registry;
 	}
 
-	void mark_for_destruction(entt::entity entity)
+	void destroy_at_end_of_frame(entt::entity entity)
 	{
 		if (!_registry.valid(entity)) return;
 		_entities_to_destroy.insert(entity);
