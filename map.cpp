@@ -6,7 +6,7 @@
 #include "audio.h"
 #include "math_vectors.h"
 #include "ecs.h"
-#include "ecs_common.h"
+#include "ecs_tiled.h"
 #include "ecs_graphics.h"
 #include "ecs_behavior.h"
 #include "ecs_player.h"

@@ -17,11 +17,4 @@ namespace ecs
 	bool get_string(entt::entity entity, const std::string& name, std::string& value);
 	void set_entity(entt::entity entity, const std::string& name, entt::entity value);
 	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value);
-
-	// Marks an entity to be destroyed at the end of the frame.
-	// Calling this function is almost always preferable
-	// to calling entt::registry::destroy directly.
-	void mark_for_destruction(entt::entity entity);
-
-	void update_common(float dt);
 }

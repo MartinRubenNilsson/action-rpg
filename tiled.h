@@ -8,6 +8,11 @@ namespace tiled
 		std::variant<std::string, int, float, bool, entt::entity> value;
 	};
 
+	template <typename T>
+	bool get(const std::vector<Property>& properties, const std::string& name, T& value);
+	template <typename T>
+	void set(std::vector<Property>& properties, const std::string& name, const T& value);
+
 	enum class ObjectType
 	{
 		Rectangle,
@@ -107,5 +112,33 @@ namespace tiled
 	const std::vector<Tileset>& get_tilesets();
 	const std::vector<Object>& get_templates();
 	const std::vector<Map>& get_maps();
+
+	template <typename T>
+	bool get(const std::vector<Property>& properties, const std::string& name, T& value)
+	{
+		for (const Property& property : properties)
+		{
+			if (property.name == name && std::holds_alternative<T>(property.value))
+			{
+				value = std::get<T>(property.value);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	template <typename T>
+	void set(std::vector<Property>& properties, const std::string& name, const T& value)
+	{
+		for (Property& property : properties)
+		{
+			if (property.name == name)
+			{
+				property.value = value;
+				return;
+			}
+		}
+		properties.emplace_back(name, value);
+	}
 }
 

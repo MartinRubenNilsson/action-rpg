@@ -1,5 +1,7 @@
+#include "stdafx.h"
 #include "ecs_player.h"
-#include "ecs_common.h"
+#include "ecs.h"
+#include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "math_vectors.h"
 #include "physics_helpers.h"

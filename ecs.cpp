@@ -1,6 +1,6 @@
 #include "ecs.h"
 #include "defines.h"
-#include "ecs_common.h"
+#include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_behavior.h"
@@ -10,6 +10,7 @@
 namespace ecs
 {
 	entt::registry _registry;
+	std::unordered_set<entt::entity> _entities_to_destroy;
 
 	void initialize() {
 		initialize_physics();
@@ -23,11 +24,19 @@ namespace ecs
 		process_event_player(event);
 	}
 
+	void _destroy_marked_entities()
+	{
+		for (entt::entity entity : _entities_to_destroy)
+			if (_registry.valid(entity))
+				_registry.destroy(entity);
+		_entities_to_destroy.clear();
+	}
+
 	void update(float dt)
 	{
 		update_player(dt);
 		update_behaviors(dt);
-		update_common(dt);
+		_destroy_marked_entities();
 		update_graphics(dt);
 		update_cameras(dt);
 	}
@@ -67,5 +76,11 @@ namespace ecs
 
 	entt::registry& get_registry() {
 		return _registry;
+	}
+
+	void mark_for_destruction(entt::entity entity)
+	{
+		if (!_registry.valid(entity)) return;
+		_entities_to_destroy.insert(entity);
 	}
 }

@@ -132,7 +132,7 @@
     <ClCompile Include="tables.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_behavior.cpp" />
-    <ClCompile Include="ecs_common.cpp" />
+    <ClCompile Include="ecs_tiled.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math_vectors.cpp" />
@@ -172,7 +172,7 @@
     <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_behavior.h" />
-    <ClInclude Include="ecs_common.h" />
+    <ClInclude Include="ecs_tiled.h" />
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />
     <ClInclude Include="fmod.h" />

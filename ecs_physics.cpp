@@ -2,7 +2,8 @@
 #include "physics.h"
 #include "audio.h"
 #include "map.h"
-#include "ecs_common.h"
+#include "ecs.h"
+#include "ecs_tiled.h"
 #include "ecs_player.h"
 
 namespace ecs
