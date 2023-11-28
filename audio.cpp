@@ -10,10 +10,9 @@
 #pragma comment(lib, "fmodstudio_vc.lib")
 #endif
 
-#define MAX_AUDIO_CHANNELS 512
-
 namespace audio
 {
+	const int MAX_AUDIO_CHANNELS = 512;
 	FMOD::Studio::System* _system = nullptr;
 
 	void initialize()
@@ -38,21 +37,21 @@ namespace audio
 		_system->update();
 	}
 
-	void load_banks()
+	void load_assets()
 	{
-		for (const auto& entry : std::filesystem::directory_iterator("assets/audio/banks"))
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::directory_iterator("assets/audio/banks"))
 		{
-			if (entry.path().extension() != ".bank")
-				continue;
+			if (!entry.is_regular_file()) continue;
+			if (entry.path().extension() != ".bank") continue;
 			FMOD::Studio::Bank *bank = nullptr;
 			FMOD_RESULT result = _system->loadBankFile(
-				entry.path().string().c_str(),
-				FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
+				entry.path().string().c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
 			assert(result == FMOD_OK);
 		}
 	}
 
-	bool _get_event_desc(const std::string& path, FMOD::Studio::EventDescription** desc)
+	bool _get_event_description(const std::string& path, FMOD::Studio::EventDescription** desc)
 	{
 		FMOD_RESULT result = _system->getEvent(path.c_str(), desc);
 		if (result != FMOD_OK)
@@ -63,8 +62,7 @@ namespace audio
 		return true;
 	}
 
-	std::vector<FMOD::Studio::EventInstance*>
-		_get_event_instances(const FMOD::Studio::EventDescription* desc)
+	std::vector<FMOD::Studio::EventInstance*> _get_event_instances(const FMOD::Studio::EventDescription* desc)
 	{
 		int count = 0;
 		desc->getInstanceCount(&count);
@@ -76,11 +74,11 @@ namespace audio
 	bool is_playing(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		if (!_get_event_desc(path, &event_desc)) return false;
-		for (auto event_instance : _get_event_instances(event_desc))
+		if (!_get_event_description(path, &event_desc)) return false;
+		for (FMOD::Studio::EventInstance *event_inst : _get_event_instances(event_desc))
 		{
 			FMOD_STUDIO_PLAYBACK_STATE state;
-			event_instance->getPlaybackState(&state);
+			event_inst->getPlaybackState(&state);
 			if (state == FMOD_STUDIO_PLAYBACK_PLAYING)
 				return true;
 		}
@@ -90,26 +88,24 @@ namespace audio
 	void play(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		if (!_get_event_desc(path, &event_desc)) return;
-
-		FMOD::Studio::EventInstance* event_instance = nullptr;
-		FMOD_RESULT result = event_desc->createInstance(&event_instance);
+		if (!_get_event_description(path, &event_desc)) return;
+		FMOD::Studio::EventInstance* event_inst = nullptr;
+		FMOD_RESULT result = event_desc->createInstance(&event_inst);
 		if (result != FMOD_OK)
 		{
 			console::log_error("Failed to create audio event instance: " + path);
 			return;
 		}
-
-		event_instance->start();
-		event_instance->release();
+		event_inst->start();
+		event_inst->release();
 	}
 
 	void stop(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* event_desc = nullptr;
-		if (!_get_event_desc(path, &event_desc)) return;
-		for (auto event_instance : _get_event_instances(event_desc))
-			event_instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+		if (!_get_event_description(path, &event_desc)) return;
+		for (FMOD::Studio::EventInstance* event_inst : _get_event_instances(event_desc))
+			event_inst->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 	}
 
 	void stop_all()

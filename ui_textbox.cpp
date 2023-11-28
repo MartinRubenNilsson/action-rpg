@@ -93,8 +93,8 @@ namespace ui
 
 	// These variables are only to be used internally in this file.
 
-	std::deque<tables::TextboxEntry> _queued_entries;
-	std::optional<tables::TextboxEntry> _current_entry;
+	std::deque<tables::TextboxDataEntry> _queued_entries;
+	std::optional<tables::TextboxDataEntry> _current_entry;
 	size_t _current_plain_text_length = 0;
 	float _typing_time_accumulator = 0.f;
 
@@ -177,7 +177,7 @@ namespace ui
 
 	void add_textbox_entries(const std::string& name)
 	{
-		auto entries = tables::get_textbox_entries(name);
+		auto entries = tables::query_textbox_data_entries(name);
 		std::ranges::copy(entries, std::back_inserter(_queued_entries));
 	}
 

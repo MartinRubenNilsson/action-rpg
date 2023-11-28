@@ -3,10 +3,6 @@
 #include <pugixml.hpp>
 #include "console.h"
 
-#define _MAX_TILESET_COUNT 128
-#define _MAX_TEMPLATE_COUNT 128
-#define _MAX_MAP_COUNT 128
-
 namespace tiled
 {
 	std::vector<Tileset> _tilesets;
@@ -148,12 +144,7 @@ namespace tiled
 
 	void load_assets()
 	{
-		_tilesets.clear();
-		_templates.clear();
-		_maps.clear();
-		_tilesets.reserve(_MAX_TILESET_COUNT);
-		_templates.reserve(_MAX_TEMPLATE_COUNT);
-		_maps.reserve(_MAX_MAP_COUNT);
+		unload_assets();
 
 		// Find assets
 		for (const std::filesystem::directory_entry& entry :
@@ -162,20 +153,11 @@ namespace tiled
 			if (!entry.is_regular_file()) continue;
 			std::string extension = entry.path().extension().string();
 			if (extension == ".tsx")
-			{
-				assert(_tilesets.size() < _MAX_TILESET_COUNT);
 				_tilesets.emplace_back().path = entry.path().lexically_normal();
-			}
 			else if (extension == ".tx")
-			{
-				assert(_templates.size() < _MAX_TEMPLATE_COUNT);
 				_templates.emplace_back().path = entry.path().lexically_normal();
-			}
 			else if (extension == ".tmx")
-			{
-				assert(_maps.size() < _MAX_MAP_COUNT);
 				_maps.emplace_back().path = entry.path().lexically_normal();
-			}
 		}
 
 		// Load tilesets

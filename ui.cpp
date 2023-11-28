@@ -65,17 +65,19 @@ namespace ui
 		return is_textbox_visible();
 	}
 
-	void load_fonts_and_documents()
+	void load_assets()
 	{
 		// Load all TTF fonts.
-		for (const auto& entry : std::filesystem::directory_iterator("assets/fonts"))
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::directory_iterator("assets/fonts"))
 		{
 			if (entry.path().extension() == ".ttf")
 				Rml::LoadFontFace(entry.path().string());
 		}
 
 		// Load all RML documents and set their IDs to their names.
-		for (const auto& entry : std::filesystem::directory_iterator("assets/ui"))
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::directory_iterator("assets/ui"))
 		{
 			if (entry.path().extension() != ".rml")
 				continue;

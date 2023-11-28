@@ -8,10 +8,9 @@ namespace ui
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 	bool should_pause_game();
-
 	// Loads all TTF fonts in the assets/fonts folder,
 	// and all RML documents in the assets/ui folder.
-	void load_fonts_and_documents();
+	void load_assets();
 
 	// Reloads all documents' style sheets from <style> tags
 	// and external style sheets, but not inline "style" attributes.

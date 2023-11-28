@@ -89,12 +89,14 @@ namespace ecs
 			}
 		}
 
+		ui::hud_player_health = 0;
+
 		for (auto [entity, player] : _registry.view<Player>().each())
 		{
 			player.input = {};
-			ui::hud_player_health = player.state.health;
 			if (player.state.hurt_cooldown_timer > 0.f)
 				player.state.hurt_cooldown_timer -= dt;
+			ui::hud_player_health = player.state.health;
 		}
 	}
 
@@ -115,13 +117,15 @@ namespace ecs
 		for (auto [entity, player] : _registry.view<Player>().each())
 		{
 			if (player.state.health <= 0) continue; // Player is already dead
-			if (player.state.hurt_cooldown_timer > 0.f) continue; // Player is still invulnerable
-			audio::play("event:/snd_player_hurt");
+			if (player.state.hurt_cooldown_timer > 0.f) continue; // Player is invulnerable
 			player.state.health = std::max(0, player.state.health - health_to_remove);
 			player.state.hurt_cooldown_timer = PLAYER_HURT_COOLDOWN_TIME;
-			if (player.state.health > 0) continue; // Player is still alive
-			audio::play("event:/snd_player_die");
-			destroy_at_end_of_frame(entity);
+			if (player.state.health > 0) {
+				audio::play("event:/snd_player_hurt");
+			} else {
+				audio::play("event:/snd_player_die");
+				destroy_at_end_of_frame(entity);
+			}
 		}
 	}
 }

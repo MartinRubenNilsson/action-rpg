@@ -78,6 +78,12 @@ namespace ecs
 		return _registry;
 	}
 
+	void destroy_immediately(entt::entity entity)
+	{
+		if (!_registry.valid(entity)) return;
+		_registry.destroy(entity);
+	}
+
 	void destroy_at_end_of_frame(entt::entity entity)
 	{
 		if (!_registry.valid(entity)) return;

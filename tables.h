@@ -2,7 +2,7 @@
 
 namespace tables
 {
-	struct TextboxEntry
+	struct TextboxDataEntry
 	{
 		std::string name;
 		int index = 0;
@@ -12,8 +12,9 @@ namespace tables
 		std::string sound;
 	};
 
-	void load_tables();
+	// Loads certain CSV tables in the assets/tables directory.
+	void load_assets();
 
-	std::vector<TextboxEntry> get_textbox_entries(const std::string& name);
+	std::vector<TextboxDataEntry> query_textbox_data_entries(const std::string& name);
 }
 

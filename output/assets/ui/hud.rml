@@ -4,7 +4,8 @@
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container">
-		<p>Health: {{hud_player_health}}</p>
+		<p data-if="hud_player_health == 0">You are dead!</p>
+		<p data-if="hud_player_health > 0">Health: {{hud_player_health}}</p>
 	</div>
 </body>
 </rml>

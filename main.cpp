@@ -37,10 +37,10 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
-    audio::load_banks();
+    audio::load_assets();
     tiled::load_assets();
-    ui::load_fonts_and_documents();
-    tables::load_tables();
+    ui::load_assets();
+    tables::load_assets();
 
     // OTHER STUFF
 

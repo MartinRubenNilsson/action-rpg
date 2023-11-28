@@ -13,9 +13,8 @@ namespace audio
 	void initialize();
 	void shutdown();
 	void update();
-
 	// Loads all FMOD banks in the assets/audio/banks directory.
-	void load_banks();
+	void load_assets();
 
 	// Returns true if an event instance with the given path exists
 	// and is currently playing, false otherwise.
