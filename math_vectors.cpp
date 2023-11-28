@@ -21,8 +21,8 @@ float length(const sf::Vector2f& v) {
 }
 
 sf::Vector2f normalize(const sf::Vector2f& v) {
-	if (float l = length(v))
-		return v / l;
+	if (float denom = length(v))
+		return v / denom;
 	return sf::Vector2f(0, 0);
 }
 
@@ -30,19 +30,14 @@ float dot(const sf::Vector2f& a, const sf::Vector2f& b) {
 	return a.x * b.x + a.y * b.y;
 }
 
-float cross(const sf::Vector2f& a, const sf::Vector2f& b) {
+float det(const sf::Vector2f& a, const sf::Vector2f& b) {
 	return a.x * b.y - a.y * b.x;
 }
 
 float angle_between(const sf::Vector2f& a, const sf::Vector2f& b) {
-	return std::acos(dot(a, b) / (length(a) * length(b)));
-}
-
-float angle_between_safe(const sf::Vector2f& a, const sf::Vector2f& b)
-{
-	if (float l = length(a) * length(b))
-		return std::acos(dot(a, b) / l);
-	return 0;
+	if (float denom = length(a) * length(b))
+		return std::acos(dot(a, b) / denom);
+	return 0.f;
 }
 
 sf::Vector2f rotate(const sf::Vector2f& v, float angle)
@@ -54,6 +49,14 @@ sf::Vector2f rotate(const sf::Vector2f& v, float angle)
 
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t) {
 	return a + (b - a) * t;
+}
+
+sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max)
+{
+	return sf::Vector2f(
+		std::clamp(v.x, min.x, max.x),
+		std::clamp(v.y, min.y, max.y)
+	);
 }
 
 char get_direction(const sf::Vector2f& v)

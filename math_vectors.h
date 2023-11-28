@@ -14,11 +14,11 @@ float length_squared(const sf::Vector2f& v);
 float length(const sf::Vector2f& v);
 [[nodiscard]] sf::Vector2f normalize(const sf::Vector2f& v); // Safe to call on zero vector
 float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
-float cross(const sf::Vector2f& a, const sf::Vector2f& b); // 2D cross product, aka determinant
-float angle_between(const sf::Vector2f& a, const sf::Vector2f& b); // Returns angle in radians
-float angle_between_safe(const sf::Vector2f& a, const sf::Vector2f& b); // Returns zero if either vector is zero
-sf::Vector2f rotate(const sf::Vector2f& v, float angle); // Returns a copy of v rotated by angle radians
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t); // Linear interpolation between a and b
+float det(const sf::Vector2f& a, const sf::Vector2f& b); // Determinant, aka 2D cross product
+float angle_between(const sf::Vector2f& a, const sf::Vector2f& b); // In radians; safe to call on zero vectors
+sf::Vector2f rotate(const sf::Vector2f& v, float angle); // Angle in radians
+sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
+sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);
 
 // Returns the direction (one of 'r', 'l', 'u', 'd') in which v roughly points.
 // Behavior is undefined if v is zero.

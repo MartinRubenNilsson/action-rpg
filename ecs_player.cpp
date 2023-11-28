@@ -3,6 +3,7 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
+#include "ecs_graphics.h"
 #include "math_vectors.h"
 #include "physics_helpers.h"
 #include "console.h"
@@ -89,13 +90,31 @@ namespace ecs
 			}
 		}
 
-		ui::hud_player_health = 0;
-
+		// Update player state
 		for (auto [entity, player] : _registry.view<Player>().each())
 		{
 			player.input = {};
 			if (player.state.hurt_cooldown_timer > 0.f)
 				player.state.hurt_cooldown_timer -= dt;
+		}
+
+		// Update player sprite
+		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each())
+		{
+			sf::Color color = sf::Color::White;
+			if (player.state.hurt_cooldown_timer > 0.f)
+			{
+				const float BLINK_TIME_PERIOD = 0.15f;
+				float fraction = fmod(player.state.hurt_cooldown_timer, BLINK_TIME_PERIOD) / BLINK_TIME_PERIOD;
+				color.a = 255 * fraction;
+			}
+			sprite.sprite.setColor(color);
+		}
+
+		// Update HUD
+		ui::hud_player_health = 0;
+		for (auto [entity, player] : _registry.view<const Player>().each())
+		{
 			ui::hud_player_health = player.state.health;
 		}
 	}
