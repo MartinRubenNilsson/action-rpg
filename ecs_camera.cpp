@@ -121,13 +121,39 @@ namespace ecs
 				_active_camera_view.getCenter()));
 	}
 
+	const sf::View& get_active_camera_view() {
+		return _active_camera_view;
+	}
+
+	const sf::View& get_blended_camera_view() {
+		return _blended_camera_view;
+	}
+
 	bool activate_camera(entt::entity entity, bool hard_cut)
 	{
-		if (!_registry.try_get<Camera>(entity)) return false;
+		if (!_registry.all_of<Camera>(entity)) return false;
 		_active_camera_entity = entity;
 		_last_camera_view = _active_camera_view;
 		_camera_blend_time = hard_cut ? CAMERA_BLEND_DURATION : 0.f;
 		return true;
+	}
+
+	void emplace_camera(entt::entity entity, const Camera& camera) {
+		_registry.emplace_or_replace<Camera>(entity, camera);
+	}
+
+	entt::entity detach_camera(entt::entity entity)
+	{
+		Camera* camera = _registry.try_get<Camera>(entity);
+		if (!camera) return entt::null;
+		camera->follow = entt::null;
+		entt::entity new_entity = _registry.create();
+		_registry.emplace<Camera>(new_entity, *camera);
+		_registry.remove<Camera>(entity);
+		if (_active_camera_entity == entity) {
+			_active_camera_entity = new_entity;
+		}
+		return new_entity;
 	}
 
 	bool add_camera_trauma(entt::entity entity, float trauma)
@@ -137,13 +163,5 @@ namespace ecs
 			return true;
 		}
 		return false;
-	}
-
-	const sf::View& get_active_camera_view() {
-		return _active_camera_view;
-	}
-
-	const sf::View& get_blended_camera_view() {
-		return _blended_camera_view;
 	}
 }

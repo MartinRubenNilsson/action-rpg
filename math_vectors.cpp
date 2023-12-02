@@ -34,10 +34,14 @@ float det(const sf::Vector2f& a, const sf::Vector2f& b) {
 	return a.x * b.y - a.y * b.x;
 }
 
-float angle_between(const sf::Vector2f& a, const sf::Vector2f& b) {
+float angle(const sf::Vector2f& a, const sf::Vector2f& b) {
 	if (float denom = length(a) * length(b))
 		return std::acos(dot(a, b) / denom);
 	return 0.f;
+}
+
+float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b) {
+	return std::atan2(det(a, b), dot(a, b));
 }
 
 sf::Vector2f rotate(const sf::Vector2f& v, float angle)

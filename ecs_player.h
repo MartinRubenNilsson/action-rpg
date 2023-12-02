@@ -25,6 +25,7 @@ namespace ecs
 	void process_event_player(const sf::Event& event);
 	void update_player(float dt);
 
+	void emplace_player(entt::entity entity, const Player& player);
 	bool player_exists();
 	sf::Vector2f get_player_center();
 

@@ -4,6 +4,7 @@
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "ecs_graphics.h"
+#include "ecs_camera.h"
 #include "math_vectors.h"
 #include "physics_helpers.h"
 #include "console.h"
@@ -106,7 +107,7 @@ namespace ecs
 			{
 				const float BLINK_TIME_PERIOD = 0.15f;
 				float fraction = fmod(player.state.hurt_cooldown_timer, BLINK_TIME_PERIOD) / BLINK_TIME_PERIOD;
-				color.a = 255 * fraction;
+				color.a = (sf::Uint8)(255 * fraction);
 			}
 			sprite.sprite.setColor(color);
 		}
@@ -117,6 +118,10 @@ namespace ecs
 		{
 			ui::hud_player_health = player.state.health;
 		}
+	}
+
+	void emplace_player(entt::entity entity, const Player& player) {
+		_registry.emplace<Player>(entity, player);
 	}
 
 	bool player_exists() {
@@ -143,6 +148,7 @@ namespace ecs
 				audio::play("event:/snd_player_hurt");
 			} else {
 				audio::play("event:/snd_player_die");
+				detach_camera(entity);
 				destroy_at_end_of_frame(entity);
 			}
 		}

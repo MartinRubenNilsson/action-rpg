@@ -196,11 +196,14 @@ namespace map
 
 		if (object.class_ == "player")
 		{
-			ecs::Player& player = registry.emplace<ecs::Player>(entity);
-			ecs::Camera& camera = registry.emplace<ecs::Camera>(entity);
-			camera.follow = entity;
-			camera.confining_rect = get_bounds();
-			ecs::activate_camera(entity, true);
+			ecs::emplace_player(entity, ecs::Player());
+			{
+				ecs::Camera camera;
+				camera.follow = entity;
+				camera.confining_rect = get_bounds();
+				ecs::emplace_camera(entity, camera);
+				ecs::activate_camera(entity, true);
+			}
 			if (object.tile)
 			{
 				ecs::Animation& anim = registry.emplace_or_replace<ecs::Animation>(entity);
@@ -231,10 +234,11 @@ namespace map
 		}
 		else if (object.class_ == "camera")
 		{
-			auto& camera = registry.emplace<ecs::Camera>(entity);
+			ecs::Camera camera;
 			camera.view.setCenter(x, y);
 			ecs::get_entity(entity, "follow", camera.follow);
 			camera.confining_rect = get_bounds();
+			ecs::emplace_camera(entity, camera);
 		}
 
 		return entity;

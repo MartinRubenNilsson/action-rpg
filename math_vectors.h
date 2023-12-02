@@ -15,7 +15,8 @@ float length(const sf::Vector2f& v);
 [[nodiscard]] sf::Vector2f normalize(const sf::Vector2f& v); // Safe to call on zero vector
 float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
 float det(const sf::Vector2f& a, const sf::Vector2f& b); // Determinant, aka 2D cross product
-float angle_between(const sf::Vector2f& a, const sf::Vector2f& b); // In radians; safe to call on zero vectors
+float angle(const sf::Vector2f& a, const sf::Vector2f& b); // In radians; safe to call on zero vectors
+float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b); // In radians; safe to call on zero vectors
 sf::Vector2f rotate(const sf::Vector2f& v, float angle); // Angle in radians
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
 sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);

@@ -34,10 +34,12 @@ namespace ecs
 	};
 
 	void update_cameras(float dt);
-
-	bool activate_camera(entt::entity entity, bool hard_cut = false);
-	bool add_camera_trauma(entt::entity entity, float trauma);
-
 	const sf::View& get_active_camera_view(); // Hard-cuts when activating new camera.
 	const sf::View& get_blended_camera_view(); // Smoothly transitions between cameras.
+
+	void emplace_camera(entt::entity entity, const Camera& camera);
+	// Copies the camera to a new entity, removes it from the old entity, and returns the new entity.
+	entt::entity detach_camera(entt::entity entity);
+	bool activate_camera(entt::entity entity, bool hard_cut = false);
+	bool add_camera_trauma(entt::entity entity, float trauma);
 }
