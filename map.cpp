@@ -15,6 +15,8 @@
 
 namespace map
 {
+	const float SpawnOptions::DEFAULT = FLT_EPSILON;
+
 	const tiled::Map* _current_map = nullptr;
 	const tiled::Map* _next_map = nullptr;
 	bool _force_open = false; // if true, open the next map even if it's the same as the current one
@@ -23,10 +25,8 @@ namespace map
 	bool open(const std::string& map_name, bool force)
 	{
 		_next_map = nullptr;
-		for (const tiled::Map& map : tiled::get_maps())
-		{
-			if (map.name == map_name)
-			{
+		for (const tiled::Map& map : tiled::get_maps()) {
+			if (map.name == map_name) {
 				_next_map = &map;
 				break;
 			}
@@ -45,14 +45,9 @@ namespace map
 		_force_open = true;
 	}
 
-	entt::entity _spawn(
-		const tiled::Object& object,
-		const sf::Vector2f* position, // If null, use object position.
-		float depth)
+	entt::entity _spawn(const tiled::Object& object, const SpawnOptions& options)
 	{
-		if (!_current_map)
-			return entt::null;
-
+		if (!_current_map) return entt::null;
 		entt::registry& registry = ecs::get_registry();
 
 		// Attempt to use the object's UID as the entity identifier.
@@ -61,35 +56,27 @@ namespace map
 		registry.emplace<const tiled::Object*>(entity, &object);
 		registry.emplace<std::vector<tiled::Property>>(entity, object.properties);
 
-		float x = object.position.x * METERS_PER_PIXEL;
-		float y = object.position.y * METERS_PER_PIXEL;
-		float w = object.size.x * METERS_PER_PIXEL;
-		float h = object.size.y * METERS_PER_PIXEL;
+		float x = (options.x != SpawnOptions::DEFAULT) ? options.x : object.position.x * METERS_PER_PIXEL;
+		float y = (options.y != SpawnOptions::DEFAULT) ? options.y : object.position.y * METERS_PER_PIXEL;
+		float z = (options.z != SpawnOptions::DEFAULT) ? options.z : (float)_current_map->layers.size();
+		float w = (options.w != SpawnOptions::DEFAULT) ? options.w : object.size.x * METERS_PER_PIXEL;
+		float h = (options.h != SpawnOptions::DEFAULT) ? options.h : object.size.y * METERS_PER_PIXEL;
 
-		if (object.type == tiled::ObjectType::Tile)
-		{
+		if (object.type == tiled::ObjectType::Tile) {
 			// All objects are positioned by their top-left corner, except for tiles,
 			// which are positioned by their bottom-left corner. This is confusing,
 			// so we'll adjust the position here to make it consistent.
 			y -= h;
 		}
 
-		// If a position was provided, use it instead of the object position.
-		if (position)
-		{
-			x = position->x;
-			y = position->y;
-		}
-
-		if (object.type == tiled::ObjectType::Tile)
-		{
+		if (object.type == tiled::ObjectType::Tile) {
 			assert(object.tile && "Tile not found.");
 			registry.emplace<const tiled::Tile*>(entity, object.tile);
 			{
 				ecs::Sprite sprite;
 				sprite.sprite = object.tile->sprite;
 				sprite.sprite.setPosition(x * PIXELS_PER_METER, y * PIXELS_PER_METER);
-				sprite.depth = depth;
+				sprite.z = z;
 				ecs::emplace_sprite(entity, sprite);
 			}
 			if (!object.tile->animation.empty())
@@ -97,8 +84,7 @@ namespace map
 
 			// LOAD COLLIDERS
 
-			if (!object.tile->objects.empty())
-			{
+			if (!object.tile->objects.empty()) {
 				b2BodyDef body_def;
 				body_def.type = b2_dynamicBody;
 				body_def.fixedRotation = true;
@@ -110,16 +96,14 @@ namespace map
 				assert(body && "Failed to create body.");
 				registry.emplace<b2Body*>(entity, body);
 
-				for (const tiled::Object& tile_object : object.tile->objects)
-				{
+				for (const tiled::Object& tile_object : object.tile->objects) {
 					float x = tile_object.position.x * METERS_PER_PIXEL;
 					float y = tile_object.position.y * METERS_PER_PIXEL;
 					float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
 					float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
 					b2Vec2 center(x + hw, y + hh);
 
-					switch (tile_object.type)
-					{
+					switch (tile_object.type) {
 					case tiled::ObjectType::Rectangle:
 					{
 						b2PolygonShape shape;
@@ -138,9 +122,7 @@ namespace map
 					}
 				}
 			}
-		}
-		else // If object is not a tile
-		{
+		} else { // If object is not a tile
 			b2BodyDef body_def;
 			body_def.type = b2_staticBody;
 			body_def.fixedRotation = true;
@@ -156,8 +138,7 @@ namespace map
 			float hh = h / 2.0f;
 			b2Vec2 center(hw, hh);
 
-			switch (object.type)
-			{
+			switch (object.type) {
 			case tiled::ObjectType::Rectangle:
 			{
 				b2PolygonShape shape;
@@ -187,17 +168,16 @@ namespace map
 		// EMPLACE BEHAVIOR
 		{
 			std::string behavior;
-			if (ecs::get_string(entity, "behavior", behavior))
-			{
+			if (ecs::get_string(entity, "behavior", behavior)) {
 				auto type = magic_enum::enum_cast<ecs::BehaviorType>(behavior, magic_enum::case_insensitive);
 				if (type.has_value())
 					ecs::emplace_behavior(entity, type.value());
-				else console::log_error("Unknown behavior type: " + behavior);
+				else
+					console::log_error("Unknown behavior type: " + behavior);
 			}
 		}
 
-		if (object.class_ == "player")
-		{
+		if (object.class_ == "player") {
 			ecs::emplace_player(entity, ecs::Player());
 			{
 				ecs::Camera camera;
@@ -206,13 +186,12 @@ namespace map
 				ecs::emplace_camera(entity, camera);
 				ecs::activate_camera(entity, true);
 			}
-			if (object.tile)
-			{
+			if (object.tile) {
 				ecs::Animation anim;
 				anim.type = ecs::AnimationType::Player;
 				ecs::emplace_animation(entity, anim);
 			}
-			
+
 
 			// Broken at the moment
 			//// TODO: put spawnpoint entity name in data?
@@ -226,18 +205,13 @@ namespace map
 			//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
 			//	}
 			//}
-		}
-		else if (object.class_ == "enemy")
-		{
-			if (object.tile)
-			{
+		} else if (object.class_ == "enemy") {
+			if (object.tile) {
 				ecs::Animation anim;
 				anim.type = ecs::AnimationType::Player;
 				ecs::emplace_animation(entity, anim);
 			}
-		}
-		else if (object.class_ == "camera")
-		{
+		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
 			camera.view.setCenter(x, y);
 			ecs::get_entity(entity, "follow", camera.follow);
@@ -259,8 +233,7 @@ namespace map
 
 		// CLOSE CURRENT MAP
 
-		if (_current_map)
-		{
+		if (_current_map) {
 			tiled::get(_current_map->properties, "music", current_music);
 			registry.clear();
 		}
@@ -270,37 +243,38 @@ namespace map
 		_current_map = _next_map;
 		_force_open = false;
 
-		if (!_current_map) // If there is no next map to open
-		{
+		if (!_current_map) {
 			ui::set_hud_visible(false);
 			audio::stop_all();
-		}
-		else // If there is a next map to open
-		{
+		} else {
 			ui::set_hud_visible(true);
 
 			tiled::get(_current_map->properties, "music", next_music);
-			if (current_music != next_music)
-			{
+			if (current_music != next_music) {
 				if (!current_music.empty())
 					audio::stop("event:/" + current_music);
 				if (!next_music.empty())
 					audio::play("event:/" + next_music);
 			}
 
-			// Create object entities first. This is because we want
-			// to ensure that the object UIDs are free to use as entity IDs.
-			for (const tiled::Layer& layer : _current_map->layers)
-				for (const tiled::Object& object : layer.objects)
-					_spawn(object, nullptr, (float)layer.index);
+			// Spawn objects first. This is because we want to ensure
+			// that the object UIDs we get from Tiled are availible to use as entity IDs.
+			{
+				SpawnOptions options;
+				for (size_t z = 0; z < _current_map->layers.size(); ++z) {
+					const tiled::Layer& layer = _current_map->layers[z];
+					for (const tiled::Object& object : layer.objects) {
+						options.z = (float)z;
+						_spawn(object, options);
+					}
+				}
+			}
 
 			// Create tile entities second.
-			for (const tiled::Layer& layer : _current_map->layers)
-			{
-				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++)
-				{
-					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++)
-					{
+			for (size_t z = 0; z < _current_map->layers.size(); ++z) {
+				const tiled::Layer& layer = _current_map->layers[z];
+				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
+					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
 
@@ -313,7 +287,7 @@ namespace map
 							ecs::Sprite sprite;
 							sprite.sprite = tile->sprite;
 							sprite.sprite.setPosition(x, y);
-							sprite.depth = (float)layer.index;
+							sprite.z = (float)z;
 							ecs::emplace_sprite(entity, sprite);
 						}
 						if (!tile->animation.empty())
@@ -334,14 +308,12 @@ namespace map
 						b2Body* body = physics::create_body(&body_def);
 						assert(body && "Failed to create body.");
 
-						for (const tiled::Object& tile_object : tile->objects)
-						{
+						for (const tiled::Object& tile_object : tile->objects) {
 							float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
 							float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
 							b2Vec2 center(hw, hh);
 
-							switch (tile_object.type)
-							{
+							switch (tile_object.type) {
 							case tiled::ObjectType::Rectangle:
 							{
 								b2PolygonShape shape;
@@ -379,14 +351,13 @@ namespace map
 			_current_map->height * _current_map->tile_height * METERS_PER_PIXEL);
 	}
 
-	entt::entity spawn(const std::string& template_name, const sf::Vector2f& position, float depth)
+	entt::entity spawn(std::string template_name, const SpawnOptions& options)
 	{
-		if (!_current_map)
-			return entt::null;
-		for (const tiled::Object& object : tiled::get_templates())
-			if (object.name == template_name)
-				return _spawn(object, &position, depth);
-		console::log_error("Entity template not found: " + template_name);
+		if (!_current_map) return entt::null;
+		for (const tiled::Object& template_ : tiled::get_templates())
+			if (template_.name == template_name)
+				return _spawn(template_, options);
+		console::log_error("Failed to spawn template: " + template_name);
 		return entt::null;
 	}
 

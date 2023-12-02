@@ -87,14 +87,12 @@ namespace console
 			{
 				auto cmd = map_cmd->add_subcommand("spawn", "Spawn an entity from a template");
 				static std::string template_name;
-				static float x;
-				static float y;
-				static float depth = 100.f;
+				static map::SpawnOptions options;
 				cmd->add_option("template_name", template_name, "The name of the template")->required();
-				cmd->add_option("x", x, "The x position of the entity")->required();
-				cmd->add_option("y", y, "The y position of the entity")->required();
-				cmd->add_option("depth", depth, "The depth of the entity");
-				cmd->callback([]() { map::spawn(template_name, { x, y }, depth); });
+				cmd->add_option("-x", options.x, "The x position of the entity");
+				cmd->add_option("-y", options.y, "The y position of the entity");
+				cmd->add_option("-z", options.z, "The z position of the entity");
+				cmd->callback([]() { map::spawn(template_name, options); });
 			}
 			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
 				->add_option_function<std::string>("name", map::set_spawnpoint,

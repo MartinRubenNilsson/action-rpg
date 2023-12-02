@@ -11,7 +11,7 @@ namespace ecs
 	struct Sprite
 	{
 		sf::Sprite sprite;
-		float depth = 0.f; // Sprites with lower depth values are drawn first.
+		float z = 0.f; // Sprites with higher z-values are drawn on top of sprites with lower z-values.
 		bool visible = true;
 	};
 

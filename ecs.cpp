@@ -65,7 +65,7 @@ namespace ecs
 
 		// Sort sprites by depth, then by y position.
 		std::ranges::sort(sprites, [](const Sprite* lhs, const Sprite* rhs) {
-			if (lhs->depth != rhs->depth) return lhs->depth < rhs->depth;
+			if (lhs->z != rhs->z) return lhs->z < rhs->z;
 			return lhs->sprite.getPosition().y < rhs->sprite.getPosition().y;
 		});
 

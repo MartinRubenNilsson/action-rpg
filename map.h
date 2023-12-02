@@ -28,12 +28,21 @@ namespace map
 	// If no map is open, returns an empty rectangle.
 	sf::FloatRect get_bounds();
 
-	// Spawns an entity from the given object template.
+	struct SpawnOptions
+	{
+		// Special value that means "use the object's default value".
+		static const float DEFAULT;
+
+		float x = DEFAULT; // x-position in meters
+		float y = DEFAULT; // y-position in meters
+		float z = DEFAULT; // z-position in layers; higher z-values are drawn on top of lower z-values.
+		float w = DEFAULT; // width in meters
+		float h = DEFAULT; // height in meters
+	};
+
+	// Creates an entity from the given template object and options.
 	// Returns entt::null if the template was not found.
-	entt::entity spawn(
-		const std::string& template_name,
-		const sf::Vector2f& position, // In world space units (meters).
-		float depth = 100.f);
+	entt::entity spawn(std::string template_name, const SpawnOptions& options);
 
 	// Sets the name of the entity that should be used as
 	// the player's starting position when a map is opened.

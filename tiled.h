@@ -8,11 +8,6 @@ namespace tiled
 		std::variant<std::string, int, float, bool, entt::entity> value;
 	};
 
-	template <typename T>
-	bool get(const std::vector<Property>& properties, const std::string& name, T& value);
-	template <typename T>
-	void set(std::vector<Property>& properties, const std::string& name, const T& value);
-
 	enum class ObjectType
 	{
 		Rectangle,
@@ -45,9 +40,6 @@ namespace tiled
 		const Tile* tile = nullptr;
 	};
 
-	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
-	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
-
 	struct Tileset;
 
 	struct Tile
@@ -60,7 +52,27 @@ namespace tiled
 		const Tileset* tileset = nullptr;
 	};
 
-	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_);
+	struct WangColor
+	{
+		std::string name;
+		std::string class_;
+		sf::Color color;
+		const Tile* tile = nullptr; // the tile representing this color; may be null
+	};
+
+	struct WangTile
+	{
+		// TODO
+	};
+
+	struct WangSet
+	{
+		std::string name;
+		std::string class_;
+		const Tile* tile = nullptr; // the tile representing this set; may be null
+		std::vector<WangColor> colors;
+		std::vector<WangTile> tiles;
+	};
 
 	struct Tileset
 	{
@@ -71,6 +83,7 @@ namespace tiled
 		std::string class_;
 		std::vector<Property> properties;
 		std::vector<Tile> tiles; // size = tile_count
+		std::vector<WangSet> wangsets;
 		uint32_t tile_width = 0; // in pixels
 		uint32_t tile_height = 0; // in pixels
 		uint32_t tile_count = 0;
@@ -83,7 +96,6 @@ namespace tiled
 
 	struct Layer
 	{
-		uint32_t index = UINT32_MAX; // index in Map::layers
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
@@ -113,13 +125,17 @@ namespace tiled
 	const std::vector<Object>& get_templates();
 	const std::vector<Map>& get_maps();
 
+	template <typename T> bool get(const std::vector<Property>& properties, const std::string& name, T& value);
+	template <typename T> void set(std::vector<Property>& properties, const std::string& name, const T& value);
+
+	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
+	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
+	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_);
+
 	template <typename T>
-	bool get(const std::vector<Property>& properties, const std::string& name, T& value)
-	{
-		for (const Property& property : properties)
-		{
-			if (property.name == name && std::holds_alternative<T>(property.value))
-			{
+	bool get(const std::vector<Property>& properties, const std::string& name, T& value) {
+		for (const Property& property : properties) {
+			if (property.name == name && std::holds_alternative<T>(property.value)) {
 				value = std::get<T>(property.value);
 				return true;
 			}
@@ -128,12 +144,9 @@ namespace tiled
 	}
 
 	template <typename T>
-	void set(std::vector<Property>& properties, const std::string& name, const T& value)
-	{
-		for (Property& property : properties)
-		{
-			if (property.name == name)
-			{
+	void set(std::vector<Property>& properties, const std::string& name, const T& value) {
+		for (Property& property : properties) {
+			if (property.name == name) {
 				property.value = value;
 				return;
 			}
