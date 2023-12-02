@@ -96,7 +96,7 @@ namespace tiled
 	struct Map
 	{
 		std::filesystem::path path;
-		std::string name; // the filename without extension
+		std::string name; // filename without extension
 		std::string class_;
 		std::vector<Property> properties;
 		std::vector<Layer> layers;

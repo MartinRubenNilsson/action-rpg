@@ -17,13 +17,13 @@ namespace ecs
 
 	enum class AnimationType
 	{
-		DEFAULT,
-		PLAYER,
+		Default,
+		Player,
 	};
 
 	struct Animation
 	{
-		AnimationType type = AnimationType::DEFAULT;
+		AnimationType type = AnimationType::Default;
 		float time = 0.0f; // in seconds
 		float speed = 1.0f;
 		std::string state = "idle";
@@ -33,4 +33,7 @@ namespace ecs
 	};
 
 	void update_graphics(float dt);
+
+	void emplace_sprite(entt::entity entity, const Sprite& sprite);
+	void emplace_animation(entt::entity entity, const Animation& anim);
 }

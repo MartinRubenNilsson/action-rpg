@@ -13,12 +13,12 @@ namespace ecs
 			anim.time += anim.speed * dt;
 			switch (anim.type)
 			{
-			case AnimationType::DEFAULT:
+			case AnimationType::Default:
 			{
 				anim.tile_class = "";
 				break;
 			}
-			case AnimationType::PLAYER:
+			case AnimationType::Player:
 			{
 				sf::Vector2f velocity;
 				if (b2Body** body = _registry.try_get<b2Body*>(entity))
@@ -57,5 +57,13 @@ namespace ecs
 		for (auto [entity, sprite, body] : _registry.view<Sprite, b2Body*>().each()) {
 			sprite.sprite.setPosition(get_position(body) * PIXELS_PER_METER);
 		}
+	}
+
+	void emplace_sprite(entt::entity entity, const Sprite& sprite) {
+		_registry.emplace_or_replace<Sprite>(entity, sprite);
+	}
+
+	void emplace_animation(entt::entity entity, const Animation& anim) {
+		_registry.emplace_or_replace<Animation>(entity, anim);
 	}
 }

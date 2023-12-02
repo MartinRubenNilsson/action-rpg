@@ -53,7 +53,7 @@ namespace map
 		if (!_current_map)
 			return entt::null;
 
-		auto& registry = ecs::get_registry();
+		entt::registry& registry = ecs::get_registry();
 
 		// Attempt to use the object's UID as the entity identifier.
 		// If the identifier is already in use, a new one will be generated.
@@ -86,13 +86,14 @@ namespace map
 			assert(object.tile && "Tile not found.");
 			registry.emplace<const tiled::Tile*>(entity, object.tile);
 			{
-				ecs::Sprite &sprite = registry.emplace<ecs::Sprite>(entity);
+				ecs::Sprite sprite;
 				sprite.sprite = object.tile->sprite;
 				sprite.sprite.setPosition(x * PIXELS_PER_METER, y * PIXELS_PER_METER);
 				sprite.depth = depth;
+				ecs::emplace_sprite(entity, sprite);
 			}
 			if (!object.tile->animation.empty())
-				registry.emplace<ecs::Animation>(entity);
+				ecs::emplace_animation(entity, ecs::Animation());
 
 			// LOAD COLLIDERS
 
@@ -189,7 +190,8 @@ namespace map
 			if (ecs::get_string(entity, "behavior", behavior))
 			{
 				auto type = magic_enum::enum_cast<ecs::BehaviorType>(behavior, magic_enum::case_insensitive);
-				if (type.has_value()) ecs::emplace_behavior(entity, type.value());
+				if (type.has_value())
+					ecs::emplace_behavior(entity, type.value());
 				else console::log_error("Unknown behavior type: " + behavior);
 			}
 		}
@@ -206,8 +208,9 @@ namespace map
 			}
 			if (object.tile)
 			{
-				ecs::Animation& anim = registry.emplace_or_replace<ecs::Animation>(entity);
-				anim.type = ecs::AnimationType::PLAYER;
+				ecs::Animation anim;
+				anim.type = ecs::AnimationType::Player;
+				ecs::emplace_animation(entity, anim);
 			}
 			
 
@@ -228,8 +231,9 @@ namespace map
 		{
 			if (object.tile)
 			{
-				ecs::Animation& anim = registry.emplace_or_replace<ecs::Animation>(entity);
-				anim.type = ecs::AnimationType::PLAYER;
+				ecs::Animation anim;
+				anim.type = ecs::AnimationType::Player;
+				ecs::emplace_animation(entity, anim);
 			}
 		}
 		else if (object.class_ == "camera")
@@ -306,13 +310,14 @@ namespace map
 						entt::entity entity = registry.create();
 						registry.emplace<const tiled::Tile*>(entity, tile);
 						{
-							ecs::Sprite &sprite = registry.emplace<ecs::Sprite>(entity);
+							ecs::Sprite sprite;
 							sprite.sprite = tile->sprite;
 							sprite.sprite.setPosition(x, y);
 							sprite.depth = (float)layer.index;
+							ecs::emplace_sprite(entity, sprite);
 						}
 						if (!tile->animation.empty())
-							registry.emplace<ecs::Animation>(entity);
+							ecs::emplace_animation(entity, ecs::Animation());
 
 						if (tile->objects.empty())
 							continue;
