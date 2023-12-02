@@ -3,11 +3,11 @@
  <image source="forest_summer.png" width="256" height="256"/>
  <wangsets>
   <wangset name="ground" type="corner" tile="18">
-   <wangcolor name="dirt" color="#aa5500" tile="-1" probability="1"/>
-   <wangcolor name="grass" color="#00aa00" tile="-1" probability="1"/>
-   <wangcolor name="water" color="#0000ff" tile="-1" probability="1"/>
-   <wangcolor name="cobblestone" color="#aaaa7f" tile="-1" probability="1"/>
-   <wangcolor name="wall" color="#ffaa7f" tile="-1" probability="1"/>
+   <wangcolor name="dirt" color="#aa5500" tile="18" probability="1"/>
+   <wangcolor name="grass" color="#00aa00" tile="16" probability="1"/>
+   <wangcolor name="water" color="#0000ff" tile="219" probability="1"/>
+   <wangcolor name="cobblestone" color="#aaaa7f" tile="179" probability="1"/>
+   <wangcolor name="wall" color="#ffaa7f" tile="183" probability="1"/>
    <wangtile tileid="1" wangid="0,2,0,1,0,2,0,2"/>
    <wangtile tileid="2" wangid="0,2,0,1,0,1,0,2"/>
    <wangtile tileid="3" wangid="0,2,0,2,0,1,0,2"/>
