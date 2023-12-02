@@ -297,9 +297,9 @@ namespace map
 			// Create tile entities second.
 			for (const tiled::Layer& layer : _current_map->layers)
 			{
-				for (uint32_t tile_y = 0; tile_y < layer.width; tile_y++)
+				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++)
 				{
-					for (uint32_t tile_x = 0; tile_x < layer.height; tile_x++)
+					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++)
 					{
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
