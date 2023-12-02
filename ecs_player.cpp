@@ -147,7 +147,9 @@ namespace ecs
 			if (player.state.health > 0) {
 				audio::play("event:/snd_player_hurt");
 			} else {
+				audio::stop_all();
 				audio::play("event:/snd_player_die");
+				audio::play("event:/mus_coffin_dance");
 				detach_camera(entity);
 				destroy_at_end_of_frame(entity);
 			}

@@ -13,9 +13,9 @@ namespace tiled
 		Rectangle,
 		Ellipse,
 		Point,
-		Polygon,
-		Polyline,
-		Tile,
+		Polygon, // Object::points is nonempty
+		Polyline, // Object::points is nonempty
+		Tile, // Object::tile is nonnull
 	};
 
 	struct Tile;
@@ -23,15 +23,15 @@ namespace tiled
 	struct Object
 	{
 		std::filesystem::path path; // nonempty if object is a template
-		ObjectType type = ObjectType::Rectangle;
-		entt::entity entity = entt::null;
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<sf::Vector2f> points; // nonempty if type == Polygon or Polyline; relative to position
+		std::vector<sf::Vector2f> points; // in pixels; relative to position
+		const Tile* tile = nullptr;
 		sf::Vector2f position; // in pixels
 		sf::Vector2f size; // in pixels
-		const Tile* tile = nullptr; // nonnull if type == Tile
+		entt::entity entity = entt::null;
+		ObjectType type = ObjectType::Rectangle;
 	};
 
 	struct Frame
@@ -41,6 +41,7 @@ namespace tiled
 	};
 
 	struct Tileset;
+	struct WangColor;
 
 	struct Tile
 	{
@@ -50,19 +51,19 @@ namespace tiled
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		const Tileset* tileset = nullptr;
+		// Each of the 8 corners/edges of the tile may have a Wang color. The order is:
+		// [top, top-right, right, bottom-right, bottom, bottom-left, left, top-left]
+		// If a corner/edge is colorless, the corresponding pointer is null.
+		const WangColor* wangcolors[8] = {}; 
 	};
 
 	struct WangColor
 	{
 		std::string name;
 		std::string class_;
-		sf::Color color;
 		const Tile* tile = nullptr; // the tile representing this color; may be null
-	};
-
-	struct WangTile
-	{
-		// TODO
+		float probability = 0.f;
+		sf::Color color;
 	};
 
 	struct WangSet
@@ -71,7 +72,6 @@ namespace tiled
 		std::string class_;
 		const Tile* tile = nullptr; // the tile representing this set; may be null
 		std::vector<WangColor> colors;
-		std::vector<WangTile> tiles;
 	};
 
 	struct Tileset

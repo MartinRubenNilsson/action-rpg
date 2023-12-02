@@ -179,19 +179,16 @@ namespace map
 
 		if (object.class_ == "player") {
 			ecs::emplace_player(entity, ecs::Player());
-			{
-				ecs::Camera camera;
-				camera.follow = entity;
-				camera.confining_rect = get_bounds();
-				ecs::emplace_camera(entity, camera);
-				ecs::activate_camera(entity, true);
-			}
-			if (object.tile) {
-				ecs::Animation anim;
-				anim.type = ecs::AnimationType::Player;
-				ecs::emplace_animation(entity, anim);
-			}
 
+			ecs::Camera camera;
+			camera.follow = entity;
+			camera.confining_rect = get_bounds();
+			ecs::emplace_camera(entity, camera);
+			ecs::activate_camera(entity, true);
+
+			ecs::Animation anim;
+			anim.type = ecs::AnimationType::Player;
+			ecs::emplace_animation(entity, anim);
 
 			// Broken at the moment
 			//// TODO: put spawnpoint entity name in data?
@@ -227,7 +224,7 @@ namespace map
 		if (_next_map == _current_map && !_force_open)
 			return;
 
-		auto& registry = ecs::get_registry();
+		entt::registry& registry = ecs::get_registry();
 		std::string current_music;
 		std::string next_music;
 
@@ -257,8 +254,8 @@ namespace map
 					audio::play("event:/" + next_music);
 			}
 
-			// Spawn objects first. This is because we want to ensure
-			// that the object UIDs we get from Tiled are availible to use as entity IDs.
+			// Spawn objects first. This is because we want to be sure that the
+			// object UIDs we get from Tiled are free to use as entity identifiers.
 			{
 				SpawnOptions options;
 				for (size_t z = 0; z < _current_map->layers.size(); ++z) {

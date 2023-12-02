@@ -168,6 +168,35 @@ namespace tiled
 					if (0 <= tile_id && tile_id < tileset.tiles.size())
 						wangset.tile = &tileset.tiles[tile_id];
 				}
+				for (pugi::xml_node wangcolor_node : wangset_node.children("wangcolor")) {
+					WangColor& wangcolor = wangset.colors.emplace_back();
+					wangcolor.name = wangcolor_node.attribute("name").as_string();
+					wangcolor.class_ = wangcolor_node.attribute("class").as_string();
+					{
+						int tile_id = wangcolor_node.attribute("tile").as_int(); //-1 in case of no tile
+						if (0 <= tile_id && tile_id < tileset.tiles.size())
+							wangcolor.tile = &tileset.tiles[tile_id];
+					}
+					wangcolor.probability = wangcolor_node.attribute("probability").as_float();
+					{
+						std::string color_str = wangcolor_node.attribute("color").as_string();
+						color_str.erase(color_str.begin()); // remove leading '#'
+						color_str += "ff"; // add alpha channel
+						wangcolor.color = sf::Color(std::stoul(color_str, nullptr, 16));
+					}
+				}
+				for (pugi::xml_node wangtile_node : wangset_node.children("wangtile")) {
+					Tile& tile = tileset.tiles.at(wangtile_node.attribute("tileid").as_uint());
+					std::stringstream ss(wangtile_node.attribute("wangid").as_string());
+					std::string token;
+					size_t i = 0;
+					while (std::getline(ss, token, ',')) {
+						assert(i < std::size(tile.wangcolors));
+						if (uint32_t wang_id = std::stoul(token)) // 0 means unset, 1 means first color, etc.
+							tile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
+						++i;
+					}
+				}
 			}
 		}
 
@@ -197,8 +226,8 @@ namespace tiled
 						uint32 tile_id =
 							object_node.attribute("gid").as_uint() -
 							tileset_node.attribute("firstgid").as_uint();
-						template_.type = ObjectType::Tile;
 						template_.tile = &tileset.tiles.at(tile_id);
+						template_.type = ObjectType::Tile;
 						break;
 					}
 				}
@@ -223,8 +252,6 @@ namespace tiled
 			map.tile_height = map_node.attribute("tileheight").as_uint();
 			for (pugi::xml_node prop_node : map_node.child("properties").children("property"))
 				_load_property(prop_node, map.properties.emplace_back());
-
-			// Find referenced tilesets
 			struct ReferencedTileset
 			{
 				const Tileset* tileset = nullptr;
@@ -251,8 +278,6 @@ namespace tiled
 				if (!found)
 					console::log_error("Failed to find tileset: " + tileset_path.string());
 			}
-
-			// Load layers
 			std::vector<pugi::xml_node> layer_node_stack;
 			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children()))
 				if (_is_layer(child_node.name()))
@@ -279,10 +304,9 @@ namespace tiled
 					gids.reserve(layer.width * layer.height);
 					{
 						std::stringstream ss(data_node.text().as_string());
-						for (uint32_t gid; ss >> gid;) {
-							gids.push_back(gid);
-							if (ss.peek() == ',')
-								ss.ignore();
+						std::string token;
+						while (std::getline(ss, token, ',')) {
+							gids.push_back(std::stoul(token));
 						}
 					}
 					assert(gids.size() == layer.width * layer.height);
@@ -321,8 +345,8 @@ namespace tiled
 							for (const auto& [tileset, first_gid] : referenced_tilesets) {
 								if (gid >= first_gid && gid < first_gid + tileset->tile_count) {
 									found = true;
-									object.type = ObjectType::Tile;
 									object.tile = &tileset->tiles[gid - first_gid];
+									object.type = ObjectType::Tile;
 									break;
 								}
 							}
@@ -380,18 +404,15 @@ namespace tiled
 
 	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms)
 	{
-		uint32_t total_duration = get_animation_duration(animation);
-		if (!total_duration)
-			return nullptr;
-
-		uint32_t time = time_in_ms % total_duration;
+		uint32_t duration = get_animation_duration(animation);
+		if (!duration) return nullptr;
+		uint32_t time = time_in_ms % duration;
 		uint32_t current_time = 0;
 		for (const Frame& frame : animation) {
 			current_time += frame.duration;
 			if (time < current_time)
 				return frame.tile;
 		}
-
 		return nullptr; // Should never happen.
 	}
 
