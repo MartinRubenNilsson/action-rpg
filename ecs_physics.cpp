@@ -81,7 +81,7 @@ namespace ecs
 				if (map::open(string, true))
 				{
 					if (get_string(entity_b, "spawnpoint", string))
-						map::set_spawnpoint(string);
+						map::set_player_spawnpoint(string);
 				}
 			}
 		}

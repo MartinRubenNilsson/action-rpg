@@ -11,7 +11,7 @@ namespace ecs
 	struct Sprite
 	{
 		sf::Sprite sprite;
-		float z = 0.f; // Sprites with higher z-values are drawn on top of sprites with lower z-values.
+		float z = 0.f; // Higher z-values are drawn on top of lower z-values.
 		bool visible = true;
 	};
 

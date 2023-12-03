@@ -95,7 +95,7 @@ namespace console
 				cmd->callback([]() { map::spawn(template_name, options); });
 			}
 			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
-				->add_option_function<std::string>("name", map::set_spawnpoint,
+				->add_option_function<std::string>("name", map::set_player_spawnpoint,
 					"The name of the spawnpoint entity")
 				->required();
 		}

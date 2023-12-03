@@ -274,7 +274,6 @@ namespace map
 					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
-
 						float x = (float)tile_x * _current_map->tile_width; // In pixels.
 						float y = (float)tile_y * _current_map->tile_height; // In pixels.
 
@@ -358,7 +357,33 @@ namespace map
 		return entt::null;
 	}
 
-	void set_spawnpoint(const std::string& entity_name) {
+	void set_player_spawnpoint(const std::string& entity_name) {
 		_spawnpoint_entity_name = entity_name;
+	}
+
+	bool play_footstep_sound_at(const sf::Vector2f& position)
+	{
+		//if (!_current_map) return false;
+		//const tiled::Layer* layer = nullptr;
+		//for (const tiled::Layer& l : _current_map->layers) {
+		//	if (l.name == "footsteps") {
+		//
+		//		layer = &l;
+		//		break;
+		//	}
+		//}
+		//if (!layer) return false;
+		//const tiled::Tile* tile = nullptr;
+		//for (uint32_t tile_y = 0; tile_y < layer->height; tile_y++) {
+		//	for (uint32_t tile_x = 0; tile_x < layer->width; tile_x++) {
+		//		tile = layer->tiles[tile_y * layer->width + tile_x];
+		//		if (!tile) continue;
+		//		float x = (float)tile_x * _current_map->tile_width; // In pixels.
+		//		float y = (float)tile_y * _current_map->tile_height; // In pixels.
+		//		if (math::distance(position, sf::Vector2f(x, y)) < 1.f)
+		//			goto found;
+		//	}
+		//}
+		return false;
 	}
 }
