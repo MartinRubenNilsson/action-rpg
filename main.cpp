@@ -58,17 +58,15 @@ int main(int argc, char* argv[])
     bool debug_draw_physics = false;
 
     sf::Clock clock;
-    while (window.isOpen())
-    {
+    while (window.isOpen()) {
+
         // EVENT HANDLING
 
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::KeyPressed)
-            {
+            if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::Escape)
                     pause_game = !pause_game;
                 if (event.key.code == sf::Keyboard::F1)
@@ -76,14 +74,11 @@ int main(int argc, char* argv[])
                 if (event.key.code == sf::Keyboard::F2)
                     debug_draw_physics = !debug_draw_physics;
             }
-
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
-				continue;
-
+                continue;
             console::process_event(event);
             ui::process_event(event);
-
             if (!pause_game && !ui::should_pause_game())
                 ecs::process_event(event);
         }
@@ -96,8 +91,7 @@ int main(int argc, char* argv[])
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
-        if (!pause_game && !ui::should_pause_game())
-        {
+        if (!pause_game && !ui::should_pause_game()) {
             physics::update(dt.asSeconds());
             ecs::update(dt.asSeconds());
         }
@@ -126,5 +120,5 @@ int main(int argc, char* argv[])
     audio::shutdown();
     ImGui::SFML::Shutdown();
 
-	return 0;
+    return 0;
 }

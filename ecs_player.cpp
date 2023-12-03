@@ -172,6 +172,25 @@ namespace ecs
 		return sf::Vector2f();
 	}
 
+	void kill_player()
+	{
+		entt::entity entity = _registry.view<Player>().front();
+		if (entity == entt::null) return;
+		detach_camera(entity);
+		destroy_at_end_of_frame(entity);
+		audio::stop_all();
+		audio::play("event:/snd_player_die");
+		audio::play("event:/mus_coffin_dance");
+		ui::Textbox textbox;
+		textbox.text = "You are <span style='color: red'>deader than dead</span>!<br/>"
+			"Oh, what a pity that your adventure should end here, and so soon...<br/>";
+		textbox.sprite = ui::TEXTBOX_SPRITE_SKULL;
+		ui::push_textbox(textbox);
+		textbox.text = "Would you like to try again?";
+		ui::push_textbox(textbox);
+		ui::pop_textbox();
+	}
+
 	void hurt_player(int health_to_remove)
 	{
 		if (health_to_remove <= 0) return;
@@ -180,14 +199,10 @@ namespace ecs
 			if (!player.hurt_timer.finished()) continue; // Player is invulnerable
 			player.hurt_timer.start();
 			player.state.health = std::max(0, player.state.health - health_to_remove);
-			if (player.state.health > 0) {
+			if (player.state.health > 0) { // Player survived
 				audio::play("event:/snd_player_hurt");
-			} else {
-				audio::stop_all();
-				audio::play("event:/snd_player_die");
-				audio::play("event:/mus_coffin_dance");
-				detach_camera(entity);
-				destroy_at_end_of_frame(entity);
+			} else { // Player died
+				kill_player();
 			}
 		}
 	}

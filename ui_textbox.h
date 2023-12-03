@@ -10,6 +10,7 @@ namespace ui
 	{
 		std::string text; // RML
 		std::string sprite;
+		std::string opening_sound; // TODO: implement
 		std::string typing_sound = TEXTBOX_DEFAULT_TYPING_SOUND;
 		float typing_speed = TEXTBOX_DEFAULT_TYPING_SPEED; // in CPS, 0 = instant
 	};

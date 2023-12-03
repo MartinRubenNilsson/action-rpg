@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="3">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="4">
  <tileset firstgid="1" source="../tilesets/forest_summer/forest_summer.tsx"/>
  <tileset firstgid="257" source="../tilesets/naked_human.tsx"/>
  <layer id="1" name="Tile Layer 1" width="30" height="20">
@@ -28,5 +28,6 @@
  </layer>
  <objectgroup id="3" name="Object Layer 1">
   <object id="2" template="../templates/player.tx" x="209.333" y="105.333"/>
+  <object id="3" template="../templates/enemy.tx" x="-18" y="44"/>
  </objectgroup>
 </map>

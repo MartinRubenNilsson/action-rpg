@@ -53,5 +53,6 @@ namespace ecs
 	bool player_exists();
 	sf::Vector2f get_player_center();
 
+	void kill_player();
 	void hurt_player(int health_to_remove);
 }
