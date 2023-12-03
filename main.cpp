@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
-    audio::load_assets();
-    tiled::load_assets();
+    audio::load_assets("assets/audio/banks");
+    tiled::load_assets("assets/tiled");
     ui::load_assets();
     tables::load_assets();
 

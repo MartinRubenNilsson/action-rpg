@@ -46,7 +46,6 @@ audio
   Manage audio
   Subcommands:
     play                        Play an audio event
-    stop_all                    Stop all audio events
 
 map
   Manage maps

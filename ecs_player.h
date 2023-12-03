@@ -1,7 +1,30 @@
 #pragma once
 
+class Timer
+{
+public:
+	Timer() = default;
+	Timer(float duration); // Doesn't start the timer.
+
+	void start();
+	void stop();
+	bool update(float dt); // Returns true if the timer finished this frame.
+	bool finished() const;
+	float get_progress() const; // 0.f = just started, 1.f = finished
+	float get_duration() const { return duration; }
+	float get_time_left() const { return time_left; }
+	float get_time_elapsed() const { return duration - time_left; }
+
+private:
+	float duration = 0.f;
+	float time_left = 0.f;
+};
+
 namespace ecs
 {
+	extern const float PLAYER_HURT_COOLDOWN_DURATION;
+	extern const float PLAYER_STEP_COOLDOWN_DURATION;
+
 	struct PlayerInput
 	{
 		sf::Vector2f direction;
@@ -13,13 +36,14 @@ namespace ecs
 	{
 		sf::Vector2f direction; // normalized
 		int health = 3;
-		float hurt_cooldown_timer = 0.f; // time left until player can be hurt again
 	};
 
 	struct Player
 	{
 		PlayerInput input;
 		PlayerState state;
+		Timer hurt_timer = { PLAYER_HURT_COOLDOWN_DURATION };
+		Timer step_timer = { PLAYER_STEP_COOLDOWN_DURATION };
 	};
 
 	void process_event_player(const sf::Event& event);

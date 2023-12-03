@@ -32,10 +32,8 @@ namespace map
 	// Creates an entity from the given Tiled object template. Returns entt::null on failure.
 	entt::entity spawn(std::string template_name, const SpawnOptions& options);
 
-	// Sets the name of the entity that should be used as
-	// the player's starting position when a map is opened.
-	// You may call this function before or after open(),
-	// as long as you call it before update().
+	// Sets the name of the entity that should be used as the player's starting position.
+	// You may call this function before or after open(), as long as you call it before update().
 	void set_player_spawnpoint(const std::string& entity_name);
 
 	bool play_footstep_sound_at(const sf::Vector2f& position);

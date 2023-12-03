@@ -35,6 +35,12 @@ namespace tiled
 		}
 	}
 
+	void _load_properties(const pugi::xml_node& node, std::vector<Property>& properties)
+	{
+		for (pugi::xml_node prop_node : node.child("properties").children("property"))
+			_load_property(prop_node, properties.emplace_back());
+	}
+
 	void _load_object(const pugi::xml_node& node, Object& object)
 	{
 		for (pugi::xml_node prop_node : node.child("properties").children("property")) {
@@ -95,13 +101,14 @@ namespace tiled
 		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
 
-	void load_assets()
+	void load_assets(const std::filesystem::path& dir)
 	{
 		unload_assets();
 
 		// Find assets
 		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::recursive_directory_iterator("assets/tiled")) {
+			std::filesystem::recursive_directory_iterator(dir))
+		{
 			if (!entry.is_regular_file()) continue;
 			std::string extension = entry.path().extension().string();
 			if (extension == ".tsx")
@@ -132,8 +139,7 @@ namespace tiled
 			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
 			tileset.image_path = tileset.image_path.lexically_normal();
 			tileset.reload_image();
-			for (pugi::xml_node prop_node : tileset_node.child("properties").children("property"))
-				_load_property(prop_node, tileset.properties.emplace_back());
+			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t i = 0; i < tileset.tile_count; ++i) {
 				Tile& tile = tileset.tiles[i];
@@ -149,8 +155,7 @@ namespace tiled
 			for (pugi::xml_node tile_node : tileset_node.children("tile")) {
 				Tile& tile = tileset.tiles.at(tile_node.attribute("id").as_uint());
 				tile.class_ = tile_node.attribute("type").as_string(); // SIC: "type", not "class"
-				for (pugi::xml_node prop_node : tile_node.child("properties").children("property"))
-					_load_property(prop_node, tile.properties.emplace_back());
+				_load_properties(tile_node, tile.properties);
 				for (pugi::xml_node object_node : tile_node.child("objectgroup").children("object"))
 					_load_object(object_node, tile.objects.emplace_back());
 				for (pugi::xml_node frame_node : tile_node.child("animation").children("frame")) {
@@ -187,13 +192,14 @@ namespace tiled
 				}
 				for (pugi::xml_node wangtile_node : wangset_node.children("wangtile")) {
 					Tile& tile = tileset.tiles.at(wangtile_node.attribute("tileid").as_uint());
-					std::stringstream ss(wangtile_node.attribute("wangid").as_string());
+					WangTile& wangtile = tile.wangtiles.emplace_back();
+					std::istringstream ss(wangtile_node.attribute("wangid").as_string());
 					std::string token;
 					size_t i = 0;
 					while (std::getline(ss, token, ',')) {
-						assert(i < std::size(tile.wangcolors));
+						assert(i < WangTile::COUNT);
 						if (uint32_t wang_id = std::stoul(token)) // 0 means unset, 1 means first color, etc.
-							tile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
+							wangtile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
 						++i;
 					}
 				}
@@ -250,8 +256,7 @@ namespace tiled
 			map.height = map_node.attribute("height").as_uint();
 			map.tile_width = map_node.attribute("tilewidth").as_uint();
 			map.tile_height = map_node.attribute("tileheight").as_uint();
-			for (pugi::xml_node prop_node : map_node.child("properties").children("property"))
-				_load_property(prop_node, map.properties.emplace_back());
+			_load_properties(map_node, map.properties);
 			struct ReferencedTileset
 			{
 				const Tileset* tileset = nullptr;
@@ -290,8 +295,7 @@ namespace tiled
 				layer.class_ = layer_node.attribute("class").as_string();
 				layer.width = layer_node.attribute("width").as_uint();
 				layer.height = layer_node.attribute("height").as_uint();
-				for (pugi::xml_node prop_node : layer_node.child("properties").children("property"))
-					_load_property(prop_node, layer.properties.emplace_back());
+				_load_properties(layer_node, layer.properties);
 				if (_is_tile_layer(layer_node.name())) {
 					pugi::xml_node data_node = layer_node.child("data");
 					if (strcmp(data_node.attribute("encoding").as_string(), "csv") != 0) {
@@ -303,7 +307,7 @@ namespace tiled
 					std::vector<uint32_t> gids;
 					gids.reserve(layer.width * layer.height);
 					{
-						std::stringstream ss(data_node.text().as_string());
+						std::istringstream ss(data_node.text().as_string());
 						std::string token;
 						while (std::getline(ss, token, ',')) {
 							gids.push_back(std::stoul(token));

@@ -63,8 +63,8 @@ namespace console
 			cmd->add_subcommand("play", "Play an audio event")
 				->add_option_function<std::string>("path", audio::play, "The path of the sound event")
 				->required();
-			cmd->add_subcommand("stop_all", "Stop all audio events")
-				->callback(audio::stop_all);
+			//cmd->add_subcommand("stop_all", "Stop all audio events")
+			//	->callback(audio::stop_all);
 		}
 
 		// MAP

@@ -363,27 +363,31 @@ namespace map
 
 	bool play_footstep_sound_at(const sf::Vector2f& position)
 	{
-		//if (!_current_map) return false;
-		//const tiled::Layer* layer = nullptr;
-		//for (const tiled::Layer& l : _current_map->layers) {
-		//	if (l.name == "footsteps") {
-		//
-		//		layer = &l;
-		//		break;
-		//	}
-		//}
-		//if (!layer) return false;
-		//const tiled::Tile* tile = nullptr;
-		//for (uint32_t tile_y = 0; tile_y < layer->height; tile_y++) {
-		//	for (uint32_t tile_x = 0; tile_x < layer->width; tile_x++) {
-		//		tile = layer->tiles[tile_y * layer->width + tile_x];
-		//		if (!tile) continue;
-		//		float x = (float)tile_x * _current_map->tile_width; // In pixels.
-		//		float y = (float)tile_y * _current_map->tile_height; // In pixels.
-		//		if (math::distance(position, sf::Vector2f(x, y)) < 1.f)
-		//			goto found;
-		//	}
-		//}
+		if (!_current_map) return false;
+		if (position.x < 0.f || position.y < 0.f) return false;
+		const uint32_t x = (uint32_t)position.x;
+		const uint32_t y = (uint32_t)position.y;
+		const bool left = (position.x - (float)x) < 0.5f;
+		const bool top  = (position.y - (float)y) < 0.5f;
+		const int corner =
+			top ? (left ? tiled::WangTile::TOP_LEFT    : tiled::WangTile::TOP_RIGHT)
+			    : (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
+		for (const tiled::Layer& layer : std::ranges::reverse_view(_current_map->layers)) {
+			if (x >= layer.width || y >= layer.height) continue;
+			const tiled::Tile* tile = layer.tiles[y * layer.width + x];
+			if (!tile) continue;
+			for (const tiled::WangTile& wangtile : tile->wangtiles) {
+				const tiled::WangColor* wangcolor = wangtile.wangcolors[corner];
+				if (!wangcolor) continue;
+				if (wangcolor->name.empty()) continue;
+				bool is_logging_errors = audio::log_errors;
+				audio::log_errors = false; // so we don't get spammed with errors
+				if (audio::set_parameter_label("terrain", wangcolor->name))
+					audio::play("event:/snd_step");
+				audio::log_errors = is_logging_errors;
+				return true;
+			}
+		}
 		return false;
 	}
 }

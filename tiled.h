@@ -39,9 +39,28 @@ namespace tiled
 		uint32_t duration = 0; // in milliseconds
 		const Tile* tile = nullptr;
 	};
+	
+	struct WangColor;
+
+	struct WangTile
+	{
+		enum // Enumerates the edges and corners of the tile.
+		{
+			TOP = 0,	  // top edge
+			TOP_RIGHT,	  // top-right corner
+			RIGHT,		  // right edge
+			BOTTOM_RIGHT, // bottom-right corner
+			BOTTOM,		  // bottom edge
+			BOTTOM_LEFT,  // bottom-left corner
+			LEFT,		  // left edge
+			TOP_LEFT,	  // top-left corner
+			COUNT
+		};
+
+		const WangColor* wangcolors[COUNT] = {}; // null if uncolored
+	};
 
 	struct Tileset;
-	struct WangColor;
 
 	struct Tile
 	{
@@ -50,18 +69,15 @@ namespace tiled
 		std::vector<Property> properties;
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
+		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
 		const Tileset* tileset = nullptr;
-		// Each of the 8 corners/edges of the tile may have a Wang color. The order is:
-		// [top, top-right, right, bottom-right, bottom, bottom-left, left, top-left]
-		// If a corner/edge is colorless, the corresponding pointer is null.
-		const WangColor* wangcolors[8] = {}; 
 	};
 
 	struct WangColor
 	{
 		std::string name;
 		std::string class_;
-		const Tile* tile = nullptr; // the tile representing this color; may be null
+		const Tile* tile = nullptr; // the tile representing this color; can be null
 		float probability = 0.f;
 		sf::Color color;
 	};
@@ -70,7 +86,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
-		const Tile* tile = nullptr; // the tile representing this set; may be null
+		const Tile* tile = nullptr; // the tile representing this set; can be null
 		std::vector<WangColor> colors;
 	};
 
@@ -84,10 +100,10 @@ namespace tiled
 		std::vector<Property> properties;
 		std::vector<Tile> tiles; // size = tile_count
 		std::vector<WangSet> wangsets;
-		uint32_t tile_width = 0; // in pixels
-		uint32_t tile_height = 0; // in pixels
 		uint32_t tile_count = 0;
 		uint32_t columns = 0;
+		uint32_t tile_width = 0; // in pixels
+		uint32_t tile_height = 0; // in pixels
 		uint32_t spacing = 0; // in pixels
 		uint32_t margin = 0; // in pixels
 
@@ -118,25 +134,26 @@ namespace tiled
 		uint32_t tile_height = 0; // in pixels
 	};
 
-	void load_assets();
+	// Loads all tilesets (.tsx), then all templates (.tx), then all maps (.tmx).
+	void load_assets(const std::filesystem::path& dir);
 	void unload_assets();
 
 	const std::vector<Tileset>& get_tilesets();
 	const std::vector<Object>& get_templates();
 	const std::vector<Map>& get_maps();
 
-	template <typename T> bool get(const std::vector<Property>& properties, const std::string& name, T& value);
-	template <typename T> void set(std::vector<Property>& properties, const std::string& name, const T& value);
+	template <typename T> bool get(const std::vector<Property>& ps, const std::string& name, T& value);
+	template <typename T> void set(std::vector<Property>& ps, const std::string& name, const T& value);
 
 	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
 	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
 	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_);
 
 	template <typename T>
-	bool get(const std::vector<Property>& properties, const std::string& name, T& value) {
-		for (const Property& property : properties) {
-			if (property.name == name && std::holds_alternative<T>(property.value)) {
-				value = std::get<T>(property.value);
+	bool get(const std::vector<Property>& ps, const std::string& name, T& value) {
+		for (const Property& p : ps) {
+			if (p.name == name && std::holds_alternative<T>(p.value)) {
+				value = std::get<T>(p.value);
 				return true;
 			}
 		}
@@ -144,14 +161,14 @@ namespace tiled
 	}
 
 	template <typename T>
-	void set(std::vector<Property>& properties, const std::string& name, const T& value) {
-		for (Property& property : properties) {
-			if (property.name == name) {
-				property.value = value;
+	void set(std::vector<Property>& ps, const std::string& name, const T& value) {
+		for (Property& p : ps) {
+			if (p.name == name) {
+				p.value = value;
 				return;
 			}
 		}
-		properties.emplace_back(name, value);
+		ps.emplace_back(name, value);
 	}
 }
 

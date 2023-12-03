@@ -24,19 +24,14 @@ namespace console
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
 	{
 		if (_command_history.empty()) return 0;
-		if (data->EventKey == ImGuiKey_UpArrow)
-		{
-			if (_command_history_it > _command_history.begin())
-			{
+		if (data->EventKey == ImGuiKey_UpArrow) {
+			if (_command_history_it > _command_history.begin()) {
 				_command_history_it--;
 				data->DeleteChars(0, data->BufTextLen);
 				data->InsertChars(0, _command_history_it->c_str());
 			}
-		}
-		else if (data->EventKey == ImGuiKey_DownArrow)
-		{
-			if (_command_history_it < _command_history.end() - 1)
-			{
+		} else if (data->EventKey == ImGuiKey_DownArrow) {
+			if (_command_history_it < _command_history.end() - 1) {
 				_command_history_it++;
 				data->DeleteChars(0, data->BufTextLen);
 				data->InsertChars(0, _command_history_it->c_str());
@@ -59,42 +54,42 @@ namespace console
 			style.FrameRounding = 2.3f;
 			style.ScrollbarRounding = 0;
 
-			style.Colors[ImGuiCol_Text]                  = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
-			style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-			style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
-			style.Colors[ImGuiCol_ChildBg]				 = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-			style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.05f, 0.05f, 0.10f, 0.85f);
-			style.Colors[ImGuiCol_Border]                = ImVec4(0.70f, 0.70f, 0.70f, 0.65f);
-			style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-			style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.00f, 0.00f, 0.01f, 1.00f);
-			style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
-			style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
-			style.Colors[ImGuiCol_TitleBg]               = ImVec4(0.00f, 0.00f, 0.00f, 0.83f);
-			style.Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
-			style.Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.00f, 0.00f, 0.00f, 0.87f);
-			style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.01f, 0.01f, 0.02f, 0.80f);
-			style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
-			style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.55f, 0.53f, 0.55f, 0.51f);
-			style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-			style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.56f, 0.56f, 0.56f, 0.91f);
-			style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.90f, 0.90f, 0.90f, 0.83f);
-			style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.70f, 0.70f, 0.70f, 0.62f);
-			style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.30f, 0.30f, 0.30f, 0.84f);
-			style.Colors[ImGuiCol_Button]                = ImVec4(0.48f, 0.72f, 0.89f, 0.49f);
-			style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.50f, 0.69f, 0.99f, 0.68f);
-			style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
-			style.Colors[ImGuiCol_Header]                = ImVec4(0.30f, 0.69f, 1.00f, 0.53f);
-			style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.44f, 0.61f, 0.86f, 1.00f);
-			style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.38f, 0.62f, 0.83f, 1.00f);
-			style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
-			style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
-			style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
-			style.Colors[ImGuiCol_PlotLines]             = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-			style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-			style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-			style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-			style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
-			style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+			style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
+			style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
+			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
+			style.Colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+			style.Colors[ImGuiCol_PopupBg] = ImVec4(0.05f, 0.05f, 0.10f, 0.85f);
+			style.Colors[ImGuiCol_Border] = ImVec4(0.70f, 0.70f, 0.70f, 0.65f);
+			style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+			style.Colors[ImGuiCol_FrameBg] = ImVec4(0.00f, 0.00f, 0.01f, 1.00f);
+			style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
+			style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
+			style.Colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.83f);
+			style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
+			style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.00f, 0.00f, 0.00f, 0.87f);
+			style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.01f, 0.01f, 0.02f, 0.80f);
+			style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
+			style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.55f, 0.53f, 0.55f, 0.51f);
+			style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
+			style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.56f, 0.56f, 0.56f, 0.91f);
+			style.Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.83f);
+			style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.70f, 0.70f, 0.70f, 0.62f);
+			style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.30f, 0.30f, 0.30f, 0.84f);
+			style.Colors[ImGuiCol_Button] = ImVec4(0.48f, 0.72f, 0.89f, 0.49f);
+			style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.50f, 0.69f, 0.99f, 0.68f);
+			style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
+			style.Colors[ImGuiCol_Header] = ImVec4(0.30f, 0.69f, 1.00f, 0.53f);
+			style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.44f, 0.61f, 0.86f, 1.00f);
+			style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.38f, 0.62f, 0.83f, 1.00f);
+			style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
+			style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
+			style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
+			style.Colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+			style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+			style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+			style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+			style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
+			style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 		}
 
 		_app.set_help_flag("-h,--help", "Print a help message");
@@ -117,8 +112,7 @@ namespace console
 
 		// EXECUTE COMMAND QUEUE
 
-		while (!_sleep_timer && !_command_queue.empty())
-		{
+		while (!_sleep_timer && !_command_queue.empty()) {
 			execute(_command_queue.front());
 			_command_queue.pop_front();
 		}
@@ -137,8 +131,7 @@ namespace console
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings;
 
-		if (ImGui::Begin("Console", &_show, window_flags))
-		{
+		if (ImGui::Begin("Console", &_show, window_flags)) {
 			// HISTORY
 			{
 				float reserved_height = ImGui::GetStyle().ItemSpacing.y +
@@ -147,8 +140,7 @@ namespace console
 					"History",
 					ImVec2(0, -reserved_height), // Leave room for 1 separator + 1 input text
 					false,
-					ImGuiWindowFlags_HorizontalScrollbar))
-				{
+					ImGuiWindowFlags_HorizontalScrollbar)) {
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
 					for (const auto& [line, color] : _history)
 						ImGui::TextColored(color, line.c_str());
@@ -170,8 +162,7 @@ namespace console
 				ImGuiInputTextFlags_EnterReturnsTrue |
 				ImGuiInputTextFlags_CallbackHistory |
 				ImGuiInputTextFlags_EscapeClearsAll,
-				_input_text_callback))
-			{
+				_input_text_callback)) {
 				execute(_command_line);
 				_command_line.clear();
 				_reclaim_focus = true;
@@ -232,8 +223,7 @@ namespace console
 		if (command_line.starts_with("//"))
 			return; // ignore comments
 
-		if (defer)
-		{
+		if (defer) {
 			_command_queue.push_back(command_line);
 			return;
 		}
@@ -242,20 +232,13 @@ namespace console
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, COLOR_COMMAND);
 
-		try
-		{
+		try {
 			_app.parse(command_line); // throws
-		}
-		catch (const CLI::CallForHelp&) // thrown by -h or --help
-		{
+		} catch (const CLI::CallForHelp&) { // thrown by -h or --help
 			log(_app.help());
-		}
-		catch (const CLI::CallForAllHelp&) // thrown by --help-all
-		{
+		} catch (const CLI::CallForAllHelp&) { // thrown by --help-all
 			log(_app.help("", CLI::AppFormatMode::All));
-		}
-		catch (const CLI::ParseError& parse_error)
-		{
+		} catch (const CLI::ParseError& parse_error) {
 			log_error(parse_error.what());
 		}
 	}
@@ -264,8 +247,7 @@ namespace console
 	{
 		if (argc == 1) return;
 		std::string command_line;
-		for (int i = 1; i < argc; ++i)
-		{
+		for (int i = 1; i < argc; ++i) {
 			command_line += argv[i];
 			if (i < argc - 1)
 				command_line += ' ';
@@ -278,8 +260,7 @@ namespace console
 		std::filesystem::path script_path = "assets/scripts/" + script_name;
 		script_path.replace_extension(".script");
 		std::ifstream script_file(script_path);
-		if (!script_file)
-		{
+		if (!script_file) {
 			log_error("Failed to open script: " + script_path.generic_string());
 			return;
 		}
