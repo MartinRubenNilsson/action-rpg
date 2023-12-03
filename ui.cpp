@@ -62,7 +62,7 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return is_textbox_visible();
+		return is_textbox_open();
 	}
 
 	void load_assets()

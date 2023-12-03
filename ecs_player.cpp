@@ -13,6 +13,7 @@
 #include "window.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
+#include "tables.h"
 
 Timer::Timer(float duration)
 	: duration(duration)
@@ -114,8 +115,18 @@ namespace ecs
 						destroy_at_end_of_frame(entity);
 					} else {
 						std::string string;
-						if (get_string(entity, "text", string))
-							ui::set_textbox_entries(string);
+						if (get_string(entity, "text", string)) {
+							auto entries = tables::query_textbox_data_entries(string);
+							for (auto& entry : entries) {
+								ui::Textbox textbox;
+								textbox.text = entry.text;
+								textbox.sprite = entry.sprite;
+								textbox.typing_speed = entry.speed;
+								textbox.typing_sound = entry.sound;
+								ui::push_textbox(textbox);
+							}
+							ui::pop_textbox();
+						}
 						if (get_string(entity, "sound", string))
 							audio::play("event:/" + string);
 					}

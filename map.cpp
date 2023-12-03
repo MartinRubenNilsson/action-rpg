@@ -52,7 +52,7 @@ namespace map
 
 		// Attempt to use the object's UID as the entity identifier.
 		// If the identifier is already in use, a new one will be generated.
-		entt::entity entity = registry.create(object.entity);
+		entt::entity entity = ecs::create(object.entity);
 		registry.emplace<const tiled::Object*>(entity, &object);
 		registry.emplace<std::vector<tiled::Property>>(entity, object.properties);
 
@@ -232,7 +232,7 @@ namespace map
 
 		if (_current_map) {
 			tiled::get(_current_map->properties, "music", current_music);
-			registry.clear();
+			ecs::clear();
 		}
 
 		// OPEN NEXT MAP
@@ -277,7 +277,7 @@ namespace map
 						float x = (float)tile_x * _current_map->tile_width; // In pixels.
 						float y = (float)tile_y * _current_map->tile_height; // In pixels.
 
-						entt::entity entity = registry.create();
+						entt::entity entity = ecs::create();
 						registry.emplace<const tiled::Tile*>(entity, tile);
 						{
 							ecs::Sprite sprite;
@@ -289,10 +289,10 @@ namespace map
 						if (!tile->animation.empty())
 							ecs::emplace_animation(entity, ecs::Animation());
 
+						// LOAD COLLIDERS
+
 						if (tile->objects.empty())
 							continue;
-
-						// LOAD COLLIDERS
 
 						b2BodyDef body_def;
 						body_def.type = b2_staticBody;

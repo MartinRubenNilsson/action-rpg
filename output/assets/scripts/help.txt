@@ -78,7 +78,6 @@ ui
     reload_styles               Reload all style sheets
     show                        Show a document
     hide                        Hide a document
-    textbox                     Manage the textbox
 
 ecs
   Manage the ECS

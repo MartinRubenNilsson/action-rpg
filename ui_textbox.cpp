@@ -1,20 +1,26 @@
 #include "ui_textbox.h"
 #include <RmlUi/Core.h>
 #include "ui.h"
-#include "tables.h"
 #include "audio.h"
 
 namespace ui
 {
+	const std::string TEXTBOX_SPRITE_SKULL = "icon-skull";
+	const std::string TEXTBOX_DEFAULT_TYPING_SOUND = "snd_txt1";
+	extern const float TEXTBOX_DEFAULT_TYPING_SPEED = 25.f;
+
 	extern Rml::Context* _context;
 
-	std::string _textbox_text; // RML string
+	bool _textbox_is_open = false;
+	Textbox _textbox;
+	std::deque<Textbox> _textbox_queue;
+	float _textbox_current_time = 0.f;
+	size_t _textbox_current_length = 0;
+
+	std::string _textbox_text; // RML
 	std::string _textbox_sprite;
 	bool _textbox_sprite_is_set = false;
-	std::deque<tables::TextboxDataEntry> _queued_entries;
-	std::optional<tables::TextboxDataEntry> _current_entry;
-	size_t _current_plain_text_length = 0;
-	float _typing_time_accumulator = 0.f;
+
 
 	// Returns true if the character at pos is plain text,
 	// defined as a character that is not part of an RML tag.
@@ -52,7 +58,7 @@ namespace ui
 
 	// Replaces graphical plain text with non-breaking spaces, starting at offset.
 	// This is used to prevent the text from jumping around when being typed out.
-	std::string _replace_graphical_plain_text_with_nbsp(const std::string& rml, size_t offset)
+	std::string _replace_graphical_plain_with_nbsp(const std::string& rml, size_t offset)
 	{
 		std::string ret;
 		size_t count = 0;
@@ -70,103 +76,91 @@ namespace ui
 
 	void _on_textbox_keydown(int key)
 	{
-		if (!is_textbox_visible())
+		if (!is_textbox_open())
 			return;
-
 		if (key == Rml::Input::KI_C)
 			if (!is_textbox_typing())
-				advance_textbox_entry();
-
+				pop_textbox();
 		if (key == Rml::Input::KI_X)
 			if (is_textbox_typing())
 				skip_textbox_typing();
 			else
-				advance_textbox_entry();
+				pop_textbox();
 	}
 
 	void update_textbox(float dt)
 	{
 		Rml::ElementDocument* doc = _context->GetDocument("textbox");
 		if (!doc) return;
-
-		if (!_current_entry && !_queued_entries.empty())
-			advance_textbox_entry();
-
-		if (!_current_entry) {
+		if (!_textbox_is_open) {
 			doc->Hide();
 			return;
 		}
-
 		doc->Show();
-
-		_textbox_text = _current_entry->text;
-		_textbox_sprite = _current_entry->sprite;
-		_textbox_sprite_is_set = !_textbox_sprite.empty();
-
-		size_t max_length = _get_plain_length(_textbox_text);
-
-		if (_current_plain_text_length >= max_length) {
-			_current_plain_text_length = max_length;
-			_typing_time_accumulator = 0.f;
+		_textbox_text = _textbox.text;
+		_textbox_sprite = _textbox.sprite;
+		_textbox_sprite_is_set = !_textbox.sprite.empty();
+		size_t textbox_length = _get_plain_length(_textbox_text);
+		if (_textbox_current_length >= textbox_length) {
+			_textbox_current_length = textbox_length;
+			_textbox_current_time = 0.f;
 			return;
 		}
-
-		if (_current_entry->speed > 0.f) {
-			float seconds_per_char = 1.f / _current_entry->speed;
-			_typing_time_accumulator += dt;
-			if (_typing_time_accumulator >= seconds_per_char) {
-				_typing_time_accumulator -= seconds_per_char;
-				if (isgraph(_get_nth_plain(_textbox_text, _current_plain_text_length)))
-					audio::play("event:/" + _current_entry->sound);
-				++_current_plain_text_length;
+		if (_textbox.typing_speed > 0.f) {
+			float seconds_per_char = 1.f / _textbox.typing_speed;
+			_textbox_current_time += dt;
+			if (_textbox_current_time >= seconds_per_char) {
+				_textbox_current_time -= seconds_per_char;
+				if (isgraph(_get_nth_plain(_textbox_text, _textbox_current_length)))
+					audio::play("event:/" + _textbox.typing_sound);
+				++_textbox_current_length;
 			}
 		} else {
-			_current_plain_text_length = max_length;
+			_textbox_current_length = textbox_length;
 		}
 
-		_textbox_text = _replace_graphical_plain_text_with_nbsp(
-			_textbox_text, _current_plain_text_length);
+		_textbox_text = _replace_graphical_plain_with_nbsp(
+			_textbox_text, _textbox_current_length);
 	}
 
-	bool is_textbox_visible()
-	{
-		if (const Rml::ElementDocument* doc = _context->GetDocument("textbox"))
-			return doc->IsVisible();
-		return false;
+	bool is_textbox_open() {
+		return _textbox_is_open;
 	}
 
 	bool is_textbox_typing() {
-		return _current_plain_text_length <
-			_get_plain_length(_textbox_text);
+		return _textbox_current_length < _get_plain_length(_textbox_text);
 	}
 
 	void skip_textbox_typing() {
-		_current_plain_text_length =
-			_get_plain_length(_textbox_text);
+		_textbox_current_length = _get_plain_length(_textbox_text);
 	}
 
-	void advance_textbox_entry()
+	void open_textbox(const Textbox& textbox)
 	{
-		_current_entry.reset();
-		_current_plain_text_length = 0;
-		_typing_time_accumulator = 0.f;
-		if (_queued_entries.empty()) return;
-		_current_entry = _queued_entries.front();
-		_queued_entries.pop_front();
+		_textbox_is_open = true;
+		_textbox = textbox;
+		_textbox_current_time = 0.f;
+		_textbox_current_length = 0;
 	}
 
-	void add_textbox_entries(const std::string& name)
+	void close_textbox()
 	{
-		auto entries = tables::query_textbox_data_entries(name);
-		std::ranges::copy(entries, std::back_inserter(_queued_entries));
+		_textbox_is_open = false;
+		_textbox = Textbox();
 	}
 
-	void set_textbox_entries(const std::string& name)
+	void push_textbox(const Textbox& textbox) {
+		_textbox_queue.push_back(textbox);
+	}
+
+	bool pop_textbox()
 	{
-		_queued_entries.clear();
-		add_textbox_entries(name);
+		if (_textbox_queue.empty()) {
+			close_textbox();
+			return false;
+		}
+		open_textbox(_textbox_queue.front());
+		_textbox_queue.pop_front();
+		return true;
 	}
-
-	// float opacity = doc->GetProperty("opacity")->Get<float>();
-	// doc->Animate("opacity", Rml::Property(1.0f, Rml::Property::NUMBER), FADE_DURATION);
 }

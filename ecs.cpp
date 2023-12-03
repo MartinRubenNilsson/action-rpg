@@ -17,7 +17,13 @@ namespace ecs
 	}
 
 	void shutdown() {
+		clear();
+	}
+
+	void clear()
+	{
 		_registry.clear();
+		_entities_to_destroy.clear();
 	}
 
 	void process_event(const sf::Event& event) {
@@ -57,8 +63,7 @@ namespace ecs
 
 		// Collect all sprites in view.
 		std::vector<Sprite*> sprites;
-		for (auto [entity, sprite] : _registry.view<Sprite>().each())
-		{
+		for (auto [entity, sprite] : _registry.view<Sprite>().each()) {
 			if (view_bounds.intersects(sprite.sprite.getGlobalBounds()))
 				sprites.push_back(&sprite);
 		}
@@ -74,19 +79,27 @@ namespace ecs
 			window.draw(sprite->sprite);
 	}
 
+	entt::entity create() {
+		return _registry.create();
+	}
+
+	entt::entity create(entt::entity hint) {
+		return _registry.create(hint);
+	}
+
 	entt::registry& get_registry() {
 		return _registry;
 	}
 
 	void destroy_immediately(entt::entity entity)
 	{
-		if (!_registry.valid(entity)) return;
-		_registry.destroy(entity);
+		if (_registry.valid(entity))
+			_registry.destroy(entity);
 	}
 
 	void destroy_at_end_of_frame(entt::entity entity)
 	{
-		if (!_registry.valid(entity)) return;
-		_entities_to_destroy.insert(entity);
+		if (_registry.valid(entity))
+			_entities_to_destroy.insert(entity);
 	}
 }

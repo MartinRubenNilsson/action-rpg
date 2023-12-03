@@ -155,11 +155,5 @@
    <wangtile tileid="248" wangid="0,5,0,3,0,3,0,5"/>
    <wangtile tileid="249" wangid="0,3,0,3,0,3,0,5"/>
   </wangset>
-  <wangset name="Unnamed Set" type="corner" tile="-1">
-   <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
-  </wangset>
-  <wangset name="Unnamed Set" type="edge" tile="-1">
-   <wangcolor name="" color="#ff0000" tile="-1" probability="1"/>
-  </wangset>
  </wangsets>
 </tileset>
