@@ -162,7 +162,7 @@
   </properties>
   <object id="12" x="32" y="32" width="16" height="16">
    <properties>
-    <property name="text" value="blue_grate"/>
+    <property name="textbox" value="examine_blue_grate_01"/>
    </properties>
   </object>
   <object id="14" x="112" y="32" width="16" height="16">

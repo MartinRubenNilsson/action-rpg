@@ -3,7 +3,7 @@
 namespace map
 {
 	// Requests that the given map be opened (when update() is called).
-	// If the map is already open, it will not be re-opened unless force is true.
+	// If it is already open, it will only be re-opened if force is true.
 	bool open(const std::string& map_name, bool force = false);
 	// Requests that the current map be closed (when update() is called).
 	void close();
@@ -14,7 +14,7 @@ namespace map
 
 	// Returns the name of the current map. If no map is open, returns an empty string.
 	std::string get_name();
-	// Returns the bounds of the current map in meters. If no map is open, returns an empty rectangle.
+	// Returns the bounds of the current map in meters. If no map is open, returns an empty rect.
 	sf::FloatRect get_bounds();
 
 	struct SpawnOptions

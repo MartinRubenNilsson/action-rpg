@@ -7,7 +7,6 @@
     "entt",
     "box2d",
     "magic-enum",
-    "fast-cpp-csv-parser",
     "nlohmann-json",
     "libnoise",
     "tweeny",

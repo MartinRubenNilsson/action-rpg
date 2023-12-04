@@ -78,6 +78,7 @@ ui
     reload_styles               Reload all style sheets
     show                        Show a document
     hide                        Hide a document
+    open_textbox_preset         Open a textbox preset
 
 ecs
   Manage the ECS

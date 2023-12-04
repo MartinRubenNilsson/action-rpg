@@ -32,6 +32,7 @@ namespace ui
 		_context = Rml::CreateContext("main", window_size);
 		_on_window_resized(window_size);
 		create_bindings();
+		create_textbox_presets();
 	}
 
 	void shutdown()
@@ -79,11 +80,9 @@ namespace ui
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::directory_iterator("assets/ui"))
 		{
-			if (entry.path().extension() != ".rml")
-				continue;
+			if (entry.path().extension() != ".rml") continue;
 			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
-			if (!doc)
-				continue;
+			if (!doc) continue;
 			doc->SetId(entry.path().stem().string());
 		}
 	}

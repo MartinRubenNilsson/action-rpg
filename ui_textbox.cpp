@@ -5,10 +5,6 @@
 
 namespace ui
 {
-	const std::string TEXTBOX_SPRITE_SKULL = "icon-skull";
-	const std::string TEXTBOX_DEFAULT_TYPING_SOUND = "snd_txt1";
-	extern const float TEXTBOX_DEFAULT_TYPING_SPEED = 25.f;
-
 	extern Rml::Context* _context;
 
 	bool _textbox_is_open = false;
@@ -20,7 +16,6 @@ namespace ui
 	std::string _textbox_text; // RML
 	std::string _textbox_sprite;
 	bool _textbox_sprite_is_set = false;
-
 
 	// Returns true if the character at pos is plain text,
 	// defined as a character that is not part of an RML tag.
@@ -118,7 +113,6 @@ namespace ui
 		} else {
 			_textbox_current_length = textbox_length;
 		}
-
 		_textbox_text = _replace_graphical_plain_with_nbsp(
 			_textbox_text, _textbox_current_length);
 	}
@@ -141,6 +135,18 @@ namespace ui
 		_textbox = textbox;
 		_textbox_current_time = 0.f;
 		_textbox_current_length = 0;
+		if (!_textbox.opening_sound.empty())
+			audio::play("event:/" + _textbox.opening_sound);
+		if (!textbox.next_textbox.empty())
+			push_textbox_preset(textbox.next_textbox);
+	}
+
+	bool open_textbox_preset(const std::string& name)
+	{
+		Textbox textbox;
+		if (!get_textbox_preset(name, textbox)) return false;
+		open_textbox(textbox);
+		return true;
 	}
 
 	void close_textbox()
@@ -151,6 +157,14 @@ namespace ui
 
 	void push_textbox(const Textbox& textbox) {
 		_textbox_queue.push_back(textbox);
+	}
+
+	bool push_textbox_preset(const std::string& name)
+	{
+		Textbox textbox;
+		if (!get_textbox_preset(name, textbox)) return false;
+		push_textbox(textbox);
+		return true;
 	}
 
 	bool pop_textbox()

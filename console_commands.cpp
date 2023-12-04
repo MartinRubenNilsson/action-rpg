@@ -198,17 +198,9 @@ namespace console
 			ui_cmd->add_subcommand("hide", "Hide a document")
 				->add_option_function<std::string>("name", ui::hide, "The name of the document")
 				->required();
-			{
-				//auto cmd = ui_cmd->add_subcommand("textbox", "Manage the textbox");
-				//cmd->add_subcommand("add", "Add textbox entries to the end of the queue")
-				//	->add_option_function<std::string>("name",
-				//		ui::add_textbox_entries, "The name of the entries")
-				//	->required();
-				//cmd->add_subcommand("set", "Set the queue to the given textbox entries")
-				//	->add_option_function<std::string>("name",
-				//		ui::set_textbox_entries, "The name of the entries")
-				//	->required();
-			}
+			ui_cmd->add_subcommand("open_textbox_preset", "Open a textbox preset")
+				->add_option_function<std::string>("name", ui::open_textbox_preset, "The name of the textbox")
+				->required();
 		}
 
 		// ECS
