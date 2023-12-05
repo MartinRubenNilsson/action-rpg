@@ -12,6 +12,7 @@
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ui_hud.h"
+#include "ui_textbox.h"
 
 namespace map
 {
@@ -233,6 +234,7 @@ namespace map
 		if (_current_map) {
 			tiled::get(_current_map->properties, "music", current_music);
 			ecs::clear();
+			ui::close_all_textboxes();
 		}
 
 		// OPEN NEXT MAP

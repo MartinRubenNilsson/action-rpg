@@ -155,6 +155,12 @@ namespace ui
 		_textbox = Textbox();
 	}
 
+	void close_all_textboxes()
+	{
+		close_textbox();
+		_textbox_queue.clear();
+	}
+
 	void push_textbox(const Textbox& textbox) {
 		_textbox_queue.push_back(textbox);
 	}

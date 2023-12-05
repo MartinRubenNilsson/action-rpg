@@ -22,9 +22,6 @@ private:
 
 namespace ecs
 {
-	extern const float PLAYER_HURT_COOLDOWN_DURATION;
-	extern const float PLAYER_STEP_COOLDOWN_DURATION;
-
 	struct PlayerInput
 	{
 		sf::Vector2f direction;
@@ -42,8 +39,9 @@ namespace ecs
 	{
 		PlayerInput input;
 		PlayerState state;
-		Timer hurt_timer = { PLAYER_HURT_COOLDOWN_DURATION };
-		Timer step_timer = { PLAYER_STEP_COOLDOWN_DURATION };
+		Timer hurt_timer = { 1.0f };
+		Timer step_timer = { 0.3f };
+		Timer kill_timer = { 1.f };
 	};
 
 	void process_event_player(const sf::Event& event);

@@ -16,6 +16,8 @@ namespace ui
 	bool open_textbox_preset(const std::string& name);
 	// Closes the current textbox. The queue is not affected.
 	void close_textbox();
+	// Closes the current textbox and clears the queue.
+	void close_all_textboxes();
 	// Pushes the given textbox to the queue. Call pop_textbox() to open it.
 	void push_textbox(const Textbox& textbox);
 	// Pushes the given textbox preset to the queue, if it exists.

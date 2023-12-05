@@ -56,8 +56,6 @@ namespace ecs
 
 	const float PLAYER_WALK_SPEED = 4.5f;
 	const float PLAYER_RUN_SPEED = 8.5f;
-	const float PLAYER_HURT_COOLDOWN_DURATION = 1.0f;
-	const float PLAYER_STEP_COOLDOWN_DURATION = 0.3f;
 
 	void _update_player_input(PlayerInput& input)
 	{
@@ -81,27 +79,42 @@ namespace ecs
 
 	void update_player(float dt)
 	{
-		// Update player input
-		if (window::has_focus() && !console::is_showing()) {
-			for (auto [entity, player] : _registry.view<Player>().each())
+		for (auto [entity, player] : _registry.view<Player>().each()) {
+			player.hurt_timer.update(dt);
+			if (player.kill_timer.update(dt)) {
+				kill_player();
+				return;
+			}
+			player.input = {};
+			if (player.kill_timer.finished() && window::has_focus() && !console::is_showing()) {
 				_update_player_input(player.input);
+			}
 		}
 
 		for (auto [player_entity, player, body] : _registry.view<Player, b2Body*>().each()) {
-			float input_speed = player.input.run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
-			sf::Vector2f input_velocity = player.input.direction * input_speed;
-			set_linear_velocity(body, input_velocity);
 			sf::Vector2f center = get_world_center(body);
 
-			if (is_zero(player.input.direction)) {
-				player.step_timer.start();
-			} else { // if player is moving
-				player.state.direction = player.input.direction;
-				if (player.step_timer.update(dt)) {
+			float speed = 0.f;
+			if (player.kill_timer.finished()) {
+				if (is_zero(player.input.direction)) {
 					player.step_timer.start();
-					map::play_footstep_sound_at(center);
+				} else { // if player is moving
+					speed = player.input.run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
+					player.state.direction = player.input.direction;
+					if (player.step_timer.update(dt)) {
+						player.step_timer.start();
+						map::play_footstep_sound_at(center);
+					}
 				}
+			} else {
+				// Player is dying, let's spin!!
+				speed = 0.001f;
+				float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
+				player.state.direction = rotate(player.state.direction, spin_speed * dt);
+				console::log("player.state.direction = " + std::to_string(player.state.direction.x) + ", " + std::to_string(player.state.direction.y));
 			}
+
+			set_linear_velocity(body, player.state.direction * speed);
 
 			if (player.input.interact) {
 				sf::Vector2f aabb_center = center + player.state.direction;
@@ -123,16 +136,10 @@ namespace ecs
 			}
 		}
 
-		// Update player state
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-			player.input = {};
-			player.hurt_timer.update(dt);
-		}
-
 		// Update player sprite
 		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each()) {
 			sf::Color color = sf::Color::White;
-			if (!player.hurt_timer.finished()) {
+			if (player.kill_timer.finished() && !player.hurt_timer.finished()) {
 				float fraction = fmod(player.hurt_timer.get_time_elapsed(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
@@ -171,6 +178,7 @@ namespace ecs
 		audio::play("event:/snd_player_die");
 		audio::play("event:/mus_coffin_dance");
 		ui::open_textbox_preset("player_die_01");
+		ui::hud_player_health = 0;
 	}
 
 	void hurt_player(int health_to_remove)
@@ -184,7 +192,7 @@ namespace ecs
 			if (player.state.health > 0) { // Player survived
 				audio::play("event:/snd_player_hurt");
 			} else { // Player died
-				kill_player();
+				player.kill_timer.start();
 			}
 		}
 	}
