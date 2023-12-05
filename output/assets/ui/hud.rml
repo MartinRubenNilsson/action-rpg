@@ -1,11 +1,19 @@
 <rml>
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
+	<link type="text/rcss" href="spritesheet_icons.rcss"/>
+	<style>
+		.heart {
+			width: 16dp;
+			height: 16dp;
+		}
+	</style>
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container">
-		<p data-if="hud_player_health == 0">You are dead!</p>
-		<p data-if="hud_player_health > 0">Health: {{hud_player_health}}</p>
+		<img class="heart" data-visible="hud_player_health >= 1" sprite="icon-heart"/>
+		<img class="heart" data-visible="hud_player_health >= 2" sprite="icon-heart"/>
+		<img class="heart" data-visible="hud_player_health >= 3" sprite="icon-heart"/>
 	</div>
 </body>
 </rml>
