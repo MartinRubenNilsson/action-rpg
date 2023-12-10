@@ -65,9 +65,9 @@ sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vec
 
 char get_direction(const sf::Vector2f& v)
 {
-	if (v.x >=  abs(v.y)) return 'r';
+	if (v.x >= +abs(v.y)) return 'r';
 	if (v.x <= -abs(v.y)) return 'l';
-	if (v.y >=  abs(v.x)) return 'd';
+	if (v.y >= +abs(v.x)) return 'd';
 	if (v.y <= -abs(v.x)) return 'u';
 	return ' '; // This should never happen.
 }

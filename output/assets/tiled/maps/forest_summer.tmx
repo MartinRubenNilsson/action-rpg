@@ -29,6 +29,6 @@
  </layer>
  <objectgroup id="3" name="Object Layer 1">
   <object id="2" template="../templates/player.tx" x="209.333" y="105.333"/>
-  <object id="6" template="../templates/enemy.tx" x="16.5" y="41.5"/>
+  <object id="6" template="../templates/slime.tx" x="16.5" y="41.5"/>
  </objectgroup>
 </map>

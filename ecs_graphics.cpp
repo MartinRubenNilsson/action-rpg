@@ -30,7 +30,7 @@ namespace ecs
 	bool Animation::play(const std::string& tile_class)
 	{
 		if (tile_class.empty()) return false;
-		if (tile_class == _frame->class_) return false;
+		if (tile_class == _tile->class_) return false;
 		for (const tiled::Tile& tile : _tile->tileset->tiles) {
 			if (tile.class_ == tile_class) {
 				_tile = &tile;
@@ -49,6 +49,14 @@ namespace ecs
 
 	void update_graphics(float dt)
 	{
+		for (auto [entity, anim, body] :
+			_registry.view<SlimeAnimationController, Animation, b2Body*>().each())
+		{
+			sf::Vector2f velocity = get_linear_velocity(body);
+			anim.play({ get_direction(velocity) });
+			anim.speed = length(velocity) / 2.f;
+		}
+
 		for (auto [entity, anim] : _registry.view<Animation>().each()) {
 			anim.update(dt);
 			_registry.emplace_or_replace<const tiled::Tile*>(entity, anim.get_frame());
@@ -71,5 +79,9 @@ namespace ecs
 
 	void emplace_animation(entt::entity entity, const Animation& anim) {
 		_registry.emplace_or_replace<Animation>(entity, anim);
+	}
+
+	void emplace_slime_animation_controller(entt::entity entity){
+		_registry.emplace_or_replace<SlimeAnimationController>(entity);
 	}
 }

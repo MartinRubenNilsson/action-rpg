@@ -203,9 +203,10 @@ namespace map
 			//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
 			//	}
 			//}
-		} else if (object.class_ == "enemy") {
+		} else if (object.class_ == "slime") {
 			if (object.tile) {
 				ecs::emplace_animation(entity, ecs::Animation(object.tile));
+				ecs::emplace_slime_animation_controller(entity);
 			}
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;

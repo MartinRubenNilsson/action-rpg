@@ -173,7 +173,7 @@
  </objectgroup>
  <objectgroup id="4" name="characters">
   <object id="3" template="../templates/player.tx" type="player" x="100.333" y="182.916"/>
-  <object id="4" template="../templates/enemy.tx" type="enemy" x="213" y="151.333"/>
+  <object id="4" template="../templates/slime.tx" type="enemy" x="213" y="151.333"/>
   <object id="22" name="fire" gid="690" x="59.3333" y="260" width="100" height="100"/>
  </objectgroup>
  <objectgroup id="17" name="cameras">

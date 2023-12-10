@@ -20,7 +20,5 @@ float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b); // In radians;
 sf::Vector2f rotate(const sf::Vector2f& v, float angle); // Angle in radians
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
 sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);
-
-// Returns the direction (one of 'r', 'l', 'u', 'd') in which v roughly points.
-// Behavior is undefined if v is zero.
+// Returns the direction (one of 'r', 'l', 'u', 'd') in which v (roughly) points.
 char get_direction(const sf::Vector2f& v);

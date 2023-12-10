@@ -128,7 +128,7 @@
  </objectgroup>
  <objectgroup id="4" name="characters">
   <object id="3" template="../templates/player.tx" type="player" x="100.333" y="182.916"/>
-  <object id="4" template="../templates/enemy.tx" type="enemy" x="213" y="151.333"/>
+  <object id="4" template="../templates/slime.tx" type="enemy" x="213" y="151.333"/>
  </objectgroup>
  <objectgroup id="16" name="cameras"/>
 </map>
