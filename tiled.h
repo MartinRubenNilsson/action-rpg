@@ -77,6 +77,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
+		std::vector<Property> properties;
 		const Tile* tile = nullptr; // the tile representing this color; can be null
 		float probability = 0.f;
 		sf::Color color;
@@ -86,6 +87,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
+		std::vector<Property> properties;
 		const Tile* tile = nullptr; // the tile representing this set; can be null
 		std::vector<WangColor> colors;
 	};
