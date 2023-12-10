@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="1" source="../tilesets/naked_human.tsx"/>
- <object name="very evil enemy" type="enemy" gid="1" width="64" height="64">
+ <tileset firstgid="1" source="../tilesets/monsters/slime.tsx"/>
+ <object type="slime" gid="1" width="32" height="32">
   <properties>
    <property name="behavior" value="enemy"/>
-   <property name="message" value="Hello, evil world!"/>
    <property name="speed" type="float" value="3"/>
   </properties>
  </object>

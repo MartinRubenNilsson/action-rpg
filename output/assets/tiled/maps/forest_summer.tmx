@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="4">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="7">
  <tileset firstgid="1" source="../tilesets/forest_summer/forest_summer.tsx"/>
  <tileset firstgid="257" source="../tilesets/naked_human.tsx"/>
+ <tileset firstgid="321" source="../tilesets/monsters/slime.tsx"/>
  <layer id="1" name="Tile Layer 1" width="30" height="20">
   <data encoding="csv">
 17,17,33,2,4,100,49,124,33,99,81,98,33,113,114,65,100,99,116,192,17,124,17,99,33,97,97,113,192,192,
@@ -28,6 +29,6 @@
  </layer>
  <objectgroup id="3" name="Object Layer 1">
   <object id="2" template="../templates/player.tx" x="209.333" y="105.333"/>
-  <object id="3" template="../templates/enemy.tx" x="-18" y="44"/>
+  <object id="6" template="../templates/enemy.tx" x="16.5" y="41.5"/>
  </objectgroup>
 </map>
