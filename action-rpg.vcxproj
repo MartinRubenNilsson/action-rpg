@@ -138,6 +138,7 @@
     <ClCompile Include="physics.cpp" />
     <ClCompile Include="physics_debug.cpp" />
     <ClCompile Include="tiled.cpp" />
+    <ClCompile Include="timer.cpp" />
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="physics_debug.h" />
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="tiled.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Include_Windows.h" />

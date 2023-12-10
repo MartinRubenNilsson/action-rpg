@@ -14,42 +14,6 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 
-Timer::Timer(float duration)
-	: duration(duration)
-{}
-
-void Timer::start() {
-	time_left = duration;
-}
-
-void Timer::stop() {
-	time_left = 0.f;
-}
-
-bool Timer::update(float dt)
-{
-	dt = std::max(0.f, dt);
-	if (time_left > 0.f) {
-		time_left -= dt;
-		if (time_left <= 0.f) {
-			time_left = 0.f;
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Timer::finished() const {
-	return time_left <= 0.f;
-}
-
-float Timer::get_progress() const
-{
-	if (duration > 0.f)
-		return 1.f - time_left / duration;
-	return 1.f;
-}
-
 namespace ecs
 {
 	extern entt::registry _registry;
@@ -82,11 +46,11 @@ namespace ecs
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			player.hurt_timer.update(dt);
 			if (player.kill_timer.update(dt)) {
-				kill_player();
+				kill_player(entity);
 				return;
 			}
 			player.input = {};
-			if (player.kill_timer.finished() && window::has_focus() && !console::is_showing()) {
+			if (player.kill_timer.is_finished() && window::has_focus() && !console::is_showing()) {
 				_update_player_input(player.input);
 			}
 		}
@@ -95,7 +59,7 @@ namespace ecs
 			sf::Vector2f center = get_world_center(body);
 
 			float speed = 0.f;
-			if (player.kill_timer.finished()) {
+			if (player.kill_timer.is_finished()) {
 				if (is_zero(player.input.direction)) {
 					player.step_timer.start();
 				} else { // if player is moving
@@ -139,7 +103,7 @@ namespace ecs
 		// Update player sprite
 		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each()) {
 			sf::Color color = sf::Color::White;
-			if (player.kill_timer.finished() && !player.hurt_timer.finished()) {
+			if (player.kill_timer.is_finished() && player.hurt_timer.is_running()) {
 				float fraction = fmod(player.hurt_timer.get_time_elapsed(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
@@ -161,6 +125,10 @@ namespace ecs
 		return !_registry.view<Player>().empty();
 	}
 
+	entt::entity get_player_entity() {
+		return _registry.view<Player>().front();
+	}
+
 	sf::Vector2f get_player_center()
 	{
 		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each())
@@ -168,10 +136,9 @@ namespace ecs
 		return sf::Vector2f();
 	}
 
-	void kill_player()
+	bool kill_player(entt::entity entity)
 	{
-		entt::entity entity = _registry.view<Player>().front();
-		if (entity == entt::null) return;
+		if (!_registry.all_of<Player>(entity)) return false;
 		detach_camera(entity);
 		destroy_at_end_of_frame(entity);
 		audio::stop_all();
@@ -179,21 +146,23 @@ namespace ecs
 		audio::play("event:/mus_coffin_dance");
 		ui::open_textbox_preset("player_die_01");
 		ui::hud_player_health = 0;
+		return true;
 	}
 
-	void hurt_player(int health_to_remove)
+	bool hurt_player(entt::entity entity, int health_to_remove)
 	{
-		if (health_to_remove <= 0) return;
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-			if (player.state.health <= 0) continue; // Player is already dead
-			if (!player.hurt_timer.finished()) continue; // Player is invulnerable
-			player.hurt_timer.start();
-			player.state.health = std::max(0, player.state.health - health_to_remove);
-			if (player.state.health > 0) { // Player survived
-				audio::play("event:/snd_player_hurt");
-			} else { // Player died
-				player.kill_timer.start();
-			}
+		if (health_to_remove <= 0) return false;
+		if (!_registry.all_of<Player>(entity)) return false;
+		Player& player = _registry.get<Player>(entity);
+		if (player.state.health <= 0) return false; // Player is already dead
+		if (player.hurt_timer.is_running()) return false; // Player is invulnerable
+		player.hurt_timer.start();
+		player.state.health = std::max(0, player.state.health - health_to_remove);
+		if (player.state.health > 0) { // Player survived
+			audio::play("event:/snd_player_hurt");
+		} else { // Player died
+			player.kill_timer.start();
 		}
+		return true;
 	}
 }

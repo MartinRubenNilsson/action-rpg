@@ -206,6 +206,15 @@ namespace console
 		// ECS
 		{
 			auto ecs_cmd = app.add_subcommand("ecs", "Manage the ECS");
+			ecs_cmd->add_subcommand("kill_player", "Kill the player")
+				->callback(ecs::kill_player);
+			{
+				auto cmd = ecs_cmd->add_subcommand("hurt_player", "Hurt the player");
+				static int health_to_remove;
+				cmd->add_option("health_to_remove", health_to_remove, "The amount of health to remove")
+					->required();
+				cmd->callback([]() { ecs::hurt_player(health_to_remove); });
+			}
 			{
 				auto cmd = ecs_cmd->add_subcommand("activate_camera", "Activate a camera");
 				static std::string entity_name;

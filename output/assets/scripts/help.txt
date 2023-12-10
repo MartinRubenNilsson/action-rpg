@@ -83,6 +83,8 @@ ui
 ecs
   Manage the ECS
   Subcommands:
+    kill_player                 Kill the player
+    hurt_player                 Hurt the player
     activate_camera             Activate a camera
     add_camera_trauma           Add trauma to a camera
 

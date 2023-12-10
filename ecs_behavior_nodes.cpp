@@ -80,7 +80,7 @@ namespace ecs
 		Status update(float dt) override
 		{
 			if (!player_exists()) return FAILURE;
-			hurt_player(health_to_remove);
+			hurt_player(get_player_entity(), health_to_remove);
 			return SUCCESS;
 		}
 	};

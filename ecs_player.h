@@ -1,24 +1,5 @@
 #pragma once
-
-class Timer
-{
-public:
-	Timer() = default;
-	Timer(float duration); // Doesn't start the timer.
-
-	void start();
-	void stop();
-	bool update(float dt); // Returns true if the timer finished this frame.
-	bool finished() const;
-	float get_progress() const; // 0.f = just started, 1.f = finished
-	float get_duration() const { return duration; }
-	float get_time_left() const { return time_left; }
-	float get_time_elapsed() const { return duration - time_left; }
-
-private:
-	float duration = 0.f;
-	float time_left = 0.f;
-};
+#include "timer.h"
 
 namespace ecs
 {
@@ -49,8 +30,9 @@ namespace ecs
 
 	void emplace_player(entt::entity entity, const Player& player);
 	bool player_exists();
+	entt::entity get_player_entity(); // returns entt::null if player doesn't exist
 	sf::Vector2f get_player_center();
 
-	void kill_player();
-	void hurt_player(int health_to_remove);
+	bool kill_player(entt::entity entity);
+	bool hurt_player(entt::entity entity, int health_to_remove);
 }

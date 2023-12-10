@@ -140,7 +140,7 @@ namespace audio
 		return true;
 	}
 
-	bool exists(const std::string& path)
+	bool is_valid(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* desc_dummy = nullptr;
 		return _system->getEvent(path.c_str(), &desc_dummy) == FMOD_OK;
