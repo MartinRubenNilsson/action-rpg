@@ -2,33 +2,34 @@
 #include "timer.h"
 
 Timer::Timer(float duration)
-	: duration(duration)
+	: _duration(std::max(0.f, duration))
+	, _time(_duration)
 {}
 
-void Timer::start() {
-	time_left = duration;
-}
-
-void Timer::stop() {
-	time_left = 0.f;
-}
-
-bool Timer::update(float dt)
+bool Timer::update(float dt, bool loop)
 {
-	dt = std::max(0.f, dt);
-	if (time_left > 0.f) {
-		time_left -= dt;
-		if (time_left <= 0.f) {
-			time_left = 0.f;
+	if (_time < _duration) {
+		_time += std::clamp(dt, 0.f, _duration);
+		if (_time >= _duration) {
+			if (loop) {
+				_time -= _duration;
+			} else {
+				_time = _duration;
+			}
 			return true;
 		}
 	}
 	return false;
 }
 
-float Timer::get_progress() const
-{
-	if (duration > 0.f)
-		return 1.f - time_left / duration;
-	return 1.f;
+void Timer::start() {
+	_time = 0.f;
+}
+
+void Timer::stop() {
+	_time = _duration;
+}
+
+float Timer::get_progress() const {
+	return _duration ? _time / _duration : 1.f;
 }

@@ -23,6 +23,7 @@ namespace ecs
 
 	void _update_player_input(PlayerInput& input)
 	{
+		input.direction = sf::Vector2f();
 		input.direction.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
 		input.direction.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 		input.direction.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
@@ -50,7 +51,7 @@ namespace ecs
 				return;
 			}
 			player.input = {};
-			if (player.kill_timer.is_finished() && window::has_focus() && !console::is_showing()) {
+			if (player.kill_timer.stopped() && window::has_focus() && !console::is_showing()) {
 				_update_player_input(player.input);
 			}
 		}
@@ -59,7 +60,7 @@ namespace ecs
 			sf::Vector2f center = get_world_center(body);
 
 			float speed = 0.f;
-			if (player.kill_timer.is_finished()) {
+			if (player.kill_timer.stopped()) {
 				if (is_zero(player.input.direction)) {
 					player.step_timer.start();
 				} else { // if player is moving
@@ -75,7 +76,6 @@ namespace ecs
 				speed = 0.001f;
 				float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
 				player.state.direction = rotate(player.state.direction, spin_speed * dt);
-				console::log("player.state.direction = " + std::to_string(player.state.direction.x) + ", " + std::to_string(player.state.direction.y));
 			}
 
 			set_linear_velocity(body, player.state.direction * speed);
@@ -100,11 +100,31 @@ namespace ecs
 			}
 		}
 
-		// Update player sprite
+		// Update animation
+		for (auto [entity, player, anim, body] : _registry.view<Player, Animation, b2Body*>().each()) {
+			sf::Vector2f velocity = get_linear_velocity(body);
+			float speed = length(velocity);
+			std::string tile_class;
+			if (speed >= PLAYER_RUN_SPEED) {
+				tile_class = "run";
+			} else if (speed >= PLAYER_WALK_SPEED) {
+				tile_class = "walk";
+			} else {
+				tile_class = "idle";
+			}
+			tile_class += "_";
+			tile_class += get_direction(player.state.direction);
+			if (!anim.is_playing(tile_class)) {
+				anim.play(tile_class);
+				console::log(tile_class);
+			}
+		}
+
+		// Update sprite
 		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each()) {
 			sf::Color color = sf::Color::White;
-			if (player.kill_timer.is_finished() && player.hurt_timer.is_running()) {
-				float fraction = fmod(player.hurt_timer.get_time_elapsed(), 0.15f) / 0.15f;
+			if (player.kill_timer.stopped() && player.hurt_timer.started()) {
+				float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
 			sprite.sprite.setColor(color);
@@ -155,7 +175,7 @@ namespace ecs
 		if (!_registry.all_of<Player>(entity)) return false;
 		Player& player = _registry.get<Player>(entity);
 		if (player.state.health <= 0) return false; // Player is already dead
-		if (player.hurt_timer.is_running()) return false; // Player is invulnerable
+		if (player.hurt_timer.started()) return false; // Player is invulnerable
 		player.hurt_timer.start();
 		player.state.health = std::max(0, player.state.health - health_to_remove);
 		if (player.state.health > 0) { // Player survived

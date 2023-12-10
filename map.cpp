@@ -81,7 +81,7 @@ namespace map
 				ecs::emplace_sprite(entity, sprite);
 			}
 			if (!object.tile->animation.empty())
-				ecs::emplace_animation(entity, ecs::Animation());
+				ecs::emplace_animation(entity, ecs::Animation(object.tile));
 
 			// LOAD COLLIDERS
 
@@ -187,9 +187,9 @@ namespace map
 			ecs::emplace_camera(entity, camera);
 			ecs::activate_camera(entity, true);
 
-			ecs::Animation anim;
-			anim.type = ecs::AnimationType::Player;
-			ecs::emplace_animation(entity, anim);
+			if (object.tile) {
+				ecs::emplace_animation(entity, ecs::Animation(object.tile));
+			}
 
 			// Broken at the moment
 			//// TODO: put spawnpoint entity name in data?
@@ -205,9 +205,7 @@ namespace map
 			//}
 		} else if (object.class_ == "enemy") {
 			if (object.tile) {
-				ecs::Animation anim;
-				anim.type = ecs::AnimationType::Player;
-				ecs::emplace_animation(entity, anim);
+				ecs::emplace_animation(entity, ecs::Animation(object.tile));
 			}
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
@@ -289,7 +287,7 @@ namespace map
 							ecs::emplace_sprite(entity, sprite);
 						}
 						if (!tile->animation.empty())
-							ecs::emplace_animation(entity, ecs::Animation());
+							ecs::emplace_animation(entity, ecs::Animation(tile));
 
 						// LOAD COLLIDERS
 

@@ -419,13 +419,4 @@ namespace tiled
 		}
 		return nullptr; // Should never happen.
 	}
-
-	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_)
-	{
-		if (class_.empty()) return nullptr;
-		for (const Tile& tile : tiles)
-			if (tile.class_ == class_)
-				return &tile;
-		return nullptr;
-	}
 }

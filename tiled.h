@@ -147,7 +147,6 @@ namespace tiled
 
 	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
 	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
-	const Tile* find_tile_by_class(const std::vector<Tile>& tiles, const std::string& class_);
 
 	template <typename T>
 	bool get(const std::vector<Property>& ps, const std::string& name, T& value) {

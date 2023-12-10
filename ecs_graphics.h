@@ -1,9 +1,9 @@
 #pragma once
+#include "timer.h"
 
 namespace tiled
 {
 	struct Tile;
-	struct Tileset;
 }
 
 namespace ecs
@@ -15,21 +15,26 @@ namespace ecs
 		bool visible = true;
 	};
 
-	enum class AnimationType
+	class Animation
 	{
-		Default,
-		Player,
-	};
+	public:
+		Animation(const tiled::Tile* tile);
 
-	struct Animation
-	{
-		AnimationType type = AnimationType::Default;
-		float time = 0.0f; // in seconds
 		float speed = 1.0f;
-		std::string state = "idle";
-		char direction = 'd';
-		std::string tile_class;
-		const tiled::Tile* _current_tile = nullptr; // read-only
+		bool loop = true;
+		
+		// Returns true if the frame changed.
+		bool update(float dt);
+		bool play(const std::string& tile_class);
+		bool is_playing(const std::string& tile_class) const;
+		const tiled::Tile* get_tile() const { return _tile; }
+		const tiled::Tile* get_frame() const { return _frame; }
+		const Timer& get_timer() const { return _timer; }
+
+	private:
+		const tiled::Tile* _tile = nullptr; // currently playing animated tile
+		const tiled::Tile* _frame = nullptr; // current frame in _tile->animation
+		Timer _timer;
 	};
 
 	void update_graphics(float dt);
