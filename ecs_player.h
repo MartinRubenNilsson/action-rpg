@@ -21,7 +21,7 @@ namespace ecs
 		PlayerInput input;
 		PlayerState state;
 		Timer hurt_timer = { 1.0f };
-		Timer step_timer = { 0.3f };
+		Timer step_timer = { 0.3f }; // for footstep sounds
 		Timer kill_timer = { 1.f };
 	};
 
@@ -30,8 +30,8 @@ namespace ecs
 
 	void emplace_player(entt::entity entity, const Player& player);
 	bool player_exists();
-	entt::entity get_player_entity(); // returns entt::null if player doesn't exist
-	sf::Vector2f get_player_center();
+	entt::entity get_player_entity();
+	sf::Vector2f get_player_world_center();
 
 	bool kill_player(entt::entity entity);
 	bool hurt_player(entt::entity entity, int health_to_remove);

@@ -3,7 +3,6 @@
  <tileset firstgid="1" source="../tilesets/monsters/slime.tsx"/>
  <object type="slime" gid="1" width="32" height="32">
   <properties>
-   <property name="behavior" value="enemy"/>
    <property name="speed" type="float" value="2.2"/>
   </properties>
  </object>

@@ -12,8 +12,6 @@ namespace ecs
 	entt::entity create();
 	entt::entity create(entt::entity hint);
 
-	entt::registry& get_registry();
-
 	// Potentially unsafe to call while iterating over a view.
 	void destroy_immediately(entt::entity entity); 
 	// Safe to call while iterating over a view.

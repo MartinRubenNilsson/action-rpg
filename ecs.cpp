@@ -3,7 +3,8 @@
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "ecs_player.h"
-#include "ecs_behavior.h"
+#include "ecs_ai_knowledge.h"
+#include "ecs_ai_actions.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
 
@@ -41,7 +42,8 @@ namespace ecs
 	void update(float dt)
 	{
 		update_player(dt);
-		update_behaviors(dt);
+		update_ai_knowledge(dt);
+		update_ai_actions(dt);
 		_destroy_entities();
 		update_graphics(dt);
 		update_cameras(dt);
@@ -85,10 +87,6 @@ namespace ecs
 
 	entt::entity create(entt::entity hint) {
 		return _registry.create(hint);
-	}
-
-	entt::registry& get_registry() {
-		return _registry;
 	}
 
 	void destroy_immediately(entt::entity entity)

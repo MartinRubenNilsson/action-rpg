@@ -5,11 +5,14 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
+	void emplace_object(entt::entity entity, const tiled::Object* object) {
+		_registry.emplace_or_replace<const tiled::Object*>(entity, object);
+	}
+
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tiled::Object*>().each())
-		{
+		for (auto [entity, object] : _registry.view<const tiled::Object*>().each()) {
 			if (object->name == name)
 				return entity;
 		}
@@ -19,8 +22,7 @@ namespace ecs
 	entt::entity find_entity_by_class(const std::string& class_)
 	{
 		if (class_.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tiled::Object*>().each())
-		{
+		for (auto [entity, object] : _registry.view<const tiled::Object*>().each()) {
 			if (object->class_ == class_)
 				return entity;
 		}
@@ -43,59 +45,38 @@ namespace ecs
 		return type;
 	}
 
-	template <typename T>
-	void _set_property(entt::entity entity, const std::string& name, const T& value)
+	bool get_bool(entt::entity entity, const std::string& name, bool& value)
 	{
-		if (!_registry.valid(entity)) return;
-		auto& props = _registry.get_or_emplace<std::vector<tiled::Property>>(entity);
-		tiled::set(props, name, value);
-	}
-
-	template <typename T>
-	bool _get_property(entt::entity entity, const std::string& name, T& value)
-	{
-		if (auto props = _registry.try_get<std::vector<tiled::Property>>(entity))
-			return tiled::get(*props, name, value);
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			return tiled::get((*object)->properties, name, value);
 		return false;
 	}
 
-	void set_bool(entt::entity entity, const std::string& name, bool value) {
-		_set_property(entity, name, value);
+	bool get_float(entt::entity entity, const std::string& name, float& value)
+	{
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			return tiled::get((*object)->properties, name, value);
+		return false;
 	}
 
-	bool get_bool(entt::entity entity, const std::string& name, bool& value) {
-		return _get_property(entity, name, value);
+	bool get_int(entt::entity entity, const std::string& name, int& value)
+	{
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			return tiled::get((*object)->properties, name, value);
+		return false;
 	}
 
-	void set_float(entt::entity entity, const std::string& name, float value) {
-		_set_property(entity, name, value);
+	bool get_string(entt::entity entity, const std::string& name, std::string& value)
+	{
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			return tiled::get((*object)->properties, name, value);
+		return false;
 	}
 
-	bool get_float(entt::entity entity, const std::string& name, float& value) {
-		return _get_property(entity, name, value);
-	}
-
-	void set_int(entt::entity entity, const std::string& name, int value) {
-		_set_property(entity, name, value);
-	}
-
-	bool get_int(entt::entity entity, const std::string& name, int& value) {
-		return _get_property(entity, name, value);
-	}
-
-	void set_string(entt::entity entity, const std::string& name, const std::string& value) {
-		_set_property(entity, name, value);
-	}
-
-	bool get_string(entt::entity entity, const std::string& name, std::string& value) {
-		return _get_property(entity, name, value);
-	}
-
-	void set_entity(entt::entity entity, const std::string& name, entt::entity value) {
-		_set_property(entity, name, value);
-	}
-
-	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value) {
-		return _get_property(entity, name, value);
+	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value)
+	{
+		if (auto object = _registry.try_get<const tiled::Object*>(entity))
+			return tiled::get((*object)->properties, name, value);
+		return false;
 	}
 }

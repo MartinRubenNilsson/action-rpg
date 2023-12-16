@@ -42,9 +42,6 @@
     <ClCompile Include="ecs_tiled.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_behavior.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
       <Filter>ui\rml</Filter>
     </ClCompile>
@@ -79,9 +76,6 @@
     <ClCompile Include="random_noise.cpp">
       <Filter>random</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_behavior_nodes.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="random.cpp">
       <Filter>random</Filter>
     </ClCompile>
@@ -95,6 +89,12 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="timer.cpp" />
+    <ClCompile Include="ecs_ai_actions.cpp">
+      <Filter>ecs\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_ai_knowledge.cpp">
+      <Filter>ecs\ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -135,9 +135,6 @@
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_tiled.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_behavior.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Renderer_GL2.h">
@@ -211,9 +208,6 @@
     <ClInclude Include="random_noise.h">
       <Filter>random</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_behavior_nodes.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
     <ClInclude Include="random.h">
       <Filter>random</Filter>
     </ClInclude>
@@ -227,6 +221,12 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="timer.h" />
+    <ClInclude Include="ecs_ai_knowledge.h">
+      <Filter>ecs\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_ai_actions.h">
+      <Filter>ecs\ai</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -267,6 +267,9 @@
     </Filter>
     <Filter Include="tiled">
       <UniqueIdentifier>{6b60417d-4b8d-484b-a07f-0ba1149de84b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\ai">
+      <UniqueIdentifier>{8d84feb1-0644-4d63-9c27-8bb43625fab1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

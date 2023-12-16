@@ -7,10 +7,11 @@
 #include "math_vectors.h"
 #include "ecs.h"
 #include "ecs_tiled.h"
+#include "ecs_physics.h"
 #include "ecs_graphics.h"
-#include "ecs_behavior.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
+#include "ecs_ai_actions.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
 
@@ -49,13 +50,11 @@ namespace map
 	entt::entity _spawn(const tiled::Object& object, const SpawnOptions& options)
 	{
 		if (!_current_map) return entt::null;
-		entt::registry& registry = ecs::get_registry();
 
 		// Attempt to use the object's UID as the entity identifier.
 		// If the identifier is already in use, a new one will be generated.
 		entt::entity entity = ecs::create(object.entity);
-		registry.emplace<const tiled::Object*>(entity, &object);
-		registry.emplace<std::vector<tiled::Property>>(entity, object.properties);
+		ecs::emplace_object(entity, &object);
 
 		float x = (options.x != SpawnOptions::DEFAULT) ? options.x : object.position.x * METERS_PER_PIXEL;
 		float y = (options.y != SpawnOptions::DEFAULT) ? options.y : object.position.y * METERS_PER_PIXEL;
@@ -72,7 +71,7 @@ namespace map
 
 		if (object.type == tiled::ObjectType::Tile) {
 			assert(object.tile && "Tile not found.");
-			registry.emplace<const tiled::Tile*>(entity, object.tile);
+			ecs::emplace_tile(entity, object.tile);
 			{
 				ecs::Sprite sprite;
 				sprite.sprite = object.tile->sprite;
@@ -95,7 +94,7 @@ namespace map
 
 				b2Body* body = physics::create_body(&body_def);
 				assert(body && "Failed to create body.");
-				registry.emplace<b2Body*>(entity, body);
+				ecs::emplace_body(entity, body);
 
 				for (const tiled::Object& tile_object : object.tile->objects) {
 					float x = tile_object.position.x * METERS_PER_PIXEL;
@@ -133,7 +132,7 @@ namespace map
 
 			b2Body* body = physics::create_body(&body_def);
 			assert(body && "Failed to create body.");
-			registry.emplace<b2Body*>(entity, body);
+			ecs::emplace_body(entity, body);
 
 			float hw = w / 2.0f;
 			float hh = h / 2.0f;
@@ -163,18 +162,6 @@ namespace map
 				body->CreateFixture(&fixture_def);
 				break;
 			}
-			}
-		}
-
-		// EMPLACE BEHAVIOR
-		{
-			std::string behavior;
-			if (ecs::get_string(entity, "behavior", behavior)) {
-				auto type = magic_enum::enum_cast<ecs::BehaviorType>(behavior, magic_enum::case_insensitive);
-				if (type.has_value())
-					ecs::emplace_behavior(entity, type.value());
-				else
-					console::log_error("Unknown behavior type: " + behavior);
 			}
 		}
 
@@ -208,6 +195,9 @@ namespace map
 				ecs::emplace_animation(entity, ecs::Animation(object.tile));
 				ecs::emplace_slime_animation_controller(entity);
 			}
+			ecs::AIActionMoveToPlayer action;
+			ecs::get_float(entity, "speed", action.speed);
+			ecs::emplace_ai_action(entity, action);
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
 			camera.view.setCenter(x, y);
@@ -224,7 +214,6 @@ namespace map
 		if (_next_map == _current_map && !_force_open)
 			return;
 
-		entt::registry& registry = ecs::get_registry();
 		std::string current_music;
 		std::string next_music;
 
@@ -279,7 +268,7 @@ namespace map
 						float y = (float)tile_y * _current_map->tile_height; // In pixels.
 
 						entt::entity entity = ecs::create();
-						registry.emplace<const tiled::Tile*>(entity, tile);
+						ecs::emplace_tile(entity, tile);
 						{
 							ecs::Sprite sprite;
 							sprite.sprite = tile->sprite;
@@ -329,7 +318,7 @@ namespace map
 							}
 						}
 
-						registry.emplace<b2Body*>(entity, body);
+						ecs::emplace_body(entity, body);
 					}
 				}
 			}

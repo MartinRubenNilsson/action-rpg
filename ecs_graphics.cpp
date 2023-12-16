@@ -73,6 +73,10 @@ namespace ecs
 		}
 	}
 
+	void emplace_tile(entt::entity entity, const tiled::Tile* tile) {
+		_registry.emplace_or_replace<const tiled::Tile*>(entity, tile);
+	}
+
 	void emplace_sprite(entt::entity entity, const Sprite& sprite) {
 		_registry.emplace_or_replace<Sprite>(entity, sprite);
 	}

@@ -34,6 +34,10 @@ namespace ecs
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
 
+	void emplace_body(entt::entity entity, b2Body* body) {
+		_registry.emplace_or_replace<b2Body*>(entity, body);
+	}
+
 	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
 	{
 		std::vector<entt::entity> entities;

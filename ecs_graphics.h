@@ -41,6 +41,7 @@ namespace ecs
 
 	void update_graphics(float dt);
 
+	void emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	void emplace_sprite(entt::entity entity, const Sprite& sprite);
 	void emplace_animation(entt::entity entity, const Animation& anim);
 	void emplace_slime_animation_controller(entt::entity entity);

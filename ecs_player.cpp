@@ -149,10 +149,11 @@ namespace ecs
 		return _registry.view<Player>().front();
 	}
 
-	sf::Vector2f get_player_center()
+	sf::Vector2f get_player_world_center()
 	{
-		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each())
+		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
 			return get_world_center(body);
+		}
 		return sf::Vector2f();
 	}
 
