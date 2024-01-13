@@ -98,6 +98,9 @@
     <ClCompile Include="ui_main_menu.cpp">
       <Filter>ui\menus</Filter>
     </ClCompile>
+    <ClCompile Include="background.cpp">
+      <Filter>background</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -233,6 +236,9 @@
     <ClInclude Include="ui_main_menu.h">
       <Filter>ui\menus</Filter>
     </ClInclude>
+    <ClInclude Include="background.h">
+      <Filter>background</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -279,6 +285,9 @@
     </Filter>
     <Filter Include="ui\menus">
       <UniqueIdentifier>{c8a89a7b-f7c4-4dcd-a177-dc7fa2fdff38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="background">
+      <UniqueIdentifier>{06d9483c-0d78-4348-829c-0b48713d145a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

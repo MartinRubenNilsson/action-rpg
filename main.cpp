@@ -11,6 +11,7 @@
 #include "ecs.h"
 #include "console.h"
 #include "tiled.h"
+#include "background.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -41,6 +42,7 @@ int main(int argc, char* argv[])
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
     ui::load_rml_documents("assets/ui");
+    background::load_assets();
 
     // GAME LOOP
 
@@ -51,6 +53,7 @@ int main(int argc, char* argv[])
     console::write_help_file("assets/scripts/help.txt");
     console::execute(argc, argv);
 #else
+    background::type = background::Type::MountainDusk;
     ui::set_main_menu_visible(true);
 #endif
 
@@ -84,6 +87,7 @@ int main(int argc, char* argv[])
         switch (ui::get_user_request()) {
         case ui::UserRequest::Play:
 			ui::set_main_menu_visible(false);
+            background::type = background::Type::None;
             map::open("forest_summer");
 			break;
         case ui::UserRequest::Quit:
@@ -96,6 +100,7 @@ int main(int argc, char* argv[])
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
         console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+        background::update(dt.asSeconds());
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
@@ -107,6 +112,7 @@ int main(int argc, char* argv[])
         // RENDER
 
         window.clear();
+        background::render(window);
         ecs::render(window);
         if (debug_draw_physics)
             physics::debug_draw(window);
@@ -118,7 +124,9 @@ int main(int argc, char* argv[])
 
     // UNLOAD ASSETS
 
-    tiled::unload_assets(); // Ensures sf::Texture objects are destroyed before main() returns.
+    // Ensures sf::Texture objects are destroyed before main() returns.
+    tiled::unload_assets(); 
+    background::unload_assets();
 
     // SHUTDOWN
 

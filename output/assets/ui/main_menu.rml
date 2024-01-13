@@ -3,11 +3,22 @@
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
 	<style>
+		@keyframes bob-up-and-down {
+			0% {
+				transform: translateY(-12px);
+			}
+			to {
+				transform: translateY(12px);
+			}
+		}
+	
 		img {
 			margin: 4dp;
+			animation: 2s cubic-in-out infinite alternate bob-up-and-down;
 		}
 	
 		p {
+			font-effect: shadow(3px 3px black);
 			margin: 2dp;
 		}
 		
