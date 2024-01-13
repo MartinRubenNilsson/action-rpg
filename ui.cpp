@@ -4,6 +4,7 @@
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "defines.h"
 #include "ui_bindings.h"
+#include "ui_main_menu.h"
 #include "ui_textbox.h"
 
 namespace ui
@@ -37,8 +38,35 @@ namespace ui
 
 	void shutdown()
 	{
-		Rml::RemoveContext(_context->GetName()); _context = nullptr;
+		Rml::RemoveContext(_context->GetName());
+		_context = nullptr;
 		Rml::Shutdown();
+	}
+
+	void load_ttf_fonts(const std::filesystem::path& dir)
+	{
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::directory_iterator(dir)) {
+			if (entry.path().extension() != ".ttf") continue;
+			Rml::LoadFontFace(entry.path().string());
+		}
+	}
+
+	void load_rml_documents(const std::filesystem::path& dir)
+	{
+		for (const std::filesystem::directory_entry& entry :
+			std::filesystem::directory_iterator(dir)) {
+			if (entry.path().extension() != ".rml") continue;
+			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
+			if (!doc) continue;
+			doc->SetId(entry.path().stem().string());
+		}
+	}
+
+	void reload_styles()
+	{
+		for (int i = 0; i < _context->GetNumDocuments(); ++i)
+			_context->GetDocument(i)->ReloadStyleSheet();
 	}
 
 	void process_event(const sf::Event& event)
@@ -63,34 +91,7 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return is_textbox_open();
-	}
-
-	void load_assets()
-	{
-		// Load all TTF fonts.
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator("assets/fonts"))
-		{
-			if (entry.path().extension() == ".ttf")
-				Rml::LoadFontFace(entry.path().string());
-		}
-
-		// Load all RML documents and set their IDs to their names.
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator("assets/ui"))
-		{
-			if (entry.path().extension() != ".rml") continue;
-			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
-			if (!doc) continue;
-			doc->SetId(entry.path().stem().string());
-		}
-	}
-
-	void reload_styles()
-	{
-		for (int i = 0; i < _context->GetNumDocuments(); ++i)
-			_context->GetDocument(i)->ReloadStyleSheet();
+		return is_main_menu_visible() || is_textbox_open();
 	}
 
 	std::vector<std::string> get_document_names()
@@ -101,15 +102,15 @@ namespace ui
 		return names;
 	}
 
-	void show(const std::string& document_name)
+	void show_document(const std::string& name)
 	{
-		if (Rml::ElementDocument* doc = _context->GetDocument(document_name))
+		if (Rml::ElementDocument* doc = _context->GetDocument(name))
 			doc->Show();
 	}
 
-	void hide(const std::string& document_name)
+	void hide_document(const std::string& name)
 	{
-		if (Rml::ElementDocument* doc = _context->GetDocument(document_name))
+		if (Rml::ElementDocument* doc = _context->GetDocument(name))
 			doc->Hide();
 	}
 }

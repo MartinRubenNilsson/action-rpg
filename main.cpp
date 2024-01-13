@@ -5,6 +5,7 @@
 #include "audio.h"
 #include "physics.h"
 #include "ui.h"
+#include "ui_main_menu.h"
 #include "map.h"
 #include "behavior.h"
 #include "ecs.h"
@@ -38,24 +39,21 @@ int main(int argc, char* argv[])
 
     audio::load_assets("assets/audio/banks");
     tiled::load_assets("assets/tiled");
-    ui::load_assets();
-
-    // OTHER STUFF
-
-#ifdef _DEBUG
-    console::write_help_file("assets/scripts/help.txt");
-#endif
-
-    // EXECUTE STARTUP COMMANDS
-
-    console::execute(argc, argv);
+    ui::load_ttf_fonts("assets/fonts");
+    ui::load_rml_documents("assets/ui");
 
     // GAME LOOP
 
     bool pause_game = false;
     bool debug_draw_physics = false;
-
     sf::Clock clock;
+#ifdef _DEBUG
+    console::write_help_file("assets/scripts/help.txt");
+    console::execute(argc, argv);
+#else
+    ui::set_main_menu_visible(true);
+#endif
+
     while (window.isOpen()) {
 
         // EVENT HANDLING

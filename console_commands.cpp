@@ -193,10 +193,10 @@ namespace console
 			ui_cmd->add_subcommand("reload_styles", "Reload all style sheets")
 				->callback(ui::reload_styles);
 			ui_cmd->add_subcommand("show", "Show a document")
-				->add_option_function<std::string>("name", ui::show, "The name of the document")
+				->add_option_function<std::string>("name", ui::show_document, "The name of the document")
 				->required();
 			ui_cmd->add_subcommand("hide", "Hide a document")
-				->add_option_function<std::string>("name", ui::hide, "The name of the document")
+				->add_option_function<std::string>("name", ui::hide_document, "The name of the document")
 				->required();
 			ui_cmd->add_subcommand("open_textbox_preset", "Open a textbox preset")
 				->add_option_function<std::string>("name", ui::open_textbox_preset, "The name of the textbox")
