@@ -2,6 +2,13 @@
 
 namespace ui
 {
+	enum class UserRequest
+	{
+		None,
+		Play,
+		Quit,
+	};
+
 	void initialize(sf::RenderWindow& window);
 	void shutdown();
 	void load_ttf_fonts(const std::filesystem::path& dir);
@@ -14,6 +21,7 @@ namespace ui
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 	bool should_pause_game();
+	UserRequest get_user_request();
 
 	std::vector<std::string> get_document_names();
 	void show_document(const std::string& name);

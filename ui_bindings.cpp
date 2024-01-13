@@ -17,6 +17,10 @@ namespace ui
 		console::log(message);
 	}
 
+	extern void _on_click_play();
+	extern void _on_click_settings();
+	extern void _on_click_credits();
+	extern void _on_click_quit();
 	extern void _on_textbox_keydown(int key);
 
 	// FUNCTIONS
@@ -51,6 +55,22 @@ namespace ui
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList& args) {
 				if (args.size() != 1) return;
 				_console_log(args[0].Get<std::string>());
+			});
+		data_model.BindEventCallback("on_click_play",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_play();
+			});
+		data_model.BindEventCallback("on_click_settings",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_settings();
+			});
+		data_model.BindEventCallback("on_click_credits",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_credits();
+			});
+		data_model.BindEventCallback("on_click_quit",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_quit();
 			});
 		data_model.BindEventCallback("on_textbox_keydown",
 			[](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList&) {

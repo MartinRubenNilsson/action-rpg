@@ -6,12 +6,14 @@
 #include "ui_bindings.h"
 #include "ui_main_menu.h"
 #include "ui_textbox.h"
+#include "console.h"
 
 namespace ui
 {
 	SystemInterface_SFML _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
+	UserRequest _user_request;
 
 	void _on_window_resized(const Rml::Vector2i& new_size)
 	{
@@ -21,6 +23,22 @@ namespace ui
 		float dp_ratio_y = (float)new_size.y / (float)VIEW_PIXEL_HEIGHT;
 		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
+	}
+
+	void _on_click_play() {
+		_user_request = UserRequest::Play;
+	}
+
+	void _on_click_settings() {
+		console::log_error("settings button clicked"); 
+	}
+
+	void _on_click_credits() {
+		console::log_error("credits button clicked"); 
+	}
+
+	void _on_click_quit() {
+		_user_request = UserRequest::Quit;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -92,6 +110,13 @@ namespace ui
 
 	bool should_pause_game() {
 		return is_main_menu_visible() || is_textbox_open();
+	}
+
+	UserRequest get_user_request()
+	{
+		UserRequest request = _user_request;
+		_user_request = UserRequest::None;
+		return request;
 	}
 
 	std::vector<std::string> get_document_names()

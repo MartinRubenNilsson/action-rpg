@@ -1,7 +1,7 @@
 <rml>
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
-	<link type="text/rcss" href="spritesheet_icons.rcss"/>
+	<link type="text/rcss" href="spritesheets.rcss"/>
 	<style>
 		.heart {
 			width: 16dp;

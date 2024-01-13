@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
     while (window.isOpen()) {
 
-        // EVENT HANDLING
+        // MESSAGE/EVENT LOOP
 
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -77,6 +77,18 @@ int main(int argc, char* argv[])
             ui::process_event(event);
             if (!pause_game && !ui::should_pause_game())
                 ecs::process_event(event);
+        }
+
+        // HANDLE UI USER REQUESTS
+
+        switch (ui::get_user_request()) {
+        case ui::UserRequest::Play:
+			ui::set_main_menu_visible(false);
+            map::open("forest_summer");
+			break;
+        case ui::UserRequest::Quit:
+			window.close();
+			break;
         }
 
         // UPDATE
