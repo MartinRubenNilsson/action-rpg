@@ -2,14 +2,31 @@
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
+	<style>
+		img {
+			margin: 4dp;
+		}
+	
+		p {
+			margin: 2dp;
+		}
+		
+		p:hover {
+			color: silver;
+		}
+		
+		p:active {
+			color: gray;
+		}
+	</style>
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container" style="text-align: center;">
-		<img style="margin: 4dp" sprite="game-logo"/>
-		<p style="margin: 2dp" data-event-click="on_click_play">Play</p>
-		<p style="margin: 2dp" data-event-click="on_click_settings">Settings</p>
-		<p style="margin: 2dp" data-event-click="on_click_credits">Credits</p>
-		<p style="margin: 2dp" data-event-click="on_click_quit">Quit</p>
+		<img sprite="game-logo"/>
+		<p data-event-click="on_click_play">Play</p>
+		<p data-event-click="on_click_settings">Settings</p>
+		<p data-event-click="on_click_credits">Credits</p>
+		<p data-event-click="on_click_quit">Quit</p>
 	</div>
 </body>
 </rml>
