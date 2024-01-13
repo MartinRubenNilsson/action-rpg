@@ -95,6 +95,9 @@
     <ClCompile Include="ecs_ai_knowledge.cpp">
       <Filter>ecs\ai</Filter>
     </ClCompile>
+    <ClCompile Include="ui_main_menu.cpp">
+      <Filter>ui\menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -227,6 +230,9 @@
     <ClInclude Include="ecs_ai_actions.h">
       <Filter>ecs\ai</Filter>
     </ClInclude>
+    <ClInclude Include="ui_main_menu.h">
+      <Filter>ui\menus</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -270,6 +276,9 @@
     </Filter>
     <Filter Include="ecs\ai">
       <UniqueIdentifier>{8d84feb1-0644-4d63-9c27-8bb43625fab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\menus">
+      <UniqueIdentifier>{c8a89a7b-f7c4-4dcd-a177-dc7fa2fdff38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
