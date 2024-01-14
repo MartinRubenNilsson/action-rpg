@@ -69,21 +69,17 @@ namespace ecs
 
 		// Sort the types alphabetically; this reduces
 		// the number of cases we need to handle.
-		if (type_a.compare(type_b) > 0)
-		{
+		if (type_a.compare(type_b) > 0) {
 			std::swap(fixture_a, fixture_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
 			std::swap(type_a, type_b);
 		}
 
-		if (type_a == "player" && type_b == "trigger")
-		{
+		if (type_a == "player" && type_b == "trigger") {
 			std::string string;
-			if (get_string(entity_b, "map", string))
-			{
-				if (map::open(string, true))
-				{
+			if (get_string(entity_b, "map", string)) {
+				if (map::open(string, true)) {
 					if (get_string(entity_b, "spawnpoint", string))
 						map::set_player_spawnpoint(string);
 				}

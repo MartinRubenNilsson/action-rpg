@@ -290,14 +290,15 @@ namespace map
 						b2Body* body = physics::create_body(&body_def);
 						assert(body && "Failed to create body.");
 
-						for (const tiled::Object& tile_object : tile->objects) {
-							float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
-							float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
-							b2Vec2 center(hw, hh);
-
-							switch (tile_object.type) {
+						for (const tiled::Object& collider : tile->objects) {
+							float cx = collider.position.x * METERS_PER_PIXEL;
+							float cy = collider.position.y * METERS_PER_PIXEL;
+							switch (collider.type) {
 							case tiled::ObjectType::Rectangle:
 							{
+								float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
+								float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
+								b2Vec2 center(cx + hw, cy + hh);
 								b2PolygonShape shape;
 								shape.SetAsBox(hw, hh, center, 0.f);
 								body->CreateFixture(&shape, 0.0f);
@@ -305,9 +306,35 @@ namespace map
 							}
 							case tiled::ObjectType::Ellipse:
 							{
-								b2CircleShape shape;
-								shape.m_p = center;
-								shape.m_radius = hw;
+								//b2CircleShape shape;
+								//shape.m_p = center;
+								//shape.m_radius = hw;
+								//body->CreateFixture(&shape, 0.0f);
+								break;
+							}
+							case tiled::ObjectType::Polygon:
+							{
+								size_t count = collider.points.size();
+								if (count < 3) {
+									console::log_error(
+										"Too few points in polygon collider! Got " +
+										std::to_string(count) + ", need >= 3.");
+									break;
+								}
+								if (count > b2_maxPolygonVertices) {
+									console::log_error(
+										"Too many points in polygon collider! Got " +
+										std::to_string(count) + ", need <= " +
+										std::to_string(b2_maxPolygonVertices) + ".");
+									break;
+								}
+								b2Vec2 points[b2_maxPolygonVertices];
+								for (size_t i = 0; i < count; ++i) {
+									points[i].x = cx + collider.points[i].x * METERS_PER_PIXEL;
+									points[i].y = cy + collider.points[i].y * METERS_PER_PIXEL;
+								}
+								b2PolygonShape shape;
+								shape.Set(points, (int32)count);
 								body->CreateFixture(&shape, 0.0f);
 								break;
 							}

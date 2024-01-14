@@ -41,6 +41,22 @@ namespace tiled
 			_load_property(prop_node, properties.emplace_back());
 	}
 
+	std::vector<sf::Vector2f> _load_points(const pugi::xml_node& node)
+	{
+		// Example: <polygon points="0,0 0,16 16,16"/>
+		std::vector<sf::Vector2f> points;
+		std::istringstream ss(node.attribute("points").as_string());
+		std::string token;
+		while (std::getline(ss, token, ' ')) {
+			size_t comma = token.find(',');
+			assert(comma != std::string::npos);
+			float x = std::stof(token.substr(0, comma));
+			float y = std::stof(token.substr(comma + 1));
+			points.emplace_back(x, y);
+		}
+		return points;
+	}
+
 	void _load_object(const pugi::xml_node& node, Object& object)
 	{
 		for (pugi::xml_node prop_node : node.child("properties").children("property")) {
@@ -76,20 +92,10 @@ namespace tiled
 			object.type = ObjectType::Point;
 		} else if (pugi::xml_node polygon = node.child("polygon")) {
 			object.type = ObjectType::Polygon;
-			object.points.clear();
-			for (pugi::xml_node point : polygon.children("point")) {
-				object.points.emplace_back(
-					point.attribute("x").as_float(),
-					point.attribute("y").as_float());
-			}
+			object.points = _load_points(polygon);
 		} else if (pugi::xml_node polyline = node.child("polyline")) {
 			object.type = ObjectType::Polyline;
-			object.points.clear();
-			for (pugi::xml_node point : polyline.children("point")) {
-				object.points.emplace_back(
-					point.attribute("x").as_float(),
-					point.attribute("y").as_float());
-			}
+			object.points = _load_points(polyline);
 		}
 	}
 
