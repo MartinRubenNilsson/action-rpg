@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
         switch (ui::get_next_action()) {
         case ui::Action::Play:
             background::type = background::Type::None;
-            map::open("forest_summer");
+            map::open("summer_forest");
 			break;
         case ui::Action::GoToMainMenu:
 			background::type = background::Type::MountainDusk;
