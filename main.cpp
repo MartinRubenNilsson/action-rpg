@@ -46,17 +46,16 @@ int main(int argc, char* argv[])
 
     // GAME LOOP
 
-    bool pause_game = false;
-    bool debug_draw_physics = false;
-    sf::Clock clock;
-#ifdef _DEBUG
+#if defined(_DEBUG) //&& false
     console::write_help_file("assets/scripts/help.txt");
     console::execute(argc, argv);
 #else
     background::type = background::Type::MountainDusk;
     ui::set_main_menu_visible(true);
 #endif
-
+    bool pause_game = false;
+    bool debug_draw_physics = false;
+    sf::Clock clock;
     while (window.isOpen()) {
 
         // MESSAGE/EVENT LOOP
