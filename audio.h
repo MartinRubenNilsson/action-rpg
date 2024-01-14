@@ -15,16 +15,12 @@ namespace audio
 	bool set_parameter_label(const std::string& name, const std::string& label);
 	//bool get_parameter_label(const std::string& name, std::string& label); // TODO
 
-	// Checks if any of the loaded banks contain an event with the given path.
-	bool is_valid(const std::string& path);
-	// Checks if an event instance with the given path exists and is playing.
-	bool is_playing(const std::string& path);
+	bool is_valid(const std::string& event_path);
+	bool is_playing(const std::string& event_path);
 	// Creates and starts a new event instance with the given path.
 	// If the event is not one-shot, it may keep playing indefinitely.
-	bool play(const std::string& path);
-	// Stops all event instances with the given path.
-	void stop(const std::string& path);
-	// Stops all event instances in the given bus.
-	bool stop_all(const std::string& path = BUS_MASTER);
+	bool play(const std::string& event_path);
+	void stop_all(const std::string& event_path);
+	bool stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
 }
 

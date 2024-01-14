@@ -139,15 +139,15 @@ namespace audio
 		return true;
 	}
 
-	bool is_valid(const std::string& path)
+	bool is_valid(const std::string& event_path)
 	{
 		FMOD::Studio::EventDescription* desc_dummy = nullptr;
-		return _system->getEvent(path.c_str(), &desc_dummy) == FMOD_OK;
+		return _system->getEvent(event_path.c_str(), &desc_dummy) == FMOD_OK;
 	}
 
-	bool is_playing(const std::string& path)
+	bool is_playing(const std::string& event_path)
 	{
-		auto desc = _get_event_description(path);
+		auto desc = _get_event_description(event_path);
 		if (!desc) return false;
 		int count = _get_event_instances(desc);
 		for (int i = 0; i < count; ++i) {
@@ -159,9 +159,9 @@ namespace audio
 		return false;
 	}
 
-	bool play(const std::string& path)
+	bool play(const std::string& event_path)
 	{
-		auto desc = _get_event_description(path);
+		auto desc = _get_event_description(event_path);
 		if (!desc) return false;
 		auto instance = _create_event_instance(desc);
 		if (!instance) return false;
@@ -170,18 +170,18 @@ namespace audio
 		return true;
 	}
 
-	void stop(const std::string& path)
+	void stop_all(const std::string& event_path)
 	{
-		auto desc = _get_event_description(path);
+		auto desc = _get_event_description(event_path);
 		if (!desc) return;
 		int count = _get_event_instances(desc);
 		for (int i = 0; i < count; ++i)
 			_event_buffer[i]->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 	}
 
-	bool stop_all(const std::string& path)
+	bool stop_all_in_bus(const std::string& bus_path)
 	{
-		auto bus = _get_bus(path);
+		auto bus = _get_bus(bus_path);
 		if (!bus) return false;
 		bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
 		return true;

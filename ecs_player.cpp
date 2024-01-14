@@ -162,7 +162,7 @@ namespace ecs
 		if (!_registry.all_of<Player>(entity)) return false;
 		detach_camera(entity);
 		destroy_at_end_of_frame(entity);
-		audio::stop_all();
+		audio::stop_all_in_bus();
 		audio::play("event:/snd_player_die");
 		audio::play("event:/mus_coffin_dance");
 		ui::open_textbox_preset("player_die_01");

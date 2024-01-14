@@ -230,12 +230,12 @@ namespace map
 		_force_open = false;
 
 		if (!_current_map) {
-			audio::stop_all();
+			audio::stop_all_in_bus();
 		} else {
 			tiled::get(_current_map->properties, "music", next_music);
 			if (current_music != next_music) {
 				if (!current_music.empty())
-					audio::stop("event:/" + current_music);
+					audio::stop_all("event:/" + current_music);
 				if (!next_music.empty())
 					audio::play("event:/" + next_music);
 			}
