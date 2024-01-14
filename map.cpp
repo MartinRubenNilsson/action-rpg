@@ -12,7 +12,6 @@
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ecs_ai_actions.h"
-#include "ui_hud.h"
 #include "ui_textbox.h"
 
 namespace map
@@ -231,11 +230,8 @@ namespace map
 		_force_open = false;
 
 		if (!_current_map) {
-			ui::set_hud_visible(false);
 			audio::stop_all();
 		} else {
-			ui::set_hud_visible(true);
-
 			tiled::get(_current_map->properties, "music", next_music);
 			if (current_music != next_music) {
 				if (!current_music.empty())

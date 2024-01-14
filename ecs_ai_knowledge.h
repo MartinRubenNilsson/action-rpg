@@ -2,13 +2,21 @@
 
 namespace ecs
 {
-	struct AIKnowledge
+	struct AiEntityInfo
 	{
-		entt::entity my_entity = entt::null;
-		sf::Vector2f my_position;
-		sf::Vector2f my_velocity;
-		float my_speed = 0.f;
+		entt::entity entity = entt::null;
+		std::string name;
+		std::string class_;
+		sf::Vector2f position;
+		sf::Vector2f velocity;
 	};
 
+	struct AiKnowledge
+	{
+		AiEntityInfo me;
+		AiEntityInfo player;
+	};
+
+	AiEntityInfo get_ai_entity_info(entt::entity entity);
 	void update_ai_knowledge(float dt);
 }

@@ -6,6 +6,7 @@
 #include "ui_bindings.h"
 #include "ui_main_menu.h"
 #include "ui_pause_menu.h"
+#include "ui_hud.h"
 #include "ui_textbox.h"
 #include "console.h"
 #include "audio.h"
@@ -16,7 +17,8 @@ namespace ui
 	{
 		void ProcessEvent(Rml::Event& event) override
 		{
-			if (!event.GetTargetElement()->IsClassSet("menu-button")) return;
+			if (!event.GetTargetElement()->IsClassSet("menu-button"))
+				return;
 			switch (event.GetId()) {
 			case Rml::EventId::Mouseover:
 				audio::play("event:/ui/snd_button_hover");
@@ -46,6 +48,7 @@ namespace ui
 
 	void _on_click_play() {
 		set_main_menu_visible(false);
+		set_hud_visible(true);
 		_next_action = Action::Play;
 	}
 
@@ -67,6 +70,7 @@ namespace ui
 
 	void _on_click_main_menu() {
 		set_pause_menu_visible(false);
+		set_hud_visible(false);
 		set_main_menu_visible(true);
 		_next_action = Action::GoToMainMenu;
 	}
