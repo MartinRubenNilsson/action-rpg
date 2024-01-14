@@ -366,3 +366,5 @@ FodyWeavers.xsd
 /vcpkg_installed/
 /output/assets/maps/action-rpg.tiled-session
 /output/assets/tiled/action-rpg.tiled-session
+/output/Debug.exe
+/output/Release.exe
