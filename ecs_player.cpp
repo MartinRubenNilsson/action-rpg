@@ -13,6 +13,8 @@
 #include "window.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
+#include "ecs_projectile.h"
+#include "physics.h"
 
 namespace ecs
 {
@@ -38,8 +40,33 @@ namespace ecs
 			if (event.type == sf::Event::KeyPressed) {
 				if (event.key.code == sf::Keyboard::C)
 					player.input.interact = true;
+				if (event.key.code == sf::Keyboard::Z)
+					player.input.projectile_attack = true;
 			}
+
 		}
+	}
+
+	void fire_projectile(const sf::Vector2f& position, int damage) {
+		entt::entity projectile_entity = _registry.create();
+
+		// Setup the Projectile component
+		Projectile projectile = { damage, 5.0f }; // Example values
+		_registry.emplace<Projectile>(projectile_entity, projectile);
+
+		// Create a physics body for the projectile (you might need to adjust this based on your physics system)
+		b2CircleShape shape;
+		shape.m_p.x = 0;
+		shape.m_p.y = 0;
+		shape.m_radius = 0.5;
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_dynamicBody;
+		bodyDef.position.Set(position.x, position.y);
+		b2Body* body = physics::create_body(&bodyDef); // Assuming a function from your physics system
+		_registry.emplace<b2Body*>(projectile_entity, body);
+		body->CreateFixture(&shape, 1);
+
+		// Add additional components like Sprite here if necessary
 	}
 
 	void update_player(float dt)
@@ -50,7 +77,6 @@ namespace ecs
 				kill_player(entity);
 				return;
 			}
-			player.input = {};
 			if (player.kill_timer.stopped() && window::has_focus() && !console::is_visible()) {
 				_update_player_input(player.input);
 			}
@@ -98,6 +124,13 @@ namespace ecs
 					}
 				}
 			}
+
+			if (player.input.projectile_attack) {
+				sf::Vector2f fire_position = center;
+				int projectile_damage = 1;
+
+				fire_projectile(fire_position, projectile_damage);
+			}
 		}
 
 		// Update animation
@@ -132,8 +165,9 @@ namespace ecs
 
 		// Update HUD
 		ui::hud_player_health = 0;
-		for (auto [entity, player] : _registry.view<const Player>().each()) {
+		for (auto [entity, player] : _registry.view<Player>().each()) {
 			ui::hud_player_health = player.state.health;
+			player.input = {};
 		}
 	}
 

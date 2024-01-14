@@ -8,6 +8,7 @@ namespace ecs
 		sf::Vector2f direction;
 		bool run = false;
 		bool interact = false;
+		bool projectile_attack = false; 
 	};
 
 	struct PlayerState
