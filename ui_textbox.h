@@ -5,7 +5,7 @@ namespace ui
 {
 	void update_textbox(float dt);
 
-	bool is_textbox_open();
+	bool is_textbox_visible();
 	bool is_textbox_typing();
 	void skip_textbox_typing();
 

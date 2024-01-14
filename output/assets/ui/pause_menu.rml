@@ -1,0 +1,13 @@
+<rml>
+<head>
+	<link type="text/rcss" href="styles.rcss"/>
+	<link type="text/rcss" href="spritesheets.rcss"/>
+</head>
+<body data-model="data_model">
+	<div class="fullscreen-container" style="text-align: center;">
+		<p class="menu-button" data-event-click="on_click_resume">Resume</p>
+		<p class="menu-button" data-event-click="on_click_settings">Settings</p>
+		<p class="menu-button" data-event-click="on_click_main_menu">Main Menu</p>
+	</div>
+</body>
+</rml>

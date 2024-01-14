@@ -14,14 +14,23 @@ tabset tabs
 	color: white;
 }
 
-.hoverable:hover {
-	color: red;
-}
-
 .fullscreen-container {
 	position: fixed;
 	width: 100vw;
 	height: 100vh;
+}
+
+.menu-button {
+	font-effect: shadow(3px 3px black);
+	margin: 2dp;
+}
+
+.menu-button:hover {
+	color: silver;
+}
+
+.menu-button:active {
+	color: gray;
 }
 
 .textbox {

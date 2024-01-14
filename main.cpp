@@ -7,7 +7,6 @@
 #include "ui.h"
 #include "ui_main_menu.h"
 #include "map.h"
-#include "behavior.h"
 #include "ecs.h"
 #include "console.h"
 #include "tiled.h"
@@ -53,7 +52,6 @@ int main(int argc, char* argv[])
     background::type = background::Type::MountainDusk;
     ui::set_main_menu_visible(true);
 #endif
-    bool pause_game = false;
     bool debug_draw_physics = false;
     sf::Clock clock;
     while (window.isOpen()) {
@@ -64,12 +62,10 @@ int main(int argc, char* argv[])
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
-            if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::Escape)
-                    pause_game = !pause_game;
+            else if (event.type == sf::Event::KeyPressed) {
                 if (event.key.code == sf::Keyboard::F1)
-                    console::toggle_show();
-                if (event.key.code == sf::Keyboard::F2)
+                    console::toggle_visible();
+                else if (event.key.code == sf::Keyboard::F2)
                     debug_draw_physics = !debug_draw_physics;
             }
             ImGui::SFML::ProcessEvent(window, event);
@@ -77,7 +73,7 @@ int main(int argc, char* argv[])
                 continue;
             console::process_event(event);
             ui::process_event(event);
-            if (!pause_game && !ui::should_pause_game())
+            if (!ui::should_pause_game())
                 ecs::process_event(event);
         }
 
@@ -85,10 +81,13 @@ int main(int argc, char* argv[])
 
         switch (ui::get_user_request()) {
         case ui::UserRequest::Play:
-			ui::set_main_menu_visible(false);
             background::type = background::Type::None;
             map::open("forest_summer");
 			break;
+        case ui::UserRequest::GoToMainMenu:
+			background::type = background::Type::MountainDusk;
+			map::close();
+            break;
         case ui::UserRequest::Quit:
 			window.close();
 			break;
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
-        if (!pause_game && !ui::should_pause_game()) {
+        if (!ui::should_pause_game()) {
             physics::update(dt.asSeconds());
             ecs::update(dt.asSeconds());
         }

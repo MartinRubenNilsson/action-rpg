@@ -10,7 +10,7 @@
 namespace console
 {
 	CLI::App _app("Console", "");
-	bool _show = false;
+	bool _visible = false;
 	bool _reclaim_focus = false;
 	float _sleep_timer = 0.f;
 	std::string _command_line;
@@ -119,7 +119,7 @@ namespace console
 
 		// SHOW CONSOLE WINDOW
 
-		if (!_show) return;
+		if (!_visible) return;
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
@@ -131,7 +131,7 @@ namespace console
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings;
 
-		if (ImGui::Begin("Console", &_show, window_flags)) {
+		if (ImGui::Begin("Console", &_visible, window_flags)) {
 			// HISTORY
 			{
 				float reserved_height = ImGui::GetStyle().ItemSpacing.y +
@@ -184,20 +184,20 @@ namespace console
 			execute(_key_bindings[event.key.code]);
 	}
 
-	bool is_showing() {
-		return _show;
+	bool is_visible() {
+		return _visible;
 	}
 
-	void show(bool show)
+	void set_visible(bool visible)
 	{
-		_show = show;
-		if (_show) _reclaim_focus = true;
+		_visible = visible;
+		if (_visible) _reclaim_focus = true;
 	}
 
-	void toggle_show()
+	void toggle_visible()
 	{
-		_show = !_show;
-		if (_show) _reclaim_focus = true;
+		_visible = !_visible;
+		if (_visible) _reclaim_focus = true;
 	}
 
 	void clear() {
@@ -215,7 +215,7 @@ namespace console
 	void log_error(const std::string& message, bool show_console)
 	{
 		_history.emplace_back(message, COLOR_ERROR);
-		if (show_console) _show = true;
+		if (show_console) _visible = true;
 	}
 
 	void execute(const std::string& command_line, bool defer)

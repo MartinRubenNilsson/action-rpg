@@ -5,6 +5,7 @@
 #include "defines.h"
 #include "ui_bindings.h"
 #include "ui_main_menu.h"
+#include "ui_pause_menu.h"
 #include "ui_textbox.h"
 #include "console.h"
 
@@ -26,6 +27,7 @@ namespace ui
 	}
 
 	void _on_click_play() {
+		set_main_menu_visible(false);
 		_user_request = UserRequest::Play;
 	}
 
@@ -39,6 +41,16 @@ namespace ui
 
 	void _on_click_quit() {
 		_user_request = UserRequest::Quit;
+	}
+
+	void _on_click_resume() {
+		set_pause_menu_visible(false);
+	}
+
+	void _on_click_main_menu() {
+		set_pause_menu_visible(false);
+		set_main_menu_visible(true);
+		_user_request = UserRequest::GoToMainMenu;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -91,6 +103,17 @@ namespace ui
 	{
 		if (event.type == sf::Event::Resized)
 			_on_window_resized(Rml::Vector2i(event.size.width, event.size.height));
+		else if (event.type == sf::Event::KeyPressed) {
+			if (event.key.code == sf::Keyboard::Escape) {
+				if (is_main_menu_visible()) {
+					// Do nothing.
+				} else if (is_pause_menu_visible()) {
+					set_pause_menu_visible(false);
+				} else {
+					set_pause_menu_visible(true);
+				}
+			}
+		}
 		RmlSFML::InputHandler(_context, event);
 	}
 
@@ -109,7 +132,10 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return is_main_menu_visible() || is_textbox_open();
+		return
+			is_main_menu_visible() ||
+			is_pause_menu_visible() ||
+			is_textbox_visible();
 	}
 
 	UserRequest get_user_request()

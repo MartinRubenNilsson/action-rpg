@@ -71,7 +71,7 @@ namespace ui
 
 	void _on_textbox_keydown(int key)
 	{
-		if (!is_textbox_open())
+		if (!is_textbox_visible())
 			return;
 		if (key == Rml::Input::KI_C)
 			if (!is_textbox_typing())
@@ -117,7 +117,7 @@ namespace ui
 			_textbox_text, _textbox_current_length);
 	}
 
-	bool is_textbox_open() {
+	bool is_textbox_visible() {
 		return _textbox_is_open;
 	}
 

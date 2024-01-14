@@ -101,6 +101,9 @@
     <ClCompile Include="background.cpp">
       <Filter>background</Filter>
     </ClCompile>
+    <ClCompile Include="ui_pause_menu.cpp">
+      <Filter>ui\menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -238,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="background.h">
       <Filter>background</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_pause_menu.h">
+      <Filter>ui\menus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

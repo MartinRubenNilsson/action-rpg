@@ -16,28 +16,15 @@
 			margin: 4dp;
 			animation: 2s cubic-in-out infinite alternate bob-up-and-down;
 		}
-	
-		p {
-			font-effect: shadow(3px 3px black);
-			margin: 2dp;
-		}
-		
-		p:hover {
-			color: silver;
-		}
-		
-		p:active {
-			color: gray;
-		}
 	</style>
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container" style="text-align: center;">
 		<img sprite="game-logo"/>
-		<p data-event-click="on_click_play">Play</p>
-		<p data-event-click="on_click_settings">Settings</p>
-		<p data-event-click="on_click_credits">Credits</p>
-		<p data-event-click="on_click_quit">Quit</p>
+		<p class="menu-button" data-event-click="on_click_play">Play</p>
+		<p class="menu-button" data-event-click="on_click_settings">Settings</p>
+		<p class="menu-button" data-event-click="on_click_credits">Credits</p>
+		<p class="menu-button" data-event-click="on_click_quit">Quit</p>
 	</div>
 </body>
 </rml>

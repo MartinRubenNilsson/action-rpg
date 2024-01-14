@@ -6,6 +6,7 @@ namespace ui
 	{
 		None,
 		Play,
+		GoToMainMenu,
 		Quit,
 	};
 

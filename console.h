@@ -6,9 +6,9 @@ namespace console
 	void update(float dt); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
 	void process_event(const sf::Event& event);
 
-	bool is_showing();
-	void show(bool show);
-	void toggle_show();
+	bool is_visible();
+	void set_visible(bool visible);
+	void toggle_visible();
 	void clear();
 	void sleep(float seconds);
 	void log(const std::string& message);

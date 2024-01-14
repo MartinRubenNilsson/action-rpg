@@ -4,26 +4,23 @@
 
 namespace ui
 {
-	// DATA VARIABLES
+	// VARIABLES
 
 	extern int hud_player_health;
 	extern std::string _textbox_text;
 	extern std::string _textbox_sprite;
 	extern bool _textbox_sprite_is_set;
 
-	// EVENT CALLBACKS
+	// CALLBACKS
 
-	void _console_log(const std::string& message) {
-		console::log(message);
-	}
-
+	void _console_log(const std::string& message) { console::log(message); }
 	extern void _on_click_play();
 	extern void _on_click_settings();
 	extern void _on_click_credits();
 	extern void _on_click_quit();
+	extern void _on_click_resume();
+	extern void _on_click_main_menu();
 	extern void _on_textbox_keydown(int key);
-
-	// FUNCTIONS
 
 	extern Rml::Context* _context;
 	Rml::DataModelHandle _data_model_handle;
@@ -42,14 +39,14 @@ namespace ui
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();
 
-		// DATA VARIABLES
+		// VARIABLES
 
 		data_model.Bind("hud_player_health", &hud_player_health);
 		data_model.Bind("textbox_text", &_textbox_text);
 		data_model.Bind("textbox_sprite", &_textbox_sprite);
 		data_model.Bind("textbox_sprite_is_set", &_textbox_sprite_is_set);
 
-		// EVENT CALLBACKS
+		// CALLBACKS
 
 		data_model.BindEventCallback("console_log",
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList& args) {
@@ -71,6 +68,14 @@ namespace ui
 		data_model.BindEventCallback("on_click_quit",
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
 				_on_click_quit();
+			});
+		data_model.BindEventCallback("on_click_resume",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_resume();
+			});
+		data_model.BindEventCallback("on_click_main_menu",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_main_menu();
 			});
 		data_model.BindEventCallback("on_textbox_keydown",
 			[](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList&) {

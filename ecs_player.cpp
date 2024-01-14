@@ -51,7 +51,7 @@ namespace ecs
 				return;
 			}
 			player.input = {};
-			if (player.kill_timer.stopped() && window::has_focus() && !console::is_showing()) {
+			if (player.kill_timer.stopped() && window::has_focus() && !console::is_visible()) {
 				_update_player_input(player.input);
 			}
 		}
