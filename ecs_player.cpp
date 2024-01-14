@@ -149,9 +149,10 @@ namespace ecs
 			tile_class += get_direction(player.state.direction);
 			if (!anim.is_playing(tile_class)) {
 				anim.play(tile_class);
-				console::log(tile_class);
 			}
 		}
+
+		//
 
 		// Update sprite
 		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each()) {
