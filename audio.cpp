@@ -86,15 +86,10 @@ namespace audio
 		_system = nullptr;
 	}
 
-	void update() {
-		_system->update();
-	}
-
-	void load_assets(const std::filesystem::path& dir)
+	void load_bank_files(const std::filesystem::path& dir)
 	{
 		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator(dir))
-		{
+			std::filesystem::directory_iterator(dir)) {
 			if (!entry.is_regular_file()) continue;
 			if (entry.path().extension() != ".bank") continue;
 			FMOD::Studio::Bank* bank = nullptr;
@@ -105,6 +100,10 @@ namespace audio
 					console::log_error("Failed to load audio bank: " + entry.path().string());
 			}
 		}
+	}
+
+	void update() {
+		_system->update();
 	}
 
 	bool set_parameter(const std::string& name, float value)

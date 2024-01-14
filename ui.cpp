@@ -8,13 +8,31 @@
 #include "ui_pause_menu.h"
 #include "ui_textbox.h"
 #include "console.h"
+#include "audio.h"
 
 namespace ui
 {
+	struct EventListener : public Rml::EventListener
+	{
+		void ProcessEvent(Rml::Event& event) override
+		{
+			if (!event.GetTargetElement()->IsClassSet("menu-button")) return;
+			switch (event.GetId()) {
+			case Rml::EventId::Mouseover:
+				audio::play("event:/ui/snd_button_hover");
+				break;
+			case Rml::EventId::Click:
+				audio::play("event:/ui/snd_button_click");
+				break;
+			}
+		}
+	};
+
 	SystemInterface_SFML _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
-	UserRequest _user_request;
+	EventListener _event_listener;
+	Action _next_action;
 
 	void _on_window_resized(const Rml::Vector2i& new_size)
 	{
@@ -28,19 +46,19 @@ namespace ui
 
 	void _on_click_play() {
 		set_main_menu_visible(false);
-		_user_request = UserRequest::Play;
+		_next_action = Action::Play;
 	}
 
 	void _on_click_settings() {
-		console::log_error("settings button clicked"); 
+		console::log("settings button clicked"); 
 	}
 
 	void _on_click_credits() {
-		console::log_error("credits button clicked"); 
+		console::log("credits button clicked"); 
 	}
 
 	void _on_click_quit() {
-		_user_request = UserRequest::Quit;
+		_next_action = Action::Quit;
 	}
 
 	void _on_click_resume() {
@@ -50,7 +68,7 @@ namespace ui
 	void _on_click_main_menu() {
 		set_pause_menu_visible(false);
 		set_main_menu_visible(true);
-		_user_request = UserRequest::GoToMainMenu;
+		_next_action = Action::GoToMainMenu;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -90,6 +108,8 @@ namespace ui
 			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
 			if (!doc) continue;
 			doc->SetId(entry.path().stem().string());
+			doc->AddEventListener(Rml::EventId::Mouseover, &_event_listener);
+			doc->AddEventListener(Rml::EventId::Click, &_event_listener);
 		}
 	}
 
@@ -138,11 +158,11 @@ namespace ui
 			is_textbox_visible();
 	}
 
-	UserRequest get_user_request()
+	Action get_next_action()
 	{
-		UserRequest request = _user_request;
-		_user_request = UserRequest::None;
-		return request;
+		Action action = _next_action;
+		_next_action = Action::None;
+		return action;
 	}
 
 	std::vector<std::string> get_document_names()

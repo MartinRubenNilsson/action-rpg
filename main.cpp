@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
-    audio::load_assets("assets/audio/banks");
+    audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
     ui::load_rml_documents("assets/ui");
@@ -79,16 +79,16 @@ int main(int argc, char* argv[])
 
         // HANDLE UI USER REQUESTS
 
-        switch (ui::get_user_request()) {
-        case ui::UserRequest::Play:
+        switch (ui::get_next_action()) {
+        case ui::Action::Play:
             background::type = background::Type::None;
             map::open("forest_summer");
 			break;
-        case ui::UserRequest::GoToMainMenu:
+        case ui::Action::GoToMainMenu:
 			background::type = background::Type::MountainDusk;
 			map::close();
             break;
-        case ui::UserRequest::Quit:
+        case ui::Action::Quit:
 			window.close();
 			break;
         }

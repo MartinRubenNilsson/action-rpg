@@ -38,7 +38,7 @@ namespace background
 		for (size_t i = 0; i < (size_t)MountainDuskLayerType::Count; ++i) {
 			MountainDuskLayer& layer = _mountain_dusk_layers[i];
 			if (!layer.texture.loadFromFile(paths[i]))
-				console::log("Failed to load background asset: " + paths[i]);
+				console::log_error("Failed to load background asset: " + paths[i]);
 		}
 	}
 

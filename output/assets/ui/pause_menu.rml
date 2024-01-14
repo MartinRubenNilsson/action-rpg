@@ -2,9 +2,16 @@
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
+	<style>
+		.fullscreen-container {
+			text-align: center;
+			background: rgba(25%, 25%, 25%, 30%);
+			padding-top: 70dp
+		}
+	</style>
 </head>
 <body data-model="data_model">
-	<div class="fullscreen-container" style="text-align: center;">
+	<div class="fullscreen-container">
 		<p class="menu-button" data-event-click="on_click_resume">Resume</p>
 		<p class="menu-button" data-event-click="on_click_settings">Settings</p>
 		<p class="menu-button" data-event-click="on_click_main_menu">Main Menu</p>

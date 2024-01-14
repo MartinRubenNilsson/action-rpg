@@ -7,10 +7,8 @@ namespace audio
 
 	void initialize();
 	void shutdown();
+	void load_bank_files(const std::filesystem::path& dir);
 	void update();
-
-	// Loads all FMOD banks (.bank) in the given directory.
-	void load_assets(const std::filesystem::path& dir);
 
 	bool set_parameter(const std::string& name, float value);
 	bool get_parameter(const std::string& name, float& value);
