@@ -14,7 +14,6 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "ecs_projectile.h"
-#include "physics.h"
 
 namespace ecs
 {
@@ -54,16 +53,15 @@ namespace ecs
 		Projectile projectile = { damage, 5.0f }; // Example values
 		_registry.emplace<Projectile>(projectile_entity, projectile);
 
-		// Create a physics body for the projectile (you might need to adjust this based on your physics system)
+		// Create a physics body for the projectile
+		b2BodyDef bodyDef;
+		bodyDef.type = b2_dynamicBody;
+		bodyDef.position.Set(position.x, position.y);
+		b2Body* body = emplace_body(projectile_entity, bodyDef);
 		b2CircleShape shape;
 		shape.m_p.x = 0;
 		shape.m_p.y = 0;
 		shape.m_radius = 0.5;
-		b2BodyDef bodyDef;
-		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(position.x, position.y);
-		b2Body* body = physics::create_body(&bodyDef); // Assuming a function from your physics system
-		_registry.emplace<b2Body*>(projectile_entity, body);
 		body->CreateFixture(&shape, 1);
 
 		// Add additional components like Sprite here if necessary

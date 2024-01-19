@@ -2,6 +2,7 @@
 
 class b2Body; // Forward declaration.
 
+entt::entity get_entity(b2Body* body);
 void         set_position(b2Body* body, const sf::Vector2f& position); // Typically the top-left corner.
 sf::Vector2f get_position(const b2Body* body); // Typically the top-left corner.
 void         set_world_center(b2Body* body, const sf::Vector2f& center); // Center of mass.

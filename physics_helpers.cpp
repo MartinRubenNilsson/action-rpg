@@ -2,6 +2,10 @@
 #include <box2d/b2_math.h>
 #include "math_vectors.h"
 
+entt::entity get_entity(b2Body* body) {
+	return (entt::entity)body->GetUserData().pointer;
+}
+
 void set_position(b2Body* body, const sf::Vector2f& position) {
 	body->SetTransform(vector_cast<b2Vec2>(position), body->GetAngle());
 }

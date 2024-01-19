@@ -1,5 +1,6 @@
 #include "ecs_physics.h"
-#include "physics.h"
+#include "physics_debug.h"
+#include "physics_helpers.h"
 #include "audio.h"
 #include "map.h"
 #include "ecs.h"
@@ -19,30 +20,92 @@ namespace ecs
 		void EndContact(b2Contact* contact) override;
 	};
 
+	const b2Vec2 PHYSICS_GRAVITY(0, 0);
+	const float PHYSICS_TIME_STEP = 1.f / 60.f;
+	const int PHYSICS_VELOCITY_ITERATIONS = 8;
+	const int PHYSICS_POSITION_ITERATIONS = 3;
+
 	extern entt::registry _registry;
 	ContactFilter _contact_filter;
 	ContactListener _contact_listener;
+	std::unique_ptr<b2World> _world;
+	float _physics_time_accumulator = 0.f;
 
 	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
-		physics::destroy_body(registry.get<b2Body*>(entity));
+		_world->DestroyBody(registry.get<b2Body*>(entity));
 	}
 
 	void initialize_physics()
 	{
-		physics::set_contact_filter(&_contact_filter);
-		physics::set_contact_listener(&_contact_listener);
+		_world = std::make_unique<b2World>(PHYSICS_GRAVITY);
+		_world->SetContactFilter(&_contact_filter);
+		_world->SetContactListener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
 
-	void emplace_body(entt::entity entity, b2Body* body) {
-		_registry.emplace_or_replace<b2Body*>(entity, body);
+	void shutdown_physics()
+	{
+		_registry.on_destroy<b2Body*>().disconnect<_on_destroy_b2Body_ptr>();
+		_world.reset();
+	}
+
+	void update_physics(float dt)
+	{
+		_physics_time_accumulator += dt;
+		while (_physics_time_accumulator > PHYSICS_TIME_STEP) {
+			_physics_time_accumulator -= PHYSICS_TIME_STEP;
+			_world->Step(
+				PHYSICS_TIME_STEP,
+				PHYSICS_VELOCITY_ITERATIONS,
+				PHYSICS_POSITION_ITERATIONS);
+		}
+	}
+
+	void render_physics(sf::RenderTarget& target)
+	{
+		physics::DebugDrawSFML debug_draw(target);
+		debug_draw.SetFlags(b2Draw::e_shapeBit);
+		_world->SetDebugDraw(&debug_draw);
+		_world->DebugDraw();
+		_world->SetDebugDraw(nullptr);
+	}
+
+	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
+	{
+		b2BodyDef body_def_copy = body_def;
+		body_def_copy.userData.pointer = (uintptr_t)entity;
+		b2Body* body = _world->CreateBody(&body_def_copy);
+		return _registry.emplace_or_replace<b2Body*>(entity, body);
+	}
+
+	void remove_body(entt::entity entity) {
+		_registry.remove<b2Body*>(entity);
 	}
 
 	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
 	{
+		struct QueryCallback : public b2QueryCallback
+		{
+			std::vector<b2Fixture*> fixtures;
+
+			bool ReportFixture(b2Fixture* fixture) override
+			{
+				fixtures.push_back(fixture);
+				return true;
+			}
+		};
+
+		QueryCallback callback;
+		b2AABB aabb;
+		aabb.lowerBound = b2Vec2(min.x, min.y);
+		aabb.upperBound = b2Vec2(max.x, max.y);
+		_world->QueryAABB(&callback, aabb);
 		std::vector<entt::entity> entities;
-		for (b2Fixture* fixture : physics::query_aabb(min, max))
-			entities.push_back((entt::entity)fixture->GetBody()->GetUserData().pointer);
+		for (b2Fixture* fixture : callback.fixtures) {
+			entt::entity entity = get_entity(fixture->GetBody());
+			if (_registry.valid(entity))
+				entities.push_back(entity);
+		}
 		std::sort(entities.begin(), entities.end());
 		entities.erase(std::unique(entities.begin(), entities.end()), entities.end());
 		return entities;
@@ -60,28 +123,29 @@ namespace ecs
 		b2Fixture* fixture_b = contact->GetFixtureB();
 		b2Body* body_a = fixture_a->GetBody();
 		b2Body* body_b = fixture_b->GetBody();
-		entt::entity entity_a = (entt::entity)body_a->GetUserData().pointer;
-		entt::entity entity_b = (entt::entity)body_b->GetUserData().pointer;
-		std::string type_a = get_class(entity_a);
-		std::string type_b = get_class(entity_b);
-		if (type_a.empty() || type_b.empty())
-			return;
+		entt::entity entity_a = get_entity(body_a);
+		entt::entity entity_b = get_entity(body_b);
+		std::string class_a = get_class(entity_a);
+		std::string class_b = get_class(entity_b);
+		if (class_a.empty() || class_b.empty()) return;
 
 		// Sort the types alphabetically; this reduces
 		// the number of cases we need to handle.
-		if (type_a.compare(type_b) > 0) {
+		if (class_a.compare(class_b) > 0) {
 			std::swap(fixture_a, fixture_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
-			std::swap(type_a, type_b);
+			std::swap(class_a, class_b);
 		}
 
-		if (type_a == "player" && type_b == "trigger") {
-			std::string string;
-			if (get_string(entity_b, "map", string)) {
-				if (map::open(string, true)) {
-					if (get_string(entity_b, "spawnpoint", string))
-						map::set_player_spawnpoint(string);
+		if (class_a == "player"){
+			if (class_b == "trigger") {
+				std::string string;
+				if (get_string(entity_b, "map", string)) {
+					if (map::open(string, true)) {
+						if (get_string(entity_b, "spawnpoint", string))
+							map::set_player_spawnpoint(string);
+					}
 				}
 			}
 		}

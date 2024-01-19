@@ -3,7 +3,6 @@
 #include <imgui.h>
 #include "window.h"
 #include "audio.h"
-#include "physics.h"
 #include "ui.h"
 #include "ui_main_menu.h"
 #include "map.h"
@@ -30,7 +29,6 @@ int main(int argc, char* argv[])
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
     ImGui::SFML::UpdateFontTexture();
     audio::initialize();
-    physics::initialize();
     ecs::initialize();
     console::initialize();
     ui::initialize(window);
@@ -52,7 +50,6 @@ int main(int argc, char* argv[])
     background::type = background::Type::MountainDusk;
     ui::set_main_menu_visible(true);
 #endif
-    bool debug_draw_physics = false;
     sf::Clock clock;
     while (window.isOpen()) {
 
@@ -66,7 +63,7 @@ int main(int argc, char* argv[])
                 if (event.key.code == sf::Keyboard::F1)
                     console::toggle_visible();
                 else if (event.key.code == sf::Keyboard::F2)
-                    debug_draw_physics = !debug_draw_physics;
+                    ecs::debug_draw_physics = !ecs::debug_draw_physics;
             }
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
@@ -102,18 +99,14 @@ int main(int argc, char* argv[])
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
-        if (!ui::should_pause_game()) {
-            physics::update(dt.asSeconds());
+        if (!ui::should_pause_game())
             ecs::update(dt.asSeconds());
-        }
 
         // RENDER
 
         window.clear();
         background::render(window);
         ecs::render(window);
-        if (debug_draw_physics)
-            physics::debug_draw(window);
         ui::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
         window.resetGLStates();
         ImGui::SFML::Render(window);
@@ -129,7 +122,6 @@ int main(int argc, char* argv[])
     // SHUTDOWN
 
     ecs::shutdown();
-    physics::shutdown();
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();

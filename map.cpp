@@ -2,7 +2,6 @@
 #include "defines.h"
 #include "tiled.h"
 #include "console.h"
-#include "physics.h"
 #include "audio.h"
 #include "math_vectors.h"
 #include "ecs.h"
@@ -89,11 +88,7 @@ namespace map
 				body_def.fixedRotation = true;
 				body_def.position.x = x;
 				body_def.position.y = y;
-				body_def.userData.pointer = (uintptr_t)entity;
-
-				b2Body* body = physics::create_body(&body_def);
-				assert(body && "Failed to create body.");
-				ecs::emplace_body(entity, body);
+				b2Body* body = ecs::emplace_body(entity, body_def);
 
 				for (const tiled::Object& tile_object : object.tile->objects) {
 					float x = tile_object.position.x * METERS_PER_PIXEL;
@@ -127,11 +122,7 @@ namespace map
 			body_def.fixedRotation = true;
 			body_def.position.x = x;
 			body_def.position.y = y;
-			body_def.userData.pointer = (uintptr_t)entity;
-
-			b2Body* body = physics::create_body(&body_def);
-			assert(body && "Failed to create body.");
-			ecs::emplace_body(entity, body);
+			b2Body* body = ecs::emplace_body(entity, body_def);
 
 			float hw = w / 2.0f;
 			float hh = h / 2.0f;
@@ -285,10 +276,7 @@ namespace map
 						body_def.position.x = x * METERS_PER_PIXEL;
 						body_def.position.y = y * METERS_PER_PIXEL;
 						body_def.fixedRotation = true;
-						body_def.userData.pointer = (uintptr_t)entity;
-
-						b2Body* body = physics::create_body(&body_def);
-						assert(body && "Failed to create body.");
+						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile->objects) {
 							float cx = collider.position.x * METERS_PER_PIXEL;
@@ -340,8 +328,6 @@ namespace map
 							}
 							}
 						}
-
-						ecs::emplace_body(entity, body);
 					}
 				}
 			}

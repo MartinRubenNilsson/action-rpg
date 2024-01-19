@@ -2,6 +2,8 @@
 
 namespace ecs
 {
+	extern bool debug_draw_physics;
+
 	void initialize();
 	void shutdown();
 	void clear();

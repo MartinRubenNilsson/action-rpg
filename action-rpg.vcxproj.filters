@@ -33,9 +33,6 @@
     <ClCompile Include="behavior.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
-    <ClCompile Include="physics.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -136,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="behavior.h">
       <Filter>behavior</Filter>
-    </ClInclude>
-    <ClInclude Include="physics.h">
-      <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs.h">
       <Filter>ecs</Filter>
@@ -245,6 +239,7 @@
     <ClInclude Include="ui_pause_menu.h">
       <Filter>ui\menus</Filter>
     </ClInclude>
+    <ClInclude Include="ecs_projectile.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

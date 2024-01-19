@@ -10,6 +10,8 @@
 
 namespace ecs
 {
+	extern bool debug_draw_physics = false;
+
 	entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
 
@@ -17,8 +19,10 @@ namespace ecs
 		initialize_physics();
 	}
 
-	void shutdown() {
+	void shutdown()
+	{
 		clear();
+		shutdown_physics();
 	}
 
 	void clear()
@@ -44,6 +48,7 @@ namespace ecs
 		update_player(dt);
 		update_ai_knowledge(dt);
 		update_ai_actions(dt);
+		update_physics(dt);
 		_destroy_entities();
 		update_graphics(dt);
 		update_cameras(dt);
@@ -79,6 +84,9 @@ namespace ecs
 		// Draw sprites.
 		for (Sprite* sprite : sprites)
 			window.draw(sprite->sprite);
+
+		if (debug_draw_physics)
+			render_physics(window);
 	}
 
 	entt::entity create() {

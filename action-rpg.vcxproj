@@ -136,7 +136,6 @@
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math_vectors.cpp" />
-    <ClCompile Include="physics.cpp" />
     <ClCompile Include="physics_debug.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
@@ -193,7 +192,6 @@
     <ClInclude Include="fmod_studio.hpp" />
     <ClInclude Include="fmod_studio_common.h" />
     <ClInclude Include="math_vectors.h" />
-    <ClInclude Include="physics.h" />
     <ClInclude Include="physics_debug.h" />
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="tiled.h" />
