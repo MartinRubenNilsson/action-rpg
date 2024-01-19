@@ -7,6 +7,7 @@
 #include "ecs_ai_actions.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
+#include "console.h"
 
 namespace ecs
 {
@@ -68,22 +69,35 @@ namespace ecs
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 
-		// Collect all sprites in view.
-		std::vector<Sprite*> sprites;
-		for (auto [entity, sprite] : _registry.view<Sprite>().each()) {
-			if (view_bounds.intersects(sprite.sprite.getGlobalBounds()))
-				sprites.push_back(&sprite);
-		}
+		// Collect all visible tile sprites and their sort order.
+		struct OrderedSprite
+		{
+			sf::Sprite sprite;
+			float sort_order = 0.f;
+			entt::entity entity = entt::null;
+		};
 
-		// Sort sprites by depth, then by y position.
-		std::ranges::sort(sprites, [](const Sprite* lhs, const Sprite* rhs) {
-			if (lhs->z != rhs->z) return lhs->z < rhs->z;
-			return lhs->sprite.getPosition().y < rhs->sprite.getPosition().y;
+		std::vector<OrderedSprite> sprites;
+		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+			if (!tile.visible) continue;
+			sf::Sprite sprite = tile.get_sprite();
+			if (view_bounds.intersects(sprite.getGlobalBounds())) {
+				sprites.emplace_back(sprite, tile.sort_order, entity);
+			}
+		}
+		
+		//std::ranges::stable_sort(sprites, [](const OrderedSprite& lhs, const OrderedSprite& rhs) {
+		//	return lhs.sprite.getPosition().y < rhs.sprite.getPosition().y;
+		//});
+
+		std::ranges::stable_sort(sprites, [](const OrderedSprite& lhs, const OrderedSprite& rhs) {
+			return lhs.sort_order < rhs.sort_order;
 		});
 
 		// Draw sprites.
-		for (Sprite* sprite : sprites)
-			window.draw(sprite->sprite);
+		for (const OrderedSprite& sprite : sprites) {
+			window.draw(sprite.sprite);
+		}
 
 		if (debug_draw_physics)
 			render_physics(window);

@@ -7,82 +7,101 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	Animation::Animation(const tiled::Tile* tile)
+	Tile::Tile(const tiled::Tile* tile)
 		: _tile(tile)
 		, _frame(tile)
-		, _timer(tiled::get_animation_duration(tile->animation) / 1000.f)
 	{
-		_timer.start();
+		assert(tile);
+		animation_timer = Timer(get_animation_duration() / 1000.f);
+		animation_timer.start();
 	}
 
-	bool Animation::update(float dt)
-	{
-		_timer.update(speed * dt, loop);
-		uint32_t time_in_ms = (uint32_t)(_timer.get_time() * 1000.f);
-		bool changed = false;
-		if (const tiled::Tile* next_frame = tiled::sample_animation(_tile->animation, time_in_ms)) {
-			changed = (next_frame != _frame);
-			_frame = next_frame;
-		}
-		return changed;
+	std::string Tile::get_class() const {
+		return _tile->class_;
 	}
 
-	bool Animation::play(const std::string& tile_class)
+	bool Tile::change_class(const std::string& class_)
 	{
-		if (tile_class.empty()) return false;
-		if (tile_class == _tile->class_) return false;
+		if (class_.empty()) return false;
+		if (class_ == _tile->class_) return false;
 		for (const tiled::Tile& tile : _tile->tileset->tiles) {
-			if (tile.class_ == tile_class) {
-				_tile = &tile;
-				_frame = &tile;
-				_timer = Timer(tiled::get_animation_duration(tile.animation) / 1000.f);
-				_timer.start();
+			if (tile.class_ == class_) {
+				*this = Tile(&tile);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	bool Animation::is_playing(const std::string& tile_class) const {
-		return _tile->class_ == tile_class;
+	bool Tile::is_animated() const {
+		return !_tile->animation.empty();
+	}
+
+	bool Tile::update_animation(float dt)
+	{
+		animation_timer.update(animation_speed * dt, animation_loop);
+		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
+		uint32_t duration = get_animation_duration();
+		if (!duration) return false;
+		uint32_t time = time_in_ms % duration;
+		uint32_t current_time = 0;
+		for (const tiled::Frame& frame : _tile->animation) {
+			current_time += frame.duration;
+			if (time < current_time) {
+				bool changed = (frame.tile != _frame);
+				_frame = frame.tile;
+				return changed;
+			}
+		}
+		return false;
+	}
+
+	sf::Sprite Tile::get_sprite() const
+	{
+		sf::Sprite sprite = _frame->sprite;
+		sprite.setPosition(position * PIXELS_PER_METER);
+		return sprite;
+	}
+
+	uint32_t Tile::get_animation_duration() const
+	{
+		uint32_t duration_in_ms = 0;
+		for (const tiled::Frame& frame : _tile->animation)
+			duration_in_ms += frame.duration;
+		return duration_in_ms;
 	}
 
 	void update_graphics(float dt)
 	{
+		// TODO: Move somewhere else
 		for (auto [entity, anim, body] :
-			_registry.view<SlimeAnimationController, Animation, b2Body*>().each())
+			_registry.view<SlimeAnimationController, Tile, b2Body*>().each())
 		{
 			sf::Vector2f velocity = get_linear_velocity(body);
-			anim.play({ get_direction(velocity) });
-			anim.speed = length(velocity) / 2.f;
+			anim.change_class({ get_direction(velocity) });
+			anim.animation_speed = length(velocity) / 2.f;
 		}
 
-		for (auto [entity, anim] : _registry.view<Animation>().each()) {
-			anim.update(dt);
-			_registry.emplace_or_replace<const tiled::Tile*>(entity, anim.get_frame());
+		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+			if (tile.is_animated())
+				tile.update_animation(dt);
 		}
 
-		for (auto [entity, sprite, tile] : _registry.view<Sprite, const tiled::Tile*>().each()) {
-			if (!tile) continue;
-			sprite.sprite.setTexture(*tile->sprite.getTexture());
-			sprite.sprite.setTextureRect(tile->sprite.getTextureRect());
-		}
-
-		for (auto [entity, sprite, body] : _registry.view<Sprite, b2Body*>().each()) {
-			sprite.sprite.setPosition(get_position(body) * PIXELS_PER_METER);
+		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
+			tile.position = get_position(body);
 		}
 	}
 
-	void emplace_tile(entt::entity entity, const tiled::Tile* tile) {
-		_registry.emplace_or_replace<const tiled::Tile*>(entity, tile);
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile)
+	{
+		assert(tile);
+		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
-	void emplace_sprite(entt::entity entity, const Sprite& sprite) {
-		_registry.emplace_or_replace<Sprite>(entity, sprite);
-	}
-
-	void emplace_animation(entt::entity entity, const Animation& anim) {
-		_registry.emplace_or_replace<Animation>(entity, anim);
+	bool emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class)
+	{
+		// TODO
+		return false;
 	}
 
 	void emplace_slime_animation_controller(entt::entity entity){

@@ -303,6 +303,7 @@ namespace tiled
 				layer.class_ = layer_node.attribute("class").as_string();
 				layer.width = layer_node.attribute("width").as_uint();
 				layer.height = layer_node.attribute("height").as_uint();
+				layer.visible = layer_node.attribute("visible").as_bool(true);
 				_load_properties(layer_node, layer.properties);
 				if (_is_tile_layer(layer_node.name())) {
 					pugi::xml_node data_node = layer_node.child("data");
@@ -404,27 +405,5 @@ namespace tiled
 		if (!success)
 			console::log_error("Failed to load tileset image: " + image_path.string());
 		return success;
-	}
-
-	uint32_t get_animation_duration(const std::vector<Frame>& animation)
-	{
-		uint32_t duration = 0;
-		for (const Frame& frame : animation)
-			duration += frame.duration;
-		return duration;
-	}
-
-	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms)
-	{
-		uint32_t duration = get_animation_duration(animation);
-		if (!duration) return nullptr;
-		uint32_t time = time_in_ms % duration;
-		uint32_t current_time = 0;
-		for (const Frame& frame : animation) {
-			current_time += frame.duration;
-			if (time < current_time)
-				return frame.tile;
-		}
-		return nullptr; // Should never happen.
 	}
 }

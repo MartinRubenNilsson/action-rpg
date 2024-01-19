@@ -69,16 +69,9 @@ namespace map
 
 		if (object.type == tiled::ObjectType::Tile) {
 			assert(object.tile && "Tile not found.");
-			ecs::emplace_tile(entity, object.tile);
-			{
-				ecs::Sprite sprite;
-				sprite.sprite = object.tile->sprite;
-				sprite.sprite.setPosition(x * PIXELS_PER_METER, y * PIXELS_PER_METER);
-				sprite.z = z;
-				ecs::emplace_sprite(entity, sprite);
-			}
-			if (!object.tile->animation.empty())
-				ecs::emplace_animation(entity, ecs::Animation(object.tile));
+			ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
+			tile.position = sf::Vector2f(x, y);
+			tile.sort_order = z;
 
 			// LOAD COLLIDERS
 
@@ -164,10 +157,6 @@ namespace map
 			ecs::emplace_camera(entity, camera);
 			ecs::activate_camera(entity, true);
 
-			if (object.tile) {
-				ecs::emplace_animation(entity, ecs::Animation(object.tile));
-			}
-
 			// Broken at the moment
 			//// TODO: put spawnpoint entity name in data?
 			//if (_spawnpoint_entity_name != "player")
@@ -181,10 +170,7 @@ namespace map
 			//	}
 			//}
 		} else if (object.class_ == "slime") {
-			if (object.tile) {
-				ecs::emplace_animation(entity, ecs::Animation(object.tile));
-				ecs::emplace_slime_animation_controller(entity);
-			}
+			ecs::emplace_slime_animation_controller(entity);
 			ecs::AIActionMoveToPlayer action;
 			ecs::get_float(entity, "speed", action.speed);
 			ecs::emplace_ai_action(entity, action);
@@ -255,16 +241,10 @@ namespace map
 						float y = (float)tile_y * _current_map->tile_height; // In pixels.
 
 						entt::entity entity = ecs::create();
-						ecs::emplace_tile(entity, tile);
-						{
-							ecs::Sprite sprite;
-							sprite.sprite = tile->sprite;
-							sprite.sprite.setPosition(x, y);
-							sprite.z = (float)z;
-							ecs::emplace_sprite(entity, sprite);
-						}
-						if (!tile->animation.empty())
-							ecs::emplace_animation(entity, ecs::Animation(tile));
+						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
+						ecs_tile.position = sf::Vector2f(x * METERS_PER_PIXEL, y * METERS_PER_PIXEL);
+						ecs_tile.sort_order = (float)z;
+						ecs_tile.visible = layer.visible;
 
 						// LOAD COLLIDERS
 

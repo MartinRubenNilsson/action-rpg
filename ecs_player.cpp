@@ -64,7 +64,7 @@ namespace ecs
 		shape.m_radius = 0.5;
 		body->CreateFixture(&shape, 1);
 
-		// Add additional components like Sprite here if necessary
+		// Add additional components like Tile here if necessary
 	}
 
 	void update_player(float dt)
@@ -131,8 +131,8 @@ namespace ecs
 			}
 		}
 
-		// Update animation
-		for (auto [entity, player, anim, body] : _registry.view<Player, Animation, b2Body*>().each()) {
+		// Update tile
+		for (auto [entity, player, tile, body] : _registry.view<Player, Tile, b2Body*>().each()) {
 			sf::Vector2f velocity = get_linear_velocity(body);
 			float speed = length(velocity);
 			std::string tile_class;
@@ -145,21 +145,14 @@ namespace ecs
 			}
 			tile_class += "_";
 			tile_class += get_direction(player.state.direction);
-			if (!anim.is_playing(tile_class)) {
-				anim.play(tile_class);
-			}
-		}
+			tile.change_class(tile_class);
 
-		//
-
-		// Update sprite
-		for (auto [entity, player, sprite] : _registry.view<const Player, Sprite>().each()) {
 			sf::Color color = sf::Color::White;
 			if (player.kill_timer.stopped() && player.hurt_timer.started()) {
 				float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
-			sprite.sprite.setColor(color);
+			tile.color = color;
 		}
 
 		// Update HUD

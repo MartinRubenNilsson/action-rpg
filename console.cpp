@@ -9,6 +9,7 @@
 
 namespace console
 {
+	const size_t MAX_HISTORY = 512;
 	CLI::App _app("Console", "");
 	bool _visible = false;
 	bool _reclaim_focus = false;
@@ -17,7 +18,7 @@ namespace console
 	std::deque<std::string> _command_queue;
 	std::vector<std::string> _command_history;
 	std::vector<std::string>::iterator _command_history_it = _command_history.end();
-	std::vector<std::pair<std::string, ImColor>> _history;
+	std::deque<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
 	// Handles command history navigation
@@ -210,11 +211,15 @@ namespace console
 
 	void log(const std::string& message) {
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+		if (_history.size() > MAX_HISTORY)
+			_history.pop_front();
 	}
 
 	void log_error(const std::string& message, bool show_console)
 	{
 		_history.emplace_back(message, COLOR_ERROR);
+		if (_history.size() > MAX_HISTORY)
+			_history.pop_front();
 		if (show_console) _visible = true;
 	}
 

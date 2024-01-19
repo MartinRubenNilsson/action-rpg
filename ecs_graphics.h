@@ -8,41 +8,43 @@ namespace tiled
 
 namespace ecs
 {
-	struct Sprite
+	enum class TileLayer
 	{
-		sf::Sprite sprite;
-		float z = 0.f; // Higher z-values are drawn on top of lower z-values.
-		bool visible = true;
+		// TODO
 	};
 
-	class Animation
+	class Tile
 	{
 	public:
-		Animation(const tiled::Tile* tile);
+		Tile(const tiled::Tile* tile);
 
-		float speed = 1.0f;
-		bool loop = true;
+		sf::Vector2f position;
+		sf::Color color = sf::Color::White;
+		float sort_order = 0.f; // Tiles with smaller sort order are drawn first.
+		bool visible = true;
+		Timer animation_timer;
+		float animation_speed = 1.f;
+		bool animation_loop = true;
 		
-		// Returns true if the frame changed.
-		bool update(float dt);
-		bool play(const std::string& tile_class);
-		bool is_playing(const std::string& tile_class) const;
-		const tiled::Tile* get_tile() const { return _tile; }
-		const tiled::Tile* get_frame() const { return _frame; }
-		const Timer& get_timer() const { return _timer; }
+		sf::Sprite get_sprite() const;
+		std::string get_class() const;
+		bool change_class(const std::string& class_);
+		bool is_animated() const;
+		bool update_animation(float dt); // Returns true if the animation frame changed.
 
 	private:
-		const tiled::Tile* _tile = nullptr; // currently playing animated tile
-		const tiled::Tile* _frame = nullptr; // current frame in _tile->animation
-		Timer _timer;
-	};
+		const tiled::Tile* _tile = nullptr; // current tile
+		const tiled::Tile* _frame = nullptr; // current animation frame
 
-	struct SlimeAnimationController {};
+		uint32_t get_animation_duration() const;
+	};
 
 	void update_graphics(float dt);
 
-	void emplace_tile(entt::entity entity, const tiled::Tile* tile);
-	void emplace_sprite(entt::entity entity, const Sprite& sprite);
-	void emplace_animation(entt::entity entity, const Animation& anim);
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
+	bool emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
+
+	//TODO: remove
+	struct SlimeAnimationController {};
 	void emplace_slime_animation_controller(entt::entity entity);
 }

@@ -121,6 +121,7 @@ namespace tiled
 		std::vector<Object> objects; // nonempty if object layer 
 		uint32_t width = 0; // in tiles
 		uint32_t height = 0; // in tiles
+		bool visible = true;
 	};
 
 	struct Map
@@ -146,9 +147,6 @@ namespace tiled
 
 	template <typename T> bool get(const std::vector<Property>& ps, const std::string& name, T& value);
 	template <typename T> void set(std::vector<Property>& ps, const std::string& name, const T& value);
-
-	uint32_t get_animation_duration(const std::vector<Frame>& animation); // in milliseconds
-	const Tile* sample_animation(const std::vector<Frame>& animation, uint32_t time_in_ms);
 
 	template <typename T>
 	bool get(const std::vector<Property>& ps, const std::string& name, T& value) {
