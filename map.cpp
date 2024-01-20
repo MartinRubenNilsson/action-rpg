@@ -174,6 +174,7 @@ namespace map
 			ecs::AIActionMoveToPlayer action;
 			ecs::get_float(entity, "speed", action.speed);
 			ecs::emplace_ai_action(entity, action);
+			ecs::destroy_immediately(entity);
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
 			camera.view.setCenter(x, y);
@@ -284,26 +285,31 @@ namespace map
 							{
 								size_t count = collider.points.size();
 								if (count < 3) {
-									/*console::log_error(
+									console::log_error(
 										"Too few points in polygon collider! Got " +
-										std::to_string(count) + ", need >= 3.");*/
-									break;
+										std::to_string(count) + ", need >= 3.");
+								} else if (count < b2_maxPolygonVertices) {
+									b2Vec2 points[b2_maxPolygonVertices];
+									for (size_t i = 0; i < count; ++i) {
+										points[i].x = cx + collider.points[i].x * METERS_PER_PIXEL;
+										points[i].y = cy + collider.points[i].y * METERS_PER_PIXEL;
+									}
+									b2PolygonShape shape;
+									shape.Set(points, (int32)count);
+									body->CreateFixture(&shape, 0.0f);
+								} else {
+									auto triangles = triangulate(collider.points);
+									for (const auto& triangle : triangles) {
+										b2Vec2 points[3];
+										for (size_t i = 0; i < 3; ++i) {
+											points[i].x = cx + triangle[i].x * METERS_PER_PIXEL;
+											points[i].y = cy + triangle[i].y * METERS_PER_PIXEL;
+										}
+										b2PolygonShape shape;
+										shape.Set(points, 3);
+										body->CreateFixture(&shape, 0.0f);
+									}
 								}
-								if (count > b2_maxPolygonVertices) {
-									/*console::log_error(
-										"Too many points in polygon collider! Got " +
-										std::to_string(count) + ", need <= " +
-										std::to_string(b2_maxPolygonVertices) + ".");*/
-									break;
-								}
-								b2Vec2 points[b2_maxPolygonVertices];
-								for (size_t i = 0; i < count; ++i) {
-									points[i].x = cx + collider.points[i].x * METERS_PER_PIXEL;
-									points[i].y = cy + collider.points[i].y * METERS_PER_PIXEL;
-								}
-								b2PolygonShape shape;
-								shape.Set(points, (int32)count);
-								body->CreateFixture(&shape, 0.0f);
 								break;
 							}
 							}
