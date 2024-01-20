@@ -65,6 +65,9 @@ namespace ecs
 		body->CreateFixture(&shape, 1);
 
 		// Add additional components like Tile here if necessary
+		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
+			tile->sort_order = 100.f;
+		}
 	}
 
 	void update_player(float dt)
@@ -145,7 +148,7 @@ namespace ecs
 			}
 			tile_class += "_";
 			tile_class += get_direction(player.state.direction);
-			tile.change_class(tile_class);
+			tile.set_class(tile_class);
 
 			sf::Color color = sf::Color::White;
 			if (player.kill_timer.stopped() && player.hurt_timer.started()) {

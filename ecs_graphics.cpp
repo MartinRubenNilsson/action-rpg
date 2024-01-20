@@ -20,7 +20,7 @@ namespace ecs
 		return _tile->class_;
 	}
 
-	bool Tile::change_class(const std::string& class_)
+	bool Tile::set_class(const std::string& class_)
 	{
 		if (class_.empty()) return false;
 		if (class_ == _tile->class_) return false;
@@ -78,7 +78,7 @@ namespace ecs
 			_registry.view<SlimeAnimationController, Tile, b2Body*>().each())
 		{
 			sf::Vector2f velocity = get_linear_velocity(body);
-			anim.change_class({ get_direction(velocity) });
+			anim.set_class({ get_direction(velocity) });
 			anim.animation_speed = length(velocity) / 2.f;
 		}
 
@@ -98,10 +98,22 @@ namespace ecs
 		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
-	bool emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class)
+	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class)
 	{
-		// TODO
-		return false;
+		for (const tiled::Tileset& tileset : tiled::get_tilesets()) {
+			if (tileset.name == tileset_name) {
+				for (const tiled::Tile& tile : tileset.tiles) {
+					if (tile.class_ == tile_class) {
+						return &emplace_tile(entity, &tile);
+					}
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	void remove_tile(entt::entity entity) {
+		_registry.remove<Tile>(entity);
 	}
 
 	void emplace_slime_animation_controller(entt::entity entity){

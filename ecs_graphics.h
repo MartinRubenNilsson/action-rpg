@@ -28,7 +28,7 @@ namespace ecs
 		
 		sf::Sprite get_sprite() const;
 		std::string get_class() const;
-		bool change_class(const std::string& class_);
+		bool set_class(const std::string& class_);
 		bool is_animated() const;
 		bool update_animation(float dt); // Returns true if the animation frame changed.
 
@@ -42,7 +42,8 @@ namespace ecs
 	void update_graphics(float dt);
 
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
-	bool emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
+	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
+	void remove_tile(entt::entity entity);
 
 	//TODO: remove
 	struct SlimeAnimationController {};
