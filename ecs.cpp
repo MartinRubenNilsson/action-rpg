@@ -74,15 +74,15 @@ namespace ecs
 		{
 			sf::Sprite sprite;
 			float sort_order = 0.f;
-			entt::entity entity = entt::null;
 		};
 
 		std::vector<OrderedSprite> sprites;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.visible) continue;
 			sf::Sprite sprite = tile.get_sprite();
+			assert(sprite.getTexture() != nullptr);
 			if (view_bounds.intersects(sprite.getGlobalBounds())) {
-				sprites.emplace_back(sprite, tile.sort_order, entity);
+				sprites.emplace_back(sprite, tile.sort_order);
 			}
 		}
 		

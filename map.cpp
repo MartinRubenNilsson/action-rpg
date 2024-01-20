@@ -284,16 +284,16 @@ namespace map
 							{
 								size_t count = collider.points.size();
 								if (count < 3) {
-									console::log_error(
+									/*console::log_error(
 										"Too few points in polygon collider! Got " +
-										std::to_string(count) + ", need >= 3.");
+										std::to_string(count) + ", need >= 3.");*/
 									break;
 								}
 								if (count > b2_maxPolygonVertices) {
-									console::log_error(
+									/*console::log_error(
 										"Too many points in polygon collider! Got " +
 										std::to_string(count) + ", need <= " +
-										std::to_string(b2_maxPolygonVertices) + ".");
+										std::to_string(b2_maxPolygonVertices) + ".");*/
 									break;
 								}
 								b2Vec2 points[b2_maxPolygonVertices];
