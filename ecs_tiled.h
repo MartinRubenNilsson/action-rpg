@@ -2,12 +2,12 @@
 
 namespace tiled
 {
-	struct Object;
+	struct Object; //TODO: remove
 }
 
 namespace ecs
 {
-	void emplace_object(entt::entity entity, const tiled::Object* object);
+	void emplace_object(entt::entity entity, const tiled::Object* object); //TODO: remove
 
 	entt::entity find_entity_by_name(const std::string& name);
 	entt::entity find_entity_by_class(const std::string& class_);

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "defines.h"
+#include "ecs_tiled.h"
 #include "ecs_pickups.h"
 #include "ecs_physics.h"
 #include "ecs_graphics.h"
@@ -12,6 +13,8 @@ namespace ecs
 	entt::entity create_arrow_pickup(const sf::Vector2f& position)
 	{
 		entt::entity entity = _registry.create();
+
+		set_class(entity, "pickup");
 
 		Pickup pickup{};
 		pickup.type = PickupType::Arrow;
