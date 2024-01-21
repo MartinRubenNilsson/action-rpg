@@ -153,6 +153,7 @@ namespace ecs
 		// New logic for arrow-slime collision
 		if ((class_a == "arrow" && class_b == "slime")) {
 			destroy_slime(entity_b);
+			destroy_at_end_of_frame(entity_a);
 		}
 	
 	}
@@ -166,9 +167,8 @@ namespace ecs
 		// Optional: Perform any other game logic updates, such as increasing the score
 
 		// Destroy the entity
-		_registry.destroy(slime_entity);
+		destroy_at_end_of_frame(slime_entity);
 	}
-
 
 	void ContactListener::EndContact(b2Contact* contact) {
 		// Not implemented.
