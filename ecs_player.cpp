@@ -66,7 +66,7 @@ namespace ecs
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
-			tile->sort_order = 100.f;
+			// Do stuff if we need to
 		}
 	}
 

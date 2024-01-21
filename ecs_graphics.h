@@ -8,10 +8,18 @@ namespace tiled
 
 namespace ecs
 {
-	enum class TileLayer
+	enum class SortingLayer
 	{
-		// TODO
+		Background1,
+		Background2,
+		Objects,
+		Foreground1,
+		Foreground2,
+		Collision,
+		Count
 	};
+
+	SortingLayer layer_name_to_sorting_layer(const std::string& name);
 
 	class Tile
 	{
@@ -20,8 +28,8 @@ namespace ecs
 
 		sf::Vector2f position;
 		sf::Color color = sf::Color::White;
-		float sort_order = 0.f; // Tiles with smaller sort order are drawn first.
 		bool visible = true;
+		SortingLayer sorting_layer = SortingLayer::Objects;
 		Timer animation_timer;
 		float animation_speed = 1.f;
 		bool animation_loop = true;

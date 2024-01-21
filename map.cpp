@@ -71,7 +71,6 @@ namespace map
 			assert(object.tile && "Tile not found.");
 			ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
 			tile.position = sf::Vector2f(x, y);
-			tile.sort_order = z;
 
 			// LOAD COLLIDERS
 
@@ -233,6 +232,7 @@ namespace map
 			// Create tile entities second.
 			for (size_t z = 0; z < _current_map->layers.size(); ++z) {
 				const tiled::Layer& layer = _current_map->layers[z];
+				ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
@@ -242,9 +242,9 @@ namespace map
 
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
-						ecs_tile.position = sf::Vector2f(x * METERS_PER_PIXEL, y * METERS_PER_PIXEL);
-						ecs_tile.sort_order = (float)z;
 						ecs_tile.visible = layer.visible;
+						ecs_tile.position = sf::Vector2f(x * METERS_PER_PIXEL, y * METERS_PER_PIXEL);
+						ecs_tile.sorting_layer = sorting_layer;
 
 						// LOAD COLLIDERS
 

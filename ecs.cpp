@@ -69,35 +69,18 @@ namespace ecs
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 
-		// Collect all visible tile sprites and their sort order.
-		struct OrderedSprite
-		{
-			sf::Sprite sprite;
-			float sort_order = 0.f;
-		};
-
-		std::vector<OrderedSprite> sprites;
+		// Collect all tiles in view, sorted by layer.
+		std::array<std::vector<Tile*>, (size_t)SortingLayer::Count> tiles_by_layer;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.visible) continue;
-			sf::Sprite sprite = tile.get_sprite();
-			assert(sprite.getTexture() != nullptr);
-			if (view_bounds.intersects(sprite.getGlobalBounds())) {
-				sprites.emplace_back(sprite, tile.sort_order);
-			}
+			if (view_bounds.intersects(tile.get_sprite().getGlobalBounds()))
+				tiles_by_layer[(size_t)tile.sorting_layer].push_back(&tile);
 		}
-		
-		//std::ranges::stable_sort(sprites, [](const OrderedSprite& lhs, const OrderedSprite& rhs) {
-		//	return lhs.sprite.getPosition().y < rhs.sprite.getPosition().y;
-		//});
 
-		std::ranges::stable_sort(sprites, [](const OrderedSprite& lhs, const OrderedSprite& rhs) {
-			return lhs.sort_order < rhs.sort_order;
-		});
-
-		// Draw sprites.
-		for (const OrderedSprite& sprite : sprites) {
-			window.draw(sprite.sprite);
-		}
+		// Draw tiles.
+		for (auto& layer : tiles_by_layer)
+			for (Tile* tile : layer)
+				window.draw(tile->get_sprite());
 
 		if (debug_draw_physics)
 			render_physics(window);
