@@ -113,9 +113,14 @@ namespace ecs
 				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(0.5f, 0.5f);
 				for (entt::entity entity : query_aabb(aabb_min, aabb_max)) {
 					if (entity == player_entity) continue;
-					std::string type = get_class(entity);
-					if (type.starts_with("enemy")) {
+					std::string class_ = get_class(entity);
+					if (class_ == "slime") {
 						destroy_at_end_of_frame(entity);
+					} else if (Tile* tile = _registry.try_get<Tile>(entity)) {
+						std::string tile_class = tile->get_class();
+						if (tile_class == "grass") {
+							destroy_at_end_of_frame(entity);
+						}
 					} else {
 						std::string string;
 						if (get_string(entity, "textbox", string))

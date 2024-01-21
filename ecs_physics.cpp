@@ -138,7 +138,7 @@ namespace ecs
 			std::swap(class_a, class_b);
 		}
 
-		if (class_a == "player"){
+		if (class_a == "player") {
 			if (class_b == "trigger") {
 				std::string string;
 				if (get_string(entity_b, "map", string)) {

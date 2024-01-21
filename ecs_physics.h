@@ -10,6 +10,7 @@ namespace ecs
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	void remove_body(entt::entity entity);
 
+	//TODO: implmenet raycast
 	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max);
 }
 
