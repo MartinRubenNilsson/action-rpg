@@ -27,7 +27,7 @@ float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b); // In radians;
 bool is_clockwise(const sf::Vector2f& a, const sf::Vector2f& b); // Returns true if b is clockwise of a
 sf::Vector2f rotate(const sf::Vector2f& v, float angle); // Angle in radians
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
-//TODO: damp()
+sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt);
 sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);
 char get_direction(const sf::Vector2f& v); // Returns the direction ('r', 'l', 'u', 'd') in which v points.
 

@@ -59,6 +59,14 @@ sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t) {
 	return a + (b - a) * t;
 }
 
+sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt)
+{
+	damping = std::clamp(damping, 0.f, 1.f);
+	dt = std::max(dt, 0.f);
+	if (!damping && !dt) return a;
+	return lerp(a, b, 1.f - std::pow(damping, dt));
+}
+
 sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max)
 {
 	return sf::Vector2f(

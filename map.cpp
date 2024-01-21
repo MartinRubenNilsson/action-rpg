@@ -174,7 +174,6 @@ namespace map
 			ecs::AIActionMoveToPlayer action;
 			ecs::get_float(entity, "speed", action.speed);
 			ecs::emplace_ai_action(entity, action);
-			ecs::destroy_immediately(entity);
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
 			camera.view.setCenter(x, y);
