@@ -14,6 +14,9 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "ecs_projectile.h"
+#include "ecs_pickup.h"
+#include "random.h"
+#include "tiled.h"
 
 namespace ecs
 {
@@ -68,6 +71,10 @@ namespace ecs
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
 			// Do stuff if we need to
 		}
+
+		tiled::Object* obj = new tiled::Object();
+		obj->class_ = "arrow";
+		_registry.emplace<tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)
@@ -121,6 +128,8 @@ namespace ecs
 						std::string tile_class = tile->get_class();
 						if (tile_class == "grass") {
 							audio_events_to_play.insert("event:/snd_cut_grass");
+							if (random::coin_flip(0.1f))
+								create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
 							destroy_at_end_of_frame(entity);
 						}
 					} else {
