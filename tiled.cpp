@@ -313,28 +313,42 @@ namespace tiled
 						layer.height = 0;
 						continue;
 					}
-					std::vector<uint32_t> gids;
-					gids.reserve(layer.width * layer.height);
+					std::vector<uint32_t> gids_with_flip_flags;
+					gids_with_flip_flags.reserve(layer.width * layer.height);
 					{
 						std::istringstream ss(data_node.text().as_string());
 						std::string token;
-						while (std::getline(ss, token, ',')) {
-							gids.push_back(std::stoul(token));
-						}
+						while (std::getline(ss, token, ','))
+							gids_with_flip_flags.push_back(std::stoul(token));
 					}
-					assert(gids.size() == layer.width * layer.height);
-					layer.tiles.resize(gids.size());
-					for (size_t i = 0; i < gids.size(); ++i) {
-						uint32_t gid = gids[i];
-						if (!gid) continue; // 0 means no tile
+					assert(gids_with_flip_flags.size() == layer.width * layer.height);
+					layer.tiles.resize(gids_with_flip_flags.size());
+					for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
+						constexpr uint32_t FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
+						constexpr uint32_t FLIPPED_VERTICALLY_FLAG    = 0x40000000;
+						constexpr uint32_t FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
+						constexpr uint32_t ROTATED_HEXAGONAL_120_FLAG = 0x10000000;
+						constexpr uint32_t FLIP_FLAGS_BITMASK =
+							FLIPPED_HORIZONTALLY_FLAG |
+							FLIPPED_VERTICALLY_FLAG |
+							FLIPPED_DIAGONALLY_FLAG |
+							ROTATED_HEXAGONAL_120_FLAG;
+						uint32_t gid_with_flip_flag = gids_with_flip_flags[i];
+						if (!gid_with_flip_flag) continue; // 0 means no tile
+						uint32_t gid = gid_with_flip_flag & ~FLIP_FLAGS_BITMASK;
+						//TODO: handle these
+						bool flipped_horizontally  = gid_with_flip_flag & FLIPPED_HORIZONTALLY_FLAG;
+						bool flipped_vertically    = gid_with_flip_flag & FLIPPED_VERTICALLY_FLAG;
+						bool flipped_diagonally    = gid_with_flip_flag & FLIPPED_DIAGONALLY_FLAG;
+						bool rotated_hexagonal_120 = gid_with_flip_flag & ROTATED_HEXAGONAL_120_FLAG;
 						for (const auto& [tileset, first_gid] : referenced_tilesets) {
 							if (gid >= first_gid && gid < first_gid + tileset->tile_count) {
 								layer.tiles[i] = &tileset->tiles[gid - first_gid];
 								break;
 							}
 						}
-						//if (!layer.tiles[i])
-						//	console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+						if (!layer.tiles[i])
+							console::log_error("Failed to find tile with GID: " + std::to_string(gid));
 					}
 				} else if (_is_object_layer(layer_node.name())) {
 					for (pugi::xml_node object_node : layer_node.children("object")) {
