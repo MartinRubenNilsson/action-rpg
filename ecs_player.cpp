@@ -111,6 +111,7 @@ namespace ecs
 				sf::Vector2f aabb_center = center + player.state.direction;
 				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(0.5f, 0.5f);
 				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(0.5f, 0.5f);
+				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 				for (entt::entity entity : query_aabb(aabb_min, aabb_max)) {
 					if (entity == player_entity) continue;
 					std::string class_ = get_class(entity);
@@ -119,6 +120,7 @@ namespace ecs
 					} else if (Tile* tile = _registry.try_get<Tile>(entity)) {
 						std::string tile_class = tile->get_class();
 						if (tile_class == "grass") {
+							audio_events_to_play.insert("event:/snd_cut_grass");
 							destroy_at_end_of_frame(entity);
 						}
 					} else {
@@ -126,9 +128,11 @@ namespace ecs
 						if (get_string(entity, "textbox", string))
 							ui::open_textbox_preset(string);
 						if (get_string(entity, "sound", string))
-							audio::play("event:/" + string);
+							audio_events_to_play.insert(string);
 					}
 				}
+				for (const std::string& audio_event : audio_events_to_play)
+					audio::play(audio_event);
 			}
 
 			if (player.input.projectile_attack) {
