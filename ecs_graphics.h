@@ -26,15 +26,17 @@ namespace ecs
 	public:
 		Tile(const tiled::Tile* tile);
 
-		sf::Vector2f position;
-		sf::Color color = sf::Color::White;
 		bool visible = true;
+		sf::Vector2f position; // in meters
+		sf::Vector2f origin; // in pixels
+		sf::Color color = sf::Color::White;
 		SortingLayer sorting_layer = SortingLayer::Objects;
+		sf::Vector2f sorting_pivot = sf::Vector2f(0.5f, 1.f); //TODO: implement
 		Timer animation_timer;
 		float animation_speed = 1.f;
 		bool animation_loop = true;
 		
-		sf::Sprite get_sprite() const;
+		sf::Sprite get_sprite() const; // Sprite transform is in screen space.
 		std::string get_class() const;
 		bool set_class(const std::string& class_);
 		bool is_animated() const;
@@ -44,7 +46,7 @@ namespace ecs
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
 
-		uint32_t get_animation_duration() const;
+		uint32_t get_animation_duration() const; // in milliseconds
 	};
 
 	void update_graphics(float dt);

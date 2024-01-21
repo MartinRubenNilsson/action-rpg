@@ -325,13 +325,16 @@ namespace tiled
 					assert(gids.size() == layer.width * layer.height);
 					layer.tiles.resize(gids.size());
 					for (size_t i = 0; i < gids.size(); ++i) {
-						if (!gids[i]) continue; // 0 means no tile
+						uint32_t gid = gids[i];
+						if (!gid) continue; // 0 means no tile
 						for (const auto& [tileset, first_gid] : referenced_tilesets) {
-							if (gids[i] >= first_gid && gids[i] < first_gid + tileset->tile_count) {
-								layer.tiles[i] = &tileset->tiles[gids[i] - first_gid];
+							if (gid >= first_gid && gid < first_gid + tileset->tile_count) {
+								layer.tiles[i] = &tileset->tiles[gid - first_gid];
 								break;
 							}
 						}
+						//if (!layer.tiles[i])
+						//	console::log_error("Failed to find tile with GID: " + std::to_string(gid));
 					}
 				} else if (_is_object_layer(layer_node.name())) {
 					for (pugi::xml_node object_node : layer_node.children("object")) {

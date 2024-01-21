@@ -71,6 +71,7 @@ namespace map
 			assert(object.tile && "Tile not found.");
 			ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
 			tile.position = sf::Vector2f(x, y);
+			tile.sorting_layer = ecs::SortingLayer::Objects;
 
 			// LOAD COLLIDERS
 
@@ -125,7 +126,6 @@ namespace map
 			{
 				b2PolygonShape shape;
 				shape.SetAsBox(hw, hh, center, 0.f);
-
 				b2FixtureDef fixture_def;
 				fixture_def.shape = &shape;
 				fixture_def.isSensor = true;
@@ -137,7 +137,6 @@ namespace map
 				b2CircleShape shape;
 				shape.m_p = center;
 				shape.m_radius = hw;
-
 				b2FixtureDef fixture_def;
 				fixture_def.shape = &shape;
 				fixture_def.isSensor = true;
@@ -173,6 +172,7 @@ namespace map
 			ecs::AIActionMoveToPlayer action;
 			ecs::get_float(entity, "speed", action.speed);
 			ecs::emplace_ai_action(entity, action);
+			//ecs::destroy_immediately(entity);
 		} else if (object.class_ == "camera") {
 			ecs::Camera camera;
 			camera.view.setCenter(x, y);
@@ -230,20 +230,23 @@ namespace map
 			}
 
 			// Create tile entities second.
-			for (size_t z = 0; z < _current_map->layers.size(); ++z) {
-				const tiled::Layer& layer = _current_map->layers[z];
+			for (const tiled::Layer& layer : _current_map->layers) {
 				ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
+
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
-						float x = (float)tile_x * _current_map->tile_width; // In pixels.
-						float y = (float)tile_y * _current_map->tile_height; // In pixels.
+						float position_x = tile_x * _current_map->tile_width * METERS_PER_PIXEL;
+						float position_y = tile_y * _current_map->tile_height * METERS_PER_PIXEL;
+						float origin_x = 0.f;
+						float origin_y = tile->tileset->tile_height - _current_map->tile_height;
 
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 						ecs_tile.visible = layer.visible;
-						ecs_tile.position = sf::Vector2f(x * METERS_PER_PIXEL, y * METERS_PER_PIXEL);
+						ecs_tile.position = sf::Vector2f(position_x, position_y); // meters
+						ecs_tile.origin = sf::Vector2f(origin_x, origin_y); // pixels
 						ecs_tile.sorting_layer = sorting_layer;
 
 						// LOAD COLLIDERS
@@ -253,8 +256,8 @@ namespace map
 
 						b2BodyDef body_def;
 						body_def.type = b2_staticBody;
-						body_def.position.x = x * METERS_PER_PIXEL;
-						body_def.position.y = y * METERS_PER_PIXEL;
+						body_def.position.x = position_x;
+						body_def.position.y = position_y;
 						body_def.fixedRotation = true;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
