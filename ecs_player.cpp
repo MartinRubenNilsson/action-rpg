@@ -24,6 +24,7 @@ namespace ecs
 
 	const float PLAYER_WALK_SPEED = 4.5f;
 	const float PLAYER_RUN_SPEED = 8.5f;
+	const float PROJECTILE_SPEED = 10.0f;
 
 	void _update_player_input(PlayerInput& input)
 	{
@@ -49,7 +50,7 @@ namespace ecs
 		}
 	}
 
-	void fire_projectile(const sf::Vector2f& position, int damage) {
+	void fire_projectile(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
 		entt::entity projectile_entity = _registry.create();
 
 		// Setup the Projectile component
@@ -66,6 +67,9 @@ namespace ecs
 		shape.m_p.y = 0;
 		shape.m_radius = 0.5;
 		body->CreateFixture(&shape, 1);
+
+		sf::Vector2f projectile_velocity = normalize(direction) * PROJECTILE_SPEED;
+		body->SetLinearVelocity(b2Vec2(projectile_velocity.x, projectile_velocity.y));
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
@@ -147,9 +151,10 @@ namespace ecs
 
 			if (player.input.projectile_attack) {
 				sf::Vector2f fire_position = center;
+				sf::Vector2f fire_direction = player.state.direction; // Assuming this is the player's facing direction
 				int projectile_damage = 1;
 
-				fire_projectile(fire_position, projectile_damage);
+				fire_projectile(fire_position, fire_direction, projectile_damage);
 			}
 		}
 

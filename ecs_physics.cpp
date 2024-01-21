@@ -149,6 +149,25 @@ namespace ecs
 				}
 			}
 		}
+
+		// New logic for arrow-slime collision
+		if ((class_a == "arrow" && class_b == "slime")) {
+			destroy_slime(entity_b);
+			destroy_at_end_of_frame(entity_a);
+		}
+	
+	}
+
+	void destroy_slime(entt::entity slime_entity) {
+		// Check if the entity is valid before attempting to destroy it
+		if (!_registry.valid(slime_entity)) {
+			return;
+		}
+
+		// Optional: Perform any other game logic updates, such as increasing the score
+
+		// Destroy the entity
+		destroy_at_end_of_frame(slime_entity);
 	}
 
 	void ContactListener::EndContact(b2Contact* contact) {
