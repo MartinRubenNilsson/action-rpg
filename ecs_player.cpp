@@ -14,7 +14,7 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "ecs_projectile.h"
-#include "ecs_pickup.h"
+#include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
 

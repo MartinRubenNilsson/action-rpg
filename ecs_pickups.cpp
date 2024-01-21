@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "defines.h"
-#include "ecs_pickup.h"
+#include "ecs_pickups.h"
 #include "ecs_physics.h"
 #include "ecs_graphics.h"
 
 namespace ecs
 {
 	extern entt::registry _registry;
+	float _pickup_elapsed_time = 0.f;
 
 	entt::entity create_arrow_pickup(const sf::Vector2f& position)
 	{
@@ -32,6 +33,7 @@ namespace ecs
 			tile->position = position;
 			tile->origin = sf::Vector2f(PIXELS_PER_METER / 2.f, PIXELS_PER_METER / 2.f);
 		}
+
 		return entity;
 	}
 
@@ -45,8 +47,13 @@ namespace ecs
 
 	void update_pickups(float dt)
 	{
-		for (auto [entity, pickup, tile] : _registry.view<Pickup, Tile>().each()) {
+		_pickup_elapsed_time += dt;
 
+		// Blinking effect
+		for (auto [entity, pickup, tile] : _registry.view<Pickup, Tile>().each()) {
+			constexpr float BLINK_SPEED = 10.f;
+			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
+			tile.color.a = (sf::Uint8)(255 * blink_fraction);
 		}
 	}
 }
