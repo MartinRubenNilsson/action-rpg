@@ -3,6 +3,9 @@
 
 namespace ecs
 {
+	struct Name { std::string value; }; // for internal use only!
+	struct Class { std::string value; }; // for internal use only!
+
 	extern entt::registry _registry;
 
 	void emplace_object(entt::entity entity, const tiled::Object* object) {
@@ -12,37 +15,33 @@ namespace ecs
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tiled::Object*>().each()) {
-			if (object->name == name)
-				return entity;
-		}
+		for (auto [entity, ecs_name] : _registry.view<const Name>().each())
+			if (ecs_name.value == name) return entity;
 		return entt::null;
 	}
 
 	entt::entity find_entity_by_class(const std::string& class_)
 	{
 		if (class_.empty()) return entt::null;
-		for (auto [entity, object] : _registry.view<const tiled::Object*>().each()) {
-			if (object->class_ == class_)
-				return entity;
-		}
+		for (auto [entity, ecs_class] : _registry.view<const Class>().each())
+			if (ecs_class.value == class_) return entity;
 		return entt::null;
 	}
 
-	std::string get_name(entt::entity entity)
-	{
-		std::string name;
-		if (auto object = _registry.try_get<const tiled::Object*>(entity))
-			name = (*object)->name;
-		return name;
+	void set_name(entt::entity entity, const std::string& name) {
+		_registry.emplace_or_replace<Name>(entity, name);
 	}
 
-	std::string get_class(entt::entity entity)
-	{
-		std::string type;
-		if (auto object = _registry.try_get<const tiled::Object*>(entity))
-			type = (*object)->class_;
-		return type;
+	void set_class(entt::entity entity, const std::string& class_) {
+		_registry.emplace_or_replace<Class>(entity, class_);
+	}
+
+	std::string get_name(entt::entity entity) {
+		return _registry.get_or_emplace<Name>(entity).value;
+	}
+
+	std::string get_class(entt::entity entity) {
+		return _registry.get_or_emplace<Class>(entity).value;
 	}
 
 	bool get_bool(entt::entity entity, const std::string& name, bool& value)

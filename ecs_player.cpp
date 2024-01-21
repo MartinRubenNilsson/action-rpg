@@ -52,6 +52,7 @@ namespace ecs
 
 	void fire_projectile(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
 		entt::entity projectile_entity = _registry.create();
+		set_class(projectile_entity, "arrow");
 
 		// Setup the Projectile component
 		Projectile projectile = { damage, 5.0f }; // Example values
@@ -75,11 +76,6 @@ namespace ecs
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
 			// Do stuff if we need to
 		}
-
-		//HACK //LEAK
-		tiled::Object* obj = new tiled::Object();
-		obj->class_ = "arrow";
-		_registry.emplace<const tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)
