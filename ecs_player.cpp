@@ -72,9 +72,10 @@ namespace ecs
 			// Do stuff if we need to
 		}
 
+		//HACK //LEAK
 		tiled::Object* obj = new tiled::Object();
 		obj->class_ = "arrow";
-		_registry.emplace<tiled::Object*>(projectile_entity, obj);
+		_registry.emplace<const tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)
