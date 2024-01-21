@@ -77,6 +77,14 @@ namespace ecs
 				tiles_by_layer[(size_t)tile.sorting_layer].push_back(&tile);
 		}
 
+		// Sort right to left, top to bottom.
+		for (auto& layer : tiles_by_layer) {
+			std::sort(layer.begin(), layer.end(), [](Tile* a, Tile* b) {
+				return a->position.y < b->position.y ||
+					(a->position.y == b->position.y && a->position.x < b->position.x);
+			});
+		}
+
 		// Draw tiles.
 		for (auto& layer : tiles_by_layer)
 			for (Tile* tile : layer)
