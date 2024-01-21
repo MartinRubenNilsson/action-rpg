@@ -14,6 +14,9 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "ecs_projectile.h"
+#include "ecs_pickup.h"
+#include "random.h"
+#include "tiled.h"
 
 namespace ecs
 {
@@ -72,6 +75,11 @@ namespace ecs
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
 			// Do stuff if we need to
 		}
+
+		//HACK //LEAK
+		tiled::Object* obj = new tiled::Object();
+		obj->class_ = "arrow";
+		_registry.emplace<const tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)
@@ -115,19 +123,30 @@ namespace ecs
 				sf::Vector2f aabb_center = center + player.state.direction;
 				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(0.5f, 0.5f);
 				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(0.5f, 0.5f);
+				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 				for (entt::entity entity : query_aabb(aabb_min, aabb_max)) {
 					if (entity == player_entity) continue;
-					std::string type = get_class(entity);
-					if (type.starts_with("enemy")) {
+					std::string class_ = get_class(entity);
+					if (class_ == "slime") {
 						destroy_at_end_of_frame(entity);
+					} else if (Tile* tile = _registry.try_get<Tile>(entity)) {
+						std::string tile_class = tile->get_class();
+						if (tile_class == "grass") {
+							audio_events_to_play.insert("event:/snd_cut_grass");
+							if (random::coin_flip(0.1f))
+								create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
+							destroy_at_end_of_frame(entity);
+						}
 					} else {
 						std::string string;
 						if (get_string(entity, "textbox", string))
 							ui::open_textbox_preset(string);
 						if (get_string(entity, "sound", string))
-							audio::play("event:/" + string);
+							audio_events_to_play.insert(string);
 					}
 				}
+				for (const std::string& audio_event : audio_events_to_play)
+					audio::play(audio_event);
 			}
 
 			if (player.input.projectile_attack) {

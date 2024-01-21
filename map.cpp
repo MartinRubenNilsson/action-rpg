@@ -240,7 +240,7 @@ namespace map
 						float position_x = tile_x * _current_map->tile_width * METERS_PER_PIXEL;
 						float position_y = tile_y * _current_map->tile_height * METERS_PER_PIXEL;
 						float origin_x = 0.f;
-						float origin_y = tile->tileset->tile_height - _current_map->tile_height;
+						float origin_y = (float)(tile->tileset->tile_height - _current_map->tile_height);
 
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
@@ -262,25 +262,29 @@ namespace map
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile->objects) {
-							float cx = collider.position.x * METERS_PER_PIXEL;
-							float cy = collider.position.y * METERS_PER_PIXEL;
+							float cx = (collider.position.x - origin_x) * METERS_PER_PIXEL;
+							float cy = (collider.position.y - origin_y) * METERS_PER_PIXEL;
+							float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
+							float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
+							b2FixtureDef fixture_def;
+							tiled::get(collider.properties, "sensor", fixture_def.isSensor);
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle:
 							{
-								float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
-								float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
-								b2Vec2 center(cx + hw, cy + hh);
 								b2PolygonShape shape;
-								shape.SetAsBox(hw, hh, center, 0.f);
-								body->CreateFixture(&shape, 0.0f);
+								shape.SetAsBox(hw, hh, b2Vec2(cx + hw, cy + hh), 0.f);
+								fixture_def.shape = &shape;
+								body->CreateFixture(&fixture_def);
 								break;
 							}
 							case tiled::ObjectType::Ellipse:
 							{
-								//b2CircleShape shape;
-								//shape.m_p = center;
-								//shape.m_radius = hw;
-								//body->CreateFixture(&shape, 0.0f);
+								b2CircleShape shape;
+								shape.m_p.x = cx;
+								shape.m_p.y = cy;
+								shape.m_radius = hw;
+								fixture_def.shape = &shape;
+								body->CreateFixture(&fixture_def);
 								break;
 							}
 							case tiled::ObjectType::Polygon:
@@ -298,7 +302,8 @@ namespace map
 									}
 									b2PolygonShape shape;
 									shape.Set(points, (int32)count);
-									body->CreateFixture(&shape, 0.0f);
+									fixture_def.shape = &shape;
+									body->CreateFixture(&fixture_def);
 								} else {
 									auto triangles = triangulate(collider.points);
 									for (const auto& triangle : triangles) {
@@ -309,7 +314,8 @@ namespace map
 										}
 										b2PolygonShape shape;
 										shape.Set(points, 3);
-										body->CreateFixture(&shape, 0.0f);
+										fixture_def.shape = &shape;
+										body->CreateFixture(&fixture_def);
 									}
 								}
 								break;
