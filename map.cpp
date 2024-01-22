@@ -222,8 +222,8 @@ namespace map
 
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
-						float position_x = tile_x * _current_map->tile_width;
-						float position_y = tile_y * _current_map->tile_height;
+						float position_x = (float)tile_x * _current_map->tile_width;
+						float position_y = (float)tile_y * _current_map->tile_height;
 						float origin_x = 0.f;
 						float origin_y = (float)(tile->tileset->tile_height - _current_map->tile_height);
 
@@ -279,7 +279,8 @@ namespace map
 									console::log_error(
 										"Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
-								} else if (count < b2_maxPolygonVertices) {
+								//} else if (count <= b2_maxPolygonVertices) {
+								} else if (count <= b2_maxPolygonVertices) {
 									b2Vec2 points[b2_maxPolygonVertices];
 									for (size_t i = 0; i < count; ++i) {
 										points[i].x = cx + collider.points[i].x;
@@ -290,6 +291,11 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
+									/*console::log_error(
+										"Too many points in polygon collider! Got " +
+										std::to_string(count) + ", need <= " +
+										std::to_string(b2_maxPolygonVertices) + ".");*/
+									//BUGGY
 									auto triangles = triangulate(collider.points);
 									for (const auto& triangle : triangles) {
 										b2Vec2 points[3];
@@ -321,8 +327,8 @@ namespace map
 	{
 		if (!_current_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
-			_current_map->width * _current_map->tile_width,
-			_current_map->height * _current_map->tile_height);
+			(float)_current_map->width * _current_map->tile_width,
+			(float)_current_map->height * _current_map->tile_height);
 	}
 
 	void set_player_spawnpoint(const std::string& entity_name) {

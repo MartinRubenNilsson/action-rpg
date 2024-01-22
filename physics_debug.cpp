@@ -20,33 +20,24 @@ namespace physics
 
 	void DebugDrawSFML::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 	{
-		sf::ConvexShape polygon(vertexCount);
-		for (int32 i = 0; i < vertexCount; ++i)
-			polygon.setPoint(i, sf::Vector2f(vertices[i].x, vertices[i].y));
-		polygon.setFillColor(sf::Color::Transparent);
-		polygon.setOutlineThickness(1.0f);
-		polygon.setOutlineColor(_b2_to_sf(color));
-		_render_target.draw(polygon);
+		// TODO
 	}
 
 	void DebugDrawSFML::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 	{
-		sf::ConvexShape polygon(vertexCount);
-		for (int32 i = 0; i < vertexCount; ++i)
-			polygon.setPoint(i, sf::Vector2f(vertices[i].x, vertices[i].y));
-		polygon.setFillColor(_b2_to_sf(color));
+		sf::Color sf_color = _b2_to_sf(color);
+		sf::VertexArray polygon(sf::LineStrip, vertexCount + 1);
+		for (int32 i = 0; i < vertexCount + 1; ++i) {
+			const b2Vec2& vertex = vertices[i % vertexCount];
+			polygon[i].position = sf::Vector2f(vertex.x, vertex.y);
+			polygon[i].color = sf_color;
+		}
 		_render_target.draw(polygon);
 	}
 
 	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
 	{
-		sf::CircleShape circle(radius);
-		circle.setPosition(center.x, center.y);
-		circle.setOrigin(radius, radius);
-		circle.setFillColor(sf::Color::Transparent);
-		circle.setOutlineThickness(1.0f);
-		circle.setOutlineColor(_b2_to_sf(color));
-		_render_target.draw(circle);
+		// TODO
 	}
 
 	void DebugDrawSFML::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
@@ -55,7 +46,9 @@ namespace physics
 		sf::CircleShape circle(radius);
 		circle.setPosition(center.x, center.y);
 		circle.setOrigin(radius, radius);
-		circle.setFillColor(_b2_to_sf(color));
+		circle.setFillColor(sf::Color::Transparent);
+		circle.setOutlineThickness(0.3f);
+		circle.setOutlineColor(_b2_to_sf(color));
 		_render_target.draw(circle);
 	}
 

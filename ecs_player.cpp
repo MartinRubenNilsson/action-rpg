@@ -116,7 +116,7 @@ namespace ecs
 			set_linear_velocity(body, player.state.direction * speed);
 
 			if (player.input.interact) {
-				sf::Vector2f aabb_center = center + player.state.direction * 6.f;
+				sf::Vector2f aabb_center = center + player.state.direction * 16.f;
 				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(6.f, 6.f);
 				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(6.f, 6.f);
 				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice

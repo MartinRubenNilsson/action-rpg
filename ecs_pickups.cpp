@@ -25,7 +25,7 @@ namespace ecs
 		body_def.position.Set(position.x, position.y);
 		if (b2Body* body = emplace_body(entity, body_def)) {
 			b2CircleShape shape;
-			shape.m_radius = 0.25f;
+			shape.m_radius = 4.f;
 			b2FixtureDef fixture_def;
 			fixture_def.shape = &shape;
 			fixture_def.isSensor = true;
