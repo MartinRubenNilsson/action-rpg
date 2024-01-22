@@ -3,7 +3,7 @@
 #include "math_vectors.h"
 
 entt::entity get_entity(b2Body* body) {
-	return (entt::entity)body->GetUserData().pointer;
+	return body->GetUserData().entity;
 }
 
 void set_position(b2Body* body, const sf::Vector2f& position) {

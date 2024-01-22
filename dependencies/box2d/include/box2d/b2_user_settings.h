@@ -10,20 +10,14 @@
 
 /// The maximum number of vertices on a convex polygon. You cannot increase
 /// this too much because b2BlockAllocator has a maximum object size.
-#define b2_maxPolygonVertices	10
+#define b2_maxPolygonVertices	8
 
 // User data
 
 /// You can define this to inject whatever data you want in b2Body
 struct B2_API b2BodyUserData
 {
-	b2BodyUserData()
-	{
-		pointer = 0;
-	}
-
-	/// For legacy compatibility
-	uintptr_t pointer;
+	entt::entity entity = entt::null;
 };
 
 /// You can define this to inject whatever data you want in b2Fixture

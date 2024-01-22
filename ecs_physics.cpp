@@ -65,7 +65,7 @@ namespace ecs
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
 	{
 		b2BodyDef body_def_copy = body_def;
-		body_def_copy.userData.pointer = (uintptr_t)entity;
+		body_def_copy.userData.entity = entity;
 		b2Body* body = _world->CreateBody(&body_def_copy);
 		return _registry.emplace_or_replace<b2Body*>(entity, body);
 	}

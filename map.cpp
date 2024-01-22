@@ -230,8 +230,8 @@ namespace map
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 						ecs_tile.visible = layer.visible;
-						ecs_tile.position = sf::Vector2f(position_x, position_y); // meters
-						ecs_tile.origin = sf::Vector2f(origin_x, origin_y); // pixels
+						ecs_tile.position = sf::Vector2f(position_x, position_y);
+						ecs_tile.origin = sf::Vector2f(origin_x, origin_y);
 						ecs_tile.sorting_layer = sorting_layer;
 
 						// LOAD COLLIDERS

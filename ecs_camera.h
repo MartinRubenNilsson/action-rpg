@@ -5,8 +5,6 @@
 
 namespace ecs
 {
-	// All camera views use world space units (meters), not pixels!
-
 	extern const sf::View DEFAULT_CAMERA_VIEW;
 	
 	// view:               The camera view, which determines the camera's position, rotation, and zoom.
