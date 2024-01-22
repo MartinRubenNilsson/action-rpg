@@ -9,15 +9,9 @@
 
 namespace ecs
 {
-	struct ContactFilter : b2ContactFilter // forward declaration
-	{
-		bool ShouldCollide(b2Fixture* fixture_a, b2Fixture* fixture_b) override;
-	};
-
 	struct ContactListener : b2ContactListener // forward declaration
 	{
 		void BeginContact(b2Contact* contact) override;
-		void EndContact(b2Contact* contact) override;
 	};
 
 	const b2Vec2 PHYSICS_GRAVITY(0, 0);
@@ -26,7 +20,6 @@ namespace ecs
 	const int PHYSICS_POSITION_ITERATIONS = 3;
 
 	extern entt::registry _registry;
-	ContactFilter _contact_filter;
 	ContactListener _contact_listener;
 	std::unique_ptr<b2World> _world;
 	float _physics_time_accumulator = 0.f;
@@ -38,7 +31,6 @@ namespace ecs
 	void initialize_physics()
 	{
 		_world = std::make_unique<b2World>(PHYSICS_GRAVITY);
-		_world->SetContactFilter(&_contact_filter);
 		_world->SetContactListener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
@@ -111,10 +103,6 @@ namespace ecs
 		return entities;
 	}
 
-	bool ContactFilter::ShouldCollide(b2Fixture* fixture_a, b2Fixture* fixture_b) {
-		return true;
-	}
-
 	void ContactListener::BeginContact(b2Contact* contact)
 	{
 		// WARNING: You cannot create/destroy Box2D entities inside this callback.
@@ -173,9 +161,5 @@ namespace ecs
 
 		// Destroy the entity
 		destroy_at_end_of_frame(slime_entity);
-	}
-
-	void ContactListener::EndContact(b2Contact* contact) {
-		// Not implemented.
 	}
 }

@@ -84,9 +84,7 @@ namespace map
 					// Attempt to use the object's UID as the entity identifier.
 					// If the identifier is already in use, a new one will be generated.
 					entt::entity entity = ecs::create(object.entity);
-					if (!object.name.empty()) ecs::set_name(entity, object.name);
-					if (!object.class_.empty()) ecs::set_class(entity, object.class_);
-					ecs::emplace_object(entity, &object);
+					ecs::emplace_name_class_and_properties(entity, object);
 
 					float x = object.position.x * METERS_PER_PIXEL;
 					float y = object.position.y * METERS_PER_PIXEL;
