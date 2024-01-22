@@ -5,7 +5,6 @@
     "cli11",
     "rmlui",
     "entt",
-    "box2d",
     "magic-enum",
     "nlohmann-json",
     "libnoise",
