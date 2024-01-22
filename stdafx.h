@@ -1,5 +1,6 @@
 #pragma once
 #define SFML_STATIC
+#define B2_USER_SETTINGS
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <algorithm>

@@ -530,6 +530,9 @@
     <ClInclude Include="dependencies\box2d\src\dynamics\b2_polygon_contact.h">
       <Filter>physics\box2d</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\box2d\include\box2d\b2_user_settings.h">
+      <Filter>physics\box2d</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

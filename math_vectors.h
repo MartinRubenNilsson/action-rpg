@@ -31,4 +31,5 @@ sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, f
 sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);
 char get_direction(const sf::Vector2f& v); // Returns the direction ('r', 'l', 'u', 'd') in which v points.
 
+// BUGGY, triangulates wrong in some cases
 std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vector2f>& polygon);
