@@ -174,12 +174,32 @@ namespace ecs
 					}
 				}
 			}
-		} else if (class_a == "arrow") {
-			if (class_b == "slime") {
-				destroy_slime(entity_b);
-				destroy_at_end_of_frame(entity_a);
-			}
 		}
+
+		// Check for player-slime collision
+		if (class_a == "player" && class_b == "slime") {
+			// Call function to hurt player
+			int damage = 1; // decide how much damage a slime does
+			hurt_player(entity_a, damage);
+		}
+
+		// Arrow-slime collision
+		if ((class_a == "arrow" && class_b == "slime")) {
+			destroy_slime(entity_b);
+			// Destroy arrow when it hits a slime
+			destroy_at_end_of_frame(entity_a);
+			return;
+		}
+
+		// TODO Arrow collision with other objects
+		//if (class_a == "arrow") {
+		//	// Check if class_b is one of the collision objects (e.g., wall, floor)
+		//	if (class_b == "wall" || /* other collision object types */) {
+		//		// Destroy arrow when it hits a wall or other object
+		//		destroy_at_end_of_frame(entity_a);
+		//	}
+		//}
+	
 	}
 
 	void destroy_slime(entt::entity slime_entity) {

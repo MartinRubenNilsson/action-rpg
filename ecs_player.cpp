@@ -51,17 +51,22 @@ namespace ecs
 	}
 
 	void fire_projectile(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
+		// Calculate the offset position
+		float offsetDistance = 1.0f; // Adjust this value as needed
+		sf::Vector2f offset = normalize(direction) * offsetDistance;
+		sf::Vector2f fire_position = position + offset;
+
 		entt::entity projectile_entity = _registry.create();
 		set_class(projectile_entity, "arrow");
 
 		// Setup the Projectile component
-		Projectile projectile = { damage, 5.0f }; // Example values
+		Projectile projectile = { damage, 5.0f };
 		_registry.emplace<Projectile>(projectile_entity, projectile);
 
 		// Create a physics body for the projectile
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(position.x, position.y);
+		bodyDef.position.Set(fire_position.x, fire_position.y); // Set the offset position here
 		b2Body* body = emplace_body(projectile_entity, bodyDef);
 		b2CircleShape shape;
 		shape.m_p.x = 0;
@@ -69,13 +74,22 @@ namespace ecs
 		shape.m_radius = 0.5;
 		body->CreateFixture(&shape, 1);
 
+		// Set the velocity of the projectile
 		sf::Vector2f projectile_velocity = normalize(direction) * PROJECTILE_SPEED;
 		body->SetLinearVelocity(b2Vec2(projectile_velocity.x, projectile_velocity.y));
+
+		//TODO Play arrow firing sound here
+		//audio::play("event:/snd_arrow_fire"); // Replace with your actual sound event
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
 			// Do stuff if we need to
 		}
+
+		//HACK //LEAK
+		tiled::Object* obj = new tiled::Object();
+		obj->class_ = "arrow";
+		_registry.emplace<const tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)
@@ -145,13 +159,17 @@ namespace ecs
 					audio::play(audio_event);
 			}
 
-			if (player.input.projectile_attack) {
+			if (player.input.projectile_attack && player.arrowAmmo > 0) {
+				// Reduce ammunition by 1
+				player.arrowAmmo--;
+
 				sf::Vector2f fire_position = center;
 				sf::Vector2f fire_direction = player.state.direction; // Assuming this is the player's facing direction
 				int projectile_damage = 1;
 
 				fire_projectile(fire_position, fire_direction, projectile_damage);
 			}
+
 		}
 
 		// Update tile
@@ -188,6 +206,7 @@ namespace ecs
 
 	void emplace_player(entt::entity entity, const Player& player) {
 		_registry.emplace<Player>(entity, player);
+		_registry.get<Player>(entity).arrowAmmo = 10; // Set an initial ammo count
 	}
 
 	bool player_exists() {

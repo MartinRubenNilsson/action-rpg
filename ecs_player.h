@@ -24,6 +24,7 @@ namespace ecs
 		Timer hurt_timer = { 1.0f };
 		Timer step_timer = { 0.3f }; // for footstep sounds
 		Timer kill_timer = { 1.f };
+		int arrowAmmo;
 	};
 
 	void process_event_player(const sf::Event& event);
