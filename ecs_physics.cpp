@@ -129,13 +129,18 @@ namespace ecs
 		std::string class_b = get_class(entity_b);
 		if (class_a.empty() || class_b.empty()) return;
 
-		// Sort the types alphabetically; this reduces
-		// the number of cases we need to handle.
+		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
 		if (class_a.compare(class_b) > 0) {
 			std::swap(fixture_a, fixture_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
 			std::swap(class_a, class_b);
+		}
+
+		if (class_a == "pickup" && class_b == "player") {
+			audio::play("event:/snd_pickup");
+			destroy_at_end_of_frame(entity_a);
+			return;
 		}
 
 		if (class_a == "player") {
@@ -162,6 +167,7 @@ namespace ecs
 			destroy_slime(entity_b);
 			// Destroy arrow when it hits a slime
 			destroy_at_end_of_frame(entity_a);
+			return;
 		}
 
 		// TODO Arrow collision with other objects

@@ -101,7 +101,7 @@
     <ClCompile Include="ui_pause_menu.cpp">
       <Filter>ui\menus</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_pickup.cpp">
+    <ClCompile Include="ecs_pickups.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -245,7 +245,7 @@
     <ClInclude Include="ecs_projectile.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_pickup.h">
+    <ClInclude Include="ecs_pickups.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>

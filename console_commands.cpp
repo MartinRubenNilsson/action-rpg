@@ -85,14 +85,14 @@ namespace console
 			map_cmd->add_subcommand("reset", "Reset the current map")
 				->callback(map::reset);
 			{
-				auto cmd = map_cmd->add_subcommand("spawn", "Spawn an entity from a template");
-				static std::string template_name;
-				static map::SpawnOptions options;
-				cmd->add_option("template_name", template_name, "The name of the template")->required();
-				cmd->add_option("-x", options.x, "The x position of the entity");
-				cmd->add_option("-y", options.y, "The y position of the entity");
-				cmd->add_option("-z", options.z, "The z position of the entity");
-				cmd->callback([]() { map::spawn(template_name, options); });
+				//auto cmd = map_cmd->add_subcommand("spawn", "Spawn an entity from a template");
+				//static std::string template_name;
+				//static map::SpawnOptions options;
+				//cmd->add_option("template_name", template_name, "The name of the template")->required();
+				//cmd->add_option("-x", options.x, "The x position of the entity");
+				//cmd->add_option("-y", options.y, "The y position of the entity");
+				//cmd->add_option("-z", options.z, "The z position of the entity");
+				//cmd->callback([]() { map::spawn(template_name, options); });
 			}
 			map_cmd->add_subcommand("spawnpoint", "Set the player spawnpoint entity")
 				->add_option_function<std::string>("name", map::set_player_spawnpoint,

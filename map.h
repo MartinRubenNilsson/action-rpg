@@ -17,21 +17,6 @@ namespace map
 	// Returns the bounds of the current map in meters. If no map is open, returns an empty rect.
 	sf::FloatRect get_bounds();
 
-	struct SpawnOptions
-	{
-		// Special value that means "use the object's default value".
-		static const float DEFAULT;
-
-		float x = DEFAULT; // x-position in meters
-		float y = DEFAULT; // y-position in meters
-		float z = DEFAULT; // z-position in layers; higher z-values are drawn on top of lower z-values.
-		float w = DEFAULT; // width in meters
-		float h = DEFAULT; // height in meters
-	};
-
-	// Creates an entity from the given Tiled object template. Returns entt::null on failure.
-	entt::entity spawn(std::string template_name, const SpawnOptions& options);
-
 	// Sets the name of the entity that should be used as the player's starting position.
 	// You may call this function before or after open(), as long as you call it before update().
 	void set_player_spawnpoint(const std::string& entity_name);

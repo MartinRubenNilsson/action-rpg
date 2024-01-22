@@ -15,8 +15,6 @@
 
 namespace map
 {
-	const float SpawnOptions::DEFAULT = FLT_EPSILON;
-
 	const tiled::Map* _current_map = nullptr;
 	const tiled::Map* _next_map = nullptr;
 	bool _force_open = false; // if true, open the next map even if it's the same as the current one
@@ -43,145 +41,6 @@ namespace map
 	{
 		_next_map = _current_map;
 		_force_open = true;
-	}
-
-	entt::entity _spawn(const tiled::Object& object, const SpawnOptions& options)
-	{
-		if (!_current_map) return entt::null;
-
-		// Attempt to use the object's UID as the entity identifier.
-		// If the identifier is already in use, a new one will be generated.
-		entt::entity entity = ecs::create(object.entity);
-		ecs::emplace_object(entity, &object);
-
-		float x = (options.x != SpawnOptions::DEFAULT) ? options.x : object.position.x * METERS_PER_PIXEL;
-		float y = (options.y != SpawnOptions::DEFAULT) ? options.y : object.position.y * METERS_PER_PIXEL;
-		float z = (options.z != SpawnOptions::DEFAULT) ? options.z : (float)_current_map->layers.size();
-		float w = (options.w != SpawnOptions::DEFAULT) ? options.w : object.size.x * METERS_PER_PIXEL;
-		float h = (options.h != SpawnOptions::DEFAULT) ? options.h : object.size.y * METERS_PER_PIXEL;
-
-		if (object.type == tiled::ObjectType::Tile) {
-			// All objects are positioned by their top-left corner, except for tiles,
-			// which are positioned by their bottom-left corner. This is confusing,
-			// so we'll adjust the position here to make it consistent.
-			y -= h;
-		}
-
-		if (object.type == tiled::ObjectType::Tile) {
-			assert(object.tile && "Tile not found.");
-			ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
-			tile.position = sf::Vector2f(x, y);
-			tile.sorting_layer = ecs::SortingLayer::Objects;
-
-			// LOAD COLLIDERS
-
-			if (!object.tile->objects.empty()) {
-				b2BodyDef body_def;
-				body_def.type = b2_dynamicBody;
-				body_def.fixedRotation = true;
-				body_def.position.x = x;
-				body_def.position.y = y;
-				b2Body* body = ecs::emplace_body(entity, body_def);
-
-				for (const tiled::Object& tile_object : object.tile->objects) {
-					float x = tile_object.position.x * METERS_PER_PIXEL;
-					float y = tile_object.position.y * METERS_PER_PIXEL;
-					float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
-					float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
-					b2Vec2 center(x + hw, y + hh);
-
-					switch (tile_object.type) {
-					case tiled::ObjectType::Rectangle:
-					{
-						b2PolygonShape shape;
-						shape.SetAsBox(hw, hh, center, 0.f);
-						body->CreateFixture(&shape, 1.f);
-						break;
-					}
-					case tiled::ObjectType::Ellipse:
-					{
-						b2CircleShape shape;
-						shape.m_p = center;
-						shape.m_radius = hw;
-						body->CreateFixture(&shape, 1.f);
-						break;
-					}
-					}
-				}
-			}
-		} else { // If object is not a tile
-			b2BodyDef body_def;
-			body_def.type = b2_staticBody;
-			body_def.fixedRotation = true;
-			body_def.position.x = x;
-			body_def.position.y = y;
-			b2Body* body = ecs::emplace_body(entity, body_def);
-
-			float hw = w / 2.0f;
-			float hh = h / 2.0f;
-			b2Vec2 center(hw, hh);
-
-			switch (object.type) {
-			case tiled::ObjectType::Rectangle:
-			{
-				b2PolygonShape shape;
-				shape.SetAsBox(hw, hh, center, 0.f);
-				b2FixtureDef fixture_def;
-				fixture_def.shape = &shape;
-				fixture_def.isSensor = true;
-				body->CreateFixture(&fixture_def);
-				break;
-			}
-			case tiled::ObjectType::Ellipse:
-			{
-				b2CircleShape shape;
-				shape.m_p = center;
-				shape.m_radius = hw;
-				b2FixtureDef fixture_def;
-				fixture_def.shape = &shape;
-				fixture_def.isSensor = true;
-				body->CreateFixture(&fixture_def);
-				break;
-			}
-			}
-		}
-
-		if (object.class_ == "player") {
-			ecs::emplace_player(entity, ecs::Player());
-
-			ecs::Camera camera;
-			camera.follow = entity;
-			camera.confining_rect = get_bounds();
-			ecs::emplace_camera(entity, camera);
-			ecs::activate_camera(entity, true);
-
-			// Broken at the moment
-			//// TODO: put spawnpoint entity name in data?
-			//if (_spawnpoint_entity_name != "player")
-			//{
-			//	entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
-			//	if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
-			//	{
-			//		tmx::Vector2f position = (*object)->getPosition();
-			//		position *= METERS_PER_PIXEL;
-			//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
-			//	}
-			//}
-		} else if (object.class_ == "slime") {
-			ecs::emplace_slime_animation_controller(entity);
-			ecs::AIActionMoveToPlayer action;
-			ecs::get_float(entity, "speed", action.speed);
-			ecs::emplace_ai_action(entity, action);
-			//ecs::destroy_immediately(entity);
-		} else if (object.class_ == "camera") {
-			ecs::Camera camera;
-			camera.view.setCenter(x, y);
-			ecs::get_entity(entity, "follow", camera.follow);
-			camera.confining_rect = get_bounds();
-			ecs::emplace_camera(entity, camera);
-		}
-
-		return entity;
 	}
 
 	void update()
@@ -216,15 +75,143 @@ namespace map
 					audio::play("event:/" + next_music);
 			}
 
-			// Spawn objects first. This is because we want to be sure that the
+			// Create object entities first. This is because we want to be sure that the
 			// object UIDs we get from Tiled are free to use as entity identifiers.
-			{
-				SpawnOptions options;
-				for (size_t z = 0; z < _current_map->layers.size(); ++z) {
-					const tiled::Layer& layer = _current_map->layers[z];
-					for (const tiled::Object& object : layer.objects) {
-						options.z = (float)z;
-						_spawn(object, options);
+			for (const tiled::Layer& layer : _current_map->layers) {
+				ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
+				for (const tiled::Object& object : layer.objects) {
+
+					// Attempt to use the object's UID as the entity identifier.
+					// If the identifier is already in use, a new one will be generated.
+					entt::entity entity = ecs::create(object.entity);
+					if (!object.name.empty()) ecs::set_name(entity, object.name);
+					if (!object.class_.empty()) ecs::set_class(entity, object.class_);
+					ecs::emplace_object(entity, &object);
+
+					float x = object.position.x * METERS_PER_PIXEL;
+					float y = object.position.y * METERS_PER_PIXEL;
+					float w = object.size.x * METERS_PER_PIXEL;
+					float h = object.size.y * METERS_PER_PIXEL;
+
+					if (object.type == tiled::ObjectType::Tile) {
+						// Objects are positioned by their top-left corner, except for tiles,
+						// which are positioned by their bottom-left corner. This is confusing,
+						// so we'll adjust the position here to make it consistent.
+						y -= h;
+					}
+
+					if (object.type == tiled::ObjectType::Tile) {
+						assert(object.tile && "Tile not found.");
+						ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
+						tile.position = sf::Vector2f(x, y);
+						tile.sorting_layer = ecs::SortingLayer::Objects;
+
+						// LOAD COLLIDERS
+
+						if (!object.tile->objects.empty()) {
+							b2BodyDef body_def;
+							body_def.type = b2_dynamicBody;
+							body_def.fixedRotation = true;
+							body_def.position.x = x;
+							body_def.position.y = y;
+							b2Body* body = ecs::emplace_body(entity, body_def);
+
+							for (const tiled::Object& tile_object : object.tile->objects) {
+								float x = tile_object.position.x * METERS_PER_PIXEL;
+								float y = tile_object.position.y * METERS_PER_PIXEL;
+								float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
+								float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
+								b2Vec2 center(x + hw, y + hh);
+
+								switch (tile_object.type) {
+								case tiled::ObjectType::Rectangle:
+								{
+									b2PolygonShape shape;
+									shape.SetAsBox(hw, hh, center, 0.f);
+									body->CreateFixture(&shape, 1.f);
+									break;
+								}
+								case tiled::ObjectType::Ellipse:
+								{
+									b2CircleShape shape;
+									shape.m_p = center;
+									shape.m_radius = hw;
+									body->CreateFixture(&shape, 1.f);
+									break;
+								}
+								}
+							}
+						}
+					} else { // If object is not a tile
+						b2BodyDef body_def;
+						body_def.type = b2_staticBody;
+						body_def.fixedRotation = true;
+						body_def.position.x = x;
+						body_def.position.y = y;
+						b2Body* body = ecs::emplace_body(entity, body_def);
+
+						float hw = w / 2.0f;
+						float hh = h / 2.0f;
+						b2Vec2 center(hw, hh);
+
+						switch (object.type) {
+						case tiled::ObjectType::Rectangle:
+						{
+							b2PolygonShape shape;
+							shape.SetAsBox(hw, hh, center, 0.f);
+							b2FixtureDef fixture_def;
+							fixture_def.shape = &shape;
+							fixture_def.isSensor = true;
+							body->CreateFixture(&fixture_def);
+							break;
+						}
+						case tiled::ObjectType::Ellipse:
+						{
+							b2CircleShape shape;
+							shape.m_p = center;
+							shape.m_radius = hw;
+							b2FixtureDef fixture_def;
+							fixture_def.shape = &shape;
+							fixture_def.isSensor = true;
+							body->CreateFixture(&fixture_def);
+							break;
+						}
+						}
+					}
+
+					if (object.class_ == "player") {
+						ecs::emplace_player(entity, ecs::Player());
+
+						ecs::Camera camera;
+						camera.follow = entity;
+						camera.confining_rect = get_bounds();
+						ecs::emplace_camera(entity, camera);
+						ecs::activate_camera(entity, true);
+
+						// Broken at the moment
+						//// TODO: put spawnpoint entity name in data?
+						//if (_spawnpoint_entity_name != "player")
+						//{
+						//	entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
+						//	if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
+						//	{
+						//		tmx::Vector2f position = (*object)->getPosition();
+						//		position *= METERS_PER_PIXEL;
+						//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
+						//	}
+						//}
+					} else if (object.class_ == "slime") {
+						ecs::emplace_slime_animation_controller(entity);
+						ecs::AIActionMoveToPlayer action;
+						ecs::get_float(entity, "speed", action.speed);
+						ecs::emplace_ai_action(entity, action);
+						//ecs::destroy_immediately(entity);
+					} else if (object.class_ == "camera") {
+						ecs::Camera camera;
+						camera.view.setCenter(x, y);
+						ecs::get_entity(entity, "follow", camera.follow);
+						camera.confining_rect = get_bounds();
+						ecs::emplace_camera(entity, camera);
 					}
 				}
 			}
@@ -338,16 +325,6 @@ namespace map
 		return sf::FloatRect(0.f, 0.f,
 			_current_map->width * _current_map->tile_width * METERS_PER_PIXEL,
 			_current_map->height * _current_map->tile_height * METERS_PER_PIXEL);
-	}
-
-	entt::entity spawn(std::string template_name, const SpawnOptions& options)
-	{
-		if (!_current_map) return entt::null;
-		for (const tiled::Object& template_ : tiled::get_templates())
-			if (template_.name == template_name)
-				return _spawn(template_, options);
-		console::log_error("Failed to spawn template: " + template_name);
-		return entt::null;
 	}
 
 	void set_player_spawnpoint(const std::string& entity_name) {

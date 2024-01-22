@@ -14,7 +14,7 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "ecs_projectile.h"
-#include "ecs_pickup.h"
+#include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
 
@@ -57,6 +57,7 @@ namespace ecs
 		sf::Vector2f fire_position = position + offset;
 
 		entt::entity projectile_entity = _registry.create();
+		set_class(projectile_entity, "arrow");
 
 		// Setup the Projectile component
 		Projectile projectile = { damage, 5.0f };
@@ -85,7 +86,6 @@ namespace ecs
 			// Do stuff if we need to
 		}
 
-		//TODO fix this? 
 		//HACK //LEAK
 		tiled::Object* obj = new tiled::Object();
 		obj->class_ = "arrow";
@@ -143,7 +143,7 @@ namespace ecs
 						std::string tile_class = tile->get_class();
 						if (tile_class == "grass") {
 							audio_events_to_play.insert("event:/snd_cut_grass");
-							if (random::coin_flip(0.1f))
+							if (random::coin_flip(0.2f))
 								create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
 							destroy_at_end_of_frame(entity);
 						}

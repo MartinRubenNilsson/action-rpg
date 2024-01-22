@@ -1,5 +1,6 @@
 #include "ecs.h"
 #include "defines.h"
+#include "console.h"
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "ecs_player.h"
@@ -7,7 +8,7 @@
 #include "ecs_ai_actions.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
-#include "console.h"
+#include "ecs_pickups.h"
 
 namespace ecs
 {
@@ -47,6 +48,7 @@ namespace ecs
 	void update(float dt)
 	{
 		update_player(dt);
+		update_pickups(dt);
 		update_ai_knowledge(dt);
 		update_ai_actions(dt);
 		update_physics(dt);

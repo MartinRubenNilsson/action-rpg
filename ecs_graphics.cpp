@@ -78,6 +78,7 @@ namespace ecs
 		sf::Sprite sprite = _frame->sprite;
 		sprite.setPosition(position * PIXELS_PER_METER);
 		sprite.setOrigin(origin);
+		sprite.setColor(color);
 		return sprite;
 	}
 
