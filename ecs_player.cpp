@@ -22,9 +22,9 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	const float PLAYER_WALK_SPEED = 4.5f;
-	const float PLAYER_RUN_SPEED = 8.5f;
-	const float PROJECTILE_SPEED = 10.0f;
+	const float PLAYER_WALK_SPEED = 72.f;
+	const float PLAYER_RUN_SPEED = 136.f;
+	const float PROJECTILE_SPEED = 160.f;
 
 	void _update_player_input(PlayerInput& input)
 	{
@@ -116,9 +116,9 @@ namespace ecs
 			set_linear_velocity(body, player.state.direction * speed);
 
 			if (player.input.interact) {
-				sf::Vector2f aabb_center = center + player.state.direction;
-				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(0.5f, 0.5f);
-				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(0.5f, 0.5f);
+				sf::Vector2f aabb_center = center + player.state.direction * 6.f;
+				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(6.f, 6.f);
+				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(6.f, 6.f);
 				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 				for (entt::entity entity : query_aabb(aabb_min, aabb_max)) {
 					if (entity == player_entity) continue;

@@ -34,7 +34,7 @@ namespace ecs
 
 		if (Tile* tile = emplace_tile(entity, "items1", "arrow")) {
 			tile->position = position;
-			tile->origin = sf::Vector2f(PIXELS_PER_METER / 2.f, PIXELS_PER_METER / 2.f);
+			tile->origin = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 		}
 
 		return entity;

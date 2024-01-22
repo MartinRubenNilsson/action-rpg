@@ -531,7 +531,7 @@
       <Filter>physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\include\box2d\b2_user_settings.h">
-      <Filter>physics\box2d</Filter>
+      <Filter>physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

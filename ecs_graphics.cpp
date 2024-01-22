@@ -76,7 +76,7 @@ namespace ecs
 	sf::Sprite Tile::get_sprite() const
 	{
 		sf::Sprite sprite = _frame->sprite;
-		sprite.setPosition(position * PIXELS_PER_METER);
+		sprite.setPosition(position);
 		sprite.setOrigin(origin);
 		sprite.setColor(color);
 		return sprite;
@@ -98,7 +98,7 @@ namespace ecs
 		{
 			sf::Vector2f velocity = get_linear_velocity(body);
 			anim.set_class({ get_direction(velocity) });
-			anim.animation_speed = length(velocity) / 2.f;
+			anim.animation_speed = length(velocity) / 32.f;
 		}
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
