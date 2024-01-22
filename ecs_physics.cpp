@@ -74,6 +74,35 @@ namespace ecs
 		_registry.remove<b2Body*>(entity);
 	}
 
+	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)
+	{
+		struct RayCastCallback : public b2RayCastCallback
+		{
+			std::vector<RayHit> hits;
+
+			float ReportFixture(
+				b2Fixture* fixture,
+				const b2Vec2& point,
+				const b2Vec2& normal,
+				float fraction) override
+			{
+				RayHit hit{};
+				hit.fixture = fixture;
+				hit.body = fixture->GetBody();
+				hit.entity = get_entity(hit.body);
+				hit.point = sf::Vector2f(point.x, point.y);
+				hit.normal = sf::Vector2f(normal.x, normal.y);
+				hit.fraction = fraction;
+				hits.push_back(hit);
+				return 1.f;
+			}
+		};
+
+		RayCastCallback callback;
+		_world->RayCast(&callback, b2Vec2(start.x, start.y), b2Vec2(end.x, end.y));
+		return callback.hits;
+	}
+
 	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
 	{
 		struct QueryCallback : public b2QueryCallback
@@ -87,10 +116,12 @@ namespace ecs
 			}
 		};
 
-		QueryCallback callback;
 		b2AABB aabb;
-		aabb.lowerBound = b2Vec2(min.x, min.y);
-		aabb.upperBound = b2Vec2(max.x, max.y);
+		aabb.lowerBound.x = min.x;
+		aabb.lowerBound.y = min.y;
+		aabb.upperBound.x = max.x;
+		aabb.upperBound.y = max.y;
+		QueryCallback callback;
 		_world->QueryAABB(&callback, aabb);
 		std::vector<entt::entity> entities;
 		for (b2Fixture* fixture : callback.fixtures) {
