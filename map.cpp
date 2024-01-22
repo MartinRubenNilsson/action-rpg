@@ -84,14 +84,12 @@ namespace map
 					// Attempt to use the object's UID as the entity identifier.
 					// If the identifier is already in use, a new one will be generated.
 					entt::entity entity = ecs::create(object.entity);
-					if (!object.name.empty()) ecs::set_name(entity, object.name);
-					if (!object.class_.empty()) ecs::set_class(entity, object.class_);
-					ecs::emplace_object(entity, &object);
+					ecs::emplace_name_class_and_properties(entity, object);
 
-					float x = object.position.x * METERS_PER_PIXEL;
-					float y = object.position.y * METERS_PER_PIXEL;
-					float w = object.size.x * METERS_PER_PIXEL;
-					float h = object.size.y * METERS_PER_PIXEL;
+					float x = object.position.x;
+					float y = object.position.y;
+					float w = object.size.x;
+					float h = object.size.y;
 
 					if (object.type == tiled::ObjectType::Tile) {
 						// Objects are positioned by their top-left corner, except for tiles,
@@ -117,10 +115,10 @@ namespace map
 							b2Body* body = ecs::emplace_body(entity, body_def);
 
 							for (const tiled::Object& tile_object : object.tile->objects) {
-								float x = tile_object.position.x * METERS_PER_PIXEL;
-								float y = tile_object.position.y * METERS_PER_PIXEL;
-								float hw = tile_object.size.x * METERS_PER_PIXEL / 2.0f;
-								float hh = tile_object.size.y * METERS_PER_PIXEL / 2.0f;
+								float x = tile_object.position.x;
+								float y = tile_object.position.y;
+								float hw = tile_object.size.x / 2.0f;
+								float hh = tile_object.size.y / 2.0f;
 								b2Vec2 center(x + hw, y + hh);
 
 								switch (tile_object.type) {
@@ -224,16 +222,16 @@ namespace map
 
 						const tiled::Tile* tile = layer.tiles[tile_y * layer.width + tile_x];
 						if (!tile) continue;
-						float position_x = tile_x * _current_map->tile_width * METERS_PER_PIXEL;
-						float position_y = tile_y * _current_map->tile_height * METERS_PER_PIXEL;
+						float position_x = (float)tile_x * _current_map->tile_width;
+						float position_y = (float)tile_y * _current_map->tile_height;
 						float origin_x = 0.f;
 						float origin_y = (float)(tile->tileset->tile_height - _current_map->tile_height);
 
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 						ecs_tile.visible = layer.visible;
-						ecs_tile.position = sf::Vector2f(position_x, position_y); // meters
-						ecs_tile.origin = sf::Vector2f(origin_x, origin_y); // pixels
+						ecs_tile.position = sf::Vector2f(position_x, position_y);
+						ecs_tile.origin = sf::Vector2f(origin_x, origin_y);
 						ecs_tile.sorting_layer = sorting_layer;
 
 						// LOAD COLLIDERS
@@ -249,10 +247,10 @@ namespace map
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile->objects) {
-							float cx = (collider.position.x - origin_x) * METERS_PER_PIXEL;
-							float cy = (collider.position.y - origin_y) * METERS_PER_PIXEL;
-							float hw = collider.size.x * METERS_PER_PIXEL / 2.0f;
-							float hh = collider.size.y * METERS_PER_PIXEL / 2.0f;
+							float cx = (collider.position.x - origin_x);
+							float cy = (collider.position.y - origin_y);
+							float hw = collider.size.x / 2.0f;
+							float hh = collider.size.y / 2.0f;
 							b2FixtureDef fixture_def;
 							tiled::get(collider.properties, "sensor", fixture_def.isSensor);
 							switch (collider.type) {
@@ -281,23 +279,29 @@ namespace map
 									console::log_error(
 										"Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
-								} else if (count < b2_maxPolygonVertices) {
+								//} else if (count <= b2_maxPolygonVertices) {
+								} else if (count <= b2_maxPolygonVertices) {
 									b2Vec2 points[b2_maxPolygonVertices];
 									for (size_t i = 0; i < count; ++i) {
-										points[i].x = cx + collider.points[i].x * METERS_PER_PIXEL;
-										points[i].y = cy + collider.points[i].y * METERS_PER_PIXEL;
+										points[i].x = cx + collider.points[i].x;
+										points[i].y = cy + collider.points[i].y;
 									}
 									b2PolygonShape shape;
 									shape.Set(points, (int32)count);
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
+									/*console::log_error(
+										"Too many points in polygon collider! Got " +
+										std::to_string(count) + ", need <= " +
+										std::to_string(b2_maxPolygonVertices) + ".");*/
+									//BUGGY
 									auto triangles = triangulate(collider.points);
 									for (const auto& triangle : triangles) {
 										b2Vec2 points[3];
 										for (size_t i = 0; i < 3; ++i) {
-											points[i].x = cx + triangle[i].x * METERS_PER_PIXEL;
-											points[i].y = cy + triangle[i].y * METERS_PER_PIXEL;
+											points[i].x = cx + triangle[i].x;
+											points[i].y = cy + triangle[i].y;
 										}
 										b2PolygonShape shape;
 										shape.Set(points, 3);
@@ -323,8 +327,8 @@ namespace map
 	{
 		if (!_current_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
-			_current_map->width * _current_map->tile_width * METERS_PER_PIXEL,
-			_current_map->height * _current_map->tile_height * METERS_PER_PIXEL);
+			(float)_current_map->width * _current_map->tile_width,
+			(float)_current_map->height * _current_map->tile_height);
 	}
 
 	void set_player_spawnpoint(const std::string& entity_name) {

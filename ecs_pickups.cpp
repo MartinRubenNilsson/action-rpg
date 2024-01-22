@@ -25,7 +25,7 @@ namespace ecs
 		body_def.position.Set(position.x, position.y);
 		if (b2Body* body = emplace_body(entity, body_def)) {
 			b2CircleShape shape;
-			shape.m_radius = 0.25f;
+			shape.m_radius = 4.f;
 			b2FixtureDef fixture_def;
 			fixture_def.shape = &shape;
 			fixture_def.isSensor = true;
@@ -34,7 +34,7 @@ namespace ecs
 
 		if (Tile* tile = emplace_tile(entity, "items1", "arrow")) {
 			tile->position = position;
-			tile->origin = sf::Vector2f(PIXELS_PER_METER / 2.f, PIXELS_PER_METER / 2.f);
+			tile->origin = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 		}
 
 		return entity;

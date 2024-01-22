@@ -9,15 +9,9 @@
 
 namespace ecs
 {
-	struct ContactFilter : b2ContactFilter // forward declaration
-	{
-		bool ShouldCollide(b2Fixture* fixture_a, b2Fixture* fixture_b) override;
-	};
-
 	struct ContactListener : b2ContactListener // forward declaration
 	{
 		void BeginContact(b2Contact* contact) override;
-		void EndContact(b2Contact* contact) override;
 	};
 
 	const b2Vec2 PHYSICS_GRAVITY(0, 0);
@@ -26,7 +20,6 @@ namespace ecs
 	const int PHYSICS_POSITION_ITERATIONS = 3;
 
 	extern entt::registry _registry;
-	ContactFilter _contact_filter;
 	ContactListener _contact_listener;
 	std::unique_ptr<b2World> _world;
 	float _physics_time_accumulator = 0.f;
@@ -38,7 +31,6 @@ namespace ecs
 	void initialize_physics()
 	{
 		_world = std::make_unique<b2World>(PHYSICS_GRAVITY);
-		_world->SetContactFilter(&_contact_filter);
 		_world->SetContactListener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
@@ -73,13 +65,42 @@ namespace ecs
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
 	{
 		b2BodyDef body_def_copy = body_def;
-		body_def_copy.userData.pointer = (uintptr_t)entity;
+		body_def_copy.userData.entity = entity;
 		b2Body* body = _world->CreateBody(&body_def_copy);
 		return _registry.emplace_or_replace<b2Body*>(entity, body);
 	}
 
 	void remove_body(entt::entity entity) {
 		_registry.remove<b2Body*>(entity);
+	}
+
+	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)
+	{
+		struct RayCastCallback : public b2RayCastCallback
+		{
+			std::vector<RayHit> hits;
+
+			float ReportFixture(
+				b2Fixture* fixture,
+				const b2Vec2& point,
+				const b2Vec2& normal,
+				float fraction) override
+			{
+				RayHit hit{};
+				hit.fixture = fixture;
+				hit.body = fixture->GetBody();
+				hit.entity = get_entity(hit.body);
+				hit.point = sf::Vector2f(point.x, point.y);
+				hit.normal = sf::Vector2f(normal.x, normal.y);
+				hit.fraction = fraction;
+				hits.push_back(hit);
+				return 1.f;
+			}
+		};
+
+		RayCastCallback callback;
+		_world->RayCast(&callback, b2Vec2(start.x, start.y), b2Vec2(end.x, end.y));
+		return callback.hits;
 	}
 
 	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
@@ -95,10 +116,12 @@ namespace ecs
 			}
 		};
 
-		QueryCallback callback;
 		b2AABB aabb;
-		aabb.lowerBound = b2Vec2(min.x, min.y);
-		aabb.upperBound = b2Vec2(max.x, max.y);
+		aabb.lowerBound.x = min.x;
+		aabb.lowerBound.y = min.y;
+		aabb.upperBound.x = max.x;
+		aabb.upperBound.y = max.y;
+		QueryCallback callback;
 		_world->QueryAABB(&callback, aabb);
 		std::vector<entt::entity> entities;
 		for (b2Fixture* fixture : callback.fixtures) {
@@ -109,10 +132,6 @@ namespace ecs
 		std::sort(entities.begin(), entities.end());
 		entities.erase(std::unique(entities.begin(), entities.end()), entities.end());
 		return entities;
-	}
-
-	bool ContactFilter::ShouldCollide(b2Fixture* fixture_a, b2Fixture* fixture_b) {
-		return true;
 	}
 
 	void ContactListener::BeginContact(b2Contact* contact)
@@ -127,7 +146,7 @@ namespace ecs
 		entt::entity entity_b = get_entity(body_b);
 		std::string class_a = get_class(entity_a);
 		std::string class_b = get_class(entity_b);
-		if (class_a.empty() || class_b.empty()) return;
+		if (class_a.empty() && class_b.empty()) return;
 
 		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
 		if (class_a.compare(class_b) > 0) {
@@ -137,13 +156,15 @@ namespace ecs
 			std::swap(class_a, class_b);
 		}
 
-		if (class_a == "pickup" && class_b == "player") {
-			audio::play("event:/snd_pickup");
-			destroy_at_end_of_frame(entity_a);
-			return;
-		}
-
-		if (class_a == "player") {
+		if (class_a.empty()) {
+			// TODO
+		} else if (class_a == "pickup") {
+			if (class_b == "player") {
+				audio::play("event:/snd_pickup");
+				destroy_at_end_of_frame(entity_a);
+				return;
+			}
+		} else if (class_a == "player") {
 			if (class_b == "trigger") {
 				std::string string;
 				if (get_string(entity_b, "map", string)) {
@@ -191,9 +212,5 @@ namespace ecs
 
 		// Destroy the entity
 		destroy_at_end_of_frame(slime_entity);
-	}
-
-	void ContactListener::EndContact(b2Contact* contact) {
-		// Not implemented.
 	}
 }

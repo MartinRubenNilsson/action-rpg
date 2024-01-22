@@ -76,8 +76,20 @@ namespace ecs
 	sf::Sprite Tile::get_sprite() const
 	{
 		sf::Sprite sprite = _frame->sprite;
-		sprite.setPosition(position * PIXELS_PER_METER);
-		sprite.setOrigin(origin);
+		sf::Vector2f sprite_scale(1.f, 1.f);
+		sf::Vector2f sprite_origin = origin;
+		sf::Vector2f sprite_size = sprite.getGlobalBounds().getSize();
+		if (flip_x) {
+			sprite_scale.x *= -1.f;
+			sprite_origin.x = sprite_size.x - sprite_origin.x;
+		}
+		if (flip_y) {
+			sprite_scale.y *= -1.f;
+			sprite_origin.y = sprite_size.y - sprite_origin.y;
+		}
+		sprite.setPosition(position);
+		sprite.setScale(sprite_scale);
+		sprite.setOrigin(sprite_origin);
 		sprite.setColor(color);
 		return sprite;
 	}
@@ -98,7 +110,7 @@ namespace ecs
 		{
 			sf::Vector2f velocity = get_linear_velocity(body);
 			anim.set_class({ get_direction(velocity) });
-			anim.animation_speed = length(velocity) / 2.f;
+			anim.animation_speed = length(velocity) / 32.f;
 		}
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {

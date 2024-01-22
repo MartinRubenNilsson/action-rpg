@@ -10,15 +10,12 @@ namespace window
 	{
 		_window = &window;
 
-		sf::VideoMode video_mode(
-			_scale * VIEW_PIXEL_WIDTH,
-			_scale * VIEW_PIXEL_HEIGHT);
-		std::string title = "Untitled RPG";
+		sf::VideoMode video_mode(_scale * VIEW_WIDTH, _scale * VIEW_HEIGHT);
+		std::string title = "Action RPG";
 		sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
 		_window->create(video_mode, title, style);
 
-		sf::View view(sf::FloatRect(
-			0, 0, VIEW_PIXEL_WIDTH, VIEW_PIXEL_HEIGHT));
+		sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
 		_window->setView(view);
 		_window->setKeyRepeatEnabled(false);
 	}
@@ -37,9 +34,7 @@ namespace window
 
 	void set_scale(uint32_t scale) {
 		_scale = std::clamp(scale, WINDOW_SCALE_MIN, WINDOW_SCALE_MAX);
-		_window->setSize(sf::Vector2u(
-			_scale * VIEW_PIXEL_WIDTH,
-			_scale * VIEW_PIXEL_HEIGHT));
+		_window->setSize(sf::Vector2u(_scale * VIEW_WIDTH, _scale * VIEW_HEIGHT));
 	}
 
 	uint32_t get_scale() {
