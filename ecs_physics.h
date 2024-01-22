@@ -15,6 +15,7 @@ namespace ecs
 #pragma warning(disable: 4369) // warning C4369: enumerator value cannot be represented as 'uint16_t'
 #pragma warning(disable: 4309) // warning C4309: truncation of constant value
 
+		DefaultMask = ~None,
 		PlayerMask = ~PlayerAttack,
 
 #pragma warning(pop)
