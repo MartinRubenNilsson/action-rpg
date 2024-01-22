@@ -76,8 +76,20 @@ namespace ecs
 	sf::Sprite Tile::get_sprite() const
 	{
 		sf::Sprite sprite = _frame->sprite;
+		sf::Vector2f sprite_scale(1.f, 1.f);
+		sf::Vector2f sprite_origin = origin;
+		sf::Vector2f sprite_size = sprite.getGlobalBounds().getSize();
+		if (flip_x) {
+			sprite_scale.x *= -1.f;
+			sprite_origin.x = sprite_size.x - sprite_origin.x;
+		}
+		if (flip_y) {
+			sprite_scale.y *= -1.f;
+			sprite_origin.y = sprite_size.y - sprite_origin.y;
+		}
 		sprite.setPosition(position);
-		sprite.setOrigin(origin);
+		sprite.setScale(sprite_scale);
+		sprite.setOrigin(sprite_origin);
 		sprite.setColor(color);
 		return sprite;
 	}

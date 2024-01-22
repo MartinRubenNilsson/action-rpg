@@ -26,12 +26,12 @@ namespace ecs
 	public:
 		Tile(const tiled::Tile* tile);
 
-		bool visible = true;
 		sf::Vector2f position;
 		sf::Vector2f origin;
 		sf::Color color = sf::Color::White;
 		bool flip_x = false;
 		bool flip_y = false;
+		bool visible = true;
 		SortingLayer sorting_layer = SortingLayer::Objects;
 		sf::Vector2f sorting_pivot = sf::Vector2f(0.5f, 1.f); //TODO: implement
 		Timer animation_timer;
