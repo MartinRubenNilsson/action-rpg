@@ -20,6 +20,13 @@ namespace tiled
 
 	struct Tile;
 
+	enum FlipFlags : uint8_t
+	{
+		FLIP_NONE       = 0,
+		FLIP_HORIZONTAL = 1 << 0,
+		FLIP_VERTICAL   = 1 << 1,
+	};
+
 	struct Object
 	{
 		std::filesystem::path path; // nonempty if object is a template
@@ -32,6 +39,7 @@ namespace tiled
 		sf::Vector2f size; // in pixels
 		entt::entity entity = entt::null;
 		ObjectType type = ObjectType::Rectangle;
+		FlipFlags flip_flags = FLIP_NONE;
 	};
 
 	struct Frame

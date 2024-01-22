@@ -2,21 +2,21 @@
 
 namespace ecs
 {
-	enum class CollisionCategory : uint16_t
+	enum CollisionCategory : uint16_t
 	{
-		None         = 0,
-		Default      = 1 << 0,
-		Player       = 1 << 1,
-		Enemy        = 1 << 2,
-		PlayerAttack = 1 << 3,
-		EnemyAttack  = 1 << 4,
+		CG_None         = 0,
+		CG_Default      = 1 << 0,
+		CG_Player       = 1 << 1,
+		CG_Enemy        = 1 << 2,
+		CG_PlayerAttack = 1 << 3,
+		CG_EnemyAttack  = 1 << 4,
 
 #pragma warning(push)
 #pragma warning(disable: 4369) // warning C4369: enumerator value cannot be represented as 'uint16_t'
 #pragma warning(disable: 4309) // warning C4309: truncation of constant value
 
-		DefaultMask = ~None,
-		PlayerMask = ~PlayerAttack,
+		CG_DefaultMask = ~CG_None,
+		CG_PlayerMask = ~CG_PlayerAttack,
 
 #pragma warning(pop)
 
@@ -28,6 +28,8 @@ namespace ecs
 	void shutdown_physics();
 	void update_physics(float dt);
 	void render_physics(sf::RenderTarget& target);
+
+	//TODO: put in own header
 	void destroy_slime(entt::entity slime_entity);
 
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);

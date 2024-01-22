@@ -5,6 +5,13 @@
 
 namespace tiled
 {
+	const uint32_t FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
+	const uint32_t FLIPPED_VERTICALLY_FLAG    = 0x40000000;
+	const uint32_t FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
+	const uint32_t ROTATED_HEXAGONAL_120_FLAG = 0x10000000;
+	const uint32_t FLIP_FLAGS_BITMASK =
+		FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG | ROTATED_HEXAGONAL_120_FLAG;
+
 	std::vector<Tileset> _tilesets;
 	std::vector<Object> _templates;
 	std::vector<Map> _maps;
@@ -324,15 +331,6 @@ namespace tiled
 					assert(gids_with_flip_flags.size() == layer.width * layer.height);
 					layer.tiles.resize(gids_with_flip_flags.size());
 					for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
-						constexpr uint32_t FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
-						constexpr uint32_t FLIPPED_VERTICALLY_FLAG    = 0x40000000;
-						constexpr uint32_t FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
-						constexpr uint32_t ROTATED_HEXAGONAL_120_FLAG = 0x10000000;
-						constexpr uint32_t FLIP_FLAGS_BITMASK =
-							FLIPPED_HORIZONTALLY_FLAG |
-							FLIPPED_VERTICALLY_FLAG |
-							FLIPPED_DIAGONALLY_FLAG |
-							ROTATED_HEXAGONAL_120_FLAG;
 						uint32_t gid_with_flip_flag = gids_with_flip_flags[i];
 						if (!gid_with_flip_flag) continue; // 0 means no tile
 						uint32_t gid = gid_with_flip_flag & ~FLIP_FLAGS_BITMASK;

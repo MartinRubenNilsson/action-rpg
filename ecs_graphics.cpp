@@ -131,15 +131,11 @@ namespace ecs
 
 	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class)
 	{
-		for (const tiled::Tileset& tileset : tiled::get_tilesets()) {
-			if (tileset.name == tileset_name) {
-				for (const tiled::Tile& tile : tileset.tiles) {
-					if (tile.class_ == tile_class) {
+		for (const tiled::Tileset& tileset : tiled::get_tilesets())
+			if (tileset.name == tileset_name)
+				for (const tiled::Tile& tile : tileset.tiles)
+					if (tile.class_ == tile_class)
 						return &emplace_tile(entity, &tile);
-					}
-				}
-			}
-		}
 		return nullptr;
 	}
 

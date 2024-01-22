@@ -121,8 +121,8 @@
 </data>
  </layer>
  <objectgroup id="8" name="Entities">
-  <object id="1" template="../templates/player.tx" x="367.327" y="302.894"/>
-  <object id="3" template="../templates/slime.tx" x="363.714" y="105.983"/>
+  <object id="1" template="../templates/player.tx" gid="1073744782" x="367.327" y="302.894"/>
+  <object id="3" template="../templates/slime.tx" gid="3022" x="363.714" y="105.983"/>
   <object id="4" template="../templates/slime.tx" x="147.533" y="305.303"/>
   <object id="5" template="../templates/slime.tx" x="190.288" y="474.515"/>
  </objectgroup>
