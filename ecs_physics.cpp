@@ -115,7 +115,7 @@ namespace ecs
 		entt::entity entity_b = get_entity(body_b);
 		std::string class_a = get_class(entity_a);
 		std::string class_b = get_class(entity_b);
-		if (class_a.empty() || class_b.empty()) return;
+		if (class_a.empty() && class_b.empty()) return;
 
 		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
 		if (class_a.compare(class_b) > 0) {
@@ -125,13 +125,15 @@ namespace ecs
 			std::swap(class_a, class_b);
 		}
 
-		if (class_a == "pickup" && class_b == "player") {
-			audio::play("event:/snd_pickup");
-			destroy_at_end_of_frame(entity_a);
-			return;
-		}
-
-		if (class_a == "player") {
+		if (class_a.empty()) {
+			// TODO
+		} else if (class_a == "pickup") {
+			if (class_b == "player") {
+				audio::play("event:/snd_pickup");
+				destroy_at_end_of_frame(entity_a);
+				return;
+			}
+		} else if (class_a == "player") {
 			if (class_b == "trigger") {
 				std::string string;
 				if (get_string(entity_b, "map", string)) {
@@ -141,13 +143,11 @@ namespace ecs
 					}
 				}
 			}
-		}
-
-		// New logic for arrow-slime collision
-		if (class_a == "arrow" && class_b == "slime") {
-			destroy_slime(entity_b);
-			destroy_at_end_of_frame(entity_a);
-			return;
+		} else if (class_a == "arrow") {
+			if (class_b == "slime") {
+				destroy_slime(entity_b);
+				destroy_at_end_of_frame(entity_a);
+			}
 		}
 	}
 
