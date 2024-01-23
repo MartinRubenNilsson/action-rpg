@@ -6,12 +6,14 @@ namespace ecs
 	{
 		None,
 		MoveToPosition,
+		MoveToEntity,
 	};
 
 	struct AiAction
 	{
 		AiActionType type = AiActionType::None;
-		sf::Vector2f position;
+		sf::Vector2f target_position;
+		entt::entity target_entity = entt::null;
 		float speed = 0.f;
 	};
 

@@ -19,7 +19,7 @@ namespace ecs
             {
                 if (!_registry.valid(world.player.entity)) break;
                 action.type = AiActionType::MoveToPosition;
-                action.position = world.player.current_position;
+                action.target_position = world.player.current_position;
                 action.speed = knowledge.me.speed;
                 break;
             }
