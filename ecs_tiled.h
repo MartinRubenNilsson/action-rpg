@@ -21,8 +21,8 @@ namespace ecs
 	bool get_int(entt::entity entity, const std::string& name, int& value);
 	void set_string(entt::entity entity, const std::string& name, const std::string& value);
 	bool get_string(entt::entity entity, const std::string& name, std::string& value);
-	bool get_float(entt::entity entity, const std::string& name, float& value);
 	void set_float(entt::entity entity, const std::string& name, float value);
-	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value);
+	bool get_float(entt::entity entity, const std::string& name, float& value);
 	void set_entity(entt::entity entity, const std::string& name, entt::entity value);
+	bool get_entity(entt::entity entity, const std::string& name, entt::entity& value);
 }

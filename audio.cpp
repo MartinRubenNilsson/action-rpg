@@ -20,9 +20,8 @@ namespace audio
 #endif
 	const std::string BUS_MASTER = "bus:/";
 	const int _MAX_AUDIO_CHANNELS = 512;
-	const int _EVENT_BUFFER_CAPACITY = 1024;
 	FMOD::Studio::System* _system = nullptr;
-	FMOD::Studio::EventInstance* _event_buffer[_EVENT_BUFFER_CAPACITY] = {};
+	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
 
 	FMOD::Studio::Bus* _get_bus(const std::string& path)
 	{
@@ -60,12 +59,12 @@ namespace audio
 		return instance;
 	}
 
-	// Returns the number of event instances written to the buffer.
-	int _get_event_instances(FMOD::Studio::EventDescription* desc)
+	// The returned span is valid only until the next call to _get_event_instances.
+	std::span<FMOD::Studio::EventInstance*> _get_event_instances(FMOD::Studio::EventDescription* desc)
 	{
 		int count = 0;
-		desc->getInstanceList(_event_buffer, _EVENT_BUFFER_CAPACITY, &count);
-		return count;
+		desc->getInstanceList(_event_buffer, _countof(_event_buffer), &count);
+		return std::span(_event_buffer, count);
 	}
 
 	void initialize()
@@ -147,12 +146,11 @@ namespace audio
 
 	bool is_playing(const std::string& event_path)
 	{
-		auto desc = _get_event_description(event_path);
+		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return false;
-		int count = _get_event_instances(desc);
-		for (int i = 0; i < count; ++i) {
+		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc)) {
 			FMOD_STUDIO_PLAYBACK_STATE state;
-			_event_buffer[i]->getPlaybackState(&state);
+			instance->getPlaybackState(&state);
 			if (state == FMOD_STUDIO_PLAYBACK_PLAYING)
 				return true;
 		}
@@ -161,27 +159,27 @@ namespace audio
 
 	bool play(const std::string& event_path)
 	{
-		auto desc = _get_event_description(event_path);
+		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return false;
-		auto instance = _create_event_instance(desc);
+		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
 		if (!instance) return false;
 		instance->start();
 		instance->release();
 		return true;
 	}
 
-	void stop_all(const std::string& event_path)
+	bool stop_all(const std::string& event_path)
 	{
-		auto desc = _get_event_description(event_path);
-		if (!desc) return;
-		int count = _get_event_instances(desc);
-		for (int i = 0; i < count; ++i)
-			_event_buffer[i]->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
+		if (!desc) return false;
+		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc))
+			instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+		return true;
 	}
 
 	bool stop_all_in_bus(const std::string& bus_path)
 	{
-		auto bus = _get_bus(bus_path);
+		FMOD::Studio::Bus* bus = _get_bus(bus_path);
 		if (!bus) return false;
 		bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
 		return true;

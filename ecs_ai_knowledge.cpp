@@ -6,8 +6,9 @@
 namespace ecs
 {
 	extern entt::registry _registry;
+	AiWorld _ai_world;
 
-	AiEntityInfo get_ai_entity_info(entt::entity entity)
+	AiEntityInfo _get_ai_entity_info(entt::entity entity)
 	{
 		AiEntityInfo info;
 		if (!_registry.valid(entity)) return info;
@@ -16,20 +17,29 @@ namespace ecs
 		info.class_ = get_class(entity);
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
-			info.position = get_world_center(body);
-			info.velocity = get_linear_velocity(body);
+			info.current_position = get_world_center(body);
+			info.current_velocity = get_linear_velocity(body);
 		}
+		get_float(entity, "speed", info.speed);
 		return info;
+	} 
+
+	void emplace_ai_knowledge(entt::entity entity){
+		_registry.emplace_or_replace<AiKnowledge>(entity);
 	}
 
 	void update_ai_knowledge(float dt)
 	{
-		AiEntityInfo player = get_ai_entity_info(find_entity_by_class("player"));
+		_ai_world.player = _get_ai_entity_info(find_entity_by_class("player"));
+		_ai_world.ais.clear();
 
 		for (auto [entity, knowledge] : _registry.view<AiKnowledge>().each()) {
-			knowledge.me = get_ai_entity_info(entity);
-			knowledge.player = player;
+			knowledge.me = _get_ai_entity_info(entity);
+			_ai_world.ais.push_back(knowledge.me);
 		}
+	}
+	const AiWorld& get_ai_world() {
+		return _ai_world;
 	}
 }
 

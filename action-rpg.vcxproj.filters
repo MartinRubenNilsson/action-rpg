@@ -86,7 +86,7 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="timer.cpp" />
-    <ClCompile Include="ecs_ai_actions.cpp">
+    <ClCompile Include="ecs_ai_action.cpp">
       <Filter>ecs\ai</Filter>
     </ClCompile>
     <ClCompile Include="ecs_ai_knowledge.cpp">
@@ -239,6 +239,9 @@
     <ClCompile Include="dependencies\box2d\src\rope\b2_rope.cpp">
       <Filter>physics\box2d</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_ai_behavior.cpp">
+      <Filter>ecs\ai</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -365,7 +368,7 @@
     <ClInclude Include="ecs_ai_knowledge.h">
       <Filter>ecs\ai</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_ai_actions.h">
+    <ClInclude Include="ecs_ai_action.h">
       <Filter>ecs\ai</Filter>
     </ClInclude>
     <ClInclude Include="ui_main_menu.h">
@@ -532,6 +535,9 @@
     </ClInclude>
     <ClInclude Include="dependencies\box2d\include\box2d\b2_user_settings.h">
       <Filter>physics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_ai_behavior.h">
+      <Filter>ecs\ai</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

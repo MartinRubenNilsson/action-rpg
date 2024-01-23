@@ -10,7 +10,7 @@
 #include "ecs_graphics.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
-#include "ecs_ai_actions.h"
+#include "ecs_ai_action.h"
 #include "ui_textbox.h"
 
 namespace map
@@ -91,12 +91,11 @@ namespace map
 					float w = object.size.x;
 					float h = object.size.y;
 
-					if (object.type == tiled::ObjectType::Tile) {
-						// Objects are positioned by their top-left corner, except for tiles,
-						// which are positioned by their bottom-left corner. This is confusing,
-						// so we'll adjust the position here to make it consistent.
+					// Objects are positioned by their top-left corner, except for tiles,
+					// which are positioned by their bottom-left corner. This is confusing,
+					// so we'll adjust the position here to make it consistent.
+					if (object.type == tiled::ObjectType::Tile)
 						y -= h;
-					}
 
 					if (object.type == tiled::ObjectType::Tile) {
 						assert(object.tile.tile && "Tile not found.");
@@ -200,7 +199,8 @@ namespace map
 						//}
 					} else if (object.class_ == "slime") {
 						ecs::emplace_slime_animation_controller(entity);
-						ecs::AIActionMoveToPlayer action;
+						ecs::AiAction action{};
+						action.type = ecs::AiActionType::MoveToPosition;
 						ecs::get_float(entity, "speed", action.speed);
 						ecs::emplace_ai_action(entity, action);
 						//ecs::destroy_immediately(entity);

@@ -10,11 +10,13 @@ namespace ecs
 	extern entt::registry _registry;
 
 	bool kill_player() {
-		return kill_player(get_player_entity());
+		//return kill_player(get_player_entity());
+		return false;
 	}
 
 	bool hurt_player(int health_to_remove) {
-		return hurt_player(get_player_entity(), health_to_remove);
+		//return hurt_player(get_player_entity(), health_to_remove);
+		return false;
 	}
 
 	bool activate_camera(const std::string& entity_name) {

@@ -222,20 +222,8 @@ namespace ecs
 		_registry.get<Player>(entity).arrowAmmo = 10; // Set an initial ammo count
 	}
 
-	bool player_exists() {
-		return !_registry.view<Player>().empty();
-	}
-
-	entt::entity get_player_entity() {
-		return _registry.view<Player>().front();
-	}
-
-	sf::Vector2f get_player_world_center()
-	{
-		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
-			return get_world_center(body);
-		}
-		return sf::Vector2f();
+	void remove_player(entt::entity entity) {
+		_registry.remove<Player>(entity);
 	}
 
 	bool kill_player(entt::entity entity)

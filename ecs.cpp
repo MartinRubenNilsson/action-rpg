@@ -5,7 +5,7 @@
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_ai_knowledge.h"
-#include "ecs_ai_actions.h"
+#include "ecs_ai_action.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
 #include "ecs_pickups.h"

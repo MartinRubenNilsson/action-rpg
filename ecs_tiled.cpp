@@ -57,23 +57,23 @@ namespace ecs
 	}
 
 	void set_bool(entt::entity entity, const std::string& name, bool value) {
-		tiled::set(_registry.emplace_or_replace<std::vector<tiled::Property>>(entity), name, value);
+		tiled::set(_registry.get_or_emplace<std::vector<tiled::Property>>(entity), name, value);
 	}
 
 	void set_float(entt::entity entity, const std::string& name, float value) {
-		tiled::set(_registry.emplace_or_replace<std::vector<tiled::Property>>(entity), name, value);
+		tiled::set(_registry.get_or_emplace<std::vector<tiled::Property>>(entity), name, value);
 	}
 
 	void set_int(entt::entity entity, const std::string& name, int value) {
-		tiled::set(_registry.emplace_or_replace<std::vector<tiled::Property>>(entity), name, value);
+		tiled::set(_registry.get_or_emplace<std::vector<tiled::Property>>(entity), name, value);
 	}
 
 	void set_string(entt::entity entity, const std::string& name, const std::string& value) {
-		tiled::set(_registry.emplace_or_replace<std::vector<tiled::Property>>(entity), name, value);
+		tiled::set(_registry.get_or_emplace<std::vector<tiled::Property>>(entity), name, value);
 	}
 
 	void set_entity(entt::entity entity, const std::string& name, entt::entity value) {
-		tiled::set(_registry.emplace_or_replace<std::vector<tiled::Property>>(entity), name, value);
+		tiled::set(_registry.get_or_emplace<std::vector<tiled::Property>>(entity), name, value);
 	}
 
 	bool get_bool(entt::entity entity, const std::string& name, bool& value)

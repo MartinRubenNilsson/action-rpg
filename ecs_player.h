@@ -32,9 +32,7 @@ namespace ecs
 	void update_player(float dt);
 
 	void emplace_player(entt::entity entity, const Player& player);
-	bool player_exists();
-	entt::entity get_player_entity();
-	sf::Vector2f get_player_world_center();
+	void remove_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);
 	bool hurt_player(entt::entity entity, int health_to_remove);

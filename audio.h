@@ -20,7 +20,7 @@ namespace audio
 	// Creates and starts a new event instance with the given path.
 	// If the event is not one-shot, it may keep playing indefinitely.
 	bool play(const std::string& event_path);
-	void stop_all(const std::string& event_path);
+	bool stop_all(const std::string& event_path);
 	bool stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
 }
 
