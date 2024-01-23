@@ -77,7 +77,7 @@ namespace ecs
 		b2FixtureDef fixture_def;
 		fixture_def.shape = &shape;
 		fixture_def.density = 1.f;
-		fixture_def.filter.categoryBits = CC_PlayerAttack;
+		fixture_def.filter = get_filter_for_class("arrow");
 		body->CreateFixture(&fixture_def);
 
 		// Set the velocity of the projectile

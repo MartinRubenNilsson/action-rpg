@@ -14,25 +14,13 @@ namespace ecs
 		CC_PlayerAttack = 1 << 3,
 		CC_EnemyAttack  = 1 << 4,
 	};
-}
 
-// Enable bitmask operators for CollisionCategory
-template<> struct entt::enum_as_bitmask<ecs::CollisionCategory> : std::true_type {};
-
-namespace ecs
-{
 	enum CollisionMask : uint16_t
 	{
 		CM_Default = ~CC_None,
 		CM_Player = ~CC_PlayerAttack,
 	};
-}
 
-// Enable bitmask operators for CollisionMask
-template<> struct entt::enum_as_bitmask<ecs::CollisionMask> : std::true_type {};
-
-namespace ecs
-{
 	void initialize_physics();
 	void shutdown_physics();
 	void update_physics(float dt);
