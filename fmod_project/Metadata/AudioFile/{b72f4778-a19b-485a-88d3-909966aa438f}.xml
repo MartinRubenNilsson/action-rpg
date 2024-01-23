@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{b72f4778-a19b-485a-88d3-909966aa438f}">
+		<property name="note" />
+		<property name="assetPath">
+			<value>snd_glass_smash.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.9733786848072562</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{4e61cbb7-ccd0-44ba-a9d9-fc01c676f119}</destination>
+		</relationship>
+	</object>
+</objects>

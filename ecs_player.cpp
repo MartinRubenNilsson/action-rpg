@@ -82,6 +82,7 @@ namespace ecs
 
 		//TODO Play arrow firing sound here
 		//audio::play("event:/snd_arrow_fire"); // Replace with your actual sound event
+		audio::play("event:/snd_glass_smash");
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
