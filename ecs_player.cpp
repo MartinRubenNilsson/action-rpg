@@ -25,6 +25,7 @@ namespace ecs
 	const float PLAYER_WALK_SPEED = 72.f;
 	const float PLAYER_RUN_SPEED = 136.f;
 	const float PROJECTILE_SPEED = 160.f;
+	const float PLAYER_STEALTH_SPEED = 36.f;
 
 	void _update_player_input(PlayerInput& input)
 	{
@@ -35,6 +36,7 @@ namespace ecs
 		input.direction.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
 		input.direction = normalize(input.direction);
 		input.run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+		input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
 	}
 
 	void process_event_player(const sf::Event& event)
@@ -110,17 +112,27 @@ namespace ecs
 
 			float speed = 0.f;
 			if (player.kill_timer.stopped()) {
-				if (is_zero(player.input.direction)) {
-					player.step_timer.start();
-				} else { // if player is moving
-					speed = player.input.run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
+				if (!is_zero(player.input.direction)) {
+					// Update direction only when moving
 					player.state.direction = player.input.direction;
+
+					// Determine speed based on movement mode
+					if (player.input.stealth) {
+						speed = PLAYER_STEALTH_SPEED;
+					}
+					else {
+						speed = player.input.run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
+					}
 					if (player.step_timer.update(dt)) {
 						player.step_timer.start();
 						map::play_footstep_sound_at(center);
 					}
 				}
-			} else {
+				else {
+					player.step_timer.start();
+				}
+			}
+			else {
 				// Player is dying, let's spin!!
 				speed = 0.001f;
 				float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
