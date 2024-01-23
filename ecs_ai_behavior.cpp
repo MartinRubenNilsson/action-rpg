@@ -11,11 +11,12 @@ namespace ecs
     {
         const AiWorld& world = get_ai_world();
 
+        // IMPORTANT: knowledge must be const! don't modify it here!
         for (auto [entity, knowledge, behavior, action] :
 			_registry.view<const ecs::AiKnowledge, ecs::AiBehavior, ecs::AiAction>().each())
 		{
             switch (behavior.type) {
-            case AiBehaviorType::MoveToPlayer:
+            case AiBehaviorType::Slime:
             {
                 if (!_registry.valid(world.player.entity)) break;
                 action.type = AiActionType::MoveToPosition;

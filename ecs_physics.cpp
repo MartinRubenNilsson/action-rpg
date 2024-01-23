@@ -9,15 +9,28 @@
 
 namespace ecs
 {
+	const b2Vec2 _PHYSICS_GRAVITY(0, 0);
+	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
+	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
+	const int _PHYSICS_POSITION_ITERATIONS = 3;
+
+	b2Filter _make_filter(uint16_t category_bits = CC_Default, uint16_t mask_bits = CM_Default)
+	{
+		b2Filter filter;
+		filter.categoryBits = category_bits;
+		filter.maskBits = mask_bits;
+		return filter;
+	}
+
+	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
+		{ "player", _make_filter(CC_Player, CM_Player) },
+		{ "arrow", _make_filter(CC_PlayerAttack) },
+	};
+
 	struct ContactListener : b2ContactListener // forward declaration
 	{
 		void BeginContact(b2Contact* contact) override;
 	};
-
-	const b2Vec2 PHYSICS_GRAVITY(0, 0);
-	const float PHYSICS_TIME_STEP = 1.f / 60.f;
-	const int PHYSICS_VELOCITY_ITERATIONS = 8;
-	const int PHYSICS_POSITION_ITERATIONS = 3;
 
 	extern entt::registry _registry;
 	ContactListener _contact_listener;
@@ -30,7 +43,7 @@ namespace ecs
 
 	void initialize_physics()
 	{
-		_world = std::make_unique<b2World>(PHYSICS_GRAVITY);
+		_world = std::make_unique<b2World>(_PHYSICS_GRAVITY);
 		_world->SetContactListener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
@@ -44,12 +57,12 @@ namespace ecs
 	void update_physics(float dt)
 	{
 		_physics_time_accumulator += dt;
-		while (_physics_time_accumulator > PHYSICS_TIME_STEP) {
-			_physics_time_accumulator -= PHYSICS_TIME_STEP;
+		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
+			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
 			_world->Step(
-				PHYSICS_TIME_STEP,
-				PHYSICS_VELOCITY_ITERATIONS,
-				PHYSICS_POSITION_ITERATIONS);
+				_PHYSICS_TIME_STEP,
+				_PHYSICS_VELOCITY_ITERATIONS,
+				_PHYSICS_POSITION_ITERATIONS);
 		}
 	}
 
@@ -72,6 +85,13 @@ namespace ecs
 
 	void remove_body(entt::entity entity) {
 		_registry.remove<b2Body*>(entity);
+	}
+
+	b2Filter get_filter_for_class(const std::string& class_)
+	{
+		auto it = _CLASS_TO_FILTER.find(class_);
+		if (it != _CLASS_TO_FILTER.end()) return it->second;
+		return _make_filter();
 	}
 
 	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)

@@ -5,6 +5,7 @@
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_ai_knowledge.h"
+#include "ecs_ai_behavior.h"
 #include "ecs_ai_action.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
@@ -50,6 +51,7 @@ namespace ecs
 		update_player(dt);
 		update_pickups(dt);
 		update_ai_knowledge(dt);
+		update_ai_behaviors(dt);
 		update_ai_actions(dt);
 		update_physics(dt);
 		_destroy_entities();

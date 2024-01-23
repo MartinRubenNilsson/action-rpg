@@ -125,7 +125,11 @@ namespace map
 								{
 									b2PolygonShape shape;
 									shape.SetAsBox(hw, hh, center, 0.f);
-									body->CreateFixture(&shape, 1.f);
+									b2FixtureDef fixture_def;
+									fixture_def.shape = &shape;
+									fixture_def.density = 1.f;
+									fixture_def.filter = ecs::get_filter_for_class(object.class_);
+									body->CreateFixture(&fixture_def);
 									break;
 								}
 								case tiled::ObjectType::Ellipse:
@@ -133,7 +137,11 @@ namespace map
 									b2CircleShape shape;
 									shape.m_p = center;
 									shape.m_radius = hw;
-									body->CreateFixture(&shape, 1.f);
+									b2FixtureDef fixture_def;
+									fixture_def.shape = &shape;
+									fixture_def.density = 1.f;
+									fixture_def.filter = ecs::get_filter_for_class(object.class_);
+									body->CreateFixture(&fixture_def);
 									break;
 								}
 								}
@@ -159,6 +167,7 @@ namespace map
 							b2FixtureDef fixture_def;
 							fixture_def.shape = &shape;
 							fixture_def.isSensor = true;
+							fixture_def.filter = ecs::get_filter_for_class(object.class_);
 							body->CreateFixture(&fixture_def);
 							break;
 						}
@@ -170,6 +179,7 @@ namespace map
 							b2FixtureDef fixture_def;
 							fixture_def.shape = &shape;
 							fixture_def.isSensor = true;
+							fixture_def.filter = ecs::get_filter_for_class(object.class_);
 							body->CreateFixture(&fixture_def);
 							break;
 						}

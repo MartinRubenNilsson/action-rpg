@@ -73,8 +73,12 @@ namespace ecs
 		b2CircleShape shape;
 		shape.m_p.x = 0;
 		shape.m_p.y = 0;
-		shape.m_radius = 0.5;
-		body->CreateFixture(&shape, 1);
+		shape.m_radius = 6.f;
+		b2FixtureDef fixture_def;
+		fixture_def.shape = &shape;
+		fixture_def.density = 1.f;
+		fixture_def.filter.categoryBits = CC_PlayerAttack;
+		body->CreateFixture(&fixture_def);
 
 		// Set the velocity of the projectile
 		sf::Vector2f projectile_velocity = normalize(direction) * PROJECTILE_SPEED;
@@ -86,13 +90,8 @@ namespace ecs
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
-			// Do stuff if we need to
+			tile->origin = sf::Vector2f(6.f, 6.f);
 		}
-
-		//HACK //LEAK
-		tiled::Object* obj = new tiled::Object();
-		obj->class_ = "arrow";
-		_registry.emplace<const tiled::Object*>(projectile_entity, obj);
 	}
 
 	void update_player(float dt)

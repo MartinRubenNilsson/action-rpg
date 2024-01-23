@@ -23,8 +23,8 @@ namespace ecs
 {
 	enum CollisionMask : uint16_t
 	{
-		CM_DefaultMask = ~CC_None,
-		CM_PlayerMask = ~CC_PlayerAttack,
+		CM_Default = ~CC_None,
+		CM_Player = ~CC_PlayerAttack,
 	};
 }
 
@@ -43,6 +43,8 @@ namespace ecs
 
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	void remove_body(entt::entity entity);
+
+	b2Filter get_filter_for_class(const std::string& class_);
 
 	struct RayHit
 	{

@@ -5,7 +5,7 @@ namespace ecs
 	enum class AiBehaviorType
 	{
 		None,
-		MoveToPlayer,
+		Slime,
 	};
 
 	struct AiBehavior

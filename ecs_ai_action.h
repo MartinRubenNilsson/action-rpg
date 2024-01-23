@@ -7,11 +7,24 @@ namespace ecs
 		None,
 		MoveToPosition,
 		MoveToEntity,
+
+		//SOME MORE EXAMPLES:
+		//Wait,
+		//Patrol,
+		//FleeFromEntity,
+		//PlayAnimation,
+	};
+
+	enum class AiActionStatus
+	{
+		Running,
+		Finished,
 	};
 
 	struct AiAction
 	{
 		AiActionType type = AiActionType::None;
+		AiActionStatus status = AiActionStatus::Running;
 		sf::Vector2f target_position;
 		entt::entity target_entity = entt::null;
 		float speed = 0.f;
