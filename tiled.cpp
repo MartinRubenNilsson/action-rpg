@@ -5,12 +5,25 @@
 
 namespace tiled
 {
-	const uint32_t FLIPPED_HORIZONTALLY_FLAG  = 0x80000000;
-	const uint32_t FLIPPED_VERTICALLY_FLAG    = 0x40000000;
-	const uint32_t FLIPPED_DIAGONALLY_FLAG    = 0x20000000;
-	const uint32_t ROTATED_HEXAGONAL_120_FLAG = 0x10000000;
+	const uint32_t FLIP_HORIZONTAL_BIT = 0x80000000;
+	const uint32_t FLIP_VERTICAL_BIT   = 0x40000000;
+	const uint32_t FLIP_DIAGONAL_BIT   = 0x20000000;
+	const uint32_t FLIP_ROTATE_120_BIT = 0x10000000;
 	const uint32_t FLIP_FLAGS_BITMASK =
-		FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG | ROTATED_HEXAGONAL_120_FLAG;
+		FLIP_HORIZONTAL_BIT | FLIP_VERTICAL_BIT | FLIP_DIAGONAL_BIT | FLIP_ROTATE_120_BIT;
+
+	uint32_t _get_gid(uint32_t gid_with_flip_flags) {
+		return gid_with_flip_flags & ~FLIP_FLAGS_BITMASK;
+	}
+
+	FlipFlags _get_flip_flags(uint32_t gid_with_flip_flags) {
+		FlipFlags flip_flags = FLIP_NONE;
+		if (gid_with_flip_flags & FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
+		if (gid_with_flip_flags & FLIP_VERTICAL_BIT) flip_flags |= FLIP_VERTICAL;
+		if (gid_with_flip_flags & FLIP_DIAGONAL_BIT) flip_flags |= FLIP_DIAGONAL;
+		if (gid_with_flip_flags & FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
+		return flip_flags;
+	}
 
 	std::vector<Tileset> _tilesets;
 	std::vector<Object> _templates;
@@ -240,20 +253,22 @@ namespace tiled
 				std::filesystem::path tileset_path = template_.path.parent_path();
 				tileset_path /= source_attribute.as_string();
 				tileset_path = tileset_path.lexically_normal();
-				bool found = false;
+				uint32_t gid_with_flip_flags = object_node.attribute("gid").as_uint();
+				uint32_t gid = _get_gid(gid_with_flip_flags);
+				uint32_t id = gid - tileset_node.attribute("firstgid").as_uint();
+				const Tile* tile = nullptr;
 				for (const Tileset& tileset : _tilesets) {
 					if (tileset.path == tileset_path) {
-						found = true;
-						uint32 tile_id =
-							object_node.attribute("gid").as_uint() -
-							tileset_node.attribute("firstgid").as_uint();
-						template_.tile = &tileset.tiles.at(tile_id);
-						template_.type = ObjectType::Tile;
+						tile = &tileset.tiles.at(id);
 						break;
 					}
 				}
-				if (!found)
-					console::log_error("Failed to find tileset: " + tileset_path.string());
+				if (!tile) {
+					console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+					continue;
+				}
+				template_.tile = { tile, _get_flip_flags(gid_with_flip_flags) };
+				template_.type = ObjectType::Tile;
 			}
 		}
 
@@ -333,20 +348,19 @@ namespace tiled
 					for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
 						uint32_t gid_with_flip_flag = gids_with_flip_flags[i];
 						if (!gid_with_flip_flag) continue; // 0 means no tile
-						uint32_t gid = gid_with_flip_flag & ~FLIP_FLAGS_BITMASK;
-						//TODO: handle these
-						bool flipped_horizontally  = gid_with_flip_flag & FLIPPED_HORIZONTALLY_FLAG;
-						bool flipped_vertically    = gid_with_flip_flag & FLIPPED_VERTICALLY_FLAG;
-						bool flipped_diagonally    = gid_with_flip_flag & FLIPPED_DIAGONALLY_FLAG;
-						bool rotated_hexagonal_120 = gid_with_flip_flag & ROTATED_HEXAGONAL_120_FLAG;
+						uint32_t gid = _get_gid(gid_with_flip_flag);
+						const Tile* tile = nullptr;
 						for (const auto& [tileset, first_gid] : referenced_tilesets) {
-							if (gid >= first_gid && gid < first_gid + tileset->tile_count) {
-								layer.tiles[i] = &tileset->tiles[gid - first_gid];
+							if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
+								tile = &tileset->tiles[gid - first_gid];
 								break;
 							}
 						}
-						if (!layer.tiles[i])
+						if (!tile) {
 							console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+							continue;
+						}
+						layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
 					}
 				} else if (_is_object_layer(layer_node.name())) {
 					for (pugi::xml_node object_node : layer_node.children("object")) {
@@ -368,18 +382,21 @@ namespace tiled
 						}
 						_load_object(object_node, object);
 						if (pugi::xml_attribute gid_attribute = object_node.attribute("gid")) {
-							uint32_t gid = gid_attribute.as_uint();
-							bool found = false;
+							uint32_t gid_with_flip_flags = gid_attribute.as_uint();
+							uint32_t gid = _get_gid(gid_with_flip_flags);
+							const Tile* tile = nullptr;
 							for (const auto& [tileset, first_gid] : referenced_tilesets) {
 								if (gid >= first_gid && gid < first_gid + tileset->tile_count) {
-									found = true;
-									object.tile = &tileset->tiles[gid - first_gid];
-									object.type = ObjectType::Tile;
+									tile = &tileset->tiles[gid - first_gid];
 									break;
 								}
 							}
-							if (!found)
+							if (!tile) {
 								console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+								continue;
+							}
+							object.tile = { tile, _get_flip_flags(gid_with_flip_flags) };
+							object.type = ObjectType::Tile;
 						}
 					}
 				} else if (_is_image_layer(layer_node.name())) {

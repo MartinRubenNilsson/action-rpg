@@ -24,11 +24,13 @@ namespace ecs
 		return SortingLayer::Objects;
 	}
 
-	Tile::Tile(const tiled::Tile* tile)
-		: _tile(tile)
-		, _frame(tile)
+	Tile::Tile(const tiled::FlippedTile& tile)
+		: _tile(tile.tile)
+		, _frame(tile.tile)
+		, flip_x(tile.flip_flags & tiled::FLIP_HORIZONTAL)
+		, flip_y(tile.flip_flags & tiled::FLIP_VERTICAL)
 	{
-		assert(tile);
+		assert(tile.tile);
 		animation_timer = Timer(get_animation_duration() / 1000.f);
 		animation_timer.start();
 	}
@@ -43,7 +45,7 @@ namespace ecs
 		if (class_ == _tile->class_) return false;
 		for (const tiled::Tile& tile : _tile->tileset->tiles) {
 			if (tile.class_ == class_) {
-				*this = Tile(&tile);
+				*this = Tile(tiled::FlippedTile{ &tile, tiled::FLIP_NONE });
 				return true;
 			}
 		}
@@ -123,9 +125,9 @@ namespace ecs
 		}
 	}
 
-	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile)
+	Tile& emplace_tile(entt::entity entity, const tiled::FlippedTile& tile)
 	{
-		assert(tile);
+		assert(tile.tile);
 		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
@@ -135,7 +137,7 @@ namespace ecs
 			if (tileset.name == tileset_name)
 				for (const tiled::Tile& tile : tileset.tiles)
 					if (tile.class_ == tile_class)
-						return &emplace_tile(entity, &tile);
+						return &emplace_tile(entity, { &tile, tiled::FLIP_NONE });
 		return nullptr;
 	}
 
