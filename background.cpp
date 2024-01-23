@@ -68,15 +68,17 @@ namespace background
 
 	void render(sf::RenderTarget& target)
 	{
-		const unsigned int target_width = target.getSize().x;
+		sf::View view = target.getView();
+		sf::FloatRect view_rect = sf::FloatRect(view.getCenter() - view.getSize() / 2.f, view.getSize());
+
 		switch (type) {
 		case Type::MountainDusk:
 			for (size_t i = 0; i < _mountain_dusk_layers.size(); ++i) {
 				const MountainDuskLayer& layer = _mountain_dusk_layers[i];
 				const unsigned int texture_width = layer.texture.getSize().x;
 				sf::Sprite sprite(layer.texture);
-				for (float x = -layer.offset; x < target_width; x += texture_width) {
-					sprite.setPosition(x, 0.f);
+				for (float x = -layer.offset; x < view_rect.width; x += texture_width) {
+					sprite.setPosition(view_rect.left + x, view_rect.top);
 					target.draw(sprite);
 				}
 			}
