@@ -4,6 +4,7 @@ namespace ecs
 {
 	enum class AiType
 	{
+		None, // Useful if you want to turn off AI for an entity.
 		Slime,
 
 		// Add new ai types here. Examples:
