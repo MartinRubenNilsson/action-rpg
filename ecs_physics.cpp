@@ -164,7 +164,7 @@ namespace ecs
 		} else if (class_a == "arrow") {
 			if (class_b == "slime") {
 				destroy_at_end_of_frame(entity_a);
-				destroy_slime(entity_b);
+				destroy_at_end_of_frame(entity_b);
 			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
@@ -176,7 +176,7 @@ namespace ecs
 				// Call function to hurt player
 				int damage = 1; // decide how much damage a slime does
 				hurt_player(entity_a, damage);
-			} else if (class_b == "trigger") {
+			} /*else if (class_b == "trigger") {
 				std::string string;
 				if (get_string(entity_b, "map", string)) {
 					if (map::open(string, true)) {
@@ -184,19 +184,7 @@ namespace ecs
 							map::set_player_spawnpoint(string);
 					}
 				}
-			}
+			}*/
 		}
-	}
-
-	void destroy_slime(entt::entity slime_entity) {
-		// Check if the entity is valid before attempting to destroy it
-		if (!_registry.valid(slime_entity)) {
-			return;
-		}
-
-		// Optional: Perform any other game logic updates, such as increasing the score
-
-		// Destroy the entity
-		destroy_at_end_of_frame(slime_entity);
 	}
 }
