@@ -37,5 +37,5 @@ char get_direction(const sf::Vector2f& v); // Returns the direction ('r', 'l', '
 
 // COMPUTATIONAL GEOMETRY
 
-//TODO: implement "is_convex()"
+bool is_convex(const std::vector<sf::Vector2f>& polygon);
 std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vector2f>& polygon);

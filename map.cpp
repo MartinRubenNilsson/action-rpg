@@ -291,8 +291,7 @@ namespace map
 									console::log_error(
 										"Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
-								//} else if (count <= b2_maxPolygonVertices) {
-								} else if (count <= b2_maxPolygonVertices) {
+								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
 									b2Vec2 points[b2_maxPolygonVertices];
 									for (size_t i = 0; i < count; ++i) {
 										points[i].x = cx + collider.points[i].x;
@@ -303,13 +302,7 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
-									/*console::log_error(
-										"Too many points in polygon collider! Got " +
-										std::to_string(count) + ", need <= " +
-										std::to_string(b2_maxPolygonVertices) + ".");*/
-									//BUGGY
-									auto triangles = triangulate(collider.points);
-									for (const auto& triangle : triangles) {
+									for (const auto& triangle : triangulate(collider.points)) {
 										b2Vec2 points[3];
 										for (size_t i = 0; i < 3; ++i) {
 											points[i].x = cx + triangle[i].x;

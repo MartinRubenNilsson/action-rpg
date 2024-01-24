@@ -84,6 +84,25 @@ char get_direction(const sf::Vector2f& v)
 	return ' '; // This should never happen.
 }
 
+bool is_convex(const std::vector<sf::Vector2f>& polygon)
+{
+	float first_nonzero_det = 0;
+	const size_t vertex_count = polygon.size();
+	for (size_t i = 0; i < vertex_count; ++i) {
+		size_t i0 = i;
+		size_t i1 = (i + 1) % vertex_count;
+ 		size_t i2 = (i + 2) % vertex_count;
+		float current_det = det(polygon[i0] - polygon[i1], polygon[i2] - polygon[i1]);
+		if (!current_det) continue;
+		if (!first_nonzero_det) {
+			first_nonzero_det = current_det;
+			continue;
+		}
+		if (current_det * first_nonzero_det < 0) return false;
+	}
+	return true;
+}
+
 std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vector2f>& polygon)
 {
 	//Ear clipping algorithm: https://www.youtube.com/watch?v=d9tytAQbpXM
