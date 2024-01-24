@@ -6,6 +6,7 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_player.h"
+#include "ecs_physics_filters.h"
 
 namespace ecs
 {
@@ -13,19 +14,6 @@ namespace ecs
 	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
-
-	b2Filter _make_filter(uint16_t category_bits = CC_Default, uint16_t mask_bits = CM_Default)
-	{
-		b2Filter filter;
-		filter.categoryBits = category_bits;
-		filter.maskBits = mask_bits;
-		return filter;
-	}
-
-	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
-		{ "player", _make_filter(CC_Player, CM_Player) },
-		{ "arrow", _make_filter(CC_PlayerAttack) },
-	};
 
 	struct ContactListener : b2ContactListener // forward declaration
 	{
@@ -85,13 +73,6 @@ namespace ecs
 
 	void remove_body(entt::entity entity) {
 		_registry.remove<b2Body*>(entity);
-	}
-
-	b2Filter get_filter_for_class(const std::string& class_)
-	{
-		auto it = _CLASS_TO_FILTER.find(class_);
-		if (it != _CLASS_TO_FILTER.end()) return it->second;
-		return _make_filter();
 	}
 
 	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)
