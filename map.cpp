@@ -11,7 +11,7 @@
 #include "ecs_graphics.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
-#include "ecs_ai_action.h"
+#include "ecs_ai.h"
 #include "ui_textbox.h"
 
 namespace map
@@ -210,12 +210,7 @@ namespace map
 						//}
 					} else if (object.class_ == "slime") {
 						ecs::emplace_slime_animation_controller(entity);
-						ecs::AiAction action{};
-						action.type = ecs::AiActionType::MoveToEntity;
-						action.target_entity = ecs::find_entity_by_class("player");
-						ecs::get_float(entity, "speed", action.speed);
-						ecs::emplace_ai_action(entity, action);
-						//ecs::destroy_immediately(entity);
+						ecs::emplace_ai(entity, ecs::AiType::Slime);
 					} else if (object.class_ == "camera") {
 						ecs::Camera camera;
 						camera.view.setCenter(x, y);
