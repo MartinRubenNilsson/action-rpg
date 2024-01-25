@@ -24,10 +24,6 @@ namespace ecs
 		return info;
 	} 
 
-	void emplace_ai_knowledge(entt::entity entity){
-		_registry.emplace_or_replace<AiKnowledge>(entity);
-	}
-
 	void update_ai_knowledge(float dt)
 	{
 		_ai_world.player = _get_ai_entity_info(find_entity_by_class("player"));

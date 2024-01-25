@@ -29,5 +29,4 @@ namespace ecs
 	void update_ai_knowledge(float dt);
 
 	const AiWorld& get_ai_world();
-	void emplace_ai_knowledge(entt::entity entity);
 }
