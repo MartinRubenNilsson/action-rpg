@@ -51,9 +51,6 @@
     <ClCompile Include="ecs_player.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_physics.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
@@ -239,8 +236,14 @@
     <ClCompile Include="dependencies\box2d\src\rope\b2_rope.cpp">
       <Filter>physics\box2d</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_ai_behavior.cpp">
+    <ClCompile Include="ecs_ai.cpp">
       <Filter>ecs\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_physics.cpp">
+      <Filter>ecs\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_physics_filters.cpp">
+      <Filter>ecs\physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -294,9 +297,6 @@
       <Filter>ui\rml</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_physics.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />
@@ -536,8 +536,14 @@
     <ClInclude Include="dependencies\box2d\include\box2d\b2_user_settings.h">
       <Filter>physics</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_ai_behavior.h">
+    <ClInclude Include="ecs_ai.h">
       <Filter>ecs\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_physics.h">
+      <Filter>ecs\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_physics_filters.h">
+      <Filter>ecs\physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -591,6 +597,9 @@
     </Filter>
     <Filter Include="physics\box2d">
       <UniqueIdentifier>{866076fd-537d-4e00-afca-8a89f23366a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\physics">
+      <UniqueIdentifier>{bb288391-6986-45d7-944a-5e3ef8ad4dd0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

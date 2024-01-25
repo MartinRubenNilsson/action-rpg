@@ -32,7 +32,25 @@ namespace ecs
 		}
 	}
 
-	void emplace_ai_action(entt::entity entity, const AiAction& action) {
+	void _set_ai_action(entt::entity entity, const AiAction& action) {
 		_registry.emplace_or_replace<AiAction>(entity, action);
+	}
+
+	void ai_move_to_position(entt::entity entity, sf::Vector2f target_position, float speed)
+	{
+		AiAction action{};
+		action.type = AiActionType::MoveToPosition;
+		action.target_position = target_position;
+		action.speed = speed;
+		_set_ai_action(entity, action);
+	}
+
+	void ai_move_to_entity(entt::entity entity, entt::entity target_entity, float speed)
+	{
+		AiAction action{};
+		action.type = AiActionType::MoveToEntity;
+		action.target_entity = target_entity;
+		action.speed = speed;
+		_set_ai_action(entity, action);
 	}
 }

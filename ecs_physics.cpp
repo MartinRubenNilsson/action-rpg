@@ -6,6 +6,7 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_player.h"
+#include "ecs_physics_filters.h"
 
 namespace ecs
 {
@@ -13,19 +14,6 @@ namespace ecs
 	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
-
-	b2Filter _make_filter(uint16_t category_bits = CC_Default, uint16_t mask_bits = CM_Default)
-	{
-		b2Filter filter;
-		filter.categoryBits = category_bits;
-		filter.maskBits = mask_bits;
-		return filter;
-	}
-
-	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
-		{ "player", _make_filter(CC_Player, CM_Player) },
-		{ "arrow", _make_filter(CC_PlayerAttack) },
-	};
 
 	struct ContactListener : b2ContactListener // forward declaration
 	{
@@ -85,13 +73,6 @@ namespace ecs
 
 	void remove_body(entt::entity entity) {
 		_registry.remove<b2Body*>(entity);
-	}
-
-	b2Filter get_filter_for_class(const std::string& class_)
-	{
-		auto it = _CLASS_TO_FILTER.find(class_);
-		if (it != _CLASS_TO_FILTER.end()) return it->second;
-		return _make_filter();
 	}
 
 	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)
@@ -177,15 +158,25 @@ namespace ecs
 		}
 
 		if (class_a.empty()) {
-			// TODO
+			if (class_b == "arrow") {
+				destroy_at_end_of_frame(entity_b);
+			}
+		} else if (class_a == "arrow") {
+			if (class_b == "slime") {
+				destroy_at_end_of_frame(entity_a);
+				destroy_at_end_of_frame(entity_b);
+			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 				audio::play("event:/snd_pickup");
 				destroy_at_end_of_frame(entity_a);
-				return;
 			}
 		} else if (class_a == "player") {
-			if (class_b == "trigger") {
+			if (class_b == "slime") {
+				// Call function to hurt player
+				int damage = 1; // decide how much damage a slime does
+				hurt_player(entity_a, damage);
+			} /*else if (class_b == "trigger") {
 				std::string string;
 				if (get_string(entity_b, "map", string)) {
 					if (map::open(string, true)) {
@@ -193,44 +184,7 @@ namespace ecs
 							map::set_player_spawnpoint(string);
 					}
 				}
-			}
+			}*/
 		}
-
-		// Check for player-slime collision
-		if (class_a == "player" && class_b == "slime") {
-			// Call function to hurt player
-			int damage = 1; // decide how much damage a slime does
-			hurt_player(entity_a, damage);
-		}
-
-		// Arrow-slime collision
-		if ((class_a == "arrow" && class_b == "slime")) {
-			destroy_slime(entity_b);
-			// Destroy arrow when it hits a slime
-			destroy_at_end_of_frame(entity_a);
-			return;
-		}
-
-		// TODO Arrow collision with other objects
-		//if (class_a == "arrow") {
-		//	// Check if class_b is one of the collision objects (e.g., wall, floor)
-		//	if (class_b == "wall" || /* other collision object types */) {
-		//		// Destroy arrow when it hits a wall or other object
-		//		destroy_at_end_of_frame(entity_a);
-		//	}
-		//}
-	
-	}
-
-	void destroy_slime(entt::entity slime_entity) {
-		// Check if the entity is valid before attempting to destroy it
-		if (!_registry.valid(slime_entity)) {
-			return;
-		}
-
-		// Optional: Perform any other game logic updates, such as increasing the score
-
-		// Destroy the entity
-		destroy_at_end_of_frame(slime_entity);
 	}
 }

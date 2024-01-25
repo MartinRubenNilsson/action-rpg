@@ -17,8 +17,8 @@ namespace ecs
 		info.class_ = get_class(entity);
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
-			info.current_position = get_world_center(body);
-			info.current_velocity = get_linear_velocity(body);
+			info.position = get_world_center(body);
+			info.velocity = get_linear_velocity(body);
 		}
 		get_float(entity, "speed", info.speed);
 		return info;

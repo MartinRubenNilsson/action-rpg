@@ -169,10 +169,11 @@
     <ClCompile Include="dependencies\box2d\src\dynamics\b2_world_callbacks.cpp" />
     <ClCompile Include="dependencies\box2d\src\rope\b2_rope.cpp" />
     <ClCompile Include="ecs_ai_action.cpp" />
-    <ClCompile Include="ecs_ai_behavior.cpp" />
+    <ClCompile Include="ecs_ai.cpp" />
     <ClCompile Include="ecs_ai_knowledge.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
     <ClCompile Include="ecs_console_commands.cpp" />
+    <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="random_noise.cpp" />
@@ -264,10 +265,11 @@
     <ClInclude Include="dependencies\box2d\src\dynamics\b2_polygon_circle_contact.h" />
     <ClInclude Include="dependencies\box2d\src\dynamics\b2_polygon_contact.h" />
     <ClInclude Include="ecs_ai_action.h" />
-    <ClInclude Include="ecs_ai_behavior.h" />
+    <ClInclude Include="ecs_ai.h" />
     <ClInclude Include="ecs_ai_knowledge.h" />
     <ClInclude Include="ecs_camera.h" />
     <ClInclude Include="ecs_console_commands.h" />
+    <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_projectile.h" />
     <ClInclude Include="random.h" />

@@ -3,6 +3,7 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
+#include "ecs_physics_filters.h"
 #include "ecs_graphics.h"
 #include "ecs_camera.h"
 #include "map.h"

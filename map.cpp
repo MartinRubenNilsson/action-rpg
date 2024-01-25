@@ -7,10 +7,11 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
+#include "ecs_physics_filters.h"
 #include "ecs_graphics.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
-#include "ecs_ai_action.h"
+#include "ecs_ai.h"
 #include "ui_textbox.h"
 
 namespace map
@@ -209,12 +210,7 @@ namespace map
 						//}
 					} else if (object.class_ == "slime") {
 						ecs::emplace_slime_animation_controller(entity);
-						ecs::AiAction action{};
-						action.type = ecs::AiActionType::MoveToEntity;
-						action.target_entity = ecs::find_entity_by_class("player");
-						ecs::get_float(entity, "speed", action.speed);
-						ecs::emplace_ai_action(entity, action);
-						//ecs::destroy_immediately(entity);
+						ecs::emplace_ai(entity, ecs::AiType::Slime);
 					} else if (object.class_ == "camera") {
 						ecs::Camera camera;
 						camera.view.setCenter(x, y);
@@ -290,8 +286,7 @@ namespace map
 									console::log_error(
 										"Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
-								//} else if (count <= b2_maxPolygonVertices) {
-								} else if (count <= b2_maxPolygonVertices) {
+								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
 									b2Vec2 points[b2_maxPolygonVertices];
 									for (size_t i = 0; i < count; ++i) {
 										points[i].x = cx + collider.points[i].x;
@@ -302,13 +297,7 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
-									/*console::log_error(
-										"Too many points in polygon collider! Got " +
-										std::to_string(count) + ", need <= " +
-										std::to_string(b2_maxPolygonVertices) + ".");*/
-									//BUGGY
-									auto triangles = triangulate(collider.points);
-									for (const auto& triangle : triangles) {
+									for (const auto& triangle : triangulate(collider.points)) {
 										b2Vec2 points[3];
 										for (size_t i = 0; i < 3; ++i) {
 											points[i].x = cx + triangle[i].x;
