@@ -10,6 +10,7 @@ namespace ui
 	extern std::string _textbox_text;
 	extern std::string _textbox_sprite;
 	extern bool _textbox_sprite_is_set;
+	//TODO extern int arrowAmmo;
 
 	// CALLBACKS
 
@@ -45,6 +46,7 @@ namespace ui
 		data_model.Bind("textbox_text", &_textbox_text);
 		data_model.Bind("textbox_sprite", &_textbox_sprite);
 		data_model.Bind("textbox_sprite_is_set", &_textbox_sprite_is_set);
+		// TODO data_model.Bind("arrowAmmo", &arrowAmmo);
 
 		// CALLBACKS
 
