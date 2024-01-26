@@ -48,6 +48,11 @@ namespace ecs
 		}
 	}
 
+
+	void _set_ai_action(entt::entity entity, const AiAction& action) {
+		_registry.emplace_or_replace<AiAction>(entity, action);
+	}
+
 	void ai_wait(entt::entity entity, float duration)
 	{
 		AiAction action{};
@@ -55,10 +60,6 @@ namespace ecs
 		action.duration = duration;
 		action.elapsedTime = 0.f; // Initialize elapsedTime to 0
 		_set_ai_action(entity, action);
-	}
-
-	void _set_ai_action(entt::entity entity, const AiAction& action) {
-		_registry.emplace_or_replace<AiAction>(entity, action);
 	}
 
 	void ai_move_to_position(entt::entity entity, sf::Vector2f target_position, float speed)
