@@ -75,7 +75,7 @@ namespace ecs
 		_registry.remove<b2Body*>(entity);
 	}
 
-	std::vector<RayHit> raycast(const sf::Vector2f& start, const sf::Vector2f& end)
+	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
@@ -100,39 +100,30 @@ namespace ecs
 		};
 
 		RayCastCallback callback;
-		_world->RayCast(&callback, b2Vec2(start.x, start.y), b2Vec2(end.x, end.y));
+		_world->RayCast(&callback, b2Vec2(ray_start.x, ray_start.y), b2Vec2(ray_end.x, ray_end.y));
 		return callback.hits;
 	}
 
-	std::vector<entt::entity> query_aabb(const sf::Vector2f& min, const sf::Vector2f& max)
+	std::vector<BoxHit> boxcast(const sf::Vector2f& box_min, const sf::Vector2f& box_max)
 	{
 		struct QueryCallback : public b2QueryCallback
 		{
-			std::vector<b2Fixture*> fixtures;
+			std::vector<BoxHit> hits;
 
 			bool ReportFixture(b2Fixture* fixture) override
 			{
-				fixtures.push_back(fixture);
+				BoxHit hit{};
+				hit.fixture = fixture;
+				hit.body = fixture->GetBody();
+				hit.entity = get_entity(hit.body);
+				hits.push_back(hit);
 				return true;
 			}
 		};
 
-		b2AABB aabb;
-		aabb.lowerBound.x = min.x;
-		aabb.lowerBound.y = min.y;
-		aabb.upperBound.x = max.x;
-		aabb.upperBound.y = max.y;
 		QueryCallback callback;
-		_world->QueryAABB(&callback, aabb);
-		std::vector<entt::entity> entities;
-		for (b2Fixture* fixture : callback.fixtures) {
-			entt::entity entity = get_entity(fixture->GetBody());
-			if (_registry.valid(entity))
-				entities.push_back(entity);
-		}
-		std::sort(entities.begin(), entities.end());
-		entities.erase(std::unique(entities.begin(), entities.end()), entities.end());
-		return entities;
+		_world->QueryAABB(&callback, b2AABB{ b2Vec2(box_min.x, box_min.y), b2Vec2(box_max.x, box_max.y) });
+		return callback.hits;
 	}
 
 	void ContactListener::BeginContact(b2Contact* contact)
