@@ -75,11 +75,12 @@ namespace ecs
 		_registry.remove<b2Body*>(entity);
 	}
 
-	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end)
+	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
 			std::vector<RayHit> hits;
+			uint16 mask_bits = 0xFFFF;
 
 			float ReportFixture(
 				b2Fixture* fixture,
@@ -87,6 +88,8 @@ namespace ecs
 				const b2Vec2& normal,
 				float fraction) override
 			{
+				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				if (!(category_bits & mask_bits)) return -1.f;
 				RayHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
@@ -100,18 +103,22 @@ namespace ecs
 		};
 
 		RayCastCallback callback;
+		callback.mask_bits = mask_bits;
 		_world->RayCast(&callback, b2Vec2(ray_start.x, ray_start.y), b2Vec2(ray_end.x, ray_end.y));
 		return callback.hits;
 	}
 
-	std::vector<BoxHit> boxcast(const sf::Vector2f& box_min, const sf::Vector2f& box_max)
+	std::vector<BoxHit> boxcast(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits)
 	{
 		struct QueryCallback : public b2QueryCallback
 		{
 			std::vector<BoxHit> hits;
+			uint16 mask_bits = 0xFFFF;
 
 			bool ReportFixture(b2Fixture* fixture) override
 			{
+				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				if (!(category_bits & mask_bits)) return true;
 				BoxHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
@@ -122,6 +129,7 @@ namespace ecs
 		};
 
 		QueryCallback callback;
+		callback.mask_bits = mask_bits;
 		_world->QueryAABB(&callback, b2AABB{ b2Vec2(box_min.x, box_min.y), b2Vec2(box_max.x, box_max.y) });
 		return callback.hits;
 	}
