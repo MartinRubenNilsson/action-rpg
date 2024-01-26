@@ -7,6 +7,7 @@ namespace ecs
 		None,
 		MoveToPosition,
 		MoveToEntity,
+		Wait,
 
 		//Some potential examples of other ai actions:
 		//Wait,
@@ -35,9 +36,14 @@ namespace ecs
 		sf::Vector2f target_position;
 		entt::entity target_entity = entt::null;
 		float speed = 0.f;
+		float acceptance_radius = 0.1f;
+		float waitTime; // Only used for Wait action
+		float elapsedTime; // Time elapsed since the action started
+		float duration;
 	};
 
 	void update_ai_actions(float dt);
+	void ai_wait(entt::entity entity, float duration);
 
 	// Add more ai actions here:
 

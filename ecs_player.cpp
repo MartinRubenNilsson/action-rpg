@@ -86,7 +86,7 @@ namespace ecs
 		body->SetLinearVelocity(b2Vec2(projectile_velocity.x, projectile_velocity.y));
 
 		//TODO Play arrow firing sound here
-		audio::play("event:/snd_fire_arrow");
+		//audio::play("event:/snd_fire_arrow");
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {

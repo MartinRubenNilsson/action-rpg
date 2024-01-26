@@ -10,13 +10,19 @@ namespace ecs
 	{
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
 			switch (action.type) {
-				case AiActionType::MoveToPosition: {
-					sf::Vector2f direction = action.target_position - get_world_center(body);
-					float distance = length(direction);
-					if (distance < 0.1f) continue;
+			case AiActionType::MoveToPosition: {
+				sf::Vector2f direction = action.target_position - get_world_center(body);
+				float distance = length(direction);
+
+				if (distance > action.acceptance_radius) {
 					direction /= distance;
 					set_linear_velocity(body, direction * action.speed);
-					break;
+					action.status = AiActionStatus::Running;
+				}
+				else {
+					action.status = AiActionStatus::Succeeded;
+				}
+				break;
 				}
 				case AiActionType::MoveToEntity: {
 					if (!_registry.all_of<b2Body*>(action.target_entity)) continue;
@@ -28,8 +34,27 @@ namespace ecs
 					set_linear_velocity(body, direction * action.speed);
 					break;
 				}
+				case AiActionType::Wait: {
+					if (action.elapsedTime < action.duration) {
+						action.elapsedTime += dt;
+						action.status = AiActionStatus::Running;
+					}
+					else {
+						action.status = AiActionStatus::Succeeded;
+					}
+					break;
+				}
 			}
 		}
+	}
+
+	void ai_wait(entt::entity entity, float duration)
+	{
+		AiAction action{};
+		action.type = AiActionType::Wait;
+		action.duration = duration;
+		action.elapsedTime = 0.f; // Initialize elapsedTime to 0
+		_set_ai_action(entity, action);
 	}
 
 	void _set_ai_action(entt::entity entity, const AiAction& action) {
