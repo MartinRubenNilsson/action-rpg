@@ -5,14 +5,11 @@ namespace ecs
 	enum class AiActionType
 	{
 		None,
-		MoveToPosition,
-		MoveToEntity,
 		Wait,
+		MoveTo,
 
 		//Some potential examples of other ai actions:
-		//Wait,
 		//Patrol,
-		//FleeFromEntity,
 		//PlaySound,
 	};
 
@@ -34,7 +31,7 @@ namespace ecs
 		// and most actions only use a handful of parameters anyway.
 
 		sf::Vector2f target_position;
-		entt::entity target_entity = entt::null;
+		//entt::entity target_entity = entt::null;
 		float speed = 0.f;
 		float acceptance_radius = 0.1f;
 		float waitTime; // Only used for Wait action
@@ -43,10 +40,9 @@ namespace ecs
 	};
 
 	void update_ai_actions(float dt);
-	void ai_wait(entt::entity entity, float duration);
 
 	// Add more ai actions here:
 
-	void ai_move_to_position(entt::entity entity, sf::Vector2f target_position, float speed);
-	void ai_move_to_entity(entt::entity entity, entt::entity target_entity, float speed);
+	void ai_wait(entt::entity entity, float duration);
+	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed);
 }

@@ -25,7 +25,7 @@ namespace ecs
             case AiType::Slime:
             {
                 if (!_registry.valid(world.player.entity)) break;
-                action.type = AiActionType::MoveToPosition;
+                action.type = AiActionType::MoveTo;
                 action.target_position = world.player.position;
                 action.speed = knowledge.me.speed;
                 break;
