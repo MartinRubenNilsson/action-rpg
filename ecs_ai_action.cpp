@@ -15,18 +15,20 @@ namespace ecs
 		// Hence they need to run independently from the rest of the AI system.
 
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
+			action.elapsed_time += dt;
 			if (action.status != AiActionStatus::Running) continue;
+
 			const sf::Vector2f position = get_world_center(body);
-			set_linear_velocity(body, sf::Vector2f()); // Stop moving
+			set_linear_velocity(body, sf::Vector2f()); // Stop moving by default
+
 			switch (action.type) {
 			case AiActionType::None: {
 				action.status = AiActionStatus::Succeeded;
 				break;
 			}
 			case AiActionType::MoveTo: {
-				sf::Vector2f direction = action.target_position - get_world_center(body);
+				sf::Vector2f direction = action.target_position - position;
 				float distance = length(direction);
-
 				if (distance > action.acceptance_radius) {
 					direction /= distance;
 					set_linear_velocity(body, direction * action.speed);
@@ -37,12 +39,9 @@ namespace ecs
 				break;
 			}
 			case AiActionType::Wait: {
-				if (action.elapsedTime < action.duration) {
-					action.elapsedTime += dt;
+				if (action.elapsed_time < action.duration) {
 					action.status = AiActionStatus::Running;
-					set_linear_velocity(body, sf::Vector2f()); // Stop moving
-				}
-				else {
+				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
 				break;
@@ -60,16 +59,16 @@ namespace ecs
 		AiAction action{};
 		action.type = AiActionType::Wait;
 		action.duration = duration;
-		action.elapsedTime = 0.f; // Initialize elapsedTime to 0
 		_set_ai_action(entity, action);
 	}
 
-	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed)
+	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius)
 	{
 		AiAction action{};
 		action.type = AiActionType::MoveTo;
 		action.target_position = target_position;
 		action.speed = speed;
+		action.acceptance_radius = acceptance_radius;
 		_set_ai_action(entity, action);
 	}
 }

@@ -24,57 +24,31 @@ namespace ecs
 
         for (auto [entity, knowledge, ai_type, action] : _registry.view<const AiKnowledge, const AiType, AiAction>().each()) {
             switch (ai_type) {
-            case AiType::Slime:
-            {
+            case AiType::Slime: {
                 if (!_registry.valid(world.player.entity)) break;
 
-                //const float distanceToPlayer = length(world.player.position - knowledge.me.position);
-                //const float tooCloseDistance = 16.f; // Example value, adjust as needed.
-                const float waitTime = 3.0f; // The time to wait when too close.
-                const float acceptanceRadius = 16.f; // The distance to the target position at which the action is considered successful.
+                // The distance to the target position at which the MoveTo action is considered successful.
+                const float ACCEPTANCE_RADIUS = 20.f;
+                // The duration of the wait action.
+                const float WAIT_DURATION = 2.f;
 
-                // If the current action is to wait and it is still running, do nothing.
                 if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
-                    break;
-                }
+                    // If the slime is waiting, do nothing.
+                } else if (action.type == AiActionType::MoveTo && action.status == AiActionStatus::Running) {
+                    // If the slime is moving towards the player, keep doing it.
+					ai_move_to(entity, world.player.position, knowledge.me.speed, ACCEPTANCE_RADIUS);
+				} else if (action.type == AiActionType::MoveTo && action.status == AiActionStatus::Succeeded) {
+                    // If the slime reached the player, wait for a while.
+					ai_wait(entity, WAIT_DURATION);
+				} else {
+                    // Else, start moving towards the player.
+					ai_move_to(entity, world.player.position, knowledge.me.speed, ACCEPTANCE_RADIUS);
+				}
 
-                // If the Slime is not too close to the player, make it move to the player's position.
-                if (action.status == AiActionStatus::Succeeded && action.type == AiActionType::Wait) {
-                    action.type = AiActionType::MoveTo;
-                    action.target_position = world.player.position;
-                    action.speed = knowledge.me.speed;
-                    action.acceptance_radius = acceptanceRadius;
-                    _registry.replace<AiAction>(entity, action); // Update the action in the registry.
-                    break;
-                }
-
-                // If the Slime is too close to the player, make it wait.
-                if ((action.status == AiActionStatus::Succeeded && (action.type == AiActionType::MoveTo || action.type == AiActionType::None))) {
-                    console::log(std::to_string(static_cast<int>(action.status)));
-                    console::log(std::to_string(static_cast<int>(action.type)));
-                    ai_wait(entity, waitTime);
-                    break;
-                }
                 break;
-
             }
-
-            // ... handle other AI types ...
             }
         }
-
-        //for (auto [entity, knowledge, ai_type, action] : _registry.view<const AiKnowledge, const AiType, AiAction>().each()) {
-        //    switch (ai_type) {
-        //    case AiType::Slime:
-        //    {
-        //        if (!_registry.valid(world.player.entity)) break;
-        //        action.type = AiActionType::MoveTo;
-        //        action.target_position = world.player.position;
-        //        action.speed = knowledge.me.speed;
-        //        break;
-        //    }
-        //    }
-        //}
     }
 
     void update_ai(float dt)

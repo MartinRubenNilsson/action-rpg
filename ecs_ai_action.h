@@ -34,9 +34,8 @@ namespace ecs
 		//entt::entity target_entity = entt::null;
 		float speed = 0.f;
 		float acceptance_radius = 0.1f;
-		float waitTime; // Only used for Wait action
-		float elapsedTime; // Time elapsed since the action started
-		float duration;
+		float duration; // Only used for Wait action as of yet
+		float elapsed_time; // Time elapsed since the action started
 	};
 
 	void update_ai_actions(float dt);
@@ -44,5 +43,5 @@ namespace ecs
 	// Add more ai actions here:
 
 	void ai_wait(entt::entity entity, float duration);
-	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed);
+	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius = 0.f);
 }

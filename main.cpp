@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "window.h"
 #include "audio.h"
+#include "shaders.h"
 #include "ui.h"
 #include "ui_main_menu.h"
 #include "map.h"
@@ -35,6 +36,7 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
+    shaders::load_shaders("assets/shaders");
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
@@ -117,9 +119,9 @@ int main(int argc, char* argv[])
 
     // UNLOAD ASSETS
 
-    // Ensures sf::Texture objects are destroyed before main() returns.
     tiled::unload_assets(); 
     background::unload_assets();
+    shaders::unload_shaders();
 
     // SHUTDOWN
 

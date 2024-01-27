@@ -239,9 +239,15 @@
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="shaders.cpp">
+      <Filter>shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
+    <None Include="test.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -530,6 +536,9 @@
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="shaders.h">
+      <Filter>shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -582,6 +591,9 @@
     </Filter>
     <Filter Include="ecs\physics">
       <UniqueIdentifier>{bb288391-6986-45d7-944a-5e3ef8ad4dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

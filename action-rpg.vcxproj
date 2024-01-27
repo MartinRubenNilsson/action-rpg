@@ -183,6 +183,7 @@
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math_vectors.cpp" />
     <ClCompile Include="physics_debug.cpp" />
+    <ClCompile Include="shaders.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="ui.cpp" />
@@ -204,6 +205,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="test.frag" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +292,7 @@
     <ClInclude Include="fmod_studio_common.h" />
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics_debug.h" />
+    <ClInclude Include="shaders.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
