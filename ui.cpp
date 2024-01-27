@@ -1,6 +1,5 @@
 ﻿#include "ui.h"
 #include <RmlUi/Core.h>
-#include "RmlUi_Platform_SFML.h"
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "defines.h"
 #include "ui_bindings.h"
@@ -10,10 +9,48 @@
 #include "ui_textbox.h"
 #include "console.h"
 #include "audio.h"
+#include "window.h"
 
 namespace ui
 {
-	struct EventListener : public Rml::EventListener
+	struct SystemInterface : Rml::SystemInterface
+	{
+		sf::Clock timer;
+
+		double GetElapsedTime() override {
+			return (double)timer.getElapsedTime().asMicroseconds() / 1'000'000.0;
+		}
+
+		void SetMouseCursor(const Rml::String& cursor_name) override
+		{
+			if (cursor_name.empty() || cursor_name == "arrow")
+				window::set_cursor(sf::Cursor::Arrow);
+			else if (cursor_name == "move")
+				window::set_cursor(sf::Cursor::SizeAll);
+			else if (cursor_name == "pointer")
+				window::set_cursor(sf::Cursor::Hand);
+			else if (cursor_name == "resize")
+				window::set_cursor(sf::Cursor::SizeTopLeftBottomRight);
+			else if (cursor_name == "cross")
+				window::set_cursor(sf::Cursor::Cross);
+			else if (cursor_name == "text")
+				window::set_cursor(sf::Cursor::Text);
+			else if (cursor_name == "unavailable")
+				window::set_cursor(sf::Cursor::NotAllowed);
+			else if (cursor_name.starts_with("rmlui-scroll"))
+				window::set_cursor(sf::Cursor::SizeAll);
+		}
+
+		void SetClipboardText(const Rml::String& text_utf8) override {
+			sf::Clipboard::setString(text_utf8);
+		}
+
+		void GetClipboardText(Rml::String& text) override {
+			text = sf::Clipboard::getString();
+		}
+	};
+
+	struct EventListener : Rml::EventListener
 	{
 		void ProcessEvent(Rml::Event& event) override
 		{
@@ -30,7 +67,7 @@ namespace ui
 		}
 	};
 
-	SystemInterface_SFML _system_interface;
+	SystemInterface _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 	EventListener _event_listener;

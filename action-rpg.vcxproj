@@ -189,7 +189,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp" />
-    <ClCompile Include="RmlUi_Platform_SFML.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2.cpp" />
     <ClCompile Include="ui_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -298,7 +297,6 @@
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Include_Windows.h" />
-    <ClInclude Include="RmlUi_Platform_SFML.h" />
     <ClInclude Include="RmlUi_Renderer_GL2.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
