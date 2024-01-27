@@ -48,11 +48,6 @@ namespace ecs
 		}
 	}
 
-
-	void _set_ai_action(entt::entity entity, const AiAction& action) {
-		_registry.emplace_or_replace<AiAction>(entity, action);
-	}
-
 	void ai_wait(entt::entity entity, float duration)
 	{
 		AiAction action{};
