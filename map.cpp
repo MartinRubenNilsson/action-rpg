@@ -13,6 +13,7 @@
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ui_textbox.h"
+#include "shaders.h"
 
 namespace map
 {
@@ -109,6 +110,10 @@ namespace map
 					ecs_tile.position = sf::Vector2f(x, y);
 					ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
 					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
+
+					//if (object.name == "player") {
+					//	ecs_tile.shader = shaders::get("test");
+					//}
 
 					// LOAD COLLIDERS
 
@@ -207,18 +212,6 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
 
-					// Broken at the moment
-					//// TODO: put spawnpoint entity name in data?
-					//if (_spawnpoint_entity_name != "player")
-					//{
-					//	entt::entity spawnpoint_entity = ecs::find_entity_by_name(_spawnpoint_entity_name);
-					//	if (auto object = ecs::get_registry().try_get<const tmx::Object*>(spawnpoint_entity))
-					//	{
-					//		tmx::Vector2f position = (*object)->getPosition();
-					//		position *= METERS_PER_PIXEL;
-					//		ecs::set_player_center(sf::Vector2f(position.x, position.y));
-					//	}
-					//}
 				} else if (object.class_ == "slime") {
 					ecs::emplace_slime_animation_controller(entity);
 					ecs::emplace_ai(entity, ecs::AiType::Slime);

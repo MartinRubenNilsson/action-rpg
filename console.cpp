@@ -14,6 +14,8 @@ namespace console
 	bool _visible = false;
 	bool _reclaim_focus = false;
 	float _sleep_timer = 0.f;
+	std::stringstream _cout_stream;
+	std::stringstream _cerr_stream;
 	std::string _command_line;
 	std::deque<std::string> _command_queue;
 	std::vector<std::string> _command_history;
@@ -46,6 +48,11 @@ namespace console
 
 	void initialize()
 	{
+		// REDIRECT COUT AND CERR
+
+		std::cout.rdbuf(_cout_stream.rdbuf());
+		std::cerr.rdbuf(_cerr_stream.rdbuf());
+
 		// SETUP IMGUI STYLE
 		{
 			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
@@ -103,6 +110,15 @@ namespace console
 
 	void update(float dt)
 	{
+		// LOG COUT AND CERR
+		{
+			std::string line;
+			while (std::getline(_cout_stream, line)) log(line);
+			_cout_stream.str(std::string());
+			while (std::getline(_cerr_stream, line)) log_error(line);
+			_cerr_stream.str(std::string());
+		}
+
 		// UPDATE SLEEP TIMER
 
 		if (_sleep_timer > 0.f) {

@@ -5,7 +5,7 @@
 namespace shaders
 {
 	extern bool log_errors = 
-#if defined(_DEBUG) && 0
+#if defined(_DEBUG)
 		true;
 #else
 		false;
@@ -35,7 +35,7 @@ namespace shaders
 		_shaders.clear();
 	}
 
-	std::shared_ptr<sf::Shader> get_shader(const std::string& name)
+	std::shared_ptr<sf::Shader> get(const std::string& name)
 	{
 		auto it = _shaders.find(name);
 		if (it != _shaders.end()) return it->second;

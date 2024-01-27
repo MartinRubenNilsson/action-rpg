@@ -29,6 +29,7 @@ namespace ecs
 		sf::Vector2f position;
 		sf::Vector2f pivot; // in pixels
 		sf::Color color = sf::Color::White;
+		std::shared_ptr<sf::Shader> shader; // optional
 		bool visible = true;
 		bool flip_x = false;
 		bool flip_y = false;

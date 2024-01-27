@@ -7,4 +7,7 @@ void main()
 
     // multiply it by the color
     gl_FragColor = gl_Color * pixel;
+    gl_FragColor.rgb = vec3(1, 0, 0);
+
+    asdasdf
 }

@@ -88,6 +88,12 @@
       <AdditionalLibraryDirectories>C:\Users\marti\source\repos\sfml-testing\vcpkg_installed\x64-windows\x64-windows\lib\manual-link;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)*.frag .\output\assets\shaders\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying shaders to output folder...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -115,6 +121,12 @@
       <AdditionalLibraryDirectories>C:\Users\marti\source\repos\sfml-testing\vcpkg_installed\x64-windows\x64-windows\lib\manual-link;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y $(SolutionDir)*.frag .\output\assets\shaders\</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copying shaders to output folder...</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp" />

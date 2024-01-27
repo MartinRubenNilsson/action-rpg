@@ -70,6 +70,7 @@ namespace ecs
 		struct SortedSprite
 		{
 			sf::Sprite sprite;
+			std::shared_ptr<sf::Shader> shader;
 			SortingLayer sorting_layer;
 			sf::Vector2f sorting_pos;
 
@@ -90,15 +91,19 @@ namespace ecs
 			sf::FloatRect sprite_bounds = sprite.getGlobalBounds();
 			if (!view_bounds.intersects(sprite_bounds)) continue;
 			sf::Vector2f sorting_pos = sprite_bounds.getPosition() + tile.sorting_pivot;
-			sprites.emplace_back(sprite, tile.sorting_layer, sorting_pos);
+			sprites.emplace_back(sprite, tile.shader, tile.sorting_layer, sorting_pos);
 		}
 
 		// Sort sprites by layer and position.
 		std::sort(sprites.begin(), sprites.end());
 
 		// Draw sprites.
-		for (const SortedSprite& sorted_sprite : sprites)
-			window.draw(sorted_sprite.sprite);
+		for (const SortedSprite& sorted_sprite : sprites) {
+			if (sorted_sprite.shader)
+				window.draw(sorted_sprite.sprite, sorted_sprite.shader.get());
+			else
+				window.draw(sorted_sprite.sprite);
+		}
 
 		// Debug draw.
 		if (debug_draw_physics)
