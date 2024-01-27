@@ -2,6 +2,7 @@
 #include "ecs_ai.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
+#include "console.h"
 
 namespace ecs
 {
@@ -20,18 +21,60 @@ namespace ecs
 
         const AiWorld& world = get_ai_world();
 
+
         for (auto [entity, knowledge, ai_type, action] : _registry.view<const AiKnowledge, const AiType, AiAction>().each()) {
             switch (ai_type) {
             case AiType::Slime:
             {
                 if (!_registry.valid(world.player.entity)) break;
-                action.type = AiActionType::MoveToPosition;
-                action.target_position = world.player.position;
-                action.speed = knowledge.me.speed;
+
+                //const float distanceToPlayer = length(world.player.position - knowledge.me.position);
+                //const float tooCloseDistance = 16.f; // Example value, adjust as needed.
+                const float waitTime = 3.0f; // The time to wait when too close.
+                const float acceptanceRadius = 16.f; // The distance to the target position at which the action is considered successful.
+
+                // If the current action is to wait and it is still running, do nothing.
+                if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
+                    break;
+                }
+
+                // If the Slime is not too close to the player, make it move to the player's position.
+                if (action.status == AiActionStatus::Succeeded && action.type == AiActionType::Wait) {
+                    action.type = AiActionType::MoveToPosition;
+                    action.target_position = world.player.position;
+                    action.speed = knowledge.me.speed;
+                    action.acceptance_radius = acceptanceRadius;
+                    _registry.replace<AiAction>(entity, action); // Update the action in the registry.
+                    break;
+                }
+
+                // If the Slime is too close to the player, make it wait.
+                if ((action.status == AiActionStatus::Succeeded && (action.type == AiActionType::MoveToPosition || action.type == AiActionType::None))) {
+                    console::log(std::to_string(static_cast<int>(action.status)));
+                    console::log(std::to_string(static_cast<int>(action.type)));
+                    ai_wait(entity, waitTime);
+                    break;
+                }
                 break;
+
             }
+
+            // ... handle other AI types ...
             }
         }
+
+        //for (auto [entity, knowledge, ai_type, action] : _registry.view<const AiKnowledge, const AiType, AiAction>().each()) {
+        //    switch (ai_type) {
+        //    case AiType::Slime:
+        //    {
+        //        if (!_registry.valid(world.player.entity)) break;
+        //        action.type = AiActionType::MoveToPosition;
+        //        action.target_position = world.player.position;
+        //        action.speed = knowledge.me.speed;
+        //        break;
+        //    }
+        //    }
+        //}
     }
 
     void update_ai(float dt)

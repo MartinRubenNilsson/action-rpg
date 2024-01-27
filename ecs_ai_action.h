@@ -10,7 +10,6 @@ namespace ecs
 		Wait,
 
 		//Some potential examples of other ai actions:
-		//Wait,
 		//Patrol,
 		//FleeFromEntity,
 		//PlaySound,

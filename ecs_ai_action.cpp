@@ -10,6 +10,10 @@ namespace ecs
 	{
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
 			switch (action.type) {
+			case AiActionType::None: {
+				action.status = AiActionStatus::Succeeded;
+				break;
+			}
 			case AiActionType::MoveToPosition: {
 				sf::Vector2f direction = action.target_position - get_world_center(body);
 				float distance = length(direction);
@@ -46,6 +50,10 @@ namespace ecs
 				}
 			}
 		}
+	}
+
+	void _set_ai_action(entt::entity entity, const AiAction& action) {
+		_registry.emplace_or_replace<AiAction>(entity, action);
 	}
 
 	void ai_wait(entt::entity entity, float duration)
