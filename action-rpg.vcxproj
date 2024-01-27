@@ -294,7 +294,6 @@
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
-    <ClInclude Include="RmlUi_Include_Windows.h" />
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />

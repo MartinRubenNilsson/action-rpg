@@ -6,7 +6,24 @@
 #include <string.h>
 
 #if defined RMLUI_PLATFORM_WIN32
-	#include "RmlUi_Include_Windows.h"
+	#ifndef RMLUI_DISABLE_INCLUDE_WINDOWS
+		#if !defined _WIN32_WINNT || _WIN32_WINNT < 0x0601
+			#undef _WIN32_WINNT
+			// Target Windows 7
+			#define _WIN32_WINNT 0x0601
+		#endif
+		#ifndef UNICODE
+			#define UNICODE
+		#endif
+		#ifndef _UNICODE
+			#define _UNICODE
+		#endif
+		#define WIN32_LEAN_AND_MEAN
+		#ifndef NOMINMAX
+			#define NOMINMAX
+		#endif
+		#include <windows.h>
+	#endif
 	#include <gl/Gl.h>
 	#include <gl/Glu.h>
 #elif defined RMLUI_PLATFORM_MACOSX

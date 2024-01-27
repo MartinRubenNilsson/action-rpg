@@ -13,7 +13,7 @@
 
 namespace ui
 {
-	struct SystemInterface : Rml::SystemInterface
+	struct SystemInterface_SFML : Rml::SystemInterface
 	{
 		sf::Clock timer;
 
@@ -67,7 +67,7 @@ namespace ui
 		}
 	};
 
-	SystemInterface _system_interface;
+	SystemInterface_SFML _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 	EventListener _event_listener;
