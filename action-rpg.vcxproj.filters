@@ -42,9 +42,6 @@
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
       <Filter>ui\rml</Filter>
     </ClCompile>
-    <ClCompile Include="RmlUi_Renderer_GL2.cpp">
-      <Filter>ui\rml</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_player.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -281,13 +278,10 @@
     <ClInclude Include="ecs_tiled.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="RmlUi_Renderer_GL2.h">
+    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
     <ClInclude Include="RmlUi_Include_Windows.h">
-      <Filter>ui\rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
       <Filter>ui\rml</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">

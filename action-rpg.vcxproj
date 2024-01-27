@@ -189,7 +189,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp" />
-    <ClCompile Include="RmlUi_Renderer_GL2.cpp" />
     <ClCompile Include="ui_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -291,13 +290,12 @@
     <ClInclude Include="fmod_studio_common.h" />
     <ClInclude Include="math_vectors.h" />
     <ClInclude Include="physics_debug.h" />
-    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="RmlUi_Include_Windows.h" />
-    <ClInclude Include="RmlUi_Renderer_GL2.h" />
+    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_graphics.h" />
