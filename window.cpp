@@ -3,8 +3,11 @@
 
 namespace window
 {
+	const size_t _SYSTEM_CURSOR_COUNT = (size_t)sf::Cursor::Type::NotAllowed;
+
 	sf::RenderWindow* _window = nullptr;
 	uint32_t _scale = 5;
+	std::array<sf::Cursor, _SYSTEM_CURSOR_COUNT> _system_cursors;
 
 	void initialize(sf::RenderWindow& window)
 	{
@@ -17,6 +20,9 @@ namespace window
 		_window->setView(view);
 		_window->setKeyRepeatEnabled(false);
 		set_icon("assets/window/swordsman.png");
+
+		for (size_t i = 0; i < _SYSTEM_CURSOR_COUNT; ++i)
+			_system_cursors[i].loadFromSystem((sf::Cursor::Type)i);
 	}
 
 	void close() {
@@ -33,6 +39,10 @@ namespace window
 		if (!icon.loadFromFile(filename)) return false;
 		_window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 		return true;
+	}
+
+	void set_cursor(sf::Cursor::Type type) {
+		_window->setMouseCursor(_system_cursors[(size_t)type]);
 	}
 
 	bool has_focus() {

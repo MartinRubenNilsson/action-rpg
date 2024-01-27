@@ -46,7 +46,19 @@ namespace ui
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
 	}
 
-	void _on_click_play() {
+	void _on_escape_key_pressed()
+	{
+		if (is_main_menu_visible()) {
+			// Do nothing.
+		} else if (is_pause_menu_visible()) {
+			set_pause_menu_visible(false);
+		} else {
+			set_pause_menu_visible(true);
+		}
+	}
+
+	void _on_click_play()
+	{
 		set_main_menu_visible(false);
 		set_hud_visible(true);
 		_next_action = Action::Play;
@@ -77,7 +89,6 @@ namespace ui
 
 	void initialize(sf::RenderWindow& window)
 	{
-		_system_interface.SetWindow(&window); // So that the system interface can set the mouse cursor.
 		Rml::SetSystemInterface(&_system_interface);
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
@@ -241,8 +252,7 @@ namespace ui
 			return _context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
 		case sf::Event::MouseLeft:
 			return _context->ProcessMouseLeave();
-		case sf::Event::TextEntered:
-		{
+		case sf::Event::TextEntered: {
 			Rml::Character c = Rml::Character(ev.text.unicode);
 			if (c == Rml::Character('\r'))
 				c = Rml::Character('\n');
@@ -252,15 +262,8 @@ namespace ui
 				return true;
 		}
 		case sf::Event::KeyPressed:
-			if (ev.key.code == sf::Keyboard::Escape) {
-				if (is_main_menu_visible()) {
-					// Do nothing.
-				} else if (is_pause_menu_visible()) {
-					set_pause_menu_visible(false);
-				} else {
-					set_pause_menu_visible(true);
-				}
-			}
+			if (ev.key.code == sf::Keyboard::Escape)
+				_on_escape_key_pressed();
 			return _context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
 		case sf::Event::KeyReleased:
 			return _context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
