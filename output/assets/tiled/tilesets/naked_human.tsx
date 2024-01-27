@@ -6,6 +6,9 @@
    <object id="7" x="24" y="32" width="16" height="16">
     <ellipse/>
    </object>
+   <object id="8" name="pivot" x="32" y="41.2727">
+    <point/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="8" type="idle_u"/>

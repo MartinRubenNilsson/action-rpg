@@ -267,8 +267,9 @@ namespace tiled
 					console::log_error("Failed to find tile with GID: " + std::to_string(gid));
 					continue;
 				}
-				template_.tile = { tile, _get_flip_flags(gid_with_flip_flags) };
+				template_.tile = tile;
 				template_.type = ObjectType::Tile;
+				template_.flip_flags = _get_flip_flags(gid_with_flip_flags);
 			}
 		}
 
@@ -395,8 +396,9 @@ namespace tiled
 								console::log_error("Failed to find tile with GID: " + std::to_string(gid));
 								continue;
 							}
-							object.tile = { tile, _get_flip_flags(gid_with_flip_flags) };
+							object.tile = tile; 
 							object.type = ObjectType::Tile;
+							object.flip_flags = _get_flip_flags(gid_with_flip_flags);
 						}
 					}
 				} else if (_is_image_layer(layer_node.name())) {

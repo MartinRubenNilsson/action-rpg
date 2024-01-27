@@ -86,11 +86,11 @@ namespace ecs
 		body->SetLinearVelocity(b2Vec2(projectile_velocity.x, projectile_velocity.y));
 
 		//TODO Play arrow firing sound here
-		//audio::play("event:/snd_fire_arrow");
+		audio::play("event:/snd_fire_arrow");
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
-			tile->origin = sf::Vector2f(6.f, 6.f);
+			tile->pivot = sf::Vector2f(6.f, 6.f);
 		}
 	}
 
@@ -142,28 +142,28 @@ namespace ecs
 			set_linear_velocity(body, player.state.direction * speed);
 
 			if (player.input.interact) {
-				sf::Vector2f aabb_center = center + player.state.direction * 16.f;
-				sf::Vector2f aabb_min = aabb_center - sf::Vector2f(6.f, 6.f);
-				sf::Vector2f aabb_max = aabb_center + sf::Vector2f(6.f, 6.f);
+				sf::Vector2f box_center = center + player.state.direction * 16.f;
+				sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
+				sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
 				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
-				for (entt::entity entity : query_aabb(aabb_min, aabb_max)) {
-					if (entity == player_entity) continue;
-					std::string class_ = get_class(entity);
+				for (const BoxHit& hit : boxcast(box_min, box_max)) {
+					if (hit.entity == player_entity) continue;
+					std::string class_ = get_class(hit.entity);
 					if (class_ == "slime") {
-						destroy_at_end_of_frame(entity);
-					} else if (Tile* tile = _registry.try_get<Tile>(entity)) {
+						destroy_at_end_of_frame(hit.entity);
+					} else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
 						std::string tile_class = tile->get_class();
 						if (tile_class == "grass") {
 							audio_events_to_play.insert("event:/snd_cut_grass");
 							if (random::coin_flip(0.2f))
 								create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
-							destroy_at_end_of_frame(entity);
+							destroy_at_end_of_frame(hit.entity);
 						}
 					} else {
 						std::string string;
-						if (get_string(entity, "textbox", string))
+						if (get_string(hit.entity, "textbox", string))
 							ui::open_textbox_preset(string);
-						if (get_string(entity, "sound", string))
+						if (get_string(hit.entity, "sound", string))
 							audio_events_to_play.insert(string);
 					}
 				}

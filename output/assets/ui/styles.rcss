@@ -23,6 +23,7 @@ tabset tabs
 .menu-button {
 	font-effect: shadow(3px 3px black);
 	margin: 2dp;
+	cursor: pointer;
 }
 
 .menu-button:hover {

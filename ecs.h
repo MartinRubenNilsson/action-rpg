@@ -3,6 +3,7 @@
 namespace ecs
 {
 	extern bool debug_draw_physics;
+	extern bool debug_draw_pivots;
 
 	void initialize();
 	void shutdown();
@@ -13,10 +14,7 @@ namespace ecs
 
 	entt::entity create();
 	entt::entity create(entt::entity hint);
-
-	// Potentially unsafe to call while iterating over a view.
 	void destroy_immediately(entt::entity entity); 
-	// Safe to call while iterating over a view.
 	void destroy_at_end_of_frame(entt::entity entity);
 }
 

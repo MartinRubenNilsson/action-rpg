@@ -40,7 +40,7 @@ namespace ecs
 
                 // If the Slime is not too close to the player, make it move to the player's position.
                 if (action.status == AiActionStatus::Succeeded && action.type == AiActionType::Wait) {
-                    action.type = AiActionType::MoveToPosition;
+                    action.type = AiActionType::MoveTo;
                     action.target_position = world.player.position;
                     action.speed = knowledge.me.speed;
                     action.acceptance_radius = acceptanceRadius;
@@ -49,7 +49,7 @@ namespace ecs
                 }
 
                 // If the Slime is too close to the player, make it wait.
-                if ((action.status == AiActionStatus::Succeeded && (action.type == AiActionType::MoveToPosition || action.type == AiActionType::None))) {
+                if ((action.status == AiActionStatus::Succeeded && (action.type == AiActionType::MoveTo || action.type == AiActionType::None))) {
                     console::log(std::to_string(static_cast<int>(action.status)));
                     console::log(std::to_string(static_cast<int>(action.type)));
                     ai_wait(entity, waitTime);
@@ -68,7 +68,7 @@ namespace ecs
         //    case AiType::Slime:
         //    {
         //        if (!_registry.valid(world.player.entity)) break;
-        //        action.type = AiActionType::MoveToPosition;
+        //        action.type = AiActionType::MoveTo;
         //        action.target_position = world.player.position;
         //        action.speed = knowledge.me.speed;
         //        break;

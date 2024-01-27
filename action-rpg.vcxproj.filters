@@ -39,15 +39,6 @@
     <ClCompile Include="ecs_tiled.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
-      <Filter>ui\rml</Filter>
-    </ClCompile>
-    <ClCompile Include="RmlUi_Platform_SFML.cpp">
-      <Filter>ui\rml</Filter>
-    </ClCompile>
-    <ClCompile Include="RmlUi_Renderer_GL2.cpp">
-      <Filter>ui\rml</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_player.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -245,6 +236,9 @@
     <ClCompile Include="ecs_physics_filters.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
+    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -283,18 +277,6 @@
     </ClInclude>
     <ClInclude Include="ecs_tiled.h">
       <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Renderer_GL2.h">
-      <Filter>ui\rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Include_Windows.h">
-      <Filter>ui\rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Platform_SFML.h">
-      <Filter>ui\rml</Filter>
-    </ClInclude>
-    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
-      <Filter>ui\rml</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
       <Filter>ecs</Filter>
@@ -545,6 +527,9 @@
     <ClInclude Include="ecs_physics_filters.h">
       <Filter>ecs\physics</Filter>
     </ClInclude>
+    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -570,9 +555,6 @@
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ui\rml">
-      <UniqueIdentifier>{134e0648-b6e8-466e-8524-bb93caffb9c3}</UniqueIdentifier>
     </Filter>
     <Filter Include="audio\fmod">
       <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>

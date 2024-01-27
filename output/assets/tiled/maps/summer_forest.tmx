@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="16">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="21">
  <tileset firstgid="1" source="../tilesets/summer_forest/summer forest wang tiles.tsx"/>
  <tileset firstgid="2049" source="../tilesets/summer_forest/summer forest.tsx"/>
  <tileset firstgid="2721" source="../tilesets/summer_forest/summer waterfall B.tsx"/>
@@ -121,10 +121,10 @@
 </data>
  </layer>
  <objectgroup id="8" name="Entities">
-  <object id="1" template="../templates/player.tx" gid="2958" x="367.327" y="302.894"/>
   <object id="4" template="../templates/slime.tx" x="147.533" y="305.303"/>
   <object id="5" template="../templates/slime.tx" x="190.288" y="474.515"/>
   <object id="15" template="../templates/slime.tx" x="357.667" y="112.333"/>
+  <object id="18" template="../templates/player.tx" x="356.5" y="352.5"/>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">

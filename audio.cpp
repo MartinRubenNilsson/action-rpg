@@ -144,7 +144,7 @@ namespace audio
 		return _system->getEvent(event_path.c_str(), &desc_dummy) == FMOD_OK;
 	}
 
-	bool is_playing(const std::string& event_path)
+	bool is_any_playing(const std::string& event_path)
 	{
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return false;

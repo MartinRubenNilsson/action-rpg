@@ -18,7 +18,7 @@ namespace ui
 	// and external style sheets, but not inline "style" attributes.
 	void reload_styles();
 
-	void process_event(const sf::Event& event);
+	bool process_event(const sf::Event& ev);
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 	bool should_pause_game();

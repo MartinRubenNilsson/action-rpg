@@ -4,7 +4,6 @@
 namespace tiled
 {
 	struct Tile;
-	struct FlippedTile;
 }
 
 namespace ecs
@@ -25,16 +24,16 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile(const tiled::FlippedTile& tile);
+		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position;
-		sf::Vector2f origin;
+		sf::Vector2f pivot; // in pixels
 		sf::Color color = sf::Color::White;
+		bool visible = true;
 		bool flip_x = false;
 		bool flip_y = false;
-		bool visible = true;
 		SortingLayer sorting_layer = SortingLayer::Objects;
-		sf::Vector2f sorting_pivot = sf::Vector2f(0.5f, 1.f); //TODO: implement
+		sf::Vector2f sorting_pivot; // in pixels
 		Timer animation_timer;
 		float animation_speed = 1.f;
 		bool animation_loop = true;
@@ -49,12 +48,13 @@ namespace ecs
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
 
-		uint32_t get_animation_duration() const; // in milliseconds
+		uint32_t get_animation_duration_in_ms() const;
+		void initialize_animation_timer();
 	};
 
 	void update_graphics(float dt);
 
-	Tile& emplace_tile(entt::entity entity, const tiled::FlippedTile& tile);
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
 	void remove_tile(entt::entity entity);
 

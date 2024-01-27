@@ -6,6 +6,9 @@
    <object id="8" x="9" y="9" width="14" height="14">
     <ellipse/>
    </object>
+   <object id="9" name="pivot" x="15.875" y="19.9375">
+    <point/>
+   </object>
   </objectgroup>
   <animation>
    <frame tileid="0" duration="200"/>
