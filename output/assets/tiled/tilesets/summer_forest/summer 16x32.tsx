@@ -9,6 +9,9 @@
     </properties>
     <ellipse/>
    </object>
+   <object id="7" name="pivot" x="8.25" y="30.6875">
+    <point/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="2" type="grass">
@@ -19,6 +22,9 @@
     </properties>
     <ellipse/>
    </object>
+   <object id="4" name="pivot" x="8.3125" y="30.875">
+    <point/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="3" type="grass">
@@ -28,6 +34,9 @@
      <property name="sensor" type="bool" value="true"/>
     </properties>
     <ellipse/>
+   </object>
+   <object id="4" name="pivot" x="6.3125" y="30.1875">
+    <point/>
    </object>
   </objectgroup>
  </tile>

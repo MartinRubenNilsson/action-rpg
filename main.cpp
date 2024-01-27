@@ -64,6 +64,8 @@ int main(int argc, char* argv[])
                     console::toggle_visible();
                 else if (event.key.code == sf::Keyboard::F2)
                     ecs::debug_draw_physics = !ecs::debug_draw_physics;
+                else if (event.key.code == sf::Keyboard::F3)
+                    ecs::debug_draw_pivots = !ecs::debug_draw_pivots;
             }
             ImGui::SFML::ProcessEvent(window, event);
             if (event.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)

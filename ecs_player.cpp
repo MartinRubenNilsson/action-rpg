@@ -90,7 +90,7 @@ namespace ecs
 
 		// Add additional components like Tile here if necessary
 		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
-			tile->origin = sf::Vector2f(6.f, 6.f);
+			tile->pivot = sf::Vector2f(6.f, 6.f);
 		}
 	}
 

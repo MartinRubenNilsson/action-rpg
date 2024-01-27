@@ -10,8 +10,8 @@ namespace ecs
 
 	AiEntityInfo _get_ai_entity_info(entt::entity entity)
 	{
-		AiEntityInfo info;
-		if (!_registry.valid(entity)) return info;
+		if (!_registry.valid(entity)) return AiEntityInfo();
+		AiEntityInfo info{};
 		info.entity = entity;
 		info.name = get_name(entity);
 		info.class_ = get_class(entity);

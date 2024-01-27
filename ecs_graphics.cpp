@@ -29,8 +29,7 @@ namespace ecs
 		, _frame(tile)
 	{
 		assert(tile);
-		animation_timer = Timer(get_animation_duration() / 1000.f);
-		animation_timer.start();
+		initialize_animation_timer();
 	}
 
 	std::string Tile::get_class() const {
@@ -43,7 +42,9 @@ namespace ecs
 		if (class_ == _tile->class_) return false;
 		for (const tiled::Tile& tile : _tile->tileset->tiles) {
 			if (tile.class_ == class_) {
-				*this = Tile(&tile);
+				_tile = &tile;
+				_frame = &tile;
+				initialize_animation_timer();
 				return true;
 			}
 		}
@@ -58,7 +59,7 @@ namespace ecs
 	{
 		animation_timer.update(animation_speed * dt, animation_loop);
 		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
-		uint32_t duration = get_animation_duration();
+		uint32_t duration = get_animation_duration_in_ms();
 		if (!duration) return false;
 		uint32_t time = time_in_ms % duration;
 		uint32_t current_time = 0;
@@ -77,7 +78,7 @@ namespace ecs
 	{
 		sf::Sprite sprite = _frame->sprite;
 		sf::Vector2f sprite_scale(1.f, 1.f);
-		sf::Vector2f sprite_origin = origin;
+		sf::Vector2f sprite_origin = pivot;
 		sf::Vector2f sprite_size = sprite.getGlobalBounds().getSize();
 		if (flip_x) {
 			sprite_scale.x *= -1.f;
@@ -94,12 +95,18 @@ namespace ecs
 		return sprite;
 	}
 
-	uint32_t Tile::get_animation_duration() const
+	uint32_t Tile::get_animation_duration_in_ms() const
 	{
 		uint32_t duration_in_ms = 0;
 		for (const tiled::Frame& frame : _tile->animation)
 			duration_in_ms += frame.duration;
 		return duration_in_ms;
+	}
+
+	void Tile::initialize_animation_timer()
+	{
+		animation_timer = Timer(get_animation_duration_in_ms() / 1000.f);
+		animation_timer.start();
 	}
 
 	void update_graphics(float dt)

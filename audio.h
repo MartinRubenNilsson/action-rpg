@@ -16,7 +16,7 @@ namespace audio
 	//bool get_parameter_label(const std::string& name, std::string& label); // TODO
 
 	bool is_valid(const std::string& event_path);
-	bool is_playing(const std::string& event_path);
+	bool is_any_playing(const std::string& event_path);
 	// Creates and starts a new event instance with the given path.
 	// If the event is not one-shot, it may keep playing indefinitely.
 	bool play(const std::string& event_path);

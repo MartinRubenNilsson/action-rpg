@@ -11,7 +11,8 @@
 
 namespace ecs
 {
-	extern bool debug_draw_physics = false;
+	bool debug_draw_physics = false;
+	bool debug_draw_pivots = false;
 
 	entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
@@ -66,29 +67,50 @@ namespace ecs
 			view.getCenter() - view.getSize() / 2.f, // top left
 			view.getSize());
 
-		// Collect all tiles in view, sorted by layer.
-		std::array<std::vector<Tile*>, (size_t)SortingLayer::Count> tiles_by_layer;
+		struct SortedSprite
+		{
+			sf::Sprite sprite;
+			SortingLayer sorting_layer;
+			sf::Vector2f sorting_pos;
+
+			bool operator<(const SortedSprite& other) const
+			{
+				if (sorting_layer != other.sorting_layer) return sorting_layer < other.sorting_layer;
+				if (sorting_pos.y != other.sorting_pos.y) return sorting_pos.y < other.sorting_pos.y;
+				if (sorting_pos.x != other.sorting_pos.x) return sorting_pos.x < other.sorting_pos.x;
+				return false;
+			}
+		};
+
+		// Collect all visible sprites in view.
+		std::vector<SortedSprite> sprites;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.visible) continue;
-			if (view_bounds.intersects(tile.get_sprite().getGlobalBounds()))
-				tiles_by_layer[(size_t)tile.sorting_layer].push_back(&tile);
+			sf::Sprite sprite = tile.get_sprite();
+			sf::FloatRect sprite_bounds = sprite.getGlobalBounds();
+			if (!view_bounds.intersects(sprite_bounds)) continue;
+			sf::Vector2f sorting_pos = sprite_bounds.getPosition() + tile.sorting_pivot;
+			sprites.emplace_back(sprite, tile.sorting_layer, sorting_pos);
 		}
 
-		// Sort right to left, top to bottom.
-		for (auto& layer : tiles_by_layer) {
-			std::sort(layer.begin(), layer.end(), [](Tile* a, Tile* b) {
-				return a->position.y < b->position.y ||
-					(a->position.y == b->position.y && a->position.x < b->position.x);
-			});
-		}
+		// Sort sprites by layer and position.
+		std::sort(sprites.begin(), sprites.end());
 
-		// Draw tiles.
-		for (auto& layer : tiles_by_layer)
-			for (Tile* tile : layer)
-				window.draw(tile->get_sprite());
+		// Draw sprites.
+		for (const SortedSprite& sorted_sprite : sprites)
+			window.draw(sorted_sprite.sprite);
 
+		// Debug draw.
 		if (debug_draw_physics)
 			render_physics(window);
+		if (debug_draw_pivots) {
+			for (const SortedSprite& sorted_sprite : sprites) {
+				sf::CircleShape circle(1.f);
+				circle.setPosition(sorted_sprite.sorting_pos);
+				circle.setFillColor(sf::Color::Red);
+				window.draw(circle);
+			}
+		}
 	}
 
 	entt::entity create() {
