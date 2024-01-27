@@ -99,14 +99,16 @@ namespace map
 						y -= h;
 
 					if (object.type == tiled::ObjectType::Tile) {
-						assert(object.tile.tile && "Tile not found.");
-						ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
-						tile.position = sf::Vector2f(x, y);
-						tile.sorting_layer = ecs::SortingLayer::Objects;
+						assert(object.tile && "Tile not found.");
+						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
+						ecs_tile.flip_x = object.flip_flags & tiled::FLIP_HORIZONTAL;
+						ecs_tile.flip_y = object.flip_flags & tiled::FLIP_VERTICAL;
+						ecs_tile.position = sf::Vector2f(x, y);
+						ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
 
 						// LOAD COLLIDERS
 
-						if (!object.tile.tile->objects.empty()) {
+						if (!object.tile->objects.empty()) {
 							b2BodyDef body_def;
 							body_def.type = b2_dynamicBody;
 							body_def.fixedRotation = true;
@@ -114,7 +116,7 @@ namespace map
 							body_def.position.y = y;
 							b2Body* body = ecs::emplace_body(entity, body_def);
 
-							for (const tiled::Object& tile_object : object.tile.tile->objects) {
+							for (const tiled::Object& tile_object : object.tile->objects) {
 								float x = tile_object.position.x;
 								float y = tile_object.position.y;
 								float hw = tile_object.size.x / 2.0f;
@@ -227,15 +229,17 @@ namespace map
 				for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 					for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 
-						const tiled::FlippedTile tile = layer.tiles[tile_y * layer.width + tile_x];
-						if (!tile.tile) continue;
+						const auto [tile, flip_flags] = layer.tiles[tile_y * layer.width + tile_x];
+						if (!tile) continue;
 						float position_x = (float)tile_x * _current_map->tile_width;
 						float position_y = (float)tile_y * _current_map->tile_height;
 						float origin_x = 0.f;
-						float origin_y = (float)(tile.tile->tileset->tile_height - _current_map->tile_height);
+						float origin_y = (float)(tile->tileset->tile_height - _current_map->tile_height);
 
 						entt::entity entity = ecs::create();
 						ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
+						ecs_tile.flip_x = flip_flags & tiled::FLIP_HORIZONTAL;
+						ecs_tile.flip_y = flip_flags & tiled::FLIP_VERTICAL;
 						ecs_tile.visible = layer.visible;
 						ecs_tile.position = sf::Vector2f(position_x, position_y);
 						ecs_tile.origin = sf::Vector2f(origin_x, origin_y);
@@ -243,7 +247,7 @@ namespace map
 
 						// LOAD COLLIDERS
 
-						if (tile.tile->objects.empty())
+						if (tile->objects.empty())
 							continue;
 
 						b2BodyDef body_def;
@@ -253,7 +257,7 @@ namespace map
 						body_def.fixedRotation = true;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
-						for (const tiled::Object& collider : tile.tile->objects) {
+						for (const tiled::Object& collider : tile->objects) {
 							float cx = (collider.position.x - origin_x);
 							float cy = (collider.position.y - origin_y);
 							float hw = collider.size.x / 2.0f;
@@ -348,7 +352,7 @@ namespace map
 			    : (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
 		for (const tiled::Layer& layer : std::ranges::reverse_view(_current_map->layers)) {
 			if (x >= layer.width || y >= layer.height) continue;
-			const tiled::Tile* tile = layer.tiles[y * layer.width + x].tile;
+			const auto [tile, flip_flags] = layer.tiles[y * layer.width + x];
 			if (!tile) continue;
 			for (const tiled::WangTile& wangtile : tile->wangtiles) {
 				const tiled::WangColor* wangcolor = wangtile.wangcolors[corner];

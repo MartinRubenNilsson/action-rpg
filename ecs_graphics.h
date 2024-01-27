@@ -4,7 +4,6 @@
 namespace tiled
 {
 	struct Tile;
-	struct FlippedTile;
 }
 
 namespace ecs
@@ -25,7 +24,7 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile(const tiled::FlippedTile& tile);
+		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position;
 		sf::Vector2f origin;
@@ -54,7 +53,7 @@ namespace ecs
 
 	void update_graphics(float dt);
 
-	Tile& emplace_tile(entt::entity entity, const tiled::FlippedTile& tile);
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
 	void remove_tile(entt::entity entity);
 

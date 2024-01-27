@@ -31,12 +31,6 @@ namespace tiled
 		_entt_enum_as_bitmask
 	};
 
-	struct FlippedTile
-	{
-		const Tile* tile = nullptr; // null if empty
-		FlipFlags flip_flags = FLIP_NONE;
-	};
-
 	struct Object
 	{
 		std::filesystem::path path; // nonempty if object is a template
@@ -44,11 +38,12 @@ namespace tiled
 		std::string class_;
 		std::vector<Property> properties;
 		std::vector<sf::Vector2f> points; // in pixels; relative to position
-		FlippedTile tile;
+		const Tile* tile = nullptr; // nonnull if object is a tile
 		sf::Vector2f position; // in pixels
 		sf::Vector2f size; // in pixels
 		entt::entity entity = entt::null;
 		ObjectType type = ObjectType::Rectangle;
+		FlipFlags flip_flags = FLIP_NONE; // only for tile objects
 	};
 
 	struct Frame
@@ -134,7 +129,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<FlippedTile> tiles; // nonempty if tile layer; size = width * height
+		std::vector<std::pair<const Tile*, FlipFlags>> tiles; // nonempty if tile layer; size = width * height
 		std::vector<Object> objects; // nonempty if object layer 
 		uint32_t width = 0; // in tiles
 		uint32_t height = 0; // in tiles
