@@ -34,8 +34,14 @@ namespace ecs
                 // The duration of the wait action.
                 const float WAIT_DURATION = 2.f;
 
+                float distanceToPlayer = length(world.player.position - knowledge.me.position);
+                float fleeDistance = 30.f; // Define a distance at which the slime should start fleeing
+
+
                 if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
                     // If the slime is waiting, do nothing.
+                } else if (distanceToPlayer < fleeDistance) {
+                        ai_flee(entity, world.player.position, knowledge.me.speed, fleeDistance);
                 } else if (action.type == AiActionType::MoveTo && action.status == AiActionStatus::Running) {
                     // If the slime is moving towards the player, keep doing it.
 					ai_move_to(entity, world.player.position, knowledge.me.speed, ACCEPTANCE_RADIUS);
@@ -46,7 +52,6 @@ namespace ecs
                     // Else, start moving towards the player.
 					ai_move_to(entity, world.player.position, knowledge.me.speed, ACCEPTANCE_RADIUS);
 				}
-
                 break;
             }
             }

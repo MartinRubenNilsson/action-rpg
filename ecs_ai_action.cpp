@@ -46,6 +46,19 @@ namespace ecs
 				}
 				break;
 			}
+			case AiActionType::Flee: {
+				sf::Vector2f fleeDirection = position - action.target_position;
+				float distance = length(fleeDirection);
+				if (distance < action.flee_radius) {
+					fleeDirection /= distance;
+					set_linear_velocity(body, fleeDirection * action.speed);
+					action.status = AiActionStatus::Running;
+				}
+				else {
+					action.status = AiActionStatus::Succeeded;
+				}
+				break;
+			}
 			}
 		}
 	}
@@ -59,6 +72,15 @@ namespace ecs
 		AiAction action{};
 		action.type = AiActionType::Wait;
 		action.duration = duration;
+		_set_ai_action(entity, action);
+	}
+
+	void ai_flee(entt::entity entity, sf::Vector2f danger_position, float speed, float flee_radius) {
+		AiAction action{};
+		action.type = AiActionType::Flee;
+		action.target_position = danger_position;
+		action.speed = speed;
+		action.flee_radius = flee_radius;
 		_set_ai_action(entity, action);
 	}
 

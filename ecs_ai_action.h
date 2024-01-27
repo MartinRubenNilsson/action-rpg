@@ -7,6 +7,7 @@ namespace ecs
 		None,
 		Wait,
 		MoveTo,
+		Flee,
 
 		//Some potential examples of other ai actions:
 		//Patrol,
@@ -36,6 +37,7 @@ namespace ecs
 		float acceptance_radius = 0.1f;
 		float duration; // Only used for Wait action as of yet
 		float elapsed_time; // Time elapsed since the action started
+		float flee_radius;
 	};
 
 	void update_ai_actions(float dt);
@@ -43,5 +45,6 @@ namespace ecs
 	// Add more ai actions here:
 
 	void ai_wait(entt::entity entity, float duration);
+	void ai_flee(entt::entity entity, sf::Vector2f danger_position, float speed, float flee_radius);
 	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius = 0.f);
 }
