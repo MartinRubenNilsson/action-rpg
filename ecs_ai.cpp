@@ -22,7 +22,9 @@ namespace ecs
         const AiWorld& world = get_ai_world();
 
 
-        for (auto [entity, knowledge, ai_type, action] : _registry.view<const AiKnowledge, const AiType, AiAction>().each()) {
+        for (auto [entity, knowledge, ai_type, action] :
+            _registry.view<const AiKnowledge, const AiType, const AiAction>().each()) {
+
             switch (ai_type) {
             case AiType::Slime: {
                 if (!_registry.valid(world.player.entity)) break;
