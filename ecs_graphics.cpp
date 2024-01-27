@@ -7,7 +7,7 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	const std::unordered_map<std::string, SortingLayer> _layer_name_to_sorting_layer = {
+	const std::unordered_map<std::string, SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
 		{ "Under Sprite 1", SortingLayer::Background1 },
 		{ "Under Sprite 2", SortingLayer::Background2 },
 		{ "Object Layer",   SortingLayer::Objects     },
@@ -19,8 +19,8 @@ namespace ecs
 
 	SortingLayer layer_name_to_sorting_layer(const std::string& name)
 	{
-		auto it = _layer_name_to_sorting_layer.find(name);
-		if (it != _layer_name_to_sorting_layer.end()) return it->second;
+		auto it = _LAYER_NAME_TO_SORTING_LAYER.find(name);
+		if (it != _LAYER_NAME_TO_SORTING_LAYER.end()) return it->second;
 		return SortingLayer::Objects;
 	}
 
