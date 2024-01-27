@@ -30,12 +30,3 @@ private:
 	sf::Cursor cursor_text;
 	sf::Cursor cursor_unavailable;
 };
-
-namespace RmlSFML
-{
-	// Applies input on the context based on the given SFML event.
-	// @return True if the event is still propagating, false if it was handled by the context.
-	bool InputHandler(Rml::Context* context, const sf::Event& ev);
-	Rml::Input::KeyIdentifier sfml_key_to_rml_key(sf::Keyboard::Key key);
-	Rml::Input::KeyModifier get_key_modifier_state();
-}
