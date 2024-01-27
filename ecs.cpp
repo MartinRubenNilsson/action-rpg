@@ -105,6 +105,7 @@ namespace ecs
 			render_physics(window);
 		if (debug_draw_pivots) {
 			for (const SortedSprite& sorted_sprite : sprites) {
+				if (sorted_sprite.sorting_layer != SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
 				circle.setPosition(sorted_sprite.sorting_pos);
 				circle.setFillColor(sf::Color::Red);
