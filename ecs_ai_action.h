@@ -4,15 +4,13 @@ namespace ecs
 {
 	enum class AiActionType
 	{
-		None,
-		Wait, // Wait for a certain amount of time
-		MoveTo, // Move to a certain position
-		Pursue, // Pursue a certain entity
-		Flee, // Flee from a certain entity
-
-		//Some potential examples of other ai actions:
-		//Patrol,
-		//PlaySound,
+		None, // Does nothing and succeeds immediately. Useful for testing.
+		Wait, // Wait for a certain amount of time. Succeeds after the time has elapsed.
+		MoveTo, // Move to a certain position. Succeeds when the entity is close enough to the position.
+		Pursue, // Pursue a certain entity. Succeeds when the entity is close enough to the target.
+		Flee, // Flee from a certain entity. Succeeds when the entity is far enough from the target.
+		//Wander, // Wander around randomly. Keeps running, never succeeds or fails.
+		//PlayAnimation, // Play a certain animation. Succeeds when it's finished, fails if it doesn't exist.
 	};
 
 	enum class AiActionStatus
@@ -48,4 +46,6 @@ namespace ecs
 	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius);
 	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float pursue_radius);
 	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float flee_radius);
+	//void ai_wander(entt::entity entity, float speed);
+	//void ai_play_animation(entt::entity entity, const std::string& animation_name);
 }

@@ -3,6 +3,7 @@
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
 #include "console.h"
+#include "map.h"
 
 namespace ecs
 {
@@ -20,7 +21,6 @@ namespace ecs
         // The AiAction will run independently and is allowed to modify the game world.
 
         const AiWorld& world = get_ai_world();
-
 
         for (auto [entity, knowledge, ai_type, action] :
             _registry.view<const AiKnowledge, const AiType, const AiAction>().each()) {
@@ -66,6 +66,22 @@ namespace ecs
         update_ai_knowledge(dt);
         _use_ai_knowledge_to_decide_next_ai_action(dt);
         update_ai_actions(dt);
+    }
+
+    void debug_draw_ai(sf::RenderTarget& target)
+    {
+        const AiWorld& world = get_ai_world();
+
+        for (const AiEntityInfo& ai : world.ais) {
+            std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
+            if (path.size() < 2) continue;
+            std::vector<sf::Vertex> vertices(path.size());
+            for (size_t i = 0; i < path.size(); ++i) {
+				vertices[i].position = path[i];
+				vertices[i].color = sf::Color::Red;
+			}
+            target.draw(vertices.data(), vertices.size(), sf::PrimitiveType::LineStrip);
+        }
     }
 
     void emplace_ai(entt::entity entity, AiType type)

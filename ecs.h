@@ -2,8 +2,15 @@
 
 namespace ecs
 {
-	extern bool debug_draw_physics;
-	extern bool debug_draw_pivots;
+	enum DebugFlags
+	{
+		DEBUG_NONE    = 0,
+		DEBUG_PIVOTS  = 1 << 0,
+		DEBUG_PHYSICS = 1 << 1,
+		DEBUG_AI      = 1 << 2,
+	};
+
+	extern int debug_flags;
 
 	void initialize();
 	void shutdown();

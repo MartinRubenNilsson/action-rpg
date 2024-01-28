@@ -22,7 +22,7 @@ namespace ecs
 	void initialize_physics();
 	void shutdown_physics();
 	void update_physics(float dt);
-	void render_physics(sf::RenderTarget& target);
+	void debug_draw_physics(sf::RenderTarget& target);
 
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	void remove_body(entt::entity entity);

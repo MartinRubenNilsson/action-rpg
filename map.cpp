@@ -396,12 +396,12 @@ namespace map
 			// NOTE TO TIM: you might want to change the members below
 			// to better suit your needs. i just made copilot generate this.
 
-			sf::Vector2i position; // tile position in grid
-			sf::Vector2i parent;   // parent tile position in grid
-			float g = 0.f;               // cost from start to this tile
-			float h = 0.f;               // estimated cost from this tile to end
-			float f = 0.f;               // g + h
-			State state = UNVISITED;           // unvisited, open, or closed
+			sf::Vector2i position;   // tile position in grid
+			sf::Vector2i parent;     // parent tile position in grid
+			float g = 0.f;           // cost from start to this tile
+			float h = 0.f;           // estimated cost from this tile to end
+			float f = 0.f;           // g + h
+			State state = UNVISITED; // unvisited, open, or closed
 		};
 
 		// Pathfind using A* algorithm
@@ -411,6 +411,10 @@ namespace map
 		// TODO
 		
 		std::vector<sf::Vector2f> path;
+		// (Martin) I've added these two push_back:s just so the debug draw actually draws something.
+		// You should remove them once you've implemented the pathfinding.
+		path.push_back(start);
+		path.push_back(end);
 		return path;
 	}
 

@@ -100,23 +100,23 @@ namespace ecs
 		_set_ai_action(entity, action);
 	}
 
-	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
+	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float pursue_radius)
 	{
 		AiAction action{};
 		action.type = AiActionType::Pursue;
 		action.target_entity = target_entity;
 		action.speed = speed;
-		action.radius = acceptance_radius;
+		action.radius = pursue_radius;
 		_set_ai_action(entity, action);
 	}
 
-	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
+	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float flee_radius)
 	{
 		AiAction action{};
 		action.type = AiActionType::Flee;
 		action.target_entity = target_entity;
 		action.speed = speed;
-		action.radius = acceptance_radius;
+		action.radius = flee_radius;
 		_set_ai_action(entity, action);
 	}
 }

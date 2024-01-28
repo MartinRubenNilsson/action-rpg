@@ -14,6 +14,7 @@ namespace ecs
 	};
 
 	void update_ai(float dt);
+	void debug_draw_ai(sf::RenderTarget& target);
 
 	void emplace_ai(entt::entity entity, AiType type);
 }

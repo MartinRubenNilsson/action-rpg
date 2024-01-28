@@ -10,9 +10,7 @@
 
 namespace ecs
 {
-	bool debug_draw_physics = false;
-	bool debug_draw_pivots = false;
-
+	int debug_flags = DEBUG_AI;
 	entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
 
@@ -104,10 +102,7 @@ namespace ecs
 				window.draw(sorted_sprite.sprite);
 		}
 
-		// Debug draw.
-		if (debug_draw_physics)
-			render_physics(window);
-		if (debug_draw_pivots) {
+		if (debug_flags & DEBUG_PIVOTS) {
 			for (const SortedSprite& sorted_sprite : sprites) {
 				if (sorted_sprite.sorting_layer != SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
@@ -116,6 +111,10 @@ namespace ecs
 				window.draw(circle);
 			}
 		}
+		if (debug_flags & DEBUG_PHYSICS)
+			debug_draw_physics(window);
+		if (debug_flags & DEBUG_AI)
+			debug_draw_ai(window);
 	}
 
 	entt::entity create() {
