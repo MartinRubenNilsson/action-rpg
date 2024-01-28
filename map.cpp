@@ -398,10 +398,10 @@ namespace map
 
 			sf::Vector2i position; // tile position in grid
 			sf::Vector2i parent;   // parent tile position in grid
-			float g;               // cost from start to this tile
-			float h;               // estimated cost from this tile to end
-			float f;               // g + h
-			State state;           // unvisited, open, or closed
+			float g = 0.f;               // cost from start to this tile
+			float h = 0.f;               // estimated cost from this tile to end
+			float f = 0.f;               // g + h
+			State state = UNVISITED;           // unvisited, open, or closed
 		};
 
 		// Pathfind using A* algorithm
