@@ -26,7 +26,7 @@ namespace ecs
 		//Add more info here as needed
 	};
 
-	void update_ai_knowledge(float dt);
+	void update_ai_knowledge_and_world(float dt);
 
 	const AiWorld& get_ai_world();
 }

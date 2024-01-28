@@ -56,15 +56,15 @@ namespace ecs
                     // Else, start moving towards the player.
                     ai_pursue(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
                 }
-                break;
-            }
+
+            } break;
             }
         }
     }
 
     void update_ai(float dt)
     {
-        update_ai_knowledge(dt);
+        update_ai_knowledge_and_world(dt);
         _use_ai_knowledge_to_decide_next_ai_action(dt);
         update_ai_actions(dt);
     }

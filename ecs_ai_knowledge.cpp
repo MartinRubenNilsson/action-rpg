@@ -24,7 +24,7 @@ namespace ecs
 		return info;
 	} 
 
-	void update_ai_knowledge(float dt)
+	void update_ai_knowledge_and_world(float dt)
 	{
 		_ai_world.player = _get_ai_entity_info(find_entity_by_class("player"));
 		_ai_world.ais.clear();
@@ -34,6 +34,7 @@ namespace ecs
 			_ai_world.ais.push_back(knowledge.me);
 		}
 	}
+
 	const AiWorld& get_ai_world() {
 		return _ai_world;
 	}

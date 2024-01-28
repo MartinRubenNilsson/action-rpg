@@ -24,16 +24,14 @@ namespace ecs
 			switch (action.type) {
 			case AiActionType::None: {
 				action.status = AiActionStatus::Succeeded;
-				break;
-			}
+			} break;
 			case AiActionType::Wait: {
 				if (action.elapsed_time < action.duration) {
 					action.status = AiActionStatus::Running;
 				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
-				break;
-			}
+			} break;
 			case AiActionType::MoveTo: {
 				sf::Vector2f direction = action.target_position - position;
 				float distance = length(direction);
@@ -44,8 +42,7 @@ namespace ecs
 				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
-				break;
-			}
+			} break;
 			case AiActionType::Pursue: {
 				// Get the target's position
 				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
@@ -58,8 +55,7 @@ namespace ecs
 				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
-				break;
-			}
+			} break;
 			case AiActionType::Flee: {
 				// Get the target's position
 				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
@@ -72,8 +68,7 @@ namespace ecs
 				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
-				break;
-			}
+			} break;
 			}
 		}
 	}
