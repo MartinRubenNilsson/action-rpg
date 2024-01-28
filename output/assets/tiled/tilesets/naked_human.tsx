@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="naked_human" tilewidth="64" tileheight="64" tilecount="64" columns="8">
+ <properties>
+  <property name="shader" value="player"/>
+ </properties>
  <image source="mana_seed_human.png" width="512" height="512"/>
  <tile id="0" type="idle_d">
-  <properties>
-   <property name="shader" value="player"/>
-  </properties>
   <objectgroup draworder="index" id="2">
    <object id="7" x="24" y="32" width="16" height="16">
     <ellipse/>

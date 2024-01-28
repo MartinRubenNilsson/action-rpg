@@ -18,7 +18,7 @@ namespace window
 		std::string title = "Action RPG";
 		sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
 		_window->create(video_mode, title, style);
-		sf::View view(sf::FloatRect(0, 0, VIEW_SIZE.x, VIEW_SIZE.y));
+		sf::View view(sf::FloatRect(0.f, 0.f, (float)VIEW_SIZE.x, (float)VIEW_SIZE.y));
 		_window->setView(view);
 		_window->setKeyRepeatEnabled(false);
 		set_icon("assets/window/swordsman.png");
@@ -40,6 +40,10 @@ namespace window
 		if (!icon.loadFromFile(filename)) return false;
 		_window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 		return true;
+	}
+
+	void set_cursor_visible(bool visible) {
+		_window->setMouseCursorVisible(visible);
 	}
 
 	void set_cursor(sf::Cursor::Type type) {

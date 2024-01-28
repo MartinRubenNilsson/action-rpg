@@ -31,9 +31,13 @@ namespace ecs
 	{
 		assert(tile);
 		initialize_animation_timer();
+
 		std::string shader_name;
-		if (tiled::get(tile->properties, "shader", shader_name))
+		if (tiled::get(tile->properties, "shader", shader_name)) {
 			shader = shaders::get(shader_name);
+		} else if (tiled::get(tile->tileset->properties, "shader", shader_name)) {
+			shader = shaders::get(shader_name);
+		}
 	}
 
 	std::string Tile::get_class() const {
