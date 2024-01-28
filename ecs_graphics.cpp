@@ -126,7 +126,8 @@ namespace ecs
 			_registry.view<SlimeAnimationController, Tile, b2Body*>().each())
 		{
 			sf::Vector2f velocity = get_linear_velocity(body);
-			anim.set_class({ get_direction(velocity) });
+			if (!is_zero(velocity))
+				anim.set_class({ get_direction(velocity) });
 			anim.animation_speed = length(velocity) / 32.f;
 		}
 

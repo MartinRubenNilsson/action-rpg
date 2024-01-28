@@ -26,18 +26,6 @@ namespace ecs
 				action.status = AiActionStatus::Succeeded;
 				break;
 			}
-			case AiActionType::MoveTo: {
-				sf::Vector2f direction = action.target_position - position;
-				float distance = length(direction);
-				if (distance > action.acceptance_radius) {
-					direction /= distance;
-					set_linear_velocity(body, direction * action.speed);
-					action.status = AiActionStatus::Running;
-				} else {
-					action.status = AiActionStatus::Succeeded;
-				}
-				break;
-			}
 			case AiActionType::Wait: {
 				if (action.elapsed_time < action.duration) {
 					action.status = AiActionStatus::Running;
@@ -46,32 +34,42 @@ namespace ecs
 				}
 				break;
 			}
-			case AiActionType::Pursue: {
-				// Get the target's position
-				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.targetEntity));
-				sf::Vector2f direction = target_position - position;
+			case AiActionType::MoveTo: {
+				sf::Vector2f direction = action.target_position - position;
 				float distance = length(direction);
-				if (distance > action.acceptance_radius) {
+				if (distance > action.radius) {
 					direction /= distance;
 					set_linear_velocity(body, direction * action.speed);
 					action.status = AiActionStatus::Running;
+				} else {
+					action.status = AiActionStatus::Succeeded;
 				}
-				else {
+				break;
+			}
+			case AiActionType::Pursue: {
+				// Get the target's position
+				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
+				sf::Vector2f direction = target_position - position;
+				float distance = length(direction);
+				if (distance > action.radius) {
+					direction /= distance;
+					set_linear_velocity(body, direction * action.speed);
+					action.status = AiActionStatus::Running;
+				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
 				break;
 			}
 			case AiActionType::Flee: {
 				// Get the target's position
-				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.targetEntity));
+				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
 				sf::Vector2f direction = position - target_position;
 				float distance = length(direction);
-				if (distance < action.acceptance_radius) {
+				if (distance < action.radius) {
 					direction /= distance;
 					set_linear_velocity(body, direction * action.speed);
 					action.status = AiActionStatus::Running;
-				}
-				else {
+				} else {
 					action.status = AiActionStatus::Succeeded;
 				}
 				break;
@@ -92,31 +90,33 @@ namespace ecs
 		_set_ai_action(entity, action);
 	}
 
-	void ai_flee(entt::entity entity, entt::entity targetEntity, float speed, float acceptance_radius) {
-		AiAction action{};
-		action.type = AiActionType::Flee;
-		action.targetEntity = targetEntity;
-		action.speed = speed;
-		action.acceptance_radius = acceptance_radius;
-		_set_ai_action(entity, action);
-	}
-
-	void ai_pursue(entt::entity entity, entt::entity targetEntity, float speed, float acceptance_radius) {
-		AiAction action{};
-		action.type = AiActionType::Pursue;
-		action.targetEntity = targetEntity;
-		action.speed = speed;
-		action.acceptance_radius = acceptance_radius;
-		_set_ai_action(entity, action);
-	}
-
 	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius)
 	{
 		AiAction action{};
 		action.type = AiActionType::MoveTo;
 		action.target_position = target_position;
 		action.speed = speed;
-		action.acceptance_radius = acceptance_radius;
+		action.radius = acceptance_radius;
+		_set_ai_action(entity, action);
+	}
+
+	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
+	{
+		AiAction action{};
+		action.type = AiActionType::Pursue;
+		action.target_entity = target_entity;
+		action.speed = speed;
+		action.radius = acceptance_radius;
+		_set_ai_action(entity, action);
+	}
+
+	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
+	{
+		AiAction action{};
+		action.type = AiActionType::Flee;
+		action.target_entity = target_entity;
+		action.speed = speed;
+		action.radius = acceptance_radius;
 		_set_ai_action(entity, action);
 	}
 }
