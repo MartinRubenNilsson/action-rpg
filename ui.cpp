@@ -1,7 +1,6 @@
 ﻿#include "ui.h"
 #include <RmlUi/Core.h>
 #include "RmlUi_Renderer_GL2_SFML.h"
-#include "defines.h"
 #include "ui_bindings.h"
 #include "ui_main_menu.h"
 #include "ui_pause_menu.h"
@@ -77,8 +76,8 @@ namespace ui
 	{
 		_render_interface.SetViewport(new_size.x, new_size.y);
 		_context->SetDimensions(new_size);
-		float dp_ratio_x = (float)new_size.x / (float)VIEW_WIDTH;
-		float dp_ratio_y = (float)new_size.y / (float)VIEW_HEIGHT;
+		float dp_ratio_x = (float)new_size.x / (float)window::VIEW_SIZE.x;
+		float dp_ratio_y = (float)new_size.y / (float)window::VIEW_SIZE.y;
 		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
 	}

@@ -291,7 +291,6 @@
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="defines.h" />
     <ClInclude Include="fmod_studio_common.h">
       <Filter>audio\fmod</Filter>
     </ClInclude>

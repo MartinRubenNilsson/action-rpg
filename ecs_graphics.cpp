@@ -1,12 +1,12 @@
 #include "ecs_graphics.h"
-#include "defines.h"
 #include "physics_helpers.h"
 #include "tiled.h"
+#include "shaders.h"
 
 namespace ecs
 {
 	extern entt::registry _registry;
-	float _elapsed_time = 0.f;
+	float _shader_time_accumulator = 0.f; // sent to shaders as uniform float "time"
 
 	const std::unordered_map<std::string, SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
 		{ "Under Sprite 1", SortingLayer::Background1 },
@@ -31,6 +31,9 @@ namespace ecs
 	{
 		assert(tile);
 		initialize_animation_timer();
+		std::string shader_name;
+		if (tiled::get(tile->properties, "shader", shader_name))
+			shader = shaders::get(shader_name);
 	}
 
 	std::string Tile::get_class() const {
@@ -112,7 +115,7 @@ namespace ecs
 
 	void update_graphics(float dt)
 	{
-		_elapsed_time += dt;
+		_shader_time_accumulator += dt;
 
 		// TODO: Move somewhere else
 		for (auto [entity, anim, body] :
@@ -127,7 +130,8 @@ namespace ecs
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (tile.shader) {
-				tile.shader->setUniform("time", _elapsed_time);
+				tile.shader->setUniform("time", _shader_time_accumulator);
+				tile.shader->setUniform("time_delta", dt);
 				tile.shader->setUniform("position", tile.position);
 			}
 			if (tile.is_animated())

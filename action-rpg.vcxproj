@@ -94,6 +94,10 @@
     <PostBuildEvent>
       <Message>Copying shaders to output folder...</Message>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -127,6 +131,10 @@
     <PostBuildEvent>
       <Message>Copying shaders to output folder...</Message>
     </PostBuildEvent>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
@@ -217,7 +225,11 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="player.frag" />
+    <None Include="player.frag">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
+    </None>
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
@@ -286,7 +298,6 @@
     <ClInclude Include="ecs_projectile.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="random_noise.h" />
-    <ClInclude Include="defines.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_tiled.h" />
     <ClInclude Include="ecs_physics.h" />

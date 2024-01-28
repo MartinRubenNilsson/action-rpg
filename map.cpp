@@ -13,7 +13,6 @@
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ui_textbox.h"
-#include "shaders.h"
 
 namespace map
 {
@@ -110,11 +109,6 @@ namespace map
 					ecs_tile.position = sf::Vector2f(x, y);
 					ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
 					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
-
-					// For testing
-					if (object.name == "player") {
-						ecs_tile.shader = shaders::get("player");
-					}
 
 					// LOAD COLLIDERS
 

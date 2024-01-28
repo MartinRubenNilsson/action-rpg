@@ -1,8 +1,10 @@
 #include "window.h"
-#include "defines.h"
 
 namespace window
 {
+	const sf::Vector2u VIEW_SIZE(320u, 180u);
+	const uint32_t MIN_SCALE = 3u;
+	const uint32_t MAX_SCALE = 7u;
 	const size_t _SYSTEM_CURSOR_COUNT = (size_t)sf::Cursor::Type::NotAllowed;
 
 	sf::RenderWindow* _window = nullptr;
@@ -12,11 +14,11 @@ namespace window
 	void initialize(sf::RenderWindow& window)
 	{
 		_window = &window;
-		sf::VideoMode video_mode(_scale * VIEW_WIDTH, _scale * VIEW_HEIGHT);
+		sf::VideoMode video_mode(_scale * VIEW_SIZE.x, _scale * VIEW_SIZE.y);
 		std::string title = "Action RPG";
 		sf::Uint32 style = sf::Style::Titlebar | sf::Style::Close;
 		_window->create(video_mode, title, style);
-		sf::View view(sf::FloatRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT));
+		sf::View view(sf::FloatRect(0, 0, VIEW_SIZE.x, VIEW_SIZE.y));
 		_window->setView(view);
 		_window->setKeyRepeatEnabled(false);
 		set_icon("assets/window/swordsman.png");
@@ -50,8 +52,8 @@ namespace window
 
 	void set_scale(uint32_t scale)
 	{
-		_scale = std::clamp(scale, WINDOW_SCALE_MIN, WINDOW_SCALE_MAX);
-		_window->setSize(sf::Vector2u(_scale * VIEW_WIDTH, _scale * VIEW_HEIGHT));
+		_scale = std::clamp(scale, MIN_SCALE, MAX_SCALE);
+		_window->setSize(_scale * VIEW_SIZE);
 	}
 
 	uint32_t get_scale() {
