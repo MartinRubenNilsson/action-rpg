@@ -7,6 +7,6 @@ void main()
 {
     vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
     gl_FragColor = gl_Color * pixel;
-    gl_FragColor.g = 0;
+    gl_FragColor.b = 0;
     //sdfsd
 }
