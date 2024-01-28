@@ -46,12 +46,29 @@ namespace ecs
 				}
 				break;
 			}
+			case AiActionType::Pursue: {
+				// Get the target's position
+				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.targetEntity));
+				sf::Vector2f direction = target_position - position;
+				float distance = length(direction);
+				if (distance > action.acceptance_radius) {
+					direction /= distance;
+					set_linear_velocity(body, direction * action.speed);
+					action.status = AiActionStatus::Running;
+				}
+				else {
+					action.status = AiActionStatus::Succeeded;
+				}
+				break;
+			}
 			case AiActionType::Flee: {
-				sf::Vector2f fleeDirection = position - action.target_position;
-				float distance = length(fleeDirection);
-				if (distance < action.flee_radius) {
-					fleeDirection /= distance;
-					set_linear_velocity(body, fleeDirection * action.speed);
+				// Get the target's position
+				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.targetEntity));
+				sf::Vector2f direction = position - target_position;
+				float distance = length(direction);
+				if (distance < action.acceptance_radius) {
+					direction /= distance;
+					set_linear_velocity(body, direction * action.speed);
 					action.status = AiActionStatus::Running;
 				}
 				else {
@@ -75,12 +92,21 @@ namespace ecs
 		_set_ai_action(entity, action);
 	}
 
-	void ai_flee(entt::entity entity, sf::Vector2f danger_position, float speed, float flee_radius) {
+	void ai_flee(entt::entity entity, entt::entity targetEntity, float speed, float acceptance_radius) {
 		AiAction action{};
 		action.type = AiActionType::Flee;
-		action.target_position = danger_position;
+		action.targetEntity = targetEntity;
 		action.speed = speed;
-		action.flee_radius = flee_radius;
+		action.acceptance_radius = acceptance_radius;
+		_set_ai_action(entity, action);
+	}
+
+	void ai_pursue(entt::entity entity, entt::entity targetEntity, float speed, float acceptance_radius) {
+		AiAction action{};
+		action.type = AiActionType::Pursue;
+		action.targetEntity = targetEntity;
+		action.speed = speed;
+		action.acceptance_radius = acceptance_radius;
 		_set_ai_action(entity, action);
 	}
 
