@@ -89,7 +89,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)*.frag .\output\assets\shaders\</Command>
+      <Command>copy /Y $(SolutionDir)*.frag $(TargetDir)assets\shaders\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying shaders to output folder...</Message>
@@ -122,7 +122,7 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y $(SolutionDir)*.frag .\output\assets\shaders\</Command>
+      <Command>copy /Y $(SolutionDir)*.frag $(TargetDir)assets\shaders\</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying shaders to output folder...</Message>
@@ -217,7 +217,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.frag" />
+    <None Include="player.frag" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>

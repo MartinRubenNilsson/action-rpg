@@ -15,6 +15,12 @@ namespace shaders
 
 	void load_shaders(const std::filesystem::path& dir)
 	{
+		if (!sf::Shader::isAvailable()) {
+			if (log_errors)
+				console::log_error("Shaders are not supported on this system");
+			return;
+		}
+
 		for (const std::filesystem::directory_entry& entry
 			: std::filesystem::directory_iterator(dir)) {
 			if (!entry.is_regular_file()) continue;

@@ -111,9 +111,10 @@ namespace map
 					ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
 					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
 
-					//if (object.name == "player") {
-					//	ecs_tile.shader = shaders::get("test");
-					//}
+					// For testing
+					if (object.name == "player") {
+						ecs_tile.shader = shaders::get("player");
+					}
 
 					// LOAD COLLIDERS
 

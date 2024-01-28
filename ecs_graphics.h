@@ -40,7 +40,7 @@ namespace ecs
 		bool animation_loop = true;
 		
 		sf::Sprite get_sprite() const;
-		std::string get_class() const;
+		std::string get_class() const; 
 		bool set_class(const std::string& class_);
 		bool is_animated() const;
 		bool update_animation(float dt); // Returns true if the animation frame changed.

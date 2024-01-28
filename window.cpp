@@ -20,7 +20,6 @@ namespace window
 		_window->setView(view);
 		_window->setKeyRepeatEnabled(false);
 		set_icon("assets/window/swordsman.png");
-
 		for (size_t i = 0; i < _SYSTEM_CURSOR_COUNT; ++i)
 			_system_cursors[i].loadFromSystem((sf::Cursor::Type)i);
 	}

@@ -6,6 +6,7 @@
 namespace ecs
 {
 	extern entt::registry _registry;
+	float _elapsed_time = 0.f;
 
 	const std::unordered_map<std::string, SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
 		{ "Under Sprite 1", SortingLayer::Background1 },
@@ -111,6 +112,8 @@ namespace ecs
 
 	void update_graphics(float dt)
 	{
+		_elapsed_time += dt;
+
 		// TODO: Move somewhere else
 		for (auto [entity, anim, body] :
 			_registry.view<SlimeAnimationController, Tile, b2Body*>().each())
@@ -120,10 +123,18 @@ namespace ecs
 			anim.animation_speed = length(velocity) / 32.f;
 		}
 
+		// UPDATE TILE SHADERS AND ANIMATIONS
+
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+			if (tile.shader) {
+				tile.shader->setUniform("time", _elapsed_time);
+				tile.shader->setUniform("position", tile.position);
+			}
 			if (tile.is_animated())
 				tile.update_animation(dt);
 		}
+
+		// UPDATE TILE POSITIONS
 
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
 			tile.position = get_position(body);

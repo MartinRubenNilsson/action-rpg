@@ -34,9 +34,6 @@ int main(int argc, char* argv[])
     console::initialize();
     ui::initialize(window);
 
-
-    std::cout << "Press F1 to toggle console." << std::endl;
-
     // LOAD ASSETS
 
     shaders::load_shaders("assets/shaders");
