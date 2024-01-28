@@ -248,6 +248,9 @@
     <None Include="player.frag">
       <Filter>shaders</Filter>
     </None>
+    <None Include="grass.frag">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
