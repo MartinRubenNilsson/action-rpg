@@ -1,5 +1,4 @@
 #include "map.h"
-#include "defines.h"
 #include "tiled.h"
 #include "console.h"
 #include "audio.h"
@@ -19,7 +18,6 @@ namespace map
 	const tiled::Map* _current_map = nullptr;
 	const tiled::Map* _next_map = nullptr;
 	bool _reset_if_already_open = false;
-	std::string _spawnpoint_entity_name; // entity to spawn the player at when opening the next map
 
 	bool open(const std::string& map_name, bool reset_if_already_open)
 	{
@@ -341,8 +339,81 @@ namespace map
 			(float)_current_map->height * _current_map->tile_height);
 	}
 
-	void set_player_spawnpoint(const std::string& entity_name) {
-		_spawnpoint_entity_name = entity_name;
+	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end)
+	{
+		// Uses the A* algorithm to find a path from start to end.
+		// Returns a vector of points that the entity should follow.
+		// If no path is found, an empty vector is returned.
+		// The tile layer named "Collision" is used for pathfinding;
+		// if a tile is present in this layer, it is considered impassable.
+
+		std::vector<sf::Vector2f> {};
+
+		// If there is no current map, we can't pathfind.
+		if (!_current_map) return {};
+
+		// Find the collision layer.
+		const tiled::Layer* collision_layer = nullptr;
+		for (const tiled::Layer& layer : _current_map->layers) {
+			if (layer.name == "Collision") {
+				collision_layer = &layer;
+				break;
+			}
+		}
+
+		// If there is no collision layer, we can't pathfind.
+		if (!collision_layer) return {};
+
+		// NOTES TO TIM:
+		collision_layer->width; // number of tiles in x direction
+		collision_layer->height; // number of tiles in y direction
+		collision_layer->tiles; // array of tiles; size = width * height
+		uint32_t x = 0;
+		uint32_t y = 0;
+		const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first; // get tile at (x, y)
+		if (tile) {
+			// tile is empty = there is no collider = tile is passable
+		} else {
+			// tile is nonempty = there is a collider there = tile is impassable
+		}
+
+		// Compute the start and end tile indices.
+		// TODO
+
+		// If the start or end tile is out of bounds, we can't pathfind.
+		// TODO
+
+		// If the start or end tile is impassable, we can't pathfind.
+		// TODO
+
+		struct AStarNode
+		{
+			enum State
+			{
+				UNVISITED,
+				OPEN,
+				CLOSED,
+			};
+
+			// NOTE TO TIM: you might want to change the members below
+			// to better suit your needs. i just made copilot generate this.
+
+			sf::Vector2i position; // tile position in grid
+			sf::Vector2i parent;   // parent tile position in grid
+			float g;               // cost from start to this tile
+			float h;               // estimated cost from this tile to end
+			float f;               // g + h
+			State state;           // unvisited, open, or closed
+		};
+
+		// Pathfind using A* algorithm
+		// TODO
+
+		// Convert back to world coordinates. The world position of a tile is the center of the tile.
+		// TODO
+		
+		std::vector<sf::Vector2f> path;
+		return path;
 	}
 
 	bool play_footstep_sound_at(const sf::Vector2f& position)

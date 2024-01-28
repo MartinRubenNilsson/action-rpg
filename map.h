@@ -13,9 +13,7 @@ namespace map
 	std::string get_name();
 	sf::FloatRect get_bounds();
 
-	// Sets the name of the entity that should be used as the player's starting position.
-	// You may call this function before or after open(), as long as you call it before update().
-	void set_player_spawnpoint(const std::string& entity_name);
+	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end);
 
 	bool play_footstep_sound_at(const sf::Vector2f& position);
 }
