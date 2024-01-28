@@ -1,16 +1,17 @@
 #include "stdafx.h"
-#include "defines.h"
 #include "ecs_camera.h"
 #include "physics_helpers.h"
 #include "random_noise.h"
 #include "console.h"
 #include <tweeny/easing.h>
+#include "window.h"
 
 namespace ecs
 {
 	extern entt::registry _registry;
 
-	const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, VIEW_WIDTH, VIEW_HEIGHT));
+	//const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, (float)window::VIEW_SIZE.x, (float)window::VIEW_SIZE.y));
+	const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, (float)320u, (float)180u)); //HACK
 	const float CAMERA_BLEND_DURATION = 1.f;
 
 	entt::entity _active_camera_entity = entt::null;

@@ -1,5 +1,4 @@
 #include "ecs.h"
-#include "defines.h"
 #include "console.h"
 #include "ecs_tiled.h"
 #include "ecs_physics.h"

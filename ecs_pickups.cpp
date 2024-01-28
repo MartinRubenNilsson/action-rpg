@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "defines.h"
 #include "ecs_tiled.h"
 #include "ecs_pickups.h"
 #include "ecs_physics.h"
