@@ -242,6 +242,9 @@
     <ClCompile Include="shaders.cpp">
       <Filter>shaders</Filter>
     </ClCompile>
+    <ClCompile Include="fonts.cpp">
+      <Filter>fonts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -541,6 +544,9 @@
     <ClInclude Include="shaders.h">
       <Filter>shaders</Filter>
     </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>fonts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -596,6 +602,9 @@
     </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fonts">
+      <UniqueIdentifier>{68fdf205-3055-46cf-99cb-5b22360fb613}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@ namespace shaders
 
 	std::unordered_map<std::string, std::shared_ptr<sf::Shader>> _shaders;
 
-	void load_shaders(const std::filesystem::path& dir)
+	void load_assets(const std::filesystem::path& dir)
 	{
 		if (!sf::Shader::isAvailable()) {
 			if (log_errors)
@@ -37,7 +37,7 @@ namespace shaders
 		}
 	}
 
-	void unload_shaders() {
+	void unload_assets() {
 		_shaders.clear();
 	}
 

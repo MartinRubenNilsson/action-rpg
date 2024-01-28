@@ -199,6 +199,7 @@
     <ClCompile Include="ecs_console_commands.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
+    <ClCompile Include="fonts.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="ecs.cpp" />
@@ -301,6 +302,7 @@
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_projectile.h" />
+    <ClInclude Include="fonts.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="random_noise.h" />
     <ClInclude Include="ecs.h" />

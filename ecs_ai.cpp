@@ -4,6 +4,7 @@
 #include "ecs_ai_action.h"
 #include "console.h"
 #include "map.h"
+#include "fonts.h"
 
 namespace ecs
 {
@@ -73,15 +74,39 @@ namespace ecs
         const AiWorld& world = get_ai_world();
 
         for (const AiEntityInfo& ai : world.ais) {
-            std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
-            if (path.size() < 2) continue;
-            std::vector<sf::Vertex> vertices(path.size());
-            for (size_t i = 0; i < path.size(); ++i) {
-				vertices[i].position = path[i];
-				vertices[i].color = sf::Color::Red;
-			}
-            target.draw(vertices.data(), vertices.size(), sf::PrimitiveType::LineStrip);
+            // Debug draw path
+            {
+                std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
+                if (path.size() < 2) continue;
+                std::vector<sf::Vertex> vertices(path.size());
+                for (size_t i = 0; i < path.size(); ++i) {
+                    vertices[i].position = path[i];
+                    vertices[i].color = sf::Color::Red;
+                }
+                target.draw(vertices.data(), vertices.size(), sf::PrimitiveType::LineStrip);
+            }
         }
+
+        std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
+        if (!font) return;
+
+        sf::Text text{};
+        text.setFont(*font);
+        text.setCharacterSize(48);
+        text.setScale(0.1f, 0.1f);
+        text.setFillColor(sf::Color::White);
+        text.setOutlineColor(sf::Color::Black);
+        text.setOutlineThickness(2.f);
+
+        for (auto [entity, knowledge, action] :
+            _registry.view<const AiKnowledge, const AiAction>().each()) {
+
+            std::string action_name(magic_enum::enum_name(action.type));
+            text.setString(action_name);
+            text.setPosition(knowledge.me.position + sf::Vector2f(0.f, -10.f));
+            text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
+            target.draw(text);
+		}
     }
 
     void emplace_ai(entt::entity entity, AiType type)

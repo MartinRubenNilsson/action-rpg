@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "window.h"
 #include "audio.h"
+#include "fonts.h"
 #include "shaders.h"
 #include "ui.h"
 #include "ui_main_menu.h"
@@ -44,7 +45,8 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
-    shaders::load_shaders("assets/shaders");
+    fonts::load_assets("assets/fonts");
+    shaders::load_assets("assets/shaders");
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
@@ -131,7 +133,8 @@ int main(int argc, char* argv[])
 
     tiled::unload_assets(); 
     background::unload_assets();
-    shaders::unload_shaders();
+    shaders::unload_assets();
+    fonts::unload_assets();
 
     // SHUTDOWN
 
