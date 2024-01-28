@@ -347,8 +347,6 @@ namespace map
 		// The tile layer named "Collision" is used for pathfinding;
 		// if a tile is present in this layer, it is considered impassable.
 
-		std::vector<sf::Vector2f> {};
-
 		// If there is no current map, we can't pathfind.
 		if (!_current_map) return {};
 
