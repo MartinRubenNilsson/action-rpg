@@ -35,39 +35,45 @@ namespace ecs
 			case AiActionType::MoveTo: {
 				sf::Vector2f direction = action.target_position - position;
 				float distance = length(direction);
-				if (distance > action.radius) {
-					direction /= distance;
-					set_linear_velocity(body, direction * action.speed);
-					action.status = AiActionStatus::Running;
-				} else {
+				if (distance <= action.radius) {
 					action.status = AiActionStatus::Succeeded;
+					break;
 				}
+				direction /= distance;
+				set_linear_velocity(body, direction * action.speed);
+				action.status = AiActionStatus::Running;
 			} break;
 			case AiActionType::Pursue: {
-				// Get the target's position
+				if (!_registry.all_of<b2Body*>(action.target_entity)) {
+					action.status = AiActionStatus::Failed;
+					break;
+				}
 				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
 				sf::Vector2f direction = target_position - position;
 				float distance = length(direction);
-				if (distance > action.radius) {
-					direction /= distance;
-					set_linear_velocity(body, direction * action.speed);
-					action.status = AiActionStatus::Running;
-				} else {
+				if (distance <= action.radius) {
 					action.status = AiActionStatus::Succeeded;
+					break;
 				}
+				direction /= distance;
+				set_linear_velocity(body, direction * action.speed);
+				action.status = AiActionStatus::Running;
 			} break;
 			case AiActionType::Flee: {
-				// Get the target's position
+				if (!_registry.all_of<b2Body*>(action.target_entity)) {
+					action.status = AiActionStatus::Failed;
+					break;
+				}
 				const sf::Vector2f target_position = get_world_center(_registry.get<b2Body*>(action.target_entity));
 				sf::Vector2f direction = position - target_position;
 				float distance = length(direction);
-				if (distance < action.radius) {
-					direction /= distance;
-					set_linear_velocity(body, direction * action.speed);
-					action.status = AiActionStatus::Running;
-				} else {
+				if (distance >= action.radius) {
 					action.status = AiActionStatus::Succeeded;
+					break;
 				}
+				direction /= distance;
+				set_linear_velocity(body, direction * action.speed);
+				action.status = AiActionStatus::Running;
 			} break;
 			}
 		}

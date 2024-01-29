@@ -56,7 +56,6 @@ int main(int argc, char* argv[])
     // GAME LOOP
 
 #if defined(_DEBUG) //&& false
-    console::write_help_file("assets/scripts/help.txt");
     console::execute(argc, argv);
 #else
     background::type = background::Type::MountainDusk;

@@ -2,15 +2,12 @@
 #include <deque>
 #include <imgui.h>
 #include <imgui_stdlib.h>
-#include <CLI/CLI.hpp>
-
-#define COLOR_COMMAND IM_COL32( 38, 139, 210, 255)
-#define COLOR_ERROR   IM_COL32(220,  50,  47, 255)
 
 namespace console
 {
-	const size_t MAX_HISTORY = 512;
-	CLI::App _app("Console", "");
+	const ImColor _COLOR_COMMAND = IM_COL32(255, 255, 255, 255);
+	const ImColor _COLOR_ERROR = IM_COL32(220, 50, 47, 255);
+	const size_t _MAX_HISTORY = 512;
 	bool _visible = false;
 	bool _reclaim_focus = false;
 	float _sleep_timer = 0.f;
@@ -42,9 +39,6 @@ namespace console
 		}
 		return 0;
 	}
-
-	// Defined in console_commands.cpp
-	extern void _initialize_commands(CLI::App& app);
 
 	void initialize()
 	{
@@ -99,13 +93,6 @@ namespace console
 			style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
 			style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 		}
-
-		_app.set_help_flag("-h,--help", "Print a help message");
-		_app.set_help_all_flag("--help-all", "Print help messages for all subcommands");
-
-		_initialize_commands(_app);
-
-		log("Type -h or --help for a list of commands");
 	}
 
 	void update(float dt)
@@ -227,41 +214,33 @@ namespace console
 
 	void log(const std::string& message) {
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
-		if (_history.size() > MAX_HISTORY)
+		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 	}
 
 	void log_error(const std::string& message, bool show_console)
 	{
-		_history.emplace_back(message, COLOR_ERROR);
-		if (_history.size() > MAX_HISTORY)
+		_history.emplace_back(message, _COLOR_ERROR);
+		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 		if (show_console) _visible = true;
 	}
+
+	// Defined in console_commands.cpp
+	void _do_execute(const std::string& command_line);
 
 	void execute(const std::string& command_line, bool defer)
 	{
 		if (command_line.starts_with("//"))
 			return; // ignore comments
-
 		if (defer) {
 			_command_queue.push_back(command_line);
 			return;
 		}
-
 		_command_history.push_back(command_line);
 		_command_history_it = _command_history.end();
-		_history.emplace_back(command_line, COLOR_COMMAND);
-
-		try {
-			_app.parse(command_line); // throws
-		} catch (const CLI::CallForHelp&) { // thrown by -h or --help
-			log(_app.help());
-		} catch (const CLI::CallForAllHelp&) { // thrown by --help-all
-			log(_app.help("", CLI::AppFormatMode::All));
-		} catch (const CLI::ParseError& parse_error) {
-			log_error(parse_error.what());
-		}
+		_history.emplace_back(command_line, _COLOR_COMMAND);
+		_do_execute(command_line);
 	}
 
 	void execute(int argc, char* argv[])
@@ -312,12 +291,5 @@ namespace console
 			key_string, magic_enum::case_insensitive);
 		if (key.has_value()) unbind(key.value());
 		else log_error("Failed to unbind key: " + key_string);
-	}
-
-	void write_help_file(const std::string& filename)
-	{
-		std::ofstream file(filename);
-		if (!file) log_error("Failed to create help file: " + filename);
-		else file << _app.help("", CLI::AppFormatMode::All);
 	}
 }

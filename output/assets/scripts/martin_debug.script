@@ -1,4 +1,4 @@
-bind o "map open summer_forest"
-bind p "map close"
-map open summer_forest
-ui show hud
+bind o map_open summer_forest
+bind p map_close
+map_open summer_forest
+ui_show hud

@@ -1,4 +1,0 @@
-bind o "map open dungeon"
-bind p "map close"
-bind r "ui reload"
-map open dungeon

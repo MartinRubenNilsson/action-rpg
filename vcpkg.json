@@ -2,7 +2,6 @@
   "dependencies": [
     "sfml",
     "imgui-sfml",
-    "cli11",
     "rmlui",
     "entt",
     "magic-enum",
