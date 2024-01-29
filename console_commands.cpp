@@ -5,6 +5,7 @@
 #include "ui.h"
 #include "ecs_player.h"
 #include "ecs_tiled.h"
+#include "shaders.h"
 
 namespace console
 {
@@ -39,7 +40,7 @@ namespace console
 #define ARGLINE(name, desc) \
 		std::string name{}; \
 		if (help) { help_msg += "\nstd::string " ## #name ## ": " ## desc; } \
-		else if (!std::getline(iss, name)) { error = true; error_msg += "Expected: std::string " ## #name; }
+		else { iss.ignore(64, ' '); std::getline(iss, name); }
 
 #define EXEC(expr) \
 		cmd_found = true; if (!help && !error) { expr; }
@@ -85,6 +86,13 @@ namespace console
 			HELP("Unbind a key");
 			ARG(std::string, key_string, "The key to unbind");
 			EXEC(console::unbind(key_string));
+		}
+
+		// SHADERS
+
+		if (cmd == "reload_shaders") {
+			HELP("Reload all shaders");
+			EXEC(shaders::reload_assets());
 		}
 
 		// AUDIO

@@ -22,14 +22,6 @@
 
 int main(int argc, char* argv[])
 {
-#ifdef _DEBUG
-    // HACK: We should be using a post-build event to copy the shaders,
-    // but then it doesn't run when only debugging and not recompiling,
-    // which is annoying when you've changed a shader but not the code,
-    // because then the new shader doesn't get copied.
-    system("copy /Y ..\\*.frag .\\assets\\shaders\\");
-#endif
-
     sf::RenderWindow window;
 
     // INITIALIZE

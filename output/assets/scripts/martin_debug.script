@@ -1,4 +1,5 @@
 bind o map_open summer_forest
 bind p map_close
+bind r reload_shaders
 map_open summer_forest
 ui_show hud
