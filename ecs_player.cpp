@@ -95,7 +95,7 @@ namespace ecs
 
 			// UPDATE INPUT
 
-			if (player.kill_timer.stopped() && window::has_focus() && !console::is_visible()) {
+			if (player.kill_timer.finished() && window::has_focus() && !console::is_visible()) {
 				player.input.axis_x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
 				player.input.axis_x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 				player.input.axis_y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
@@ -112,7 +112,7 @@ namespace ecs
 			sf::Vector2f movement_direction;
 			float movement_speed = 0.f;
 
-			if (player.kill_timer.stopped()) { // Player is alive
+			if (player.kill_timer.finished()) { // Player is alive
 				if (player.input.axis_x || player.input.axis_y) {
 
 					// Determine movement direction
@@ -217,7 +217,7 @@ namespace ecs
 			// UPDATE COLOR
 
 			sf::Color color = sf::Color::White;
-			if (player.kill_timer.stopped() && player.hurt_timer.started()) {
+			if (player.kill_timer.finished() && player.hurt_timer.running()) {
 				float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
@@ -260,7 +260,7 @@ namespace ecs
 		if (!_registry.all_of<Player>(entity)) return false;
 		Player& player = _registry.get<Player>(entity);
 		if (player.health <= 0) return false; // Player is already dead
-		if (player.hurt_timer.started()) return false; // Player is invulnerable
+		if (player.hurt_timer.running()) return false; // Player is invulnerable
 		player.hurt_timer.start();
 		player.health = std::max(0, player.health - health_to_remove);
 		if (player.health > 0) { // Player survived

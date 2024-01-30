@@ -10,8 +10,8 @@ public:
 	bool update(float dt, bool loop = false);
 	void start();
 	void stop();
-	bool started() const { return _time < _duration; }
-	bool stopped() const { return _time == _duration; }
+	bool running() const { return _time < _duration; }
+	bool finished() const { return _time == _duration; }
 	float get_progress() const; // 0.f = just started, 1.f = finished
 	float get_duration() const { return _duration; }
 	float get_time() const { return _time; }
