@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="17" nextobjectid="17">
  <tileset firstgid="1" source="../tilesets/dungeon.tsx"/>
- <tileset firstgid="626" source="../tilesets/naked_human.tsx"/>
  <layer id="6" name="floor" width="30" height="30">
   <data encoding="csv">
 31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,

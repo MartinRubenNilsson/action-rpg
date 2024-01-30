@@ -179,20 +179,42 @@ namespace ecs
 				player.arrow_ammo--;
 			}
 
-			// UPDATE GRAPHICS
+			// UPDATE ANIMATION
 
-			std::string tile_class;
-			if (movement_speed >= PLAYER_RUN_SPEED) {
-				tile_class = "run";
-			} else if (movement_speed >= PLAYER_WALK_SPEED) {
-				tile_class = "walk";
-			} else {
-				tile_class = "idle";
+			{
+				using namespace std::literals::string_literals;
+
+				char dir = get_direction(player.facing_direction);
+
+				// Right walk/run animation is a complete cycle.
+				// Left walk/run animation is a flipped version of the right animation.
+				// Up/down walk/run animation plays once, then plays again flipped, then loops.
+				switch (dir) {
+				case 'r':
+					tile.flip_x = false;
+					break;
+				case 'l':
+					tile.flip_x = true;
+					dir = 'r';
+					break;
+				case 'u':
+				case 'd':
+					tile.flip_x = (tile.get_animation_loop_count() % 2);
+					break;
+				}
+
+				if (movement_speed >= PLAYER_RUN_SPEED) {
+					tile.set_class("run_"s + dir);
+					tile.animation_speed = 1.2f;
+				} else if (movement_speed >= PLAYER_WALK_SPEED) {
+					tile.set_class("walk_"s + dir);
+					tile.animation_speed = 1.2f;
+				} else {
+					tile.set_class("idle_"s + dir);
+				}
 			}
 
-			tile_class += "_";
-			tile_class += get_direction(player.facing_direction);
-			tile.set_class(tile_class);
+			// UPDATE COLOR
 
 			sf::Color color = sf::Color::White;
 			if (player.kill_timer.stopped() && player.hurt_timer.started()) {

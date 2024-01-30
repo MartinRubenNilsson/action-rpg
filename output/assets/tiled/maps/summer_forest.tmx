@@ -9,10 +9,9 @@
  <tileset firstgid="2817" source="../tilesets/summer_forest/bonus bridge.tsx"/>
  <tileset firstgid="2818" source="../tilesets/summer_forest/collision &amp; alpha.tsx"/>
  <tileset firstgid="2946" source="../tilesets/summer_forest/summer water sparkles.tsx"/>
- <tileset firstgid="2958" source="../tilesets/naked_human.tsx"/>
- <tileset firstgid="3022" source="../tilesets/monsters/slime.tsx"/>
- <tileset firstgid="3038" source="../tilesets/summer_forest/bonus shadows.tsx"/>
- <tileset firstgid="3102" source="../tilesets/characters/player/player.tsx"/>
+ <tileset firstgid="2958" source="../tilesets/monsters/slime.tsx"/>
+ <tileset firstgid="2974" source="../tilesets/summer_forest/bonus shadows.tsx"/>
+ <tileset firstgid="3038" source="../tilesets/characters/player/player.tsx"/>
  <layer id="1" name="Under Sprite 1" width="32" height="32">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,130,258,130,2198,2229,2230,2231,258,386,130,194,322,322,194,386,258,194,258,386,130,386,

@@ -33,8 +33,10 @@ namespace ecs
 		bool visible = true;
 		bool flip_x = false;
 		bool flip_y = false;
+
 		SortingLayer sorting_layer = SortingLayer::Objects;
 		sf::Vector2f sorting_pivot; // in pixels
+
 		Timer animation_timer;
 		float animation_speed = 1.f;
 		bool animation_loop = true;
@@ -43,14 +45,18 @@ namespace ecs
 		std::string get_class() const; 
 		bool set_class(const std::string& class_);
 		bool is_animated() const;
-		bool update_animation(float dt); // Returns true if the animation frame changed.
+		void update_animation(float dt);
+		bool animation_looped_this_frame() const { return _animation_looped_this_frame; }
+		size_t get_animation_loop_count() const { return _animation_loop_count; }
 
 	private:
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
+		bool _animation_looped_this_frame = false;
+		size_t _animation_loop_count = 0;
 
 		uint32_t get_animation_duration_in_ms() const;
-		void initialize_animation_timer();
+		void initialize_animation_state();
 	};
 
 	void update_graphics(float dt);

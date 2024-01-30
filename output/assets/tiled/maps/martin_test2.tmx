@@ -4,7 +4,6 @@
   <property name="music" value="mus_deservioli"/>
  </properties>
  <tileset firstgid="1" source="../tilesets/dungeon.tsx"/>
- <tileset firstgid="626" source="../tilesets/naked_human.tsx"/>
  <layer id="6" name="floor" width="16" height="16">
   <data encoding="csv">
 41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,41,

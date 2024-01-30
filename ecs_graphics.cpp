@@ -30,7 +30,7 @@ namespace ecs
 		, _frame(tile)
 	{
 		assert(tile);
-		initialize_animation_timer();
+		initialize_animation_state();
 
 		std::string shader_name;
 		if (tiled::get(tile->properties, "shader", shader_name)) {
@@ -52,7 +52,7 @@ namespace ecs
 			if (tile.class_ == class_) {
 				_tile = &tile;
 				_frame = &tile;
-				initialize_animation_timer();
+				initialize_animation_state();
 				return true;
 			}
 		}
@@ -63,23 +63,26 @@ namespace ecs
 		return !_tile->animation.empty();
 	}
 
-	bool Tile::update_animation(float dt)
+	void Tile::update_animation(float dt)
 	{
-		animation_timer.update(animation_speed * dt, animation_loop);
-		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
 		uint32_t duration = get_animation_duration_in_ms();
-		if (!duration) return false;
+		if (!duration) {
+			_animation_looped_this_frame = false;
+			_animation_loop_count = 0;
+			return;
+		}
+		_animation_looped_this_frame = animation_timer.update(animation_speed * dt, animation_loop);
+		if (_animation_looped_this_frame) ++_animation_loop_count;
+		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
 		uint32_t time = time_in_ms % duration;
 		uint32_t current_time = 0;
 		for (const tiled::Frame& frame : _tile->animation) {
 			current_time += frame.duration;
 			if (time < current_time) {
-				bool changed = (frame.tile != _frame);
 				_frame = frame.tile;
-				return changed;
+				return;
 			}
 		}
-		return false;
 	}
 
 	sf::Sprite Tile::get_sprite() const
@@ -111,10 +114,12 @@ namespace ecs
 		return duration_in_ms;
 	}
 
-	void Tile::initialize_animation_timer()
+	void Tile::initialize_animation_state()
 	{
 		animation_timer = Timer(get_animation_duration_in_ms() / 1000.f);
 		animation_timer.start();
+		_animation_looped_this_frame = false;
+		_animation_loop_count = 0;
 	}
 
 	void update_graphics(float dt)
@@ -131,7 +136,7 @@ namespace ecs
 			anim.animation_speed = length(velocity) / 32.f;
 		}
 
-		// UPDATE TILE SHADERS AND ANIMATIONS
+		// UPDATE TILE SHADERS
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (tile.shader) {
