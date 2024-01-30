@@ -181,7 +181,6 @@ namespace ecs
 
 			// UPDATE GRAPHICS
 
-			float speed = length(player_velocity);
 			std::string tile_class;
 			if (movement_speed >= PLAYER_RUN_SPEED) {
 				tile_class = "run";
@@ -190,6 +189,7 @@ namespace ecs
 			} else {
 				tile_class = "idle";
 			}
+
 			tile_class += "_";
 			tile_class += get_direction(player.facing_direction);
 			tile.set_class(tile_class);

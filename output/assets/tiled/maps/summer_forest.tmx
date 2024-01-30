@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="21">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="22">
  <tileset firstgid="1" source="../tilesets/summer_forest/summer forest wang tiles.tsx"/>
  <tileset firstgid="2049" source="../tilesets/summer_forest/summer forest.tsx"/>
  <tileset firstgid="2721" source="../tilesets/summer_forest/summer waterfall B.tsx"/>
@@ -12,6 +12,7 @@
  <tileset firstgid="2958" source="../tilesets/naked_human.tsx"/>
  <tileset firstgid="3022" source="../tilesets/monsters/slime.tsx"/>
  <tileset firstgid="3038" source="../tilesets/summer_forest/bonus shadows.tsx"/>
+ <tileset firstgid="3102" source="../tilesets/characters/player/player.tsx"/>
  <layer id="1" name="Under Sprite 1" width="32" height="32">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,130,258,130,2198,2229,2230,2231,258,386,130,194,322,322,194,386,258,194,258,386,130,386,
@@ -124,7 +125,7 @@
   <object id="4" template="../templates/slime.tx" x="147.533" y="305.303"/>
   <object id="5" template="../templates/slime.tx" x="190.288" y="474.515"/>
   <object id="15" template="../templates/slime.tx" x="357.667" y="112.333"/>
-  <object id="18" template="../templates/player.tx" x="356.5" y="352.5"/>
+  <object id="21" template="../templates/player.tx" x="356.5" y="329"/>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">

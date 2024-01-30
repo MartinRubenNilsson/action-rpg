@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <tileset firstgid="1" source="../tilesets/naked_human.tsx"/>
+ <tileset firstgid="1" source="../tilesets/characters/player/player.tsx"/>
  <object name="player" type="player" gid="1" width="64" height="64"/>
 </template>
