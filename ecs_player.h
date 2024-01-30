@@ -5,27 +5,22 @@ namespace ecs
 {
 	struct PlayerInput
 	{
-		sf::Vector2f direction;
+		int axis_x = 0;
+		int axis_y = 0;
 		bool run = false;
 		bool stealth = false;
 		bool interact = false;
 		bool projectile_attack = false; 
 	};
 
-	struct PlayerState
-	{
-		sf::Vector2f direction; // normalized
-		int health = 3;
-	};
-
 	struct Player
 	{
 		PlayerInput input;
-		PlayerState state;
-		Timer hurt_timer = { 1.0f };
-		Timer step_timer = { 0.3f }; // for footstep sounds
+		Timer hurt_timer = { 1.f };
 		Timer kill_timer = { 1.f };
-		int arrowAmmo;
+		sf::Vector2f facing_direction = { 0.f, 1.f }; // The direction the player is facing
+		int health = 3;
+		int arrow_ammo = 10;
 	};
 
 	void process_event_player(const sf::Event& event);

@@ -28,28 +28,15 @@ namespace ecs
 	const float PROJECTILE_SPEED = 160.f;
 	const float PLAYER_STEALTH_SPEED = 36.f;
 
-	void _update_player_input(PlayerInput& input)
-	{
-		input.direction = sf::Vector2f();
-		input.direction.x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-		input.direction.x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-		input.direction.y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-		input.direction.y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-		input.direction = normalize(input.direction);
-		input.run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
-		input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
-	}
-
-	void process_event_player(const sf::Event& event)
+	void process_event_player(const sf::Event& ev)
 	{
 		for (auto [entity, player] : _registry.view<Player>().each()) {
-			if (event.type == sf::Event::KeyPressed) {
-				if (event.key.code == sf::Keyboard::C)
+			if (ev.type == sf::Event::KeyPressed) {
+				if (ev.key.code == sf::Keyboard::C)
 					player.input.interact = true;
-				if (event.key.code == sf::Keyboard::Z)
+				if (ev.key.code == sf::Keyboard::Z)
 					player.input.projectile_attack = true;
 			}
-
 		}
 	}
 
@@ -96,53 +83,67 @@ namespace ecs
 
 	void update_player(float dt)
 	{
-		for (auto [entity, player] : _registry.view<Player>().each()) {
+		for (auto [player_entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
+
+			// UPDATE TIMERS
+
 			player.hurt_timer.update(dt);
-			if (player.kill_timer.update(dt)) {
-				kill_player(entity);
-				return;
+			if (player.kill_timer.update(dt)) { // If player died this frame
+				kill_player(player_entity);
+				continue;
 			}
+
+			// UPDATE INPUT
+
 			if (player.kill_timer.stopped() && window::has_focus() && !console::is_visible()) {
-				_update_player_input(player.input);
+				player.input.axis_x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
+				player.input.axis_x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
+				player.input.axis_y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
+				player.input.axis_y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
+				player.input.run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
+				player.input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
 			}
-		}
 
-		for (auto [player_entity, player, body] : _registry.view<Player, b2Body*>().each()) {
-			sf::Vector2f center = get_world_center(body);
+			// UPDATE PHYSICS
 
-			float speed = 0.f;
-			if (player.kill_timer.stopped()) {
-				if (!is_zero(player.input.direction)) {
-					// Update direction only when moving
-					player.state.direction = player.input.direction;
+			sf::Vector2f player_position = get_world_center(body);
+			sf::Vector2f player_velocity = get_linear_velocity(body);
 
-					// Determine speed based on movement mode
+			sf::Vector2f movement_direction;
+			float movement_speed = 0.f;
+
+			if (player.kill_timer.stopped()) { // Player is alive
+				if (player.input.axis_x || player.input.axis_y) {
+
+					// Determine movement direction
+					movement_direction.x = (float)player.input.axis_x;
+					movement_direction.y = (float)player.input.axis_y;
+					movement_direction = normalize(movement_direction);
+
+					// Determine movement speed
 					if (player.input.stealth) {
-						speed = PLAYER_STEALTH_SPEED;
-					}
-					else {
-						speed = player.input.run ? PLAYER_RUN_SPEED : PLAYER_WALK_SPEED;
-					}
-					if (player.step_timer.update(dt)) {
-						player.step_timer.start();
-						map::play_footstep_sound_at(center);
+						movement_speed = PLAYER_STEALTH_SPEED;
+					} else if (player.input.run) {
+						movement_speed = PLAYER_RUN_SPEED;
+					} else {
+						movement_speed = PLAYER_WALK_SPEED;
 					}
 				}
-				else {
-					player.step_timer.start();
-				}
-			}
-			else {
-				// Player is dying, let's spin!!
-				speed = 0.001f;
+			} else { // Player is dying
 				float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
-				player.state.direction = rotate(player.state.direction, spin_speed * dt);
+				player.facing_direction = rotate(player.facing_direction, spin_speed * dt);
 			}
 
-			set_linear_velocity(body, player.state.direction * speed);
+			set_linear_velocity(body, movement_direction * movement_speed);
+
+			if (!is_zero(movement_direction)) {
+				player.facing_direction = movement_direction;
+			}
+
+			// HANDLE INTERACTION
 
 			if (player.input.interact) {
-				sf::Vector2f box_center = center + player.state.direction * 16.f;
+				sf::Vector2f box_center = player_position + player.facing_direction * 16.f;
 				sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 				sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
 				std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
@@ -171,33 +172,26 @@ namespace ecs
 					audio::play(audio_event);
 			}
 
-			if (player.input.projectile_attack && player.arrowAmmo > 0) {
-				// Reduce ammunition by 1
-				player.arrowAmmo--;
+			// HANDLE PROJECTILE ATTACK
 
-				sf::Vector2f fire_position = center;
-				sf::Vector2f fire_direction = player.state.direction; // Assuming this is the player's facing direction
-				int projectile_damage = 1;
-
-				fire_projectile(fire_position, fire_direction, projectile_damage);
+			if (player.input.projectile_attack && player.arrow_ammo > 0) {
+				fire_projectile(player_position, player.facing_direction, 1);
+				player.arrow_ammo--;
 			}
 
-		}
+			// UPDATE GRAPHICS
 
-		// Update tile
-		for (auto [entity, player, tile, body] : _registry.view<Player, Tile, b2Body*>().each()) {
-			sf::Vector2f velocity = get_linear_velocity(body);
-			float speed = length(velocity);
+			float speed = length(player_velocity);
 			std::string tile_class;
-			if (speed >= PLAYER_RUN_SPEED) {
+			if (movement_speed >= PLAYER_RUN_SPEED) {
 				tile_class = "run";
-			} else if (speed >= PLAYER_WALK_SPEED) {
+			} else if (movement_speed >= PLAYER_WALK_SPEED) {
 				tile_class = "walk";
 			} else {
 				tile_class = "idle";
 			}
 			tile_class += "_";
-			tile_class += get_direction(player.state.direction);
+			tile_class += get_direction(player.facing_direction);
 			tile.set_class(tile_class);
 
 			sf::Color color = sf::Color::White;
@@ -206,19 +200,19 @@ namespace ecs
 				color.a = (sf::Uint8)(255 * fraction);
 			}
 			tile.color = color;
-		}
 
-		// Update HUD
-		ui::hud_player_health = 0;
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-			ui::hud_player_health = player.state.health;
+			// UPDATE HUD
+
+			ui::hud_player_health = player.health;
+
+			// CLEAR INPUT
+
 			player.input = {};
 		}
 	}
 
 	void emplace_player(entt::entity entity, const Player& player) {
 		_registry.emplace<Player>(entity, player);
-		_registry.get<Player>(entity).arrowAmmo = 10; // Set an initial ammo count
 	}
 
 	void remove_player(entt::entity entity) {
@@ -243,11 +237,11 @@ namespace ecs
 		if (health_to_remove <= 0) return false;
 		if (!_registry.all_of<Player>(entity)) return false;
 		Player& player = _registry.get<Player>(entity);
-		if (player.state.health <= 0) return false; // Player is already dead
+		if (player.health <= 0) return false; // Player is already dead
 		if (player.hurt_timer.started()) return false; // Player is invulnerable
 		player.hurt_timer.start();
-		player.state.health = std::max(0, player.state.health - health_to_remove);
-		if (player.state.health > 0) { // Player survived
+		player.health = std::max(0, player.health - health_to_remove);
+		if (player.health > 0) { // Player survived
 			audio::play("event:/snd_player_hurt");
 		} else { // Player died
 			player.kill_timer.start();
