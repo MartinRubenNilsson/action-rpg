@@ -3,7 +3,7 @@ uniform float time;
 uniform float time_delta;
 uniform vec2 position; // world position (not screen position) of the tile in pixels
 const float frequency = 5.0;
-const float speed = 2;
+const float speed = 2.0;
 const float amplitude = 0.01;
 
 void main()
