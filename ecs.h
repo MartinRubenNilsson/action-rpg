@@ -17,7 +17,7 @@ namespace ecs
 	void clear();
 	void process_event(const sf::Event& event);
 	void update(float dt);
-	void render(sf::RenderWindow& window);
+	void render(sf::RenderTarget& target);
 
 	entt::entity create();
 	entt::entity create(entt::entity hint);

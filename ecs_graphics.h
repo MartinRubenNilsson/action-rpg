@@ -42,8 +42,10 @@ namespace ecs
 		bool animation_loop = true;
 		
 		sf::Sprite get_sprite() const;
+
 		std::string get_class() const; 
 		bool set_class(const std::string& class_);
+
 		bool is_animated() const;
 		void update_animation(float dt);
 		bool animation_looped_this_frame() const { return _animation_looped_this_frame; }

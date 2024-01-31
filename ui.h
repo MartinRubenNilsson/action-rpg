@@ -2,7 +2,7 @@
 
 namespace ui
 {
-	enum class Action
+	enum class Request
 	{
 		None,
 		Play,
@@ -22,7 +22,7 @@ namespace ui
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 	bool should_pause_game();
-	Action get_next_action();
+	Request get_next_request();
 
 	std::vector<std::string> get_document_names();
 	void show_document(const std::string& name);

@@ -35,6 +35,9 @@ int main(int argc, char* argv[])
     console::initialize();
     ui::initialize(window);
 
+    sf::RenderTexture render_texture;
+    render_texture.create(window.getSize().x, window.getSize().y);
+
     // LOAD ASSETS
 
     fonts::load_assets("assets/fonts");
@@ -58,41 +61,43 @@ int main(int argc, char* argv[])
 
         // MESSAGE/EVENT LOOP
 
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+        sf::Event ev;
+        while (window.pollEvent(ev)) {
+            if (ev.type == sf::Event::Closed)
                 window.close();
-            else if (event.type == sf::Event::KeyPressed) {
-                if (event.key.code == sf::Keyboard::F1)
+            else if (ev.type == sf::Event::Resized)
+                render_texture.create(ev.size.width, ev.size.height);
+            else if (ev.type == sf::Event::KeyPressed) {
+                if (ev.key.code == sf::Keyboard::F1)
                     console::toggle_visible();
-                else if (event.key.code == sf::Keyboard::F2)
+                else if (ev.key.code == sf::Keyboard::F2)
                     ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
-                else if (event.key.code == sf::Keyboard::F3)
+                else if (ev.key.code == sf::Keyboard::F3)
                     ecs::debug_flags ^= ecs::DEBUG_PIVOTS;
-                else if (event.key.code == sf::Keyboard::F4)
+                else if (ev.key.code == sf::Keyboard::F4)
                     ecs::debug_flags ^= ecs::DEBUG_AI;
             }
-            ImGui::SFML::ProcessEvent(window, event);
-            if (event.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
+            ImGui::SFML::ProcessEvent(window, ev);
+            if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
                 continue;
-            console::process_event(event);
-            ui::process_event(event);
+            console::process_event(ev);
+            ui::process_event(ev);
             if (!ui::should_pause_game())
-                ecs::process_event(event);
+                ecs::process_event(ev);
         }
 
-        // HANDLE UI USER REQUESTS
+        // HANDLE UI REQUESTS
 
-        switch (ui::get_next_action()) {
-        case ui::Action::Play:
+        switch (ui::get_next_request()) {
+        case ui::Request::Play:
             background::type = background::Type::None;
             map::open("summer_forest");
 			break;
-        case ui::Action::GoToMainMenu:
+        case ui::Request::GoToMainMenu:
 			background::type = background::Type::MountainDusk;
 			map::close();
             break;
-        case ui::Action::Quit:
+        case ui::Request::Quit:
 			window.close();
 			break;
         }
@@ -111,11 +116,18 @@ int main(int argc, char* argv[])
 
         // RENDER
 
-        window.clear();
-        background::render(window);
-        ecs::render(window);
+        render_texture.clear();
+        background::render(render_texture);
+        ecs::render(render_texture);
         ui::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
-        window.resetGLStates();
+        render_texture.resetGLStates();
+        render_texture.display();
+        window.clear();
+        {
+            sf::Sprite sprite(render_texture.getTexture());
+            window.setView(window.getDefaultView());
+            window.draw(sprite);
+        }
         ImGui::SFML::Render(window);
         window.display();
     }

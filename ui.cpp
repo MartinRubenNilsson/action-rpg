@@ -70,7 +70,7 @@ namespace ui
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 	EventListener _event_listener;
-	Action _next_action;
+	Request _next_request;
 
 	void _on_window_resized(const Rml::Vector2i& new_size)
 	{
@@ -97,7 +97,7 @@ namespace ui
 	{
 		set_main_menu_visible(false);
 		set_hud_visible(true);
-		_next_action = Action::Play;
+		_next_request = Request::Play;
 	}
 
 	void _on_click_settings() {
@@ -109,7 +109,7 @@ namespace ui
 	}
 
 	void _on_click_quit() {
-		_next_action = Action::Quit;
+		_next_request = Request::Quit;
 	}
 
 	void _on_click_resume() {
@@ -120,7 +120,7 @@ namespace ui
 		set_pause_menu_visible(false);
 		set_hud_visible(false);
 		set_main_menu_visible(true);
-		_next_action = Action::GoToMainMenu;
+		_next_request = Request::GoToMainMenu;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -329,11 +329,11 @@ namespace ui
 			is_textbox_visible();
 	}
 
-	Action get_next_action()
+	Request get_next_request()
 	{
-		Action action = _next_action;
-		_next_action = Action::None;
-		return action;
+		Request request = _next_request;
+		_next_request = Request::None;
+		return request;
 	}
 
 	std::vector<std::string> get_document_names()

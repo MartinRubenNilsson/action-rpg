@@ -53,11 +53,11 @@ namespace ecs
 		update_cameras(dt);
 	}
 	 
-	void render(sf::RenderWindow& window)
+	void render(sf::RenderTarget& target)
 	{
 		// Get and set the current view.
 		sf::View view = ecs::get_blended_camera_view();
-		window.setView(view);
+		target.setView(view);
 
 		// Compute the view bounds (assuming no rotation).
 		sf::FloatRect view_bounds(
@@ -97,9 +97,9 @@ namespace ecs
 		// Draw sprites.
 		for (const SortedSprite& sorted_sprite : sprites) {
 			if (sorted_sprite.shader)
-				window.draw(sorted_sprite.sprite, sorted_sprite.shader.get());
+				target.draw(sorted_sprite.sprite, sorted_sprite.shader.get());
 			else
-				window.draw(sorted_sprite.sprite);
+				target.draw(sorted_sprite.sprite);
 		}
 
 		if (debug_flags & DEBUG_PIVOTS) {
@@ -108,13 +108,13 @@ namespace ecs
 				sf::CircleShape circle(1.f);
 				circle.setPosition(sorted_sprite.sorting_pos);
 				circle.setFillColor(sf::Color::Red);
-				window.draw(circle);
+				target.draw(circle);
 			}
 		}
 		if (debug_flags & DEBUG_PHYSICS)
-			debug_draw_physics(window);
+			debug_draw_physics(target);
 		if (debug_flags & DEBUG_AI)
-			debug_draw_ai(window);
+			debug_draw_ai(target);
 	}
 
 	entt::entity create() {
