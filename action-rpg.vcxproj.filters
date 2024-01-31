@@ -49,9 +49,6 @@
     <ClCompile Include="physics_helpers.cpp">
       <Filter>physics</Filter>
     </ClCompile>
-    <ClCompile Include="data.cpp">
-      <Filter>data</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_camera.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -336,9 +333,6 @@
     <ClInclude Include="physics_helpers.h">
       <Filter>physics</Filter>
     </ClInclude>
-    <ClInclude Include="data.h">
-      <Filter>data</Filter>
-    </ClInclude>
     <ClInclude Include="ecs_camera.h">
       <Filter>ecs</Filter>
     </ClInclude>
@@ -578,9 +572,6 @@
     </Filter>
     <Filter Include="audio\fmod">
       <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="data">
-      <UniqueIdentifier>{02ea1c31-4958-4d9d-8f28-c350f7884137}</UniqueIdentifier>
     </Filter>
     <Filter Include="random">
       <UniqueIdentifier>{fb500b78-a275-45ca-b853-96dc33ba7965}</UniqueIdentifier>
