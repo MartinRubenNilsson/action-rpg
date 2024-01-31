@@ -15,60 +15,86 @@
 
 namespace map
 {
-	const tiled::Map* _current_map = nullptr;
-	const tiled::Map* _next_map = nullptr;
-	bool _reset_if_already_open = false;
-
-	bool open(const std::string& map_name, bool reset_if_already_open)
+	enum class Request
 	{
-		_next_map = nullptr;
-		for (const tiled::Map& map : tiled::get_maps()) {
-			if (map.name == map_name) {
-				_next_map = &map;
-				break;
-			}
+		None,
+		Open,
+		Close,
+		Reset,
+	};
+
+	const tiled::Map* _map = nullptr;
+	Request _request = Request::None;
+	std::string _name_of_map_to_open;
+
+	void open(const std::string& map_name, bool reset_if_open)
+	{
+		if (_map && _map->name == map_name) {
+			_request = reset_if_open ? Request::Reset : Request::None;
+		} else {
+			_request = Request::Open;
+			_name_of_map_to_open = map_name;
 		}
-		_reset_if_already_open = reset_if_already_open;
-		return _next_map;
 	}
 
 	void close() {
-		_next_map = nullptr;
+		_request = Request::Close;
 	}
 
-	void reset()
+	void reset() {
+		_request = Request::Reset;
+	}
+
+	const tiled::Map* find_map(const std::string& map_name)
 	{
-		_next_map = _current_map;
-		_reset_if_already_open = true;
+		for (const tiled::Map& map : tiled::get_maps())
+			if (map.name == map_name)
+				return &map;
+		return nullptr;
 	}
 
 	void update()
 	{
-		if (_next_map == _current_map && !_reset_if_already_open)
+		const tiled::Map* next_map = nullptr;
+
+		switch (_request) {
+		case Request::None:
 			return;
+		case Request::Open:
+			next_map = find_map(_name_of_map_to_open);
+			if (!next_map)
+				console::log_error("Map not found: " + _name_of_map_to_open);
+			break;
+		case Request::Close:
+			break;
+		case Request::Reset:
+			next_map = _map;
+			break;
+		}
+
+		_request = Request::None;
+		_name_of_map_to_open.clear();
 
 		std::string current_music;
 		std::string next_music;
 
-		// CLOSE CURRENT MAP
+		// CLOSE MAP
 
-		if (_current_map) {
-			tiled::get(_current_map->properties, "music", current_music);
+		if (_map) {
+			tiled::get(_map->properties, "music", current_music);
 			ecs::clear();
 			ui::close_all_textboxes();
 		}
 
-		// OPEN NEXT MAP
+		// OPEN MAP
 
-		_current_map = _next_map;
-		_reset_if_already_open = false;
-
-		if (!_current_map) {
+		_map = next_map;
+		if (!_map) {
 			audio::stop_all_in_bus();
 			return;
 		}
 
-		tiled::get(_current_map->properties, "music", next_music);
+		tiled::get(_map->properties, "music", next_music);
 		if (current_music != next_music) {
 			if (!current_music.empty())
 				audio::stop_all("event:/" + current_music);
@@ -78,7 +104,7 @@ namespace map
 
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
-		for (const tiled::Layer& layer : _current_map->layers) {
+		for (const tiled::Layer& layer : _map->layers) {
 			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 			for (const tiled::Object& object : layer.objects) {
 
@@ -219,7 +245,7 @@ namespace map
 		}
 
 		// Create tile entities second.
-		for (const tiled::Layer& layer : _current_map->layers) {
+		for (const tiled::Layer& layer : _map->layers) {
 			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
@@ -227,12 +253,12 @@ namespace map
 					const auto [tile, flip_flags] = layer.tiles[tile_y * layer.width + tile_x];
 					if (!tile) continue;
 
-					float position_x = (float)tile_x * _current_map->tile_width;
-					float position_y = (float)tile_y * _current_map->tile_height;
+					float position_x = (float)tile_x * _map->tile_width;
+					float position_y = (float)tile_y * _map->tile_height;
 					float pivot_x = 0.f;
-					float pivot_y = (float)(tile->tileset->tile_height - _current_map->tile_height);
+					float pivot_y = (float)(tile->tileset->tile_height - _map->tile_height);
 					float sorting_pivot_x = tile->tileset->tile_width / 2.f;
-					float sorting_pivot_y = tile->tileset->tile_height - _current_map->tile_height / 2.f;
+					float sorting_pivot_y = tile->tileset->tile_height - _map->tile_height / 2.f;
 
 					entt::entity entity = ecs::create();
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
@@ -328,28 +354,28 @@ namespace map
 	}
 
 	std::string get_name() {
-		return _current_map ? _current_map->name : "";
+		return _map ? _map->name : "";
 	}
 
 	sf::IntRect get_tile_bounds()
 	{
-		if (!_current_map) return sf::IntRect();
-		return sf::IntRect(0, 0, (int)_current_map->width, (int)_current_map->height);
+		if (!_map) return sf::IntRect();
+		return sf::IntRect(0, 0, (int)_map->width, (int)_map->height);
 	}
 
 	sf::FloatRect get_world_bounds()
 	{
-		if (!_current_map) return sf::FloatRect();
+		if (!_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
-			(float)_current_map->width * _current_map->tile_width,
-			(float)_current_map->height * _current_map->tile_height);
+			(float)_map->width * _map->tile_width,
+			(float)_map->height * _map->tile_height);
 	}
 
 	sf::Vector2i world_to_grid(const sf::Vector2f& worldPos) {
-		if (!_current_map) return sf::Vector2i(-1, -1); // Return invalid coordinate if no map loaded
+		if (!_map) return sf::Vector2i(-1, -1); // Return invalid coordinate if no map loaded
 
-		int gridX = static_cast<int>(floor(worldPos.x / _current_map->tile_width));
-		int gridY = static_cast<int>(floor(worldPos.y / _current_map->tile_height));
+		int gridX = static_cast<int>(floor(worldPos.x / _map->tile_width));
+		int gridY = static_cast<int>(floor(worldPos.y / _map->tile_height));
 
 		return sf::Vector2i(gridX, gridY);
 	}
@@ -363,11 +389,11 @@ namespace map
 		// if a tile is present in this layer, it is considered impassable.
 
 		// If there is no current map, we can't pathfind.
-		if (!_current_map) return {};
+		if (!_map) return {};
 
 		// Find the collision layer.
 		const tiled::Layer* collision_layer = nullptr;
-		for (const tiled::Layer& layer : _current_map->layers) {
+		for (const tiled::Layer& layer : _map->layers) {
 			if (layer.name == "Collision") {
 				collision_layer = &layer;
 				break;
@@ -458,7 +484,7 @@ namespace map
 
 	bool play_footstep_sound_at(const sf::Vector2f& position)
 	{
-		if (!_current_map) return false;
+		if (!_map) return false;
 		if (position.x < 0.f || position.y < 0.f) return false;
 		const uint32_t x = (uint32_t)position.x;
 		const uint32_t y = (uint32_t)position.y;
@@ -467,7 +493,7 @@ namespace map
 		const int corner =
 			top ? (left ? tiled::WangTile::TOP_LEFT    : tiled::WangTile::TOP_RIGHT)
 			    : (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
-		for (const tiled::Layer& layer : std::ranges::reverse_view(_current_map->layers)) {
+		for (const tiled::Layer& layer : std::ranges::reverse_view(_map->layers)) {
 			if (x >= layer.width || y >= layer.height) continue;
 			const auto [tile, flip_flags] = layer.tiles[y * layer.width + x];
 			//TODO: take into account flip flags?

@@ -5,7 +5,7 @@ namespace map
 	// Calling open(), close(), or reset() will not immediately change the map.
 	// Instead, the change will be queued and will take effect when update() is called.
 
-	bool open(const std::string& map_name, bool reset_if_already_open = false);
+	void open(const std::string& map_name, bool reset_if_open = false);
 	void close();
 	void reset();
 	void update();
