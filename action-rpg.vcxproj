@@ -199,6 +199,7 @@
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
     <ClCompile Include="fonts.cpp" />
+    <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="ecs.cpp" />
@@ -235,6 +236,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
     </None>
+    <None Include="shockwave.frag" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +303,7 @@
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_projectile.h" />
     <ClInclude Include="fonts.h" />
+    <ClInclude Include="postprocess.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="random_noise.h" />
     <ClInclude Include="ecs.h" />

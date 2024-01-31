@@ -18,6 +18,9 @@
 #include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
+#ifdef _DEBUG
+#include <imgui.h>
+#endif
 
 namespace ecs
 {
@@ -231,6 +234,17 @@ namespace ecs
 
 			player.input = {};
 		}
+	}
+
+	void debug_player()
+	{
+#ifdef _DEBUG
+		for (auto [entity, player] : _registry.view<Player>().each()) {
+			ImGui::Begin("Player");
+			// TODO
+			ImGui::End();
+		}
+#endif
 	}
 
 	void emplace_player(entt::entity entity, const Player& player) {

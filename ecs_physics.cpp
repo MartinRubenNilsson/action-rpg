@@ -54,7 +54,7 @@ namespace ecs
 		}
 	}
 
-	void debug_draw_physics(sf::RenderTarget& target)
+	void debug_physics(sf::RenderTarget& target)
 	{
 		physics::DebugDrawSFML debug_draw(target);
 		debug_draw.SetFlags(b2Draw::e_shapeBit);

@@ -25,6 +25,7 @@ namespace ecs
 
 	void process_event_player(const sf::Event& event);
 	void update_player(float dt);
+	void debug_player();
 
 	void emplace_player(entt::entity entity, const Player& player);
 	void remove_player(entt::entity entity);

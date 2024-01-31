@@ -242,6 +242,9 @@
     <ClCompile Include="fonts.cpp">
       <Filter>fonts</Filter>
     </ClCompile>
+    <ClCompile Include="postprocess.cpp">
+      <Filter>shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -249,6 +252,9 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="grass.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shockwave.frag">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
@@ -540,6 +546,9 @@
     </ClInclude>
     <ClInclude Include="fonts.h">
       <Filter>fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="postprocess.h">
+      <Filter>shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

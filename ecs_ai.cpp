@@ -69,7 +69,7 @@ namespace ecs
         update_ai_actions(dt);
     }
 
-    void debug_draw_ai(sf::RenderTarget& target)
+    void debug_ai(sf::RenderTarget& target)
     {
         const AiWorld& world = get_ai_world();
 

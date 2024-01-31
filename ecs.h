@@ -8,6 +8,7 @@ namespace ecs
 		DEBUG_PIVOTS  = 1 << 0,
 		DEBUG_PHYSICS = 1 << 1,
 		DEBUG_AI      = 1 << 2,
+		DEBUG_PLAYER  = 1 << 3,
 	};
 
 	extern int debug_flags;

@@ -112,9 +112,11 @@ namespace ecs
 			}
 		}
 		if (debug_flags & DEBUG_PHYSICS)
-			debug_draw_physics(target);
+			debug_physics(target);
 		if (debug_flags & DEBUG_AI)
-			debug_draw_ai(target);
+			debug_ai(target);
+		if (debug_flags & DEBUG_PLAYER)
+			debug_player();
 	}
 
 	entt::entity create() {

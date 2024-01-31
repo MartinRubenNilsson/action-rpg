@@ -12,6 +12,7 @@
 #include "console.h"
 #include "tiled.h"
 #include "background.h"
+#include "postprocess.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -76,6 +77,8 @@ int main(int argc, char* argv[])
                     ecs::debug_flags ^= ecs::DEBUG_PIVOTS;
                 else if (ev.key.code == sf::Keyboard::F4)
                     ecs::debug_flags ^= ecs::DEBUG_AI;
+                else if (ev.key.code == sf::Keyboard::F5)
+                    ecs::debug_flags ^= ecs::DEBUG_PLAYER;
             }
             ImGui::SFML::ProcessEvent(window, ev);
             if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
@@ -123,11 +126,21 @@ int main(int argc, char* argv[])
         render_texture.resetGLStates();
         render_texture.display();
         window.clear();
-        {
-            sf::Sprite sprite(render_texture.getTexture());
-            window.setView(window.getDefaultView());
-            window.draw(sprite);
-        }
+        window.setView(window.getDefaultView());
+
+#if 0
+        ImGui::Begin("Shockwave shader");
+        static float shockwave_time = 0.0f;
+        static sf::Vector2f shockwave_center(0.5f, 0.5f);
+        ImGui::SliderFloat("Time", &shockwave_time, 0.0f, 5.0f);
+        ImGui::SliderFloat("Center X", &shockwave_center.x, 0.0f, (float)window.getSize().x);
+        ImGui::SliderFloat("Center Y", &shockwave_center.y, 0.0f, (float)window.getSize().y);
+        ImGui::End();
+        postprocess::shockwave(window, render_texture, shockwave_time, shockwave_center);
+#else
+        postprocess::copy(window, render_texture);
+#endif
+
         ImGui::SFML::Render(window);
         window.display();
     }
