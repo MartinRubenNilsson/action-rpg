@@ -15,9 +15,13 @@ namespace ecs
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
 
-	struct ContactListener : b2ContactListener // forward declaration
+	struct ContactListener : b2ContactListener
 	{
-		void BeginContact(b2Contact* contact) override;
+		std::vector<b2Contact*> contacts; // no idea if it's safe to store these
+
+		void BeginContact(b2Contact* contact) override {
+			contacts.push_back(contact);
+		}
 	};
 
 	extern entt::registry _registry;
@@ -44,6 +48,8 @@ namespace ecs
 
 	void update_physics(float dt)
 	{
+		// STEP PHYSICS WORLD
+
 		_physics_time_accumulator += dt;
 		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
 			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
@@ -52,6 +58,60 @@ namespace ecs
 				_PHYSICS_VELOCITY_ITERATIONS,
 				_PHYSICS_POSITION_ITERATIONS);
 		}
+
+		// HANDLE CONTACTS
+
+		for (b2Contact* contact : _contact_listener.contacts) {
+			b2Fixture* fixture_a = contact->GetFixtureA();
+			b2Fixture* fixture_b = contact->GetFixtureB();
+			b2Body* body_a = fixture_a->GetBody();
+			b2Body* body_b = fixture_b->GetBody();
+			entt::entity entity_a = get_entity(body_a);
+			entt::entity entity_b = get_entity(body_b);
+			std::string class_a = get_class(entity_a);
+			std::string class_b = get_class(entity_b);
+			if (class_a.empty() && class_b.empty()) return;
+
+			// Sort the classes alphabetically; this reduces the number of cases we need to handle.
+			if (class_a.compare(class_b) > 0) {
+				std::swap(fixture_a, fixture_b);
+				std::swap(body_a, body_b);
+				std::swap(entity_a, entity_b);
+				std::swap(class_a, class_b);
+			}
+
+			if (class_a.empty()) {
+				if (class_b == "arrow") {
+					destroy_at_end_of_frame(entity_b);
+				}
+			} else if (class_a == "arrow") {
+				if (class_b == "slime") {
+					destroy_at_end_of_frame(entity_a);
+					destroy_at_end_of_frame(entity_b);
+				}
+			} else if (class_a == "pickup") {
+				if (class_b == "player") {
+					audio::play("event:/snd_pickup");
+					destroy_at_end_of_frame(entity_a);
+				}
+			} else if (class_a == "player") {
+				if (class_b == "slime") {
+					// Call function to hurt player
+					int damage = 1; // decide how much damage a slime does
+					hurt_player(entity_a, damage);
+				} /*else if (class_b == "trigger") {
+					std::string string;
+					if (get_string(entity_b, "map", string)) {
+						if (map::open(string, true)) {
+							if (get_string(entity_b, "spawnpoint", string))
+								map::set_player_spawnpoint(string);
+						}
+					}
+				}*/
+			}
+		}
+
+		_contact_listener.contacts.clear();
 	}
 
 	void debug_physics(sf::RenderTarget& target)
@@ -132,58 +192,5 @@ namespace ecs
 		callback.mask_bits = mask_bits;
 		_world->QueryAABB(&callback, b2AABB{ b2Vec2(box_min.x, box_min.y), b2Vec2(box_max.x, box_max.y) });
 		return callback.hits;
-	}
-
-	void ContactListener::BeginContact(b2Contact* contact)
-	{
-		// WARNING: You cannot create/destroy Box2D entities inside this callback.
-
-		b2Fixture* fixture_a = contact->GetFixtureA();
-		b2Fixture* fixture_b = contact->GetFixtureB();
-		b2Body* body_a = fixture_a->GetBody();
-		b2Body* body_b = fixture_b->GetBody();
-		entt::entity entity_a = get_entity(body_a);
-		entt::entity entity_b = get_entity(body_b);
-		std::string class_a = get_class(entity_a);
-		std::string class_b = get_class(entity_b);
-		if (class_a.empty() && class_b.empty()) return;
-
-		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
-		if (class_a.compare(class_b) > 0) {
-			std::swap(fixture_a, fixture_b);
-			std::swap(body_a, body_b);
-			std::swap(entity_a, entity_b);
-			std::swap(class_a, class_b);
-		}
-
-		if (class_a.empty()) {
-			if (class_b == "arrow") {
-				destroy_at_end_of_frame(entity_b);
-			}
-		} else if (class_a == "arrow") {
-			if (class_b == "slime") {
-				destroy_at_end_of_frame(entity_a);
-				destroy_at_end_of_frame(entity_b);
-			}
-		} else if (class_a == "pickup") {
-			if (class_b == "player") {
-				audio::play("event:/snd_pickup");
-				destroy_at_end_of_frame(entity_a);
-			}
-		} else if (class_a == "player") {
-			if (class_b == "slime") {
-				// Call function to hurt player
-				int damage = 1; // decide how much damage a slime does
-				hurt_player(entity_a, damage);
-			} /*else if (class_b == "trigger") {
-				std::string string;
-				if (get_string(entity_b, "map", string)) {
-					if (map::open(string, true)) {
-						if (get_string(entity_b, "spawnpoint", string))
-							map::set_player_spawnpoint(string);
-					}
-				}
-			}*/
-		}
 	}
 }
