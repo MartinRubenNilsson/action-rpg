@@ -51,13 +51,17 @@ int main(int argc, char* argv[])
 
     // GAME LOOP
 
-#if defined(_DEBUG) //&& false
+#ifdef _DEBUG
     console::execute(argc, argv);
 #else
     background::type = background::Type::MountainDusk;
     ui::set_main_menu_visible(true);
 #endif
+
     sf::Clock clock;
+    float smoothed_dt = 0.f;
+    float smoothed_fps = 0.f;
+    bool show_stats = false;
     while (window.isOpen()) {
 
         // MESSAGE/EVENT LOOP
@@ -79,6 +83,8 @@ int main(int argc, char* argv[])
                     ecs::debug_flags ^= ecs::DEBUG_AI;
                 else if (ev.key.code == sf::Keyboard::F5)
                     ecs::debug_flags ^= ecs::DEBUG_PLAYER;
+                else if (ev.key.code == sf::Keyboard::F6)
+                    show_stats = !show_stats;
             }
             ImGui::SFML::ProcessEvent(window, ev);
             if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
@@ -95,19 +101,21 @@ int main(int argc, char* argv[])
         case ui::Request::Play:
             background::type = background::Type::None;
             map::open("summer_forest");
-			break;
+            break;
         case ui::Request::GoToMainMenu:
-			background::type = background::Type::MountainDusk;
-			map::close();
+            background::type = background::Type::MountainDusk;
+            map::close();
             break;
         case ui::Request::Quit:
-			window.close();
-			break;
+            window.close();
+            break;
         }
 
         // UPDATE
 
         sf::Time dt = clock.restart();
+        smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt.asSeconds();
+        smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt.asSeconds();
         ImGui::SFML::Update(window, dt);
         console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
         background::update(dt.asSeconds());
@@ -139,6 +147,16 @@ int main(int argc, char* argv[])
         postprocess::shockwave(window, render_texture, shockwave_time, shockwave_center);
 #else
         postprocess::copy(window, render_texture);
+#endif
+
+#ifdef _DEBUG
+        if (show_stats) {
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Text("dt: %.3f ms", smoothed_dt * 1000.f);
+            ImGui::Text("FPS: %.1f", smoothed_fps);
+            ImGui::End();
+        }
 #endif
 
         ImGui::SFML::Render(window);
