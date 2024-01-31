@@ -11,7 +11,8 @@ namespace map
 	void update();
 
 	std::string get_name();
-	sf::FloatRect get_bounds();
+	sf::IntRect get_tile_bounds();
+	sf::FloatRect get_world_bounds();
 
 	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end);
 

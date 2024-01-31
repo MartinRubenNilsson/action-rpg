@@ -201,7 +201,7 @@ namespace map
 
 					ecs::Camera camera;
 					camera.follow = entity;
-					camera.confining_rect = get_bounds();
+					camera.confining_rect = get_world_bounds();
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
 
@@ -212,7 +212,7 @@ namespace map
 					ecs::Camera camera;
 					camera.view.setCenter(x, y);
 					ecs::get_entity(entity, "follow", camera.follow);
-					camera.confining_rect = get_bounds();
+					camera.confining_rect = get_world_bounds();
 					ecs::emplace_camera(entity, camera);
 				}
 			}
@@ -331,7 +331,13 @@ namespace map
 		return _current_map ? _current_map->name : "";
 	}
 
-	sf::FloatRect get_bounds()
+	sf::IntRect get_tile_bounds()
+	{
+		if (!_current_map) return sf::IntRect();
+		return sf::IntRect(0, 0, (int)_current_map->width, (int)_current_map->height);
+	}
+
+	sf::FloatRect get_world_bounds()
 	{
 		if (!_current_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
