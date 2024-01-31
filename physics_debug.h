@@ -5,7 +5,7 @@ namespace physics
 	class DebugDrawSFML : public b2Draw
 	{
 	public:
-		DebugDrawSFML(sf::RenderTarget& render_target);
+		DebugDrawSFML(sf::RenderTarget& target);
 
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
 		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override;
@@ -16,7 +16,8 @@ namespace physics
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override;
 
 	private:
-		sf::RenderTarget& _render_target;
+		sf::RenderTarget& _target;
+		sf::FloatRect _view_bounds;
 	};
 }
 
