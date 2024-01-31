@@ -339,6 +339,15 @@ namespace map
 			(float)_current_map->height * _current_map->tile_height);
 	}
 
+	sf::Vector2i world_to_grid(const sf::Vector2f& worldPos) {
+		if (!_current_map) return sf::Vector2i(-1, -1); // Return invalid coordinate if no map loaded
+
+		int gridX = static_cast<int>(floor(worldPos.x / _current_map->tile_width));
+		int gridY = static_cast<int>(floor(worldPos.y / _current_map->tile_height));
+
+		return sf::Vector2i(gridX, gridY);
+	}
+
 	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end)
 	{
 		// Uses the A* algorithm to find a path from start to end.
@@ -362,27 +371,50 @@ namespace map
 		// If there is no collision layer, we can't pathfind.
 		if (!collision_layer) return {};
 
+
 		// NOTES TO TIM:
 		collision_layer->width; // number of tiles in x direction
 		collision_layer->height; // number of tiles in y direction
-		collision_layer->tiles; // array of tiles; size = width * height
 		uint32_t x = 0;
 		uint32_t y = 0;
-		const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first; // get tile at (x, y)
-		if (tile) {
-			// tile is empty = there is no collider = tile is passable
-		} else {
-			// tile is nonempty = there is a collider there = tile is impassable
+
+		// Create a grid of booleans indicating which tiles are passable.
+		std::vector<std::vector<bool>> pathfindingGrid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
+
+		// Loop through each tile in the collision layer
+		for (uint32_t y = 0; y < collision_layer->height; ++y) {
+			for (uint32_t x = 0; x < collision_layer->width; ++x) {
+				const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first;
+
+				if (tile) {
+					// Tile is nonempty = impassable
+					pathfindingGrid[y][x] = false; // false indicates impassable
+				}
+				else {
+					// Tile is empty = passable
+					pathfindingGrid[y][x] = true; // true indicates passable
+				}
+			}
 		}
 
-		// Compute the start and end tile indices.
-		// TODO
+		// Convert world coordinates to grid coordinates and compute the start and end tile indices.
+		sf::Vector2i grid_start = world_to_grid(start);
+		sf::Vector2i grid_end = world_to_grid(end);
 
 		// If the start or end tile is out of bounds, we can't pathfind.
-		// TODO
+		if (grid_start.x < 0 || grid_start.x >= collision_layer->width ||
+			grid_start.y < 0 || grid_start.y >= collision_layer->height ||
+			grid_end.x < 0 || grid_end.x >= collision_layer->width ||
+			grid_end.y < 0 || grid_end.y >= collision_layer->height) {
+			// Start or end point is out of bounds, return empty path or handle error
+			return {};
+		}
 
 		// If the start or end tile is impassable, we can't pathfind.
-		// TODO
+		if (!pathfindingGrid[grid_start.y][grid_start.x] || !pathfindingGrid[grid_end.y][grid_end.x]) {
+			// Start or end point is impassable, return empty path or handle error
+			return {};
+		}
 
 		struct AStarNode
 		{

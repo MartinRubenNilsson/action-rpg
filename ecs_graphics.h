@@ -33,6 +33,7 @@ namespace ecs
 		bool visible = true;
 		bool flip_x = false;
 		bool flip_y = false;
+		bool isPassable;
 
 		SortingLayer sorting_layer = SortingLayer::Objects;
 		sf::Vector2f sorting_pivot; // in pixels
