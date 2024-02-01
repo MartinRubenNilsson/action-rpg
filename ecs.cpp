@@ -10,7 +10,13 @@
 
 namespace ecs
 {
-	int debug_flags = DEBUG_AI;
+	int debug_flags =
+#ifdef _DEBUG
+		DEBUG_AI;
+#else
+		DEBUG_NONE;
+#endif
+
 	entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
 

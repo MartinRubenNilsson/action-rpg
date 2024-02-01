@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
             else if (ev.type == sf::Event::Resized)
                 render_texture.create(ev.size.width, ev.size.height);
             else if (ev.type == sf::Event::KeyPressed) {
+#ifdef _DEBUG
                 if (ev.key.code == sf::Keyboard::Backslash)
                     console::toggle_visible();
                 else if (ev.key.code == sf::Keyboard::F1)
@@ -85,6 +86,7 @@ int main(int argc, char* argv[])
                     ecs::debug_flags ^= ecs::DEBUG_AI;
                 else if (ev.key.code == sf::Keyboard::F5)
                     ecs::debug_flags ^= ecs::DEBUG_PLAYER;
+#endif
             }
             ImGui::SFML::ProcessEvent(window, ev);
             if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
