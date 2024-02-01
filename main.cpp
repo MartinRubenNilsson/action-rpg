@@ -73,8 +73,10 @@ int main(int argc, char* argv[])
             else if (ev.type == sf::Event::Resized)
                 render_texture.create(ev.size.width, ev.size.height);
             else if (ev.type == sf::Event::KeyPressed) {
-                if (ev.key.code == sf::Keyboard::F1)
+                if (ev.key.code == sf::Keyboard::Backslash)
                     console::toggle_visible();
+                else if (ev.key.code == sf::Keyboard::F1)
+                    ; // reserved
                 else if (ev.key.code == sf::Keyboard::F2)
                     ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                 else if (ev.key.code == sf::Keyboard::F3)
