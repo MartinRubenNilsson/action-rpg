@@ -19,6 +19,8 @@ namespace audio
 		false;
 #endif
 	const std::string BUS_MASTER = "bus:/";
+	const std::string BUS_SOUND = "bus:/sound";
+	const std::string BUS_MUSIC = "bus:/music";
 	const int _MAX_AUDIO_CHANNELS = 512;
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
@@ -29,7 +31,7 @@ namespace audio
 		FMOD_RESULT result = _system->getBus(path.c_str(), &bus);
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to get audio bus: " + path);
+				console::log_error("Could not find audio bus: " + path);
 			return nullptr;
 		}
 		return bus;
@@ -41,7 +43,7 @@ namespace audio
 		FMOD_RESULT result = _system->getEvent(path.c_str(), &desc);
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to get audio event description: " + path);
+				console::log_error("Could not find audio event description: " + path);
 			return nullptr;
 		}
 		return desc;
@@ -110,7 +112,7 @@ namespace audio
 		FMOD_RESULT result = _system->setParameterByName(name.c_str(), value);
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to set audio parameter: " + name + "=" + std::to_string(value));
+				console::log_error("Could not find audio parameter: " + name + "=" + std::to_string(value));
 			return false;
 		}
 		return true;
@@ -121,7 +123,7 @@ namespace audio
 		FMOD_RESULT result = _system->getParameterByName(name.c_str(), &value);
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to get audio parameter: " + name);
+				console::log_error("Could not find audio parameter: " + name);
 			return false;
 		}
 		return true;
@@ -132,7 +134,7 @@ namespace audio
 		FMOD_RESULT result = _system->setParameterByNameWithLabel(name.c_str(), label.c_str());
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to set audio parameter label: " + name + "=" + label);
+				console::log_error("Could not find audio parameter label: " + name + "=" + label);
 			return false;
 		}
 		return true;
@@ -177,12 +179,24 @@ namespace audio
 		return true;
 	}
 
-	bool stop_all_in_bus(const std::string& bus_path)
+	void set_bus_volume(const std::string& bus_path, float volume)
 	{
-		FMOD::Studio::Bus* bus = _get_bus(bus_path);
-		if (!bus) return false;
-		bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
-		return true;
+		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
+			bus->setVolume(volume);
+	}
+
+	float get_bus_volume(const std::string& bus_path)
+	{
+		float volume = 0.f;
+		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
+			bus->getVolume(&volume);
+		return volume;
+	}
+
+	void stop_all_in_bus(const std::string& bus_path)
+	{
+		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
+			bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
 	}
 }
 

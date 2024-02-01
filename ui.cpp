@@ -50,17 +50,26 @@ namespace ui
 
 	struct EventListener : Rml::EventListener
 	{
-		void ProcessEvent(Rml::Event& event) override
+		void ProcessEvent(Rml::Event& ev) override
 		{
-			if (!event.GetTargetElement()->IsClassSet("menu-button"))
-				return;
-			switch (event.GetId()) {
-			case Rml::EventId::Mouseover:
-				audio::play("event:/ui/snd_button_hover");
-				break;
-			case Rml::EventId::Click:
-				audio::play("event:/ui/snd_button_click");
-				break;
+			switch (ev.GetId()) {
+			case Rml::EventId::Mouseover: {
+				if (ev.GetTargetElement()->IsClassSet("menu-button"))
+					audio::play("event:/ui/snd_button_hover");
+			} break;
+			case Rml::EventId::Click: {
+				if (ev.GetTargetElement()->IsClassSet("menu-button"))
+					audio::play("event:/ui/snd_button_click");
+			} break;
+			case Rml::EventId::Submit: {
+				const float VOLUME_SLIDER_MAX = 100.f;
+				float volume_master = ev.GetParameter("volume-master", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
+				float volume_sound = ev.GetParameter("volume-sound", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
+				float volume_music = ev.GetParameter("volume-music", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
+				audio::set_bus_volume(audio::BUS_MASTER, volume_master);
+				audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
+				audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
+			} break;
 			}
 		}
 	};
@@ -163,6 +172,7 @@ namespace ui
 			doc->SetId(entry.path().stem().string());
 			doc->AddEventListener(Rml::EventId::Mouseover, &_event_listener);
 			doc->AddEventListener(Rml::EventId::Click, &_event_listener);
+			doc->AddEventListener(Rml::EventId::Submit, &_event_listener);
 		}
 	}
 

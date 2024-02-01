@@ -4,6 +4,8 @@ namespace audio
 {
 	extern bool log_errors;
 	extern const std::string BUS_MASTER;
+	extern const std::string BUS_SOUND;
+	extern const std::string BUS_MUSIC;
 
 	void initialize();
 	void shutdown();
@@ -21,6 +23,9 @@ namespace audio
 	// If the event is not one-shot, it may keep playing indefinitely.
 	bool play(const std::string& event_path);
 	bool stop_all(const std::string& event_path);
-	bool stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
+
+	void set_bus_volume(const std::string& bus_path, float volume);
+	float get_bus_volume(const std::string& bus_path);
+	void stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
 }
 

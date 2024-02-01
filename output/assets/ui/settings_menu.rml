@@ -37,15 +37,15 @@
 		<form onsubmit="apply_settings">
 		
 			<p>Master Volume</p>
-			<input type="range" name="volume_master" min="0" max="100"/>
+			<input type="range" name="volume-master" min="0" max="100"/>
 			<div class="vpad"></div>
 			
 			<p>Sound Volume</p>
-			<input type="range" name="volume_sound" min="0" max="100"/>
+			<input type="range" name="volume-sound" min="0" max="100"/>
 			<div class="vpad"></div>
 			
 			<p>Music Volume</p>
-			<input type="range" name="volume_music" min="0" max="100"/>
+			<input type="range" name="volume-music" min="0" max="100"/>
 			<div class="vpad"></div>
 			
 			<input class="menu-button" type="submit">Apply</p>
