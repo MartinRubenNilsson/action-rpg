@@ -1,0 +1,20 @@
+<rml>
+<head>
+	<link type="text/rcss" href="styles.rcss"/>
+	<link type="text/rcss" href="spritesheets.rcss"/>
+	<style>
+		.fullscreen-container {
+			text-align: center;
+			background: rgba(25%, 25%, 25%, 30%);
+			padding-top: 70dp
+		}
+	</style>
+</head>
+<body data-model="data_model">
+	<div class="fullscreen-container">
+		<p>Gameplay Programmer - Tim White</p>
+		<p>Engine Programmer - Martin Nilsson</p>
+		<p class="menu-button" data-event-click="on_click_back">Back</p>
+	</div>
+</body>
+</rml>

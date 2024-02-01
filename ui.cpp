@@ -2,8 +2,7 @@
 #include <RmlUi/Core.h>
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "ui_bindings.h"
-#include "ui_main_menu.h"
-#include "ui_pause_menu.h"
+#include "ui_menus.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "console.h"
@@ -84,18 +83,18 @@ namespace ui
 
 	void _on_escape_key_pressed()
 	{
-		if (is_main_menu_visible()) {
+		if (is_menu_visible(MenuType::Main)) {
 			// Do nothing.
-		} else if (is_pause_menu_visible()) {
-			set_pause_menu_visible(false);
+		} else if (is_menu_visible(MenuType::Pause)) {
+			set_menu_visible(MenuType::Pause, false);
 		} else {
-			set_pause_menu_visible(true);
+			set_menu_visible(MenuType::Pause, true);
 		}
 	}
 
 	void _on_click_play()
 	{
-		set_main_menu_visible(false);
+		hide_all_menus();
 		set_hud_visible(true);
 		_next_request = Request::Play;
 	}
@@ -105,21 +104,28 @@ namespace ui
 	}
 
 	void _on_click_credits() {
-		console::log("credits button clicked"); 
+		show_one_menu_and_hide_rest(MenuType::Credits);
 	}
 
 	void _on_click_quit() {
 		_next_request = Request::Quit;
 	}
 
+	void _on_click_back() {
+		if (is_menu_visible(MenuType::Settings)) {
+			show_one_menu_and_hide_rest(MenuType::Main);
+		} else if (is_menu_visible(MenuType::Credits)) {
+			show_one_menu_and_hide_rest(MenuType::Main);
+		}
+	}
+
 	void _on_click_resume() {
-		set_pause_menu_visible(false);
+		hide_all_menus();
 	}
 
 	void _on_click_main_menu() {
-		set_pause_menu_visible(false);
 		set_hud_visible(false);
-		set_main_menu_visible(true);
+		show_one_menu_and_hide_rest(MenuType::Main);
 		_next_request = Request::GoToMainMenu;
 	}
 
@@ -323,10 +329,7 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return
-			is_main_menu_visible() ||
-			is_pause_menu_visible() ||
-			is_textbox_visible();
+		return is_any_menu_visible() || is_textbox_visible();
 	}
 
 	Request get_next_request()

@@ -221,8 +221,7 @@
     </ClCompile>
     <ClCompile Include="ecs_graphics.cpp" />
     <ClCompile Include="ui_hud.cpp" />
-    <ClCompile Include="ui_main_menu.cpp" />
-    <ClCompile Include="ui_pause_menu.cpp" />
+    <ClCompile Include="ui_menus.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="ui_textbox_presets.cpp" />
@@ -331,8 +330,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_graphics.h" />
     <ClInclude Include="ui_hud.h" />
-    <ClInclude Include="ui_main_menu.h" />
-    <ClInclude Include="ui_pause_menu.h" />
+    <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="physics_helpers.h" />
     <ClInclude Include="ui_textbox_presets.h" />

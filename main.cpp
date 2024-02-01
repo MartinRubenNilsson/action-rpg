@@ -6,7 +6,7 @@
 #include "fonts.h"
 #include "shaders.h"
 #include "ui.h"
-#include "ui_main_menu.h"
+#include "ui_menus.h"
 #include "map.h"
 #include "ecs.h"
 #include "console.h"
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     console::execute(argc, argv);
 #else
     background::type = background::Type::MountainDusk;
-    ui::set_main_menu_visible(true);
+    ui::set_menu_visible(ui::MenuType::Main, true);
 #endif
 
     sf::Clock clock;

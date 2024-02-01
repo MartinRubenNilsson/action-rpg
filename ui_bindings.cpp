@@ -19,6 +19,7 @@ namespace ui
 	extern void _on_click_settings();
 	extern void _on_click_credits();
 	extern void _on_click_quit();
+	extern void _on_click_back();
 	extern void _on_click_resume();
 	extern void _on_click_main_menu();
 	extern void _on_textbox_keydown(int key);
@@ -70,6 +71,10 @@ namespace ui
 		data_model.BindEventCallback("on_click_quit",
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
 				_on_click_quit();
+			});
+		data_model.BindEventCallback("on_click_back",
+			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
+				_on_click_back();
 			});
 		data_model.BindEventCallback("on_click_resume",
 			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
