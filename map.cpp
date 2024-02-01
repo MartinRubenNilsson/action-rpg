@@ -15,7 +15,7 @@
 
 namespace map
 {
-	enum class Request
+	enum class Event
 	{
 		None,
 		Open,
@@ -24,25 +24,25 @@ namespace map
 	};
 
 	const tiled::Map* _map = nullptr;
-	Request _request = Request::None;
+	Event _request = Event::None;
 	std::string _name_of_map_to_open;
 
 	void open(const std::string& map_name, bool reset_if_open)
 	{
 		if (_map && _map->name == map_name) {
-			_request = reset_if_open ? Request::Reset : Request::None;
+			_request = reset_if_open ? Event::Reset : Event::None;
 		} else {
-			_request = Request::Open;
+			_request = Event::Open;
 			_name_of_map_to_open = map_name;
 		}
 	}
 
 	void close() {
-		_request = Request::Close;
+		_request = Event::Close;
 	}
 
 	void reset() {
-		_request = Request::Reset;
+		_request = Event::Reset;
 	}
 
 	const tiled::Map* find_map(const std::string& map_name)
@@ -58,21 +58,21 @@ namespace map
 		const tiled::Map* next_map = nullptr;
 
 		switch (_request) {
-		case Request::None:
+		case Event::None:
 			return;
-		case Request::Open:
+		case Event::Open:
 			next_map = find_map(_name_of_map_to_open);
 			if (!next_map)
 				console::log_error("Map not found: " + _name_of_map_to_open);
 			break;
-		case Request::Close:
+		case Event::Close:
 			break;
-		case Request::Reset:
+		case Event::Reset:
 			next_map = _map;
 			break;
 		}
 
-		_request = Request::None;
+		_request = Event::None;
 		_name_of_map_to_open.clear();
 
 		std::string current_music;

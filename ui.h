@@ -2,12 +2,12 @@
 
 namespace ui
 {
-	enum class Request
+	enum class Event
 	{
 		None,
-		Play,
-		Quit,
-		GoToMainMenu,
+		PlayGame,
+		QuitApp,
+		GoBackToMainMenu,
 	};
 
 	void initialize(sf::RenderWindow& window);
@@ -21,10 +21,7 @@ namespace ui
 	bool process_event(const sf::Event& ev);
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
-	bool should_pause_game();
-	Request get_next_request();
 
-	std::vector<std::string> get_document_names();
-	void show_document(const std::string& name);
-	void hide_document(const std::string& name);
+	bool should_pause_game();
+	Event poll_event();
 }

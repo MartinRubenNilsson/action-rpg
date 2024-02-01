@@ -121,11 +121,11 @@ namespace console
 
 		// UI
 
-		if (cmd == "ui_show") {
+		/*if (cmd == "ui_show") {
 			HELP("Show an RML document");
 			ARG(std::string, name, "The name of the document");
 			EXEC(ui::show_document(name));
-		}
+		}*/
 
 		// MISC
 

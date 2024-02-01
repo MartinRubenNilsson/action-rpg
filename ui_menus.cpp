@@ -5,6 +5,7 @@
 namespace ui
 {
 	extern Rml::Context* _context;
+	std::vector<MenuType> _menu_stack;
 
 	Rml::ElementDocument* _get_menu_document(MenuType type)
 	{
@@ -22,35 +23,42 @@ namespace ui
 		}
 	}
 
-	bool is_menu_visible(MenuType type)
-	{
-		Rml::ElementDocument* doc = _get_menu_document(type);
-		return doc && doc->IsVisible();
+	MenuType get_current_menu() {
+		return _menu_stack.empty() ? MenuType::Count : _menu_stack.back();
 	}
 
-	bool is_any_menu_visible()
-	{
-		for (int i = 0; i < (int)MenuType::Count; ++i)
-			if (is_menu_visible((MenuType)i))
-				return true;
-		return false;
-	}
-
-	void set_menu_visible(MenuType type, bool visible)
+	void _set_menu_visible(MenuType type, bool visible)
 	{
 		if (Rml::ElementDocument* doc = _get_menu_document(type))
 			visible ? doc->Show() : doc->Hide();
 	}
 
-	void show_one_menu_and_hide_rest(MenuType type)
+	void _hide_all_menus()
 	{
 		for (int i = 0; i < (int)MenuType::Count; ++i)
-			set_menu_visible((MenuType)i, (MenuType)i == type);
+			_set_menu_visible((MenuType)i, false);
 	}
 
-	void hide_all_menus()
+	void push_menu(MenuType type)
 	{
-		for (int i = 0; i < (int)MenuType::Count; ++i)
-			set_menu_visible((MenuType)i, false);
+		if (!_menu_stack.empty())
+			_set_menu_visible(_menu_stack.back(), false);
+		_menu_stack.push_back(type);
+		_set_menu_visible(type, true);
+	}
+
+	void pop_menu()
+	{
+		if (_menu_stack.empty()) return;
+		_set_menu_visible(_menu_stack.back(), false);
+		_menu_stack.pop_back();
+		if (_menu_stack.empty()) return;
+		_set_menu_visible(_menu_stack.back(), true);
+	}
+
+	void pop_all_menus()
+	{
+		_menu_stack.clear();
+		_hide_all_menus();
 	}
 }

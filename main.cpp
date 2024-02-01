@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     console::execute(argc, argv);
 #else
     background::type = background::Type::MountainDusk;
-    ui::set_menu_visible(ui::MenuType::Main, true);
+    ui::push_menu(ui::MenuType::Main);
 #endif
 
     sf::Clock clock;
@@ -99,16 +99,16 @@ int main(int argc, char* argv[])
 
         // HANDLE UI REQUESTS
 
-        switch (ui::get_next_request()) {
-        case ui::Request::Play:
+        switch (ui::poll_event()) {
+        case ui::Event::PlayGame:
             background::type = background::Type::None;
             map::open("summer_forest");
             break;
-        case ui::Request::GoToMainMenu:
+        case ui::Event::GoBackToMainMenu:
             background::type = background::Type::MountainDusk;
             map::close();
             break;
-        case ui::Request::Quit:
+        case ui::Event::QuitApp:
             window.close();
             break;
         }

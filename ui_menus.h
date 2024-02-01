@@ -11,10 +11,9 @@ namespace ui
 		Count
 	};
 
-	bool is_menu_visible(MenuType type);
-	bool is_any_menu_visible();
-	void set_menu_visible(MenuType type, bool visible);
-	void show_one_menu_and_hide_rest(MenuType type);
-	void hide_all_menus();
+	MenuType get_current_menu(); // Returns MenuType::Count if stack is empty.
+	void push_menu(MenuType type);
+	void pop_menu();
+	void pop_all_menus();
 }
 

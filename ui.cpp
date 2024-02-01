@@ -69,7 +69,7 @@ namespace ui
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 	EventListener _event_listener;
-	Request _next_request;
+	Event _event;
 
 	void _on_window_resized(const Rml::Vector2i& new_size)
 	{
@@ -83,50 +83,46 @@ namespace ui
 
 	void _on_escape_key_pressed()
 	{
-		if (is_menu_visible(MenuType::Main)) {
-			// Do nothing.
-		} else if (is_menu_visible(MenuType::Pause)) {
-			set_menu_visible(MenuType::Pause, false);
-		} else {
-			set_menu_visible(MenuType::Pause, true);
-		}
+		MenuType current_menu = get_current_menu();
+		if (current_menu == MenuType::Count) // no menus are open
+			push_menu(MenuType::Pause);
+		else if (current_menu != MenuType::Main) // don't pop main menu
+			pop_menu();
 	}
 
 	void _on_click_play()
 	{
-		hide_all_menus();
+		pop_all_menus();
 		set_hud_visible(true);
-		_next_request = Request::Play;
+		_event = Event::PlayGame;
 	}
 
 	void _on_click_settings() {
-		console::log("settings button clicked"); 
+		push_menu(MenuType::Settings);
 	}
 
 	void _on_click_credits() {
-		show_one_menu_and_hide_rest(MenuType::Credits);
+		push_menu(MenuType::Credits);
 	}
 
 	void _on_click_quit() {
-		_next_request = Request::Quit;
+		_event = Event::QuitApp;
 	}
 
 	void _on_click_back() {
-		if (is_menu_visible(MenuType::Settings)) {
-			show_one_menu_and_hide_rest(MenuType::Main);
-		} else if (is_menu_visible(MenuType::Credits)) {
-			show_one_menu_and_hide_rest(MenuType::Main);
-		}
+		pop_menu();
 	}
 
 	void _on_click_resume() {
-		hide_all_menus();
+		pop_menu();
 	}
 
-	void _on_click_main_menu() {
+	void _on_click_main_menu()
+	{
 		set_hud_visible(false);
-		show_one_menu_and_hide_rest(MenuType::Main);
-		_next_request = Request::GoToMainMenu;
+		pop_all_menus();
+		push_menu(MenuType::Main);
+		_event = Event::GoBackToMainMenu;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -329,33 +325,13 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return is_any_menu_visible() || is_textbox_visible();
+		return (get_current_menu() != MenuType::Count) || is_textbox_visible();
 	}
 
-	Request get_next_request()
+	Event poll_event()
 	{
-		Request request = _next_request;
-		_next_request = Request::None;
-		return request;
-	}
-
-	std::vector<std::string> get_document_names()
-	{
-		std::vector<std::string> names;
-		for (int i = 0; i < _context->GetNumDocuments(); ++i)
-			names.push_back(_context->GetDocument(i)->GetId());
-		return names;
-	}
-
-	void show_document(const std::string& name)
-	{
-		if (Rml::ElementDocument* doc = _context->GetDocument(name))
-			doc->Show();
-	}
-
-	void hide_document(const std::string& name)
-	{
-		if (Rml::ElementDocument* doc = _context->GetDocument(name))
-			doc->Hide();
+		Event ev = _event;
+		_event = Event::None;
+		return ev;
 	}
 }
