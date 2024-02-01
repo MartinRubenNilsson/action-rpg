@@ -64,40 +64,41 @@ int main(int argc, char* argv[])
     bool show_stats = false;
     while (window.isOpen()) {
 
-        // MESSAGE/EVENT LOOP
-
-        sf::Event ev;
-        while (window.pollEvent(ev)) {
-            if (ev.type == sf::Event::Closed)
-                window.close();
-            else if (ev.type == sf::Event::Resized)
-                render_texture.create(ev.size.width, ev.size.height);
-            else if (ev.type == sf::Event::KeyPressed) {
+        // PROCESS WINDOW EVENTS
+        {
+            sf::Event ev;
+            while (window.pollEvent(ev)) {
+                if (ev.type == sf::Event::Closed)
+                    window.close();
+                else if (ev.type == sf::Event::Resized)
+                    render_texture.create(ev.size.width, ev.size.height);
+                else if (ev.type == sf::Event::KeyPressed) {
 #ifdef _DEBUG
-                if (ev.key.code == sf::Keyboard::Backslash)
-                    console::toggle_visible();
-                else if (ev.key.code == sf::Keyboard::F1)
-                    show_stats = !show_stats;
-                else if (ev.key.code == sf::Keyboard::F2)
-                    ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
-                else if (ev.key.code == sf::Keyboard::F3)
-                    ecs::debug_flags ^= ecs::DEBUG_PIVOTS;
-                else if (ev.key.code == sf::Keyboard::F4)
-                    ecs::debug_flags ^= ecs::DEBUG_AI;
-                else if (ev.key.code == sf::Keyboard::F5)
-                    ecs::debug_flags ^= ecs::DEBUG_PLAYER;
+                    if (ev.key.code == sf::Keyboard::Backslash)
+                        console::toggle_visible();
+                    else if (ev.key.code == sf::Keyboard::F1)
+                        show_stats = !show_stats;
+                    else if (ev.key.code == sf::Keyboard::F2)
+                        ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
+                    else if (ev.key.code == sf::Keyboard::F3)
+                        ecs::debug_flags ^= ecs::DEBUG_PIVOTS;
+                    else if (ev.key.code == sf::Keyboard::F4)
+                        ecs::debug_flags ^= ecs::DEBUG_AI;
+                    else if (ev.key.code == sf::Keyboard::F5)
+                        ecs::debug_flags ^= ecs::DEBUG_PLAYER;
 #endif
+                }
+                ImGui::SFML::ProcessEvent(window, ev);
+                if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
+                    continue;
+                console::process_event(ev);
+                ui::process_event(ev);
+                if (!ui::should_pause_game())
+                    ecs::process_event(ev);
             }
-            ImGui::SFML::ProcessEvent(window, ev);
-            if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
-                continue;
-            console::process_event(ev);
-            ui::process_event(ev);
-            if (!ui::should_pause_game())
-                ecs::process_event(ev);
         }
 
-        // HANDLE UI REQUESTS
+        // PROCESS UI EVENTS
 
         switch (ui::poll_event()) {
         case ui::Event::PlayGame:

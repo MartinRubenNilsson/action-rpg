@@ -22,6 +22,8 @@ namespace ui
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 
+	void show_document(const std::string& name);
+
 	Event poll_event();
 	bool should_pause_game();
 }

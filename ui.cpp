@@ -324,6 +324,12 @@ namespace ui
 		_render_interface.EndFrame();
 	}
 
+	void show_document(const std::string& name)
+	{
+		if (Rml::ElementDocument* doc = _context->GetDocument(name))
+			doc->Show();
+	}
+
 	Event poll_event()
 	{
 		Event ev = _event;
