@@ -122,7 +122,7 @@ namespace ui
 		set_hud_visible(false);
 		pop_all_menus();
 		push_menu(MenuType::Main);
-		_event = Event::GoBackToMainMenu;
+		_event = Event::GoToMainMenu;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -324,14 +324,14 @@ namespace ui
 		_render_interface.EndFrame();
 	}
 
-	bool should_pause_game() {
-		return (get_current_menu() != MenuType::Count) || is_textbox_visible();
-	}
-
 	Event poll_event()
 	{
 		Event ev = _event;
 		_event = Event::None;
 		return ev;
+	}
+
+	bool should_pause_game() {
+		return (get_current_menu() != MenuType::Count) || is_textbox_visible();
 	}
 }

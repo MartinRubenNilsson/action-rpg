@@ -33,12 +33,6 @@ namespace ui
 			visible ? doc->Show() : doc->Hide();
 	}
 
-	void _hide_all_menus()
-	{
-		for (int i = 0; i < (int)MenuType::Count; ++i)
-			_set_menu_visible((MenuType)i, false);
-	}
-
 	void push_menu(MenuType type)
 	{
 		if (!_menu_stack.empty())
@@ -59,6 +53,7 @@ namespace ui
 	void pop_all_menus()
 	{
 		_menu_stack.clear();
-		_hide_all_menus();
+		for (int i = 0; i < (int)MenuType::Count; ++i)
+			_set_menu_visible((MenuType)i, false);
 	}
 }

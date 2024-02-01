@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
                 if (ev.key.code == sf::Keyboard::Backslash)
                     console::toggle_visible();
                 else if (ev.key.code == sf::Keyboard::F1)
-                    ; // reserved
+                    show_stats = !show_stats;
                 else if (ev.key.code == sf::Keyboard::F2)
                     ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                 else if (ev.key.code == sf::Keyboard::F3)
@@ -85,8 +85,6 @@ int main(int argc, char* argv[])
                     ecs::debug_flags ^= ecs::DEBUG_AI;
                 else if (ev.key.code == sf::Keyboard::F5)
                     ecs::debug_flags ^= ecs::DEBUG_PLAYER;
-                else if (ev.key.code == sf::Keyboard::F6)
-                    show_stats = !show_stats;
             }
             ImGui::SFML::ProcessEvent(window, ev);
             if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
@@ -104,7 +102,7 @@ int main(int argc, char* argv[])
             background::type = background::Type::None;
             map::open("summer_forest");
             break;
-        case ui::Event::GoBackToMainMenu:
+        case ui::Event::GoToMainMenu:
             background::type = background::Type::MountainDusk;
             map::close();
             break;

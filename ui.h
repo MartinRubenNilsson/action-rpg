@@ -7,7 +7,7 @@ namespace ui
 		None,
 		PlayGame,
 		QuitApp,
-		GoBackToMainMenu,
+		GoToMainMenu,
 	};
 
 	void initialize(sf::RenderWindow& window);
@@ -22,6 +22,6 @@ namespace ui
 	void update(float dt);
 	void render(); // Uses OpenGL, so make sure to call resetGLStates() after.
 
-	bool should_pause_game();
 	Event poll_event();
+	bool should_pause_game();
 }

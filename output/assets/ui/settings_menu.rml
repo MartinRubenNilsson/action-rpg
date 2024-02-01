@@ -6,12 +6,52 @@
 		.fullscreen-container {
 			text-align: center;
 			background: rgba(25%, 25%, 25%, 30%);
-			padding-top: 70dp
+			padding-top: 20dp
+		}
+		
+		slidertrack 
+		{
+			decorator: gradient( vertical #1b263b #0d1b2a );
+		}
+		
+		sliderbar 
+		{
+			width: 3dp;
+			decorator: gradient( vertical #e0e1dd #778da9 );
+		}
+		
+		input.range
+		{
+			width: 150dp;
+			height: 8dp;
+		}
+		
+		.vpad
+		{
+			margin-bottom: 5dp;
 		}
 	</style>
 </head>
 <body data-model="data_model">
 	<div class="fullscreen-container">
+		<form onsubmit="apply_settings">
+		
+			<p>Master Volume</p>
+			<input type="range" name="volume_master" min="0" max="100"/>
+			<div class="vpad"></div>
+			
+			<p>Sound Volume</p>
+			<input type="range" name="volume_sound" min="0" max="100"/>
+			<div class="vpad"></div>
+			
+			<p>Music Volume</p>
+			<input type="range" name="volume_music" min="0" max="100"/>
+			<div class="vpad"></div>
+			
+			<input class="menu-button" type="submit">Apply</p>
+			
+		</form>
+		<div class="vpad"></div>
 		<p class="menu-button" data-event-click="on_click_back">Back</p>
 	</div>
 </body>
