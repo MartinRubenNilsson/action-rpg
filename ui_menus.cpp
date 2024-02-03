@@ -21,6 +21,8 @@ namespace ui
 				if (Rml::ElementDocument* doc = _get_menu_document(MenuType::Settings)) {
 					if (Rml::Element* el = doc->GetElementById("checkbox-fullscreen"))
 						settings.fullscreen ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
+					if (Rml::Element* el = doc->GetElementById("checkbox-vsync"))
+						settings.vsync ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
 					if (Rml::Element* el = doc->GetElementById("range-volume-master"))
 						el->SetAttribute("value", std::to_string(settings.volume_master * _VOLUME_RANGE_MAX_VALUE));
 					if (Rml::Element* el = doc->GetElementById("range-volume-sound"))
@@ -34,10 +36,12 @@ namespace ui
 				Settings settings{};
 				settings.get();
 				settings.fullscreen = (ev.GetParameter("fullscreen", Rml::String("off")) == "on");
+				settings.vsync = (ev.GetParameter("vsync", Rml::String("off")) == "on");
 				settings.volume_master = ev.GetParameter("volume-master", _VOLUME_RANGE_MAX_VALUE) / _VOLUME_RANGE_MAX_VALUE;
 				settings.volume_sound = ev.GetParameter("volume-sound", _VOLUME_RANGE_MAX_VALUE) / _VOLUME_RANGE_MAX_VALUE;
 				settings.volume_music = ev.GetParameter("volume-music", _VOLUME_RANGE_MAX_VALUE) / _VOLUME_RANGE_MAX_VALUE;
 				settings.set();
+				settings.save();
 			} break;
 		}
 		}

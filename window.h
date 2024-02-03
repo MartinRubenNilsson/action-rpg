@@ -2,27 +2,24 @@
 
 namespace window
 {
+	struct Desc
+	{
+		std::string title = "Action RPG";
+		std::string icon_filename = "assets/window/swordsman.png";
+		bool cursor_visible = true;
+		bool fullscreen = false;
+		bool vsync = false;
+	};
+
 	// The view defines the area of the game world that is visible to the player.
-	// Its size is in pixels.
 	extern const sf::Vector2u VIEW_SIZE;
 
-	// The window size is limited to a multiple (scale) of the view size.
-	// This ensures that pixels are not stretched or squashed.
-	extern const uint32_t MIN_SCALE;
-	extern const uint32_t MAX_SCALE;
+	void initialize(sf::RenderWindow& window); // Does not create the window.
+	void create_or_update(const Desc& desc = Desc());
+	const Desc& get_desc();
 
-	sf::RenderWindow& create();
-	void destroy();
-	void close();
-	bool poll_event(sf::Event& ev); // Having our own function like this allows us to inject custom events.
-	void set_title(const std::string& title);
-	bool set_icon(const std::string& filename);
-	void set_cursor_visible(bool visible);
-	bool is_cursor_visible();
+	// Having our own function like this allows us to inject custom events.
+	bool poll_event(sf::Event& ev);
 	void set_cursor(sf::Cursor::Type type);
 	bool has_focus();
-	void set_scale(uint32_t scale);
-	uint32_t get_scale();
-	void set_fullscreen(bool fullscreen);
-	bool is_fullscreen();
 }

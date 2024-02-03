@@ -62,6 +62,14 @@
 						</tr>
 						<tr>
 							<td>
+								<label>VSync</label>
+							</td>
+							<td>
+								<input id="checkbox-vsync" type="checkbox" name="vsync" />
+							</td>
+						</tr>
+						<tr>
+							<td>
 								<label>Master Volume</label>
 							</td>
 							<td>
@@ -94,7 +102,7 @@
 								<p class="menu-button" data-event-click="on_click_back">Back</p>
 							</td>
 						</tr>
-					<tbody>
+					</tbody>
 				</table>
 			</form>
 		</div>

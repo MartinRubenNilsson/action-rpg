@@ -5,7 +5,10 @@
 
 void Settings::set() const
 {
-	window::set_fullscreen(fullscreen);
+	window::Desc window_desc = window::get_desc();
+	window_desc.fullscreen = fullscreen;
+	window_desc.vsync = vsync;
+	window::create_or_update(window_desc);
 	audio::set_bus_volume(audio::BUS_MASTER, volume_master);
 	audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
 	audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
@@ -13,7 +16,8 @@ void Settings::set() const
 
 void Settings::get()
 {
-	fullscreen = window::is_fullscreen();
+	fullscreen = window::get_desc().fullscreen;
+	vsync = window::get_desc().vsync;
 	volume_master = audio::get_bus_volume(audio::BUS_MASTER);
 	volume_music = audio::get_bus_volume(audio::BUS_MUSIC);
 	volume_sound = audio::get_bus_volume(audio::BUS_SOUND);
@@ -21,19 +25,41 @@ void Settings::get()
 
 void Settings::write(std::ostream& os) const
 {
-	/*os << "fullscreen " << fullscreen << std::endl;
+	os << "fullscreen " << fullscreen << std::endl;
+	os << "vsync " << vsync << std::endl;
 	os << "volume_master " << volume_master << std::endl;
 	os << "volume_music " << volume_music << std::endl;
-	os << "volume_sound " << volume_sound << std::endl;*/
+	os << "volume_sound " << volume_sound << std::endl;
 }
 
 void Settings::read(std::istream& is)
 {
-	/*std::string key;
-	while (is >> key) {
-		if (key == "fullscreen") is >> fullscreen;
-		else if (key == "volume_master") is >> volume_master;
-		else if (key == "volume_music") is >> volume_music;
-		else if (key == "volume_sound") is >> volume_sound;
-	}*/
+	*this = Settings{};
+	std::string line;
+	while (std::getline(is, line)) {
+		std::istringstream iss(line);
+		std::string key;
+		iss >> key;
+		if (key == "fullscreen") iss >> fullscreen;
+		else if (key == "vsync") iss >> vsync;
+		else if (key == "volume_master") iss >> volume_master;
+		else if (key == "volume_music") iss >> volume_music;
+		else if (key == "volume_sound") iss >> volume_sound;
+	}
+}
+
+bool Settings::save(const std::filesystem::path& filename) const
+{
+	std::ofstream ofs(filename);
+	if (!ofs) return false;
+	write(ofs);
+	return true;
+}
+
+bool Settings::load(const std::filesystem::path& filename)
+{
+	std::ifstream ifs(filename);
+	if (!ifs) return false;
+	read(ifs);
+	return true;
 }

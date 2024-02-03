@@ -13,6 +13,7 @@
 #include "tiled.h"
 #include "background.h"
 #include "postprocess.h"
+#include "settings.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -23,16 +24,13 @@
 
 int main(int argc, char* argv[])
 {
-    // INITIALIZE
+    // INITIALIZATION PASS 1
 
-    sf::RenderWindow& window = window::create();
-    ImGui::SFML::Init(window, false);
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
-    ImGui::SFML::UpdateFontTexture();
+    sf::RenderWindow window;
+    window::initialize(window); // Does not call sf::RenderWindow::create().
     audio::initialize();
+    ui::initialize();
     ecs::initialize();
-    console::initialize();
-    ui::initialize(window);
 
     // LOAD ASSETS
 
@@ -44,9 +42,21 @@ int main(int argc, char* argv[])
     ui::load_rml_documents("assets/ui");
     background::load_assets();
 
-    // POST-LOAD SETUP
+    // INITIALIZATION PASS 2
         
-    ui::add_event_listeners();
+    {
+        // Settings::set() affects window and audio, so these must be initialized first.
+        Settings settings{};
+        if (settings.load()) settings.set();
+        else window::create_or_update();
+    }
+    ui::add_event_listeners(); // Must come after loading RML documents.
+    ImGui::SFML::Init(window, false); // Window must be created first.
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
+    ImGui::SFML::UpdateFontTexture();
+    console::initialize(); // Must come after ImGui::SFML::Init.
+
+    // PREPARE FOR GAME LOOP
 
 #ifdef _DEBUG
     console::execute(argc, argv);
@@ -130,18 +140,21 @@ int main(int argc, char* argv[])
         if (!ui::should_pause_game())
             ecs::update(dt.asSeconds());
 
-        // RENDER
+        // RENDER TO TEXTURE
 
+        render_texture.setActive();
         render_texture.clear();
         background::render(render_texture);
         ecs::render(render_texture);
-        ui::render(); // Uses OpenGL, so make sure to call resetGLStates() after.
-        render_texture.resetGLStates();
+        ui::render(render_texture);
         render_texture.display();
-        window.clear();
-        window.setView(window.getDefaultView());
 
-#if 0
+        // RENDER TO WINDOW
+
+        window.setActive();
+        window.clear();
+
+#if 1
         ImGui::Begin("Shockwave shader");
         static float shockwave_time = 0.0f;
         static sf::Vector2f shockwave_center(0.5f, 0.5f);
@@ -181,7 +194,6 @@ int main(int argc, char* argv[])
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
-    window::destroy();
 
     return 0;
 }

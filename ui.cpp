@@ -72,12 +72,12 @@ namespace ui
 	CommonEventListener _common_event_listener;
 	Event _event;
 
-	void _on_window_resized(const Rml::Vector2i& new_size)
+	void _on_resized(uint32_t x, uint32_t y)
 	{
-		_render_interface.SetViewport(new_size.x, new_size.y);
-		_context->SetDimensions(new_size);
-		float dp_ratio_x = (float)new_size.x / (float)window::VIEW_SIZE.x;
-		float dp_ratio_y = (float)new_size.y / (float)window::VIEW_SIZE.y;
+		_render_interface.SetViewport(x, y);
+		_context->SetDimensions(Rml::Vector2i(x, y));
+		float dp_ratio_x = (float)x / (float)window::VIEW_SIZE.x;
+		float dp_ratio_y = (float)y / (float)window::VIEW_SIZE.y;
 		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
 		_context->SetDensityIndependentPixelRatio(dp_ratio);
 	}
@@ -126,14 +126,12 @@ namespace ui
 		_event = Event::GoToMainMenu;
 	}
 
-	void initialize(sf::RenderWindow& window)
+	void initialize()
 	{
 		Rml::SetSystemInterface(&_system_interface);
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
-		Rml::Vector2i window_size(window.getSize().x, window.getSize().y);
-		_context = Rml::CreateContext("main", window_size);
-		_on_window_resized(window_size);
+		_context = Rml::CreateContext("main", Rml::Vector2i());
 		create_bindings();
 		create_textbox_presets();
 	}
@@ -179,12 +177,6 @@ namespace ui
 		}
 
 		add_menu_event_listeners();
-	}
-
-	void reload_styles()
-	{
-		for (int i = 0; i < _context->GetNumDocuments(); ++i)
-			_context->GetDocument(i)->ReloadStyleSheet();
 	}
 
 	Rml::Input::KeyIdentifier _sfml_key_to_rml_key(sf::Keyboard::Key key)
@@ -293,7 +285,7 @@ namespace ui
 
 		switch (ev.type) {
 		case sf::Event::Resized:
-			_on_window_resized(Rml::Vector2i(ev.size.width, ev.size.height));
+			_on_resized(ev.size.width, ev.size.height);
 			return false;
 		case sf::Event::MouseMoved:
 			return _context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
@@ -332,11 +324,18 @@ namespace ui
 		_context->Update();
 	}
 
-	void render()
+	void render(sf::RenderTarget& target)
 	{
 		_render_interface.BeginFrame();
 		_context->Render();
 		_render_interface.EndFrame();
+		target.resetGLStates();
+	}
+
+	void reload_styles()
+	{
+		for (int i = 0; i < _context->GetNumDocuments(); ++i)
+			_context->GetDocument(i)->ReloadStyleSheet();
 	}
 
 	void show_document(const std::string& name)
