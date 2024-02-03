@@ -1,84 +1,102 @@
 <rml>
-<head>
-	<link type="text/rcss" href="styles.rcss"/>
-	<link type="text/rcss" href="spritesheets.rcss"/>
-	<style>
-		.fullscreen-container {
-			text-align: center;
-			background: rgba(25%, 25%, 25%, 30%);
-			padding-top: 20dp
-		}
-		
-		input.checkbox 
-		{
-			width: 8dp;
-			height: 8dp;
-			decorator: gradient( vertical #1b263b #0d1b2a );
-		}
-		
-		input.checkbox:checked
-		{
-			width: 8dp;
-			height: 8dp;
-			decorator: gradient( vertical #e0e1dd #778da9 );
-		}
-		
-		slidertrack 
-		{
-			decorator: gradient( vertical #1b263b #0d1b2a );
-		}
-		
-		sliderbar 
-		{
-			width: 3dp;
-			decorator: gradient( vertical #e0e1dd #778da9 );
-		}
-		
-		input.range
-		{
-			width: 150dp;
-			height: 8dp;
-		}
-		
-		.vpad
-		{
-			margin-bottom: 5dp;
-		}
-	</style>
-</head>
-<body data-model="data_model">
-	<div class="fullscreen-container">
-		<form onsubmit="apply_settings">
-		
-			<table>
-				<tbody>
-					<tr>
-						<td>
-							<label>Fullscreen</label>
-						</td>
-						<td>
-							<input type="checkbox" name="fullscreen"/>
-						</td>
-					</tr>
-				<tbody>
-			</table>
-			
-			
-		
-			<label>Master Volume</label>
-			<input type="range" name="volume-master" min="0" max="100"/>
-			
-			<label>Sound Volume</label>
-			<input type="range" name="volume-sound" min="0" max="100"/>
-			
-			<label>Music Volume</label>
-			<input type="range" name="volume-music" min="0" max="100"/>
-			
-			<input class="menu-button" type="submit">Apply</p>
-			
-		</form>
-		<div class="vpad"></div>
-		<p class="menu-button" data-event-click="on_click_back">Back</p>
-	</div>
-</body>
+
+	<head>
+		<link type="text/rcss" href="styles.rcss" />
+		<link type="text/rcss" href="spritesheets.rcss" />
+		<style>
+			.fullscreen-container {
+				text-align: center;
+				background: rgba(25%, 25%, 25%, 30%);
+				padding-top: 20dp
+			}
+
+			table {
+				padding-left: 50dp;
+				padding-right: 50dp;
+			}
+
+			td {
+				text-align: left;
+			}
+
+			input.checkbox {
+				width: 8dp;
+				height: 8dp;
+				decorator: gradient(vertical #1b263b #0d1b2a);
+			}
+
+			input.checkbox:checked {
+				width: 8dp;
+				height: 8dp;
+				decorator: gradient(vertical #e0e1dd #778da9);
+			}
+
+			slidertrack {
+				decorator: gradient(vertical #1b263b #0d1b2a);
+			}
+
+			sliderbar {
+				width: 3dp;
+				decorator: gradient(vertical #e0e1dd #778da9);
+			}
+
+			input.range {
+				width: 100dp;
+				height: 8dp;
+			}
+		</style>
+	</head>
+
+	<body data-model="data_model">
+		<div class="fullscreen-container">
+			<form onsubmit="apply_settings">
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								<label>Fullscreen</label>
+							</td>
+							<td>
+								<input type="checkbox" name="fullscreen" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Master Volume</label>
+							</td>
+							<td>
+								<input type="range" name="volume-master" min="0" max="100" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Sound Volume</label>
+							</td>
+							<td>
+								<input type="range" name="volume-sound" min="0" max="100" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Music Volume</label>
+							</td>
+							<td>
+								<input type="range" name="volume-music" min="0" max="100" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input class="menu-button" type="submit">Apply</input>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<p class="menu-button" data-event-click="on_click_back">Back</p>
+							</td>
+						</tr>
+					<tbody>
+				</table>
+			</form>
+		</div>
+	</body>
 </rml>

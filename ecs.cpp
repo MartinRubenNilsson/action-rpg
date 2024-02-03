@@ -10,12 +10,7 @@
 
 namespace ecs
 {
-	int debug_flags =
-#ifdef _DEBUG
-		DEBUG_NONE;
-#else
-		DEBUG_NONE;
-#endif
+	int debug_flags = DEBUG_NONE;
 
 	entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy;
