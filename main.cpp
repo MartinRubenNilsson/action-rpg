@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
         window.setActive();
         window.clear();
 
-#if 1
+#if 0
         ImGui::Begin("Shockwave shader");
         static float shockwave_time = 0.0f;
         static sf::Vector2f shockwave_center(0.5f, 0.5f);
