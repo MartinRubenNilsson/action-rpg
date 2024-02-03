@@ -625,7 +625,7 @@ namespace map
 		// Reverse the path so it goes from start to end
 		std::reverse(path.begin(), path.end());
 
-		return { start, end };
+		//return { start, end };
 		return path;
 	}
 
