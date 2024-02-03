@@ -562,11 +562,11 @@ namespace map
 		while (!open_list.empty()) {
 			// Find the node with the lowest f score
 			sf::Vector2i current_pos = *open_list.begin();
-			AStarNode& current_node = all_nodes[current_pos.x][current_pos.y];
+			AStarNode& current_node = all_nodes[current_pos.y][current_pos.x];
 			for (const auto& pos : open_list) {
-				if (all_nodes[pos.x][pos.y].f < current_node.f) {
+				if (all_nodes[pos.y][pos.x].f < current_node.f) {
 					current_pos = pos;
-					current_node = all_nodes[pos.x][pos.y];
+					current_node = all_nodes[pos.y][pos.x];
 				}
 			}
 
@@ -586,7 +586,7 @@ namespace map
 				if (open_list.find(neighbor_pos) == open_list.end()) { // Discover a new node
 					open_list.insert(neighbor_pos);
 				}
-				else if (tentative_g_score >= all_nodes[neighbor_pos.x][neighbor_pos.y].g) {
+				else if (tentative_g_score >= all_nodes[neighbor_pos.y][neighbor_pos.x].g) {
 					continue; // Not a better path
 				}
 
