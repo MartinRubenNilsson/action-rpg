@@ -11,8 +11,10 @@ namespace window
 	extern const uint32_t MIN_SCALE;
 	extern const uint32_t MAX_SCALE;
 
-	void initialize(sf::RenderWindow& window);
+	sf::RenderWindow& create();
+	void destroy();
 	void close();
+	bool poll_event(sf::Event& ev); // Having our own function like this allows us to inject custom events.
 	void set_title(const std::string& title);
 	bool set_icon(const std::string& filename);
 	void set_cursor_visible(bool visible);

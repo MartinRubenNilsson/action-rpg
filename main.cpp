@@ -23,11 +23,9 @@
 
 int main(int argc, char* argv[])
 {
-    sf::RenderWindow window;
-
     // INITIALIZE
 
-    window::initialize(window);
+    sf::RenderWindow& window = window::create();
     ImGui::SFML::Init(window, false);
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
     ImGui::SFML::UpdateFontTexture();
@@ -35,9 +33,6 @@ int main(int argc, char* argv[])
     ecs::initialize();
     console::initialize();
     ui::initialize(window);
-
-    sf::RenderTexture render_texture;
-    render_texture.create(window.getSize().x, window.getSize().y);
 
     // LOAD ASSETS
 
@@ -53,8 +48,6 @@ int main(int argc, char* argv[])
         
     ui::add_event_listeners();
 
-    // GAME LOOP
-
 #ifdef _DEBUG
     console::execute(argc, argv);
 #else
@@ -63,19 +56,24 @@ int main(int argc, char* argv[])
 #endif
 
     sf::Clock clock;
+    sf::RenderTexture render_texture;
+    render_texture.create(window.getSize().x, window.getSize().y);
     float smoothed_dt = 0.f;
     float smoothed_fps = 0.f;
     bool show_stats = false;
+
+    // GAME LOOP
+
     while (window.isOpen()) {
 
         // PROCESS WINDOW EVENTS
         {
             sf::Event ev;
-            while (window.pollEvent(ev)) {
+            while (window::poll_event(ev)) {
                 if (ev.type == sf::Event::Closed)
                     window.close();
-                else if (ev.type == sf::Event::Resized)
-                    render_texture.create(ev.size.width, ev.size.height);
+                if (ev.type == sf::Event::Resized)
+					render_texture.create(ev.size.width, ev.size.height);
                 else if (ev.type == sf::Event::KeyPressed) {
 #ifdef _DEBUG
                     if (ev.key.code == sf::Keyboard::Backslash)
@@ -183,6 +181,7 @@ int main(int argc, char* argv[])
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
+    window::destroy();
 
     return 0;
 }
