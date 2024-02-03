@@ -544,9 +544,17 @@ namespace map
 
 		std::vector<std::vector<AStarNode>> all_nodes(collision_layer->height, std::vector<AStarNode>(collision_layer->width));
 
+		struct CompareNodes
+		{
+			bool operator()(const sf::Vector2i& a, const sf::Vector2i& b) const
+			{
+				return a.x < b.x || (a.x == b.x && a.y < b.y);
+			}
+		};
+
 		// Open list and closed list
-		std::set<sf::Vector2i> open_list;
-		std::set<sf::Vector2i> closed_list;
+		std::set<sf::Vector2i, CompareNodes> open_list;
+		std::set<sf::Vector2i, CompareNodes> closed_list;
 		open_list.insert(start_node.position);
 
 		all_nodes[grid_start_y][grid_start_x] = start_node;

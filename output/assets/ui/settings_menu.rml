@@ -9,6 +9,20 @@
 			padding-top: 20dp
 		}
 		
+		input.checkbox 
+		{
+			width: 8dp;
+			height: 8dp;
+			decorator: gradient( vertical #1b263b #0d1b2a );
+		}
+		
+		input.checkbox:checked
+		{
+			width: 8dp;
+			height: 8dp;
+			decorator: gradient( vertical #e0e1dd #778da9 );
+		}
+		
 		slidertrack 
 		{
 			decorator: gradient( vertical #1b263b #0d1b2a );
@@ -36,17 +50,29 @@
 	<div class="fullscreen-container">
 		<form onsubmit="apply_settings">
 		
-			<p>Master Volume</p>
+			<table>
+				<tbody>
+					<tr>
+						<td>
+							<label>Fullscreen</label>
+						</td>
+						<td>
+							<input type="checkbox" name="fullscreen"/>
+						</td>
+					</tr>
+				<tbody>
+			</table>
+			
+			
+		
+			<label>Master Volume</label>
 			<input type="range" name="volume-master" min="0" max="100"/>
-			<div class="vpad"></div>
 			
-			<p>Sound Volume</p>
+			<label>Sound Volume</label>
 			<input type="range" name="volume-sound" min="0" max="100"/>
-			<div class="vpad"></div>
 			
-			<p>Music Volume</p>
+			<label>Music Volume</label>
 			<input type="range" name="volume-music" min="0" max="100"/>
-			<div class="vpad"></div>
 			
 			<input class="menu-button" type="submit">Apply</p>
 			

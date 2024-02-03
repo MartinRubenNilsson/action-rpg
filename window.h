@@ -16,8 +16,11 @@ namespace window
 	void set_title(const std::string& title);
 	bool set_icon(const std::string& filename);
 	void set_cursor_visible(bool visible);
+	bool is_cursor_visible();
 	void set_cursor(sf::Cursor::Type type);
 	bool has_focus();
 	void set_scale(uint32_t scale);
 	uint32_t get_scale();
+	void set_fullscreen(bool fullscreen);
+	bool is_fullscreen();
 }
