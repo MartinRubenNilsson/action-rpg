@@ -2,19 +2,21 @@
 
 namespace window
 {
+	// The view is the area of the game world that is visible to the player.
+	const sf::Vector2u VIEW_SIZE(320u, 180u);
+
 	struct Desc
 	{
 		std::string title = "Action RPG";
 		std::string icon_filename = "assets/window/swordsman.png";
 		bool cursor_visible = true;
 		bool fullscreen = false;
+		uint32_t scale = 5; // 1 = VIEW_SIZE, 2 = VIEW_SIZE * 2, etc. Only used if fullscreen is false.
 		bool vsync = false;
 	};
 
-	// The view defines the area of the game world that is visible to the player.
-	extern const sf::Vector2u VIEW_SIZE;
-
-	void initialize(sf::RenderWindow& window); // Does not create the window.
+	// Does not call sf::RenderWindow::create()
+	void initialize(sf::RenderWindow& window);
 	void create_or_update(const Desc& desc = Desc());
 	const Desc& get_desc();
 

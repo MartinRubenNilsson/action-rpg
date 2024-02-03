@@ -26,6 +26,7 @@ void Settings::get()
 void Settings::write(std::ostream& os) const
 {
 	os << "fullscreen " << fullscreen << std::endl;
+	os << "window_scale" << window_scale << std::endl;
 	os << "vsync " << vsync << std::endl;
 	os << "volume_master " << volume_master << std::endl;
 	os << "volume_music " << volume_music << std::endl;
@@ -41,6 +42,7 @@ void Settings::read(std::istream& is)
 		std::string key;
 		iss >> key;
 		if (key == "fullscreen") iss >> fullscreen;
+		else if (key == "window_scale") iss >> window_scale;
 		else if (key == "vsync") iss >> vsync;
 		else if (key == "volume_master") iss >> volume_master;
 		else if (key == "volume_music") iss >> volume_music;

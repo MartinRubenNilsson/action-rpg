@@ -15,11 +15,33 @@
 				padding-right: 50dp;
 			}
 
+			select {
+				width: 99dp;
+				height: 10dp;
+				padding-left: 1dp;
+				decorator: gradient(vertical #1b263b #0d1b2a);
+			}
+			
+			select:hover {
+				decorator: gradient(vertical #e0e1dd #778da9);
+			}
+
+			option {
+				padding-left: 1dp;
+				decorator: gradient(vertical #1b263b #0d1b2a);
+			}
+
+			option:checked {
+				padding-left: 1dp;
+				decorator: gradient(vertical #e0e1dd #778da9);
+			}
+
 			td {
 				text-align: left;
 			}
 
 			input.checkbox {
+				margin-top: 1dp;
 				width: 8dp;
 				height: 8dp;
 				decorator: gradient(vertical #1b263b #0d1b2a);
@@ -41,6 +63,7 @@
 			}
 
 			input.range {
+				margin-top: 1dp;
 				width: 100dp;
 				height: 8dp;
 			}
@@ -58,6 +81,20 @@
 							</td>
 							<td>
 								<input id="checkbox-fullscreen" type="checkbox" name="fullscreen" />
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Window Size</label>
+							</td>
+							<td>
+								<select id="select-window-scale" name="window-scale">
+									<option value="3">960x540</option>
+									<option value="4">1280x720</option>
+									<option value="5">1600x900</option>
+									<option value="6">1920x1080</option>
+									<option value="7">2240x1260</option>
+								</select>
 							</td>
 						</tr>
 						<tr>

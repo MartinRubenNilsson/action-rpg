@@ -3,6 +3,7 @@
 struct Settings
 {
 	bool fullscreen = false;
+	uint32_t window_scale = 5;
 	bool vsync = false;
 	float volume_master = 1.f;
 	float volume_music = 1.f;
