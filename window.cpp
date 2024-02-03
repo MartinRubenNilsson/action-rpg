@@ -27,7 +27,7 @@ namespace window
 		if (recreate) {
 			sf::VideoMode mode = desc.fullscreen ?
 				sf::VideoMode::getFullscreenModes().at(0) :
-				sf::VideoMode(_desc.scale * VIEW_SIZE.x, _desc.scale * VIEW_SIZE.y);
+				sf::VideoMode(desc.scale * VIEW_SIZE.x, desc.scale * VIEW_SIZE.y);
 			sf::Uint32 style = desc.fullscreen ? 
 				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
 			_window->create(mode, desc.title, style);
@@ -49,8 +49,11 @@ namespace window
 					icon.getSize().y,
 					icon.getPixelsPtr());
 		}
-		if (!recreate && _desc.scale != desc.scale)
-			_window->setSize(sf::Vector2u(_desc.scale * VIEW_SIZE.x, _desc.scale * VIEW_SIZE.y));
+		if (!recreate && desc.scale != _desc.scale) {
+			sf::Vector2u new_size(desc.scale * VIEW_SIZE.x, desc.scale * VIEW_SIZE.y);
+			_window->setSize(new_size);
+			_window->setView(sf::View(sf::FloatRect(0.f, 0.f, (float)new_size.x, (float)new_size.y)));
+		}
 		if (recreate || desc.cursor_visible != _desc.cursor_visible)
 			_window->setMouseCursorVisible(desc.cursor_visible);
 		if (recreate || desc.vsync != _desc.vsync)
