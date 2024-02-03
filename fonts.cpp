@@ -5,12 +5,11 @@
 namespace fonts
 {
 	extern bool log_errors =
-#if defined(_DEBUG)
+#ifdef _DEBUG
 		true;
 #else
 		false;
 #endif
-
 	std::unordered_map<std::string, std::shared_ptr<sf::Font>> _fonts;
 
 	void load_assets(const std::filesystem::path& dir)

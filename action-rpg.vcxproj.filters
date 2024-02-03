@@ -240,17 +240,23 @@
     <ClCompile Include="fonts.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_vfx.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="textures.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
+    <None Include="shockwave.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
     <None Include="player.frag">
-      <Filter>graphics</Filter>
+      <Filter>graphics\shaders</Filter>
     </None>
     <None Include="grass.frag">
-      <Filter>graphics</Filter>
-    </None>
-    <None Include="shockwave.frag">
-      <Filter>graphics</Filter>
+      <Filter>graphics\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -540,6 +546,12 @@
     <ClInclude Include="fonts.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="ecs_vfx.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="textures.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -589,6 +601,9 @@
     </Filter>
     <Filter Include="graphics">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\shaders">
+      <UniqueIdentifier>{fecc6edd-667c-49f6-adf9-57600b3c48af}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

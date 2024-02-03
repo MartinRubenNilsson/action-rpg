@@ -14,6 +14,7 @@
 #include "background.h"
 #include "postprocess.h"
 #include "settings.h"
+#include "textures.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -132,7 +133,7 @@ int main(int argc, char* argv[])
         smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt.asSeconds();
         smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt.asSeconds();
         ImGui::SFML::Update(window, dt);
-        console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+        console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update.
         background::update(dt.asSeconds());
         map::update();
         audio::update();
@@ -181,19 +182,20 @@ int main(int argc, char* argv[])
         window.display();
     }
 
-    // UNLOAD ASSETS
-
-    tiled::unload_assets(); 
-    background::unload_assets();
-    shaders::unload_assets();
-    fonts::unload_assets();
-
     // SHUTDOWN
 
     ecs::shutdown();
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
+
+    // UNLOAD ASSETS
+
+    tiled::unload_assets(); 
+    background::unload_assets();
+    shaders::unload_assets();
+    fonts::unload_assets();
+    textures::unload_assets();
 
     return 0;
 }

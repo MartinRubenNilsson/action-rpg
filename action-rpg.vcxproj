@@ -197,6 +197,7 @@
     <ClCompile Include="ecs_camera.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
+    <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
@@ -209,6 +210,7 @@
     <ClCompile Include="physics_debug.cpp" />
     <ClCompile Include="settings.cpp" />
     <ClCompile Include="shaders.cpp" />
+    <ClCompile Include="textures.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="ui.cpp" />
@@ -300,6 +302,7 @@
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_projectile.h" />
+    <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />
     <ClInclude Include="random.h" />
@@ -323,6 +326,7 @@
     <ClInclude Include="physics_debug.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="shaders.h" />
+    <ClInclude Include="textures.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
