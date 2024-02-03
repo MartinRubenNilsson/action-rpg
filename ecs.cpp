@@ -12,7 +12,7 @@ namespace ecs
 {
 	int debug_flags =
 #ifdef _DEBUG
-		DEBUG_AI;
+		DEBUG_NONE;
 #else
 		DEBUG_NONE;
 #endif
