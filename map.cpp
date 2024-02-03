@@ -380,6 +380,71 @@ namespace map
 		return sf::Vector2i(gridX, gridY);
 	}
 
+	sf::Vector2f grid_to_world(const sf::Vector2i& gridPos) {
+		float worldX = static_cast<float>(gridPos.x * _map->tile_width) + _map->tile_width / 2.0f;
+		float worldY = static_cast<float>(gridPos.y * _map->tile_height) + _map->tile_height / 2.0f;
+		return sf::Vector2f(worldX, worldY);
+	}
+
+	// Cast sf::Vector2i to uint32_t safely, ensuring no negative values
+	uint32_t safe_cast_to_uint32(int value) {
+		if (value < 0) {
+			// Handle the error or perform an appropriate action when value is negative
+			// For example, log an error, throw an exception, or use a default positive value
+			throw std::runtime_error("Negative value encountered when casting to uint32_t");
+		}
+		return static_cast<uint32_t>(value);
+	}
+
+	std::vector<sf::Vector2i> get_neighbors(const sf::Vector2i& pos, const std::vector<std::vector<bool>>& path_finding_grid, const tiled::Layer* collision_layer) {
+		std::vector<sf::Vector2i> neighbors;
+
+		// Directions: up, down, left, right, and diagonals
+		std::vector<sf::Vector2i> directions = {
+			{0, -1}, {0, 1}, {-1, 0}, {1, 0},
+			{-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+		};
+
+		for (const auto& dir : directions) {
+			sf::Vector2i neighbor_pos = pos + dir;
+			uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
+			uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
+
+			// Check if within grid bounds
+			if (neighbor_pos_x >= 0 && neighbor_pos_x < collision_layer->width &&
+				neighbor_pos_y >= 0 && neighbor_pos_y < collision_layer->height) {
+				// Check if the tile is passable
+				if (path_finding_grid[neighbor_pos.y][neighbor_pos.x]) {
+					neighbors.push_back(neighbor_pos);
+				}
+			}
+		}
+
+		return neighbors;
+	}
+
+	float distance_between(const sf::Vector2i& start, const sf::Vector2i& end) {
+		int dx = std::abs(end.x - start.x);
+		int dy = std::abs(end.y - start.y);
+
+		// Cost of straight moves
+		int straight = std::abs(dx - dy);
+
+		// Cost of diagonal moves
+		int diagonal = std::min(dx, dy);
+
+		// Straight move cost: 1, diagonal move cost: sqrt(2)
+		return straight + diagonal * std::sqrt(2.0f);
+	}
+
+	float heuristic(const sf::Vector2i& start, const sf::Vector2i& end) {
+		float dx = static_cast<float>(end.x - start.x);
+		float dy = static_cast<float>(end.y - start.y);
+
+		// Euclidean distance
+		return sqrt(dx * dx + dy * dy);
+	}
+
 	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end)
 	{
 		// Uses the A* algorithm to find a path from start to end.
@@ -411,7 +476,7 @@ namespace map
 		uint32_t y = 0;
 
 		// Create a grid of booleans indicating which tiles are passable.
-		std::vector<std::vector<bool>> pathfindingGrid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
+		std::vector<std::vector<bool>> path_finding_grid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
 
 		// Loop through each tile in the collision layer
 		for (uint32_t y = 0; y < collision_layer->height; ++y) {
@@ -420,11 +485,11 @@ namespace map
 
 				if (tile) {
 					// Tile is nonempty = impassable
-					pathfindingGrid[y][x] = false; // false indicates impassable
+					path_finding_grid[y][x] = false; // false indicates impassable
 				}
 				else {
 					// Tile is empty = passable
-					pathfindingGrid[y][x] = true; // true indicates passable
+					path_finding_grid[y][x] = true; // true indicates passable
 				}
 			}
 		}
@@ -433,30 +498,29 @@ namespace map
 		sf::Vector2i grid_start = world_to_grid(start);
 		sf::Vector2i grid_end = world_to_grid(end);
 
+		uint32_t grid_start_x = static_cast<uint32_t>(grid_start.x);
+		uint32_t grid_start_y = static_cast<uint32_t>(grid_start.y);
+
+		uint32_t grid_end_x = static_cast<uint32_t>(grid_end.x);
+		uint32_t grid_end_y = static_cast<uint32_t>(grid_end.y);
+
 		// If the start or end tile is out of bounds, we can't pathfind.
-		if (grid_start.x < 0 || grid_start.x >= collision_layer->width ||
-			grid_start.y < 0 || grid_start.y >= collision_layer->height ||
-			grid_end.x < 0 || grid_end.x >= collision_layer->width ||
-			grid_end.y < 0 || grid_end.y >= collision_layer->height) {
+		if (grid_start_x < 0 || grid_start_x >= collision_layer->width ||
+			grid_start_y < 0 || grid_start_y >= collision_layer->height ||
+			grid_end_x < 0 || grid_end_x >= collision_layer->width ||
+			grid_end_y < 0 || grid_end_y >= collision_layer->height) {
 			// Start or end point is out of bounds, return empty path or handle error
 			return {};
 		}
 
 		// If the start or end tile is impassable, we can't pathfind.
-		if (!pathfindingGrid[grid_start.y][grid_start.x] || !pathfindingGrid[grid_end.y][grid_end.x]) {
+		if (!path_finding_grid[grid_start.y][grid_start.x] || !path_finding_grid[grid_end.y][grid_end.x]) {
 			// Start or end point is impassable, return empty path or handle error
 			return {};
 		}
 
 		struct AStarNode
 		{
-			enum State
-			{
-				UNVISITED,
-				OPEN,
-				CLOSED,
-			};
-
 			// NOTE TO TIM: you might want to change the members below
 			// to better suit your needs. i just made copilot generate this.
 
@@ -465,20 +529,94 @@ namespace map
 			float g = 0.f;           // cost from start to this tile
 			float h = 0.f;           // estimated cost from this tile to end
 			float f = 0.f;           // g + h
-			State state = UNVISITED; // unvisited, open, or closed
 		};
 
 		// Pathfind using A* algorithm
-		// TODO
+		// Initialize start and end nodes
+		AStarNode start_node;
+		start_node.position = grid_start;
+		start_node.g = 0.f;
+		start_node.h = heuristic(grid_start, grid_end);
+		start_node.f = start_node.g + start_node.h;
+
+		AStarNode end_node;
+		end_node.position = grid_end;
+
+		std::vector<std::vector<AStarNode>> all_nodes(collision_layer->height, std::vector<AStarNode>(collision_layer->width));
+
+		// Open list and closed list
+		std::set<sf::Vector2i> open_list;
+		std::set<sf::Vector2i> closed_list;
+		open_list.insert(start_node.position);
+
+		all_nodes[grid_start_y][grid_start_x] = start_node;
+
+		while (!open_list.empty()) {
+			// Find the node with the lowest f score
+			sf::Vector2i current_pos = *open_list.begin();
+			AStarNode& current_node = all_nodes[current_pos.x][current_pos.y];
+			for (const auto& pos : open_list) {
+				if (all_nodes[pos.x][pos.y].f < current_node.f) {
+					current_pos = pos;
+					current_node = all_nodes[pos.x][pos.y];
+				}
+			}
+
+			// Move current node from open to closed list
+			open_list.erase(current_pos);
+			closed_list.insert(current_pos);
+
+			// Process each neighbor of the current node
+			for (const auto& neighbor_pos : get_neighbors(current_pos, path_finding_grid, collision_layer)) {
+				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
+				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
+
+				if (closed_list.find(neighbor_pos) != closed_list.end()) continue; // Already evaluated
+
+				float tentative_g_score = current_node.g + distance_between(current_pos, neighbor_pos); // or 1 if uniform cost
+
+				if (open_list.find(neighbor_pos) == open_list.end()) { // Discover a new node
+					open_list.insert(neighbor_pos);
+				}
+				else if (tentative_g_score >= all_nodes[neighbor_pos.x][neighbor_pos.y].g) {
+					continue; // Not a better path
+				}
+
+				// This is the best path until now. Record it
+				all_nodes[neighbor_pos_y][neighbor_pos_x].parent = current_pos;
+				all_nodes[neighbor_pos_y][neighbor_pos_x].g = tentative_g_score;
+				all_nodes[neighbor_pos_y][neighbor_pos_x].h = heuristic(neighbor_pos, grid_end);
+				all_nodes[neighbor_pos_y][neighbor_pos_x].f = all_nodes[neighbor_pos_y][neighbor_pos_x].g + all_nodes[neighbor_pos_y][neighbor_pos_x].h;
+			}
+		}
 
 		// Convert back to world coordinates. The world position of a tile is the center of the tile.
-		// TODO
-		
 		std::vector<sf::Vector2f> path;
-		// (Martin) I've added these two push_back:s just so the debug draw actually draws something.
-		// You should remove them once you've implemented the pathfinding.
-		path.push_back(start);
-		path.push_back(end);
+
+		// Backtrack from the end node to the start node
+		sf::Vector2i current_pos = grid_end;
+		while (current_pos != grid_start) {
+			// Check bounds manually, not using find
+			if (current_pos.y < 0 || current_pos.y >= all_nodes.size() ||
+				current_pos.x < 0 || current_pos.x >= all_nodes[current_pos.y].size()) {
+				// If the current position is out of bounds, something went wrong
+				return {}; // Return an empty path or handle the error
+			}
+
+			// Add the current position to the path
+			path.push_back(grid_to_world(current_pos));
+
+			// Move to the parent of the current node
+			current_pos = all_nodes[current_pos.y][current_pos.x].parent; // Access using y for row, then x for column
+		}
+
+
+		// Add the start position to the path
+		path.push_back(grid_to_world(grid_start));
+
+		// Reverse the path so it goes from start to end
+		std::reverse(path.begin(), path.end());
+
 		return path;
 	}
 
