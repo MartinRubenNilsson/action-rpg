@@ -49,6 +49,10 @@ int main(int argc, char* argv[])
     ui::load_rml_documents("assets/ui");
     background::load_assets();
 
+    // POST-LOAD SETUP
+        
+    ui::add_event_listeners();
+
     // GAME LOOP
 
 #ifdef _DEBUG

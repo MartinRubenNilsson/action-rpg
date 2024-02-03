@@ -14,6 +14,7 @@ namespace ui
 	void shutdown();
 	void load_ttf_fonts(const std::filesystem::path& dir);
 	void load_rml_documents(const std::filesystem::path& dir);
+	void add_event_listeners();
 	// Reloads all documents' style sheets from <style> tags
 	// and external style sheets, but not inline "style" attributes.
 	void reload_styles();

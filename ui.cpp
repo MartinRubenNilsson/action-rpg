@@ -48,7 +48,8 @@ namespace ui
 		}
 	};
 
-	struct EventListener : Rml::EventListener
+	// All documents share this event listener.
+	struct CommonEventListener : Rml::EventListener
 	{
 		void ProcessEvent(Rml::Event& ev) override
 		{
@@ -61,15 +62,6 @@ namespace ui
 				if (ev.GetTargetElement()->IsClassSet("menu-button"))
 					audio::play("event:/ui/snd_button_click");
 			} break;
-			case Rml::EventId::Submit: {
-				const float VOLUME_SLIDER_MAX = 100.f;
-				float volume_master = ev.GetParameter("volume-master", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
-				float volume_sound = ev.GetParameter("volume-sound", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
-				float volume_music = ev.GetParameter("volume-music", VOLUME_SLIDER_MAX) / VOLUME_SLIDER_MAX;
-				audio::set_bus_volume(audio::BUS_MASTER, volume_master);
-				audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
-				audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
-			} break;
 			}
 		}
 	};
@@ -77,7 +69,7 @@ namespace ui
 	SystemInterface_SFML _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
-	EventListener _event_listener;
+	CommonEventListener _common_event_listener;
 	Event _event;
 
 	void _on_window_resized(const Rml::Vector2i& new_size)
@@ -92,7 +84,7 @@ namespace ui
 
 	void _on_escape_key_pressed()
 	{
-		MenuType current_menu = get_current_menu();
+		MenuType current_menu = get_top_menu();
 		if (current_menu == MenuType::Count) // no menus are open
 			push_menu(MenuType::Pause);
 		else if (current_menu != MenuType::Main) // don't pop main menu
@@ -170,10 +162,23 @@ namespace ui
 			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
 			if (!doc) continue;
 			doc->SetId(entry.path().stem().string());
-			doc->AddEventListener(Rml::EventId::Mouseover, &_event_listener);
-			doc->AddEventListener(Rml::EventId::Click, &_event_listener);
-			doc->AddEventListener(Rml::EventId::Submit, &_event_listener);
+			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
+			doc->AddEventListener(Rml::EventId::Click, &_common_event_listener);
+			doc->AddEventListener(Rml::EventId::Submit, &_common_event_listener);
 		}
+	}
+
+	void add_event_listeners()
+	{
+		// Add common event listener to all documents.
+
+		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
+			Rml::ElementDocument* doc = _context->GetDocument(i);
+			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
+			doc->AddEventListener(Rml::EventId::Click, &_common_event_listener);
+		}
+
+		add_menu_event_listeners();
 	}
 
 	void reload_styles()
@@ -348,6 +353,6 @@ namespace ui
 	}
 
 	bool should_pause_game() {
-		return (get_current_menu() != MenuType::Count) || is_textbox_visible();
+		return (get_top_menu() != MenuType::Count) || is_textbox_visible();
 	}
 }
