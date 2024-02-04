@@ -167,8 +167,10 @@ namespace ecs
 						}
 					} else {
 						std::string string;
-						if (get_string(hit.entity, "textbox", string))
-							ui::open_textbox_preset(string);
+						if (get_string(hit.entity, "textbox", string)) {
+							ui::push_textbox_presets(string);
+							ui::pop_textbox();
+						}
 						if (get_string(hit.entity, "sound", string))
 							audio_events_to_play.insert(string);
 					}
@@ -263,7 +265,8 @@ namespace ecs
 		audio::stop_all_in_bus();
 		audio::play("event:/snd_player_die");
 		audio::play("event:/mus_coffin_dance");
-		ui::open_textbox_preset("player_die_01");
+		ui::push_textbox_presets("player_die");
+		ui::pop_textbox();
 		ui::hud_player_health = 0;
 		return true;
 	}
