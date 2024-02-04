@@ -1,6 +1,0 @@
-fullscreen 0
-window_scale 4
-vsync 0
-volume_master 1
-volume_music 1
-volume_sound 1
