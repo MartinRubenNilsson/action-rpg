@@ -12,6 +12,9 @@ namespace audio
 	void load_bank_files(const std::filesystem::path& dir);
 	void update();
 
+	void set_listener_position(const sf::Vector2f& position);
+	sf::Vector2f get_listener_position();
+
 	bool set_parameter(const std::string& name, float value);
 	bool get_parameter(const std::string& name, float& value);
 	bool set_parameter_label(const std::string& name, const std::string& label);

@@ -28,8 +28,7 @@ namespace audio
 	FMOD::Studio::Bus* _get_bus(const std::string& path)
 	{
 		FMOD::Studio::Bus* bus = nullptr;
-		FMOD_RESULT result = _system->getBus(path.c_str(), &bus);
-		if (result != FMOD_OK) {
+		if (_system->getBus(path.c_str(), &bus) != FMOD_OK) {
 			if (log_errors)
 				console::log_error("Could not find audio bus: " + path);
 			return nullptr;
@@ -40,8 +39,7 @@ namespace audio
 	FMOD::Studio::EventDescription* _get_event_description(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* desc = nullptr;
-		FMOD_RESULT result = _system->getEvent(path.c_str(), &desc);
-		if (result != FMOD_OK) {
+		if (_system->getEvent(path.c_str(), &desc) != FMOD_OK) {
 			if (log_errors)
 				console::log_error("Could not find audio event description: " + path);
 			return nullptr;
@@ -52,8 +50,7 @@ namespace audio
 	FMOD::Studio::EventInstance* _create_event_instance(FMOD::Studio::EventDescription* desc)
 	{
 		FMOD::Studio::EventInstance* instance = nullptr;
-		FMOD_RESULT result = desc->createInstance(&instance);
-		if (result != FMOD_OK) {
+		if (desc->createInstance(&instance) != FMOD_OK) {
 			if (log_errors)
 				console::log_error("Failed to create audio event instance");
 			return nullptr;
@@ -105,6 +102,22 @@ namespace audio
 
 	void update() {
 		_system->update();
+	}
+
+	void set_listener_position(const sf::Vector2f& position)
+	{
+		FMOD_3D_ATTRIBUTES attributes{};
+		attributes.position = { position.x, -position.y, 0.f };
+		attributes.forward = { 0.f, 0.f, 1.f };
+		attributes.up = { 0.f, 1.f, 0.f };
+		_system->setListenerAttributes(0, &attributes);
+	}
+
+	sf::Vector2f get_listener_position()
+	{
+		FMOD_3D_ATTRIBUTES attributes{};
+		_system->getListenerAttributes(0, &attributes);
+		return { attributes.position.x, -attributes.position.y };
 	}
 
 	bool set_parameter(const std::string& name, float value)
