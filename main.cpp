@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     render_texture.create(window.getSize().x, window.getSize().y);
     float smoothed_dt = 0.f;
     float smoothed_fps = 0.f;
-    bool show_stats = false;
+    bool debug_stats = false;
 
     // GAME LOOP
 
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
                     if (ev.key.code == sf::Keyboard::Backslash)
                         console::toggle_visible();
                     else if (ev.key.code == sf::Keyboard::F1)
-                        show_stats = !show_stats;
+                        debug_stats = !debug_stats;
                     else if (ev.key.code == sf::Keyboard::F2)
                         ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                     else if (ev.key.code == sf::Keyboard::F3)
@@ -99,6 +99,8 @@ int main(int argc, char* argv[])
                         ecs::debug_flags ^= ecs::DEBUG_AI;
                     else if (ev.key.code == sf::Keyboard::F5)
                         ecs::debug_flags ^= ecs::DEBUG_PLAYER;
+                    else if (ev.key.code == sf::Keyboard::F6)
+                        ui::debug = !ui::debug;
 #endif
                 }
                 ImGui::SFML::ProcessEvent(window, ev);
@@ -118,6 +120,9 @@ int main(int argc, char* argv[])
             background::type = background::Type::None;
             map::open("summer_forest");
             break;
+        case ui::Event::RestartMap:
+            map::reset();
+			break;
         case ui::Event::GoToMainMenu:
             background::type = background::Type::MountainDusk;
             map::close();
@@ -155,7 +160,7 @@ int main(int argc, char* argv[])
         window.setActive();
         window.clear();
 
-#if 1
+#if 0
         ImGui::Begin("Shockwave shader");
         static sf::Vector2f shockwave_center(0.5f, 0.5f);
         static float shockwave_force = 0.0f;
@@ -172,15 +177,13 @@ int main(int argc, char* argv[])
         postprocess::copy(window, render_texture);
 #endif
 
-#ifdef _DEBUG
-        if (show_stats) {
+        if (debug_stats) {
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Text("dt: %.3f ms", smoothed_dt * 1000.f);
             ImGui::Text("FPS: %.1f", smoothed_fps);
             ImGui::End();
         }
-#endif
 
         ImGui::SFML::Render(window);
         window.display();

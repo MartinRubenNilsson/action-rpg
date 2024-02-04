@@ -6,16 +6,19 @@ namespace ui
 	{
 		None,
 		PlayGame,
+		RestartMap,
 		QuitApp,
 		GoToMainMenu,
 	};
+
+	extern bool debug;
 
 	void initialize();
 	void shutdown();
 	void load_ttf_fonts(const std::filesystem::path& dir);
 	void load_rml_documents(const std::filesystem::path& dir);
 	void add_event_listeners();
-	bool process_event(const sf::Event& ev);
+	void process_event(const sf::Event& ev);
 	void update(float dt);
 	void render(sf::RenderTarget& target);
 

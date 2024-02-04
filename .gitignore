@@ -368,3 +368,5 @@ FodyWeavers.xsd
 /output/assets/tiled/action-rpg.tiled-session
 /output/Debug.exe
 /output/Release.exe
+/output/imgui.ini
+/output/settings.txt
