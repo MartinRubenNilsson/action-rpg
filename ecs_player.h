@@ -3,6 +3,11 @@
 
 namespace ecs
 {
+	enum class PlayerState
+	{
+		// TODO: Add states
+	};
+
 	struct PlayerInput
 	{
 		int axis_x = 0;
@@ -23,11 +28,11 @@ namespace ecs
 		int arrow_ammo = 10;
 	};
 
-	void process_event_player(const sf::Event& event);
+	void process_event_player(const sf::Event& ev);
 	void update_player(float dt);
 	void debug_player();
 
-	void emplace_player(entt::entity entity, const Player& player);
+	void emplace_player(entt::entity entity, const Player& player = Player());
 	void remove_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);

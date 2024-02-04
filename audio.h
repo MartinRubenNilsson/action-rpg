@@ -25,6 +25,7 @@ namespace audio
 	// Creates and starts a new event instance with the given path.
 	// If the event is not one-shot, it may keep playing indefinitely.
 	bool play(const std::string& event_path);
+	bool play_at_position(const std::string& event_path, const sf::Vector2f& position);
 	bool stop_all(const std::string& event_path);
 
 	void set_bus_volume(const std::string& bus_path, float volume);

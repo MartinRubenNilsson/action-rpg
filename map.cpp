@@ -15,7 +15,7 @@
 
 namespace map
 {
-	enum class Event
+	enum class Request
 	{
 		None,
 		Open,
@@ -24,25 +24,25 @@ namespace map
 	};
 
 	const tiled::Map* _map = nullptr;
-	Event _request = Event::None;
+	Request _request = Request::None;
 	std::string _name_of_map_to_open;
 
 	void open(const std::string& map_name, bool reset_if_open)
 	{
 		if (_map && _map->name == map_name) {
-			_request = reset_if_open ? Event::Reset : Event::None;
+			_request = reset_if_open ? Request::Reset : Request::None;
 		} else {
-			_request = Event::Open;
+			_request = Request::Open;
 			_name_of_map_to_open = map_name;
 		}
 	}
 
 	void close() {
-		_request = Event::Close;
+		_request = Request::Close;
 	}
 
 	void reset() {
-		_request = Event::Reset;
+		_request = Request::Reset;
 	}
 
 	const tiled::Map* find_map(const std::string& map_name)
@@ -58,21 +58,21 @@ namespace map
 		const tiled::Map* next_map = nullptr;
 
 		switch (_request) {
-		case Event::None:
+		case Request::None:
 			return;
-		case Event::Open:
+		case Request::Open:
 			next_map = find_map(_name_of_map_to_open);
 			if (!next_map)
 				console::log_error("Map not found: " + _name_of_map_to_open);
 			break;
-		case Event::Close:
+		case Request::Close:
 			break;
-		case Event::Reset:
+		case Request::Reset:
 			next_map = _map;
 			break;
 		}
 
-		_request = Event::None;
+		_request = Request::None;
 		_name_of_map_to_open.clear();
 
 		std::string current_music;
@@ -84,6 +84,7 @@ namespace map
 			tiled::get(_map->properties, "music", current_music);
 			ecs::clear();
 			ui::close_all_textboxes();
+			audio::stop_all_in_bus(audio::BUS_SOUND);
 		}
 
 		// OPEN MAP
@@ -105,6 +106,7 @@ namespace map
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
 		for (const tiled::Layer& layer : _map->layers) {
+			if (layer.objects.empty()) continue;
 			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 			for (const tiled::Object& object : layer.objects) {
 
@@ -182,6 +184,9 @@ namespace map
 						}
 					}
 				} else { // If object is not a tile
+
+					// LOAD COLLIDERS
+
 					b2BodyDef body_def;
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
@@ -220,10 +225,10 @@ namespace map
 					}
 				}
 
-				// EMPLACE SPECIFIC COMPONENTS
+				// CLASS-SPECIFIC COMPONENTS
 
 				if (object.class_ == "player") {
-					ecs::emplace_player(entity, ecs::Player());
+					ecs::emplace_player(entity);
 
 					ecs::Camera camera;
 					camera.follow = entity;
@@ -240,12 +245,17 @@ namespace map
 					ecs::get_entity(entity, "follow", camera.follow);
 					camera.confining_rect = get_world_bounds();
 					ecs::emplace_camera(entity, camera);
+				} else if (object.class_ == "audio_source") {
+					std::string event_name;
+					if (tiled::get(object.properties, "event", event_name))
+						audio::play_at_position("event:/" + event_name, sf::Vector2f(x, y));
 				}
 			}
 		}
 
 		// Create tile entities second.
 		for (const tiled::Layer& layer : _map->layers) {
+			if (layer.tiles.empty()) continue;
 			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
 			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {

@@ -17,9 +17,18 @@ namespace ecs
 
 	struct ContactListener : b2ContactListener
 	{
-		std::vector<b2Contact*> contacts; // no idea if it's safe to store these
+		struct Contact
+		{
+			b2Fixture* fixture_a = nullptr;
+			b2Fixture* fixture_b = nullptr;
+		};
 
-		void BeginContact(b2Contact* contact) override {
+		std::vector<Contact> contacts;
+
+		void BeginContact(b2Contact* b2contact) override {
+			Contact contact{};
+			contact.fixture_a = b2contact->GetFixtureA();
+			contact.fixture_b = b2contact->GetFixtureB();
 			contacts.push_back(contact);
 		}
 	};
@@ -61,16 +70,16 @@ namespace ecs
 
 		// HANDLE CONTACTS
 
-		for (b2Contact* contact : _contact_listener.contacts) {
-			b2Fixture* fixture_a = contact->GetFixtureA();
-			b2Fixture* fixture_b = contact->GetFixtureB();
+		for (const auto& contact : _contact_listener.contacts) {
+			b2Fixture* fixture_a = contact.fixture_a;
+			b2Fixture* fixture_b = contact.fixture_b;
 			b2Body* body_a = fixture_a->GetBody();
 			b2Body* body_b = fixture_b->GetBody();
 			entt::entity entity_a = get_entity(body_a);
 			entt::entity entity_b = get_entity(body_b);
 			std::string class_a = get_class(entity_a);
 			std::string class_b = get_class(entity_b);
-			if (class_a.empty() && class_b.empty()) return;
+			if (class_a.empty() && class_b.empty()) continue;
 
 			// Sort the classes alphabetically; this reduces the number of cases we need to handle.
 			if (class_a.compare(class_b) > 0) {
@@ -128,7 +137,8 @@ namespace ecs
 		b2BodyDef body_def_copy = body_def;
 		body_def_copy.userData.entity = entity;
 		b2Body* body = _world->CreateBody(&body_def_copy);
-		return _registry.emplace_or_replace<b2Body*>(entity, body);
+		_registry.emplace_or_replace<b2Body*>(entity, body);
+		return body;
 	}
 
 	void remove_body(entt::entity entity) {

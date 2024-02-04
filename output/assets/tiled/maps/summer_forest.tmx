@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="22">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="23">
  <properties>
   <property name="music" value="mus_forest"/>
  </properties>
@@ -128,6 +128,12 @@
   <object id="5" template="../templates/slime.tx" x="190.288" y="474.515"/>
   <object id="15" template="../templates/slime.tx" x="357.667" y="112.333"/>
   <object id="21" template="../templates/player.tx" x="356.5" y="329"/>
+  <object id="22" name="waterfall_audio_source" type="audio_source" x="118" y="125.5">
+   <properties>
+    <property name="event" value="snd_waterfall"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">

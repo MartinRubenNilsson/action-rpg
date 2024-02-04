@@ -86,6 +86,13 @@ namespace ecs
 		for (auto [player_entity, player, body, tile] :
 			_registry.view<Player, b2Body*, Tile>().each()) {
 
+			const sf::Vector2f player_position = get_world_center(body);
+			const sf::Vector2f player_velocity = get_linear_velocity(body);
+
+			// UPDATE AUDIO LISTENER POSITION
+
+			audio::set_listener_position(player_position);
+
 			// UPDATE TIMERS
 
 			player.hurt_timer.update(dt);
@@ -106,9 +113,6 @@ namespace ecs
 			}
 
 			// UPDATE PHYSICS
-
-			sf::Vector2f player_position = get_world_center(body);
-			sf::Vector2f player_velocity = get_linear_velocity(body);
 
 			sf::Vector2f movement_direction;
 			float movement_speed = 0.f;

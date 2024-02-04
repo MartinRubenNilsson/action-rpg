@@ -21,7 +21,7 @@ namespace audio
 	const std::string BUS_MASTER = "bus:/";
 	const std::string BUS_SOUND = "bus:/sound";
 	const std::string BUS_MUSIC = "bus:/music";
-	const int _MAX_AUDIO_CHANNELS = 512;
+	const float _PIXELS_PER_METER = 16.f;
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
 
@@ -41,7 +41,7 @@ namespace audio
 		FMOD::Studio::EventDescription* desc = nullptr;
 		if (_system->getEvent(path.c_str(), &desc) != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Could not find audio event description: " + path);
+				console::log_error("Could not find audio event: " + path);
 			return nullptr;
 		}
 		return desc;
@@ -52,7 +52,7 @@ namespace audio
 		FMOD::Studio::EventInstance* instance = nullptr;
 		if (desc->createInstance(&instance) != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Failed to create audio event instance");
+				console::log_error("Failed to create audio event");
 			return nullptr;
 		}
 		return instance;
@@ -71,7 +71,7 @@ namespace audio
 		FMOD_RESULT result = FMOD::Studio::System::create(&_system);
 		assert(result == FMOD_OK);
 		result = _system->initialize(
-			_MAX_AUDIO_CHANNELS,
+			512, // max channels
 			FMOD_STUDIO_INIT_NORMAL,
 			FMOD_INIT_NORMAL,
 			nullptr);
@@ -104,12 +104,22 @@ namespace audio
 		_system->update();
 	}
 
-	void set_listener_position(const sf::Vector2f& position)
+	FMOD_3D_ATTRIBUTES _pos_to_3d_attribs(const sf::Vector2f& position)
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
-		attributes.position = { position.x, -position.y, 0.f };
+		attributes.position = { position.x / _PIXELS_PER_METER, -position.y / _PIXELS_PER_METER, 0.f };
 		attributes.forward = { 0.f, 0.f, 1.f };
 		attributes.up = { 0.f, 1.f, 0.f };
+		return attributes;
+	}
+
+	sf::Vector2f _3d_attribs_to_pos(const FMOD_3D_ATTRIBUTES& attributes) {
+		return { attributes.position.x * _PIXELS_PER_METER, -attributes.position.y * _PIXELS_PER_METER };
+	}
+
+	void set_listener_position(const sf::Vector2f& position)
+	{
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(position);
 		_system->setListenerAttributes(0, &attributes);
 	}
 
@@ -117,7 +127,7 @@ namespace audio
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
 		_system->getListenerAttributes(0, &attributes);
-		return { attributes.position.x, -attributes.position.y };
+		return _3d_attribs_to_pos(attributes);
 	}
 
 	bool set_parameter(const std::string& name, float value)
@@ -178,6 +188,19 @@ namespace audio
 		if (!desc) return false;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
 		if (!instance) return false;
+		instance->start();
+		instance->release();
+		return true;
+	}
+
+	bool play_at_position(const std::string& event_path, const sf::Vector2f& position)
+	{
+		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
+		if (!desc) return false;
+		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
+		if (!instance) return false;
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(position);
+		instance->set3DAttributes(&attributes);
 		instance->start();
 		instance->release();
 		return true;

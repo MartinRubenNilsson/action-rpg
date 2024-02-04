@@ -1,5 +1,8 @@
 #pragma once
 
+// The map module is responsible for:
+// - Populating the ECS based on a Tiled map
+// - Querying the map for e.g. pathfinding
 namespace map
 {
 	// Calling open(), close(), or reset() will not immediately change the map.
