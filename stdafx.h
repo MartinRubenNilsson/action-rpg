@@ -20,5 +20,8 @@
 #include <SFML/Graphics.hpp>
 #include <entt/entt.hpp>
 #include <box2d/box2d.h>
+#include <RmlUi/Core.h>
+#include <imgui.h>
 #include <magic_enum.hpp>
+
 #include "math_vectors.h"

@@ -18,9 +18,6 @@
 #include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
-#ifdef _DEBUG
-#include <imgui.h>
-#endif
 
 namespace ecs
 {
@@ -86,7 +83,8 @@ namespace ecs
 
 	void update_player(float dt)
 	{
-		for (auto [player_entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
+		for (auto [player_entity, player, body, tile] :
+			_registry.view<Player, b2Body*, Tile>().each()) {
 
 			// UPDATE TIMERS
 
@@ -238,17 +236,15 @@ namespace ecs
 
 	void debug_player()
 	{
-#ifdef _DEBUG
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			ImGui::Begin("Player");
 			// TODO
 			ImGui::End();
 		}
-#endif
 	}
 
 	void emplace_player(entt::entity entity, const Player& player) {
-		_registry.emplace<Player>(entity, player);
+		_registry.emplace_or_replace<Player>(entity, player);
 	}
 
 	void remove_player(entt::entity entity) {

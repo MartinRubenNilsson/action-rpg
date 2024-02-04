@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ui_menus.h"
-#include <RmlUi/Core.h>
 #include "settings.h"
 
 namespace ui

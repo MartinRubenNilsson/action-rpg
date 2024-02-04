@@ -1,5 +1,4 @@
 #include "ui_bindings.h"
-#include <RmlUi/Core.h>
 #include "console.h"
 
 namespace ui

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ui_hud.h"
-#include <RmlUi/Core.h>
 
 namespace ui
 {
@@ -13,9 +12,8 @@ namespace ui
 
 	bool is_hud_visible()
 	{
-		if (const Rml::ElementDocument* doc = _get_hud_document())
-			return doc->IsVisible();
-		return false;
+		Rml::ElementDocument* doc = _get_hud_document();
+		return doc && doc->IsVisible();
 	}
 
 	void set_hud_visible(bool visible)

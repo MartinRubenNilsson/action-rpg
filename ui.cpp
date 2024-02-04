@@ -1,5 +1,4 @@
 ﻿#include "ui.h"
-#include <RmlUi/Core.h>
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "ui_bindings.h"
 #include "ui_menus.h"
