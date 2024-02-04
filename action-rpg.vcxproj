@@ -231,6 +231,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="darkness.frag" />
     <None Include="grass.frag" />
     <None Include="player.frag">
       <FileType>Document</FileType>

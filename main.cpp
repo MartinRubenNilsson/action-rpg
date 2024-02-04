@@ -157,19 +157,17 @@ int main(int argc, char* argv[])
 
 #if 1
         ImGui::Begin("Shockwave shader");
-        static float shockwave_time = 0.0f;
         static sf::Vector2f shockwave_center(0.5f, 0.5f);
         static float shockwave_force = 0.0f;
-        static float shockwave_size = 0.1f;
-        static float shockwave_thickness = 0.1f;
-        ImGui::SliderFloat("Time", &shockwave_time, 0.0f, 15.0f);
+        static float shockwave_size = 0.15f;
+        static float shockwave_thickness = 0.05f;
         ImGui::SliderFloat("Center X", &shockwave_center.x, 0.0f, (float)window.getSize().x);
         ImGui::SliderFloat("Center Y", &shockwave_center.y, 0.0f, (float)window.getSize().y);
         ImGui::SliderFloat("Force", &shockwave_force, 0.0f, 1.0f);
         ImGui::SliderFloat("Size", &shockwave_size, 0.0f, 1.0f);
         ImGui::SliderFloat("Thickness", &shockwave_thickness, 0.0f, 1.0f);
         ImGui::End();
-        postprocess::shockwave(window, render_texture, shockwave_time, shockwave_center, shockwave_force, shockwave_size, shockwave_thickness);
+        postprocess::shockwave(window, render_texture, shockwave_center, shockwave_force, shockwave_size, shockwave_thickness);
 #else
         postprocess::copy(window, render_texture);
 #endif
