@@ -21,7 +21,7 @@ void main()
     float distance = length(scaledUV - correctedCenter);
     
     // Ensure that 'size' is larger than 'thickness' to avoid negative mask values
-    size = max(size, thickness + 0.1);
+    //size = max(size, thickness + 0.1);
 
     // Create a circular mask with smooth edges, clamped to avoid negative values
     float outerEdge = size;
