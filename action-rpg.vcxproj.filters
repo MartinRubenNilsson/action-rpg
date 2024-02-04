@@ -246,6 +246,9 @@
     <ClCompile Include="textures.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_physics_contacts.cpp">
+      <Filter>ecs\physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -551,6 +554,9 @@
     </ClInclude>
     <ClInclude Include="textures.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_physics_contacts.h">
+      <Filter>ecs\physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
