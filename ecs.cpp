@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ecs.h"
 #include "console.h"
 #include "ecs_tiled.h"

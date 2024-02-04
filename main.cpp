@@ -120,6 +120,9 @@ int main(int argc, char* argv[])
             background::type = background::Type::None;
             map::open("summer_forest");
             break;
+        case ui::Event::RestartMap:
+            map::reset();
+			break;
         case ui::Event::GoToMainMenu:
             background::type = background::Type::MountainDusk;
             map::close();

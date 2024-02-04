@@ -6,6 +6,7 @@ namespace ui
 	{
 		None,
 		PlayGame,
+		RestartMap,
 		QuitApp,
 		GoToMainMenu,
 	};

@@ -20,6 +20,7 @@ namespace ui
 	extern void _on_click_quit();
 	extern void _on_click_back();
 	extern void _on_click_resume();
+	extern void _on_click_restart();
 	extern void _on_click_main_menu();
 	extern void _on_textbox_keydown(int key);
 
@@ -32,6 +33,11 @@ namespace ui
 
 	void dirty_all_variables() {
 		_data_model_handle.DirtyAllVariables();
+	}
+
+	template <auto Func>
+	Rml::DataEventFunc _wrap() {
+		return [](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) { Func(); };
 	}
 
 	void create_bindings()
@@ -55,38 +61,18 @@ namespace ui
 				if (args.size() != 1) return;
 				_console_log(args[0].Get<std::string>());
 			});
-		data_model.BindEventCallback("on_click_play",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_play();
-			});
-		data_model.BindEventCallback("on_click_settings",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_settings();
-			});
-		data_model.BindEventCallback("on_click_credits",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_credits();
-			});
-		data_model.BindEventCallback("on_click_quit",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_quit();
-			});
-		data_model.BindEventCallback("on_click_back",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_back();
-			});
-		data_model.BindEventCallback("on_click_resume",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_resume();
-			});
-		data_model.BindEventCallback("on_click_main_menu",
-			[](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) {
-				_on_click_main_menu();
-			});
+		data_model.BindEventCallback("on_click_play", _wrap<_on_click_play>());
+		data_model.BindEventCallback("on_click_settings", _wrap<_on_click_settings>());
+		data_model.BindEventCallback("on_click_credits", _wrap<_on_click_credits>());
+		data_model.BindEventCallback("on_click_quit", _wrap<_on_click_quit>());
+		data_model.BindEventCallback("on_click_back", _wrap<_on_click_back>());
+		data_model.BindEventCallback("on_click_resume", _wrap<_on_click_resume>());
+		data_model.BindEventCallback("on_click_restart", _wrap<_on_click_restart>());
+		data_model.BindEventCallback("on_click_main_menu", _wrap<_on_click_main_menu>());
 		data_model.BindEventCallback("on_textbox_keydown",
-			[](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList&) {
-				if (event != Rml::EventId::Keydown) return;
-				_on_textbox_keydown(event.GetParameter<int>("key_identifier", 0));
+			[](Rml::DataModelHandle, Rml::Event& ev, const Rml::VariantList&) {
+				if (ev != Rml::EventId::Keydown) return;
+				_on_textbox_keydown(ev.GetParameter<int>("key_identifier", 0));
 			});
 	}
 }

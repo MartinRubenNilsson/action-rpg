@@ -110,6 +110,12 @@ namespace ui
 		pop_menu();
 	}
 
+	void _on_click_restart()
+	{
+		pop_menu();
+		_event = Event::RestartMap;
+	}
+
 	void _on_click_main_menu()
 	{
 		set_hud_visible(false);
