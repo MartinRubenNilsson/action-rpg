@@ -1,4 +1,5 @@
 ﻿#include "ui.h"
+#include <RmlUi/Debugger.h>
 #include "RmlUi_Renderer_GL2_SFML.h"
 #include "ui_bindings.h"
 #include "ui_menus.h"
@@ -65,21 +66,13 @@ namespace ui
 		}
 	};
 
+	bool debug = false;
 	SystemInterface_SFML _system_interface;
 	RenderInterface_GL2_SFML _render_interface;
 	Rml::Context* _context = nullptr;
+	Rml::Context* _debugger_context = nullptr; // The debugger needs its own context to render at the right size.
 	CommonEventListener _common_event_listener;
 	Event _event;
-
-	void _on_resized(uint32_t x, uint32_t y)
-	{
-		_render_interface.SetViewport(x, y);
-		_context->SetDimensions(Rml::Vector2i(x, y));
-		float dp_ratio_x = (float)x / (float)window::VIEW_SIZE.x;
-		float dp_ratio_y = (float)y / (float)window::VIEW_SIZE.y;
-		float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
-		_context->SetDensityIndependentPixelRatio(dp_ratio);
-	}
 
 	void _on_escape_key_pressed()
 	{
@@ -131,21 +124,25 @@ namespace ui
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
 		_context = Rml::CreateContext("main", Rml::Vector2i());
+		_debugger_context = Rml::CreateContext("debugger", Rml::Vector2i());
+		Rml::Debugger::Initialise(_debugger_context);
+		Rml::Debugger::SetContext(_context);
 		create_bindings();
 		create_textbox_presets();
 	}
 
 	void shutdown()
 	{
-		Rml::RemoveContext(_context->GetName());
-		_context = nullptr;
 		Rml::Shutdown();
+		_context = nullptr;
+		_debugger_context = nullptr;
 	}
 
 	void load_ttf_fonts(const std::filesystem::path& dir)
 	{
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::directory_iterator(dir)) {
+			if (!entry.is_regular_file()) continue;
 			if (entry.path().extension() != ".ttf") continue;
 			Rml::LoadFontFace(entry.path().string());
 		}
@@ -159,9 +156,6 @@ namespace ui
 			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
 			if (!doc) continue;
 			doc->SetId(entry.path().stem().string());
-			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
-			doc->AddEventListener(Rml::EventId::Click, &_common_event_listener);
-			doc->AddEventListener(Rml::EventId::Submit, &_common_event_listener);
 		}
 	}
 
@@ -180,96 +174,95 @@ namespace ui
 
 	Rml::Input::KeyIdentifier _sfml_key_to_rml_key(sf::Keyboard::Key key)
 	{
-		using namespace Rml::Input;
 		switch (key) {
-		case sf::Keyboard::A:         return KI_A;
-		case sf::Keyboard::B:         return KI_B;
-		case sf::Keyboard::C:         return KI_C;
-		case sf::Keyboard::D:         return KI_D;
-		case sf::Keyboard::E:         return KI_E;
-		case sf::Keyboard::F:         return KI_F;
-		case sf::Keyboard::G:         return KI_G;
-		case sf::Keyboard::H:         return KI_H;
-		case sf::Keyboard::I:         return KI_I;
-		case sf::Keyboard::J:         return KI_J;
-		case sf::Keyboard::K:         return KI_K;
-		case sf::Keyboard::L:         return KI_L;
-		case sf::Keyboard::M:         return KI_M;
-		case sf::Keyboard::N:         return KI_N;
-		case sf::Keyboard::O:         return KI_O;
-		case sf::Keyboard::P:         return KI_P;
-		case sf::Keyboard::Q:         return KI_Q;
-		case sf::Keyboard::R:         return KI_R;
-		case sf::Keyboard::S:         return KI_S;
-		case sf::Keyboard::T:         return KI_T;
-		case sf::Keyboard::U:         return KI_U;
-		case sf::Keyboard::V:         return KI_V;
-		case sf::Keyboard::W:         return KI_W;
-		case sf::Keyboard::X:         return KI_X;
-		case sf::Keyboard::Y:         return KI_Y;
-		case sf::Keyboard::Z:         return KI_Z;
-		case sf::Keyboard::Num0:      return KI_0;
-		case sf::Keyboard::Num1:      return KI_1;
-		case sf::Keyboard::Num2:      return KI_2;
-		case sf::Keyboard::Num3:      return KI_3;
-		case sf::Keyboard::Num4:      return KI_4;
-		case sf::Keyboard::Num5:      return KI_5;
-		case sf::Keyboard::Num6:      return KI_6;
-		case sf::Keyboard::Num7:      return KI_7;
-		case sf::Keyboard::Num8:      return KI_8;
-		case sf::Keyboard::Num9:      return KI_9;
-		case sf::Keyboard::Numpad0:   return KI_NUMPAD0;
-		case sf::Keyboard::Numpad1:   return KI_NUMPAD1;
-		case sf::Keyboard::Numpad2:   return KI_NUMPAD2;
-		case sf::Keyboard::Numpad3:   return KI_NUMPAD3;
-		case sf::Keyboard::Numpad4:   return KI_NUMPAD4;
-		case sf::Keyboard::Numpad5:   return KI_NUMPAD5;
-		case sf::Keyboard::Numpad6:   return KI_NUMPAD6;
-		case sf::Keyboard::Numpad7:   return KI_NUMPAD7;
-		case sf::Keyboard::Numpad8:   return KI_NUMPAD8;
-		case sf::Keyboard::Numpad9:   return KI_NUMPAD9;
-		case sf::Keyboard::Left:      return KI_LEFT;
-		case sf::Keyboard::Right:     return KI_RIGHT;
-		case sf::Keyboard::Up:        return KI_UP;
-		case sf::Keyboard::Down:      return KI_DOWN;
-		case sf::Keyboard::Add:       return KI_ADD;
-		case sf::Keyboard::BackSpace: return KI_BACK;
-		case sf::Keyboard::Delete:    return KI_DELETE;
-		case sf::Keyboard::Divide:    return KI_DIVIDE;
-		case sf::Keyboard::End:       return KI_END;
-		case sf::Keyboard::Escape:    return KI_ESCAPE;
-		case sf::Keyboard::F1:        return KI_F1;
-		case sf::Keyboard::F2:        return KI_F2;
-		case sf::Keyboard::F3:        return KI_F3;
-		case sf::Keyboard::F4:        return KI_F4;
-		case sf::Keyboard::F5:        return KI_F5;
-		case sf::Keyboard::F6:        return KI_F6;
-		case sf::Keyboard::F7:        return KI_F7;
-		case sf::Keyboard::F8:        return KI_F8;
-		case sf::Keyboard::F9:        return KI_F9;
-		case sf::Keyboard::F10:       return KI_F10;
-		case sf::Keyboard::F11:       return KI_F11;
-		case sf::Keyboard::F12:       return KI_F12;
-		case sf::Keyboard::F13:       return KI_F13;
-		case sf::Keyboard::F14:       return KI_F14;
-		case sf::Keyboard::F15:       return KI_F15;
-		case sf::Keyboard::Home:      return KI_HOME;
-		case sf::Keyboard::Insert:    return KI_INSERT;
-		case sf::Keyboard::LControl:  return KI_LCONTROL;
-		case sf::Keyboard::LShift:    return KI_LSHIFT;
-		case sf::Keyboard::Multiply:  return KI_MULTIPLY;
-		case sf::Keyboard::Pause:     return KI_PAUSE;
-		case sf::Keyboard::RControl:  return KI_RCONTROL;
-		case sf::Keyboard::Return:    return KI_RETURN;
-		case sf::Keyboard::RShift:    return KI_RSHIFT;
-		case sf::Keyboard::Space:     return KI_SPACE;
-		case sf::Keyboard::Subtract:  return KI_SUBTRACT;
-		case sf::Keyboard::Tab:       return KI_TAB;
-		default:                      return KI_UNKNOWN;
+		case sf::Keyboard::A:         return Rml::Input::KI_A;
+		case sf::Keyboard::B:         return Rml::Input::KI_B;
+		case sf::Keyboard::C:         return Rml::Input::KI_C;
+		case sf::Keyboard::D:         return Rml::Input::KI_D;
+		case sf::Keyboard::E:         return Rml::Input::KI_E;
+		case sf::Keyboard::F:         return Rml::Input::KI_F;
+		case sf::Keyboard::G:         return Rml::Input::KI_G;
+		case sf::Keyboard::H:         return Rml::Input::KI_H;
+		case sf::Keyboard::I:         return Rml::Input::KI_I;
+		case sf::Keyboard::J:         return Rml::Input::KI_J;
+		case sf::Keyboard::K:         return Rml::Input::KI_K;
+		case sf::Keyboard::L:         return Rml::Input::KI_L;
+		case sf::Keyboard::M:         return Rml::Input::KI_M;
+		case sf::Keyboard::N:         return Rml::Input::KI_N;
+		case sf::Keyboard::O:         return Rml::Input::KI_O;
+		case sf::Keyboard::P:         return Rml::Input::KI_P;
+		case sf::Keyboard::Q:         return Rml::Input::KI_Q;
+		case sf::Keyboard::R:         return Rml::Input::KI_R;
+		case sf::Keyboard::S:         return Rml::Input::KI_S;
+		case sf::Keyboard::T:         return Rml::Input::KI_T;
+		case sf::Keyboard::U:         return Rml::Input::KI_U;
+		case sf::Keyboard::V:         return Rml::Input::KI_V;
+		case sf::Keyboard::W:         return Rml::Input::KI_W;
+		case sf::Keyboard::X:         return Rml::Input::KI_X;
+		case sf::Keyboard::Y:         return Rml::Input::KI_Y;
+		case sf::Keyboard::Z:         return Rml::Input::KI_Z;
+		case sf::Keyboard::Num0:      return Rml::Input::KI_0;
+		case sf::Keyboard::Num1:      return Rml::Input::KI_1;
+		case sf::Keyboard::Num2:      return Rml::Input::KI_2;
+		case sf::Keyboard::Num3:      return Rml::Input::KI_3;
+		case sf::Keyboard::Num4:      return Rml::Input::KI_4;
+		case sf::Keyboard::Num5:      return Rml::Input::KI_5;
+		case sf::Keyboard::Num6:      return Rml::Input::KI_6;
+		case sf::Keyboard::Num7:      return Rml::Input::KI_7;
+		case sf::Keyboard::Num8:      return Rml::Input::KI_8;
+		case sf::Keyboard::Num9:      return Rml::Input::KI_9;
+		case sf::Keyboard::Numpad0:   return Rml::Input::KI_NUMPAD0;
+		case sf::Keyboard::Numpad1:   return Rml::Input::KI_NUMPAD1;
+		case sf::Keyboard::Numpad2:   return Rml::Input::KI_NUMPAD2;
+		case sf::Keyboard::Numpad3:   return Rml::Input::KI_NUMPAD3;
+		case sf::Keyboard::Numpad4:   return Rml::Input::KI_NUMPAD4;
+		case sf::Keyboard::Numpad5:   return Rml::Input::KI_NUMPAD5;
+		case sf::Keyboard::Numpad6:   return Rml::Input::KI_NUMPAD6;
+		case sf::Keyboard::Numpad7:   return Rml::Input::KI_NUMPAD7;
+		case sf::Keyboard::Numpad8:   return Rml::Input::KI_NUMPAD8;
+		case sf::Keyboard::Numpad9:   return Rml::Input::KI_NUMPAD9;
+		case sf::Keyboard::Left:      return Rml::Input::KI_LEFT;
+		case sf::Keyboard::Right:     return Rml::Input::KI_RIGHT;
+		case sf::Keyboard::Up:        return Rml::Input::KI_UP;
+		case sf::Keyboard::Down:      return Rml::Input::KI_DOWN;
+		case sf::Keyboard::Add:       return Rml::Input::KI_ADD;
+		case sf::Keyboard::BackSpace: return Rml::Input::KI_BACK;
+		case sf::Keyboard::Delete:    return Rml::Input::KI_DELETE;
+		case sf::Keyboard::Divide:    return Rml::Input::KI_DIVIDE;
+		case sf::Keyboard::End:       return Rml::Input::KI_END;
+		case sf::Keyboard::Escape:    return Rml::Input::KI_ESCAPE;
+		case sf::Keyboard::F1:        return Rml::Input::KI_F1;
+		case sf::Keyboard::F2:        return Rml::Input::KI_F2;
+		case sf::Keyboard::F3:        return Rml::Input::KI_F3;
+		case sf::Keyboard::F4:        return Rml::Input::KI_F4;
+		case sf::Keyboard::F5:        return Rml::Input::KI_F5;
+		case sf::Keyboard::F6:        return Rml::Input::KI_F6;
+		case sf::Keyboard::F7:        return Rml::Input::KI_F7;
+		case sf::Keyboard::F8:        return Rml::Input::KI_F8;
+		case sf::Keyboard::F9:        return Rml::Input::KI_F9;
+		case sf::Keyboard::F10:       return Rml::Input::KI_F10;
+		case sf::Keyboard::F11:       return Rml::Input::KI_F11;
+		case sf::Keyboard::F12:       return Rml::Input::KI_F12;
+		case sf::Keyboard::F13:       return Rml::Input::KI_F13;
+		case sf::Keyboard::F14:       return Rml::Input::KI_F14;
+		case sf::Keyboard::F15:       return Rml::Input::KI_F15;
+		case sf::Keyboard::Home:      return Rml::Input::KI_HOME;
+		case sf::Keyboard::Insert:    return Rml::Input::KI_INSERT;
+		case sf::Keyboard::LControl:  return Rml::Input::KI_LCONTROL;
+		case sf::Keyboard::LShift:    return Rml::Input::KI_LSHIFT;
+		case sf::Keyboard::Multiply:  return Rml::Input::KI_MULTIPLY;
+		case sf::Keyboard::Pause:     return Rml::Input::KI_PAUSE;
+		case sf::Keyboard::RControl:  return Rml::Input::KI_RCONTROL;
+		case sf::Keyboard::Return:    return Rml::Input::KI_RETURN;
+		case sf::Keyboard::RShift:    return Rml::Input::KI_RSHIFT;
+		case sf::Keyboard::Space:     return Rml::Input::KI_SPACE;
+		case sf::Keyboard::Subtract:  return Rml::Input::KI_SUBTRACT;
+		case sf::Keyboard::Tab:       return Rml::Input::KI_TAB;
+		default:                      return Rml::Input::KI_UNKNOWN;
 		}
 	}
 
-	bool process_event(const sf::Event& ev)
+	void process_event(const sf::Event& ev)
 	{
 		int key_modifier_state = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
@@ -283,36 +276,56 @@ namespace ui
 			key_modifier_state |= Rml::Input::KM_ALT;
 
 		switch (ev.type) {
-		case sf::Event::Resized:
-			_on_resized(ev.size.width, ev.size.height);
-			return false;
+		case sf::Event::Resized: {
+			_render_interface.SetViewport(ev.size.width, ev.size.height);
+			_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
+			_debugger_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
+			float dp_ratio_x = (float)ev.size.width / (float)window::VIEW_SIZE.x;
+			float dp_ratio_y = (float)ev.size.height / (float)window::VIEW_SIZE.y;
+			float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
+			_context->SetDensityIndependentPixelRatio(dp_ratio);
+			// Don't set density independent pixel ratio for the debugger context!
+			// It should always be 1.0, so that it remains the same size.
+		} break;
 		case sf::Event::MouseMoved:
-			return _context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
+			_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
+			_debugger_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
+			break;
 		case sf::Event::MouseButtonPressed:
-			return _context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
+			_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
+			_debugger_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
+			break;
 		case sf::Event::MouseButtonReleased:
-			return _context->ProcessMouseButtonUp(ev.mouseButton.button, key_modifier_state);
+			_context->ProcessMouseButtonUp(ev.mouseButton.button, key_modifier_state);
+			_debugger_context->ProcessMouseButtonUp(ev.mouseButton.button, key_modifier_state);
+			break;
 		case sf::Event::MouseWheelMoved:
-			return _context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
+			_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
+			_debugger_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
+			break;
 		case sf::Event::MouseLeft:
-			return _context->ProcessMouseLeave();
+			_context->ProcessMouseLeave();
+			_debugger_context->ProcessMouseLeave();
+			break;
 		case sf::Event::TextEntered: {
 			Rml::Character c = Rml::Character(ev.text.unicode);
 			if (c == Rml::Character('\r'))
 				c = Rml::Character('\n');
-			if (ev.text.unicode >= 32 || c == Rml::Character('\n'))
-				return _context->ProcessTextInput(c);
-			else
-				return true;
-		}
+			if (ev.text.unicode >= 32 || c == Rml::Character('\n')) {
+				_context->ProcessTextInput(c);
+				_debugger_context->ProcessTextInput(c);
+			}
+		} break;
 		case sf::Event::KeyPressed:
 			if (ev.key.code == sf::Keyboard::Escape)
 				_on_escape_key_pressed();
-			return _context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			_context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			break;
 		case sf::Event::KeyReleased:
-			return _context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
-		default:
-			return true;
+			_context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			break;
 		}
 	}
 
@@ -320,13 +333,17 @@ namespace ui
 	{
 		update_textbox(dt);
 		dirty_all_variables();
+		if (debug != Rml::Debugger::IsVisible())
+			Rml::Debugger::SetVisible(debug);
 		_context->Update();
+		_debugger_context->Update();
 	}
 
 	void render(sf::RenderTarget& target)
 	{
 		_render_interface.BeginFrame();
 		_context->Render();
+		_debugger_context->Render();
 		_render_interface.EndFrame();
 		target.resetGLStates();
 	}

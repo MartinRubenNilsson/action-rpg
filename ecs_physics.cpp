@@ -10,7 +10,6 @@
 
 namespace ecs
 {
-	const b2Vec2 _PHYSICS_GRAVITY(0, 0);
 	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
@@ -44,7 +43,7 @@ namespace ecs
 
 	void initialize_physics()
 	{
-		_world = std::make_unique<b2World>(_PHYSICS_GRAVITY);
+		_world = std::make_unique<b2World>(b2Vec2(0.f, 0.f));
 		_world->SetContactListener(&_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
@@ -68,7 +67,7 @@ namespace ecs
 				_PHYSICS_POSITION_ITERATIONS);
 		}
 
-		// HANDLE CONTACTS
+		// PROCESS CONTACTS
 
 		for (const auto& contact : _contact_listener.contacts) {
 			b2Fixture* fixture_a = contact.fixture_a;
