@@ -2,5 +2,8 @@
 
 namespace ecs
 {
-
+	struct VfxParticle
+	{
+		// TODO
+	};
 }
