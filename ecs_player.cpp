@@ -72,7 +72,6 @@ namespace ecs
 		sf::Vector2f arrow_velocity = normalize(direction) * Arrow_SPEED;
 		body->SetLinearVelocity(b2Vec2(arrow_velocity.x, arrow_velocity.y));
 
-		//TODO Play arrow firing sound here
 		audio::play("event:/snd_fire_arrow");
 
 		// Add additional components like Tile here if necessary
@@ -111,6 +110,14 @@ namespace ecs
 				player.input.run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
 				player.input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
 			}
+
+			// TODO Lock player movement while firing an arrow
+			if (tile.get_class().starts_with("bow_shot") && tile.animation_timer.running()) {
+				// Set the player's velocity to zero
+				set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
+				continue; // Skip the rest of the update loop
+			}
+
 
 			// UPDATE PHYSICS
 
@@ -179,11 +186,12 @@ namespace ecs
 					audio::play(audio_event);
 			}
 
-			// HANDLE Arrow ATTACK
+			// TODO HANDLE Arrow ATTACK
 
-			if (player.input.arrow_attack && player.arrow_ammo > 0) {
+			if (tile.get_class().starts_with("bow_shot_") && player.input.arrow_attack && player.arrow_ammo > 0 && tile.animation_timer.finished()) {
 				fire_arrow(player_position, player.facing_direction, 1);
 				player.arrow_ammo--;
+				tile.animation_loop = true; // Reset for other animations
 			}
 
 			// UPDATE ANIMATION
