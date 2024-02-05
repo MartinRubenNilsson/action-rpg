@@ -186,14 +186,6 @@ namespace ecs
 					audio::play(audio_event);
 			}
 
-			// TODO HANDLE Arrow ATTACK
-
-			if (tile.get_class().starts_with("bow_shot_") && player.input.arrow_attack && player.arrow_ammo > 0 && tile.animation_timer.finished()) {
-				fire_arrow(player_position, player.facing_direction, 1);
-				player.arrow_ammo--;
-				tile.animation_loop = true; // Reset for other animations
-			}
-
 			// UPDATE ANIMATION
 
 			{
@@ -218,7 +210,20 @@ namespace ecs
 					break;
 				}
 
-				if (movement_speed >= PLAYER_RUN_SPEED) {
+				// TODO HANDLE Arrow ATTACK
+
+				if (player.input.arrow_attack && player.arrow_ammo > 0) {
+					tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
+					tile.animation_loop = false; // Ensure that the animation will not loop
+					player.input.arrow_attack = false; // Prevent repeated firing without repressing the attack key
+
+					// If the bow shot animation has finished, fire the arrow
+					if (tile.animation_timer.finished()) {
+						fire_arrow(player_position, player.facing_direction, 1);
+						player.arrow_ammo--;
+						tile.animation_loop = true; // Reset for other animations
+					}
+				} else if (movement_speed >= PLAYER_RUN_SPEED) {
 					tile.set_class("run_"s + dir);
 					tile.animation_speed = 1.2f;
 				} else if (movement_speed >= PLAYER_WALK_SPEED) {

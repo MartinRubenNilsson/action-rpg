@@ -61,4 +61,13 @@
    <frame tileid="71" duration="155"/>
   </animation>
  </tile>
+ <tile id="133">
+  <animation>
+   <frame tileid="133" duration="160"/>
+   <frame tileid="134" duration="500"/>
+   <frame tileid="135" duration="80"/>
+   <frame tileid="135" duration="80"/>
+   <frame tileid="135" duration="300"/>
+  </animation>
+ </tile>
 </tileset>
