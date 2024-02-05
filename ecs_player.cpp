@@ -25,8 +25,8 @@ namespace ecs
 
 	const float PLAYER_WALK_SPEED = 72.f;
 	const float PLAYER_RUN_SPEED = 136.f;
-	const float Arrow_SPEED = 160.f;
 	const float PLAYER_STEALTH_SPEED = 36.f;
+	const float ARROW_SPEED = 160.f;
 
 	void process_event_player(const sf::Event& ev)
 	{
@@ -69,7 +69,7 @@ namespace ecs
 		body->CreateFixture(&fixture_def);
 
 		// Set the velocity of the arrow
-		sf::Vector2f arrow_velocity = normalize(direction) * Arrow_SPEED;
+		sf::Vector2f arrow_velocity = normalize(direction) * ARROW_SPEED;
 		body->SetLinearVelocity(b2Vec2(arrow_velocity.x, arrow_velocity.y));
 
 		audio::play("event:/snd_fire_arrow");
@@ -224,11 +224,14 @@ namespace ecs
 				} else if (movement_speed >= PLAYER_RUN_SPEED) {
 					tile.set_class("run_"s + dir);
 					tile.animation_speed = 1.2f;
+					tile.animation_loop = true;
 				} else if (movement_speed >= PLAYER_WALK_SPEED) {
 					tile.set_class("walk_"s + dir);
 					tile.animation_speed = 1.2f;
+					tile.animation_loop = true;
 				} else {
 					tile.set_class("idle_"s + dir);
+					tile.animation_loop = true;
 				}
 			}
 

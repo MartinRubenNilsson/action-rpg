@@ -67,12 +67,12 @@ namespace ecs
 	{
 		uint32_t duration = get_animation_duration_in_ms();
 		if (!duration) {
-			_animation_looped_this_frame = false;
+			_animation_finished_this_frame = false;
 			_animation_loop_count = 0;
 			return;
 		}
-		_animation_looped_this_frame = animation_timer.update(animation_speed * dt, animation_loop);
-		if (_animation_looped_this_frame) ++_animation_loop_count;
+		_animation_finished_this_frame = animation_timer.update(animation_speed * dt, animation_loop);
+		if (_animation_finished_this_frame) ++_animation_loop_count;
 		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
 		uint32_t time = time_in_ms % duration;
 		uint32_t current_time = 0;
@@ -118,7 +118,7 @@ namespace ecs
 	{
 		animation_timer = Timer(get_animation_duration_in_ms() / 1000.f);
 		animation_timer.start();
-		_animation_looped_this_frame = false;
+		_animation_finished_this_frame = false;
 		_animation_loop_count = 0;
 	}
 
