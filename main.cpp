@@ -172,9 +172,9 @@ int main(int argc, char* argv[])
         ImGui::SliderFloat("Size", &shockwave_size, 0.0f, 1.0f);
         ImGui::SliderFloat("Thickness", &shockwave_thickness, 0.0f, 1.0f);
         ImGui::End();
-        postprocess::shockwave(window, render_texture, shockwave_center, shockwave_force, shockwave_size, shockwave_thickness);
+        postprocess::shockwave(window, render_texture.getTexture(), shockwave_center, shockwave_force, shockwave_size, shockwave_thickness);
 #else
-        postprocess::copy(window, render_texture);
+        postprocess::copy(window, render_texture.getTexture());
 #endif
 
         if (debug_stats) {
