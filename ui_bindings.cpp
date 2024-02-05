@@ -35,7 +35,7 @@ namespace ui
 		_data_model_handle.DirtyAllVariables();
 	}
 
-	template <auto Func>
+	template <void (*Func)()>
 	Rml::DataEventFunc _wrap() {
 		return [](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) { Func(); };
 	}

@@ -136,16 +136,6 @@ namespace ui
 		_textbox_current_length = 0;
 		if (!_textbox.opening_sound.empty())
 			audio::play("event:/" + _textbox.opening_sound);
-		if (!textbox.next_textbox.empty())
-			push_textbox_preset(textbox.next_textbox);
-	}
-
-	bool open_textbox_preset(const std::string& name)
-	{
-		Textbox textbox;
-		if (!get_textbox_preset(name, textbox)) return false;
-		open_textbox(textbox);
-		return true;
 	}
 
 	void close_textbox()
@@ -164,11 +154,12 @@ namespace ui
 		_textbox_queue.push_back(textbox);
 	}
 
-	bool push_textbox_preset(const std::string& name)
+	bool push_textbox_presets(const std::string& name)
 	{
-		Textbox textbox;
-		if (!get_textbox_preset(name, textbox)) return false;
-		push_textbox(textbox);
+		std::vector<Textbox> textboxes;
+		if (!get_textbox_presets(name, textboxes)) return false;
+		for (const Textbox& textbox : textboxes)
+			_textbox_queue.push_back(textbox);
 		return true;
 	}
 

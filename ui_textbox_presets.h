@@ -5,22 +5,21 @@ namespace ui
 	extern const std::string TEXTBOX_SPRITE_SKULL;
 	extern const std::string TEXTBOX_SPRITE_GOLDEN_KEY;
 	extern const std::string TEXTBOX_OPENING_SOUND_ITEM_FANFARE;
-	extern const std::string TEXTBOX_TYPING_SOUND_DEFAULT;
-	extern const float TEXTBOX_TYPING_SPEED_DEFAULT;
+
+	extern const std::string TEXTBOX_DEFAULT_TYPING_SOUND;
+	extern const float TEXTBOX_DEFAULT_TYPING_SPEED;
 
 	struct Textbox
 	{
-		std::string next_textbox; // name of textbox preset
-		std::string text; // RML
+		std::string text; // RML text
 		std::string sprite;
 		std::string opening_sound; // name of sound event
-		std::string typing_sound = TEXTBOX_TYPING_SOUND_DEFAULT;
-		float typing_speed = TEXTBOX_TYPING_SPEED_DEFAULT; // in CPS, 0 = instant
-		// bool auto_close = false; // TODO: implement
-		// bool sprite_to_left = false; // TODO: implement
+		std::string typing_sound = TEXTBOX_DEFAULT_TYPING_SOUND;
+		float typing_speed = TEXTBOX_DEFAULT_TYPING_SPEED; // in chars per second, 0 = instant
+		std::vector<std::string> options;
 	};
 
-	bool get_textbox_preset(const std::string& name, Textbox& textbox);
-	void create_textbox_presets();
+	bool get_textbox_presets(const std::string& name, std::vector<Textbox>& textboxes);
+	void initialize_textbox_presets();
 }
 
