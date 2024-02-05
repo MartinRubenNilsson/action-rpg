@@ -48,13 +48,11 @@ namespace ecs
 
 		bool is_animated() const;
 		void update_animation(float dt);
-		bool animation_finished_this_frame() const { return _animation_finished_this_frame; }
 		size_t get_animation_loop_count() const { return _animation_loop_count; }
 
 	private:
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
-		bool _animation_finished_this_frame = false;
 		size_t _animation_loop_count = 0;
 
 		uint32_t get_animation_duration_in_ms() const;
