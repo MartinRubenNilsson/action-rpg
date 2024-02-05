@@ -5,7 +5,7 @@
 #include "ecs_physics.h"
 #include "ecs_player.h"
 #include "ecs_ai.h"
-#include "ecs_graphics.h"
+#include "ecs_tile.h"
 #include "ecs_camera.h"
 #include "ecs_pickups.h"
 
@@ -48,10 +48,11 @@ namespace ecs
 	{
 		update_player(dt);
 		update_pickups(dt);
-		update_ai(dt);
+		update_ai_logic(dt);
+		update_ai_graphics(dt);
 		update_physics(dt);
 		_destroy_entities();
-		update_graphics(dt);
+		update_tiles(dt);
 		update_cameras(dt);
 	}
 	 

@@ -7,7 +7,7 @@
 #include "ecs_tiled.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
-#include "ecs_graphics.h"
+#include "ecs_tile.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
@@ -237,7 +237,6 @@ namespace map
 					ecs::activate_camera(entity, true);
 
 				} else if (object.class_ == "slime") {
-					ecs::emplace_slime_animation_controller(entity);
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera;

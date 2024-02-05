@@ -1,4 +1,4 @@
-#include "ecs_graphics.h"
+#include "ecs_tile.h"
 #include "physics_helpers.h"
 #include "tiled.h"
 #include "shaders.h"
@@ -122,19 +122,9 @@ namespace ecs
 		_animation_loop_count = 0;
 	}
 
-	void update_graphics(float dt)
+	void update_tiles(float dt)
 	{
 		_shader_time_accumulator += dt;
-
-		// TODO: Move somewhere else
-		for (auto [entity, anim, body] :
-			_registry.view<SlimeAnimationController, Tile, b2Body*>().each())
-		{
-			sf::Vector2f velocity = get_linear_velocity(body);
-			if (!is_zero(velocity))
-				anim.set_class({ get_direction(velocity) });
-			anim.animation_speed = length(velocity) / 32.f;
-		}
 
 		// UPDATE TILE SHADERS
 
@@ -173,9 +163,5 @@ namespace ecs
 
 	void remove_tile(entt::entity entity) {
 		_registry.remove<Tile>(entity);
-	}
-
-	void emplace_slime_animation_controller(entt::entity entity){
-		_registry.emplace_or_replace<SlimeAnimationController>(entity);
 	}
 }

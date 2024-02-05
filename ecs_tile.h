@@ -61,13 +61,9 @@ namespace ecs
 		void initialize_animation_state();
 	};
 
-	void update_graphics(float dt);
+	void update_tiles(float dt);
 
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
 	void remove_tile(entt::entity entity);
-
-	//TODO: remove
-	struct SlimeAnimationController {};
-	void emplace_slime_animation_controller(entt::entity entity);
 }

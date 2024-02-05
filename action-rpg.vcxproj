@@ -223,7 +223,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ecs_graphics.cpp" />
+    <ClCompile Include="ecs_tile.cpp" />
     <ClCompile Include="ui_hud.cpp" />
     <ClCompile Include="ui_menus.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
@@ -337,7 +337,7 @@
     <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ecs_graphics.h" />
+    <ClInclude Include="ecs_tile.h" />
     <ClInclude Include="ui_hud.h" />
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />

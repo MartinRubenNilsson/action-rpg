@@ -2,6 +2,8 @@
 #include "ecs_ai.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
+#include "ecs_tile.h"
+#include "physics_helpers.h"
 #include "console.h"
 #include "map.h"
 #include "fonts.h"
@@ -10,7 +12,7 @@ namespace ecs
 {
     extern entt::registry _registry;
 
-    void _use_ai_knowledge_to_decide_next_ai_action(float dt)
+    void _update_ai_decision_making(float dt)
     {
         // VERY IMPORTANT:
         // 
@@ -62,11 +64,26 @@ namespace ecs
         }
     }
 
-    void update_ai(float dt)
+    void update_ai_logic(float dt)
     {
         update_ai_knowledge_and_world(dt);
-        _use_ai_knowledge_to_decide_next_ai_action(dt);
+        _update_ai_decision_making(dt);
         update_ai_actions(dt);
+    }
+
+    void update_ai_graphics(float dt)
+    {
+        for (auto [entity, tile, ai_type, body] :
+            _registry.view<Tile, const AiType, b2Body*>().each()) {
+            switch (ai_type) {
+            case AiType::Slime: {
+                sf::Vector2f velocity = get_linear_velocity(body);
+                if (!is_zero(velocity))
+                    tile.set_class({ get_direction(velocity) });
+                tile.animation_speed = length(velocity) / 32.f;
+            } break;
+			}
+		}
     }
 
     void debug_ai(sf::RenderTarget& target)
@@ -100,7 +117,6 @@ namespace ecs
 
         for (auto [entity, knowledge, action] :
             _registry.view<const AiKnowledge, const AiAction>().each()) {
-
             std::string action_name(magic_enum::enum_name(action.type));
             text.setString(action_name);
             text.setPosition(knowledge.me.position + sf::Vector2f(0.f, -10.f));

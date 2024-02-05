@@ -13,7 +13,8 @@ namespace ecs
 		//Boss,
 	};
 
-	void update_ai(float dt);
+	void update_ai_logic(float dt);
+	void update_ai_graphics(float dt);
 	void debug_ai(sf::RenderTarget& target);
 
 	void emplace_ai(entt::entity entity, AiType type);

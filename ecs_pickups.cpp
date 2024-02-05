@@ -2,7 +2,7 @@
 #include "ecs_tiled.h"
 #include "ecs_pickups.h"
 #include "ecs_physics.h"
-#include "ecs_graphics.h"
+#include "ecs_tile.h"
 
 namespace ecs
 {

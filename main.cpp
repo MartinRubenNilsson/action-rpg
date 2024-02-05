@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 
         window.clear();
 
-#if 1
+#if 0
         // SHOCKWAVE POSTPROCESSING EFFECT
         {
             static sf::Vector2f center(0.5f, 0.5f);
