@@ -61,7 +61,7 @@
    <frame tileid="71" duration="155"/>
   </animation>
  </tile>
- <tile id="133">
+ <tile id="133" type="bow_shot_d">
   <animation>
    <frame tileid="133" duration="160"/>
    <frame tileid="134" duration="500"/>

@@ -214,15 +214,13 @@ namespace ecs
 
 				if (player.input.arrow_attack && player.arrow_ammo > 0) {
 					tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
+					player.bow_shot_timer.start(); // Start the bow shot timer
 					tile.animation_loop = false; // Ensure that the animation will not loop
 					player.input.arrow_attack = false; // Prevent repeated firing without repressing the attack key
-
-					// If the bow shot animation has finished, fire the arrow
-					if (tile.animation_timer.finished()) {
-						fire_arrow(player_position, player.facing_direction, 1);
-						player.arrow_ammo--;
-						tile.animation_loop = true; // Reset for other animations
-					}
+					// TODO wait 660 ms before firing the arrow
+					fire_arrow(player_position, player.facing_direction, 1);
+					player.arrow_ammo--;
+					player.bow_shot_timer.finished();
 				} else if (movement_speed >= PLAYER_RUN_SPEED) {
 					tile.set_class("run_"s + dir);
 					tile.animation_speed = 1.2f;
@@ -257,10 +255,31 @@ namespace ecs
 	{
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			ImGui::Begin("Player");
-			// TODO
+
+			// Hurt Player Button
+			if (ImGui::Button("Hurt Player")) {
+				// You can change the damage value as per your need
+				hurt_player(entity, 1);
+			}
+
+			// Kill Player Button
+			if (ImGui::Button("Kill Player")) {
+				kill_player(entity);
+			}
+
+			// Increase Ammo Button
+			if (ImGui::Button("Increase Ammo")) {
+				// Increase ammo by 5, modify this number as needed
+				player.arrow_ammo += 5;
+			}
+
+			ImGui::Text("Current Health: %d", player.health);
+			ImGui::Text("Current Ammo: %d", player.arrow_ammo);
+
 			ImGui::End();
 		}
 	}
+
 
 	void emplace_player(entt::entity entity, const Player& player) {
 		_registry.emplace_or_replace<Player>(entity, player);
