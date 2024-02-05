@@ -14,7 +14,7 @@
 #include "window.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
-#include "ecs_projectile.h"
+#include "ecs_arrow.h"
 #include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
@@ -25,7 +25,7 @@ namespace ecs
 
 	const float PLAYER_WALK_SPEED = 72.f;
 	const float PLAYER_RUN_SPEED = 136.f;
-	const float PROJECTILE_SPEED = 160.f;
+	const float Arrow_SPEED = 160.f;
 	const float PLAYER_STEALTH_SPEED = 36.f;
 
 	void process_event_player(const sf::Event& ev)
@@ -35,29 +35,29 @@ namespace ecs
 				if (ev.key.code == sf::Keyboard::C)
 					player.input.interact = true;
 				if (ev.key.code == sf::Keyboard::Z)
-					player.input.projectile_attack = true;
+					player.input.arrow_attack = true;
 			}
 		}
 	}
 
-	void fire_projectile(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
+	void fire_arrow(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
 		// Calculate the offset position
 		float offsetDistance = 1.0f; // Adjust this value as needed
 		sf::Vector2f offset = normalize(direction) * offsetDistance;
 		sf::Vector2f fire_position = position + offset;
 
-		entt::entity projectile_entity = _registry.create();
-		set_class(projectile_entity, "arrow");
+		entt::entity arrow_entity = _registry.create();
+		set_class(arrow_entity, "arrow");
 
-		// Setup the Projectile component
-		Projectile projectile = { damage, 5.0f };
-		_registry.emplace<Projectile>(projectile_entity, projectile);
+		// Setup the Arrow component
+		Arrow arrow = { damage, 5.0f };
+		_registry.emplace<Arrow>(arrow_entity, arrow);
 
-		// Create a physics body for the projectile
+		// Create a physics body for the arrow
 		b2BodyDef bodyDef;
 		bodyDef.type = b2_dynamicBody;
 		bodyDef.position.Set(fire_position.x, fire_position.y); // Set the offset position here
-		b2Body* body = emplace_body(projectile_entity, bodyDef);
+		b2Body* body = emplace_body(arrow_entity, bodyDef);
 		b2CircleShape shape;
 		shape.m_p.x = 0;
 		shape.m_p.y = 0;
@@ -68,15 +68,15 @@ namespace ecs
 		fixture_def.filter = get_filter_for_class("arrow");
 		body->CreateFixture(&fixture_def);
 
-		// Set the velocity of the projectile
-		sf::Vector2f projectile_velocity = normalize(direction) * PROJECTILE_SPEED;
-		body->SetLinearVelocity(b2Vec2(projectile_velocity.x, projectile_velocity.y));
+		// Set the velocity of the arrow
+		sf::Vector2f arrow_velocity = normalize(direction) * Arrow_SPEED;
+		body->SetLinearVelocity(b2Vec2(arrow_velocity.x, arrow_velocity.y));
 
 		//TODO Play arrow firing sound here
 		audio::play("event:/snd_fire_arrow");
 
 		// Add additional components like Tile here if necessary
-		if (Tile* tile = emplace_tile(projectile_entity, "items1", "arrow")) {
+		if (Tile* tile = emplace_tile(arrow_entity, "items1", "arrow")) {
 			tile->pivot = sf::Vector2f(6.f, 6.f);
 		}
 	}
@@ -177,10 +177,10 @@ namespace ecs
 					audio::play(audio_event);
 			}
 
-			// HANDLE PROJECTILE ATTACK
+			// HANDLE Arrow ATTACK
 
-			if (player.input.projectile_attack && player.arrow_ammo > 0) {
-				fire_projectile(player_position, player.facing_direction, 1);
+			if (player.input.arrow_attack && player.arrow_ammo > 0) {
+				fire_arrow(player_position, player.facing_direction, 1);
 				player.arrow_ammo--;
 			}
 

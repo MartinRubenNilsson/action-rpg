@@ -304,7 +304,7 @@
     <ClInclude Include="ecs_physics_contacts.h" />
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
-    <ClInclude Include="ecs_projectile.h" />
+    <ClInclude Include="ecs_arrow.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />

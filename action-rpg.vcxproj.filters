@@ -261,6 +261,9 @@
     <None Include="grass.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="darkness.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -368,7 +371,7 @@
     <ClInclude Include="background.h">
       <Filter>background</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_projectile.h">
+    <ClInclude Include="ecs_arrow.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_pickups.h">

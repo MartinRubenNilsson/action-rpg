@@ -15,7 +15,7 @@ namespace ecs
 		bool run = false;
 		bool stealth = false;
 		bool interact = false;
-		bool projectile_attack = false; 
+		bool arrow_attack = false; 
 	};
 
 	struct Player
