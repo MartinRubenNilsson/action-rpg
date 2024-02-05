@@ -69,8 +69,6 @@ int main(int argc, char* argv[])
     sf::Clock clock;
     sf::RenderTexture render_texture;
     render_texture.create(window.getSize().x, window.getSize().y);
-    float smoothed_dt = 0.f;
-    float smoothed_fps = 0.f;
     bool debug_stats = false;
 
     // GAME LOOP
@@ -135,8 +133,6 @@ int main(int argc, char* argv[])
         // UPDATE
 
         sf::Time dt = clock.restart();
-        smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt.asSeconds();
-        smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt.asSeconds();
         ImGui::SFML::Update(window, dt);
         console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update.
         background::update(dt.asSeconds());
@@ -146,38 +142,11 @@ int main(int argc, char* argv[])
         if (!ui::should_pause_game())
             ecs::update(dt.asSeconds());
 
-        // RENDER TO TEXTURE
-
-        render_texture.setActive();
-        render_texture.clear();
-        background::render(render_texture);
-        ecs::render(render_texture);
-        ui::render(render_texture);
-        render_texture.display();
-
-        // RENDER TO WINDOW
-
-        window.setActive();
-        window.clear();
-
-#if 0
-        ImGui::Begin("Shockwave shader");
-        static sf::Vector2f shockwave_center(0.5f, 0.5f);
-        static float shockwave_force = 0.0f;
-        static float shockwave_size = 0.15f;
-        static float shockwave_thickness = 0.05f;
-        ImGui::SliderFloat("Center X", &shockwave_center.x, 0.0f, (float)window.getSize().x);
-        ImGui::SliderFloat("Center Y", &shockwave_center.y, 0.0f, (float)window.getSize().y);
-        ImGui::SliderFloat("Force", &shockwave_force, 0.0f, 1.0f);
-        ImGui::SliderFloat("Size", &shockwave_size, 0.0f, 1.0f);
-        ImGui::SliderFloat("Thickness", &shockwave_thickness, 0.0f, 1.0f);
-        ImGui::End();
-        postprocess::shockwave(window, render_texture.getTexture(), shockwave_center, shockwave_force, shockwave_size, shockwave_thickness);
-#else
-        postprocess::copy(window, render_texture.getTexture());
-#endif
-
         if (debug_stats) {
+            static float smoothed_dt = 0.f;
+            static float smoothed_fps = 0.f;
+            smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt.asSeconds();
+            smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt.asSeconds();
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Text("dt: %.3f ms", smoothed_dt * 1000.f);
@@ -185,6 +154,38 @@ int main(int argc, char* argv[])
             ImGui::End();
         }
 
+        // RENDER TO TEXTURE
+
+        render_texture.clear();
+        background::render(render_texture);
+        ecs::render(render_texture);
+        render_texture.display();
+
+        // RENDER TO WINDOW
+
+        window.clear();
+
+#if 1
+        // SHOCKWAVE POSTPROCESSING EFFECT
+        {
+            static sf::Vector2f center(0.5f, 0.5f);
+            static float force = 0.0f;
+            static float size = 0.15f;
+            static float thickness = 0.05f;
+            ImGui::Begin("Shockwave");
+            ImGui::SliderFloat("Center X", &center.x, 0.0f, (float)window.getSize().x);
+            ImGui::SliderFloat("Center Y", &center.y, 0.0f, (float)window.getSize().y);
+            ImGui::SliderFloat("Force", &force, 0.0f, 1.0f);
+            ImGui::SliderFloat("Size", &size, 0.0f, 1.0f);
+            ImGui::SliderFloat("Thickness", &thickness, 0.0f, 1.0f);
+            ImGui::End();
+            postprocess::shockwave(window, render_texture.getTexture(), center, force, size, thickness);
+        }
+#else
+        postprocess::copy(window, render_texture.getTexture());
+#endif
+
+        ui::render(window);
         ImGui::SFML::Render(window);
         window.display();
     }

@@ -347,6 +347,7 @@ namespace ui
 
 	void render(sf::RenderTarget& target)
 	{
+		target.setActive();
 		_render_interface.BeginFrame();
 		_context->Render();
 		_debugger_context->Render();

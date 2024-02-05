@@ -1,6 +1,6 @@
 uniform sampler2D texture;
-uniform vec2 resolution;
-uniform vec2 center;
+uniform vec2 resolution; // in pixels
+uniform vec2 center; // in pixels
 uniform float force;
 uniform float size;
 uniform float thickness;
@@ -14,7 +14,7 @@ void main() {
     vec2 scaledUV = uv * vec2(1.0, aspectRatio); // Stretch the UVs to correct the circle's shape
     
     // Adjust the center based on aspect ratio
-    vec2 correctedCenter = center * vec2(1.0, aspectRatio);
+    vec2 correctedCenter = (center / resolution) * vec2(1.0, aspectRatio);
     
     // Calculate distance from the corrected center
     float distance = length(scaledUV - correctedCenter);
@@ -37,6 +37,4 @@ void main() {
     
     // Set the final color
     gl_FragColor = finalPixel;
-    // debug 
-    gl_FragColor = vec4(mask, mask, mask, 1.0);
 }
