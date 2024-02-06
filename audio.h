@@ -22,11 +22,9 @@ namespace audio
 
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
-	// Creates and starts a new event instance with the given path.
-	// If the event is not one-shot, it may keep playing indefinitely.
-	bool play(const std::string& event_path);
+	bool play(const std::string& event_path, entt::entity entity = entt::null);
 	bool play_at_position(const std::string& event_path, const sf::Vector2f& position);
-	bool stop_all(const std::string& event_path);
+	bool stop(const std::string& event_path, entt::entity entity = entt::null);
 
 	void set_bus_volume(const std::string& bus_path, float volume);
 	float get_bus_volume(const std::string& bus_path);
