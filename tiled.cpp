@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "tiled.h"
 #include <pugixml.hpp>
+#include "textures.h"
 #include "console.h"
 
 namespace tiled
@@ -164,13 +165,14 @@ namespace tiled
 			tileset.image_path = tileset.path.parent_path();
 			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
 			tileset.image_path = tileset.image_path.lexically_normal();
-			tileset.reload_image();
+			tileset.image = textures::get(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t i = 0; i < tileset.tile_count; ++i) {
 				Tile& tile = tileset.tiles[i];
 				tile.tileset = &tileset;
-				tile.sprite.setTexture(tileset.image);
+				if (tileset.image)
+					tile.sprite.setTexture(*tileset.image);
 				sf::IntRect texture_rect;
 				texture_rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
 				texture_rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
@@ -431,13 +433,5 @@ namespace tiled
 
 	const std::vector<Map>& get_maps() {
 		return _maps;
-	}
-
-	bool Tileset::reload_image()
-	{
-		bool success = image.loadFromFile(image_path.string());
-		if (!success)
-			console::log_error("Failed to load tileset image: " + image_path.string());
-		return success;
 	}
 }

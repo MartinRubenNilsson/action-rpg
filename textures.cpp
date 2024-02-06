@@ -10,24 +10,53 @@ namespace textures
 #else
 		false;
 #endif
-	std::unordered_map<std::filesystem::path, std::shared_ptr<sf::Texture>> textures;
 
-	std::shared_ptr<sf::Texture> get_or_load(const std::filesystem::path& path)
+	struct TextureAsset
 	{
-		std::filesystem::path normal_path = path.lexically_normal();
-		auto it = textures.find(normal_path);
-		if (it != textures.end()) return it->second;
-		std::shared_ptr<sf::Texture> texture = std::make_shared<sf::Texture>();
-		if (!texture->loadFromFile(normal_path.string())) {
-			if (log_errors)
-				console::log_error("Failed to load texture: " + normal_path.string());
-			return nullptr;
+		enum State
+		{
+			Unloaded,
+			Loaded,
+			Error
+		};
+
+		std::shared_ptr<sf::Texture> texture;
+		State state = Unloaded;
+
+		void load(const std::string& filename)
+		{
+			texture = std::make_shared<sf::Texture>();
+			state = texture->loadFromFile(filename) ? Loaded : Error;
+			if (state == Error && log_errors)
+				console::log_error("Failed to load texture: " + filename);
 		}
-		textures[normal_path] = texture;
-		return texture;
+	};
+
+	TextureAsset _error_texture;
+	std::unordered_map<std::filesystem::path, TextureAsset> _texture_cache;
+
+	void unload_assets()
+	{
+		_texture_cache.clear();
+		_error_texture = {};
 	}
 
-	void unload_assets() {
-		textures.clear();
+	std::shared_ptr<sf::Texture> get_error_texture()
+	{
+		if (_error_texture.state == TextureAsset::Unloaded)
+			_error_texture.load("assets/textures/error.png");
+		return _error_texture.texture;
+	}
+
+	std::shared_ptr<sf::Texture> get(const std::filesystem::path& path)
+	{
+		std::filesystem::path normal_path = path.lexically_normal();
+		TextureAsset& asset = _texture_cache[normal_path];
+		if (asset.state == TextureAsset::Unloaded) {
+			asset.load(normal_path.string());
+			if (asset.state == TextureAsset::Error)
+				asset.texture = get_error_texture();
+		}
+		return asset.texture;
 	}
 }

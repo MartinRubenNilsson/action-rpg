@@ -108,7 +108,7 @@ namespace tiled
 	{
 		std::filesystem::path path;
 		std::filesystem::path image_path;
-		sf::Texture image;
+		std::shared_ptr<sf::Texture> image;
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
@@ -120,8 +120,6 @@ namespace tiled
 		uint32_t tile_height = 0; // in pixels
 		uint32_t spacing = 0; // in pixels
 		uint32_t margin = 0; // in pixels
-
-		bool reload_image();
 	};
 
 	struct Layer
