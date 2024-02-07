@@ -5,7 +5,7 @@
 namespace shaders
 {
 	extern bool log_errors = 
-#if defined(_DEBUG)
+#ifdef _DEBUG
 		true;
 #else
 		false;

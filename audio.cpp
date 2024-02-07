@@ -28,33 +28,24 @@ namespace audio
 	FMOD::Studio::Bus* _get_bus(const std::string& path)
 	{
 		FMOD::Studio::Bus* bus = nullptr;
-		if (_system->getBus(path.c_str(), &bus) != FMOD_OK) {
-			if (log_errors)
-				console::log_error("Could not find audio bus: " + path);
-			return nullptr;
-		}
+		if (_system->getBus(path.c_str(), &bus) != FMOD_OK && log_errors)
+			console::log_error("Could not find audio bus: " + path);
 		return bus;
 	}
 
 	FMOD::Studio::EventDescription* _get_event_description(const std::string& path)
 	{
 		FMOD::Studio::EventDescription* desc = nullptr;
-		if (_system->getEvent(path.c_str(), &desc) != FMOD_OK) {
-			if (log_errors)
-				console::log_error("Could not find audio event: " + path);
-			return nullptr;
-		}
+		if (_system->getEvent(path.c_str(), &desc) != FMOD_OK && log_errors)
+			console::log_error("Could not find audio event: " + path);
 		return desc;
 	}
 
 	FMOD::Studio::EventInstance* _create_event_instance(FMOD::Studio::EventDescription* desc)
 	{
 		FMOD::Studio::EventInstance* instance = nullptr;
-		if (desc->createInstance(&instance) != FMOD_OK) {
-			if (log_errors)
-				console::log_error("Failed to create audio event");
-			return nullptr;
-		}
+		if (desc->createInstance(&instance) != FMOD_OK && log_errors)
+			console::log_error("Failed to create audio event");
 		return instance;
 	}
 
@@ -93,10 +84,8 @@ namespace audio
 			FMOD::Studio::Bank* bank = nullptr;
 			FMOD_RESULT result = _system->loadBankFile(
 				entry.path().string().c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
-			if (result != FMOD_OK) {
-				if (log_errors)
-					console::log_error("Failed to load audio bank: " + entry.path().string());
-			}
+			if (result != FMOD_OK && log_errors)
+				console::log_error("Failed to load audio bank: " + entry.path().string());
 		}
 	}
 
@@ -182,12 +171,13 @@ namespace audio
 		return false;
 	}
 
-	bool play(const std::string& event_path)
+	bool play(const std::string& event_path, entt::entity entity)
 	{
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return false;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
 		if (!instance) return false;
+		instance->setUserData((void*)entity);
 		instance->start();
 		instance->release();
 		return true;
@@ -206,13 +196,24 @@ namespace audio
 		return true;
 	}
 
-	bool stop_all(const std::string& event_path)
+	entt::entity _get_entity(FMOD::Studio::EventInstance* instance)
+	{
+		entt::entity entity = entt::null;
+		instance->getUserData((void**)&entity);
+		return entity;
+	}
+
+	bool stop(const std::string& event_path, entt::entity entity)
 	{
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return false;
-		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc))
-			instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
-		return true;
+		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc)) {
+			if (entity == _get_entity(instance)) {
+				instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void set_bus_volume(const std::string& bus_path, float volume)

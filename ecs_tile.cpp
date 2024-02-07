@@ -40,10 +40,6 @@ namespace ecs
 		}
 	}
 
-	std::string Tile::get_class() const {
-		return _tile->class_;
-	}
-
 	bool Tile::set_class(const std::string& class_)
 	{
 		if (class_.empty()) return false;
@@ -57,6 +53,39 @@ namespace ecs
 			}
 		}
 		return false;
+	}
+
+	bool Tile::set_class_and_tileset(const std::string& class_, const std::string& tileset_name)
+	{
+		if (class_.empty() || tileset_name.empty()) return false;
+		if (class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
+		// Find tileset
+		const tiled::Tileset* tileset = nullptr;
+		for (const tiled::Tileset& ts : tiled::get_tilesets()) {
+			if (ts.name == tileset_name) {
+				tileset = &ts;
+				break;
+			}
+		}
+		if (!tileset) return false;
+		// Find tile
+		for (const tiled::Tile& tile : tileset->tiles) {
+			if (tile.class_ == class_) {
+				_tile = &tile;
+				_frame = &tile;
+				initialize_animation_state();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	std::string Tile::get_class() const {
+		return _tile->class_;
+	}
+
+	std::string Tile::get_tileset_name() const {
+		return _tile->tileset->name;
 	}
 
 	bool Tile::is_animated() const {

@@ -43,8 +43,10 @@ namespace ecs
 		
 		sf::Sprite get_sprite() const;
 
-		std::string get_class() const; 
 		bool set_class(const std::string& class_);
+		bool set_class_and_tileset(const std::string& class_, const std::string& tileset_name);
+		std::string get_class() const; 
+		std::string get_tileset_name() const;
 
 		bool is_animated() const;
 		void update_animation(float dt);
