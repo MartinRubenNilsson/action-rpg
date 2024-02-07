@@ -100,6 +100,11 @@ namespace ecs
 				continue;
 			}
 
+			if (player.bow_shot_timer.update(dt)) {
+				fire_arrow(player_position, player.facing_direction, 1);
+				player.arrow_ammo--;
+			}
+
 			// UPDATE INPUT
 
 			if (player.kill_timer.finished() && window::has_focus() && !console::is_visible()) {
@@ -232,12 +237,6 @@ namespace ecs
 				else {
 					tile.set_class("idle_"s + dir);
 					tile.animation_loop = true;
-				}
-
-				// 
-				if (player.bow_shot_timer.update(dt)) {
-					fire_arrow(player_position, player.facing_direction, 1);
-					player.arrow_ammo--;
 				}
 			}
 
