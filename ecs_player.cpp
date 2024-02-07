@@ -210,30 +210,38 @@ namespace ecs
 					break;
 				}
 
-				// TODO HANDLE Arrow ATTACK
+				// TODO HANDLE Arrow ATTACK. Wait 660 ms from animation start to fire the arrow
 
+				// Handling arrow attack
 				if (player.input.arrow_attack && player.arrow_ammo > 0) {
 					tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
-					player.bow_shot_timer.start(); // Start the bow shot timer
+					player.bow_shot_timer.start(); // Start the timer with 660 ms
 					tile.animation_loop = false; // Ensure that the animation will not loop
-					player.input.arrow_attack = false; // Prevent repeated firing without repressing the attack key
-					// TODO wait 660 ms before firing the arrow
-					fire_arrow(player_position, player.facing_direction, 1);
-					player.arrow_ammo--;
-					player.bow_shot_timer.finished();
-				} else if (movement_speed >= PLAYER_RUN_SPEED) {
+					player.input.arrow_attack = false;
+				}
+				else if (movement_speed >= PLAYER_RUN_SPEED) {
 					tile.set_class("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
-				} else if (movement_speed >= PLAYER_WALK_SPEED) {
+				}
+				else if (movement_speed >= PLAYER_WALK_SPEED) {
 					tile.set_class("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
-				} else {
+				}
+				else {
 					tile.set_class("idle_"s + dir);
 					tile.animation_loop = true;
 				}
+
+				// 
+				if (player.bow_shot_timer.update(dt)) {
+					fire_arrow(player_position, player.facing_direction, 1);
+					player.arrow_ammo--;
+				}
 			}
+
+
 
 			// UPDATE COLOR
 

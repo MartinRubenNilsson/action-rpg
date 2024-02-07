@@ -3,9 +3,11 @@
 
 namespace ecs
 {
-	enum class PlayerState
-	{
-		// TODO: Add states
+	enum class PlayerState {
+		Normal,
+		Attacking,
+		Dying,
+		Dead
 	};
 
 	struct PlayerInput
@@ -21,6 +23,7 @@ namespace ecs
 	struct Player
 	{
 		PlayerInput input;
+		PlayerState state = PlayerState::Normal;
 		Timer hurt_timer = { 1.f };
 		Timer kill_timer = { 1.f };
 		Timer bow_shot_timer = { 0.66f };
