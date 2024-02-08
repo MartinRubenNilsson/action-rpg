@@ -199,14 +199,16 @@ namespace ecs
 				switch (dir) {
 				case 'r':
 					tile.flip_x = false;
+					tile.animation_flip_x_on_loop = false;
 					break;
 				case 'l':
-					tile.flip_x = true;
 					dir = 'r';
+					tile.flip_x = true;
+					tile.animation_flip_x_on_loop = false;
 					break;
 				case 'u':
 				case 'd':
-					tile.flip_x = (tile.get_animation_loop_count() % 2);
+					tile.animation_flip_x_on_loop = true;
 					break;
 				}
 

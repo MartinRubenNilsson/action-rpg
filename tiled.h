@@ -76,6 +76,8 @@ namespace tiled
 
 	struct Tile
 	{
+		//static const Tile INVALID; // TODO
+
 		sf::Sprite sprite;
 		std::string class_;
 		std::vector<Property> properties;
@@ -106,6 +108,8 @@ namespace tiled
 
 	struct Tileset
 	{
+		//static const Tileset INVALID; //TODO: implement
+
 		std::filesystem::path path;
 		std::filesystem::path image_path;
 		std::shared_ptr<sf::Texture> image;

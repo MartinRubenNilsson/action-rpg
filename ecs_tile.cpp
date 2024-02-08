@@ -95,12 +95,12 @@ namespace ecs
 	void Tile::update_animation(float dt)
 	{
 		uint32_t duration = get_animation_duration_in_ms();
-		if (!duration) {
-			_animation_loop_count = 0;
-			return;
-		}
-		if (animation_timer.update(animation_speed * dt, animation_loop))
+		if (!duration) return;
+		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
 			++_animation_loop_count;
+			if (animation_flip_x_on_loop)
+				flip_x = !flip_x;
+		}
 		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
 		uint32_t time = time_in_ms % duration;
 		uint32_t current_time = 0;
@@ -108,7 +108,7 @@ namespace ecs
 			current_time += frame.duration;
 			if (time < current_time) {
 				_frame = frame.tile;
-				return;
+				break;
 			}
 		}
 	}
