@@ -89,7 +89,7 @@ namespace ecs
 	}
 
 	bool Tile::is_animated() const {
-		return !_tile->animation.empty();
+		return _animation_duration_ms != 0;
 	}
 
 	float Tile::get_animation_duration() const {
