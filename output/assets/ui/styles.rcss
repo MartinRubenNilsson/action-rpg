@@ -76,9 +76,9 @@ thead, tbody, tfoot {
 .textbox-options {
 	display: inline-block;
 	position: absolute;
-	left: 6dp;
-    top: 6dp;
-	padding: 4dp;
+	left: 32dp;
+    top: 32dp;
+	padding: 6dp;
 	background: black;
 	border: 1dp;
 }
@@ -86,11 +86,10 @@ thead, tbody, tfoot {
 .textbox-option {
 	display: block;
 	position: static;
-	
 }
 
-.textbox-option:not(:last-child) {
-	margin-bottom: 8dp;
+.textbox-option + .textbox-option {
+	margin-top: 4dp;
 }
 
 .textbox-sprite {

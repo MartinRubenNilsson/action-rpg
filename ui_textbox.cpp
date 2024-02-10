@@ -9,6 +9,10 @@ namespace ui
 		return (Rml::Input::KeyIdentifier)ev.GetParameter<int>("key_identifier", Rml::Input::KI_UNKNOWN);
 	}
 
+	void _on_textbox_keydown_c();
+	void _on_textbox_keydown_up();
+	void _on_textbox_keydown_down();
+
 	struct TextboxEventListener : Rml::EventListener
 	{
 		void ProcessEvent(Rml::Event& ev) override
@@ -17,16 +21,15 @@ namespace ui
 			switch (ev.GetId()) {
 			case Rml::EventId::Keydown: {
 				switch (_get_key_identifier(ev)) {
-				case Rml::Input::KI_C: {
-					if (!is_textbox_typing())
-						pop_textbox();
-				} break;
-				case Rml::Input::KI_X: {
-					if (is_textbox_typing())
-						skip_textbox_typing();
-					else
-						pop_textbox();
-				} break;
+				case Rml::Input::KI_C:
+					_on_textbox_keydown_c();
+					break;
+				case Rml::Input::KI_UP:
+					_on_textbox_keydown_up();
+					break;
+				case Rml::Input::KI_DOWN:
+					_on_textbox_keydown_down();
+					break;
 				}
 			} break;
 			}
@@ -40,6 +43,7 @@ namespace ui
 		std::string textbox_sprite;
 		bool textbox_has_options = false;
 		std::vector<std::string> textbox_options;
+		size_t textbox_selected_option = 0;
 	}
 
 	extern Rml::Context* _context;
@@ -48,6 +52,36 @@ namespace ui
 	std::deque<Textbox> _textbox_queue;
 	float _textbox_typing_time = 0.f; // time since last character was typed
 	size_t _textbox_typing_counter = 0; // number of characters typed
+
+	void _on_textbox_keydown_c()
+	{
+		if (is_textbox_typing()) {
+			skip_textbox_typing();
+		} else if (_textbox.options_callback &&
+			bindings::textbox_selected_option < bindings::textbox_options.size()) {
+			const std::string& option = bindings::textbox_options[bindings::textbox_selected_option];
+			_textbox.options_callback(option);
+			audio::play("event:/ui/snd_button_click");
+		} else {
+			pop_textbox();
+		}
+	}
+
+	void _on_textbox_keydown_up()
+	{
+		if (bindings::textbox_selected_option > 0) {
+			bindings::textbox_selected_option--;
+			audio::play("event:/ui/snd_button_hover");
+		}
+	}
+
+	void _on_textbox_keydown_down()
+	{
+		if (bindings::textbox_selected_option + 1 < bindings::textbox_options.size()) {
+			bindings::textbox_selected_option++;
+			audio::play("event:/ui/snd_button_hover");
+		}
+	}
 
 	// Returns true if the character at pos is plain text,
 	// defined as a character that is not part of an RML tag.
@@ -131,7 +165,8 @@ namespace ui
 
 		const bool finished_typing = (_textbox_typing_counter == plain_count);
 
-		bindings::textbox_text = _replace_graphical_plain_with_nbsp(_textbox.text, _textbox_typing_counter);
+		bindings::textbox_text = _replace_graphical_plain_with_nbsp(
+			_textbox.text, _textbox_typing_counter);
 		bindings::textbox_has_sprite = !_textbox.sprite.empty();
 		bindings::textbox_sprite = _textbox.sprite;
 		if (finished_typing) {
@@ -140,6 +175,7 @@ namespace ui
 		} else {
 			bindings::textbox_has_options = false;
 			bindings::textbox_options.clear();
+			bindings::textbox_selected_option = 0;
 		}
 	}
 

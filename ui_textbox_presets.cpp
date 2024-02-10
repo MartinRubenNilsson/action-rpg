@@ -29,39 +29,23 @@ namespace ui
 		// PLAYER DIE
 		{
 			auto& tbs = _textbox_presets["player_die"];
-			/*{
-				Textbox& tb = tbs.emplace_back();
-				tb.text = "You are <span style='color: red'>deader than dead</span>!<br/>Oh, what a pity that your adventure should end here, and so soon...";
-				tb.sprite = TEXTBOX_SPRITE_SKULL;
-			}
 			{
 				Textbox& tb = tbs.emplace_back();
-				tb.text = "But wait! There is still hope! Your <span style='color: red'>soul</span> is not yet ready to leave this world...";
-			}*/
+				tb.text = "You are <span style='color: red'>deader than dead</span>!<br/>Oh, what a pity that your adventure should end here, and so soon...";
+				tb.sprite = Textbox::SPRITE_SKULL;
+			}
 			{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "Would you like to try again?";
 				tb.options = { "Yes", "No" };
 				tb.options_callback = [](const std::string& option) {
 					if (option == "Yes") {
-						push_event({ Event::RestartMap });
+						bindings::on_click_restart();
 					} else if (option == "No") {
-						push_event({ Event::GoToMainMenu });
+						bindings::on_click_main_menu();
 					}
 				};
 			}
 		}
-
-		/* // EXAMINE BLUE GRATE
-		{
-			Textbox& textbox = _textbox_presets["examine_blue_grate"];
-			textbox.text = "You stick your hands inside the blue grate. Feeling around with your hands, you find...";
-		}
-		{
-			Textbox& textbox = _textbox_presets["examine_blue_grate"];
-			textbox.text = "...an expensive-looking <span style='color: #ffd700'>golden key</span>!<br/>Score!";
-			textbox.sprite = TEXTBOX_SPRITE_GOLDEN_KEY;
-			textbox.opening_sound = TEXTBOX_OPENING_SOUND_ITEM_FANFARE;
-		}*/
 	}
 }

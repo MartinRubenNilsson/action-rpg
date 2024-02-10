@@ -2,11 +2,19 @@
 <head>
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
+	<style>
+		.selected {
+			color: rgb(130, 98, 160);
+		}
+	</style>
 </head>
 <body>
 	<div class="fullscreen-container" data-model="data_model">
 		<div class="textbox-options" data-if="textbox_has_options">
-			<p class="textbox-option" data-for="option : textbox_options">{{option}}</p>
+			<p data-for="option, i : textbox_options"
+				class="textbox-option" data-class-selected="i == textbox_selected_option">
+				{{option}}
+			</p>
 		</div>
 		<div class="textbox">
 			<img class="textbox-sprite" data-if="textbox_has_sprite" data-attr-sprite="textbox_sprite"/>

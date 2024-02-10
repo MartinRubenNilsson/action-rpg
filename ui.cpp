@@ -84,45 +84,48 @@ namespace ui
 			pop_menu();
 	}
 
-	void _on_click_play()
+	namespace bindings
 	{
-		pop_all_menus();
-		set_hud_visible(true);
-		push_event({ Event::PlayGame });
-	}
+		void on_click_play()
+		{
+			pop_all_menus();
+			set_hud_visible(true);
+			_events.push_back({ Event::PlayGame });
+		}
 
-	void _on_click_settings() {
-		push_menu(MenuType::Settings);
-	}
+		void on_click_settings() {
+			push_menu(MenuType::Settings);
+		}
 
-	void _on_click_credits() {
-		push_menu(MenuType::Credits);
-	}
+		void on_click_credits() {
+			push_menu(MenuType::Credits);
+		}
 
-	void _on_click_quit() {
-		push_event({ Event::QuitApp });
-	}
+		void on_click_quit() {
+			_events.push_back({ Event::QuitApp });
+		}
 
-	void _on_click_back() {
-		pop_menu();
-	}
+		void on_click_back() {
+			pop_menu();
+		}
 
-	void _on_click_resume() {
-		pop_menu();
-	}
+		void on_click_resume() {
+			pop_menu();
+		}
 
-	void _on_click_restart()
-	{
-		pop_menu();
-		push_event({ Event::RestartMap });
-	}
+		void on_click_restart()
+		{
+			pop_menu();
+			_events.push_back({ Event::RestartMap });
+		}
 
-	void _on_click_main_menu()
-	{
-		set_hud_visible(false);
-		pop_all_menus();
-		push_menu(MenuType::Main);
-		push_event({ Event::GoToMainMenu });
+		void on_click_main_menu()
+		{
+			set_hud_visible(false);
+			pop_all_menus();
+			push_menu(MenuType::Main);
+			_events.push_back({ Event::GoToMainMenu });
+		}
 	}
 
 	void initialize()
@@ -366,10 +369,6 @@ namespace ui
 	{
 		if (Rml::ElementDocument* doc = _context->GetDocument(name))
 			doc->Show();
-	}
-
-	void push_event(const Event& ev) {
-		_events.push_back(ev);
 	}
 
 	bool poll_event(Event& ev)

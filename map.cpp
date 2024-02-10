@@ -75,13 +75,9 @@ namespace map
 		_request = Request::None;
 		_name_of_map_to_open.clear();
 
-		std::string current_music;
-		std::string next_music;
-
 		// CLOSE MAP
 
 		if (_map) {
-			tiled::get(_map->properties, "music", current_music);
 			ecs::clear();
 			ui::close_all_textboxes();
 			audio::stop_all_in_bus(audio::BUS_SOUND);
@@ -95,12 +91,16 @@ namespace map
 			return;
 		}
 
-		tiled::get(_map->properties, "music", next_music);
-		if (current_music != next_music) {
-			if (!current_music.empty())
-				audio::stop("event:/" + current_music);
-			if (!next_music.empty())
-				audio::play("event:/" + next_music);
+		// PLAY MUSIC
+		{
+			std::string music;
+			if (tiled::get(_map->properties, "music", music)) {
+				std::string event_path = "event:/" + music;
+				if (!audio::is_any_playing(event_path)) {
+					audio::stop_all_in_bus(audio::BUS_MUSIC);
+					audio::play(event_path);
+				}
+			}
 		}
 
 		// Create object entities first. This is because we want to be sure that the

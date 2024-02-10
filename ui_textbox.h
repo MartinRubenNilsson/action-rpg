@@ -11,6 +11,7 @@ namespace ui
 		extern std::string textbox_sprite;
 		extern bool textbox_has_options;
 		extern std::vector<std::string> textbox_options;
+		extern size_t textbox_selected_option;
 	}
 
 	void add_textbox_event_listeners();
