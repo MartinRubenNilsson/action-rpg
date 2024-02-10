@@ -5,6 +5,7 @@
 #include "ui_menus.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
+#include "ui_textbox_presets.h"
 #include "console.h"
 #include "audio.h"
 #include "window.h"
@@ -72,7 +73,7 @@ namespace ui
 	Rml::Context* _context = nullptr;
 	Rml::Context* _debugger_context = nullptr; // The debugger needs its own context to render at the right size.
 	CommonEventListener _common_event_listener;
-	Event _event;
+	std::vector<Event> _events;
 
 	void _on_escape_key_pressed()
 	{
@@ -87,7 +88,7 @@ namespace ui
 	{
 		pop_all_menus();
 		set_hud_visible(true);
-		_event = Event::PlayGame;
+		push_event({ Event::PlayGame });
 	}
 
 	void _on_click_settings() {
@@ -99,7 +100,7 @@ namespace ui
 	}
 
 	void _on_click_quit() {
-		_event = Event::QuitApp;
+		push_event({ Event::QuitApp });
 	}
 
 	void _on_click_back() {
@@ -113,7 +114,7 @@ namespace ui
 	void _on_click_restart()
 	{
 		pop_menu();
-		_event = Event::RestartMap;
+		push_event({ Event::RestartMap });
 	}
 
 	void _on_click_main_menu()
@@ -121,7 +122,7 @@ namespace ui
 		set_hud_visible(false);
 		pop_all_menus();
 		push_menu(MenuType::Main);
-		_event = Event::GoToMainMenu;
+		push_event({ Event::GoToMainMenu });
 	}
 
 	void initialize()
@@ -268,7 +269,7 @@ namespace ui
 		}
 	}
 
-	void process_event(const sf::Event& ev)
+	void process_window_event(const sf::Event& ev)
 	{
 		int key_modifier_state = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
@@ -367,11 +368,16 @@ namespace ui
 			doc->Show();
 	}
 
-	Event poll_event()
+	void push_event(const Event& ev) {
+		_events.push_back(ev);
+	}
+
+	bool poll_event(Event& ev)
 	{
-		Event ev = _event;
-		_event = Event::None;
-		return ev;
+		if (_events.empty()) return false;
+		ev = _events.back();
+		_events.pop_back();
+		return true;
 	}
 
 	bool should_pause_game() {

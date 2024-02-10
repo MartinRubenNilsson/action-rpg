@@ -58,7 +58,7 @@ namespace ecs
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
 		uint32_t _animation_duration_ms = 0;
-		size_t _animation_loop_count = 0;
+		uint32_t _animation_loop_count = 0;
 
 		void initialize_animation();
 	};

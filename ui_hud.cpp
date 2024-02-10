@@ -3,8 +3,12 @@
 
 namespace ui
 {
+	namespace bindings
+	{
+		int hud_player_health = 0;
+	}
+
 	extern Rml::Context* _context;
-	int hud_player_health = 0; // int instead of uint32_t to avoid underflow problems
 
 	Rml::ElementDocument* _get_hud_document() {
 		return _context->GetDocument("hud");

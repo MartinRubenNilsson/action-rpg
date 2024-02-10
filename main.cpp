@@ -105,29 +105,33 @@ int main(int argc, char* argv[])
                 if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
                     continue;
                 console::process_event(ev);
-                ui::process_event(ev);
+                ui::process_window_event(ev);
                 if (!ui::should_pause_game())
                     ecs::process_event(ev);
             }
         }
 
         // PROCESS UI EVENTS
-
-        switch (ui::poll_event()) {
-        case ui::Event::PlayGame:
-            background::type = background::Type::None;
-            map::open("summer_forest");
-            break;
-        case ui::Event::RestartMap:
-            map::reset();
-			break;
-        case ui::Event::GoToMainMenu:
-            background::type = background::Type::MountainDusk;
-            map::close();
-            break;
-        case ui::Event::QuitApp:
-            window.close();
-            break;
+        {
+            ui::Event ev;
+            while (ui::poll_event(ev)) {
+                switch (ev.type) {
+				case ui::Event::PlayGame:
+					background::type = background::Type::None;
+					map::open("summer_forest");
+					break;
+				case ui::Event::RestartMap:
+					map::reset();
+					break;
+				case ui::Event::GoToMainMenu:
+					background::type = background::Type::MountainDusk;
+					map::close();
+					break;
+				case ui::Event::QuitApp:
+					window.close();
+					break;
+				}
+			}
         }
 
         // UPDATE

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ui_textbox_presets.h"
+#include "ui.h"
 #include "console.h"
 
 namespace ui
@@ -40,6 +41,14 @@ namespace ui
 			{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "Would you like to try again?";
+				tb.select_options = { "Yes", "No" };
+				tb.select_callback = [](const std::string& option) {
+					if (option == "Yes") {
+						push_event({ Event::RestartMap });
+					} else if (option == "No") {
+						push_event({ Event::GoToMainMenu });
+					}
+				};
 			}
 		}
 

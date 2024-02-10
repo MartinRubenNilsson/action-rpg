@@ -301,7 +301,7 @@ namespace ecs
 
 			// UPDATE HUD
 
-			ui::hud_player_health = player.health;
+			ui::bindings::hud_player_health = player.health;
 
 			// CLEAR INPUT
 
@@ -357,7 +357,7 @@ namespace ecs
 		audio::play("event:/mus_coffin_dance");
 		ui::push_textbox_presets("player_die");
 		ui::pop_textbox();
-		ui::hud_player_health = 0;
+		ui::bindings::hud_player_health = 0;
 		return true;
 	}
 
