@@ -1,9 +1,17 @@
+#include "stdafx.h"
 #include "ui_textbox.h"
-#include "ui.h"
+#include "ui_textbox_presets.h"
 #include "audio.h"
 
 namespace ui
 {
+	namespace bindings
+	{
+		std::string textbox_text; // RML
+		std::string textbox_sprite;
+		bool textbox_sprite_is_set = false;
+	}
+
 	extern Rml::Context* _context;
 
 	bool _textbox_is_open = false;
@@ -11,10 +19,6 @@ namespace ui
 	std::deque<Textbox> _textbox_queue;
 	float _textbox_current_time = 0.f;
 	size_t _textbox_current_length = 0;
-
-	std::string _textbox_text; // RML
-	std::string _textbox_sprite;
-	bool _textbox_sprite_is_set = false;
 
 	// Returns true if the character at pos is plain text,
 	// defined as a character that is not part of an RML tag.
@@ -82,19 +86,23 @@ namespace ui
 				pop_textbox();
 	}
 
+	Rml::ElementDocument* _get_textbox_document() {
+		return _context->GetDocument("textbox");
+	}
+
 	void update_textbox(float dt)
 	{
-		Rml::ElementDocument* doc = _context->GetDocument("textbox");
+		Rml::ElementDocument* doc = _get_textbox_document();
 		if (!doc) return;
 		if (!_textbox_is_open) {
 			doc->Hide();
 			return;
 		}
 		doc->Show();
-		_textbox_text = _textbox.text;
-		_textbox_sprite = _textbox.sprite;
-		_textbox_sprite_is_set = !_textbox.sprite.empty();
-		size_t textbox_length = _get_plain_length(_textbox_text);
+		bindings::textbox_text = _textbox.text;
+		bindings::textbox_sprite = _textbox.sprite;
+		bindings::textbox_sprite_is_set = !_textbox.sprite.empty();
+		size_t textbox_length = _get_plain_length(bindings::textbox_text);
 		if (_textbox_current_length >= textbox_length) {
 			_textbox_current_length = textbox_length;
 			_textbox_current_time = 0.f;
@@ -105,15 +113,14 @@ namespace ui
 			_textbox_current_time += dt;
 			if (_textbox_current_time >= seconds_per_char) {
 				_textbox_current_time -= seconds_per_char;
-				if (isgraph(_get_nth_plain(_textbox_text, _textbox_current_length)))
+				if (isgraph(_get_nth_plain(bindings::textbox_text, _textbox_current_length)))
 					audio::play("event:/" + _textbox.typing_sound);
 				++_textbox_current_length;
 			}
 		} else {
 			_textbox_current_length = textbox_length;
 		}
-		_textbox_text = _replace_graphical_plain_with_nbsp(
-			_textbox_text, _textbox_current_length);
+		bindings::textbox_text = _replace_graphical_plain_with_nbsp(bindings::textbox_text, _textbox_current_length);
 	}
 
 	bool is_textbox_visible() {
@@ -121,11 +128,11 @@ namespace ui
 	}
 
 	bool is_textbox_typing() {
-		return _textbox_current_length < _get_plain_length(_textbox_text);
+		return _textbox_current_length < _get_plain_length(bindings::textbox_text);
 	}
 
 	void skip_textbox_typing() {
-		_textbox_current_length = _get_plain_length(_textbox_text);
+		_textbox_current_length = _get_plain_length(bindings::textbox_text);
 	}
 
 	void open_textbox(const Textbox& textbox)

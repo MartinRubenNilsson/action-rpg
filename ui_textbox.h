@@ -1,8 +1,16 @@
 #pragma once
-#include "ui_textbox_presets.h"
 
 namespace ui
 {
+	struct Textbox;
+
+	namespace bindings
+	{
+		extern std::string textbox_text; // RML
+		extern std::string textbox_sprite;
+		extern bool textbox_sprite_is_set;
+	}
+
 	void update_textbox(float dt);
 
 	bool is_textbox_visible();

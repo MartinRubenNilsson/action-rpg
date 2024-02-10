@@ -1,16 +1,11 @@
+#include "stdafx.h"
 #include "ui_bindings.h"
+#include "ui_hud.h"
+#include "ui_textbox.h"
 #include "console.h"
 
 namespace ui
 {
-	// VARIABLES
-
-	extern int hud_player_health;
-	extern std::string _textbox_text;
-	extern std::string _textbox_sprite;
-	extern bool _textbox_sprite_is_set;
-	//TODO extern int arrowAmmo;
-
 	// CALLBACKS
 
 	void _console_log(const std::string& message) { console::log(message); }
@@ -48,10 +43,10 @@ namespace ui
 
 		// VARIABLES
 
-		data_model.Bind("hud_player_health", &hud_player_health);
-		data_model.Bind("textbox_text", &_textbox_text);
-		data_model.Bind("textbox_sprite", &_textbox_sprite);
-		data_model.Bind("textbox_sprite_is_set", &_textbox_sprite_is_set);
+		data_model.Bind("hud_player_health", &bindings::hud_player_health);
+		data_model.Bind("textbox_text", &bindings::textbox_text);
+		data_model.Bind("textbox_sprite", &bindings::textbox_sprite);
+		data_model.Bind("textbox_sprite_is_set", &bindings::textbox_sprite_is_set);
 		// TODO data_model.Bind("arrowAmmo", &arrowAmmo);
 
 		// CALLBACKS
