@@ -40,6 +40,7 @@ namespace ui
 			{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "Would you like to try again?";
+				tb.select_options = { "Yes", "No" };
 			}
 		}
 
