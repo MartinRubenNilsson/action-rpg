@@ -5,11 +5,11 @@
 
 namespace ui
 {
-	const std::string TEXTBOX_SPRITE_SKULL = "icon-skull";
-	const std::string TEXTBOX_SPRITE_GOLDEN_KEY = "icon-golden-key";
-	const std::string TEXTBOX_OPENING_SOUND_ITEM_FANFARE = "snd_item_fanfare";
-	const std::string TEXTBOX_DEFAULT_TYPING_SOUND = "snd_txt1";
-	extern const float TEXTBOX_DEFAULT_TYPING_SPEED = 25.f;
+	const std::string Textbox::SPRITE_SKULL = "icon-skull";
+	const std::string Textbox::SPRITE_GOLDEN_KEY = "icon-golden-key";
+	const std::string Textbox::OPENING_SOUND_ITEM_FANFARE = "snd_item_fanfare";
+	const std::string Textbox::DEFAULT_TYPING_SOUND = "snd_txt1";
+	const float Textbox::DEFAULT_TYPING_SPEED = 25.f;
 
 	std::unordered_map<std::string, std::vector<Textbox>> _textbox_presets;
 
@@ -29,7 +29,7 @@ namespace ui
 		// PLAYER DIE
 		{
 			auto& tbs = _textbox_presets["player_die"];
-			{
+			/*{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "You are <span style='color: red'>deader than dead</span>!<br/>Oh, what a pity that your adventure should end here, and so soon...";
 				tb.sprite = TEXTBOX_SPRITE_SKULL;
@@ -37,12 +37,12 @@ namespace ui
 			{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "But wait! There is still hope! Your <span style='color: red'>soul</span> is not yet ready to leave this world...";
-			}
+			}*/
 			{
 				Textbox& tb = tbs.emplace_back();
 				tb.text = "Would you like to try again?";
-				tb.select_options = { "Yes", "No" };
-				tb.select_callback = [](const std::string& option) {
+				tb.options = { "Yes", "No" };
+				tb.options_callback = [](const std::string& option) {
 					if (option == "Yes") {
 						push_event({ Event::RestartMap });
 					} else if (option == "No") {
