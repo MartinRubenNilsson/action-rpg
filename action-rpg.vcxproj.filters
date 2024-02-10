@@ -249,6 +249,9 @@
     <ClCompile Include="ecs_tile.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_bomb.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -559,6 +562,9 @@
       <Filter>ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_tile.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_bomb.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
