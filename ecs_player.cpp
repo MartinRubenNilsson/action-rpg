@@ -6,7 +6,6 @@
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
-#include "map.h"
 #include "math_vectors.h"
 #include "physics_helpers.h"
 #include "console.h"
@@ -19,6 +18,8 @@
 #include "random.h"
 #include "tiled.h"
 #include "ecs_bomb.h"
+
+using namespace std::literals::string_literals;
 
 namespace ecs
 {
@@ -154,143 +155,132 @@ namespace ecs
 				player.input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
 			}
 
-			{
-				using namespace std::literals::string_literals;
+			char dir = get_direction(player.facing_direction);
 
-				char dir = get_direction(player.facing_direction);
+			set_direction_for_animation(tile, dir);
 
-				set_direction_for_animation(tile, dir);
+			// Switch statement to handle behavior based on the current state
+			switch (player.state) {
+			case PlayerState::Normal: {
 
-				// Switch statement to handle behavior based on the current state
-				switch (player.state) {
-					case PlayerState::Normal: {
+				// UPDATE PHYSICS
 
-						// UPDATE PHYSICS
+				sf::Vector2f movement_direction;
+				float movement_speed = 0.f;
 
-						sf::Vector2f movement_direction;
-						float movement_speed = 0.f;
+				if (player.input.axis_x || player.input.axis_y) {
 
-						if (player.input.axis_x || player.input.axis_y) {
+					// Determine movement direction
+					movement_direction.x = (float)player.input.axis_x;
+					movement_direction.y = (float)player.input.axis_y;
+					movement_direction = normalize(movement_direction);
 
-							// Determine movement direction
-							movement_direction.x = (float)player.input.axis_x;
-							movement_direction.y = (float)player.input.axis_y;
-							movement_direction = normalize(movement_direction);
-
-							// Determine movement speed
-							if (player.input.stealth) {
-								movement_speed = PLAYER_STEALTH_SPEED;
-							}
-							else if (player.input.run) {
-								movement_speed = PLAYER_RUN_SPEED;
-							}
-							else {
-								movement_speed = PLAYER_WALK_SPEED;
-							}
-						}
-						//} else { // Player is dying
-						//float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
-						//player.facing_direction = rotate(player.facing_direction, spin_speed * dt);
-						//}
-
-						set_linear_velocity(body, movement_direction * movement_speed);
-
-						if (!is_zero(movement_direction)) {
-							player.facing_direction = movement_direction;
-						}
-						// Handling arrow attack
-						if (player.input.arrow_attack && player.arrow_ammo > 0) {
-
-							tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
-							player.bow_shot_timer.start(); // Start the timer with 660 ms
-							tile.animation_loop = false; // Ensure that the animation will not loop
-							player.input.arrow_attack = false;
-							player.state = PlayerState::Attacking;
-						}
-						else if (movement_speed >= PLAYER_RUN_SPEED) {
-							tile.set_class("run_"s + dir);
-							tile.animation_speed = 1.2f;
-							tile.animation_loop = true;
-						}
-						else if (movement_speed >= PLAYER_WALK_SPEED) {
-							tile.set_class("walk_"s + dir);
-							tile.animation_speed = 1.2f;
-							tile.animation_loop = true;
-						}
-						else {
-							tile.set_class("idle_"s + dir);
-							tile.animation_loop = true;
-						}
-
-						// TODO refactor sometime
-						if (player.input.interact) {
-							sf::Vector2f box_center = player_position + player.facing_direction * 16.f;
-							sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
-							sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-							std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
-							for (const BoxHit& hit : boxcast(box_min, box_max)) {
-								if (hit.entity == player_entity) continue;
-								std::string class_ = get_class(hit.entity);
-								if (class_ == "slime") {
-									destroy_at_end_of_frame(hit.entity);
-								}
-								else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
-									std::string tile_class = tile->get_class();
-									if (tile_class == "grass") {
-										audio_events_to_play.insert("event:/snd_cut_grass");
-										if (random::coin_flip(0.2f))
-											create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
-										destroy_at_end_of_frame(hit.entity);
-									}
-								}
-								else {
-									std::string string;
-									if (get_string(hit.entity, "textbox", string)) {
-										ui::push_textbox_presets(string);
-										ui::pop_textbox();
-									}
-									if (get_string(hit.entity, "sound", string))
-										audio_events_to_play.insert(string);
-								}
-							}
-							for (const std::string& audio_event : audio_events_to_play)
-								audio::play(audio_event);
-						}
-
-						break;
+					// Determine movement speed
+					if (player.input.stealth) {
+						movement_speed = PLAYER_STEALTH_SPEED;
 					}
-					case PlayerState::Attacking: {
-						// Lock movement
-						set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
-
-						if (player.bow_shot_timer.update(dt)) {
-							fire_arrow(player_position, player.facing_direction, 1);
-							player.arrow_ammo--;
-						}
-
-						//if (player.bow_shot_timer.update(dt)) {
-						if (tile.animation_timer.finished()) {
-							// Fire the arrow and then...
-							player.state = PlayerState::Normal; // Go back to normal after attack
-						}
-						break;
+					else if (player.input.run) {
+						movement_speed = PLAYER_RUN_SPEED;
 					}
-					case PlayerState::Dying: {
-						// Handle dying animation and logic
-						// Make sure no other input or updates occur
-						break;
-					}
-					case PlayerState::Dead: {
-						// The player is dead, no input or updates
-						// Wait for respawn or game over logic
-						break;
+					else {
+						movement_speed = PLAYER_WALK_SPEED;
 					}
 				}
+				//} else { // Player is dying
+				//float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
+				//player.facing_direction = rotate(player.facing_direction, spin_speed * dt);
+				//}
+
+				set_linear_velocity(body, movement_direction * movement_speed);
+
+				if (!is_zero(movement_direction)) {
+					player.facing_direction = movement_direction;
+				}
+				// Handling arrow attack
+				if (player.input.arrow_attack && player.arrow_ammo > 0) {
+
+					tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
+					player.bow_shot_timer.start(); // Start the timer with 660 ms
+					tile.animation_loop = false; // Ensure that the animation will not loop
+					player.input.arrow_attack = false;
+					player.state = PlayerState::Attacking;
+				}
+				else if (movement_speed >= PLAYER_RUN_SPEED) {
+					tile.set_class("run_"s + dir);
+					tile.animation_speed = 1.2f;
+					tile.animation_loop = true;
+				}
+				else if (movement_speed >= PLAYER_WALK_SPEED) {
+					tile.set_class("walk_"s + dir);
+					tile.animation_speed = 1.2f;
+					tile.animation_loop = true;
+				}
+				else {
+					tile.set_class("idle_"s + dir);
+					tile.animation_loop = true;
+				}
+
+				// HANDLE INTERACTION
+
+				// TODO refactor sometime
+				if (player.input.interact) {
+					sf::Vector2f box_center = player_position + player.facing_direction * 16.f;
+					sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
+					sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
+					std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
+					for (const BoxHit& hit : boxcast(box_min, box_max)) {
+						if (hit.entity == player_entity) continue;
+						std::string class_ = get_class(hit.entity);
+						if (class_ == "slime") {
+							destroy_at_end_of_frame(hit.entity);
+						}
+						else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
+							std::string tile_class = tile->get_class();
+							if (tile_class == "grass") {
+								audio_events_to_play.insert("event:/snd_cut_grass");
+								if (random::coin_flip(0.2f))
+									create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
+								destroy_at_end_of_frame(hit.entity);
+							}
+						}
+						else {
+							std::string string;
+							if (get_string(hit.entity, "textbox", string)) {
+								ui::push_textbox_presets(string);
+								ui::pop_textbox();
+							}
+							if (get_string(hit.entity, "sound", string))
+								audio_events_to_play.insert(string);
+						}
+					}
+					for (const std::string& audio_event : audio_events_to_play)
+						audio::play(audio_event);
+				}
+			} break;
+			case PlayerState::Attacking: {
+				// Lock movement
+				set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
+
+				if (player.bow_shot_timer.update(dt)) {
+					fire_arrow(player_position, player.facing_direction, 1);
+					player.arrow_ammo--;
+				}
+
+				//if (player.bow_shot_timer.update(dt)) {
+				if (tile.animation_timer.finished()) {
+					// Fire the arrow and then...
+					player.state = PlayerState::Normal; // Go back to normal after attack
+				}
+			} break;
+			case PlayerState::Dying: {
+				// Handle dying animation and logic
+				// Make sure no other input or updates occur
+			} break;
+			case PlayerState::Dead: {
+				// The player is dead, no input or updates
+				// Wait for respawn or game over logic
+			} break;
 			}
-
-			// HANDLE INTERACTION
-
-			
 
 			// UPDATE COLOR
 
