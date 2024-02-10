@@ -18,6 +18,7 @@
 #include "ecs_pickups.h"
 #include "random.h"
 #include "tiled.h"
+#include "ecs_bomb.h"
 
 namespace ecs
 {
@@ -221,6 +222,7 @@ namespace ecs
 							tile.animation_loop = true;
 						}
 
+						// TODO refactor sometime
 						if (player.input.interact) {
 							sf::Vector2f box_center = player_position + player.facing_direction * 16.f;
 							sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
@@ -331,6 +333,8 @@ namespace ecs
 				player.arrow_ammo += 5;
 			}
 
+			// Use magic enum to display player state
+			ImGui::Text("Player State: %s", magic_enum::enum_name(player.state).data());
 			ImGui::Text("Current Health: %d", player.health);
 			ImGui::Text("Current Ammo: %d", player.arrow_ammo);
 
