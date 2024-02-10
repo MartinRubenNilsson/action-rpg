@@ -30,7 +30,7 @@ namespace ecs
 		, _frame(tile)
 	{
 		assert(tile);
-		initialize_animation_state();
+		initialize_animation();
 
 		std::string shader_name;
 		if (tiled::get(tile->properties, "shader", shader_name)) {
@@ -48,7 +48,7 @@ namespace ecs
 			if (tile.class_ == class_) {
 				_tile = &tile;
 				_frame = &tile;
-				initialize_animation_state();
+				initialize_animation();
 				return true;
 			}
 		}
@@ -73,7 +73,7 @@ namespace ecs
 			if (tile.class_ == class_) {
 				_tile = &tile;
 				_frame = &tile;
-				initialize_animation_state();
+				initialize_animation();
 				return true;
 			}
 		}
@@ -92,23 +92,26 @@ namespace ecs
 		return !_tile->animation.empty();
 	}
 
+	float Tile::get_animation_duration() const {
+		return _animation_duration_ms / 1000.f;
+	}
+
 	void Tile::update_animation(float dt)
 	{
-		uint32_t duration = get_animation_duration_in_ms();
-		if (!duration) {
-			_animation_loop_count = 0;
-			return;
-		}
-		if (animation_timer.update(animation_speed * dt, animation_loop))
+		if (!_animation_duration_ms) return;
+		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
 			++_animation_loop_count;
+			if (animation_flip_x_on_loop)
+				flip_x = !flip_x;
+		}
 		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
-		uint32_t time = time_in_ms % duration;
+		uint32_t time = time_in_ms % _animation_duration_ms;
 		uint32_t current_time = 0;
 		for (const tiled::Frame& frame : _tile->animation) {
 			current_time += frame.duration;
 			if (time < current_time) {
 				_frame = frame.tile;
-				return;
+				break;
 			}
 		}
 	}
@@ -134,17 +137,12 @@ namespace ecs
 		return sprite;
 	}
 
-	uint32_t Tile::get_animation_duration_in_ms() const
+	void Tile::initialize_animation()
 	{
-		uint32_t duration_in_ms = 0;
+		_animation_duration_ms = 0;
 		for (const tiled::Frame& frame : _tile->animation)
-			duration_in_ms += frame.duration;
-		return duration_in_ms;
-	}
-
-	void Tile::initialize_animation_state()
-	{
-		animation_timer = Timer(get_animation_duration_in_ms() / 1000.f);
+			_animation_duration_ms += frame.duration;
+		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
 		_animation_loop_count = 0;
 	}

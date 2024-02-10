@@ -40,6 +40,7 @@ namespace ecs
 		Timer animation_timer;
 		float animation_speed = 1.f;
 		bool animation_loop = true;
+		bool animation_flip_x_on_loop = false;
 		
 		sf::Sprite get_sprite() const;
 
@@ -49,16 +50,17 @@ namespace ecs
 		std::string get_tileset_name() const;
 
 		bool is_animated() const;
+		float get_animation_duration() const;
 		void update_animation(float dt);
-		size_t get_animation_loop_count() const { return _animation_loop_count; }
+		//size_t get_animation_loop_count() const { return _animation_loop_count; }
 
 	private:
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
+		uint32_t _animation_duration_ms = 0;
 		size_t _animation_loop_count = 0;
 
-		uint32_t get_animation_duration_in_ms() const;
-		void initialize_animation_state();
+		void initialize_animation();
 	};
 
 	void update_tiles(float dt);
