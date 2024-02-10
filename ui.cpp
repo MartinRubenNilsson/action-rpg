@@ -169,7 +169,6 @@ namespace ui
 	void add_event_listeners()
 	{
 		// Add common event listener to all documents.
-
 		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
 			Rml::ElementDocument* doc = _context->GetDocument(i);
 			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
@@ -177,6 +176,7 @@ namespace ui
 		}
 
 		add_menu_event_listeners();
+		add_textbox_event_listeners();
 	}
 
 	Rml::Input::KeyIdentifier _sfml_key_to_rml_key(sf::Keyboard::Key key)

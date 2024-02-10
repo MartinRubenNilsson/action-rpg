@@ -3,15 +3,14 @@
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
 </head>
-<body data-model="data_model"
-	data-event-keydown="on_textbox_keydown">
-	<div class="fullscreen-container">
+<body>
+	<div class="fullscreen-container" data-model="data_model">
+		<div class="textbox-options" data-if="textbox_has_options">
+			<p class="textbox-option" data-for="option : textbox_options">{{option}}</p>
+		</div>
 		<div class="textbox">
-			<img class="textbox-sprite"
-				data-if="textbox_sprite_is_set"
-				data-attr-sprite="textbox_sprite"/>
-			<p class="textbox-text"
-				data-rml="textbox_text"></p>
+			<img class="textbox-sprite" data-if="textbox_has_sprite" data-attr-sprite="textbox_sprite"/>
+			<p class="textbox-text" data-rml="textbox_text"></p>
 		</div>
 	</div>
 </body>

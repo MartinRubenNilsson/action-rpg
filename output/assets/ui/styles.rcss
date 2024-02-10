@@ -73,6 +73,26 @@ thead, tbody, tfoot {
     bottom: 6dp;
 }
 
+.textbox-options {
+	display: inline-block;
+	position: absolute;
+	left: 6dp;
+    top: 6dp;
+	padding: 4dp;
+	background: black;
+	border: 1dp;
+}
+
+.textbox-option {
+	display: block;
+	position: static;
+	
+}
+
+.textbox-option:not(:last-child) {
+	margin-bottom: 8dp;
+}
+
 .textbox-sprite {
 	display: inline-block;
 	vertical-align: top;
@@ -84,7 +104,6 @@ thead, tbody, tfoot {
 .textbox-text {
 	display: inline-block;
 	vertical-align: top;
-	width: 256dp; /* TODO: tweak */
+	width: 256dp;
 	height: 32dp;
-	/* white-space: pre-wrap; */
 }

@@ -7,10 +7,13 @@ namespace ui
 	namespace bindings
 	{
 		extern std::string textbox_text; // RML
+		extern bool textbox_has_sprite;
 		extern std::string textbox_sprite;
-		extern bool textbox_sprite_is_set;
+		extern bool textbox_has_options;
+		extern std::vector<std::string> textbox_options;
 	}
 
+	void add_textbox_event_listeners();
 	void update_textbox(float dt);
 
 	bool is_textbox_visible();
