@@ -3,8 +3,13 @@
 	<link type="text/rcss" href="styles.rcss"/>
 	<link type="text/rcss" href="spritesheets.rcss"/>
 	<style>
+		@keyframes blink-animation {
+			from { color: white; }
+			to { color: rgb(100, 100, 100); }
+		}
+
 		.selected {
-			color: rgb(130, 98, 160);
+			animation: 0.25s cubic infinite alternate blink-animation;
 		}
 	</style>
 </head>

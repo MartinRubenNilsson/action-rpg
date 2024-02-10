@@ -44,6 +44,16 @@ namespace ui
 		bool textbox_has_options = false;
 		std::vector<std::string> textbox_options;
 		size_t textbox_selected_option = 0;
+
+		void _clear_textbox_bindings()
+		{
+			textbox_text.clear();
+			textbox_has_sprite = false;
+			textbox_sprite.clear();
+			textbox_has_options = false;
+			textbox_options.clear();
+			textbox_selected_option = 0;
+		}
 	}
 
 	extern Rml::Context* _context;
@@ -214,6 +224,7 @@ namespace ui
 	{
 		_set_textbox_visible(false);
 		_textbox = Textbox();
+		bindings::_clear_textbox_bindings();
 	}
 
 	void close_all_textboxes()
