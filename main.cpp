@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
                         ui::debug = !ui::debug;
 #endif
                 } else if (ev.type == sf::Event::MouseButtonPressed) {
-#if 1
+#if 0
                     if (ev.mouseButton.button == sf::Mouse::Left) {
                         sf::Vector2f mouse_pos((float)ev.mouseButton.x, (float)ev.mouseButton.y);
 						postprocess::shockwaves.emplace_back(mouse_pos, 0.1f, 0.1f, 0.1f);

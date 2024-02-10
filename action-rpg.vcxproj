@@ -81,6 +81,7 @@
       <ForcedUsingFiles>
       </ForcedUsingFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BuildStlModules>true</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -118,6 +119,7 @@
       <ForcedUsingFiles>
       </ForcedUsingFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <BuildStlModules>true</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

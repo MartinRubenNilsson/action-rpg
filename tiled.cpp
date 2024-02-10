@@ -18,12 +18,12 @@ namespace tiled
 	}
 
 	FlipFlags _get_flip_flags(uint32_t gid_with_flip_flags) {
-		FlipFlags flip_flags = FLIP_NONE;
+		uint8_t flip_flags = FLIP_NONE;
 		if (gid_with_flip_flags & FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
 		if (gid_with_flip_flags & FLIP_VERTICAL_BIT) flip_flags |= FLIP_VERTICAL;
 		if (gid_with_flip_flags & FLIP_DIAGONAL_BIT) flip_flags |= FLIP_DIAGONAL;
 		if (gid_with_flip_flags & FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
-		return flip_flags;
+		return (FlipFlags)flip_flags;
 	}
 
 	std::vector<Tileset> _tilesets;

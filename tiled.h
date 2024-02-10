@@ -28,7 +28,6 @@ namespace tiled
 		FLIP_DIAGONAL   = 1 << 2, // in orthogonal and isometric maps
 		FLIP_ROTATE_60  = FLIP_DIAGONAL, // in hexagonal maps
 		FLIP_ROTATE_120 = 1 << 3, // in hexagonal maps
-		_entt_enum_as_bitmask
 	};
 
 	struct Object
