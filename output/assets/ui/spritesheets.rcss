@@ -6,6 +6,13 @@
 
 @spritesheet 
 {
+	src: hud.png;
+	hud-heart-full: 16px 16px 16px 16px;
+	hud-heart-empty: 64px 16px 16px 16px;
+}
+
+@spritesheet 
+{
 	src: spritesheet_icons.png;
 	icon-apple: 0px 0px 32px 32px;
 	icon-arrow: 32px 0px 32px 32px;

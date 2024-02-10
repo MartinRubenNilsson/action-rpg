@@ -36,6 +36,7 @@ namespace ui
 		// BIND VARIABLES
 
 		data_model.Bind("hud_player_health", &bindings::hud_player_health);
+
 		data_model.Bind("textbox_text", &bindings::textbox_text);
 		data_model.Bind("textbox_has_sprite", &bindings::textbox_has_sprite);
 		data_model.Bind("textbox_sprite", &bindings::textbox_sprite);

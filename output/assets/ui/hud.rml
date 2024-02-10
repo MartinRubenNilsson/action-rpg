@@ -4,16 +4,16 @@
 	<link type="text/rcss" href="spritesheets.rcss"/>
 	<style>
 		.heart {
-			width: 16dp;
-			height: 16dp;
+			margin-top: 3dp;
+			margin-left: 3dp;
 		}
 	</style>
 </head>
-<body data-model="data_model">
-	<div class="fullscreen-container">
-		<img class="heart" data-visible="hud_player_health >= 1" sprite="icon-heart"/>
-		<img class="heart" data-visible="hud_player_health >= 2" sprite="icon-heart"/>
-		<img class="heart" data-visible="hud_player_health >= 3" sprite="icon-heart"/>
+<body>
+	<div class="fullscreen-container" data-model="data_model">
+		<img class="heart" data-attr-sprite="hud_player_health >= 1 ? 'hud-heart-full' : 'hud-heart-empty'"/>
+		<img class="heart" data-attr-sprite="hud_player_health >= 2 ? 'hud-heart-full' : 'hud-heart-empty'"/>
+		<img class="heart" data-attr-sprite="hud_player_health >= 3 ? 'hud-heart-full' : 'hud-heart-empty'"/>
 	</div>
 </body>
 </rml>
