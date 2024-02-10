@@ -67,8 +67,13 @@ int main(int argc, char* argv[])
 #endif
 
     sf::Clock clock;
-    sf::RenderTexture render_texture;
-    render_texture.create(window.getSize().x, window.getSize().y);
+
+    sf::RenderTexture rts[2];
+    for (sf::RenderTexture& rt : rts)
+		rt.create(window.getSize().x, window.getSize().y);
+    sf::RenderTexture* target = &rts[0];
+    sf::RenderTexture* source = &rts[1];
+
     bool debug_stats = false;
 
     // GAME LOOP
@@ -79,11 +84,12 @@ int main(int argc, char* argv[])
         {
             sf::Event ev;
             while (window::poll_event(ev)) {
-                if (ev.type == sf::Event::Closed)
+                if (ev.type == sf::Event::Closed) {
                     window.close();
-                if (ev.type == sf::Event::Resized)
-					render_texture.create(ev.size.width, ev.size.height);
-                else if (ev.type == sf::Event::KeyPressed) {
+                } if (ev.type == sf::Event::Resized) {
+                    for (sf::RenderTexture& rt : rts)
+                        rt.create(window.getSize().x, window.getSize().y);
+                } else if (ev.type == sf::Event::KeyPressed) {
 #ifdef _DEBUG
                     if (ev.key.code == sf::Keyboard::Backslash)
                         console::toggle_visible();
@@ -100,7 +106,14 @@ int main(int argc, char* argv[])
                     else if (ev.key.code == sf::Keyboard::F6)
                         ui::debug = !ui::debug;
 #endif
-                }
+                } else if (ev.type == sf::Event::MouseButtonPressed) {
+#if 1
+                    if (ev.mouseButton.button == sf::Mouse::Left) {
+                        sf::Vector2f mouse_pos((float)ev.mouseButton.x, (float)ev.mouseButton.y);
+						postprocess::shockwaves.emplace_back(mouse_pos, 0.1f, 0.1f, 0.1f);
+					}
+#endif
+				}
                 ImGui::SFML::ProcessEvent(window, ev);
                 if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
                     continue;
@@ -158,37 +171,28 @@ int main(int argc, char* argv[])
             ImGui::End();
         }
 
-        // RENDER TO TEXTURE
+        // RENDER BACKGROUND, ECS
 
-        render_texture.clear();
-        background::render(render_texture);
-        ecs::render(render_texture);
-        render_texture.display();
+        target->clear();
+        target->setView(window::get_default_view());
+		background::render(*target);
+		ecs::render(*target);
+        target->display();
+        std::swap(target, source);
 
-        // RENDER TO WINDOW
+        // RENDER SHOCKWAVES
 
-        window.clear();
-
-#if 0
-        // SHOCKWAVE POSTPROCESSING EFFECT
-        {
-            static sf::Vector2f center(0.5f, 0.5f);
-            static float force = 0.0f;
-            static float size = 0.15f;
-            static float thickness = 0.05f;
-            ImGui::Begin("Shockwave");
-            ImGui::SliderFloat("Center X", &center.x, 0.0f, (float)window.getSize().x);
-            ImGui::SliderFloat("Center Y", &center.y, 0.0f, (float)window.getSize().y);
-            ImGui::SliderFloat("Force", &force, 0.0f, 1.0f);
-            ImGui::SliderFloat("Size", &size, 0.0f, 1.0f);
-            ImGui::SliderFloat("Thickness", &thickness, 0.0f, 1.0f);
-            ImGui::End();
-            postprocess::shockwave(window, render_texture.getTexture(), center, force, size, thickness);
+        for (const postprocess::Shockwave& shockwave : postprocess::shockwaves) {
+            target->setView(target->getDefaultView());
+            postprocess::render_shockwave(
+                *target, source->getTexture(), shockwave);
+            target->display();
+            std::swap(target, source);
         }
-#else
-        postprocess::copy(window, render_texture.getTexture());
-#endif
 
+        // RENDER UI, IMGUI
+
+        postprocess::render_copy(window, source->getTexture());
         ui::render(window);
         ImGui::SFML::Render(window);
         window.display();
@@ -203,7 +207,7 @@ int main(int argc, char* argv[])
 
     // UNLOAD ASSETS
 
-    tiled::unload_assets(); 
+    tiled::unload_assets();
     background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();

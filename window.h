@@ -2,8 +2,8 @@
 
 namespace window
 {
-	// The view is the area of the game world that is visible to the player.
-	const sf::Vector2u VIEW_SIZE(320u, 180u);
+	sf::Vector2u get_default_size();
+	sf::View get_default_view();
 
 	struct Desc
 	{

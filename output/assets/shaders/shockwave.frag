@@ -5,6 +5,10 @@ uniform float force;
 uniform float size;
 uniform float thickness;
 
+vec2 map_target_to_texture(vec2 pos) {
+    return vec2(pos.x / resolution.x, 1.0 - pos.y / resolution.y);
+}
+
 void main() {
     // Correct aspect ratio for non-square resolutions
     float aspectRatio = resolution.y / resolution.x;
@@ -14,7 +18,7 @@ void main() {
     vec2 scaledUV = uv * vec2(1.0, aspectRatio); // Stretch the UVs to correct the circle's shape
     
     // Adjust the center based on aspect ratio
-    vec2 correctedCenter = (center / resolution) * vec2(1.0, aspectRatio);
+    vec2 correctedCenter = map_target_to_texture(center) * vec2(1.0, aspectRatio);
     
     // Calculate distance from the corrected center
     float distance = length(scaledUV - correctedCenter);

@@ -4,20 +4,21 @@
 
 namespace postprocess
 {
-	void copy(sf::RenderTarget& target, const sf::Texture& source) {
+	std::vector<Shockwave> shockwaves;
+
+	void render_copy(sf::RenderTarget& target, const sf::Texture& source){
 		target.draw(sf::Sprite(source));
 	}
 
-	void shockwave(sf::RenderTarget& target, const sf::Texture& source,
-		const sf::Vector2f& center, float force, float size, float thickness)
+	void render_shockwave(sf::RenderTarget& target, const sf::Texture& source, const Shockwave& shockwave)
 	{
 		std::shared_ptr<sf::Shader> shader = shaders::get("shockwave");
 		if (!shader) return;
 		shader->setUniform("resolution", sf::Vector2f(target.getSize()));
-		shader->setUniform("center", center);
-		shader->setUniform("force", force);
-		shader->setUniform("size", size);
-		shader->setUniform("thickness", thickness);
+		shader->setUniform("center", shockwave.center);
+		shader->setUniform("force", shockwave.force);
+		shader->setUniform("size", shockwave.size);
+		shader->setUniform("thickness", shockwave.thickness);
 		target.draw(sf::Sprite(source), shader.get());
 	}
 }
