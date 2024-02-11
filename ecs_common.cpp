@@ -4,22 +4,44 @@
 
 namespace ecs
 {
-	extern entt::registry _registry;
+	struct Name { std::string value; };
+	struct Class { std::string value; };
 
-	entt::entity find_entity_by_name(const std::string& name)
+	extern entt::registry _registry;
+	std::unordered_set<entt::entity> _entities_to_destroy;
+
+	void update_common(float dt)
 	{
-		if (name.empty()) return entt::null;
-		for (auto [entity, ecs_name] : _registry.view<const Name>().each())
-			if (ecs_name.value == name) return entity;
-		return entt::null;
+		for (entt::entity entity : _entities_to_destroy)
+			if (_registry.valid(entity))
+				_registry.destroy(entity);
+		_entities_to_destroy.clear();
 	}
 
-	entt::entity find_entity_by_class(const std::string& class_)
+	void clear()
 	{
-		if (class_.empty()) return entt::null;
-		for (auto [entity, ecs_class] : _registry.view<const Class>().each())
-			if (ecs_class.value == class_) return entity;
-		return entt::null;
+		_registry.clear();
+		_entities_to_destroy.clear();
+	}
+
+	entt::entity create() {
+		return _registry.create();
+	}
+
+	entt::entity create(entt::entity hint) {
+		return _registry.create(hint);
+	}
+
+	void destroy_immediately(entt::entity entity)
+	{
+		if (_registry.valid(entity))
+			_registry.destroy(entity);
+	}
+
+	void destroy_at_end_of_frame(entt::entity entity)
+	{
+		if (_registry.valid(entity))
+			_entities_to_destroy.insert(entity);
 	}
 
 	void set_name(entt::entity entity, const std::string& name) {
@@ -42,6 +64,22 @@ namespace ecs
 		if (auto class_ = _registry.try_get<const Class>(entity))
 			return class_->value;
 		return "";
+	}
+
+	entt::entity find_entity_by_name(const std::string& name)
+	{
+		if (name.empty()) return entt::null;
+		for (auto [entity, ecs_name] : _registry.view<const Name>().each())
+			if (ecs_name.value == name) return entity;
+		return entt::null;
+	}
+
+	entt::entity find_entity_by_class(const std::string& class_)
+	{
+		if (class_.empty()) return entt::null;
+		for (auto [entity, ecs_class] : _registry.view<const Class>().each())
+			if (ecs_class.value == class_) return entity;
+		return entt::null;
 	}
 
 	void set_properties(entt::entity entity, const Properties& properties)

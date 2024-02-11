@@ -1,19 +1,23 @@
 #pragma once
 
-class Properties;
+class Properties; // Forward declaration
 
 namespace ecs
 {
-	struct Name { std::string value; };
-	struct Class { std::string value; };
+	void update_common(float dt);
 
-	entt::entity find_entity_by_name(const std::string& name);
-	entt::entity find_entity_by_class(const std::string& class_);
+	void clear();
+	entt::entity create();
+	entt::entity create(entt::entity hint);
+	void destroy_immediately(entt::entity entity);
+	void destroy_at_end_of_frame(entt::entity entity);
 
 	void set_name(entt::entity entity, const std::string& name);
 	void set_class(entt::entity entity, const std::string& class_);
 	std::string get_name(entt::entity entity);
 	std::string get_class(entt::entity entity);
+	entt::entity find_entity_by_name(const std::string& name);
+	entt::entity find_entity_by_class(const std::string& class_);
 
 	void set_properties(entt::entity entity, const Properties& properties);
 	bool get_properties(entt::entity entity, Properties& properties);

@@ -15,7 +15,6 @@ namespace ecs
 	int debug_flags = DEBUG_NONE;
 
 	entt::registry _registry;
-	std::unordered_set<entt::entity> _entities_to_destroy;
 
 	void initialize() {
 		initialize_physics();
@@ -27,22 +26,8 @@ namespace ecs
 		shutdown_physics();
 	}
 
-	void clear()
-	{
-		_registry.clear();
-		_entities_to_destroy.clear();
-	}
-
 	void process_event(const sf::Event& event) {
 		process_event_player(event);
-	}
-
-	void _destroy_entities()
-	{
-		for (entt::entity entity : _entities_to_destroy)
-			if (_registry.valid(entity))
-				_registry.destroy(entity);
-		_entities_to_destroy.clear();
 	}
 
 	void update(float dt)
@@ -53,7 +38,7 @@ namespace ecs
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
 		update_physics(dt);
-		_destroy_entities();
+		update_common(dt);
 		update_tiles(dt);
 		update_cameras(dt);
 	}
@@ -122,25 +107,5 @@ namespace ecs
 			debug_ai(target);
 		if (debug_flags & DEBUG_PLAYER)
 			debug_player();
-	}
-
-	entt::entity create() {
-		return _registry.create();
-	}
-
-	entt::entity create(entt::entity hint) {
-		return _registry.create(hint);
-	}
-
-	void destroy_immediately(entt::entity entity)
-	{
-		if (_registry.valid(entity))
-			_registry.destroy(entity);
-	}
-
-	void destroy_at_end_of_frame(entt::entity entity)
-	{
-		if (_registry.valid(entity))
-			_entities_to_destroy.insert(entity);
 	}
 }

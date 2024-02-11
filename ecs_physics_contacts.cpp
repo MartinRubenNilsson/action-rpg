@@ -2,7 +2,6 @@
 #include "ecs_physics_contacts.h"
 #include "physics_helpers.h"
 #include "audio.h"
-#include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_player.h"
 
