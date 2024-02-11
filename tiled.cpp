@@ -31,36 +31,33 @@ namespace tiled
 	std::vector<Object> _templates;
 	std::vector<Map> _maps;
 
-	void _load_property(const pugi::xml_node& node, Property& prop)
+	void _load_properties(const pugi::xml_node& node, Properties& properties)
 	{
-		prop.name = node.attribute("name").as_string();
-		const pugi::char_t* type = node.attribute("type").as_string("string"); // default type is string
-		if (strcmp(type, "string") == 0) {
-			prop.value = node.attribute("value").as_string();
-		} else if (strcmp(type, "int") == 0) {
-			prop.value = node.attribute("value").as_int();
-		} else if (strcmp(type, "float") == 0) {
-			prop.value = node.attribute("value").as_float();
-		} else if (strcmp(type, "bool") == 0) {
-			prop.value = node.attribute("value").as_bool();
-		} else if (strcmp(type, "color") == 0) {
-			// TODO
-		} else if (strcmp(type, "file") == 0) {
-			// TODO
-		} else if (strcmp(type, "object") == 0) {
-			uint32_t id = node.attribute("value").as_uint(); // 0 when no object is referenced
-			prop.value = id ? (entt::entity)id : entt::null;
-		} else if (strcmp(type, "class") == 0) {
-			// TODO
-		} else {
-			assert(false);
+		for (pugi::xml_node prop_node : node.child("properties").children("property")) {
+			const pugi::char_t* name = prop_node.attribute("name").as_string();
+			const pugi::char_t* type = prop_node.attribute("type").as_string("string"); // default type is string
+			pugi::xml_attribute value = prop_node.attribute("value");
+			if (strcmp(type, "string") == 0) {
+				properties.set_string(name, value.as_string());
+			} else if (strcmp(type, "int") == 0) {
+				properties.set_int(name, value.as_int());
+			} else if (strcmp(type, "float") == 0) {
+				properties.set_float(name, value.as_float());
+			} else if (strcmp(type, "bool") == 0) {
+				properties.set_bool(name, value.as_bool());
+			} else if (strcmp(type, "color") == 0) {
+				// TODO
+			} else if (strcmp(type, "file") == 0) {
+				// TODO
+			} else if (strcmp(type, "object") == 0) {
+				uint32_t id = value.as_uint(); // 0 when no object is referenced
+				properties.set_entity(name, id ? (entt::entity)id : entt::null);
+			} else if (strcmp(type, "class") == 0) {
+				// TODO
+			} else {
+				assert(false);
+			}
 		}
-	}
-
-	void _load_properties(const pugi::xml_node& node, std::vector<Property>& properties)
-	{
-		for (pugi::xml_node prop_node : node.child("properties").children("property"))
-			_load_property(prop_node, properties.emplace_back());
 	}
 
 	std::vector<sf::Vector2f> _load_points(const pugi::xml_node& node)
@@ -81,19 +78,7 @@ namespace tiled
 
 	void _load_object(const pugi::xml_node& node, Object& object)
 	{
-		for (pugi::xml_node prop_node : node.child("properties").children("property")) {
-			std::string prop_name = prop_node.attribute("name").as_string();
-			bool found = false;
-			for (Property& prop : object.properties) {
-				if (prop.name == prop_name) {
-					found = true;
-					_load_property(prop_node, prop);
-					break;
-				}
-			}
-			if (!found)
-				_load_property(prop_node, object.properties.emplace_back());
-		}
+		_load_properties(node, object.properties);
 		if (pugi::xml_attribute id = node.attribute("id"))
 			object.entity = (entt::entity)id.as_uint();
 		if (pugi::xml_attribute name = node.attribute("name"))

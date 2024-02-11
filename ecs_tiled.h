@@ -1,20 +1,22 @@
 #pragma once
 
-namespace tiled
-{
-	struct Object;
-}
+class Properties;
 
 namespace ecs
 {
-	void emplace_name_class_and_properties(entt::entity entity, const tiled::Object& object);
+	struct Name { std::string value; };
+	struct Class { std::string value; };
 
 	entt::entity find_entity_by_name(const std::string& name);
 	entt::entity find_entity_by_class(const std::string& class_);
+
 	void set_name(entt::entity entity, const std::string& name);
 	void set_class(entt::entity entity, const std::string& class_);
 	std::string get_name(entt::entity entity);
 	std::string get_class(entt::entity entity);
+
+	void set_properties(entt::entity entity, const Properties& properties);
+	bool get_properties(entt::entity entity, Properties& properties);
 	void set_bool(entt::entity entity, const std::string& name, bool value);
 	bool get_bool(entt::entity entity, const std::string& name, bool& value);
 	void set_int(entt::entity entity, const std::string& name, int value);

@@ -94,7 +94,7 @@ namespace map
 		// PLAY MUSIC
 		{
 			std::string music;
-			if (tiled::get(_map->properties, "music", music)) {
+			if (_map->properties.get_string("music", music)) {
 				std::string event_path = "event:/" + music;
 				if (!audio::is_any_playing(event_path)) {
 					audio::stop_all_in_bus(audio::BUS_MUSIC);
@@ -113,7 +113,9 @@ namespace map
 				// Attempt to use the object's UID as the entity identifier.
 				// If the identifier is already in use, a new one will be generated.
 				entt::entity entity = ecs::create(object.entity);
-				ecs::emplace_name_class_and_properties(entity, object);
+				ecs::set_name(entity, object.name);
+				ecs::set_class(entity, object.class_);
+				ecs::set_properties(entity, object.properties);
 
 				float x = object.position.x;
 				float y = object.position.y;
@@ -246,7 +248,7 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;
-					if (tiled::get(object.properties, "event", event_name))
+					if (object.properties.get_string("event", event_name))
 						audio::play_at_position("event:/" + event_name, sf::Vector2f(x, y));
 				}
 			}
@@ -301,7 +303,7 @@ namespace map
 						float collider_hh = collider.size.y / 2.0f;
 
 						b2FixtureDef fixture_def;
-						tiled::get(collider.properties, "sensor", fixture_def.isSensor);
+						collider.properties.get_bool("sensor", fixture_def.isSensor);
 
 						switch (collider.type) {
 						case tiled::ObjectType::Rectangle:

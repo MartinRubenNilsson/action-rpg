@@ -36,9 +36,9 @@ namespace ecs
 		set(tile);
 
 		std::string shader_name;
-		if (tiled::get(tile->properties, "shader", shader_name)) {
+		if (tile->properties.get_string("shader", shader_name)) {
 			shader = shaders::get(shader_name);
-		} else if (tiled::get(tile->tileset->properties, "shader", shader_name)) {
+		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
 			shader = shaders::get(shader_name);
 		}
 	}
