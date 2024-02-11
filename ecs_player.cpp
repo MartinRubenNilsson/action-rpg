@@ -244,7 +244,7 @@ namespace ecs
 							std::string tile_class = tile->get_tile_class();
 							if (tile_class == "grass") {
 								audio_events_to_play.insert("event:/snd_cut_grass");
-								if (random::coin_flip(0.2f))
+								if (random::chance(0.2f))
 									create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
 								destroy_at_end_of_frame(hit.entity);
 							}

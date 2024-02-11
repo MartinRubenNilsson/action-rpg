@@ -205,7 +205,6 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
-    <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_tiled.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
@@ -313,7 +312,6 @@
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />
     <ClInclude Include="random.h" />
-    <ClInclude Include="random_noise.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_tiled.h" />
     <ClInclude Include="ecs_physics.h" />

@@ -49,9 +49,6 @@
     <ClCompile Include="ecs_camera.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="random_noise.cpp">
-      <Filter>random</Filter>
-    </ClCompile>
     <ClCompile Include="random.cpp">
       <Filter>random</Filter>
     </ClCompile>
@@ -345,9 +342,6 @@
     </ClInclude>
     <ClInclude Include="ecs_camera.h">
       <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="random_noise.h">
-      <Filter>random</Filter>
     </ClInclude>
     <ClInclude Include="random.h">
       <Filter>random</Filter>
