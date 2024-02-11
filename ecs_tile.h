@@ -24,6 +24,7 @@ namespace ecs
 	class Tile
 	{
 	public:
+		Tile(); // creates an invalid tile
 		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position;
@@ -45,20 +46,20 @@ namespace ecs
 		sf::Sprite get_sprite() const;
 
 		bool set_class(const std::string& class_);
-		bool set_class_and_tileset(const std::string& class_, const std::string& tileset_name);
+		//bool set_class_and_tileset(const std::string& class_, const std::string& tileset_name);
 		std::string get_class() const; 
 		std::string get_tileset_name() const;
 
 		bool is_animated() const;
-		float get_animation_duration() const;
+		float get_animation_duration() const; // in seconds
 		void update_animation(float dt);
-		//size_t get_animation_loop_count() const { return _animation_loop_count; }
 
 	private:
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
+		bool _invalid = false;
 		uint32_t _animation_duration_ms = 0;
-		uint32_t _animation_loop_count = 0;
+		uint32_t _animation_loop_count = 0; // unused right now
 
 		void initialize_animation();
 	};

@@ -4,6 +4,8 @@
 
 namespace textures
 {
+	const std::filesystem::path ERROR_TEXTURE_PATH = "assets/textures/error.png";
+
 	extern bool log_errors =
 #ifdef _DEBUG
 		true;
@@ -15,13 +17,13 @@ namespace textures
 	{
 		enum State
 		{
-			Unloaded,
+			NotLoaded,
 			Loaded,
 			Error
 		};
 
 		std::shared_ptr<sf::Texture> texture;
-		State state = Unloaded;
+		State state = NotLoaded;
 
 		void load(const std::string& filename)
 		{
@@ -32,31 +34,21 @@ namespace textures
 		}
 	};
 
-	TextureAsset _error_texture;
 	std::unordered_map<std::filesystem::path, TextureAsset> _texture_cache;
-
-	void unload_assets()
-	{
-		_texture_cache.clear();
-		_error_texture = {};
-	}
-
-	std::shared_ptr<sf::Texture> get_error_texture()
-	{
-		if (_error_texture.state == TextureAsset::Unloaded)
-			_error_texture.load("assets/textures/error.png");
-		return _error_texture.texture;
-	}
 
 	std::shared_ptr<sf::Texture> get(const std::filesystem::path& path)
 	{
 		std::filesystem::path normal_path = path.lexically_normal();
 		TextureAsset& asset = _texture_cache[normal_path];
-		if (asset.state == TextureAsset::Unloaded) {
+		if (asset.state == TextureAsset::NotLoaded) {
 			asset.load(normal_path.string());
-			if (asset.state == TextureAsset::Error)
-				asset.texture = get_error_texture();
+			if (asset.state == TextureAsset::Error && normal_path != ERROR_TEXTURE_PATH)
+				asset.texture = get(ERROR_TEXTURE_PATH);
 		}
 		return asset.texture;
+	}
+
+	void clear_cache() {
+		_texture_cache.clear();
 	}
 }

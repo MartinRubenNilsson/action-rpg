@@ -19,6 +19,8 @@ U vector_cast(const V& v) {
 
 sf::Vector2f operator*(const sf::Vector2f& left, const sf::Vector2f& right);
 sf::Vector2f operator/(const sf::Vector2f& left, const sf::Vector2f& right);
+sf::Vector2f& operator*=(sf::Vector2f& left, const sf::Vector2f& right);
+sf::Vector2f& operator/=(sf::Vector2f& left, const sf::Vector2f& right);
 
 bool is_zero(const sf::Vector2f& v);
 float length_squared(const sf::Vector2f& v);

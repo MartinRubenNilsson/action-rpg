@@ -1,25 +1,24 @@
 #include "stdafx.h"
 #include "ecs_camera.h"
+#include <tweeny/easing.h>
 #include "physics_helpers.h"
 #include "random_noise.h"
 #include "console.h"
-#include <tweeny/easing.h>
 #include "window.h"
 
 namespace ecs
 {
+	const sf::View Camera::DEFAULT_VIEW = window::get_default_view();
+	const float _CAMERA_BLEND_DURATION = 1.f;
+
 	extern entt::registry _registry;
 
-	//const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, (float)window::VIEW_SIZE.x, (float)window::VIEW_SIZE.y));
-	const sf::View DEFAULT_CAMERA_VIEW(sf::FloatRect(0.f, 0.f, (float)320u, (float)180u)); //HACK
-	const float CAMERA_BLEND_DURATION = 1.f;
-
 	entt::entity _active_camera_entity = entt::null;
-	sf::View _last_camera_view = DEFAULT_CAMERA_VIEW;
-	sf::View _active_camera_view = DEFAULT_CAMERA_VIEW;
-	sf::View _blended_camera_view = DEFAULT_CAMERA_VIEW;
+	sf::View _last_camera_view = Camera::DEFAULT_VIEW;
+	sf::View _active_camera_view = Camera::DEFAULT_VIEW;
+	sf::View _blended_camera_view = Camera::DEFAULT_VIEW;
 	float _camera_shake_time = 0.f;
-	float _camera_blend_time = CAMERA_BLEND_DURATION;
+	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
 	// Assumes that the view has a rotation angle of 0.
 	sf::FloatRect _get_rect(const sf::View& view)
@@ -33,10 +32,8 @@ namespace ecs
 	{
 		sf::FloatRect result = rect;
 
-		if (confining_rect.width > 0.f)
-		{
-			if (result.width < confining_rect.width)
-			{
+		if (confining_rect.width > 0.f) {
+			if (result.width < confining_rect.width) {
 				if (result.left < confining_rect.left)
 					result.left = confining_rect.left;
 				if (result.left + result.width > confining_rect.left + confining_rect.width)
@@ -46,10 +43,8 @@ namespace ecs
 			}
 		}
 
-		if (confining_rect.height > 0.f)
-		{
-			if (result.height < confining_rect.height)
-			{
+		if (confining_rect.height > 0.f) {
+			if (result.height < confining_rect.height) {
 				if (result.top < confining_rect.top)
 					result.top = confining_rect.top;
 				if (result.top + result.height > confining_rect.top + confining_rect.height)
@@ -71,14 +66,12 @@ namespace ecs
 	{
 		// Update timers.
 		_camera_shake_time += dt;
-		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, CAMERA_BLEND_DURATION);
+		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, _CAMERA_BLEND_DURATION);
 
-		for (auto [entity, camera] : _registry.view<Camera>().each())
-		{
+		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 			// If the camera has a follow target, center the view on the target.
 			if (_registry.valid(camera.follow) &&
-				_registry.all_of<b2Body*>(camera.follow))
-			{
+				_registry.all_of<b2Body*>(camera.follow)) {
 				camera.view.setCenter(get_world_center(
 					_registry.get<b2Body*>(camera.follow)));
 			}
@@ -111,11 +104,11 @@ namespace ecs
 		if (Camera* camera = _registry.try_get<Camera>(_active_camera_entity)) {
 			_active_camera_view = camera->_shaky_view;
 		} else {
-			_active_camera_view = DEFAULT_CAMERA_VIEW;
+			_active_camera_view = Camera::DEFAULT_VIEW;
 		}
 
 		// Update the blended camera view.
-		float blend_factor = _camera_blend_time / CAMERA_BLEND_DURATION;
+		float blend_factor = _camera_blend_time / _CAMERA_BLEND_DURATION;
 		_blended_camera_view.setCenter(
 			tweeny::easing::exponentialOut.run(blend_factor,
 				_last_camera_view.getCenter(),
@@ -135,7 +128,7 @@ namespace ecs
 		if (!_registry.all_of<Camera>(entity)) return false;
 		_active_camera_entity = entity;
 		_last_camera_view = _active_camera_view;
-		_camera_blend_time = hard_cut ? CAMERA_BLEND_DURATION : 0.f;
+		_camera_blend_time = hard_cut ? _CAMERA_BLEND_DURATION : 0.f;
 		return true;
 	}
 
@@ -151,9 +144,8 @@ namespace ecs
 		entt::entity new_entity = _registry.create();
 		_registry.emplace<Camera>(new_entity, *camera);
 		_registry.remove<Camera>(entity);
-		if (_active_camera_entity == entity) {
+		if (_active_camera_entity == entity)
 			_active_camera_entity = new_entity;
-		}
 		return new_entity;
 	}
 
@@ -164,5 +156,11 @@ namespace ecs
 			return true;
 		}
 		return false;
+	}
+
+	bool add_camera_trauma(float trauma)
+	{
+		if (_active_camera_entity == entt::null) return false;
+		return add_camera_trauma(_active_camera_entity, trauma);
 	}
 }

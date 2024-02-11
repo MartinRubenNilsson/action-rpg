@@ -25,6 +25,12 @@ namespace ecs
 		return SortingLayer::Objects;
 	}
 
+	Tile::Tile()
+		: Tile(&tiled::get_error_tile())
+	{
+		_invalid = true;
+	}
+
 	Tile::Tile(const tiled::Tile* tile)
 		: _tile(tile)
 		, _frame(tile)
@@ -48,37 +54,39 @@ namespace ecs
 			if (tile.class_ == class_) {
 				_tile = &tile;
 				_frame = &tile;
+				_invalid = false;
 				initialize_animation();
 				return true;
 			}
 		}
+		_invalid = true;
 		return false;
 	}
 
-	bool Tile::set_class_and_tileset(const std::string& class_, const std::string& tileset_name)
-	{
-		if (class_.empty() || tileset_name.empty()) return false;
-		if (class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
-		// Find tileset
-		const tiled::Tileset* tileset = nullptr;
-		for (const tiled::Tileset& ts : tiled::get_tilesets()) {
-			if (ts.name == tileset_name) {
-				tileset = &ts;
-				break;
-			}
-		}
-		if (!tileset) return false;
-		// Find tile
-		for (const tiled::Tile& tile : tileset->tiles) {
-			if (tile.class_ == class_) {
-				_tile = &tile;
-				_frame = &tile;
-				initialize_animation();
-				return true;
-			}
-		}
-		return false;
-	}
+	//bool Tile::set_class_and_tileset(const std::string& class_, const std::string& tileset_name)
+	//{
+	//	if (class_.empty() || tileset_name.empty()) return false;
+	//	if (class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
+	//	// Find tileset
+	//	const tiled::Tileset* tileset = nullptr;
+	//	for (const tiled::Tileset& ts : tiled::get_tilesets()) {
+	//		if (ts.name == tileset_name) {
+	//			tileset = &ts;
+	//			break;
+	//		}
+	//	}
+	//	if (!tileset) return false;
+	//	// Find tile
+	//	for (const tiled::Tile& tile : tileset->tiles) {
+	//		if (tile.class_ == class_) {
+	//			_tile = &tile;
+	//			_frame = &tile;
+	//			initialize_animation();
+	//			return true;
+	//		}
+	//	}
+	//	return false;
+	//}
 
 	std::string Tile::get_class() const {
 		return _tile->class_;
@@ -119,20 +127,27 @@ namespace ecs
 	sf::Sprite Tile::get_sprite() const
 	{
 		sf::Sprite sprite = _frame->sprite;
-		sf::Vector2f sprite_scale(1.f, 1.f);
-		sf::Vector2f sprite_origin = pivot;
-		sf::Vector2f sprite_size = sprite.getGlobalBounds().getSize();
+		sf::Vector2f origin = pivot;
+		sf::Vector2f scale(1.f, 1.f);
+		sf::Vector2f size = sprite.getGlobalBounds().getSize();
+		if (_invalid) {
+			sprite = tiled::get_error_tile().sprite;
+			sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
+			origin *= new_size / size;
+			scale *= size / new_size;
+			size = new_size;
+		}
 		if (flip_x) {
-			sprite_scale.x *= -1.f;
-			sprite_origin.x = sprite_size.x - sprite_origin.x;
+			origin.x = size.x - origin.x;
+			scale.x *= -1.f;
 		}
 		if (flip_y) {
-			sprite_scale.y *= -1.f;
-			sprite_origin.y = sprite_size.y - sprite_origin.y;
+			origin.y = size.y - origin.y;
+			scale.y *= -1.f;
 		}
+		sprite.setOrigin(origin);
 		sprite.setPosition(position);
-		sprite.setScale(sprite_scale);
-		sprite.setOrigin(sprite_origin);
+		sprite.setScale(scale);
 		sprite.setColor(color);
 		return sprite;
 	}
@@ -151,22 +166,21 @@ namespace ecs
 	{
 		_shader_time_accumulator += dt;
 
-		// UPDATE TILE SHADERS
+		// UPDATE TILE POSITION
+
+		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
+			tile.position = get_position(body);
+		}
+
+		// UPDATE TILE ANIMATION AND SHADER
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+			tile.update_animation(dt);
 			if (tile.shader) {
 				tile.shader->setUniform("time", _shader_time_accumulator);
 				tile.shader->setUniform("time_delta", dt);
 				tile.shader->setUniform("position", tile.position);
 			}
-			if (tile.is_animated())
-				tile.update_animation(dt);
-		}
-
-		// UPDATE TILE POSITIONS
-
-		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
-			tile.position = get_position(body);
 		}
 	}
 
