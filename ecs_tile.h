@@ -24,6 +24,7 @@ namespace ecs
 	class Tile
 	{
 	public:
+		Tile(); // creates an invalid tile
 		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position;

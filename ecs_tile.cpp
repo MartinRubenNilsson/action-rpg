@@ -2,7 +2,6 @@
 #include "physics_helpers.h"
 #include "tiled.h"
 #include "shaders.h"
-#include "textures.h"
 
 namespace ecs
 {
@@ -26,10 +25,15 @@ namespace ecs
 		return SortingLayer::Objects;
 	}
 
+	Tile::Tile()
+		: Tile(&tiled::get_error_tile())
+	{
+		_invalid = true;
+	}
+
 	Tile::Tile(const tiled::Tile* tile)
 		: _tile(tile)
 		, _frame(tile)
-		, _invalid(false)
 	{
 		assert(tile);
 		initialize_animation();
@@ -127,13 +131,11 @@ namespace ecs
 		sf::Vector2f scale(1.f, 1.f);
 		sf::Vector2f size = sprite.getGlobalBounds().getSize();
 		if (_invalid) {
-			if (std::shared_ptr<sf::Texture> texture = textures::get_error_texture()) {
-				sprite.setTexture(*texture, true);
-				sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
-				origin *= new_size / size;
-				scale *= size / new_size;
-				size = new_size;
-			}
+			sprite = tiled::get_error_tile().sprite;
+			sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
+			origin *= new_size / size;
+			scale *= size / new_size;
+			size = new_size;
 		}
 		if (flip_x) {
 			origin.x = size.x - origin.x;

@@ -157,22 +157,20 @@ namespace tiled
 			Tileset& tileset = _tilesets[0];
 			tileset.name = "error";
 			tileset.class_ = "error";
-			tileset.tile_width = 16;
-			tileset.tile_height = 16;
 			tileset.tile_count = 1;
 			tileset.columns = 1;
-			tileset.spacing = 0;
-			tileset.margin = 0;
-			tileset.image_path = textures::ERROR_TEXTURE_PATH;
-			tileset.image = textures::get_error_texture();
 
 			Tile& tile = tileset.tiles.emplace_back();
 			tile.tileset = &tileset;
 			tile.class_ = "error";
+
+			tileset.image_path = textures::ERROR_TEXTURE_PATH;
+			tileset.image = textures::get(textures::ERROR_TEXTURE_PATH);
 			if (tileset.image) {
 				sf::Vector2u size = tileset.image->getSize();
+				tileset.tile_width = size.x;
+				tileset.tile_height = size.y;
 				tile.sprite.setTexture(*tileset.image);
-				tile.sprite.setScale(16.f / size.x, 16.f / size.y);
 			}
 		}
 

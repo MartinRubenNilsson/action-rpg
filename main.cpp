@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
     background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();
-    textures::unload_assets();
+    textures::clear_cache();
 
     return 0;
 }
