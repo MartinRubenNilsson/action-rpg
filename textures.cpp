@@ -4,6 +4,8 @@
 
 namespace textures
 {
+	const std::filesystem::path ERROR_TEXTURE_PATH = "assets/textures/error.png";
+
 	extern bool log_errors =
 #ifdef _DEBUG
 		true;
@@ -44,7 +46,7 @@ namespace textures
 	std::shared_ptr<sf::Texture> get_error_texture()
 	{
 		if (_error_texture.state == TextureAsset::Unloaded)
-			_error_texture.load("assets/textures/error.png");
+			_error_texture.load(ERROR_TEXTURE_PATH.string());
 		return _error_texture.texture;
 	}
 

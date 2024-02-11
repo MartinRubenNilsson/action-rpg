@@ -8,6 +8,20 @@ sf::Vector2f operator/(const sf::Vector2f& left, const sf::Vector2f& right) {
 	return sf::Vector2f(left.x / right.x, left.y / right.y);
 }
 
+sf::Vector2f& operator*=(sf::Vector2f& left, const sf::Vector2f& right)
+{
+	left.x *= right.x;
+	left.y *= right.y;
+	return left;
+}
+
+sf::Vector2f& operator/=(sf::Vector2f& left, const sf::Vector2f& right)
+{
+	left.x /= right.x;
+	left.y /= right.y;
+	return left;
+}
+
 bool is_zero(const sf::Vector2f& v) {
 	return v.x == 0 && v.y == 0;
 }

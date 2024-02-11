@@ -6,23 +6,24 @@
 
 namespace tiled
 {
-	const uint32_t FLIP_HORIZONTAL_BIT = 0x80000000;
-	const uint32_t FLIP_VERTICAL_BIT   = 0x40000000;
-	const uint32_t FLIP_DIAGONAL_BIT   = 0x20000000;
-	const uint32_t FLIP_ROTATE_120_BIT = 0x10000000;
-	const uint32_t FLIP_FLAGS_BITMASK =
-		FLIP_HORIZONTAL_BIT | FLIP_VERTICAL_BIT | FLIP_DIAGONAL_BIT | FLIP_ROTATE_120_BIT;
+	const uint32_t _FLIP_HORIZONTAL_BIT = 0x80000000;
+	const uint32_t _FLIP_VERTICAL_BIT   = 0x40000000;
+	const uint32_t _FLIP_DIAGONAL_BIT   = 0x20000000;
+	const uint32_t _FLIP_ROTATE_120_BIT = 0x10000000;
+	const uint32_t _FLIP_FLAGS_BITMASK =
+		_FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
 
 	uint32_t _get_gid(uint32_t gid_with_flip_flags) {
-		return gid_with_flip_flags & ~FLIP_FLAGS_BITMASK;
+		return gid_with_flip_flags & ~_FLIP_FLAGS_BITMASK;
 	}
 
-	FlipFlags _get_flip_flags(uint32_t gid_with_flip_flags) {
+	FlipFlags _get_flip_flags(uint32_t gid_with_flip_flags)
+	{
 		uint8_t flip_flags = FLIP_NONE;
-		if (gid_with_flip_flags & FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
-		if (gid_with_flip_flags & FLIP_VERTICAL_BIT) flip_flags |= FLIP_VERTICAL;
-		if (gid_with_flip_flags & FLIP_DIAGONAL_BIT) flip_flags |= FLIP_DIAGONAL;
-		if (gid_with_flip_flags & FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
+		if (gid_with_flip_flags & _FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
+		if (gid_with_flip_flags & _FLIP_VERTICAL_BIT)   flip_flags |= FLIP_VERTICAL;
+		if (gid_with_flip_flags & _FLIP_DIAGONAL_BIT)   flip_flags |= FLIP_DIAGONAL;
+		if (gid_with_flip_flags & _FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
 		return (FlipFlags)flip_flags;
 	}
 
@@ -132,7 +133,12 @@ namespace tiled
 	{
 		unload_assets();
 
-		// Find assets
+		// ALLOCATE ROOM FOR ERROR TILESET
+
+		_tilesets.emplace_back();
+
+		// FIND AND ALLOCATE ROOM FOR TILESETS, TEMPLATES, AND MAPS
+		
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::recursive_directory_iterator(dir))
 		{
@@ -146,8 +152,34 @@ namespace tiled
 				_maps.emplace_back().path = entry.path().lexically_normal();
 		}
 
-		// Load tilesets
-		for (Tileset& tileset : _tilesets) {
+		// INITIALIZE ERROR TILESET
+		{
+			Tileset& tileset = _tilesets[0];
+			tileset.name = "error";
+			tileset.class_ = "error";
+			tileset.tile_width = 16;
+			tileset.tile_height = 16;
+			tileset.tile_count = 1;
+			tileset.columns = 1;
+			tileset.spacing = 0;
+			tileset.margin = 0;
+			tileset.image_path = textures::ERROR_TEXTURE_PATH;
+			tileset.image = textures::get_error_texture();
+
+			Tile& tile = tileset.tiles.emplace_back();
+			tile.tileset = &tileset;
+			tile.class_ = "error";
+			if (tileset.image) {
+				sf::Vector2u size = tileset.image->getSize();
+				tile.sprite.setTexture(*tileset.image);
+				tile.sprite.setScale(16.f / size.x, 16.f / size.y);
+			}
+		}
+
+		// LOAD TILESETS
+		
+		for (size_t tileset_index = 1; tileset_index < _tilesets.size(); ++tileset_index) {
+			Tileset& tileset = _tilesets[tileset_index];
 			pugi::xml_document doc;
 			if (!doc.load_file(tileset.path.string().c_str())) {
 				console::log_error("Failed to load tileset: " + tileset.path.string());
@@ -236,7 +268,8 @@ namespace tiled
 			}
 		}
 
-		// Load templates
+		// LOAD TEMPLATES
+		
 		for (Object& template_ : _templates) {
 			pugi::xml_document doc;
 			if (!doc.load_file(template_.path.string().c_str())) {
@@ -275,7 +308,8 @@ namespace tiled
 			}
 		}
 
-		// Load maps
+		// LOAD MAPS
+
 		for (Map& map : _maps) {
 			pugi::xml_document doc;
 			if (!doc.load_file(map.path.string().c_str())) {
@@ -418,9 +452,9 @@ namespace tiled
 
 	void unload_assets()
 	{
-		_tilesets.clear();
-		_templates.clear();
 		_maps.clear();
+		_templates.clear();
+		_tilesets.clear();
 	}
 
 	const std::vector<Tileset>& get_tilesets() {
@@ -433,5 +467,13 @@ namespace tiled
 
 	const std::vector<Map>& get_maps() {
 		return _maps;
+	}
+
+	const Tileset& get_error_tileset() {
+		return _tilesets.front();
+	}
+
+	const Tile& get_error_tile() {
+		return get_error_tileset().tiles.front();
 	}
 }

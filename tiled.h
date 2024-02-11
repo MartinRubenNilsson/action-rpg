@@ -75,8 +75,6 @@ namespace tiled
 
 	struct Tile
 	{
-		//static const Tile INVALID; // TODO
-
 		sf::Sprite sprite;
 		std::string class_;
 		std::vector<Property> properties;
@@ -107,8 +105,6 @@ namespace tiled
 
 	struct Tileset
 	{
-		//static const Tileset INVALID; //TODO: implement
-
 		std::filesystem::path path;
 		std::filesystem::path image_path;
 		std::shared_ptr<sf::Texture> image;
@@ -157,6 +153,9 @@ namespace tiled
 	const std::vector<Tileset>& get_tilesets();
 	const std::vector<Object>& get_templates();
 	const std::vector<Map>& get_maps();
+
+	const Tileset& get_error_tileset();
+	const Tile& get_error_tile();
 
 	template <typename T> bool get(const std::vector<Property>& ps, const std::string& name, T& value);
 	template <typename T> void set(std::vector<Property>& ps, const std::string& name, const T& value);

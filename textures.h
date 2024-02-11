@@ -2,6 +2,8 @@
 
 namespace textures
 {
+	extern const std::filesystem::path ERROR_TEXTURE_PATH;
+
 	extern bool log_errors;
 
 	void unload_assets();
