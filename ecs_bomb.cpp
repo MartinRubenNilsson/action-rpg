@@ -52,10 +52,11 @@ namespace ecs {
         bomb.timer.start();
         _registry.emplace<Bomb>(bomb_entity, bomb);
         // ... setup other necessary components like physics, tile, etc.
-        if (Tile* tile = emplace_tile(bomb_entity, "items1", "bomb")) {
-            tile->position = position;
-            tile->pivot = sf::Vector2f(6.f, 6.f);
-        }
+
+        Tile& tile = emplace_tile(bomb_entity);
+        tile.set("bomb", "items1");
+        tile.position = position;
+        tile.pivot = sf::Vector2f(6.f, 6.f);
 
         return bomb_entity;
     }

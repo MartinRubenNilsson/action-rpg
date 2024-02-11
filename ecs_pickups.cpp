@@ -62,10 +62,10 @@ namespace ecs
 			body->CreateFixture(&fixture_def);
 		}
 
-		if (Tile* tile = emplace_tile(entity, "items2", "rupee")) { // Use your rupee sprite settings
-			tile->position = position;
-			tile->pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
-		}
+		Tile& tile = emplace_tile(entity);
+		tile.set("rupee", "items2");
+		tile.position = position;
+		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 
 		return entity;
 	}
