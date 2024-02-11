@@ -311,6 +311,7 @@
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />
+    <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_tiled.h" />

@@ -561,6 +561,7 @@
     <ClInclude Include="ecs_bomb.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="properties.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
