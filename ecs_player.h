@@ -18,6 +18,7 @@ namespace ecs
 		bool stealth = false;
 		bool interact = false;
 		bool arrow_attack = false; 
+		bool drop_bomb = false;
 	};
 
 	struct Player
@@ -30,6 +31,7 @@ namespace ecs
 		sf::Vector2f facing_direction = { 0.f, 1.f }; // The direction the player is facing
 		int health = 3;
 		int arrow_ammo = 10;
+		int bomb_ammo = 5;
 	};
 
 	void process_event_player(const sf::Event& ev);

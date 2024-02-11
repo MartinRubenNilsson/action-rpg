@@ -1,21 +1,38 @@
 #include "ecs_bomb.h"
 #include <entt/entt.hpp>
+#include "ecs_tile.h"
+#include "ecs.h"
 
 namespace ecs {
 
     extern entt::registry _registry;  // Assuming you have a global EnTT registry
 
-    void update_bomb_system(float dt) {
-        auto view = _registry.view<Bomb>();
+    float _bomb_elapsed_time = 0.f;
+
+    void update_bombs(float dt) {
+        _bomb_elapsed_time += dt;
+        auto view = _registry.view<Bomb, Tile>();
         for (auto entity : view) {
             auto& bomb = view.get<Bomb>(entity);
+            auto& tile = view.get<Tile>(entity);
 
             if (bomb.is_active) {
-                // Update the countdown timer
+                // Update the timer
+                if (bomb.timer.update(dt)) {
+                    // The timer finished counting down
+                    explode_bomb(entity, bomb.blast_radius);
+                }
+                else {
+                    // Check if the bomb should start blinking
+                    if (bomb.timer.get_progress() > 0.5f) {  // For example, start blinking at 70% progress
+                        // Blinking effect
+                        constexpr float BLINK_SPEED = 20.f;
+                        float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
+                        tile.color.a = (sf::Uint8)(255 * blink_fraction);
 
-                // Check if the bomb should start blinking
-
-                // Explosion logic
+                        bomb.should_blink = true;
+                    }
+                }
             }
         }
     }
@@ -24,15 +41,21 @@ namespace ecs {
         // Explosion logic goes here
         // You can use the blast_radius to determine the affected area
         // ...
+        destroy_at_end_of_frame(bomb_entity);
     }
 
     entt::entity create_bomb(const sf::Vector2f position)
     {
         entt::entity bomb_entity = _registry.create();
         // Add a Bomb component
-        Bomb bomb = { 5.0f, 20.0f, 10, false }; // example values
+        Bomb bomb = {};
+        bomb.timer.start();
         _registry.emplace<Bomb>(bomb_entity, bomb);
         // ... setup other necessary components like physics, tile, etc.
+        if (Tile* tile = emplace_tile(bomb_entity, "items1", "bomb")) {
+            tile->position = position;
+            tile->pivot = sf::Vector2f(6.f, 6.f);
+        }
 
         return bomb_entity;
     }
