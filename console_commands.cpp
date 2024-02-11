@@ -5,6 +5,7 @@
 #include "ui.h"
 #include "ecs_player.h"
 #include "ecs_tiled.h"
+#include "ecs_camera.h"
 #include "shaders.h"
 
 namespace console
@@ -125,6 +126,14 @@ namespace console
 			HELP("Show an RML document");
 			ARG(std::string, name, "The name of the document");
 			EXEC(ui::show_document(name));
+		}
+
+		// CAMERA
+
+		if (cmd == "add_camera_trauma") {
+			HELP("Add trauma to the camera to make it shake");
+			ARG(float, trauma, "The amount of trauma to add");
+			EXEC(ecs::add_camera_trauma(trauma));
 		}
 
 		// MISC

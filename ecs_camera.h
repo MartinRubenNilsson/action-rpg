@@ -5,8 +5,6 @@
 
 namespace ecs
 {
-	extern const sf::View DEFAULT_CAMERA_VIEW;
-	
 	// view:               The camera view, which determines the camera's position, rotation, and zoom.
 	// _shaky_view:        The camera view with shake applied to it. Read-only!
 	// follow:             If not null, the camera will center its view on this entity.
@@ -21,17 +19,20 @@ namespace ecs
 
 	struct Camera
 	{
-		sf::View view = DEFAULT_CAMERA_VIEW;
+		static const sf::View DEFAULT_VIEW;
+
+		sf::View view = DEFAULT_VIEW;
 		sf::View _shaky_view; // Read-only!
 		entt::entity follow = entt::null;
 		sf::FloatRect confining_rect;
-		float shake_amplitude = 0.5f;
+		float shake_amplitude = 1.5f;
 		float shake_frequency = 10.f;
 		float trauma = 0.f;
 		float trauma_decay = 2.f;
 	};
 
 	void update_cameras(float dt);
+
 	const sf::View& get_active_camera_view(); // Hard-cuts when activating new camera.
 	const sf::View& get_blended_camera_view(); // Smoothly transitions between cameras.
 
@@ -40,4 +41,5 @@ namespace ecs
 	entt::entity detach_camera(entt::entity entity);
 	bool activate_camera(entt::entity entity, bool hard_cut = false);
 	bool add_camera_trauma(entt::entity entity, float trauma);
+	bool add_camera_trauma(float trauma); // Adds trauma to the active camera.
 }
