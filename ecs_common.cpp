@@ -1,4 +1,4 @@
-#include "ecs_tiled.h"
+#include "ecs_common.h"
 #include "tiled.h"
 #include "properties.h"
 

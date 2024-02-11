@@ -206,7 +206,7 @@
     <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="ecs.cpp" />
-    <ClCompile Include="ecs_tiled.cpp" />
+    <ClCompile Include="ecs_common.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math_vectors.cpp" />
@@ -314,7 +314,7 @@
     <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="ecs.h" />
-    <ClInclude Include="ecs_tiled.h" />
+    <ClInclude Include="ecs_common.h" />
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />
     <ClInclude Include="fmod.h" />

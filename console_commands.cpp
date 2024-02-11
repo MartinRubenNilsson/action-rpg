@@ -4,7 +4,7 @@
 #include "map.h"
 #include "ui.h"
 #include "ecs_player.h"
-#include "ecs_tiled.h"
+#include "ecs_common.h"
 #include "ecs_camera.h"
 #include "shaders.h"
 

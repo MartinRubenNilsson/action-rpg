@@ -33,7 +33,7 @@
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_tiled.cpp">
+    <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_player.cpp">
@@ -294,7 +294,7 @@
     <ClInclude Include="ecs.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_tiled.h">
+    <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
