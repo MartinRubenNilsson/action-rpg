@@ -119,6 +119,8 @@ namespace tiled
 		uint32_t tile_height = 0; // in pixels
 		uint32_t spacing = 0; // in pixels
 		uint32_t margin = 0; // in pixels
+
+		const Tile* find_tile_by_class(const std::string& class_) const;
 	};
 
 	struct Layer
@@ -156,6 +158,8 @@ namespace tiled
 
 	const Tileset& get_error_tileset();
 	const Tile& get_error_tile();
+
+	const Tileset* find_tileset_by_name(const std::string& name);
 
 	template <typename T> bool get(const std::vector<Property>& ps, const std::string& name, T& value);
 	template <typename T> void set(std::vector<Property>& ps, const std::string& name, const T& value);

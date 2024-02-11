@@ -31,10 +31,10 @@ namespace ecs
 			body->CreateFixture(&fixture_def);
 		}
 
-		if (Tile* tile = emplace_tile(entity, "items1", "arrow")) {
-			tile->position = position;
-			tile->pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
-		}
+		Tile& tile = emplace_tile(entity);
+		tile.set("arrow", "items1");
+		tile.position = position;
+		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 
 		return entity;
 	}

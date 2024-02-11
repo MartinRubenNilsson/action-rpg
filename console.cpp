@@ -183,9 +183,13 @@ namespace console
 		ImGui::End();
 	}
 
-	void process_event(const sf::Event& event) {
-		if (event.type == sf::Event::KeyPressed && _key_bindings.contains(event.key.code))
-			execute(_key_bindings[event.key.code]);
+	void process_event(const sf::Event& event)
+	{
+		if (event.type == sf::Event::KeyPressed) {
+			auto it = _key_bindings.find(event.key.code);
+			if (it != _key_bindings.end())
+				execute(it->second);
+		}
 	}
 
 	bool is_visible() {
@@ -212,7 +216,8 @@ namespace console
 		_sleep_timer = seconds;
 	}
 
-	void log(const std::string& message) {
+	void log(const std::string& message)
+	{
 		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
@@ -227,7 +232,7 @@ namespace console
 	}
 
 	// Defined in console_commands.cpp
-	void _do_execute(const std::string& command_line);
+	extern void _do_execute(const std::string& command_line);
 
 	void execute(const std::string& command_line, bool defer)
 	{

@@ -26,17 +26,14 @@ namespace ecs
 	}
 
 	Tile::Tile()
-		: Tile(&tiled::get_error_tile())
-	{
-		_invalid = true;
-	}
+		: _tile(&tiled::get_error_tile())
+		, _frame(_tile)
+	{}
 
 	Tile::Tile(const tiled::Tile* tile)
-		: _tile(tile)
-		, _frame(tile)
 	{
 		assert(tile);
-		initialize_animation();
+		set(tile);
 
 		std::string shader_name;
 		if (tiled::get(tile->properties, "shader", shader_name)) {
@@ -46,49 +43,69 @@ namespace ecs
 		}
 	}
 
-	bool Tile::set_class(const std::string& class_)
+	bool Tile::set(const tiled::Tile* tile)
 	{
-		if (class_.empty()) return false;
-		if (class_ == _tile->class_) return false;
-		for (const tiled::Tile& tile : _tile->tileset->tiles) {
-			if (tile.class_ == class_) {
-				_tile = &tile;
-				_frame = &tile;
-				_invalid = false;
-				initialize_animation();
-				return true;
-			}
-		}
-		_invalid = true;
-		return false;
+		if (!tile) return false;
+		if (tile == _tile) return false;
+		_valid = true;
+		_tile = tile;
+		_frame = tile;
+		_animation_duration_ms = 0;
+		for (const tiled::Frame& frame : _tile->animation)
+			_animation_duration_ms += frame.duration;
+		animation_timer = Timer(_animation_duration_ms / 1000.f);
+		animation_timer.start();
+		_animation_loop_count = 0;
+		return true;
 	}
 
-	//bool Tile::set_class_and_tileset(const std::string& class_, const std::string& tileset_name)
-	//{
-	//	if (class_.empty() || tileset_name.empty()) return false;
-	//	if (class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
-	//	// Find tileset
-	//	const tiled::Tileset* tileset = nullptr;
-	//	for (const tiled::Tileset& ts : tiled::get_tilesets()) {
-	//		if (ts.name == tileset_name) {
-	//			tileset = &ts;
-	//			break;
-	//		}
-	//	}
-	//	if (!tileset) return false;
-	//	// Find tile
-	//	for (const tiled::Tile& tile : tileset->tiles) {
-	//		if (tile.class_ == class_) {
-	//			_tile = &tile;
-	//			_frame = &tile;
-	//			initialize_animation();
-	//			return true;
-	//		}
-	//	}
-	//	return false;
-	//}
+	bool Tile::set(const std::string& tile_class)
+	{
+		if (tile_class.empty()) return false;
+		if (tile_class == _tile->class_) return false;
+		_valid = false;
+		return set(_tile->tileset->find_tile_by_class(tile_class));
+	}
 
-	std::string Tile::get_class() const {
+	bool Tile::set(const std::string& tile_class, const std::string& tileset_name)
+	{
+		if (tile_class.empty() || tileset_name.empty()) return false;
+		if (tile_class == _tile->class_ && tileset_name == _tile->tileset->name) return false;
+		_valid = false;
+		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
+		if (!tileset) return false;
+		return set(tileset->find_tile_by_class(tile_class));
+	}
+
+	sf::Sprite Tile::get_sprite() const
+	{
+		sf::Sprite sprite = _frame->sprite;
+		sf::Vector2f origin = pivot;
+		sf::Vector2f scale(1.f, 1.f);
+		sf::Vector2f size = sprite.getGlobalBounds().getSize();
+		if (!_valid) {
+			sprite = tiled::get_error_tile().sprite;
+			sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
+			origin *= new_size / size;
+			scale *= size / new_size;
+			size = new_size;
+		}
+		if (flip_x) {
+			origin.x = size.x - origin.x;
+			scale.x *= -1.f;
+		}
+		if (flip_y) {
+			origin.y = size.y - origin.y;
+			scale.y *= -1.f;
+		}
+		sprite.setOrigin(origin);
+		sprite.setPosition(position);
+		sprite.setScale(scale);
+		sprite.setColor(color);
+		return sprite;
+	}
+
+	std::string Tile::get_tile_class() const {
 		return _tile->class_;
 	}
 
@@ -98,10 +115,6 @@ namespace ecs
 
 	bool Tile::is_animated() const {
 		return _animation_duration_ms != 0;
-	}
-
-	float Tile::get_animation_duration() const {
-		return _animation_duration_ms / 1000.f;
 	}
 
 	void Tile::update_animation(float dt)
@@ -124,42 +137,8 @@ namespace ecs
 		}
 	}
 
-	sf::Sprite Tile::get_sprite() const
-	{
-		sf::Sprite sprite = _frame->sprite;
-		sf::Vector2f origin = pivot;
-		sf::Vector2f scale(1.f, 1.f);
-		sf::Vector2f size = sprite.getGlobalBounds().getSize();
-		if (_invalid) {
-			sprite = tiled::get_error_tile().sprite;
-			sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
-			origin *= new_size / size;
-			scale *= size / new_size;
-			size = new_size;
-		}
-		if (flip_x) {
-			origin.x = size.x - origin.x;
-			scale.x *= -1.f;
-		}
-		if (flip_y) {
-			origin.y = size.y - origin.y;
-			scale.y *= -1.f;
-		}
-		sprite.setOrigin(origin);
-		sprite.setPosition(position);
-		sprite.setScale(scale);
-		sprite.setColor(color);
-		return sprite;
-	}
-
-	void Tile::initialize_animation()
-	{
-		_animation_duration_ms = 0;
-		for (const tiled::Frame& frame : _tile->animation)
-			_animation_duration_ms += frame.duration;
-		animation_timer = Timer(_animation_duration_ms / 1000.f);
-		animation_timer.start();
-		_animation_loop_count = 0;
+	float Tile::get_animation_duration() const {
+		return _animation_duration_ms / 1000.f;
 	}
 
 	void update_tiles(float dt)
@@ -183,21 +162,13 @@ namespace ecs
 			}
 		}
 	}
-
-	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile)
-	{
-		assert(tile);
-		return _registry.emplace_or_replace<Tile>(entity, tile);
+	
+	Tile& emplace_tile(entt::entity entity) {
+		return _registry.emplace_or_replace<Tile>(entity);
 	}
 
-	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class)
-	{
-		for (const tiled::Tileset& tileset : tiled::get_tilesets())
-			if (tileset.name == tileset_name)
-				for (const tiled::Tile& tile : tileset.tiles)
-					if (tile.class_ == tile_class)
-						return &emplace_tile(entity, &tile);
-		return nullptr;
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile) {
+		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
 	void remove_tile(entt::entity entity) {

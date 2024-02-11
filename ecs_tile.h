@@ -42,31 +42,30 @@ namespace ecs
 		float animation_speed = 1.f;
 		bool animation_loop = true;
 		bool animation_flip_x_on_loop = false;
-		
-		sf::Sprite get_sprite() const;
 
-		bool set_class(const std::string& class_);
-		//bool set_class_and_tileset(const std::string& class_, const std::string& tileset_name);
-		std::string get_class() const; 
+		bool is_valid() const { return _valid; }
+		bool set(const tiled::Tile* tile);
+		bool set(const std::string& tile_class); // uses the current tileset
+		bool set(const std::string& tile_class, const std::string& tileset_name);
+		sf::Sprite get_sprite() const;
+		std::string get_tile_class() const; 
 		std::string get_tileset_name() const;
 
 		bool is_animated() const;
-		float get_animation_duration() const; // in seconds
 		void update_animation(float dt);
+		float get_animation_duration() const; // in seconds
 
 	private:
+		bool _valid = false;
 		const tiled::Tile* _tile = nullptr; // current tile
 		const tiled::Tile* _frame = nullptr; // current animation frame
-		bool _invalid = false;
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_loop_count = 0; // unused right now
-
-		void initialize_animation();
 	};
 
 	void update_tiles(float dt);
 
+	Tile& emplace_tile(entt::entity entity); // emplaces an invalid tile
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
-	Tile* emplace_tile(entt::entity entity, const std::string& tileset_name, const std::string& tile_class);
 	void remove_tile(entt::entity entity);
 }

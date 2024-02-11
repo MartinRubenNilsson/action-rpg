@@ -118,10 +118,9 @@ namespace ecs
 
 		audio::play("event:/snd_glass_smash");
 
-		// Add additional components like Tile here if necessary
-		if (Tile* tile = emplace_tile(arrow_entity, "items1", "arrow")) {
-			tile->pivot = sf::Vector2f(6.f, 6.f);
-		}
+		Tile& tile = emplace_tile(arrow_entity);
+		tile.set("arrow", "items1");
+		tile.pivot = sf::Vector2f(6.f, 6.f);
 	}
 
 	void update_player(float dt)
@@ -199,24 +198,24 @@ namespace ecs
 				// Handling arrow attack
 				if (player.input.arrow_attack && player.arrow_ammo > 0) {
 
-					tile.set_class("bow_shot_"s + dir); // Trigger bow shot animation
+					tile.set("bow_shot_"s + dir); // Trigger bow shot animation
 					player.bow_shot_timer.start(); // Start the timer with 660 ms
 					tile.animation_loop = false; // Ensure that the animation will not loop
 					player.input.arrow_attack = false;
 					player.state = PlayerState::Attacking;
 				}
 				else if (movement_speed >= PLAYER_RUN_SPEED) {
-					tile.set_class("run_"s + dir);
+					tile.set("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
 				}
 				else if (movement_speed >= PLAYER_WALK_SPEED) {
-					tile.set_class("walk_"s + dir);
+					tile.set("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
 				}
 				else {
-					tile.set_class("idle_"s + dir);
+					tile.set("idle_"s + dir);
 					tile.animation_loop = true;
 				}
 
@@ -235,7 +234,7 @@ namespace ecs
 							destroy_at_end_of_frame(hit.entity);
 						}
 						else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
-							std::string tile_class = tile->get_class();
+							std::string tile_class = tile->get_tile_class();
 							if (tile_class == "grass") {
 								audio_events_to_play.insert("event:/snd_cut_grass");
 								if (random::coin_flip(0.2f))

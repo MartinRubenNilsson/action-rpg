@@ -474,4 +474,20 @@ namespace tiled
 	const Tile& get_error_tile() {
 		return get_error_tileset().tiles.front();
 	}
+
+	const Tileset* find_tileset_by_name(const std::string& name)
+	{
+		for (const Tileset& tileset : _tilesets)
+			if (tileset.name == name)
+				return &tileset;
+		return nullptr;
+	}
+
+	const Tile* Tileset::find_tile_by_class(const std::string& class_) const
+	{
+		for (const Tile& tile : tiles)
+			if (tile.class_ == class_)
+				return &tile;
+		return nullptr;
+	}
 }
