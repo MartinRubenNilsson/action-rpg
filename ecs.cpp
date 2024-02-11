@@ -8,6 +8,7 @@
 #include "ecs_tile.h"
 #include "ecs_camera.h"
 #include "ecs_pickups.h"
+#include "ecs_bomb.h"
 
 namespace ecs
 {
@@ -48,6 +49,7 @@ namespace ecs
 	{
 		update_player(dt);
 		update_pickups(dt);
+		update_bombs(dt);	
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
 		update_physics(dt);

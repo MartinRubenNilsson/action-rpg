@@ -38,6 +38,8 @@ namespace ecs
 					player.input.interact = true;
 				if (ev.key.code == sf::Keyboard::Z)
 					player.input.arrow_attack = true;
+				if (ev.key.code == sf::Keyboard::B)
+					player.input.drop_bomb = true;
 			}
 		}
 	}
@@ -203,6 +205,11 @@ namespace ecs
 					tile.animation_loop = false; // Ensure that the animation will not loop
 					player.input.arrow_attack = false;
 					player.state = PlayerState::Attacking;
+				}
+				else if (player.input.drop_bomb && player.bomb_ammo > 0) {
+					create_bomb(player_position + player.facing_direction * 16.f);
+					player.bomb_ammo--;
+					player.input.drop_bomb = false;
 				}
 				else if (movement_speed >= PLAYER_RUN_SPEED) {
 					tile.set("run_"s + dir);
