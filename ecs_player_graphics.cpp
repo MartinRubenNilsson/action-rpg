@@ -5,8 +5,6 @@ namespace ecs
 {
 	struct PlayerClothes
 	{
-		//15over(over everything, top - most layer : front wing, magic effects)
-
 		enum class Headwear // 14head
 		{
 			None,
@@ -64,18 +62,54 @@ namespace ecs
 			Gloves,
 		};
 
-		enum class Skirt // 08lwr3
+		enum class Lowerwear3 // 08lwr3
 		{
 			None,
-			MiniSkirt,
-			PleatedSkirt,
+			FrillyDress,
+			FrillyDressBoobs,
+			FrillySkirt,
+			LongDress,
+			LongDressBoobs,
+			LongSkirt,
 		};
 
-		//08lwr3(most skirts & dresses)
-		//07fot2(footwear big enough go over pant legs)
-		//06lwr2(pants with upper parts : overalls, shortalls)
-		//05shrt(most shirts & blouses)
-		//04lwr1(most pants & shorts)
+		enum class Footwear2 // 07fot2
+		{
+			None,
+			Boots,
+			Shoes,
+		};
+
+		enum class Lowerwear2 // 06lwr2
+		{
+			None,
+			Overalls,
+			OverallsBoobs,
+			Shortalls,
+			ShortallsBoobs,
+		};
+		
+		enum class Shirt // 05shrt
+		{
+			None,
+			Bra,
+			LongShirt,
+			LongShirtBoobs,
+			ShortShirt,
+			ShortShirtBoobs,
+			TankTop,
+			TankTopBoobs,
+		};
+
+		enum class Lowerwear1 // 04lwr1
+		{
+			None,
+			LongPants,
+			Onepiece,
+			OnepieceBoobs,
+			Shorts,
+			Undies,
+		};
 		
 		enum class Footwear1 // 03fot1
 		{
@@ -99,17 +133,27 @@ namespace ecs
 			Human,
 		};
 
-		//00undr(under everything, bottom - most layer : back wing, cloak)
-	
+		enum class Under // 00undr
+		{
+			None,
+			CloakPlain,
+			CloakWithMantlePlain,
+		};
+
 		Headwear headwear = Headwear::None;
 		Hair hair = Hair::None;
 		Facewear facewear = Facewear::None;
 		Neckwear neckwear = Neckwear::None;
 		Outerwear outerwear = Outerwear::None;
 		Handwear handwear = Handwear::None;
-		//TODO
+		Lowerwear3 lowerwear3 = Lowerwear3::None;
+		Footwear2 footwear2 = Footwear2::None;
+		Lowerwear2 lowerwear2 = Lowerwear2::None;
+		Shirt shirt = Shirt::None;
+		Lowerwear1 lowerwear1 = Lowerwear1::None;
 		Footwear1 footwear1 = Footwear1::None;
 		Legwear legwear = Legwear::None;
 		Body body = Body::None;
+		Under under = Under::None;
 	};
 }
