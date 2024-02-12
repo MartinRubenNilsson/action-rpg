@@ -30,6 +30,7 @@ namespace ecs
 		sf::Vector2f position;
 		sf::Vector2f pivot; // in pixels
 		sf::Color color = sf::Color::White;
+		std::shared_ptr<sf::Texture> texture; // optional
 		std::shared_ptr<sf::Shader> shader; // optional
 		bool visible = true;
 		bool flip_x = false;
@@ -67,5 +68,6 @@ namespace ecs
 
 	Tile& emplace_tile(entt::entity entity); // emplaces an invalid tile
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
+	Tile& get_tile(entt::entity entity);
 	void remove_tile(entt::entity entity);
 }

@@ -8,6 +8,7 @@
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
 #include "ecs_player.h"
+#include "ecs_player_graphics.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ui_textbox.h"
@@ -236,6 +237,10 @@ namespace map
 					camera.confining_rect = get_world_bounds();
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
+
+					ecs::PlayerGraphics player_graphics{};
+					ecs::Tile& ecs_tile = ecs::get_tile(entity);
+					ecs_tile.texture = ecs::bake_player_texture(player_graphics);
 
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);

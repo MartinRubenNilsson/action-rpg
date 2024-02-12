@@ -338,7 +338,6 @@ namespace ecs
 		}
 	}
 
-
 	void emplace_player(entt::entity entity, const Player& player) {
 		_registry.emplace_or_replace<Player>(entity, player);
 	}
