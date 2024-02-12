@@ -6,11 +6,15 @@ namespace ecs
 {
 	void update_common(float dt);
 
+	// ENTITY CREATION/DESTRUCTION
+
 	void clear();
 	entt::entity create();
 	entt::entity create(entt::entity hint);
 	void destroy_immediately(entt::entity entity);
 	void destroy_at_end_of_frame(entt::entity entity);
+
+	// NAME AND CLASS
 
 	void set_name(entt::entity entity, const std::string& name);
 	void set_class(entt::entity entity, const std::string& class_);
@@ -18,6 +22,8 @@ namespace ecs
 	std::string get_class(entt::entity entity);
 	entt::entity find_entity_by_name(const std::string& name);
 	entt::entity find_entity_by_class(const std::string& class_);
+
+	// PROPERTIES
 
 	void set_properties(entt::entity entity, const Properties& properties);
 	bool get_properties(entt::entity entity, Properties& properties);
