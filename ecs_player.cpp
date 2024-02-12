@@ -43,7 +43,7 @@ namespace ecs
 		}
 	}
 
-	void set_direction_for_animation(Tile& tile, char dir) {
+	void set_direction_for_animation(Tile& tile, char& dir) {
 		// Set the flip and animation class based on direction
 		switch (dir) {
 		case 'r':
@@ -51,6 +51,7 @@ namespace ecs
 			tile.animation_flip_x_on_loop = false;
 			break;
 		case 'l':
+			dir = 'r';
 			tile.flip_x = true;
 			tile.animation_flip_x_on_loop = false;
 			break;
