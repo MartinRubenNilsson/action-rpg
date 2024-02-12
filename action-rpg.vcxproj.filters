@@ -36,9 +36,6 @@
     <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_player.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
@@ -249,6 +246,12 @@
     <ClCompile Include="ecs_bomb.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_player.cpp">
+      <Filter>ecs\player</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_player_graphics.cpp">
+      <Filter>ecs\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -295,9 +298,6 @@
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_common.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_player.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />
@@ -562,6 +562,12 @@
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="properties.h" />
+    <ClInclude Include="ecs_player.h">
+      <Filter>ecs\player</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_player_graphics.h">
+      <Filter>ecs\player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -614,6 +620,9 @@
     </Filter>
     <Filter Include="graphics\shaders">
       <UniqueIdentifier>{fecc6edd-667c-49f6-adf9-57600b3c48af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\player">
+      <UniqueIdentifier>{db0d950d-591f-470a-935b-0082a4e1b134}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
