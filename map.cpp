@@ -252,8 +252,10 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;
-					if (object.properties.get_string("event", event_name))
-						audio::play_at_position("event:/" + event_name, sf::Vector2f(x, y));
+					if (object.properties.get_string("event", event_name)) {
+						int event_id = audio::play("event:/" + event_name);
+						audio::set_position(event_id, sf::Vector2f(x, y));
+					}
 				}
 			}
 		}

@@ -20,14 +20,23 @@ namespace audio
 	bool set_parameter_label(const std::string& name, const std::string& label);
 	//bool get_parameter_label(const std::string& name, std::string& label); // TODO
 
+	// EVENTS
+
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
-	bool play(const std::string& event_path, entt::entity entity = entt::null);
-	bool play_at_position(const std::string& event_path, const sf::Vector2f& position);
-	bool stop(const std::string& event_path, entt::entity entity = entt::null);
 
-	void set_bus_volume(const std::string& bus_path, float volume);
-	float get_bus_volume(const std::string& bus_path);
-	void stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
+	// Returns a new unique event id on success, or -1 on failure.
+	int play(const std::string& event_path);
+	bool is_valid(int event_id);
+	bool set_volume(int event_id, float volume);
+	bool get_volume(int event_id, float& volume);
+	bool set_position(int event_id, const sf::Vector2f& position);
+	bool get_position(int event_id, sf::Vector2f& position);
+
+	// BUSES
+
+	bool set_bus_volume(const std::string& bus_path, float volume);
+	bool get_bus_volume(const std::string& bus_path, float& volume);
+	bool stop_all_in_bus(const std::string& bus_path = BUS_MASTER);
 }
 

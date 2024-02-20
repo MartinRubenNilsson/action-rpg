@@ -24,6 +24,19 @@ namespace audio
 	const float _PIXELS_PER_METER = 16.f;
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
+	int _next_event_id = 0;
+	std::unordered_map<int, FMOD::Studio::EventInstance*> _event_id_to_instance;
+
+	FMOD_RESULT F_CALLBACK _on_event_destroyed(
+		FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
+		FMOD_STUDIO_EVENTINSTANCE* event,
+		void* parameters)
+	{
+		void* event_id = nullptr;
+		((FMOD::Studio::EventInstance*)event)->getUserData((void**)&event_id);
+		_event_id_to_instance.erase((int)(uintptr_t)event_id);
+		return FMOD_OK;
+	}
 
 	FMOD::Studio::Bus* _get_bus(const std::string& path)
 	{
@@ -57,13 +70,19 @@ namespace audio
 		return std::span(_event_buffer, count);
 	}
 
+	FMOD::Studio::EventInstance* _find_event_instance(int event_id)
+	{
+		auto it = _event_id_to_instance.find(event_id);
+		return it == _event_id_to_instance.end() ? nullptr : it->second;
+	}
+
 	void initialize()
 	{
 		FMOD_RESULT result = FMOD::Studio::System::create(&_system);
 		assert(result == FMOD_OK);
 		result = _system->initialize(
 			512, // max channels
-			FMOD_STUDIO_INIT_NORMAL,
+			FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE,
 			FMOD_INIT_NORMAL,
 			nullptr);
 		assert(result == FMOD_OK);
@@ -171,69 +190,82 @@ namespace audio
 		return false;
 	}
 
-	bool play(const std::string& event_path, entt::entity entity)
+	int play(const std::string& event_path)
 	{
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return false;
+		if (!desc) return -1;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
-		if (!instance) return false;
-		instance->setUserData((void*)entity);
+		if (!instance) return -1;
+		int event_id = _next_event_id++;
+		_event_id_to_instance[event_id] = instance;
+		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
+		instance->setUserData((void*)(uintptr_t)event_id);
 		instance->start();
 		instance->release();
+		return event_id;
+	}
+
+	bool is_valid(int event_id) {
+		return _event_id_to_instance.contains(event_id);
+	}
+
+	bool set_volume(int event_id, float volume)
+	{
+		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		if (!instance) return false;
+		instance->setVolume(volume);
 		return true;
 	}
 
-	bool play_at_position(const std::string& event_path, const sf::Vector2f& position)
+	bool get_volume(int event_id, float& volume)
 	{
-		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return false;
-		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
+		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		if (!instance) return false;
+		instance->getVolume(&volume);
+		return true;
+	}
+
+	bool set_position(int event_id, const sf::Vector2f& position)
+	{
+		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
 		if (!instance) return false;
 		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(position);
 		instance->set3DAttributes(&attributes);
-		instance->start();
-		instance->release();
 		return true;
 	}
 
-	entt::entity _get_entity(FMOD::Studio::EventInstance* instance)
+	bool get_position(int event_id, sf::Vector2f& position)
 	{
-		entt::entity entity = entt::null;
-		instance->getUserData((void**)&entity);
-		return entity;
+		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		if (!instance) return false;
+		FMOD_3D_ATTRIBUTES attributes{};
+		instance->get3DAttributes(&attributes);
+		position = _3d_attribs_to_pos(attributes);
+		return true;
 	}
 
-	bool stop(const std::string& event_path, entt::entity entity)
+	bool set_bus_volume(const std::string& bus_path, float volume)
 	{
-		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return false;
-		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc)) {
-			if (entity == _get_entity(instance)) {
-				instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
-				return true;
-			}
-		}
-		return false;
+		FMOD::Studio::Bus* bus = _get_bus(bus_path);
+		if (!bus) return false;
+		bus->setVolume(volume);
+		return true;
 	}
 
-	void set_bus_volume(const std::string& bus_path, float volume)
+	bool get_bus_volume(const std::string& bus_path, float& volume)
 	{
-		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
-			bus->setVolume(volume);
+		FMOD::Studio::Bus* bus = _get_bus(bus_path);
+		if (!bus) return false;
+		bus->getVolume(&volume);
+		return true;
 	}
 
-	float get_bus_volume(const std::string& bus_path)
+	bool stop_all_in_bus(const std::string& bus_path)
 	{
-		float volume = 0.f;
-		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
-			bus->getVolume(&volume);
-		return volume;
-	}
-
-	void stop_all_in_bus(const std::string& bus_path)
-	{
-		if (FMOD::Studio::Bus* bus = _get_bus(bus_path))
-			bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
+		FMOD::Studio::Bus* bus = _get_bus(bus_path);
+		if (!bus) return false;
+		bus->stopAllEvents(FMOD_STUDIO_STOP_IMMEDIATE);
+		return true;
 	}
 }
 
