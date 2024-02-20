@@ -201,7 +201,7 @@
     <ClCompile Include="ecs_physics_contacts.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
-    <ClCompile Include="ecs_player_graphics.cpp" />
+    <ClCompile Include="character.cpp" />
     <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="postprocess.cpp" />
@@ -309,7 +309,7 @@
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_arrow.h" />
-    <ClInclude Include="ecs_player_graphics.h" />
+    <ClInclude Include="character.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />

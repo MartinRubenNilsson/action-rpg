@@ -8,10 +8,10 @@
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
 #include "ecs_player.h"
-#include "ecs_player_graphics.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ui_textbox.h"
+#include "character.h"
 
 namespace map
 {
@@ -238,9 +238,9 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
 
-					ecs::PlayerGraphics player_graphics{};
-					ecs::Tile& ecs_tile = ecs::get_tile(entity);
-					ecs_tile.texture = ecs::bake_player_texture(player_graphics);
+					Character character{};
+					character.randomize();
+					ecs::get_tile(entity).texture = character.bake_texture();
 
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
@@ -401,16 +401,6 @@ namespace map
 		float worldX = static_cast<float>(gridPos.x * _map->tile_width) + _map->tile_width / 2.0f;
 		float worldY = static_cast<float>(gridPos.y * _map->tile_height) + _map->tile_height / 2.0f;
 		return sf::Vector2f(worldX, worldY);
-	}
-
-	// Cast sf::Vector2i to uint32_t safely, ensuring no negative values
-	uint32_t safe_cast_to_uint32(int value) {
-		if (value < 0) {
-			// Handle the error or perform an appropriate action when value is negative
-			// For example, log an error, throw an exception, or use a default positive value
-			throw std::runtime_error("Negative value encountered when casting to uint32_t");
-		}
-		return static_cast<uint32_t>(value);
 	}
 
 	std::vector<sf::Vector2i> get_neighbors(const sf::Vector2i& pos, const std::vector<std::vector<bool>>& path_finding_grid, const tiled::Layer* collision_layer) {

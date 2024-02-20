@@ -249,8 +249,8 @@
     <ClCompile Include="ecs_player.cpp">
       <Filter>ecs\player</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_player_graphics.cpp">
-      <Filter>ecs\player</Filter>
+    <ClCompile Include="character.cpp">
+      <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -565,9 +565,7 @@
     <ClInclude Include="ecs_player.h">
       <Filter>ecs\player</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_player_graphics.h">
-      <Filter>ecs\player</Filter>
-    </ClInclude>
+    <ClInclude Include="character.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
