@@ -2,6 +2,11 @@
 
 struct Character
 {
+	static constexpr int COLOR3_PALETTES = 48;
+	static constexpr int COLOR4_PALETTES = 58;
+	static constexpr int HAIR_PALETTES = 58;
+	static constexpr int SKIN_PALETTES = 18;
+
 	enum class Body
 	{
 		None,
@@ -91,9 +96,10 @@ struct Character
 	enum class Neckwear
 	{
 		None,
+		// 11neck & 00undr
+		CloakPlain,
+		CloakWithMantlePlain,
 		// 11neck
-		CloakPlain, // also in 00undr
-		CloakWithMantlePlain, // also in 00undr
 		MantlePlain,
 		Scarf,
 		Count,
@@ -141,6 +147,7 @@ struct Character
 	};
 
 	Body body = Body::Human;
+	int body_palette = 0;
 	Legwear legwear = Legwear::None;
 	Footwear footwear = Footwear::None;
 	Lowerwear lowerwear = Lowerwear::None;

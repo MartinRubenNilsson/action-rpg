@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "character.h"
 #include "textures.h"
+#include "shaders.h"
 #include "random.h"
 
 void Character::randomize()
 {
 	body = (Body)(random::range_i(1, (int)Body::Count - 1));
+	body_palette = random::range_i(0, SKIN_PALETTES - 1);
 	legwear = (Legwear)(random::range_i(0, (int)Legwear::Count - 1));
 	footwear = (Footwear)(random::range_i(0, (int)Footwear::Count - 1));
 	lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
@@ -296,13 +298,16 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 			textures.push_back(texture);
 	if (textures.empty()) return nullptr;
 
-	// RENDER TO TEXTURE
+	// BAKE TEXTURE
+
+	std::shared_ptr<sf::Shader> shader = shaders::get("bake_character");
+	if (!shader) return nullptr;
 
 	sf::RenderTexture render_texture;
 	render_texture.create(1024, 1024);
 	render_texture.clear(sf::Color::Transparent);
 	for (const std::shared_ptr<sf::Texture>& texture : textures)
-		render_texture.draw(sf::Sprite(*texture));
+		render_texture.draw(sf::Sprite(*texture), { shader.get() });
 	render_texture.display();
 
 	return std::make_shared<sf::Texture>(render_texture.getTexture());

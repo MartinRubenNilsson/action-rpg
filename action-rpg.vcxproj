@@ -235,6 +235,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bake_character.frag" />
     <None Include="darkness.frag" />
     <None Include="grass.frag" />
     <None Include="player.frag">
