@@ -2,10 +2,10 @@
 
 struct Character
 {
-	static constexpr int COLOR3_PALETTES = 48;
-	static constexpr int COLOR4_PALETTES = 58;
-	static constexpr int HAIR_PALETTES = 58;
-	static constexpr int SKIN_PALETTES = 18;
+	static constexpr int SKIN_COLORS = 18;
+	static constexpr int HAIR_COLORS = 58;
+	static constexpr int C3_COLORS = 48;
+	static constexpr int C4_COLORS = 58;
 
 	enum class Body
 	{
@@ -147,7 +147,7 @@ struct Character
 	};
 
 	Body body = Body::Human;
-	int body_palette = 0;
+	int skin_color = 0;
 	Legwear legwear = Legwear::None;
 	Footwear footwear = Footwear::None;
 	Lowerwear lowerwear = Lowerwear::None;
