@@ -5,17 +5,17 @@
 
 void Character::randomize()
 {
-	body = (Body)(random::uniform_i(1, (int)Body::Count - 1));
-	legwear = (Legwear)(random::uniform_i(0, (int)Legwear::Count - 1));
-	footwear = (Footwear)(random::uniform_i(0, (int)Footwear::Count - 1));
-	lowerwear = (Lowerwear)(random::uniform_i(0, (int)Lowerwear::Count - 1));
-	shirt = (Shirt)(random::uniform_i(0, (int)Shirt::Count - 1));
-	handwear = (Handwear)(random::uniform_i(0, (int)Handwear::Count - 1));
-	outerwear = (Outerwear)(random::uniform_i(0, (int)Outerwear::Count - 1));
-	neckwear = (Neckwear)(random::uniform_i(0, (int)Neckwear::Count - 1));
-	facewear = (Facewear)(random::uniform_i(0, (int)Facewear::Count - 1));
-	hair = (Hair)(random::uniform_i(0, (int)Hair::Count - 1));
-	headwear = (Headwear)(random::uniform_i(0, (int)Headwear::Count - 1));
+	body = (Body)(random::range_i(1, (int)Body::Count - 1));
+	legwear = (Legwear)(random::range_i(0, (int)Legwear::Count - 1));
+	footwear = (Footwear)(random::range_i(0, (int)Footwear::Count - 1));
+	lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
+	shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
+	handwear = (Handwear)(random::range_i(0, (int)Handwear::Count - 1));
+	outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
+	neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
+	facewear = (Facewear)(random::range_i(0, (int)Facewear::Count - 1));
+	hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
+	headwear = (Headwear)(random::range_i(0, (int)Headwear::Count - 1));
 }
 
 std::shared_ptr<sf::Texture> Character::bake_texture() const
