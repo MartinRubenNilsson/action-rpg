@@ -9,6 +9,11 @@ struct Character
 	static constexpr int HAIR_COLORS = 58;
 	static constexpr int SOCK_COLORS = C3_LUT_COLORS;
 	static constexpr int SHOE_COLORS = C3_LUT_COLORS;
+	static constexpr int LOWERWEAR_COLORS = C3_LUT_COLORS;
+	static constexpr int SHIRT_COLORS = C3_LUT_COLORS;
+	static constexpr int GLOVES_COLORS = C3_LUT_COLORS;
+	static constexpr int OUTERWEAR_COLORS = C3_LUT_COLORS;
+	static constexpr int GLASSES_COLORS = C3_LUT_COLORS;
 
 	enum class Body
 	{
@@ -40,18 +45,15 @@ struct Character
 	enum class Lowerwear
 	{
 		None,
-		// 04lwr1
 		LongPants,
 		Onepiece,
 		OnepieceBoobs,
 		Shorts,
 		Undies,
-		// 06lwr2
 		Overalls,
 		OverallsBoobs,
 		Shortalls,
 		ShortallsBoobs,
-		// 08lwr3
 		FrillyDress,
 		FrillyDressBoobs,
 		FrillySkirt,
@@ -64,7 +66,6 @@ struct Character
 	enum class Shirt
 	{
 		None,
-		// 05shrt
 		Bra,
 		LongShirt,
 		LongShirtBoobs,
@@ -75,10 +76,9 @@ struct Character
 		Count,
 	};
 
-	enum class Handwear
+	enum class Gloves
 	{
 		None,
-		// 09hand
 		Gloves,
 		Count,
 	};
@@ -86,7 +86,6 @@ struct Character
 	enum class Outerwear
 	{
 		None,
-		// 10outr
 		Suspenders,
 		Vest,
 		Count,
@@ -95,19 +94,16 @@ struct Character
 	enum class Neckwear
 	{
 		None,
-		// 11neck & 00undr
 		CloakPlain,
 		CloakWithMantlePlain,
-		// 11neck
 		MantlePlain,
 		Scarf,
 		Count,
 	};
 
-	enum class Facewear
+	enum class Glasses
 	{
 		None,
-		// 12face
 		Glasses,
 		Shades,
 		Count,
@@ -131,10 +127,9 @@ struct Character
 		Count,
 	};
 
-	enum class Headwear
+	enum class Hat
 	{
 		None,
-		// 14head
 		Bandana, // replaces hair
 		BoaterHat,
 		CowboyHat,
@@ -151,14 +146,21 @@ struct Character
 	Shoe shoe = Shoe::None;
 	int shoe_color = 0;
 	Lowerwear lowerwear = Lowerwear::None;
+	int lowerwear_color = 0;
 	Shirt shirt = Shirt::None;
-	Handwear handwear = Handwear::None;
+	int shirt_color = 0;
+	Gloves gloves = Gloves::None;
+	int gloves_color = 0;
 	Outerwear outerwear = Outerwear::None;
+	int outerwear_color = 0;
 	Neckwear neckwear = Neckwear::None;
-	Facewear facewear = Facewear::None;
+	//int neckwear_color = 0;
+	Glasses glasses = Glasses::None;
+	int glasses_color = 0;
 	Hair hair = Hair::None;
 	int hair_color = 0;
-	Headwear headwear = Headwear::None;
+	Hat hat = Hat::None;
+	//int hat_color = 0;
 
 	void randomize();
 	std::shared_ptr<sf::Texture> bake_texture() const;

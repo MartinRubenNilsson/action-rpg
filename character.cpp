@@ -8,19 +8,26 @@ void Character::randomize()
 {
 	body = (Body)(random::range_i(1, (int)Body::Count - 1));
 	skin_color = random::range_i(0, SKIN_COLORS - 1);
-	//sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
-	//sock_color = random::range_i(0, SOCK_COLORS - 1);
+	sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
+	sock_color = random::range_i(0, SOCK_COLORS - 1);
 	shoe = (Shoe)(random::range_i(0, (int)Shoe::Count - 1));
 	shoe_color = random::range_i(0, SHOE_COLORS - 1);
-	//lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
-	//shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
-	//handwear = (Handwear)(random::range_i(0, (int)Handwear::Count - 1));
-	//outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
-	//neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
-	//facewear = (Facewear)(random::range_i(0, (int)Facewear::Count - 1));
-	//hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
-	//hair_color = random::range_i(0, HAIR_COLORS - 1);
-	//headwear = (Headwear)(random::range_i(0, (int)Headwear::Count - 1));
+	lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
+	lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
+	shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
+	shirt_color = random::range_i(0, SHIRT_COLORS - 1);
+	gloves = (Gloves)(random::range_i(0, (int)Gloves::Count - 1));
+	gloves_color = random::range_i(0, GLOVES_COLORS - 1);
+	outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
+	outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
+	neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
+	//neckwear_color = random::range_i(0, NECKWEAR_COLORS - 1);
+	glasses = (Glasses)(random::range_i(0, (int)Glasses::Count - 1));
+	glasses_color = random::range_i(0, GLASSES_COLORS - 1);
+	hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
+	hair_color = random::range_i(0, HAIR_COLORS - 1);
+	hat = (Hat)(random::range_i(0, (int)Hat::Count - 1));
+	//hat_color = random::range_i(0, HAT_COLORS - 1);
 }
 
 std::shared_ptr<sf::Texture> Character::bake_texture() const
@@ -95,19 +102,19 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::LongPants:
-		layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_C3);
+		layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::Onepiece:
-		layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_C3);
+		layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::OnepieceBoobs:
-		layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_C3);
+		layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::Shorts:
-		layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_C3);
+		layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::Undies:
-		layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_C3);
+		layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_C3, lowerwear_color);
 		break;
 	}
 
@@ -115,25 +122,25 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (shirt) {
 	case Shirt::Bra:
-		layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::LongShirt:
-		layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::LongShirtBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::ShortShirt:
-		layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::ShortShirtBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::TankTop:
-		layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_C3, shirt_color);
 		break;
 	case Shirt::TankTopBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_C3);
+		layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_C3, shirt_color);
 		break;
 	}
 
@@ -141,16 +148,16 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::Overalls:
-		layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_C3);
+		layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::OverallsBoobs:
-		layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_C3);
+		layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::Shortalls:
-		layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_C3);
+		layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::ShortallsBoobs:
-		layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_C3);
+		layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_C3, lowerwear_color);
 		break;
 	}
 
@@ -169,30 +176,30 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::FrillyDress:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::FrillyDressBoobs:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::FrillySkirt:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::LongDress:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::LongDressBoobs:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_C3, lowerwear_color);
 		break;
 	case Lowerwear::LongSkirt:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_C3);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_C3, lowerwear_color);
 		break;
 	}
 
 	// 09hand
 
-	switch (handwear) {
-	case Handwear::Gloves:
-		layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_C3);
+	switch (gloves) {
+	case Gloves::Gloves:
+		layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_C3, gloves_color);
 		break;
 	}
 
@@ -200,10 +207,10 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (outerwear) {
 	case Outerwear::Suspenders:
-		layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_C3);
+		layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_C3, outerwear_color);
 		break;
 	case Outerwear::Vest:
-		layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_C3);
+		layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_C3, outerwear_color);
 		break;
 	}
 
@@ -226,21 +233,21 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	// 12face
 
-	switch (facewear) {
-	case Facewear::Glasses:
-		layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_C3);
+	switch (glasses) {
+	case Glasses::Glasses:
+		layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_C3, glasses_color);
 		break;
-	case Facewear::Shades:
-		layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_C3);
+	case Glasses::Shades:
+		layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_C3, glasses_color);
 		break;
 	}
 
 	// 13hair
 
 	bool headwear_replaces_hair = false;
-	switch (headwear) {
-	case Headwear::Bandana:
-	case Headwear::Headscarf:
+	switch (hat) {
+	case Hat::Bandana:
+	case Hat::Headscarf:
 		headwear_replaces_hair = true;
 		break;
 	}
@@ -288,23 +295,23 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	// 14head
 
-	switch (headwear) {
-	case Headwear::Bandana:
+	switch (hat) {
+	case Hat::Bandana:
 		layers.emplace_back("14head/fbas_14head_bandana_00b_e.png", LUT_B);
 		break;
-	case Headwear::BoaterHat:
+	case Hat::BoaterHat:
 		layers.emplace_back("14head/fbas_14head_boaterhat_00d.png", LUT_D);
 		break;
-	case Headwear::CowboyHat:
+	case Hat::CowboyHat:
 		layers.emplace_back("14head/fbas_14head_cowboyhat_00d.png", LUT_D);
 		break;
-	case Headwear::FloppyHat:
+	case Hat::FloppyHat:
 		layers.emplace_back("14head/fbas_14head_floppyhat_00d.png", LUT_D);
 		break;
-	case Headwear::Headscarf:
+	case Hat::Headscarf:
 		layers.emplace_back("14head/fbas_14head_headscarf_00b_e.png", LUT_B);
 		break;
-	case Headwear::StrawHat:
+	case Hat::StrawHat:
 		layers.emplace_back("14head/fbas_14head_strawhat_00d.png", LUT_D);
 		break;
 	}
