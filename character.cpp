@@ -8,9 +8,10 @@ void Character::randomize()
 {
 	body = (Body)(random::range_i(1, (int)Body::Count - 1));
 	skin_color = random::range_i(0, SKIN_COLORS - 1);
-	sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
-	sock_color = random::range_i(0, SOCK_COLORS - 1);
-	//footwear = (Footwear)(random::range_i(0, (int)Footwear::Count - 1));
+	//sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
+	//sock_color = random::range_i(0, SOCK_COLORS - 1);
+	shoe = (Shoe)(random::range_i(0, (int)Shoe::Count - 1));
+	shoe_color = random::range_i(0, SHOE_COLORS - 1);
 	//lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
 	//shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
 	//handwear = (Handwear)(random::range_i(0, (int)Handwear::Count - 1));
@@ -78,15 +79,15 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	// 03fot1
 
-	switch (footwear) {
-	case Footwear::Boots:
-		layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3);
+	switch (shoe) {
+	case Shoe::Boots:
+		layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3, shoe_color);
 		break;
-	case Footwear::Sandals:
-		layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3);
+	case Shoe::Sandals:
+		layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3, shoe_color);
 		break;
-	case Footwear::Shoes:
-		layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3);
+	case Shoe::Shoes:
+		layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3, shoe_color);
 		break;
 	}
 
@@ -155,12 +156,12 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	// 07fot2
 
-	switch (footwear) {
-	case Footwear::CuffedBoots:
-		layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3);
+	switch (shoe) {
+	case Shoe::CuffedBoots:
+		layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3, shoe_color);
 		break;
-	case Footwear::CurlyToeShoes:
-		layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3);
+	case Shoe::CurlyToeShoes:
+		layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3, shoe_color);
 		break;
 	}
 

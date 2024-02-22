@@ -2,12 +2,13 @@
 
 struct Character
 {
-	static constexpr int C3_COLORS = 48;
-	static constexpr int C4_COLORS = 58;
+	static constexpr int C3_LUT_COLORS = 48;
+	static constexpr int C4_LUT_COLORS = 58;
 
 	static constexpr int SKIN_COLORS = 18;
 	static constexpr int HAIR_COLORS = 58;
-	static constexpr int SOCK_COLORS = C3_COLORS;
+	static constexpr int SOCK_COLORS = C3_LUT_COLORS;
+	static constexpr int SHOE_COLORS = C3_LUT_COLORS;
 
 	enum class Body
 	{
@@ -25,14 +26,12 @@ struct Character
 		Count,
 	};
 
-	enum class Footwear
+	enum class Shoe
 	{
 		None,
-		// 03fot1
 		Boots,
 		Sandals,
 		Shoes,
-		// 07fot2
 		CuffedBoots,
 		CurlyToeShoes,
 		Count,
@@ -149,7 +148,8 @@ struct Character
 	int skin_color = 0;
 	Sock sock = Sock::None;
 	int sock_color = 0;
-	Footwear footwear = Footwear::None;
+	Shoe shoe = Shoe::None;
+	int shoe_color = 0;
 	Lowerwear lowerwear = Lowerwear::None;
 	Shirt shirt = Shirt::None;
 	Handwear handwear = Handwear::None;
