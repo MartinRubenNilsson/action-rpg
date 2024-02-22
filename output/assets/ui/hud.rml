@@ -14,6 +14,15 @@
 		<img class="heart" data-attr-sprite="hud_player_health >= 1 ? 'hud-heart-full' : 'hud-heart-empty'"/>
 		<img class="heart" data-attr-sprite="hud_player_health >= 2 ? 'hud-heart-full' : 'hud-heart-empty'"/>
 		<img class="heart" data-attr-sprite="hud_player_health >= 3 ? 'hud-heart-full' : 'hud-heart-empty'"/>
+		<p>
+			Moneyz: {{hud_rupee_amount}}
+		</p>
+		<p>
+			Bombz: {{hud_bomb_ammo}}
+		</p>
+		<p>
+			Arrowz: {{hud_arrow_ammo}}
+		</p>
 	</div>
 </body>
 </rml>

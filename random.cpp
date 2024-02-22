@@ -9,7 +9,7 @@ namespace random
 
 	std::default_random_engine _engine(std::random_device{}());
 
-	bool coin_flip(float probability_of_true)
+	bool chance(float probability_of_true)
 	{
 		std::bernoulli_distribution dist(probability_of_true);
 		return dist(_engine);

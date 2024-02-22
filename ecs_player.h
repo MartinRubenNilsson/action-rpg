@@ -32,6 +32,7 @@ namespace ecs
 		int health = 3;
 		int arrow_ammo = 10;
 		int bomb_ammo = 5;
+		int rupee_amount = 10;
 	};
 
 	void process_event_player(const sf::Event& ev);

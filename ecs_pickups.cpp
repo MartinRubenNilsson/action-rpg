@@ -39,7 +39,7 @@ namespace ecs
 		return entity;
 	}
 
-	entt::entity create_rupee_pickup(const sf::Vector2f& position, int amount)
+	entt::entity create_rupee_pickup(const sf::Vector2f& position)
 	{
 		entt::entity entity = _registry.create();
 
@@ -47,7 +47,6 @@ namespace ecs
 
 		Pickup pickup{};
 		pickup.type = PickupType::Rupee;
-		pickup.amount = amount; // Set the rupee amount
 		_registry.emplace<Pickup>(entity, pickup);
 
 		b2BodyDef body_def;
@@ -63,7 +62,7 @@ namespace ecs
 		}
 
 		Tile& tile = emplace_tile(entity);
-		tile.set("rupee", "items2");
+		tile.set("rupee", "items1");
 		tile.position = position;
 		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 

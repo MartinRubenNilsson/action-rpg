@@ -6,6 +6,9 @@ namespace ui
 	namespace bindings
 	{
 		int hud_player_health = 0;
+		int hud_arrow_ammo = 0;
+		int hud_bomb_ammo = 0;
+		int hud_rupee_amount = 0;
 	}
 
 	extern Rml::Context* _context;

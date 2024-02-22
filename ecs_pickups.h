@@ -11,11 +11,10 @@ namespace ecs
 	struct Pickup
 	{
 		PickupType type;
-		int amount = 0;
 	};
 
 	entt::entity create_arrow_pickup(const sf::Vector2f& position);
-	entt::entity create_rupee_pickup(const sf::Vector2f& position, int amount);
+	entt::entity create_rupee_pickup(const sf::Vector2f& position);
 
 	void emplace_pickup(entt::entity entity, const Pickup& pickup);
 	void remove_pickup(entt::entity entity);

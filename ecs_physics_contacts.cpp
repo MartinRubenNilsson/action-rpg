@@ -5,11 +5,15 @@
 #include "ecs.h"
 #include "ecs_tiled.h"
 #include "ecs_player.h"
+#include "ecs_pickups.h"
 
 namespace ecs
 {
+	extern entt::registry _registry;
+
 	void on_begin_contact(const PhysicsContact& contact)
 	{
+
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
 		b2Body* body_a = fixture_a->GetBody();
@@ -40,6 +44,16 @@ namespace ecs
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 				audio::play("event:/snd_pickup");
+				auto& player = _registry.get<Player>(entity_b);
+				auto& pickup = _registry.get<Pickup>(entity_a);
+				switch (pickup.type) {
+					case PickupType::Arrow:
+						player.arrow_ammo++;
+						break;
+					case PickupType::Rupee:
+						player.rupee_amount++;
+						break;
+				}
 				destroy_at_end_of_frame(entity_a);
 			}
 		} else if (class_a == "player") {

@@ -125,6 +125,41 @@ namespace ecs
 		tile.pivot = sf::Vector2f(6.f, 6.f);
 	}
 
+	void _player_interact(sf::Vector2f position) {
+		sf::Vector2f box_center = position;
+		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
+		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
+		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
+		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
+			std::string class_ = get_class(hit.entity);
+			if (class_ == "slime") {
+				destroy_at_end_of_frame(hit.entity);
+			}
+			else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
+				std::string tile_class = tile->get_tile_class();
+				if (tile_class == "grass") {
+					audio_events_to_play.insert("event:/snd_cut_grass");
+					if (random::chance(0.2f))
+						create_arrow_pickup(tile->position + sf::Vector2f(8.f, 8.f));
+					if (random::chance(0.9f))
+						create_rupee_pickup(tile->position + sf::Vector2f(8.f, 8.f));
+					destroy_at_end_of_frame(hit.entity);
+				}
+			}
+			else {
+				std::string string;
+				if (get_string(hit.entity, "textbox", string)) {
+					ui::push_textbox_presets(string);
+					ui::pop_textbox();
+				}
+				if (get_string(hit.entity, "sound", string))
+					audio_events_to_play.insert(string);
+			}
+		}
+		for (const std::string& audio_event : audio_events_to_play)
+			audio::play(audio_event);
+	}
+
 	void update_player(float dt)
 	{
 		for (auto [player_entity, player, body, tile] :
@@ -225,42 +260,8 @@ namespace ecs
 					tile.set("idle_"s + dir);
 					tile.animation_loop = true;
 				}
-
-				// HANDLE INTERACTION
-
-				// TODO refactor sometime
 				if (player.input.interact) {
-					sf::Vector2f box_center = player_position + player.facing_direction * 16.f;
-					sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
-					sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-					std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
-					for (const BoxHit& hit : boxcast(box_min, box_max)) {
-						if (hit.entity == player_entity) continue;
-						std::string class_ = get_class(hit.entity);
-						if (class_ == "slime") {
-							destroy_at_end_of_frame(hit.entity);
-						}
-						else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
-							std::string tile_class = tile->get_tile_class();
-							if (tile_class == "grass") {
-								audio_events_to_play.insert("event:/snd_cut_grass");
-								if (random::coin_flip(0.2f))
-									create_arrow_pickup(tile->position + sf::Vector2f(0.5f, 0.5f));
-								destroy_at_end_of_frame(hit.entity);
-							}
-						}
-						else {
-							std::string string;
-							if (get_string(hit.entity, "textbox", string)) {
-								ui::push_textbox_presets(string);
-								ui::pop_textbox();
-							}
-							if (get_string(hit.entity, "sound", string))
-								audio_events_to_play.insert(string);
-						}
-					}
-					for (const std::string& audio_event : audio_events_to_play)
-						audio::play(audio_event);
+					_player_interact(player_position + player.facing_direction * 16.f);
 				}
 			} break;
 			case PlayerState::Attacking: {
@@ -300,6 +301,9 @@ namespace ecs
 			// UPDATE HUD
 
 			ui::bindings::hud_player_health = player.health;
+			ui::bindings::hud_arrow_ammo = player.arrow_ammo;
+			ui::bindings::hud_bomb_ammo = player.bomb_ammo;
+			ui::bindings::hud_rupee_amount = player.rupee_amount;
 
 			// CLEAR INPUT
 
@@ -329,10 +333,17 @@ namespace ecs
 				player.arrow_ammo += 5;
 			}
 
+			// Increase Rupee Button
+			if (ImGui::Button("Increase Rupee")) {
+				// Increase rupee by 5, modify this number as needed
+				player.rupee_amount += 5;
+			}
+
 			// Use magic enum to display player state
 			ImGui::Text("Player State: %s", magic_enum::enum_name(player.state).data());
 			ImGui::Text("Current Health: %d", player.health);
 			ImGui::Text("Current Ammo: %d", player.arrow_ammo);
+			ImGui::Text("Current Rupee: %d", player.rupee_amount);
 
 			ImGui::End();
 		}
