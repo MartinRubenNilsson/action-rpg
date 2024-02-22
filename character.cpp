@@ -8,7 +8,8 @@ void Character::randomize()
 {
 	body = (Body)(random::range_i(1, (int)Body::Count - 1));
 	skin_color = random::range_i(0, SKIN_COLORS - 1);
-	//legwear = (Legwear)(random::range_i(0, (int)Legwear::Count - 1));
+	sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
+	sock_color = random::range_i(0, SOCK_COLORS - 1);
 	//footwear = (Footwear)(random::range_i(0, (int)Footwear::Count - 1));
 	//lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
 	//shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
@@ -16,28 +17,28 @@ void Character::randomize()
 	//outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
 	//neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
 	//facewear = (Facewear)(random::range_i(0, (int)Facewear::Count - 1));
-	hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
-	hair_color = random::range_i(0, HAIR_COLORS - 1);
+	//hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
+	//hair_color = random::range_i(0, HAIR_COLORS - 1);
 	//headwear = (Headwear)(random::range_i(0, (int)Headwear::Count - 1));
 }
 
 std::shared_ptr<sf::Texture> Character::bake_texture() const
 {
-	enum LookupTexture
+	enum LookupTextureType
 	{
 		LUT_SKIN,
 		LUT_HAIR,
-		LUT_A, // Single 3-color ramp
+		LUT_C3, // Single 3-color ramp
 		LUT_B, // Single 4-color ramp
-		LUT_C, // Two 3-color ramps
+		//LUT_C, // Two 3-color ramps
 		LUT_D, // One 4-color ramp AND one 3-color ramp
 	};
 
 	struct Layer
 	{
 		std::filesystem::path texture_path;
-		int lut = 0;
-		int color = 0;
+		int lut_type = -1;
+		int lut_row = -1;
 	};
 
 	std::vector<Layer> layers;
@@ -63,15 +64,15 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	// 02sock
 
-	switch (legwear) {
-	case Legwear::SocksHigh:
-		layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_A);
+	switch (sock) {
+	case Sock::SocksHigh:
+		layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_C3, sock_color);
 		break;
-	case Legwear::SocksLow:
-		layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_A);
+	case Sock::SocksLow:
+		layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, sock_color);
 		break;
-	case Legwear::Stockings:
-		layers.emplace_back("02sock/fbas_02sock_stockings_00a.png", LUT_A);
+	case Sock::Stockings:
+		layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, sock_color);
 		break;
 	}
 
@@ -79,13 +80,13 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (footwear) {
 	case Footwear::Boots:
-		layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_A);
+		layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3);
 		break;
 	case Footwear::Sandals:
-		layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_A);
+		layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3);
 		break;
 	case Footwear::Shoes:
-		layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_A);
+		layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3);
 		break;
 	}
 
@@ -93,19 +94,19 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::LongPants:
-		layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_A);
+		layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_C3);
 		break;
 	case Lowerwear::Onepiece:
-		layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_A);
+		layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_C3);
 		break;
 	case Lowerwear::OnepieceBoobs:
-		layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_A);
+		layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_C3);
 		break;
 	case Lowerwear::Shorts:
-		layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_A);
+		layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_C3);
 		break;
 	case Lowerwear::Undies:
-		layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_A);
+		layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_C3);
 		break;
 	}
 
@@ -113,25 +114,25 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (shirt) {
 	case Shirt::Bra:
-		layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_C3);
 		break;
 	case Shirt::LongShirt:
-		layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_C3);
 		break;
 	case Shirt::LongShirtBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_C3);
 		break;
 	case Shirt::ShortShirt:
-		layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_C3);
 		break;
 	case Shirt::ShortShirtBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_C3);
 		break;
 	case Shirt::TankTop:
-		layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_C3);
 		break;
 	case Shirt::TankTopBoobs:
-		layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_A);
+		layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_C3);
 		break;
 	}
 
@@ -139,16 +140,16 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::Overalls:
-		layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_A);
+		layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_C3);
 		break;
 	case Lowerwear::OverallsBoobs:
-		layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_A);
+		layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_C3);
 		break;
 	case Lowerwear::Shortalls:
-		layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_A);
+		layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_C3);
 		break;
 	case Lowerwear::ShortallsBoobs:
-		layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_A);
+		layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_C3);
 		break;
 	}
 
@@ -156,10 +157,10 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (footwear) {
 	case Footwear::CuffedBoots:
-		layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_A);
+		layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3);
 		break;
 	case Footwear::CurlyToeShoes:
-		layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_A);
+		layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3);
 		break;
 	}
 
@@ -167,22 +168,22 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (lowerwear) {
 	case Lowerwear::FrillyDress:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_C3);
 		break;
 	case Lowerwear::FrillyDressBoobs:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_C3);
 		break;
 	case Lowerwear::FrillySkirt:
-		layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_C3);
 		break;
 	case Lowerwear::LongDress:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_C3);
 		break;
 	case Lowerwear::LongDressBoobs:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_C3);
 		break;
 	case Lowerwear::LongSkirt:
-		layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_A);
+		layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_C3);
 		break;
 	}
 
@@ -190,7 +191,7 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (handwear) {
 	case Handwear::Gloves:
-		layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_A);
+		layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_C3);
 		break;
 	}
 
@@ -198,10 +199,10 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (outerwear) {
 	case Outerwear::Suspenders:
-		layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_A);
+		layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_C3);
 		break;
 	case Outerwear::Vest:
-		layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_A);
+		layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_C3);
 		break;
 	}
 
@@ -226,10 +227,10 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (facewear) {
 	case Facewear::Glasses:
-		layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_A);
+		layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_C3);
 		break;
 	case Facewear::Shades:
-		layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_A);
+		layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_C3);
 		break;
 	}
 
@@ -319,17 +320,25 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 		std::shared_ptr<sf::Texture> texture = textures::get(base_dir / layer.texture_path);
 		if (!texture) continue;
 		std::shared_ptr<sf::Texture> lut;
-		switch (layer.lut) {
+		switch (layer.lut_type) {
 		case LUT_SKIN:
 			lut = textures::get(base_dir / "palettes/mana seed skin ramps.png");
 			break;
 		case LUT_HAIR:
 			lut = textures::get(base_dir / "palettes/mana seed hair ramps.png");
 			break;
+		case LUT_C3:
+			lut = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
+			break;
 		}
-		if (lut) shader->setUniform("lut", *lut);
-		shader->setUniform("palette", layer.lut);
-		shader->setUniform("color", layer.color);
+		if (lut) {
+			shader->setUniform("lut", *lut);
+			shader->setUniform("lut_type", layer.lut_type);
+			shader->setUniform("lut_row", layer.lut_row);
+		} else {
+			shader->setUniform("lut_type", -1);
+		}
+		
 		render_texture.draw(sf::Sprite(*texture), { shader.get() });
 	}
 	render_texture.display();
