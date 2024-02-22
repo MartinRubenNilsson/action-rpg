@@ -157,6 +157,7 @@ struct Character
 	Neckwear neckwear = Neckwear::None;
 	Facewear facewear = Facewear::None;
 	Hair hair = Hair::None;
+	int hair_color = 0;
 	Headwear headwear = Headwear::None;
 
 	void randomize();
