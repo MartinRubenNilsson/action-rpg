@@ -17,6 +17,7 @@
 #include "random.h"
 #include "tiled.h"
 #include "ecs_bomb.h"
+#include "character.h"
 
 using namespace std::literals::string_literals;
 
@@ -309,23 +310,24 @@ namespace ecs
 
 	void debug_player()
 	{
+		bool randomize_character = false;
+
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			ImGui::Begin("Player");
 
-			// Hurt Player Button
+			if (ImGui::Button("Randomize Character")) {
+				randomize_character = true;
+			}
+
 			if (ImGui::Button("Hurt Player")) {
-				// You can change the damage value as per your need
 				hurt_player(entity, 1);
 			}
 
-			// Kill Player Button
 			if (ImGui::Button("Kill Player")) {
 				kill_player(entity);
 			}
 
-			// Increase Ammo Button
 			if (ImGui::Button("Increase Ammo")) {
-				// Increase ammo by 5, modify this number as needed
 				player.arrow_ammo += 5;
 			}
 
@@ -335,6 +337,14 @@ namespace ecs
 			ImGui::Text("Current Ammo: %d", player.arrow_ammo);
 
 			ImGui::End();
+		}
+
+		if (randomize_character) {
+			for (auto [entity, player, tile] : _registry.view<Player, Tile>().each()) {
+				Character character{};
+				character.randomize();
+				tile.texture = character.bake_texture();
+			}
 		}
 	}
 
