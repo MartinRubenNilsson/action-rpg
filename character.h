@@ -13,7 +13,11 @@ struct Character
 	static constexpr int SHIRT_COLORS = C3_LUT_COLORS;
 	static constexpr int GLOVES_COLORS = C3_LUT_COLORS;
 	static constexpr int OUTERWEAR_COLORS = C3_LUT_COLORS;
+	static constexpr int NECKWEAR_COLORS_1 = C3_LUT_COLORS;
+	static constexpr int NECKWEAR_COLORS_2 = C4_LUT_COLORS;
 	static constexpr int GLASSES_COLORS = C3_LUT_COLORS;
+	static constexpr int HAT_COLORS_1 = C3_LUT_COLORS;
+	static constexpr int HAT_COLORS_2 = C4_LUT_COLORS;
 
 	enum class Body
 	{
@@ -154,13 +158,15 @@ struct Character
 	Outerwear outerwear = Outerwear::None;
 	int outerwear_color = 0;
 	Neckwear neckwear = Neckwear::None;
-	//int neckwear_color = 0;
+	int neckwear_color_1 = 0;
+	int neckwear_color_2 = 0;
 	Glasses glasses = Glasses::None;
 	int glasses_color = 0;
 	Hair hair = Hair::None;
 	int hair_color = 0;
 	Hat hat = Hat::None;
-	//int hat_color = 0;
+	int hat_color_1 = 0;
+	int hat_color_2 = 0;
 
 	void randomize();
 	std::shared_ptr<sf::Texture> bake_texture() const;

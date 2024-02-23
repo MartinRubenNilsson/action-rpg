@@ -21,13 +21,15 @@ void Character::randomize()
 	outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
 	outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
 	neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
-	//neckwear_color = random::range_i(0, NECKWEAR_COLORS - 1);
+	neckwear_color_1 = random::range_i(0, NECKWEAR_COLORS_1 - 1);
+	neckwear_color_2 = random::range_i(0, NECKWEAR_COLORS_2 - 1);
 	glasses = (Glasses)(random::range_i(0, (int)Glasses::Count - 1));
 	glasses_color = random::range_i(0, GLASSES_COLORS - 1);
 	hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
 	hair_color = random::range_i(0, HAIR_COLORS - 1);
 	hat = (Hat)(random::range_i(0, (int)Hat::Count - 1));
-	//hat_color = random::range_i(0, HAT_COLORS - 1);
+	hat_color_1 = random::range_i(0, HAT_COLORS_1 - 1);
+	hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 }
 
 std::shared_ptr<sf::Texture> Character::bake_texture() const
@@ -36,17 +38,17 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 	{
 		LUT_SKIN,
 		LUT_HAIR,
-		LUT_C3, // Single 3-color ramp
-		LUT_B, // Single 4-color ramp
-		//LUT_C, // Two 3-color ramps
-		LUT_D, // One 4-color ramp AND one 3-color ramp
+		LUT_C3, // 3-color
+		LUT_C4, // 4-color
 	};
 
 	struct Layer
 	{
 		std::filesystem::path texture_path;
-		int lut_type = -1;
-		int lut_row = -1;
+		int lut1_type = -1;
+		int lut1_y = -1;
+		int lut2_type = -1;
+		int lut2_y = -1;
 	};
 
 	std::vector<Layer> layers;
@@ -55,10 +57,10 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (neckwear) {
 	case Neckwear::CloakPlain:
-		layers.emplace_back("00undr/fbas_00undr_cloakplain_00d.png", LUT_D);
+		layers.emplace_back("00undr/fbas_00undr_cloakplain_00d.png", LUT_C3, neckwear_color_1, LUT_C4, neckwear_color_2);
 		break;
 	case Neckwear::CloakWithMantlePlain:
-		layers.emplace_back("00undr/fbas_00undr_cloakwithmantleplain_00b.png", LUT_B);
+		layers.emplace_back("00undr/fbas_00undr_cloakwithmantleplain_00b.png", LUT_C4, neckwear_color_1);
 		break;
 	}
 
@@ -218,16 +220,16 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (neckwear) {
 	case Neckwear::CloakPlain:
-		layers.emplace_back("11neck/fbas_11neck_cloakplain_00d.png", LUT_D);
+		layers.emplace_back("11neck/fbas_11neck_cloakplain_00d.png", LUT_C3, neckwear_color_1, LUT_C4, neckwear_color_2);
 		break;
 	case Neckwear::CloakWithMantlePlain:
-		layers.emplace_back("11neck/fbas_11neck_cloakwithmantleplain_00b.png", LUT_B);
+		layers.emplace_back("11neck/fbas_11neck_cloakwithmantleplain_00b.png", LUT_C4, neckwear_color_1);
 		break;
 	case Neckwear::MantlePlain:
-		layers.emplace_back("11neck/fbas_11neck_mantleplain_00b.png", LUT_B);
+		layers.emplace_back("11neck/fbas_11neck_mantleplain_00b.png", LUT_C4, neckwear_color_1);
 		break;
 	case Neckwear::Scarf:
-		layers.emplace_back("11neck/fbas_11neck_scarf_00b.png", LUT_B);
+		layers.emplace_back("11neck/fbas_11neck_scarf_00b.png", LUT_C4, neckwear_color_1);
 		break;
 	}
 
@@ -297,22 +299,22 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	switch (hat) {
 	case Hat::Bandana:
-		layers.emplace_back("14head/fbas_14head_bandana_00b_e.png", LUT_B);
+		layers.emplace_back("14head/fbas_14head_bandana_00b_e.png", LUT_C4, hat_color_1);
 		break;
 	case Hat::BoaterHat:
-		layers.emplace_back("14head/fbas_14head_boaterhat_00d.png", LUT_D);
+		layers.emplace_back("14head/fbas_14head_boaterhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
 		break;
 	case Hat::CowboyHat:
-		layers.emplace_back("14head/fbas_14head_cowboyhat_00d.png", LUT_D);
+		layers.emplace_back("14head/fbas_14head_cowboyhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
 		break;
 	case Hat::FloppyHat:
-		layers.emplace_back("14head/fbas_14head_floppyhat_00d.png", LUT_D);
+		layers.emplace_back("14head/fbas_14head_floppyhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
 		break;
 	case Hat::Headscarf:
-		layers.emplace_back("14head/fbas_14head_headscarf_00b_e.png", LUT_B);
+		layers.emplace_back("14head/fbas_14head_headscarf_00b_e.png", LUT_C4, hat_color_1);
 		break;
 	case Hat::StrawHat:
-		layers.emplace_back("14head/fbas_14head_strawhat_00d.png", LUT_D);
+		layers.emplace_back("14head/fbas_14head_strawhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
 		break;
 	}
 
@@ -327,26 +329,54 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 	for (const Layer& layer : layers) {
 		std::shared_ptr<sf::Texture> texture = textures::get(base_dir / layer.texture_path);
 		if (!texture) continue;
-		std::shared_ptr<sf::Texture> lut;
-		switch (layer.lut_type) {
-		case LUT_SKIN:
-			lut = textures::get(base_dir / "palettes/mana seed skin ramps.png");
-			break;
-		case LUT_HAIR:
-			lut = textures::get(base_dir / "palettes/mana seed hair ramps.png");
-			break;
-		case LUT_C3:
-			lut = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
-			break;
+		{
+			std::shared_ptr<sf::Texture> lut1;
+			switch (layer.lut1_type) {
+			case LUT_SKIN:
+				lut1 = textures::get(base_dir / "palettes/mana seed skin ramps.png");
+				break;
+			case LUT_HAIR:
+				lut1 = textures::get(base_dir / "palettes/mana seed hair ramps.png");
+				break;
+			case LUT_C3:
+				lut1 = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
+				break;
+			case LUT_C4:
+				lut1 = textures::get(base_dir / "palettes/mana seed 4-color ramps.png");
+				break;
+			}
+			if (lut1) {
+				shader->setUniform("lut1", *lut1);
+				shader->setUniform("lut1_type", layer.lut1_type);
+				shader->setUniform("lut1_y", layer.lut1_y);
+			} else {
+				shader->setUniform("lut1_type", -1);
+			}
 		}
-		if (lut) {
-			shader->setUniform("lut", *lut);
-			shader->setUniform("lut_type", layer.lut_type);
-			shader->setUniform("lut_row", layer.lut_row);
-		} else {
-			shader->setUniform("lut_type", -1);
+		{
+			std::shared_ptr<sf::Texture> lut2;
+			switch (layer.lut2_type) {
+			case LUT_SKIN:
+				lut2 = textures::get(base_dir / "palettes/mana seed skin ramps.png");
+				break;
+			case LUT_HAIR:
+				lut2 = textures::get(base_dir / "palettes/mana seed hair ramps.png");
+				break;
+			case LUT_C3:
+				lut2 = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
+				break;
+			case LUT_C4:
+				lut2 = textures::get(base_dir / "palettes/mana seed 4-color ramps.png");
+				break;
+			}
+			if (lut2) {
+				shader->setUniform("lut2", *lut2);
+				shader->setUniform("lut2_type", layer.lut2_type);
+				shader->setUniform("lut2_y", layer.lut2_y);
+			} else {
+				shader->setUniform("lut2_type", -1);
+			}
 		}
-		
 		render_texture.draw(sf::Sprite(*texture), { shader.get() });
 	}
 	render_texture.display();
