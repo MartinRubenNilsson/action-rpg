@@ -5,8 +5,9 @@
 
 namespace console
 {
-	const ImColor _COLOR_COMMAND = IM_COL32(255, 255, 255, 255);
-	const ImColor _COLOR_ERROR = IM_COL32(220, 50, 47, 255);
+	const ImColor _COLOR_COMMAND = IM_COL32(230, 230, 230, 255);
+	const ImColor _COLOR_LOG = IM_COL32(252, 191, 73, 255);
+	const ImColor _COLOR_LOG_ERROR = IM_COL32(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
 	bool _visible = false;
 	bool _reclaim_focus = false;
@@ -60,10 +61,6 @@ namespace console
 			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
 
 			ImGuiStyle& style = ImGui::GetStyle();
-			style.WindowRounding = 5.3f;
-			style.FrameRounding = 2.3f;
-			style.ScrollbarRounding = 0;
-
 			style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
 			style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
@@ -133,11 +130,15 @@ namespace console
 
 		if (!_visible) return;
 
+		ImVec2 size = ImGui::GetIO().DisplaySize;
+		size.x *= 0.5f;
+		size.y *= 0.5f;
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-		ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+		ImGui::SetNextWindowSize(size);
+		ImGui::SetNextWindowBgAlpha(0.75f); // Transparent background
 
 		ImGuiWindowFlags window_flags =
+			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoCollapse |
@@ -226,14 +227,14 @@ namespace console
 
 	void log(const std::string& message)
 	{
-		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+		_history.emplace_back(message, _COLOR_LOG);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 	}
 
 	void log_error(const std::string& message, bool show_console)
 	{
-		_history.emplace_back(message, _COLOR_ERROR);
+		_history.emplace_back(message, _COLOR_LOG_ERROR);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 		if (show_console) _visible = true;
