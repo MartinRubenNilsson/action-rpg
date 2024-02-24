@@ -12,23 +12,26 @@ namespace console
 {
 	using Arg = std::variant<std::monostate, bool, int, float, std::string>;
 
-	struct ArgParser
+	struct ArgTypenameVisitor
+	{
+		std::string operator()(std::monostate) const { return ""; }
+		std::string operator()(bool) const { return "BOOL"; }
+		std::string operator()(int) const { return "INT"; }
+		std::string operator()(float) const { return "FLOAT"; }
+		std::string operator()(const std::string&) const { return "STRING"; }
+	};
+
+	struct ArgParserVisitor
 	{
 		std::istream& is;
 
 		void operator()(std::monostate&) {}
 
-		void operator()(bool& value) {
-			is >> std::boolalpha >> value >> std::noboolalpha;
-		}
+		void operator()(bool& value) { is >> std::boolalpha >> value >> std::noboolalpha; }
 
-		void operator()(int& value) {
-			is >> value;
-		}
+		void operator()(int& value) { is >> value; }
 
-		void operator()(float& value) {
-			is >> value;
-		}
+		void operator()(float& value) { is >> value; }
 
 		void operator()(std::string& value) {
 			// Try to parse a string with quotes. If it fails, parse a string without quotes.
@@ -78,13 +81,13 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "clear";
-			cmd.desc = "Clear the console";
+			cmd.desc = "Clears the console";
 			cmd.callback = [](const Params&) { console::clear(); };
 		}
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "sleep";
-			cmd.desc = "Make the console sleep for a number of seconds";
+			cmd.desc = "Makes the console sleep for a number of seconds";
 			cmd.params[0] = { 0.f, "seconds", "The number of seconds to sleep" };
 			cmd.callback = [](const Params& params) {
 				console::sleep(std::get<float>(params[0].arg));
@@ -93,7 +96,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "log";
-			cmd.desc = "Log a message to the console";
+			cmd.desc = "Logs a message to the console";
 			cmd.params[0] = { "", "message", "The message to log"};
 			cmd.callback = [](const Params& params) {
 				console::log(std::get<std::string>(params[0].arg));
@@ -102,7 +105,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "log_error";
-			cmd.desc = "Log an error message to the console";
+			cmd.desc = "Logs an error message to the console";
 			cmd.params[0] = { "", "message", "The message to log"};
 			cmd.callback = [](const Params& params) {
 				console::log_error(std::get<std::string>(params[0].arg));
@@ -111,7 +114,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "execute";
-			cmd.desc = "Execute a console command";
+			cmd.desc = "Executes a console command";
 			cmd.params[0] = { "", "command_line", "The command to execute" };
 			cmd.callback = [](const Params& params) {
 				console::execute(std::get<std::string>(params[0].arg));
@@ -120,7 +123,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "execute_script";
-			cmd.desc = "Execute a console script";
+			cmd.desc = "Executes a console script";
 			cmd.params[0] = { "", "script_name", "The name of the script"};
 			cmd.callback = [](const Params& params) {
 				console::execute_script(std::get<std::string>(params[0].arg));
@@ -129,7 +132,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "bind";
-			cmd.desc = "Bind a console command to a key";
+			cmd.desc = "Binds a console command to a key";
 			cmd.params[0] = { "", "key", "The key to bind" };
 			cmd.params[1] = { "", "command_line", "The command to execute" };
 			cmd.callback = [](const Params& params) {
@@ -141,21 +144,10 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "unbind";
-			cmd.desc = "Unbind a key";
+			cmd.desc = "Unbinds a key";
 			cmd.params[0] = { "", "key", "The key to unbind" };
 			cmd.callback = [](const Params& params) {
 				console::unbind(std::get<std::string>(params[0].arg));
-			};
-		}
-
-		// CAMERA
-		{
-			Command& cmd = _commands.emplace_back();
-			cmd.name = "add_camera_trauma";
-			cmd.desc = "Add trauma to the active camera to make it shake";
-			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
-			cmd.callback = [](const Params& params) {
-				ecs::add_camera_trauma(std::get<float>(params[0].arg));
 			};
 		}
 		
@@ -163,7 +155,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "reload_shaders";
-			cmd.desc = "Reload all shaders";
+			cmd.desc = "Reloads all shaders";
 			cmd.callback = [](const Params& params) { shaders::reload_assets(); };
 		}
 
@@ -171,7 +163,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "audio_play";
-			cmd.desc = "Play an audio event";
+			cmd.desc = "Plays an audio event";
 			cmd.params[0] = { "", "event_path", "The full path of the event" };
 			cmd.callback = [](const Params& params) {
 				audio::play(std::get<std::string>(params[0].arg));
@@ -182,8 +174,8 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "map_open";
-			cmd.desc = "Open a map";
-			cmd.params[0] = { "", "map_name", "The name of the map" };
+			cmd.desc = "Opens a map";
+			cmd.params[0] = { "", "name", "The name of the map" };
 			cmd.callback = [](const Params& params) {
 				map::open(std::get<std::string>(params[0].arg));
 			};
@@ -191,13 +183,13 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "map_close";
-			cmd.desc = "Close the current map";
+			cmd.desc = "Closes the current map";
 			cmd.callback = [](const Params& params) { map::close(); };
 		}
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "map_reset";
-			cmd.desc = "Reset the current map";
+			cmd.desc = "Resets the current map";
 			cmd.callback = [](const Params& params) { map::reset(); };
 		}
 
@@ -205,20 +197,29 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "ui_show";
-			cmd.desc = "Show an RML document";
+			cmd.desc = "Shows an RML document";
 			cmd.params[0] = { "", "name", "The name of the document" };
 			cmd.callback = [](const Params& params) {
 				ui::show_document(std::get<std::string>(params[0].arg));
 			};
 		}
 
-		// MISC
+		// GAME
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "kill_player";
-			cmd.desc = "Kill the player";
+			cmd.desc = "Kills the player";
 			cmd.callback = [](const Params&) {
 				ecs::kill_player(ecs::find_entity_by_class("player"));
+			};
+		}
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "add_camera_trauma";
+			cmd.desc = "Adds trauma to the active camera to make it shake";
+			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
+			cmd.callback = [](const Params& params) {
+				ecs::add_camera_trauma(std::get<float>(params[0].arg));
 			};
 		}
 
@@ -226,13 +227,28 @@ namespace console
 		std::sort(_commands.begin(), _commands.end(), _compare_commands);
 	}
 
-	void _log_command_help(const Command& command)
+	std::string _get_command_help_message(const Command& command)
 	{
-		std::string line = command.name;
+		std::string msg;
+		msg += command.name;
 		for (const Param& param : command.params) {
-			//TODO
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			msg += " [";
+			msg += param.name;
+			msg += "]";
 		}
-		log(line);
+		msg += " - ";
+		msg += command.desc;
+		for (const Param& param : command.params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			msg += "\n";
+			msg += std::visit(ArgTypenameVisitor{}, param.arg);
+			msg += " ";
+			msg += param.name;
+			msg += ": ";
+			msg += param.desc;
+		}
+		return msg;
 	}
 
 	void _execute_command(const std::string& command_line)
@@ -240,37 +256,29 @@ namespace console
 		std::istringstream iss(command_line);
 		std::string name;
 		if (!(iss >> name)) return;
-
 		bool help = (name == "help");
-		if (help) {
-			if (!(iss >> name)) return;
-		}
-
+		if (help && !(iss >> name)) return;
 		auto it = std::lower_bound(_commands.begin(), _commands.end(), name, _compare_command_and_name);
 		if (it == _commands.end() || it->name != name) {
 			log_error("Unknown command: " + name);
 			return;
 		}
 		if (help) {
-			_log_command_help(*it);
+			log(_get_command_help_message(*it));
 			return;
 		}
 		if (!it->callback) {
 			log_error("Command not implemented: " + name);
 			return;
 		}
-
 		Params params = it->params;
-		ArgParser arg_parser{ iss };
+		ArgParserVisitor arg_parser_visitor{ iss };
 		for (Param& param : params) {
-			if (!iss) break;
-			std::visit(arg_parser, param.arg);
-			if (iss.fail()) {
-				log_error("Invalid argument: " + std::string(param.name));
-				return;
-			}
+			std::visit(arg_parser_visitor, param.arg);
+			if (iss) continue;
+			log_error("Invalid argument: " + std::string(param.name));
+			return;
 		}
-
 		it->callback(params);
 	}
 }
