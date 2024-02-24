@@ -176,7 +176,7 @@ namespace audio
 		}
 		char label_buffer[256];
 		result = _system->getParameterLabelByName(
-			name.c_str(), value, label_buffer, _countof(label_buffer), nullptr);
+			name.c_str(), (int)value, label_buffer, _countof(label_buffer), nullptr);
 		if (result != FMOD_OK) {
 			if (log_errors)
 				console::log_error("Could not get parameter label: " + name + "=" + std::to_string(value));

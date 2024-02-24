@@ -12,6 +12,8 @@ namespace audio
 	void load_bank_files(const std::filesystem::path& dir);
 	void update();
 
+	// LISTENERS
+
 	void set_listener_position(const sf::Vector2f& position);
 	sf::Vector2f get_listener_position();
 
