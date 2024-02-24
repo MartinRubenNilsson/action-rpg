@@ -27,18 +27,20 @@ namespace background
 
 	void _load_mountain_dusk_assets()
 	{
-		std::array<std::string, (size_t)MountainDuskLayerType::Count> paths;
-		paths[(size_t)MountainDuskLayerType::Sky] = "assets/backgrounds/mountain_dusk/sky.png";
-		paths[(size_t)MountainDuskLayerType::FarClouds] = "assets/backgrounds/mountain_dusk/far-clouds.png";
-		paths[(size_t)MountainDuskLayerType::NearClouds] = "assets/backgrounds/mountain_dusk/near-clouds.png";
-		paths[(size_t)MountainDuskLayerType::FarMountains] = "assets/backgrounds/mountain_dusk/far-mountains.png";
-		paths[(size_t)MountainDuskLayerType::Mountains] = "assets/backgrounds/mountain_dusk/mountains.png";
-		paths[(size_t)MountainDuskLayerType::Trees] = "assets/backgrounds/mountain_dusk/trees.png";
+		const std::string dir = "assets/textures/backgrounds/mountain_dusk/";
+		std::array<std::string, (size_t)MountainDuskLayerType::Count> filenames;
+		filenames[(size_t)MountainDuskLayerType::Sky] = "sky.png";
+		filenames[(size_t)MountainDuskLayerType::FarClouds] = "far-clouds.png";
+		filenames[(size_t)MountainDuskLayerType::NearClouds] = "near-clouds.png";
+		filenames[(size_t)MountainDuskLayerType::FarMountains] = "far-mountains.png";
+		filenames[(size_t)MountainDuskLayerType::Mountains] = "mountains.png";
+		filenames[(size_t)MountainDuskLayerType::Trees] = "trees.png";
 		_mountain_dusk_layers.resize((size_t)MountainDuskLayerType::Count);
 		for (size_t i = 0; i < (size_t)MountainDuskLayerType::Count; ++i) {
 			MountainDuskLayer& layer = _mountain_dusk_layers[i];
-			if (!layer.texture.loadFromFile(paths[i]))
-				console::log_error("Failed to load background asset: " + paths[i]);
+			std::string path = dir + filenames[i];
+			if (!layer.texture.loadFromFile(path))
+				console::log_error("Failed to load background asset: " + path);
 		}
 	}
 

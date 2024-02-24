@@ -2,37 +2,45 @@
 
 struct Character
 {
+	static constexpr int C3_LUT_COLORS = 48;
+	static constexpr int C4_LUT_COLORS = 58;
+
 	static constexpr int SKIN_COLORS = 18;
 	static constexpr int HAIR_COLORS = 58;
-	static constexpr int C3_COLORS = 48;
-	static constexpr int C4_COLORS = 58;
+	static constexpr int SOCK_COLORS = C3_LUT_COLORS;
+	static constexpr int SHOE_COLORS = C3_LUT_COLORS;
+	static constexpr int LOWERWEAR_COLORS = C3_LUT_COLORS;
+	static constexpr int SHIRT_COLORS = C3_LUT_COLORS;
+	static constexpr int GLOVES_COLORS = C3_LUT_COLORS;
+	static constexpr int OUTERWEAR_COLORS = C3_LUT_COLORS;
+	static constexpr int NECKWEAR_COLORS_1 = C3_LUT_COLORS;
+	static constexpr int NECKWEAR_COLORS_2 = C4_LUT_COLORS;
+	static constexpr int GLASSES_COLORS = C3_LUT_COLORS;
+	static constexpr int HAT_COLORS_1 = C3_LUT_COLORS;
+	static constexpr int HAT_COLORS_2 = C4_LUT_COLORS;
 
 	enum class Body
 	{
 		None,
-		// 01body
 		Human,
 		Count,
 	};
 
-	enum class Legwear
+	enum class Sock
 	{
 		None,
-		// 02sock
 		SocksHigh,
 		SocksLow,
 		Stockings,
 		Count,
 	};
 
-	enum class Footwear
+	enum class Shoe
 	{
 		None,
-		// 03fot1
 		Boots,
 		Sandals,
 		Shoes,
-		// 07fot2
 		CuffedBoots,
 		CurlyToeShoes,
 		Count,
@@ -41,18 +49,15 @@ struct Character
 	enum class Lowerwear
 	{
 		None,
-		// 04lwr1
 		LongPants,
 		Onepiece,
 		OnepieceBoobs,
 		Shorts,
 		Undies,
-		// 06lwr2
 		Overalls,
 		OverallsBoobs,
 		Shortalls,
 		ShortallsBoobs,
-		// 08lwr3
 		FrillyDress,
 		FrillyDressBoobs,
 		FrillySkirt,
@@ -65,7 +70,6 @@ struct Character
 	enum class Shirt
 	{
 		None,
-		// 05shrt
 		Bra,
 		LongShirt,
 		LongShirtBoobs,
@@ -76,10 +80,9 @@ struct Character
 		Count,
 	};
 
-	enum class Handwear
+	enum class Gloves
 	{
 		None,
-		// 09hand
 		Gloves,
 		Count,
 	};
@@ -87,7 +90,6 @@ struct Character
 	enum class Outerwear
 	{
 		None,
-		// 10outr
 		Suspenders,
 		Vest,
 		Count,
@@ -96,19 +98,16 @@ struct Character
 	enum class Neckwear
 	{
 		None,
-		// 11neck & 00undr
 		CloakPlain,
 		CloakWithMantlePlain,
-		// 11neck
 		MantlePlain,
 		Scarf,
 		Count,
 	};
 
-	enum class Facewear
+	enum class Glasses
 	{
 		None,
-		// 12face
 		Glasses,
 		Shades,
 		Count,
@@ -117,7 +116,6 @@ struct Character
 	enum class Hair
 	{
 		None,
-		// 13hair
 		Afro,
 		AfroPuffs,
 		Bob1,
@@ -133,10 +131,9 @@ struct Character
 		Count,
 	};
 
-	enum class Headwear
+	enum class Hat
 	{
 		None,
-		// 14head
 		Bandana, // replaces hair
 		BoaterHat,
 		CowboyHat,
@@ -148,16 +145,28 @@ struct Character
 
 	Body body = Body::Human;
 	int skin_color = 0;
-	Legwear legwear = Legwear::None;
-	Footwear footwear = Footwear::None;
+	Sock sock = Sock::None;
+	int sock_color = 0;
+	Shoe shoe = Shoe::None;
+	int shoe_color = 0;
 	Lowerwear lowerwear = Lowerwear::None;
+	int lowerwear_color = 0;
 	Shirt shirt = Shirt::None;
-	Handwear handwear = Handwear::None;
+	int shirt_color = 0;
+	Gloves gloves = Gloves::None;
+	int gloves_color = 0;
 	Outerwear outerwear = Outerwear::None;
+	int outerwear_color = 0;
 	Neckwear neckwear = Neckwear::None;
-	Facewear facewear = Facewear::None;
+	int neckwear_color_1 = 0;
+	int neckwear_color_2 = 0;
+	Glasses glasses = Glasses::None;
+	int glasses_color = 0;
 	Hair hair = Hair::None;
-	Headwear headwear = Headwear::None;
+	int hair_color = 0;
+	Hat hat = Hat::None;
+	int hat_color_1 = 0;
+	int hat_color_2 = 0;
 
 	void randomize();
 	std::shared_ptr<sf::Texture> bake_texture() const;

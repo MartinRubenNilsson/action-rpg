@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="player" tilewidth="64" tileheight="64" tilecount="256" columns="16">
- <image source="fbas_01body_human_00.png" width="1024" height="1024"/>
+ <image source="../../../../textures/character/01body/fbas_01body_human_00.png" width="1024" height="1024"/>
  <tile id="0" type="idle_d">
   <objectgroup draworder="index" id="2">
    <object id="1" x="24" y="32" width="16" height="16">

@@ -141,33 +141,47 @@ namespace audio
 	bool set_parameter(const std::string& name, float value)
 	{
 		FMOD_RESULT result = _system->setParameterByName(name.c_str(), value);
-		if (result != FMOD_OK) {
-			if (log_errors)
-				console::log_error("Could not find audio parameter: " + name + "=" + std::to_string(value));
-			return false;
-		}
-		return true;
+		if (result == FMOD_OK) return true;
+		if (log_errors)
+			console::log_error("Could not find audio parameter: " + name + "=" + std::to_string(value));
+		return false;
 	}
 
 	bool get_parameter(const std::string& name, float& value)
 	{
+		FMOD_RESULT result = _system->getParameterByName(name.c_str(), &value);
+		if (result == FMOD_OK) return true;
+		if (log_errors)
+			console::log_error("Could not find audio parameter: " + name);
+		return false;
+	}
+
+	bool set_parameter_label(const std::string& name, const std::string& label)
+	{
+		FMOD_RESULT result = _system->setParameterByNameWithLabel(name.c_str(), label.c_str());
+		if (result == FMOD_OK) return true;
+		if (log_errors)
+			console::log_error("Could not find audio parameter label: " + name + "=" + label);
+		return false;
+	}
+
+	bool get_parameter_label(const std::string& name, std::string& label)
+	{
+		float value = 0.f;
 		FMOD_RESULT result = _system->getParameterByName(name.c_str(), &value);
 		if (result != FMOD_OK) {
 			if (log_errors)
 				console::log_error("Could not find audio parameter: " + name);
 			return false;
 		}
-		return true;
-	}
-
-	bool set_parameter_label(const std::string& name, const std::string& label)
-	{
-		FMOD_RESULT result = _system->setParameterByNameWithLabel(name.c_str(), label.c_str());
+		char label_buffer[256];
+		result = _system->getParameterLabelByName(
+			name.c_str(), (int)value, label_buffer, _countof(label_buffer), nullptr);
 		if (result != FMOD_OK) {
 			if (log_errors)
-				console::log_error("Could not find audio parameter label: " + name + "=" + label);
-			return false;
+				console::log_error("Could not get parameter label: " + name + "=" + std::to_string(value));
 		}
+		label = label_buffer;
 		return true;
 	}
 
