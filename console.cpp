@@ -10,6 +10,7 @@ namespace console
 	const ImColor _COLOR_LOG_ERROR = IM_COL32(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
 	bool _visible = false;
+	bool _has_focus = false;
 	bool _reclaim_focus = false;
 	float _sleep_timer = 0.f;
 	std::stringstream _cout_stream;
@@ -204,12 +205,14 @@ namespace console
 			}
 			ImGui::PopItemWidth();
 
-			// AUTO FOCUS
+			// FOCUS
 
 			ImGui::SetItemDefaultFocus();
-			if (_reclaim_focus)
+			if (_reclaim_focus) {
 				ImGui::SetKeyboardFocusHere(-1); // Auto focus command line
-			_reclaim_focus = false;
+				_reclaim_focus = false;
+			}
+			_has_focus = ImGui::IsWindowFocused();
 		}
 		ImGui::End();
 	}
@@ -237,6 +240,10 @@ namespace console
 	{
 		_visible = !_visible;
 		if (_visible) _reclaim_focus = true;
+	}
+
+	bool has_focus() {
+		return _has_focus;
 	}
 
 	void clear() {
