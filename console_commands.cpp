@@ -87,7 +87,7 @@ namespace console
 		{
 			Command& cmd = _commands.emplace_back();
 			cmd.name = "sleep";
-			cmd.desc = "Makes the console sleep for a number of seconds";
+			cmd.desc = "Defers incoming commands, executing them later";
 			cmd.params[0] = { 0.f, "seconds", "The number of seconds to sleep" };
 			cmd.callback = [](const Params& params) {
 				console::sleep(std::get<float>(params[0].arg));
@@ -215,11 +215,11 @@ namespace console
 		}
 		{
 			Command& cmd = _commands.emplace_back();
-			cmd.name = "add_camera_trauma";
+			cmd.name = "add_camera_shake";
 			cmd.desc = "Adds trauma to the active camera to make it shake";
 			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
 			cmd.callback = [](const Params& params) {
-				ecs::add_camera_trauma(std::get<float>(params[0].arg));
+				ecs::add_trauma_to_active_camera(std::get<float>(params[0].arg));
 			};
 		}
 
@@ -234,16 +234,16 @@ namespace console
 		for (const Param& param : command.params) {
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
 			msg += " [";
+			msg += std::visit(ArgTypenameVisitor{}, param.arg);
+			msg += " ";
 			msg += param.name;
 			msg += "]";
 		}
-		msg += " - ";
+		msg += "\n\t";
 		msg += command.desc;
 		for (const Param& param : command.params) {
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			msg += "\n";
-			msg += std::visit(ArgTypenameVisitor{}, param.arg);
-			msg += " ";
+			msg += "\n\t";
 			msg += param.name;
 			msg += ": ";
 			msg += param.desc;
