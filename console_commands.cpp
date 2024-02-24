@@ -52,8 +52,7 @@ namespace console
 		const char* desc = "";
 	};
 
-	const size_t _MAX_PARAMS = 8;
-	using Params = std::array<Param, _MAX_PARAMS>;
+	using Params = std::array<Param, 8>;
 
 	struct Command
 	{
@@ -63,15 +62,11 @@ namespace console
 		void (*callback)(const Params& params) = nullptr;
 	};
 
-	std::vector<Command> _commands;
-
-	bool _compare_commands(const Command& left, const Command& right) {
+	bool operator<(const Command& left, const Command& right) {
 		return strcmp(left.name, right.name) < 0;
 	}
 
-	bool _compare_command_and_name(const Command& left, const std::string& name) {
-		return strcmp(left.name, name.c_str()) < 0;
-	}
+	std::vector<Command> _commands;
 
 	void _initialize_commands()
 	{
@@ -223,8 +218,7 @@ namespace console
 			};
 		}
 
-		// Sort the commands by name.
-		std::sort(_commands.begin(), _commands.end(), _compare_commands);
+		std::sort(_commands.begin(), _commands.end());
 	}
 
 	std::string _get_command_help_message(const Command& command)
@@ -258,7 +252,7 @@ namespace console
 		if (!(iss >> name)) return;
 		bool help = (name == "help");
 		if (help && !(iss >> name)) return;
-		auto it = std::lower_bound(_commands.begin(), _commands.end(), name, _compare_command_and_name);
+		auto it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
 		if (it == _commands.end() || it->name != name) {
 			log_error("Unknown command: " + name);
 			return;
@@ -280,5 +274,24 @@ namespace console
 			return;
 		}
 		it->callback(params);
+	}
+
+	std::vector<std::string> _complete_command(const std::string& prefix)
+	{
+		struct Compare
+		{
+			size_t size = 0;
+
+			bool operator()(const Command& left, const Command& right) const {
+				return strncmp(left.name, right.name, size) < 0;
+			}
+		};
+		auto [begin, end] = std::equal_range(_commands.begin(), _commands.end(),
+			Command{ prefix.c_str() }, Compare{ prefix.size() });
+		std::vector<std::string> matches;
+		for (auto it = begin; it != end; ++it) {
+			matches.push_back(it->name);
+		}
+		return matches;
 	}
 }

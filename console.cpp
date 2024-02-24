@@ -21,29 +21,50 @@ namespace console
 	std::deque<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
-	// Handles command history navigation
-	int _input_text_callback(ImGuiInputTextCallbackData* data)
-	{
-		if (_command_history.empty()) return 0;
-		if (data->EventKey == ImGuiKey_UpArrow) {
-			if (_command_history_it > _command_history.begin()) {
-				_command_history_it--;
-				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, _command_history_it->c_str());
-			}
-		} else if (data->EventKey == ImGuiKey_DownArrow) {
-			if (_command_history_it < _command_history.end() - 1) {
-				_command_history_it++;
-				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, _command_history_it->c_str());
-			}
-		}
-		return 0;
-	}
-
 	// Defined in console_commands.cpp
 	extern void _initialize_commands();
 	extern void _execute_command(const std::string& command_line);
+	extern std::vector<std::string> _complete_command(const std::string& prefix);
+
+	int _input_text_callback(ImGuiInputTextCallbackData* data)
+	{
+		// COMPLETE COMMANDS
+
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
+			std::string prefix(data->Buf, data->Buf + data->BufTextLen);
+			std::vector<std::string> completions = _complete_command(prefix);
+			if (completions.empty()) return 0;
+			if (completions.size() == 1) {
+				data->DeleteChars(0, data->BufTextLen);
+				data->InsertChars(0, completions[0].c_str());
+				return 0;
+			}
+			for (const std::string& completion : completions)
+				log(completion);
+			return 0;
+		}
+
+		// NAVIGATE COMMAND HISTORY
+
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) {
+			if (_command_history.empty()) return 0;
+			if (data->EventKey == ImGuiKey_UpArrow) {
+				if (_command_history_it > _command_history.begin()) {
+					_command_history_it--;
+					data->DeleteChars(0, data->BufTextLen);
+					data->InsertChars(0, _command_history_it->c_str());
+				}
+			} else if (data->EventKey == ImGuiKey_DownArrow) {
+				if (_command_history_it < _command_history.end() - 1) {
+					_command_history_it++;
+					data->DeleteChars(0, data->BufTextLen);
+					data->InsertChars(0, _command_history_it->c_str());
+				}
+			}
+		}
+
+		return 0;
+	}
 
 	void initialize()
 	{
@@ -173,6 +194,7 @@ namespace console
 				"##CommandLine",
 				&_command_line,
 				ImGuiInputTextFlags_EnterReturnsTrue |
+				ImGuiInputTextFlags_CallbackCompletion |
 				ImGuiInputTextFlags_CallbackHistory |
 				ImGuiInputTextFlags_EscapeClearsAll,
 				_input_text_callback)) {
