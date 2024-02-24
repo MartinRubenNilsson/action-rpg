@@ -36,9 +36,9 @@ namespace ecs
 		set(tile);
 
 		std::string shader_name;
-		if (tiled::get(tile->properties, "shader", shader_name)) {
+		if (tile->properties.get_string("shader", shader_name)) {
 			shader = shaders::get(shader_name);
-		} else if (tiled::get(tile->tileset->properties, "shader", shader_name)) {
+		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
 			shader = shaders::get(shader_name);
 		}
 	}
@@ -102,6 +102,7 @@ namespace ecs
 		sprite.setPosition(position);
 		sprite.setScale(scale);
 		sprite.setColor(color);
+		if (texture) sprite.setTexture(*texture);
 		return sprite;
 	}
 
@@ -169,6 +170,10 @@ namespace ecs
 
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile) {
 		return _registry.emplace_or_replace<Tile>(entity, tile);
+	}
+
+	Tile& get_tile(entt::entity entity) {
+		return _registry.get_or_emplace<Tile>(entity);
 	}
 
 	void remove_tile(entt::entity entity) {

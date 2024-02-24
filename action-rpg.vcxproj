@@ -201,13 +201,13 @@
     <ClCompile Include="ecs_physics_contacts.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
+    <ClCompile Include="character.cpp" />
     <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
-    <ClCompile Include="random_noise.cpp" />
     <ClCompile Include="ecs.cpp" />
-    <ClCompile Include="ecs_tiled.cpp" />
+    <ClCompile Include="ecs_common.cpp" />
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math_vectors.cpp" />
@@ -235,6 +235,7 @@
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="bake_character.frag" />
     <None Include="darkness.frag" />
     <None Include="grass.frag" />
     <None Include="player.frag">
@@ -309,13 +310,14 @@
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_arrow.h" />
+    <ClInclude Include="character.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="postprocess.h" />
+    <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
-    <ClInclude Include="random_noise.h" />
     <ClInclude Include="ecs.h" />
-    <ClInclude Include="ecs_tiled.h" />
+    <ClInclude Include="ecs_common.h" />
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />
     <ClInclude Include="fmod.h" />

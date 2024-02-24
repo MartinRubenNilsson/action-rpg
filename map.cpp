@@ -3,8 +3,7 @@
 #include "console.h"
 #include "audio.h"
 #include "math_vectors.h"
-#include "ecs.h"
-#include "ecs_tiled.h"
+#include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
@@ -12,6 +11,7 @@
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ui_textbox.h"
+#include "character.h"
 
 namespace map
 {
@@ -94,7 +94,7 @@ namespace map
 		// PLAY MUSIC
 		{
 			std::string music;
-			if (tiled::get(_map->properties, "music", music)) {
+			if (_map->properties.get_string("music", music)) {
 				std::string event_path = "event:/" + music;
 				if (!audio::is_any_playing(event_path)) {
 					audio::stop_all_in_bus(audio::BUS_MUSIC);
@@ -113,7 +113,9 @@ namespace map
 				// Attempt to use the object's UID as the entity identifier.
 				// If the identifier is already in use, a new one will be generated.
 				entt::entity entity = ecs::create(object.entity);
-				ecs::emplace_name_class_and_properties(entity, object);
+				ecs::set_name(entity, object.name);
+				ecs::set_class(entity, object.class_);
+				ecs::set_properties(entity, object.properties);
 
 				float x = object.position.x;
 				float y = object.position.y;
@@ -236,6 +238,10 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
 
+					Character character{};
+					character.randomize();
+					ecs::get_tile(entity).texture = character.bake_texture();
+
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "camera") {
@@ -246,8 +252,10 @@ namespace map
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;
-					if (tiled::get(object.properties, "event", event_name))
-						audio::play_at_position("event:/" + event_name, sf::Vector2f(x, y));
+					if (object.properties.get_string("event", event_name)) {
+						int event_id = audio::play("event:/" + event_name);
+						audio::set_position(event_id, sf::Vector2f(x, y));
+					}
 				}
 			}
 		}
@@ -301,7 +309,7 @@ namespace map
 						float collider_hh = collider.size.y / 2.0f;
 
 						b2FixtureDef fixture_def;
-						tiled::get(collider.properties, "sensor", fixture_def.isSensor);
+						collider.properties.get_bool("sensor", fixture_def.isSensor);
 
 						switch (collider.type) {
 						case tiled::ObjectType::Rectangle:
@@ -393,16 +401,6 @@ namespace map
 		float worldX = static_cast<float>(gridPos.x * _map->tile_width) + _map->tile_width / 2.0f;
 		float worldY = static_cast<float>(gridPos.y * _map->tile_height) + _map->tile_height / 2.0f;
 		return sf::Vector2f(worldX, worldY);
-	}
-
-	// Cast sf::Vector2i to uint32_t safely, ensuring no negative values
-	uint32_t safe_cast_to_uint32(int value) {
-		if (value < 0) {
-			// Handle the error or perform an appropriate action when value is negative
-			// For example, log an error, throw an exception, or use a default positive value
-			throw std::runtime_error("Negative value encountered when casting to uint32_t");
-		}
-		return static_cast<uint32_t>(value);
 	}
 
 	std::vector<sf::Vector2i> get_neighbors(const sf::Vector2i& pos, const std::vector<std::vector<bool>>& path_finding_grid, const tiled::Layer* collision_layer) {

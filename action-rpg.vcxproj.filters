@@ -33,10 +33,7 @@
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_tiled.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="ecs_player.cpp">
+    <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="window.cpp" />
@@ -48,9 +45,6 @@
     </ClCompile>
     <ClCompile Include="ecs_camera.cpp">
       <Filter>ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="random_noise.cpp">
-      <Filter>random</Filter>
     </ClCompile>
     <ClCompile Include="random.cpp">
       <Filter>random</Filter>
@@ -252,6 +246,12 @@
     <ClCompile Include="ecs_bomb.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_player.cpp">
+      <Filter>ecs\player</Filter>
+    </ClCompile>
+    <ClCompile Include="character.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -265,6 +265,9 @@
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="darkness.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="bake_character.frag">
       <Filter>graphics\shaders</Filter>
     </None>
   </ItemGroup>
@@ -297,10 +300,7 @@
     <ClInclude Include="ecs.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_tiled.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_player.h">
+    <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="window.h" />
@@ -345,9 +345,6 @@
     </ClInclude>
     <ClInclude Include="ecs_camera.h">
       <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="random_noise.h">
-      <Filter>random</Filter>
     </ClInclude>
     <ClInclude Include="random.h">
       <Filter>random</Filter>
@@ -567,6 +564,11 @@
     <ClInclude Include="ecs_bomb.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="properties.h" />
+    <ClInclude Include="ecs_player.h">
+      <Filter>ecs\player</Filter>
+    </ClInclude>
+    <ClInclude Include="character.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -619,6 +621,9 @@
     </Filter>
     <Filter Include="graphics\shaders">
       <UniqueIdentifier>{fecc6edd-667c-49f6-adf9-57600b3c48af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\player">
+      <UniqueIdentifier>{db0d950d-591f-470a-935b-0082a4e1b134}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

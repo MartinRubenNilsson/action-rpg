@@ -1,13 +1,8 @@
 #pragma once
+#include "properties.h"
 
 namespace tiled
 {
-	struct Property
-	{
-		std::string name;
-		std::variant<std::string, int, float, bool, entt::entity> value;
-	};
-
 	enum class ObjectType
 	{
 		Rectangle,
@@ -35,7 +30,7 @@ namespace tiled
 		std::filesystem::path path; // nonempty if object is a template
 		std::string name;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		std::vector<sf::Vector2f> points; // in pixels; relative to position
 		const Tile* tile = nullptr; // nonnull if object is a tile
 		sf::Vector2f position; // in pixels
@@ -77,7 +72,7 @@ namespace tiled
 	{
 		sf::Sprite sprite;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
@@ -88,7 +83,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		const Tile* tile = nullptr; // the tile representing this color; can be null
 		float probability = 0.f;
 		sf::Color color;
@@ -98,7 +93,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		const Tile* tile = nullptr; // the tile representing this set; can be null
 		std::vector<WangColor> colors;
 	};
@@ -110,7 +105,7 @@ namespace tiled
 		std::shared_ptr<sf::Texture> image;
 		std::string name;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		std::vector<Tile> tiles; // size = tile_count
 		std::vector<WangSet> wangsets;
 		uint32_t tile_count = 0;
@@ -127,7 +122,7 @@ namespace tiled
 	{
 		std::string name;
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		std::vector<std::pair<const Tile*, FlipFlags>> tiles; // nonempty if tile layer; size = width * height
 		std::vector<Object> objects; // nonempty if object layer 
 		uint32_t width = 0; // in tiles
@@ -140,7 +135,7 @@ namespace tiled
 		std::filesystem::path path;
 		std::string name; // filename without extension
 		std::string class_;
-		std::vector<Property> properties;
+		Properties properties;
 		std::vector<Layer> layers;
 		uint32_t width = 0; // in tiles
 		uint32_t height = 0; // in tiles
@@ -160,30 +155,5 @@ namespace tiled
 	const Tile& get_error_tile();
 
 	const Tileset* find_tileset_by_name(const std::string& name);
-
-	template <typename T> bool get(const std::vector<Property>& ps, const std::string& name, T& value);
-	template <typename T> void set(std::vector<Property>& ps, const std::string& name, const T& value);
-
-	template <typename T>
-	bool get(const std::vector<Property>& ps, const std::string& name, T& value) {
-		for (const Property& p : ps) {
-			if (p.name == name && std::holds_alternative<T>(p.value)) {
-				value = std::get<T>(p.value);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	template <typename T>
-	void set(std::vector<Property>& ps, const std::string& name, const T& value) {
-		for (Property& p : ps) {
-			if (p.name == name) {
-				p.value = value;
-				return;
-			}
-		}
-		ps.emplace_back(name, value);
-	}
 }
 

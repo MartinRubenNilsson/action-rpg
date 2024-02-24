@@ -2,7 +2,7 @@
 #include "ecs_camera.h"
 #include <tweeny/easing.h>
 #include "physics_helpers.h"
-#include "random_noise.h"
+#include "random.h"
 #include "console.h"
 #include "window.h"
 

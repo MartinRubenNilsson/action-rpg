@@ -1,7 +1,7 @@
 #include "ecs_bomb.h"
 #include <entt/entt.hpp>
 #include "ecs_tile.h"
-#include "ecs.h"
+#include "ecs_common.h"
 
 namespace ecs {
 

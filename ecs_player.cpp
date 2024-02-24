@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ecs_player.h"
-#include "ecs.h"
-#include "ecs_tiled.h"
+#include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
@@ -44,7 +43,7 @@ namespace ecs
 		}
 	}
 
-	void set_direction_for_animation(Tile& tile, char dir) {
+	void set_direction_for_animation(Tile& tile, char& dir) {
 		// Set the flip and animation class based on direction
 		switch (dir) {
 		case 'r':
@@ -52,6 +51,7 @@ namespace ecs
 			tile.animation_flip_x_on_loop = false;
 			break;
 		case 'l':
+			dir = 'r';
 			tile.flip_x = true;
 			tile.animation_flip_x_on_loop = false;
 			break;
@@ -260,6 +260,10 @@ namespace ecs
 					tile.set("idle_"s + dir);
 					tile.animation_loop = true;
 				}
+
+				// HANDLE INTERACTION
+
+				// TODO refactor sometime
 				if (player.input.interact) {
 					_player_interact(player_position + player.facing_direction * 16.f);
 				}
@@ -348,7 +352,6 @@ namespace ecs
 			ImGui::End();
 		}
 	}
-
 
 	void emplace_player(entt::entity entity, const Player& player) {
 		_registry.emplace_or_replace<Player>(entity, player);
