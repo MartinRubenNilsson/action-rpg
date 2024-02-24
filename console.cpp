@@ -40,12 +40,20 @@ namespace console
 		return 0;
 	}
 
+	// Defined in console_commands.cpp
+	extern void _initialize_commands();
+	extern void _execute_command(const std::string& command_line);
+
 	void initialize()
 	{
 		// REDIRECT COUT AND CERR
 
 		std::cout.rdbuf(_cout_stream.rdbuf());
 		std::cerr.rdbuf(_cerr_stream.rdbuf());
+
+		// INITIALIZE COMMANDS
+
+		_initialize_commands();
 
 		// SETUP IMGUI STYLE
 		{
@@ -231,9 +239,6 @@ namespace console
 		if (show_console) _visible = true;
 	}
 
-	// Defined in console_commands.cpp
-	extern void _do_execute(const std::string& command_line);
-
 	void execute(const std::string& command_line, bool defer)
 	{
 		if (command_line.starts_with("//"))
@@ -245,7 +250,7 @@ namespace console
 		_command_history.push_back(command_line);
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, _COLOR_COMMAND);
-		_do_execute(command_line);
+		_execute_command(command_line);
 	}
 
 	void execute(int argc, char* argv[])
