@@ -80,9 +80,13 @@ namespace audio
 	{
 		FMOD_RESULT result = FMOD::Studio::System::create(&_system);
 		assert(result == FMOD_OK);
+		FMOD_STUDIO_INITFLAGS flags = FMOD_STUDIO_INIT_LIVEUPDATE;
+#ifdef _DEBUG
+		flags |= FMOD_STUDIO_INIT_LIVEUPDATE;
+#endif
 		result = _system->initialize(
 			512, // max channels
-			FMOD_STUDIO_INIT_SYNCHRONOUS_UPDATE,
+			flags,
 			FMOD_INIT_NORMAL,
 			nullptr);
 		assert(result == FMOD_OK);
