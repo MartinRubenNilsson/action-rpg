@@ -246,12 +246,13 @@
     <ClCompile Include="ecs_player.cpp">
       <Filter>ecs\player</Filter>
     </ClCompile>
-    <ClCompile Include="character.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="background.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="cursor.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="character.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -567,6 +568,9 @@
     </ClInclude>
     <ClInclude Include="character.h" />
     <ClInclude Include="background.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="cursor.h">
       <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>

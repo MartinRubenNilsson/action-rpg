@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include <imgui-SFML.h>
-#include <imgui.h>
 #include "window.h"
 #include "audio.h"
 #include "fonts.h"
@@ -15,6 +14,7 @@
 #include "postprocess.h"
 #include "settings.h"
 #include "textures.h"
+#include "cursor.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
         target->display();
         std::swap(target, source);
 
-        // RENDER SHOCKWAVES
+        // POSTPROCESS
 
         for (const postprocess::Shockwave& shockwave : postprocess::shockwaves) {
             target->setView(target->getDefaultView());
@@ -189,12 +189,27 @@ int main(int argc, char* argv[])
             target->display();
             std::swap(target, source);
         }
-
-        // RENDER UI, IMGUI
-
         postprocess::render_copy(window, source->getTexture());
+
+        // RENDER UI
+
         ui::render(window);
+
+        // RENDER CURSOR
+
+        bool show_built_in_cursor = ImGui::GetIO().WantCaptureMouse;
+        window.setMouseCursorVisible(show_built_in_cursor);
+        cursor::set_visible(!show_built_in_cursor);
+        cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
+        cursor::set_scale((float)window::get_desc().scale);
+        cursor::render(window);
+
+        // RENDER IMGUI
+
         ImGui::SFML::Render(window);
+
+        // DISPLAY
+
         window.display();
     }
 
