@@ -38,9 +38,9 @@ namespace ecs
 	void update_ai_actions(float dt);
 
 	void ai_wait(entt::entity entity, float duration);
-	void ai_move_to(entt::entity entity, sf::Vector2f target_position, float speed, float acceptance_radius);
-	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float pursue_radius);
-	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float flee_radius);
+	void ai_move_to(entt::entity entity, const sf::Vector2f& target_pos, float speed, float acceptance_radius);
+	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
+	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
 	//void ai_wander(entt::entity entity, float speed);
 	//void ai_play_animation(entt::entity entity, const std::string& animation_name);
 }
