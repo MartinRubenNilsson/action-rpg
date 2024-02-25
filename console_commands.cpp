@@ -264,6 +264,7 @@ namespace console
 		std::string name;
 		if (!(iss >> name)) return;
 		const Command* cmd = _find_command(name);
+		if (!cmd) return;
 		if (!cmd->callback) {
 			log_error("Command not implemented: " + name);
 			return;
