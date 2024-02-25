@@ -14,8 +14,12 @@ namespace ecs
 		// able to trigger AiActions from other systems as well.
 		// Hence they need to run independently from the rest of the AI system.
 
+		for (auto [entity, action] : _registry.view<AiAction>().each()) {
+			if (action.status == AiActionStatus::Running)
+				action.running_time += dt;
+		}
+
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
-			action.elapsed_time += dt;
 			if (action.status != AiActionStatus::Running) continue;
 
 			const sf::Vector2f position = get_world_center(body);
@@ -26,11 +30,8 @@ namespace ecs
 				action.status = AiActionStatus::Succeeded;
 			} break;
 			case AiActionType::Wait: {
-				if (action.elapsed_time < action.duration) {
-					action.status = AiActionStatus::Running;
-				} else {
+				if (action.running_time >= action.duration)
 					action.status = AiActionStatus::Succeeded;
-				}
 			} break;
 			case AiActionType::MoveTo: {
 				sf::Vector2f direction = action.target_position - position;
@@ -74,6 +75,9 @@ namespace ecs
 				direction /= distance;
 				set_linear_velocity(body, direction * action.speed);
 				action.status = AiActionStatus::Running;
+			} break;
+			case AiActionType::Wander: {
+				//TODO
 			} break;
 			}
 		}

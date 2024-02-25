@@ -316,7 +316,7 @@ namespace ecs
 		}
 	}
 
-	void debug_player()
+	void debug_draw_player()
 	{
 		bool randomize_character = false;
 
