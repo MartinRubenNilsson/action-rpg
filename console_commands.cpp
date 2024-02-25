@@ -31,13 +31,12 @@ namespace console
 		void operator()(float& value) { is >> value; }
 		void operator()(std::string& value) {
 			// Try to parse a string with quotes. If it fails, parse a string without quotes.
-			is.ignore(64, ' ');
 			if (is.peek() == '"') {
 				is.ignore();
 				std::getline(is, value, '"');
-				return;
+			} else {
+				is >> value;
 			}
-			is >> value;
 		}
 	};
 
@@ -59,33 +58,38 @@ namespace console
 	};
 
 	std::vector<Command> _commands; // Sorted by name
+
+	std::string _format_type_and_name(const Param& param)
+	{
+		std::string ret;
+		ret += std::visit(ArgTypenameVisitor{}, param.arg);
+		ret += " ";
+		ret += param.name;
+		return ret;
+	}
 	
 	bool operator<(const Command& left, const Command& right) {
 		return strcmp(left.name, right.name) < 0; // Order by name
 	}
 
-	std::string _get_help_message(const Command& command)
+	std::string _format_help_message(const Command& command)
 	{
-		std::string msg;
-		msg += command.name;
+		std::string ret;
+		ret += command.name;
 		for (const Param& param : command.params) {
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			msg += " [";
-			msg += std::visit(ArgTypenameVisitor{}, param.arg);
-			msg += " ";
-			msg += param.name;
-			msg += "]";
+			ret += " [" + _format_type_and_name(param) + "]";
 		}
-		msg += "\n- ";
-		msg += command.desc;
+		ret += "\n- ";
+		ret += command.desc;
 		for (const Param& param : command.params) {
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			msg += "\n- [";
-			msg += param.name;
-			msg += "]: ";
-			msg += param.desc;
+			ret += "\n- ";
+			ret += param.name;
+			ret += ": ";
+			ret += param.desc;
 		}
-		return msg;
+		return ret;
 	}
 
 	const Command* _find_command(const std::string& name)
@@ -109,7 +113,7 @@ namespace console
 			cmd.params[0] = { "", "command", "The command to show help for" };
 			cmd.callback = [](const Params& params) {
 				if (const Command* cmd = _find_command(std::get<std::string>(params[0].arg)))
-					log(_get_help_message(*cmd));
+					log(_format_help_message(*cmd));
 			};
 		}
 		{
@@ -271,10 +275,17 @@ namespace console
 		}
 		Params params = cmd->params; // Intentional copy
 		for (Param& param : params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			iss.ignore(64, ' '); // Skip any leading spaces
+			if (iss.eof()) {
+				log_error("Missing argument: " + _format_type_and_name(param));
+				return;
+			}
 			std::visit(ArgParserVisitor{ iss }, param.arg);
-			if (iss) continue;
-			log_error("Invalid argument: " + std::string(param.name));
-			return;
+			if (iss.fail()) {
+				log_error("Invalid argument: " + _format_type_and_name(param));
+				return;
+			}
 		}
 		cmd->callback(params);
 	}

@@ -17,8 +17,8 @@ namespace console
 	std::stringstream _cerr_stream;
 	std::string _command_line;
 	std::deque<std::string> _command_queue;
-	std::vector<std::string> _command_history;
-	std::vector<std::string>::iterator _command_history_it = _command_history.end();
+	std::deque<std::string> _command_history;
+	std::deque<std::string>::iterator _command_history_it = _command_history.end();
 	std::deque<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
@@ -251,7 +251,7 @@ namespace console
 	}
 
 	void sleep(float seconds) {
-		_sleep_timer = seconds;
+		_sleep_timer = std::max(0.f, seconds);
 	}
 
 	void log(const std::string& message)
@@ -278,8 +278,12 @@ namespace console
 			return;
 		}
 		_command_history.push_back(command_line);
+		if (_command_history.size() > _MAX_HISTORY)
+			_command_history.pop_front();
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, _COLOR_COMMAND);
+		if (_history.size() > _MAX_HISTORY)
+			_history.pop_front();
 		_execute_command(command_line);
 	}
 
