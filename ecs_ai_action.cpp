@@ -48,7 +48,7 @@ namespace ecs
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				const sf::Vector2f target_pos = get_world_center(_registry.get<b2Body*>(action.entity));
+				sf::Vector2f target_pos = get_world_center(_registry.get<b2Body*>(action.entity));
 				sf::Vector2f to_target = target_pos - my_pos;
 				float dist = length(to_target);
 				if (dist <= action.radius) {
@@ -63,12 +63,12 @@ namespace ecs
 					break;
 				}
 				sf::Vector2f danger_pos = get_world_center(_registry.get<b2Body*>(action.entity));
-				sf::Vector2f to_me = my_pos - danger_pos;
-				float dist = length(to_me);
+				sf::Vector2f to_danger = danger_pos - my_pos;
+				float dist = length(to_danger);
 				if (dist >= action.radius) {
 					action.status = AiActionStatus::Succeeded;
 				} else {
-					my_new_vel = (to_me / dist) * action.speed;
+					my_new_vel = -(to_danger / dist) * action.speed; // Note the minus sign.
 				}
 			} break;
 			case AiActionType::Wander: {

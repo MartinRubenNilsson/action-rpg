@@ -4,11 +4,11 @@ namespace ecs
 {
 	enum class AiActionType
 	{
-		None, // Does nothing and succeeds immediately. Useful for testing.
+		None, // Does nothing and succeeds immediately.
 		Wait, // Wait for a certain amount of time. Succeeds after the time has elapsed.
-		MoveTo, // Move to a certain position. Succeeds when the entity is close enough to the position.
-		Pursue, // Pursue a certain entity. Succeeds when the entity is close enough to the target.
-		Flee, // Flee from a certain entity. Succeeds when the entity is far enough from the target.
+		MoveTo, // Move to a certain position. Succeeds when the entity is sufficiently close.
+		Pursue, // Pursue a certain entity. Succeeds when the entity is sufficiently close.
+		Flee, // Flee from a certain entity. Succeeds when the entity is sufficiently far away.
 		Wander, // Wander around randomly. Keeps running, never succeeds or fails.
 		//PlayAnimation, // Play a certain animation. Succeeds when it's finished, fails if it doesn't exist.
 	};
