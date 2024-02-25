@@ -28,8 +28,8 @@ namespace ecs
 
 		// PARAMETERS
 
-		sf::Vector2f target_position;
-		entt::entity target_entity = entt::null;
+		entt::entity entity = entt::null;
+		sf::Vector2f position;
 		float speed = 0.f;
 		float radius = 0.f;
 		float duration = 0.f;
