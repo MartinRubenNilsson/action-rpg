@@ -26,13 +26,9 @@ namespace console
 		std::istream& is;
 
 		void operator()(std::monostate&) {}
-
 		void operator()(bool& value) { is >> std::boolalpha >> value >> std::noboolalpha; }
-
 		void operator()(int& value) { is >> value; }
-
 		void operator()(float& value) { is >> value; }
-
 		void operator()(std::string& value) {
 			// Try to parse a string with quotes. If it fails, parse a string without quotes.
 			is.ignore(64, ' ');
@@ -62,11 +58,44 @@ namespace console
 		void (*callback)(const Params& params) = nullptr;
 	};
 
+	std::vector<Command> _commands; // Sorted by name
+	
 	bool operator<(const Command& left, const Command& right) {
-		return strcmp(left.name, right.name) < 0;
+		return strcmp(left.name, right.name) < 0; // Order by name
 	}
 
-	std::vector<Command> _commands;
+	std::string _get_help_message(const Command& command)
+	{
+		std::string msg;
+		msg += command.name;
+		for (const Param& param : command.params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			msg += " [";
+			msg += std::visit(ArgTypenameVisitor{}, param.arg);
+			msg += " ";
+			msg += param.name;
+			msg += "]";
+		}
+		msg += "\n- ";
+		msg += command.desc;
+		for (const Param& param : command.params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			msg += "\n- [";
+			msg += param.name;
+			msg += "]: ";
+			msg += param.desc;
+		}
+		return msg;
+	}
+
+	const Command* _find_command(const std::string& name)
+	{
+		// Do a binary search to find the command. We assume the commands are sorted by name.
+		auto it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
+		if (it != _commands.end() && it->name == name) return &*it;
+		log_error("Unknown command: " + name);
+		return nullptr;
+	}
 
 	void _initialize_commands()
 	{
@@ -75,9 +104,19 @@ namespace console
 		// CONSOLE
 		{
 			Command& cmd = _commands.emplace_back();
+			cmd.name = "help";
+			cmd.desc = "Shows help for a command";
+			cmd.params[0] = { "", "command", "The command to show help for" };
+			cmd.callback = [](const Params& params) {
+				if (const Command* cmd = _find_command(std::get<std::string>(params[0].arg)))
+					log(_get_help_message(*cmd));
+			};
+		}
+		{
+			Command& cmd = _commands.emplace_back();
 			cmd.name = "clear";
 			cmd.desc = "Clears the console";
-			cmd.callback = [](const Params&) { console::clear(); };
+			cmd.callback = [](const Params&) { clear(); };
 		}
 		{
 			Command& cmd = _commands.emplace_back();
@@ -85,7 +124,7 @@ namespace console
 			cmd.desc = "Defers incoming commands, executing them later";
 			cmd.params[0] = { 0.f, "seconds", "The number of seconds to sleep" };
 			cmd.callback = [](const Params& params) {
-				console::sleep(std::get<float>(params[0].arg));
+				sleep(std::get<float>(params[0].arg));
 			};
 		}
 		{
@@ -94,7 +133,7 @@ namespace console
 			cmd.desc = "Logs a message to the console";
 			cmd.params[0] = { "", "message", "The message to log"};
 			cmd.callback = [](const Params& params) {
-				console::log(std::get<std::string>(params[0].arg));
+				log(std::get<std::string>(params[0].arg));
 			};
 		}
 		{
@@ -103,7 +142,7 @@ namespace console
 			cmd.desc = "Logs an error message to the console";
 			cmd.params[0] = { "", "message", "The message to log"};
 			cmd.callback = [](const Params& params) {
-				console::log_error(std::get<std::string>(params[0].arg));
+				log_error(std::get<std::string>(params[0].arg));
 			};
 		}
 		{
@@ -112,7 +151,7 @@ namespace console
 			cmd.desc = "Executes a console command";
 			cmd.params[0] = { "", "command_line", "The command to execute" };
 			cmd.callback = [](const Params& params) {
-				console::execute(std::get<std::string>(params[0].arg));
+				execute(std::get<std::string>(params[0].arg));
 			};
 		}
 		{
@@ -121,7 +160,7 @@ namespace console
 			cmd.desc = "Executes a console script";
 			cmd.params[0] = { "", "script_name", "The name of the script"};
 			cmd.callback = [](const Params& params) {
-				console::execute_script(std::get<std::string>(params[0].arg));
+				execute_script(std::get<std::string>(params[0].arg));
 			};
 		}
 		{
@@ -131,9 +170,7 @@ namespace console
 			cmd.params[0] = { "", "key", "The key to bind" };
 			cmd.params[1] = { "", "command_line", "The command to execute" };
 			cmd.callback = [](const Params& params) {
-				console::bind(
-					std::get<std::string>(params[0].arg),
-					std::get<std::string>(params[1].arg));
+				bind(std::get<std::string>(params[0].arg), std::get<std::string>(params[1].arg));
 			};
 		}
 		{
@@ -142,7 +179,7 @@ namespace console
 			cmd.desc = "Unbinds a key";
 			cmd.params[0] = { "", "key", "The key to unbind" };
 			cmd.callback = [](const Params& params) {
-				console::unbind(std::get<std::string>(params[0].arg));
+				unbind(std::get<std::string>(params[0].arg));
 			};
 		}
 		
@@ -221,59 +258,24 @@ namespace console
 		std::sort(_commands.begin(), _commands.end());
 	}
 
-	std::string _get_command_help_message(const Command& command)
-	{
-		std::string msg;
-		msg += command.name;
-		for (const Param& param : command.params) {
-			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			msg += " [";
-			msg += std::visit(ArgTypenameVisitor{}, param.arg);
-			msg += " ";
-			msg += param.name;
-			msg += "]";
-		}
-		msg += "\n\t";
-		msg += command.desc;
-		for (const Param& param : command.params) {
-			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			msg += "\n\t";
-			msg += param.name;
-			msg += ": ";
-			msg += param.desc;
-		}
-		return msg;
-	}
-
 	void _execute_command(const std::string& command_line)
 	{
 		std::istringstream iss(command_line);
 		std::string name;
 		if (!(iss >> name)) return;
-		bool help = (name == "help");
-		if (help && !(iss >> name)) return;
-		auto it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
-		if (it == _commands.end() || it->name != name) {
-			log_error("Unknown command: " + name);
-			return;
-		}
-		if (help) {
-			log(_get_command_help_message(*it));
-			return;
-		}
-		if (!it->callback) {
+		const Command* cmd = _find_command(name);
+		if (!cmd->callback) {
 			log_error("Command not implemented: " + name);
 			return;
 		}
-		Params params = it->params;
-		ArgParserVisitor arg_parser_visitor{ iss };
+		Params params = cmd->params; // Intentional copy
 		for (Param& param : params) {
-			std::visit(arg_parser_visitor, param.arg);
+			std::visit(ArgParserVisitor{ iss }, param.arg);
 			if (iss) continue;
 			log_error("Invalid argument: " + std::string(param.name));
 			return;
 		}
-		it->callback(params);
+		cmd->callback(params);
 	}
 
 	std::vector<std::string> _complete_command(const std::string& prefix)
