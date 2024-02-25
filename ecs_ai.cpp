@@ -70,7 +70,7 @@ namespace ecs
         _update_ai_decision_making(dt);
         update_ai_actions(dt);
     }
-
+    
     void update_ai_graphics(float dt)
     {
         for (auto [entity, tile, ai_type, body] :
