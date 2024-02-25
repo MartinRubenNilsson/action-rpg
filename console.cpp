@@ -9,6 +9,7 @@ namespace console
 	const ImColor _COLOR_LOG = IM_COL32(252, 191, 73, 255);
 	const ImColor _COLOR_LOG_ERROR = IM_COL32(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
+
 	bool _visible = false;
 	bool _has_focus = false;
 	bool _reclaim_focus = false;
