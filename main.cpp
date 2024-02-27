@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
                 if (ev.type == sf::Event::Closed) {
                     window.close();
                 } if (ev.type == sf::Event::Resized) {
+                    textures::clear_render_texture_pool();
                     for (sf::RenderTexture& rt : rts)
                         rt.create(window.getSize().x, window.getSize().y);
                 } else if (ev.type == sf::Event::KeyPressed) {
@@ -226,7 +227,8 @@ int main(int argc, char* argv[])
     background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();
-    textures::clear_cache();
+    textures::clear_texture_cache();
+    textures::clear_render_texture_pool();
 
     return 0;
 }

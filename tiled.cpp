@@ -150,7 +150,7 @@ namespace tiled
 			tile.class_ = "error";
 
 			tileset.image_path = textures::ERROR_TEXTURE_PATH;
-			tileset.image = textures::get(textures::ERROR_TEXTURE_PATH);
+			tileset.image = textures::load_texture(textures::ERROR_TEXTURE_PATH);
 			if (tileset.image) {
 				sf::Vector2u size = tileset.image->getSize();
 				tileset.tile_width = size.x;
@@ -180,7 +180,7 @@ namespace tiled
 			tileset.image_path = tileset.path.parent_path();
 			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
 			tileset.image_path = tileset.image_path.lexically_normal();
-			tileset.image = textures::get(tileset.image_path);
+			tileset.image = textures::load_texture(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t i = 0; i < tileset.tile_count; ++i) {
