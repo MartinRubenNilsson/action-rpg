@@ -67,13 +67,6 @@ int main(int argc, char* argv[])
 #endif
 
     sf::Clock clock;
-
-    sf::RenderTexture rts[2];
-    for (sf::RenderTexture& rt : rts)
-		rt.create(window.getSize().x, window.getSize().y);
-    sf::RenderTexture* target = &rts[0];
-    sf::RenderTexture* source = &rts[1];
-
     bool debug_stats = false;
 
     // GAME LOOP
@@ -88,8 +81,6 @@ int main(int argc, char* argv[])
                     window.close();
                 } if (ev.type == sf::Event::Resized) {
                     textures::clear_render_texture_pool();
-                    for (sf::RenderTexture& rt : rts)
-                        rt.create(window.getSize().x, window.getSize().y);
                 } else if (ev.type == sf::Event::KeyPressed) {
 #ifdef _DEBUG
                     if (ev.key.code == sf::Keyboard::Backslash)
@@ -174,23 +165,27 @@ int main(int argc, char* argv[])
 
         // RENDER BACKGROUND, ECS
 
+        const sf::Vector2u target_size = window.getSize();
+        std::unique_ptr<sf::RenderTexture> target = textures::get_render_texture(target_size);
         target->clear();
         target->setView(window::get_default_view());
 		background::render(*target);
 		ecs::render(*target);
         target->display();
-        std::swap(target, source);
 
         // POSTPROCESS
 
         for (const postprocess::Shockwave& shockwave : postprocess::shockwaves) {
+            std::unique_ptr<sf::RenderTexture> source = std::move(target);
+            target = textures::get_render_texture(target_size);
             target->setView(target->getDefaultView());
-            postprocess::render_shockwave(
-                *target, source->getTexture(), shockwave);
+            postprocess::render_shockwave(*target, source->getTexture(), shockwave);
             target->display();
-            std::swap(target, source);
+            textures::recycle_render_texture(std::move(source));
         }
-        postprocess::render_copy(window, source->getTexture());
+
+        postprocess::render_copy(window, target->getTexture());
+        textures::recycle_render_texture(std::move(target));
 
         // RENDER UI
 
