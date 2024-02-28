@@ -559,13 +559,14 @@ namespace map
 			std::array<sf::Vector2i, 8> neighbors;
 			int num_neighbors = 0; // Keep track of actual neighbors
 
-			std::vector<sf::Vector2i> directions = {
-			   {0, -1}, {0, 1}, {-1, 0}, {1, 0},
-			   {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+			// Define directions as a constant array (potential stack allocation)
+			const std::array<sf::Vector2i, 8> directions = {
+				{0, -1}, {0, 1}, {-1, 0}, {1, 0},
+				{-1, -1}, {-1, 1}, {1, -1}, {1, 1}
 			};
 
 			for (const auto& dir : directions) {
-				sf::Vector2i neighbor_pos = current_pos + dir;
+				sf::Vector2i neighbor_pos = current_pos + dir; 	// TODO issue here!!
 				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
 				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
 
