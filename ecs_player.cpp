@@ -183,7 +183,7 @@ namespace ecs
 
 			// UPDATE INPUT
 
-			if (player.kill_timer.finished() && window::has_focus() && !console::is_visible()) {
+			if (player.kill_timer.finished() && window::has_focus() && !console::has_focus()) {
 				player.input.axis_x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
 				player.input.axis_x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 				player.input.axis_y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
@@ -316,7 +316,7 @@ namespace ecs
 		}
 	}
 
-	void debug_player()
+	void debug_draw_player()
 	{
 		bool randomize_character = false;
 

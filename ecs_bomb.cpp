@@ -3,13 +3,14 @@
 #include "ecs_tile.h"
 #include "ecs_common.h"
 
-namespace ecs {
-
-    extern entt::registry _registry;  // Assuming you have a global EnTT registry
+namespace ecs
+{
+    extern entt::registry _registry;
 
     float _bomb_elapsed_time = 0.f;
 
-    void update_bombs(float dt) {
+    void update_bombs(float dt)
+    {
         _bomb_elapsed_time += dt;
         auto view = _registry.view<Bomb, Tile>();
         for (auto entity : view) {
@@ -37,14 +38,7 @@ namespace ecs {
         }
     }
 
-    void explode_bomb(entt::entity bomb_entity, float blast_radius) {
-        // Explosion logic goes here
-        // You can use the blast_radius to determine the affected area
-        // ...
-        destroy_at_end_of_frame(bomb_entity);
-    }
-
-    entt::entity create_bomb(const sf::Vector2f position)
+    entt::entity create_bomb(const sf::Vector2f& position)
     {
         entt::entity bomb_entity = _registry.create();
         // Add a Bomb component
@@ -59,5 +53,13 @@ namespace ecs {
         tile.pivot = sf::Vector2f(6.f, 6.f);
 
         return bomb_entity;
+    }
+
+    void explode_bomb(entt::entity bomb_entity, float blast_radius)
+    {
+        // Explosion logic goes here
+        // You can use the blast_radius to determine the affected area
+        // ...
+        destroy_at_end_of_frame(bomb_entity);
     }
 }

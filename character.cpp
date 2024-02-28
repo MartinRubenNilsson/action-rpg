@@ -323,26 +323,26 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 
 	const std::filesystem::path base_dir = "assets/textures/character";
 
-	sf::RenderTexture render_texture;
-	render_texture.create(1024, 1024);
-	render_texture.clear(sf::Color::Transparent);
+	std::unique_ptr<sf::RenderTexture> render_texture = textures::get_render_texture({ 1024, 1024 });
+	render_texture->clear(sf::Color::Transparent);
+
 	for (const Layer& layer : layers) {
-		std::shared_ptr<sf::Texture> texture = textures::get(base_dir / layer.texture_path);
+		std::shared_ptr<sf::Texture> texture = textures::load_texture(base_dir / layer.texture_path);
 		if (!texture) continue;
 		{
 			std::shared_ptr<sf::Texture> lut1;
 			switch (layer.lut1_type) {
 			case LUT_SKIN:
-				lut1 = textures::get(base_dir / "palettes/mana seed skin ramps.png");
+				lut1 = textures::load_texture(base_dir / "palettes/mana seed skin ramps.png");
 				break;
 			case LUT_HAIR:
-				lut1 = textures::get(base_dir / "palettes/mana seed hair ramps.png");
+				lut1 = textures::load_texture(base_dir / "palettes/mana seed hair ramps.png");
 				break;
 			case LUT_C3:
-				lut1 = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
+				lut1 = textures::load_texture(base_dir / "palettes/mana seed 3-color ramps.png");
 				break;
 			case LUT_C4:
-				lut1 = textures::get(base_dir / "palettes/mana seed 4-color ramps.png");
+				lut1 = textures::load_texture(base_dir / "palettes/mana seed 4-color ramps.png");
 				break;
 			}
 			if (lut1) {
@@ -357,16 +357,16 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 			std::shared_ptr<sf::Texture> lut2;
 			switch (layer.lut2_type) {
 			case LUT_SKIN:
-				lut2 = textures::get(base_dir / "palettes/mana seed skin ramps.png");
+				lut2 = textures::load_texture(base_dir / "palettes/mana seed skin ramps.png");
 				break;
 			case LUT_HAIR:
-				lut2 = textures::get(base_dir / "palettes/mana seed hair ramps.png");
+				lut2 = textures::load_texture(base_dir / "palettes/mana seed hair ramps.png");
 				break;
 			case LUT_C3:
-				lut2 = textures::get(base_dir / "palettes/mana seed 3-color ramps.png");
+				lut2 = textures::load_texture(base_dir / "palettes/mana seed 3-color ramps.png");
 				break;
 			case LUT_C4:
-				lut2 = textures::get(base_dir / "palettes/mana seed 4-color ramps.png");
+				lut2 = textures::load_texture(base_dir / "palettes/mana seed 4-color ramps.png");
 				break;
 			}
 			if (lut2) {
@@ -377,9 +377,12 @@ std::shared_ptr<sf::Texture> Character::bake_texture() const
 				shader->setUniform("lut2_type", -1);
 			}
 		}
-		render_texture.draw(sf::Sprite(*texture), { shader.get() });
+		render_texture->draw(sf::Sprite(*texture), { shader.get() });
 	}
-	render_texture.display();
+	render_texture->display();
 
-	return std::make_shared<sf::Texture>(render_texture.getTexture());
+	auto result = std::make_shared<sf::Texture>(render_texture->getTexture());
+	textures::recycle_render_texture(std::move(render_texture));
+
+	return result;
 }

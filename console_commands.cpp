@@ -10,144 +10,302 @@
 
 namespace console
 {
-	void _kill_player() {
-		ecs::kill_player(ecs::find_entity_by_class("player"));
+	using Arg = std::variant<std::monostate, bool, int, float, std::string>;
+
+	struct ArgTypenameVisitor
+	{
+		std::string operator()(std::monostate) const { return ""; }
+		std::string operator()(bool) const { return "BOOL"; }
+		std::string operator()(int) const { return "INT"; }
+		std::string operator()(float) const { return "FLOAT"; }
+		std::string operator()(const std::string&) const { return "STRING"; }
+	};
+
+	struct ArgParserVisitor
+	{
+		std::istream& is;
+
+		void operator()(std::monostate&) {}
+		void operator()(bool& value) { is >> std::boolalpha >> value >> std::noboolalpha; }
+		void operator()(int& value) { is >> value; }
+		void operator()(float& value) { is >> value; }
+		void operator()(std::string& value) {
+			// Try to parse a string with quotes. If it fails, parse a string without quotes.
+			if (is.peek() == '"') {
+				is.ignore();
+				std::getline(is, value, '"');
+			} else {
+				is >> value;
+			}
+		}
+	};
+
+	struct Param
+	{
+		Arg arg{};
+		const char* name = "";
+		const char* desc = "";
+	};
+
+	using Params = std::array<Param, 8>;
+
+	struct Command
+	{
+		const char* name = "";
+		const char* desc = "";
+		Params params{};
+		void (*callback)(const Params& params) = nullptr;
+	};
+
+	std::vector<Command> _commands; // Sorted by name
+
+	std::string _format_type_and_name(const Param& param)
+	{
+		std::string ret;
+		ret += std::visit(ArgTypenameVisitor{}, param.arg);
+		ret += " ";
+		ret += param.name;
+		return ret;
+	}
+	
+	bool operator<(const Command& left, const Command& right) {
+		return strcmp(left.name, right.name) < 0; // Order by name
 	}
 
-	void _do_execute(const std::string& command_line)
+	std::string _format_help_message(const Command& command)
 	{
-		std::istringstream iss(command_line);
-		std::string cmd;
-		if (!(iss >> cmd)) return;
-
-		bool help = (cmd == "help");
-		if (help) {
-			if (!(iss >> cmd)) return;
+		std::string ret;
+		ret += command.name;
+		for (const Param& param : command.params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			ret += " [" + _format_type_and_name(param) + "]";
 		}
+		ret += "\n- ";
+		ret += command.desc;
+		for (const Param& param : command.params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			ret += "\n- ";
+			ret += param.name;
+			ret += ": ";
+			ret += param.desc;
+		}
+		return ret;
+	}
 
-		bool error = false;
-		bool cmd_found = false;
-		std::string help_msg;
-		std::string error_msg;
+	const Command* _find_command(const std::string& name)
+	{
+		// Do a binary search to find the command. We assume the commands are sorted by name.
+		auto it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
+		if (it != _commands.end() && it->name == name) return &*it;
+		log_error("Unknown command: " + name);
+		return nullptr;
+	}
 
-#define HELP(desc) \
-		if (help) { help_msg += desc; }
-
-#define ARG(type, name, desc) \
-		type name{}; \
-		if (help) { help_msg += "\n" ## #type ## " " ## #name ## ": " ## desc; } \
-		else if (!(iss >> name)) { error = true; error_msg += "Expected: " ## #type ## " " ## #name; }
-
-#define ARGLINE(name, desc) \
-		std::string name{}; \
-		if (help) { help_msg += "\nstd::string " ## #name ## ": " ## desc; } \
-		else { iss.ignore(64, ' '); std::getline(iss, name); }
-
-#define EXEC(expr) \
-		cmd_found = true; if (!help && !error) { expr; }
+	void _initialize_commands()
+	{
+		_commands.clear();
 
 		// CONSOLE
-
-		if (cmd == "clear") {
-			HELP("Clear the console");
-			EXEC(console::clear());
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "help";
+			cmd.desc = "Shows help for a command";
+			cmd.params[0] = { "", "command", "The command to show help for" };
+			cmd.callback = [](const Params& params) {
+				if (const Command* cmd = _find_command(std::get<std::string>(params[0].arg)))
+					log(_format_help_message(*cmd));
+			};
 		}
-		if (cmd == "sleep") {
-			HELP("Sleep for a number of seconds");
-			ARG(float, seconds, "The number of seconds to sleep");
-			EXEC(console::sleep(seconds));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "clear";
+			cmd.desc = "Clears the console";
+			cmd.callback = [](const Params&) { clear(); };
 		}
-		if (cmd == "log") {
-			HELP("Log a message to the console");
-			ARGLINE(message, "The message to log");
-			EXEC(console::log(message));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "sleep";
+			cmd.desc = "Defers incoming commands, executing them later";
+			cmd.params[0] = { 0.f, "seconds", "The number of seconds to sleep" };
+			cmd.callback = [](const Params& params) {
+				sleep(std::get<float>(params[0].arg));
+			};
 		}
-		if (cmd == "log_error") {
-			HELP("Log an error message to the console");
-			ARGLINE(message, "The message to log");
-			EXEC(console::log_error(message));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "log";
+			cmd.desc = "Logs a message to the console";
+			cmd.params[0] = { "", "message", "The message to log"};
+			cmd.callback = [](const Params& params) {
+				log(std::get<std::string>(params[0].arg));
+			};
 		}
-		if (cmd == "execute") {
-			HELP("Execute a console command");
-			ARGLINE(command_line, "The command to execute");
-			EXEC(console::execute(command_line));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "log_error";
+			cmd.desc = "Logs an error message to the console";
+			cmd.params[0] = { "", "message", "The message to log"};
+			cmd.callback = [](const Params& params) {
+				log_error(std::get<std::string>(params[0].arg));
+			};
 		}
-		if (cmd == "execute_script") {
-			HELP("Execute a console script");
-			ARG(std::string, script_name, "The name of the script");
-			EXEC(console::execute_script(script_name));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "execute";
+			cmd.desc = "Executes a console command";
+			cmd.params[0] = { "", "command_line", "The command to execute" };
+			cmd.callback = [](const Params& params) {
+				execute(std::get<std::string>(params[0].arg));
+			};
 		}
-		if (cmd == "bind") {
-			HELP("Bind a key to a console command");
-			ARG(std::string, key_string, "The key to bind");
-			ARGLINE(command_line, "The command to execute");
-			EXEC(console::bind(key_string, command_line));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "execute_script";
+			cmd.desc = "Executes a console script";
+			cmd.params[0] = { "", "script_name", "The name of the script"};
+			cmd.callback = [](const Params& params) {
+				execute_script(std::get<std::string>(params[0].arg));
+			};
 		}
-		if (cmd == "unbind") {
-			HELP("Unbind a key");
-			ARG(std::string, key_string, "The key to unbind");
-			EXEC(console::unbind(key_string));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "bind";
+			cmd.desc = "Binds a console command to a key";
+			cmd.params[0] = { "", "key", "The key to bind" };
+			cmd.params[1] = { "", "command_line", "The command to execute" };
+			cmd.callback = [](const Params& params) {
+				bind(std::get<std::string>(params[0].arg), std::get<std::string>(params[1].arg));
+			};
 		}
-
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "unbind";
+			cmd.desc = "Unbinds a key";
+			cmd.params[0] = { "", "key", "The key to unbind" };
+			cmd.callback = [](const Params& params) {
+				unbind(std::get<std::string>(params[0].arg));
+			};
+		}
+		
 		// SHADERS
-
-		if (cmd == "reload_shaders") {
-			HELP("Reload all shaders");
-			EXEC(shaders::reload_assets());
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "reload_shaders";
+			cmd.desc = "Reloads all shaders";
+			cmd.callback = [](const Params& params) { shaders::reload_assets(); };
 		}
 
 		// AUDIO
-
-		if (cmd == "audio_play") {
-			HELP("Play an audio event");
-			ARG(std::string, event_name, "The name of the event");
-			EXEC(audio::play(event_name));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "audio_play";
+			cmd.desc = "Plays an audio event";
+			cmd.params[0] = { "", "event_path", "The full path of the event" };
+			cmd.callback = [](const Params& params) {
+				audio::play(std::get<std::string>(params[0].arg));
+			};
 		}
 
-		// MAPS
-
-		if (cmd == "map_open") {
-			HELP("Open a map");
-			ARG(std::string, map_name, "The name of the map");
-			EXEC(map::open(map_name));
+		// MAP
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "map_open";
+			cmd.desc = "Opens a map";
+			cmd.params[0] = { "", "name", "The name of the map" };
+			cmd.callback = [](const Params& params) {
+				map::open(std::get<std::string>(params[0].arg));
+			};
 		}
-		if (cmd == "map_close") {
-			HELP("Close the current map");
-			EXEC(map::close());
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "map_close";
+			cmd.desc = "Closes the current map";
+			cmd.callback = [](const Params& params) { map::close(); };
 		}
-		if (cmd == "map_reset") {
-			HELP("Reset the current map");
-			EXEC(map::reset());
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "map_reset";
+			cmd.desc = "Resets the current map";
+			cmd.callback = [](const Params& params) { map::reset(); };
 		}
 
 		// UI
-
-		if (cmd == "ui_show") {
-			HELP("Show an RML document");
-			ARG(std::string, name, "The name of the document");
-			EXEC(ui::show_document(name));
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "ui_show";
+			cmd.desc = "Shows an RML document";
+			cmd.params[0] = { "", "name", "The name of the document" };
+			cmd.callback = [](const Params& params) {
+				ui::show_document(std::get<std::string>(params[0].arg));
+			};
 		}
 
-		// CAMERA
-
-		if (cmd == "add_camera_trauma") {
-			HELP("Add trauma to the camera to make it shake");
-			ARG(float, trauma, "The amount of trauma to add");
-			EXEC(ecs::add_camera_trauma(trauma));
+		// GAME
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "kill_player";
+			cmd.desc = "Kills the player";
+			cmd.callback = [](const Params&) {
+				ecs::kill_player(ecs::find_entity_by_class("player"));
+			};
+		}
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "add_camera_shake";
+			cmd.desc = "Adds trauma to the active camera to make it shake";
+			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
+			cmd.callback = [](const Params& params) {
+				ecs::add_trauma_to_active_camera(std::get<float>(params[0].arg));
+			};
 		}
 
-		// MISC
+		std::sort(_commands.begin(), _commands.end());
+	}
 
-		if (cmd == "kill_player") {
-			HELP("Kill the player");
-			EXEC(_kill_player());
+	void _execute_command(const std::string& command_line)
+	{
+		std::istringstream iss(command_line);
+		std::string name;
+		if (!(iss >> name)) return;
+		const Command* cmd = _find_command(name);
+		if (!cmd) return;
+		if (!cmd->callback) {
+			log_error("Command not implemented: " + name);
+			return;
 		}
+		Params params = cmd->params; // Intentional copy
+		for (Param& param : params) {
+			if (std::holds_alternative<std::monostate>(param.arg)) break;
+			iss.ignore(64, ' '); // Skip any leading spaces
+			if (iss.eof()) {
+				log_error("Missing argument: " + _format_type_and_name(param));
+				return;
+			}
+			std::visit(ArgParserVisitor{ iss }, param.arg);
+			if (iss.fail()) {
+				log_error("Invalid argument: " + _format_type_and_name(param));
+				return;
+			}
+		}
+		cmd->callback(params);
+	}
 
-		if (error)
-			log_error(error_msg);
-		else if (!cmd_found)
-			log_error("Unknown command: " + cmd);
-		else if (help)
-			log(help_msg);
+	std::vector<std::string> _complete_command(const std::string& prefix)
+	{
+		struct Compare
+		{
+			size_t size = 0;
+
+			bool operator()(const Command& left, const Command& right) const {
+				return strncmp(left.name, right.name, size) < 0;
+			}
+		};
+		auto [begin, end] = std::equal_range(_commands.begin(), _commands.end(),
+			Command{ prefix.c_str() }, Compare{ prefix.size() });
+		std::vector<std::string> matches;
+		for (auto it = begin; it != end; ++it) {
+			matches.push_back(it->name);
+		}
+		return matches;
 	}
 }

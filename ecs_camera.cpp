@@ -149,7 +149,7 @@ namespace ecs
 		return new_entity;
 	}
 
-	bool add_camera_trauma(entt::entity entity, float trauma)
+	bool add_trauma_to_camera(entt::entity entity, float trauma)
 	{
 		if (Camera* camera = _registry.try_get<Camera>(entity)) {
 			camera->trauma += trauma;
@@ -158,9 +158,9 @@ namespace ecs
 		return false;
 	}
 
-	bool add_camera_trauma(float trauma)
+	bool add_trauma_to_active_camera(float trauma)
 	{
 		if (_active_camera_entity == entt::null) return false;
-		return add_camera_trauma(_active_camera_entity, trauma);
+		return add_trauma_to_camera(_active_camera_entity, trauma);
 	}
 }

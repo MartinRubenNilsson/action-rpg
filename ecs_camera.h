@@ -40,6 +40,6 @@ namespace ecs
 	// Copies the camera to a new entity, removes it from the old entity, and returns the new entity.
 	entt::entity detach_camera(entt::entity entity);
 	bool activate_camera(entt::entity entity, bool hard_cut = false);
-	bool add_camera_trauma(entt::entity entity, float trauma);
-	bool add_camera_trauma(float trauma); // Adds trauma to the active camera.
+	bool add_trauma_to_camera(entt::entity entity, float trauma);
+	bool add_trauma_to_active_camera(float trauma);
 }

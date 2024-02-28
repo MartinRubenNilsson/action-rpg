@@ -3,6 +3,7 @@
 #define B2_USER_SETTINGS
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <deque>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -21,6 +22,7 @@
 #include <box2d/box2d.h>
 #include <RmlUi/Core.h>
 #include <imgui.h>
+#include <imgui_stdlib.h>
 #include <magic_enum.hpp>
 
 #include "math_vectors.h"

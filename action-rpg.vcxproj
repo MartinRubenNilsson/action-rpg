@@ -148,6 +148,7 @@
     <ClCompile Include="behavior.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
+    <ClCompile Include="cursor.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_chain_shape.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_circle_shape.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="background.h" />
     <ClInclude Include="behavior.h" />
     <ClInclude Include="console.h" />
+    <ClInclude Include="cursor.h" />
     <ClInclude Include="dependencies\box2d\include\box2d\b2_api.h" />
     <ClInclude Include="dependencies\box2d\include\box2d\b2_block_allocator.h" />
     <ClInclude Include="dependencies\box2d\include\box2d\b2_body.h" />

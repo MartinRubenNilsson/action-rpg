@@ -1,42 +1,67 @@
 #include "console.h"
-#include <deque>
-#include <imgui.h>
-#include <imgui_stdlib.h>
 
 namespace console
 {
-	const ImColor _COLOR_COMMAND = IM_COL32(255, 255, 255, 255);
-	const ImColor _COLOR_ERROR = IM_COL32(220, 50, 47, 255);
+	const ImColor _COLOR_COMMAND = IM_COL32(230, 230, 230, 255);
+	const ImColor _COLOR_LOG = IM_COL32(252, 191, 73, 255);
+	const ImColor _COLOR_LOG_ERROR = IM_COL32(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
+
 	bool _visible = false;
+	bool _has_focus = false;
 	bool _reclaim_focus = false;
 	float _sleep_timer = 0.f;
 	std::stringstream _cout_stream;
 	std::stringstream _cerr_stream;
 	std::string _command_line;
 	std::deque<std::string> _command_queue;
-	std::vector<std::string> _command_history;
-	std::vector<std::string>::iterator _command_history_it = _command_history.end();
+	std::deque<std::string> _command_history;
+	std::deque<std::string>::iterator _command_history_it = _command_history.end();
 	std::deque<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
-	// Handles command history navigation
+	// Defined in console_commands.cpp
+	extern void _initialize_commands();
+	extern void _execute_command(const std::string& command_line);
+	extern std::vector<std::string> _complete_command(const std::string& prefix);
+
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
 	{
-		if (_command_history.empty()) return 0;
-		if (data->EventKey == ImGuiKey_UpArrow) {
-			if (_command_history_it > _command_history.begin()) {
-				_command_history_it--;
+		// COMPLETE COMMANDS
+
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
+			std::string prefix(data->Buf, data->Buf + data->BufTextLen);
+			std::vector<std::string> completions = _complete_command(prefix);
+			if (completions.empty()) return 0;
+			if (completions.size() == 1) {
 				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, _command_history_it->c_str());
+				data->InsertChars(0, completions[0].c_str());
+				return 0;
 			}
-		} else if (data->EventKey == ImGuiKey_DownArrow) {
-			if (_command_history_it < _command_history.end() - 1) {
-				_command_history_it++;
-				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, _command_history_it->c_str());
+			for (const std::string& completion : completions)
+				log(completion);
+			return 0;
+		}
+
+		// NAVIGATE COMMAND HISTORY
+
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) {
+			if (_command_history.empty()) return 0;
+			if (data->EventKey == ImGuiKey_UpArrow) {
+				if (_command_history_it > _command_history.begin()) {
+					_command_history_it--;
+					data->DeleteChars(0, data->BufTextLen);
+					data->InsertChars(0, _command_history_it->c_str());
+				}
+			} else if (data->EventKey == ImGuiKey_DownArrow) {
+				if (_command_history_it < _command_history.end() - 1) {
+					_command_history_it++;
+					data->DeleteChars(0, data->BufTextLen);
+					data->InsertChars(0, _command_history_it->c_str());
+				}
 			}
 		}
+
 		return 0;
 	}
 
@@ -47,15 +72,15 @@ namespace console
 		std::cout.rdbuf(_cout_stream.rdbuf());
 		std::cerr.rdbuf(_cerr_stream.rdbuf());
 
+		// INITIALIZE COMMANDS
+
+		_initialize_commands();
+
 		// SETUP IMGUI STYLE
 		{
 			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
 
 			ImGuiStyle& style = ImGui::GetStyle();
-			style.WindowRounding = 5.3f;
-			style.FrameRounding = 2.3f;
-			style.ScrollbarRounding = 0;
-
 			style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
 			style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
 			style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
@@ -125,11 +150,15 @@ namespace console
 
 		if (!_visible) return;
 
+		ImVec2 size = ImGui::GetIO().DisplaySize;
+		size.x *= 0.5f;
+		size.y *= 0.5f;
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
-		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
-		ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+		ImGui::SetNextWindowSize(size);
+		ImGui::SetNextWindowBgAlpha(0.75f); // Transparent background
 
 		ImGuiWindowFlags window_flags =
+			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoResize |
 			ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoCollapse |
@@ -164,6 +193,7 @@ namespace console
 				"##CommandLine",
 				&_command_line,
 				ImGuiInputTextFlags_EnterReturnsTrue |
+				ImGuiInputTextFlags_CallbackCompletion |
 				ImGuiInputTextFlags_CallbackHistory |
 				ImGuiInputTextFlags_EscapeClearsAll,
 				_input_text_callback)) {
@@ -173,12 +203,14 @@ namespace console
 			}
 			ImGui::PopItemWidth();
 
-			// AUTO FOCUS
+			// FOCUS
 
 			ImGui::SetItemDefaultFocus();
-			if (_reclaim_focus)
+			if (_reclaim_focus) {
 				ImGui::SetKeyboardFocusHere(-1); // Auto focus command line
-			_reclaim_focus = false;
+				_reclaim_focus = false;
+			}
+			_has_focus = ImGui::IsWindowFocused();
 		}
 		ImGui::End();
 	}
@@ -208,31 +240,32 @@ namespace console
 		if (_visible) _reclaim_focus = true;
 	}
 
+	bool has_focus() {
+		return _has_focus;
+	}
+
 	void clear() {
 		_history.clear();
 	}
 
 	void sleep(float seconds) {
-		_sleep_timer = seconds;
+		_sleep_timer = std::max(0.f, seconds);
 	}
 
 	void log(const std::string& message)
 	{
-		_history.emplace_back(message, ImGui::GetStyle().Colors[ImGuiCol_Text]);
+		_history.emplace_back(message, _COLOR_LOG);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 	}
 
 	void log_error(const std::string& message, bool show_console)
 	{
-		_history.emplace_back(message, _COLOR_ERROR);
+		_history.emplace_back(message, _COLOR_LOG_ERROR);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
 		if (show_console) _visible = true;
 	}
-
-	// Defined in console_commands.cpp
-	extern void _do_execute(const std::string& command_line);
 
 	void execute(const std::string& command_line, bool defer)
 	{
@@ -243,9 +276,13 @@ namespace console
 			return;
 		}
 		_command_history.push_back(command_line);
+		if (_command_history.size() > _MAX_HISTORY)
+			_command_history.pop_front();
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, _COLOR_COMMAND);
-		_do_execute(command_line);
+		if (_history.size() > _MAX_HISTORY)
+			_history.pop_front();
+		_execute_command(command_line);
 	}
 
 	void execute(int argc, char* argv[])

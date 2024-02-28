@@ -9,6 +9,7 @@ namespace console
 	bool is_visible();
 	void set_visible(bool visible);
 	void toggle_visible();
+	bool has_focus();
 	void clear();
 	void sleep(float seconds);
 	void log(const std::string& message);
