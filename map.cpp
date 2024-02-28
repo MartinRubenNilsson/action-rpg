@@ -403,32 +403,6 @@ namespace map
 		return sf::Vector2f(worldX, worldY);
 	}
 
-	std::vector<sf::Vector2i> get_neighbors(const sf::Vector2i& pos, const std::vector<std::vector<bool>>& path_finding_grid, const tiled::Layer* collision_layer) {
-		std::vector<sf::Vector2i> neighbors;
-
-		// Directions: up, down, left, right, and diagonals
-		std::vector<sf::Vector2i> directions = {
-			{0, -1}, {0, 1}, {-1, 0}, {1, 0},
-			{-1, -1}, {-1, 1}, {1, -1}, {1, 1}
-		};
-
-		for (const auto& dir : directions) {
-			sf::Vector2i neighbor_pos = pos + dir;
-			uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
-			uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
-
-			// Check if within grid bounds
-			if (neighbor_pos_x >= 0 && neighbor_pos_x < collision_layer->width &&
-				neighbor_pos_y >= 0 && neighbor_pos_y < collision_layer->height) {
-				// Check if the tile is passable
-				if (path_finding_grid[neighbor_pos.y][neighbor_pos.x]) {
-					neighbors.push_back(neighbor_pos);
-				}
-			}
-		}
-
-		return neighbors;
-	}
 
 	float distance_between(const sf::Vector2i& start, const sf::Vector2i& end) {
 		int dx = std::abs(end.x - start.x);
@@ -581,8 +555,33 @@ namespace map
 			open_list.erase(current_pos);
 			closed_list.insert(current_pos);
 
-			// Process each neighbor of the current node
-			for (const auto& neighbor_pos : get_neighbors(current_pos, path_finding_grid, collision_layer)) {
+			// Inlined get_neighbors with fixed-size array
+			std::array<sf::Vector2i, 8> neighbors;
+			int num_neighbors = 0; // Keep track of actual neighbors
+
+			std::vector<sf::Vector2i> directions = {
+			   {0, -1}, {0, 1}, {-1, 0}, {1, 0},
+			   {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+			};
+
+			for (const auto& dir : directions) {
+				sf::Vector2i neighbor_pos = current_pos + dir;
+				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
+				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
+
+				// Check if within grid bounds
+				if (neighbor_pos_x >= 0 && neighbor_pos_x < collision_layer->width &&
+					neighbor_pos_y >= 0 && neighbor_pos_y < collision_layer->height) {
+					// Check if the tile is passable
+					if (path_finding_grid[neighbor_pos.y][neighbor_pos.x]) {
+						neighbors[num_neighbors++] = neighbor_pos; // Store in the array
+					}
+				}
+			}
+
+			// Process the neighbors you've collected in the 'neighbors' array
+			for (int i = 0; i < num_neighbors; ++i) {
+				const sf::Vector2i neighbor_pos = neighbors[i];
 				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
 				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
 
@@ -593,7 +592,7 @@ namespace map
 				if (open_list.find(neighbor_pos) == open_list.end()) { // Discover a new node
 					open_list.insert(neighbor_pos);
 				}
-				else if (tentative_g_score >= all_nodes[neighbor_pos.y][neighbor_pos.x].g) {
+				else if (tentative_g_score >= all_nodes[neighbor_pos_y][neighbor_pos_x].g) {
 					continue; // Not a better path
 				}
 

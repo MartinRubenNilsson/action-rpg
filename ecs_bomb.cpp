@@ -24,7 +24,7 @@ namespace ecs {
                 }
                 else {
                     // Check if the bomb should start blinking
-                    if (bomb.timer.get_progress() > 0.5f) {  // For example, start blinking at 70% progress
+                    if (bomb.timer.get_progress() > 0.5f) {  // Start blinking at >50% progress
                         // Blinking effect
                         constexpr float BLINK_SPEED = 20.f;
                         float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
