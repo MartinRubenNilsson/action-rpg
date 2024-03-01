@@ -510,6 +510,7 @@ namespace map
 			float g = 0.f;           // cost from start to this tile
 			float h = 0.f;           // estimated cost from this tile to end
 			float f = 0.f;           // g + h
+			bool closed = false;
 		};
 
 		// Pathfind using A* algorithm
@@ -547,7 +548,6 @@ namespace map
 
 		// Open list and closed list
 		std::set<sf::Vector2i, CompareNodes> open_list;
-		std::set<sf::Vector2i, CompareNodes> closed_list;
 		open_list.insert(start_node.position);
 
 		all_nodes[grid_start_y][grid_start_x] = start_node;
@@ -555,17 +555,17 @@ namespace map
 		while (!open_list.empty()) {
 			// Find the node with the lowest f score
 			sf::Vector2i current_pos = *open_list.begin();
-			AStarNode& current_node = all_nodes[current_pos.y][current_pos.x];
+			AStarNode* current_node = &all_nodes[current_pos.y][current_pos.x];
 			for (const auto& pos : open_list) {
-				if (all_nodes[pos.y][pos.x].f < current_node.f) {
+				if (all_nodes[pos.y][pos.x].f < current_node -> f) {
 					current_pos = pos;
-					current_node = all_nodes[pos.y][pos.x];
+					current_node = &all_nodes[pos.y][pos.x];
 				}
 			}
 
 			// Move current node from open to closed list
 			open_list.erase(current_pos);
-			closed_list.insert(current_pos);
+			current_node -> closed = true; // Mark the node as closed
 
 			// Inlined get_neighbors with fixed-size array
 			std::array<sf::Vector2i, 8> neighbors;
@@ -592,9 +592,11 @@ namespace map
 				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
 				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
 
-				if (closed_list.find(neighbor_pos) != closed_list.end()) continue; // Already evaluated
+				AStarNode& neighbor_node = all_nodes[neighbor_pos_y][neighbor_pos_x]; // Get reference
 
-				float tentative_g_score = current_node.g + distance_between(current_pos, neighbor_pos); // or 1 if uniform cost
+				if (neighbor_node.closed) continue; // Already evaluated
+
+				float tentative_g_score = current_node -> g + distance_between(current_pos, neighbor_pos); // or 1 if uniform cost
 
 				if (open_list.find(neighbor_pos) == open_list.end()) { // Discover a new node
 					open_list.insert(neighbor_pos);
