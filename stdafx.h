@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <queue>
 #include <ranges>
 #include <set>
 #include <span>

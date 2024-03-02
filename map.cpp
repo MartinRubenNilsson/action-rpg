@@ -475,9 +475,6 @@ namespace map
 			return {};
 		}
 
-		// Create a grid of booleans indicating which tiles are passable.
-		std::vector<std::vector<bool>> path_finding_grid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
-
 		struct AStarNode
 		{
 			// NOTE TO TIM: you might want to change the members below
@@ -540,6 +537,17 @@ namespace map
 			sf::Vector2i(1, -1),
 			sf::Vector2i(1, 1),
 		};
+
+		//struct CompareNodesByF
+		//{
+		//	bool operator()(const AStarNode* a, const AStarNode* b) const
+		//	{
+		//		return a->f > b->f;
+		//	}
+		//};
+		//
+		//std::priority_queue<AStarNode*, std::vector<AStarNode*>, CompareNodesByF> priority_queue;
+		//priority_queue.push(&start_node);
 
 		// Open list and closed list
 		std::set<sf::Vector2i, CompareNodes> open_list;
