@@ -456,25 +456,6 @@ namespace map
 		uint32_t x = 0;
 		uint32_t y = 0;
 
-		// Create a grid of booleans indicating which tiles are passable.
-		std::vector<std::vector<bool>> path_finding_grid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
-
-		// Loop through each tile in the collision layer
-		for (uint32_t y = 0; y < collision_layer->height; ++y) {
-			for (uint32_t x = 0; x < collision_layer->width; ++x) {
-				const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first;
-
-				if (tile) {
-					// Tile is nonempty = impassable
-					path_finding_grid[y][x] = false; // false indicates impassable
-				}
-				else {
-					// Tile is empty = passable
-					path_finding_grid[y][x] = true; // true indicates passable
-				}
-			}
-		}
-
 		// Convert world coordinates to grid coordinates and compute the start and end tile indices.
 		sf::Vector2i grid_start = world_to_grid(start);
 		sf::Vector2i grid_end = world_to_grid(end);
@@ -494,11 +475,8 @@ namespace map
 			return {};
 		}
 
-		// If the start or end tile is impassable, we can't pathfind.
-		if (!path_finding_grid[grid_start.y][grid_start.x] || !path_finding_grid[grid_end.y][grid_end.x]) {
-			// Start or end point is impassable, return empty path or handle error
-			return {};
-		}
+		// Create a grid of booleans indicating which tiles are passable.
+		std::vector<std::vector<bool>> path_finding_grid(collision_layer->height, std::vector<bool>(collision_layer->width, true)); // true indicates passable
 
 		struct AStarNode
 		{
@@ -511,6 +489,7 @@ namespace map
 			float h = 0.f;           // estimated cost from this tile to end
 			float f = 0.f;           // g + h
 			bool closed = false;
+			bool passable = true;
 		};
 
 		// Pathfind using A* algorithm
@@ -525,6 +504,22 @@ namespace map
 		end_node.position = grid_end;
 
 		std::vector<std::vector<AStarNode>> all_nodes(collision_layer->height, std::vector<AStarNode>(collision_layer->width));
+		
+		// Initialize all nodes and set their passability based on the collision layer
+		for (uint32_t y = 0; y < collision_layer->height; ++y) {
+			for (uint32_t x = 0; x < collision_layer->width; ++x) {
+				const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first;
+				all_nodes[y][x].position = sf::Vector2i(x, y);
+				all_nodes[y][x].passable = (tile == nullptr); // Set to true if tile is null (passable), false otherwise
+			}
+		}
+
+
+		// If the start or end tile is impassable, we can't pathfind.
+		if (!all_nodes[grid_start_y][grid_start_x].passable || !all_nodes[grid_end_y][grid_end_x].passable) {
+			// Start or end point is impassable, return empty path or handle error
+			return {};
+		}
 
 		struct CompareNodes
 		{
@@ -573,18 +568,18 @@ namespace map
 
 			for (const sf::Vector2i& dir : directions) {
 				sf::Vector2i neighbor_pos = current_pos + dir;
-				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
-				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
 
-				// Check if within grid bounds
-				if (neighbor_pos_x >= 0 && neighbor_pos_x < collision_layer->width &&
-					neighbor_pos_y >= 0 && neighbor_pos_y < collision_layer->height) {
-					// Check if the tile is passable
-					if (path_finding_grid[neighbor_pos.y][neighbor_pos.x]) {
+				if (neighbor_pos.x >= 0 && neighbor_pos.x < collision_layer->width &&
+					neighbor_pos.y >= 0 && neighbor_pos.y < collision_layer->height) {
+
+					AStarNode& neighbor_node = all_nodes[neighbor_pos.y][neighbor_pos.x];
+
+					if (neighbor_node.passable) {
 						neighbors[num_neighbors++] = neighbor_pos; // Store in the array
 					}
 				}
 			}
+
 
 			// Process the neighbors you've collected in the 'neighbors' array
 			for (int i = 0; i < num_neighbors; ++i) {
