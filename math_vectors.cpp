@@ -1,5 +1,13 @@
 #include "math_vectors.h"
 
+float smoothstep(float x) {
+	return x * x * (3.f - 2.f * x);
+}
+
+float smootherstep(float x) {
+	return x * x * x * (x * (x * 6.f - 15.f) + 10.f);
+}
+
 sf::Vector2f operator*(const sf::Vector2f& left, const sf::Vector2f& right) {
 	return sf::Vector2f(left.x * right.x, left.y * right.y);
 }

@@ -10,7 +10,12 @@ constexpr float M_1DIV2PI = 0.159154943f;
 constexpr float M_PIDIV2  = 1.570796327f;
 constexpr float M_PIDIV4  = 0.785398163f;
 
-// VECTOR MATH
+// SCALARS
+
+float smoothstep(float x);
+float smootherstep(float x);
+
+// VECTORS
 
 template <class U, class V>
 U vector_cast(const V& v) {
