@@ -80,18 +80,16 @@ namespace ecs
 			_confine(camera.view, camera.confining_rect);
 
 			// Update the trauma.
-			camera.trauma -= camera.trauma_decay * dt;
-			camera.trauma = std::clamp(camera.trauma, 0.f, 1.f);
+			camera.trauma = std::clamp(camera.trauma - camera.trauma_decay * dt, 0.f, 1.f);
 
 			// Compute the shaky view.
 			sf::Vector2f shake_offset;
 			if (camera.shake_amplitude && camera.shake_frequency && camera.trauma) {
-				float total_shake_amplitude = camera.shake_amplitude *
-					camera.trauma * camera.trauma;
+				float total_shake_amplitude = camera.shake_amplitude * camera.trauma * camera.trauma;
 				shake_offset.x = total_shake_amplitude *
-					random::perlin_noise_f(0, camera.shake_frequency * _camera_shake_time);
+					random::fractal_perlin_noise(0, camera.shake_frequency * _camera_shake_time);
 				shake_offset.y = total_shake_amplitude *
-					random::perlin_noise_f(1, camera.shake_frequency * _camera_shake_time);
+					random::fractal_perlin_noise(1, camera.shake_frequency * _camera_shake_time);
 			}
 			camera._shaky_view = camera.view;
 			camera._shaky_view.move(shake_offset);

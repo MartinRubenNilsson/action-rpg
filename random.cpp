@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "random.h"
 #include <random>
-#include <noise/noise.h>
+#define STB_PERLIN_IMPLEMENTATION
+#include <stb_perlin.h>
 
 namespace random
 {
@@ -9,7 +10,6 @@ namespace random
 	const float PI_2 = 6.28318530718f;
 
 	std::default_random_engine _engine(std::random_device{}());
-	noise::module::Perlin _perlin;
 
 	bool chance(float probability_of_true)
 	{
@@ -42,11 +42,11 @@ namespace random
 		return on_circle(r);
 	}
 
-	double perlin_noise_d(double x, double y, double z) {
-		return _perlin.GetValue(x, y, z);
+	float perlin_noise(float x, float y, float z) {
+		return stb_perlin_noise3(x, y, z, 0, 0, 0);
 	}
 
-	float perlin_noise_f(float x, float y, float z) {
-		return (float)_perlin.GetValue((double)x, (double)y, (double)z);
+	float fractal_perlin_noise(float x, float y, float z, float lacunarity, float gain, int octaves) {
+		return stb_perlin_fbm_noise3(x, y, z, lacunarity, gain, octaves);
 	}
 }

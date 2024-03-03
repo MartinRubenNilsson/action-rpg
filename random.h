@@ -7,6 +7,6 @@ namespace random
 	int range_i(int min, int max);
 	sf::Vector2f on_circle(float radius = 1.f);
 	sf::Vector2f in_circle(float radius = 1.f);
-	double perlin_noise_d(double x, double y = 0.0, double z = 0.0); // Return value is between -1 and 1.
-	float perlin_noise_f(float x, float y = 0.f, float z = 0.f); // Return value is between -1 and 1.
+	float perlin_noise(float x, float y = 0.f, float z = 0.f);
+	float fractal_perlin_noise(float x, float y = 0.f, float z = 0.f, float lacunarity = 2.f, float gain = 0.5f, int octaves = 6);
 }

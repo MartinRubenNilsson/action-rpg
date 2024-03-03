@@ -2,10 +2,10 @@
   "dependencies": [
     "sfml",
     "imgui-sfml",
+    "stb",
     "rmlui",
     "entt",
     "magic-enum",
-    "libnoise",
     "tweeny",
     "pugixml"
   ]

@@ -25,10 +25,10 @@ namespace ecs
 		sf::View _shaky_view; // Read-only!
 		entt::entity follow = entt::null;
 		sf::FloatRect confining_rect;
-		float shake_amplitude = 1.5f;
+		float shake_amplitude = 6.f;
 		float shake_frequency = 10.f;
 		float trauma = 0.f;
-		float trauma_decay = 2.f;
+		float trauma_decay = 1.5f;
 	};
 
 	void update_cameras(float dt);
