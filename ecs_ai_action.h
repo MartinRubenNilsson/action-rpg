@@ -4,12 +4,12 @@ namespace ecs
 {
 	enum class AiActionType
 	{
-		None, // Do nothing. Succeeds immediately.
+		None, // Do nothing. Runs forever.
 		Wait, // Wait for a certain amount of time. Succeeds after the time has elapsed.
 		MoveTo, // Move to a certain position. Succeeds when the entity is sufficiently close.
 		Pursue, // Pursue a certain entity. Succeeds when the entity is sufficiently close.
 		Flee, // Flee from a certain entity. Succeeds when the entity is sufficiently far away.
-		Wander, // Wander around randomly. Keeps running, never succeeds or fails.
+		Wander, // Wander around randomly. Runs forever.
 		//PlayAnimation, // Play a certain animation. Succeeds when it's finished, fails if it doesn't exist.
 	};
 
@@ -18,6 +18,7 @@ namespace ecs
 		Running,
 		Succeeded,
 		Failed,
+		TimedOut,
 	};
 
 	struct AiAction
@@ -25,8 +26,9 @@ namespace ecs
 		AiActionType type = AiActionType::None;
 		AiActionStatus status = AiActionStatus::Running;
 		float running_time = 0.f;
+		float max_running_time = 0.f; // If this is 0, the action runs forever.
 
-		// PARAMETERS
+		// ACTION-SPECIFIC PARAMETERS
 
 		entt::entity entity = entt::null;
 		sf::Vector2f position;
@@ -36,6 +38,10 @@ namespace ecs
 	};
 
 	void update_ai_actions(float dt);
+
+	bool ai_set_max_running_time(entt::entity entity, float max_running_time);
+
+	// ACTIONS
 
 	void ai_none(entt::entity entity);
 	void ai_wait(entt::entity entity, float duration);

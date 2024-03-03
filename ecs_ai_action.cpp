@@ -19,8 +19,13 @@ namespace ecs
 		// Hence they need to run independently from the rest of the AI system.
 
 		for (auto [entity, action] : _registry.view<AiAction>().each()) {
-			if (action.status == AiActionStatus::Running)
+			if (action.status == AiActionStatus::Running) {
 				action.running_time += dt;
+				if (action.max_running_time > 0.f && action.running_time >= action.max_running_time) {
+					action.status = AiActionStatus::TimedOut;
+					action.running_time = action.max_running_time;
+				}
+			}
 		}
 
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
@@ -33,7 +38,7 @@ namespace ecs
 
 			switch (action.type) {
 			case AiActionType::None: {
-				action.status = AiActionStatus::Succeeded;
+				// Do nothing.
 			} break;
 			case AiActionType::Wait: {
 				if (action.running_time >= action.duration)
@@ -98,6 +103,15 @@ namespace ecs
 
 			set_linear_velocity(body, my_new_vel);
 		}
+	}
+
+	bool ai_set_max_running_time(entt::entity entity, float max_running_time)
+	{
+		if (AiAction* action = _registry.try_get<AiAction>(entity)) {
+			action->max_running_time = max_running_time;
+			return true;
+		}
+		return false;
 	}
 
 	void _set_ai_action(entt::entity entity, const AiAction& action) {

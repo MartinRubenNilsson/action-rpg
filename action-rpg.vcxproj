@@ -205,6 +205,7 @@
     <ClCompile Include="character.cpp" />
     <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="fonts.cpp" />
+    <ClCompile Include="map_grid.cpp" />
     <ClCompile Include="postprocess.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="ecs.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="character.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
+    <ClInclude Include="map_grid.h" />
     <ClInclude Include="postprocess.h" />
     <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />

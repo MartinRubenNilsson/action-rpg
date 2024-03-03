@@ -253,6 +253,9 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="map_grid.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -572,6 +575,9 @@
     </ClInclude>
     <ClInclude Include="cursor.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="map_grid.h">
+      <Filter>map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
