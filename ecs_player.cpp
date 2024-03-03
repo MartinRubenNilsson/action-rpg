@@ -5,7 +5,6 @@
 #include "ecs_physics_filters.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
-#include "math_vectors.h"
 #include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"

@@ -12,7 +12,7 @@
     <ClCompile Include="map.cpp">
       <Filter>map</Filter>
     </ClCompile>
-    <ClCompile Include="math_vectors.cpp">
+    <ClCompile Include="math.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="audio.cpp">
@@ -283,7 +283,7 @@
     <ClInclude Include="map.h">
       <Filter>map</Filter>
     </ClInclude>
-    <ClInclude Include="math_vectors.h">
+    <ClInclude Include="math.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="audio.h">

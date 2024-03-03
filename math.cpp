@@ -1,4 +1,4 @@
-#include "math_vectors.h"
+#include "math.h"
 
 float smoothstep(float x) {
 	return x * x * (3.f - 2.f * x);

@@ -1,6 +1,5 @@
+#include "stdafx.h"
 #include "physics_helpers.h"
-#include <box2d/b2_math.h>
-#include "math_vectors.h"
 
 entt::entity get_entity(b2Body* body) {
 	return body->GetUserData().entity;
