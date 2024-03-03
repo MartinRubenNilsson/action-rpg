@@ -4,9 +4,9 @@
 #include "ecs_ai_action.h"
 #include "ecs_tile.h"
 #include "physics_helpers.h"
-#include "console.h"
 #include "map.h"
 #include "fonts.h"
+#include "random.h"
 
 namespace ecs
 {
@@ -15,40 +15,31 @@ namespace ecs
     void _update_ai_decision_making(float dt)
     {
         const AiWorld& world = get_ai_world();
+        const bool player_exists = _registry.valid(world.player.entity);
 
         for (auto [entity, knowledge, type, action] :
             _registry.view<const AiKnowledge, const AiType, const AiAction>().each()) {
+
+            const float dist_to_player = length(world.player.position - knowledge.me.position);
 
             switch (type) {
             case AiType::None:
                 break; // Do nothing
             case AiType::Slime: {
-                constexpr float WANDER_RADIUS = 50.f;
-                constexpr float WANDER_SPEED = 15.f;
-                constexpr float WAIT_DURATION = 1.f;
-                constexpr float PURSUE_RADIUS = 50.f;
-                constexpr float FLEE_RADIUS = 30.f;
 
-                if (action.type == AiActionType::None) {
-					ai_wander(entity, knowledge.me.position, WANDER_SPEED, 50.f);
-				}
-
-                break;
-
-                if (!_registry.valid(world.player.entity)) break;
-
-                float dist_to_player = length(world.player.position - knowledge.me.position);
-
-                if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
-                } else if (action.type == AiActionType::Flee && action.status == AiActionStatus::Running) {
-				} else if (action.type == AiActionType::Flee && action.status == AiActionStatus::Succeeded) {
-					ai_wait(entity, WAIT_DURATION);
-                } else if (dist_to_player < FLEE_RADIUS) {
-                    ai_flee(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
-                } else if (dist_to_player > PURSUE_RADIUS) {
-					ai_pursue(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
-				} else {
-                    ai_pursue(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
+                if (action.type == AiActionType::Flee && action.status == AiActionStatus::Running) {
+                } else if (action.type == AiActionType::Pursue && action.status == AiActionStatus::Running) {
+                } else if (player_exists && dist_to_player < 25.f) {
+					ai_flee(entity, world.player.entity, knowledge.me.p_speed, 60.f);
+                } else if (player_exists && dist_to_player < 100.f) {
+					ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f);
+				} else if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
+				} else if (action.type == AiActionType::Wander && action.status == AiActionStatus::Succeeded) {
+                    float duration = random::range_f(0.5f, 1.5f);
+					ai_wait(entity, duration);
+				} else if (action.type != AiActionType::Wander) {
+                    float duration = random::range_f(1.f, 3.f);
+                    ai_wander(entity, knowledge.initial_position, 20.f, 50.f, duration);
                 }
 
             } break;
@@ -119,7 +110,7 @@ namespace ecs
 
     void emplace_ai(entt::entity entity, AiType type)
     {
-        _registry.emplace_or_replace<AiKnowledge>(entity);
+        emplace_ai_knowledge(entity);
         _registry.emplace_or_replace<AiType>(entity, type);
         _registry.emplace_or_replace<AiAction>(entity);
     }

@@ -18,7 +18,6 @@ namespace ecs
 		Running,
 		Succeeded,
 		Failed,
-		TimedOut,
 	};
 
 	struct AiAction
@@ -26,7 +25,6 @@ namespace ecs
 		AiActionType type = AiActionType::None;
 		AiActionStatus status = AiActionStatus::Running;
 		float running_time = 0.f;
-		float max_running_time = 0.f; // If this is 0, the action runs forever.
 
 		// ACTION-SPECIFIC PARAMETERS
 
@@ -39,8 +37,6 @@ namespace ecs
 
 	void update_ai_actions(float dt);
 
-	bool ai_set_max_running_time(entt::entity entity, float max_running_time);
-
 	// ACTIONS
 
 	void ai_none(entt::entity entity);
@@ -48,6 +44,6 @@ namespace ecs
 	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius);
 	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
 	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
-	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius);
+	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius, float duration = 0.f);
 	//void ai_play_animation(entt::entity entity, const std::string& animation_name);
 }

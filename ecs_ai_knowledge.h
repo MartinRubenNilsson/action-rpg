@@ -11,7 +11,7 @@ namespace ecs
 		sf::Vector2f velocity;
 
 		// PROPERTIES
-		float speed = 0.f;
+		float p_speed = 0.f;
 	};
 
 	struct AiWorld
@@ -23,9 +23,12 @@ namespace ecs
 	struct AiKnowledge
 	{
 		AiEntityInfo me;
+		sf::Vector2f initial_position;
+		sf::Vector2f initial_velocity;
 	};
 
 	void update_ai_knowledge_and_world(float dt);
 
 	const AiWorld& get_ai_world();
+	AiKnowledge& emplace_ai_knowledge(entt::entity entity);
 }

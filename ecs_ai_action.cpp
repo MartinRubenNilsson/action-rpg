@@ -19,13 +19,8 @@ namespace ecs
 		// Hence they need to run independently from the rest of the AI system.
 
 		for (auto [entity, action] : _registry.view<AiAction>().each()) {
-			if (action.status == AiActionStatus::Running) {
+			if (action.status == AiActionStatus::Running)
 				action.running_time += dt;
-				if (action.max_running_time > 0.f && action.running_time >= action.max_running_time) {
-					action.status = AiActionStatus::TimedOut;
-					action.running_time = action.max_running_time;
-				}
-			}
 		}
 
 		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
@@ -82,7 +77,14 @@ namespace ecs
 				}
 			} break;
 			case AiActionType::Wander: {
-				if (action.radius <= 0.f) break;
+				if (action.duration > 0.f && action.running_time >= action.duration) {
+					action.status = AiActionStatus::Succeeded;
+					break;
+				}
+				if (action.radius <= 0.f) {
+					action.status = AiActionStatus::Failed;
+					break;
+				}
 				sf::Vector2f my_new_dir = my_old_dir;
 				if (is_zero(my_new_dir))
 					my_new_dir = random::on_circle();
@@ -103,15 +105,6 @@ namespace ecs
 
 			set_linear_velocity(body, my_new_vel);
 		}
-	}
-
-	bool ai_set_max_running_time(entt::entity entity, float max_running_time)
-	{
-		if (AiAction* action = _registry.try_get<AiAction>(entity)) {
-			action->max_running_time = max_running_time;
-			return true;
-		}
-		return false;
 	}
 
 	void _set_ai_action(entt::entity entity, const AiAction& action) {
@@ -163,13 +156,14 @@ namespace ecs
 		_set_ai_action(entity, action);
 	}
 
-	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius)
+	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius, float duration)
 	{
 		AiAction action{};
 		action.type = AiActionType::Wander;
 		action.position = wander_center;
 		action.speed = speed;
 		action.radius = wander_radius;
+		action.duration = duration;
 		_set_ai_action(entity, action);
 	}
 }
