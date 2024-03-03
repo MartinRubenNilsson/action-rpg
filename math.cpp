@@ -8,6 +8,18 @@ float smootherstep(float x) {
 	return x * x * x * (x * (x * 6.f - 15.f) + 10.f);
 }
 
+float lerp(float a, float b, float t) {
+	return a + (b - a) * t;
+}
+
+float lerp_angle(float a, float b, float t)
+{
+	float angle = std::fmod(b - a, M_2PI);
+	if (angle > M_PI) angle -= M_2PI;
+	else if (angle < -M_PI) angle += M_2PI;
+	return a + angle * t;
+}
+
 sf::Vector2f operator*(const sf::Vector2f& left, const sf::Vector2f& right) {
 	return sf::Vector2f(left.x * right.x, left.y * right.y);
 }
@@ -42,10 +54,14 @@ float length(const sf::Vector2f& v) {
 	return std::sqrt(length_squared(v));
 }
 
+sf::Vector2f unit_vector(float angle) {
+	return sf::Vector2f(std::cos(angle), std::sin(angle));
+}
+
 sf::Vector2f normalize(const sf::Vector2f& v) {
-	if (float denom = length(v))
-		return v / denom;
-	return sf::Vector2f(0, 0);
+	if (float len = length(v))
+		return v / len;
+	return sf::Vector2f(0.f, 0.f);
 }
 
 float dot(const sf::Vector2f& a, const sf::Vector2f& b) {
@@ -57,8 +73,8 @@ float det(const sf::Vector2f& a, const sf::Vector2f& b) {
 }
 
 float angle_unsigned(const sf::Vector2f& a, const sf::Vector2f& b) {
-	if (float denom = length(a) * length(b))
-		return std::acos(dot(a, b) / denom);
+	if (float len2 = length_squared(a))
+		return std::acos(dot(a, b) / len2);
 	return 0.f;
 }
 
@@ -79,6 +95,13 @@ sf::Vector2f rotate(const sf::Vector2f& v, float angle)
 
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t) {
 	return a + (b - a) * t;
+}
+
+sf::Vector2f lerp_polar(const sf::Vector2f& a, const sf::Vector2f& b, float t)
+{
+	float len = lerp(length(a), length(b), t);
+	float angle = lerp_angle(std::atan2(a.y, a.x), std::atan2(b.y, b.x), t);
+	return unit_vector(angle) * len;
 }
 
 sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt)

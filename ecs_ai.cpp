@@ -14,48 +14,40 @@ namespace ecs
 
     void _update_ai_decision_making(float dt)
     {
-        // VERY IMPORTANT:
-        // 
-        // In this function, the AiWorld, AiKnowledge and AiType are READ-ONLY.
-        // The AiAction component is the only one that can be modified.
-        // Use ONLY the AiWorld and AiKnowledge to decide what the AiAction should be,
-        // do not access the game world directly! If you need more info to decide
-        // the AiAction, add this info to AiKnowledge and/or the AiWorld.
-        // The AiAction will run independently and is allowed to modify the game world.
-
         const AiWorld& world = get_ai_world();
 
-        for (auto [entity, knowledge, ai_type, action] :
+        for (auto [entity, knowledge, type, action] :
             _registry.view<const AiKnowledge, const AiType, const AiAction>().each()) {
 
-            switch (ai_type) {
+            switch (type) {
+            case AiType::None:
+                break; // Do nothing
             case AiType::Slime: {
+                constexpr float WANDER_RADIUS = 50.f;
+                constexpr float WANDER_SPEED = 15.f;
+                constexpr float WAIT_DURATION = 1.f;
+                constexpr float PURSUE_RADIUS = 50.f;
+                constexpr float FLEE_RADIUS = 30.f;
+
+                if (action.type == AiActionType::None) {
+					ai_wander(entity, knowledge.me.position, WANDER_SPEED, 50.f);
+				}
+
+                break;
+
                 if (!_registry.valid(world.player.entity)) break;
 
-                // The radius of the circle around the player that the slime will try to reach.
-                const float PURSUE_RADIUS = 50.f;
-                // The duration of the wait action.
-                const float WAIT_DURATION = 1.f;
-                // When player is closer than this, start fleeing
-                const float FLEE_RADIUS = 30.f; 
-
-                float distance_to_player = length(world.player.position - knowledge.me.position);
+                float dist_to_player = length(world.player.position - knowledge.me.position);
 
                 if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
-                    // If the slime is waiting, do nothing.
                 } else if (action.type == AiActionType::Flee && action.status == AiActionStatus::Running) {
-					// If the slime is fleeing, keep doing that.
 				} else if (action.type == AiActionType::Flee && action.status == AiActionStatus::Succeeded) {
-                    // If the slime has finished fleeing, wait for a while.
 					ai_wait(entity, WAIT_DURATION);
-                } else if (distance_to_player < FLEE_RADIUS) {
-                    // Player is too close, start fleeing
+                } else if (dist_to_player < FLEE_RADIUS) {
                     ai_flee(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
-                } else if (distance_to_player > PURSUE_RADIUS) {
-                    // Player is too far, start pursuing
+                } else if (dist_to_player > PURSUE_RADIUS) {
 					ai_pursue(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
 				} else {
-                    // Else, start moving towards the player.
                     ai_pursue(entity, world.player.entity, knowledge.me.speed, PURSUE_RADIUS);
                 }
 
@@ -129,6 +121,6 @@ namespace ecs
     {
         _registry.emplace_or_replace<AiKnowledge>(entity);
         _registry.emplace_or_replace<AiType>(entity, type);
-		_registry.emplace_or_replace<AiAction>(entity);
+        _registry.emplace_or_replace<AiAction>(entity);
     }
 }
