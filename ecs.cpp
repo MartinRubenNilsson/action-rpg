@@ -7,6 +7,7 @@
 #include "ecs_ai.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
+#include "ecs_vfx.h"
 #include "ecs_pickups.h"
 #include "ecs_bomb.h"
 
@@ -40,6 +41,7 @@ namespace ecs
 		update_physics(dt);
 		update_common(dt);
 		update_tiles(dt);
+		update_vfx(dt);
 		update_cameras(dt);
 	}
 	 
@@ -91,6 +93,13 @@ namespace ecs
 			else
 				target.draw(sorted_sprite.sprite);
 		}
+
+		// DRAW VFX
+
+		for (auto [entity, vfx] : _registry.view<Vfx>().each())
+			target.draw(vfx.sprite); // TODO: culling
+
+		// DEBUG DRAWING
 
 		if (debug_flags & DEBUG_PIVOTS) {
 			for (const SortedSprite& sorted_sprite : sprites) {

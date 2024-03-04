@@ -47,10 +47,10 @@ namespace ecs
 				auto& pickup = _registry.get<Pickup>(entity_a);
 				switch (pickup.type) {
 					case PickupType::Arrow:
-						player.arrow_ammo++;
+						player.arrows++;
 						break;
 					case PickupType::Rupee:
-						player.rupee_amount++;
+						player.rupees++;
 						break;
 				}
 				destroy_at_end_of_frame(entity_a);

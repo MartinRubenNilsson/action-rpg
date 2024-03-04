@@ -3,7 +3,8 @@
 
 namespace ecs
 {
-	enum class PlayerState {
+	enum class PlayerState
+	{
 		Normal,
 		Attacking,
 		Dying,
@@ -30,9 +31,9 @@ namespace ecs
 		Timer bow_shot_timer = { 0.66f };
 		sf::Vector2f facing_direction = { 0.f, 1.f }; // The direction the player is facing
 		int health = 3;
-		int arrow_ammo = 10;
-		int bomb_ammo = 5;
-		int rupee_amount = 10;
+		int arrows = 10;
+		int bombs = 5;
+		int rupees = 10;
 	};
 
 	void process_event_player(const sf::Event& ev);

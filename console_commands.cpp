@@ -3,14 +3,15 @@
 #include "audio.h"
 #include "map.h"
 #include "ui.h"
+#include "shaders.h"
 #include "ecs_player.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"
-#include "shaders.h"
+#include "ecs_vfx.h"
 
 namespace console
 {
-	using Arg = std::variant<std::monostate, bool, int, float, std::string>;
+	using Arg = std::variant<std::monostate, bool, int, float, std::string, sf::Vector2f>;
 
 	struct ArgTypenameVisitor
 	{
@@ -19,6 +20,7 @@ namespace console
 		std::string operator()(int) const { return "INT"; }
 		std::string operator()(float) const { return "FLOAT"; }
 		std::string operator()(const std::string&) const { return "STRING"; }
+		std::string operator()(const sf::Vector2f&) const { return "VEC2F"; }
 	};
 
 	struct ArgParserVisitor
@@ -38,6 +40,7 @@ namespace console
 				is >> value;
 			}
 		}
+		void operator()(sf::Vector2f& value) { is >> value.x >> value.y; }
 	};
 
 	struct Param
@@ -256,6 +259,23 @@ namespace console
 			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
 			cmd.callback = [](const Params& params) {
 				ecs::add_trauma_to_active_camera(std::get<float>(params[0].arg));
+			};
+		}
+		{
+			Command& cmd = _commands.emplace_back();
+			cmd.name = "create_vfx";
+			cmd.desc = "Spawns a VFX in the game world";
+			cmd.params[0] = { "", "type", "The type of VFX" };
+			cmd.params[1] = { sf::Vector2f(), "position", "The position to spawn the VFX at" };
+			cmd.callback = [](const Params& params) {
+				const std::string& type_str = std::get<std::string>(params[0].arg);
+				const sf::Vector2f& position = std::get<sf::Vector2f>(params[1].arg);
+				auto type = magic_enum::enum_cast<ecs::VfxType>(type_str, magic_enum::case_insensitive);
+				if (type.has_value()) {
+					create_vfx(type.value(), position);
+				} else {
+					log_error("Unknown VFX type: " + type_str);
+				}
 			};
 		}
 

@@ -17,6 +17,7 @@
 #include "tiled.h"
 #include "ecs_bomb.h"
 #include "character.h"
+#include "ecs_vfx.h"
 
 using namespace std::literals::string_literals;
 
@@ -125,7 +126,8 @@ namespace ecs
 		tile.pivot = sf::Vector2f(6.f, 6.f);
 	}
 
-	void _player_interact(sf::Vector2f position) {
+	void _player_interact(sf::Vector2f position)
+	{
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
@@ -134,6 +136,7 @@ namespace ecs
 			std::string class_ = get_class(hit.entity);
 			if (class_ == "slime") {
 				destroy_at_end_of_frame(hit.entity);
+				create_vfx(VfxType::Explosion, position);
 			}
 			else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
 				std::string tile_class = tile->get_tile_class();
@@ -233,7 +236,7 @@ namespace ecs
 					player.facing_direction = movement_direction;
 				}
 				// Handling arrow attack
-				if (player.input.arrow_attack && player.arrow_ammo > 0) {
+				if (player.input.arrow_attack && player.arrows > 0) {
 
 					tile.set("bow_shot_"s + dir); // Trigger bow shot animation
 					player.bow_shot_timer.start(); // Start the timer with 660 ms
@@ -241,9 +244,9 @@ namespace ecs
 					player.input.arrow_attack = false;
 					player.state = PlayerState::Attacking;
 				}
-				else if (player.input.drop_bomb && player.bomb_ammo > 0) {
+				else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(player_position + player.facing_direction * 16.f);
-					player.bomb_ammo--;
+					player.bombs--;
 					player.input.drop_bomb = false;
 				}
 				else if (movement_speed >= PLAYER_RUN_SPEED) {
@@ -274,7 +277,7 @@ namespace ecs
 
 				if (player.bow_shot_timer.update(dt)) {
 					fire_arrow(player_position, player.facing_direction, 1);
-					player.arrow_ammo--;
+					player.arrows--;
 				}
 
 				//if (player.bow_shot_timer.update(dt)) {
@@ -305,9 +308,9 @@ namespace ecs
 			// UPDATE HUD
 
 			ui::bindings::hud_player_health = player.health;
-			ui::bindings::hud_arrow_ammo = player.arrow_ammo;
-			ui::bindings::hud_bomb_ammo = player.bomb_ammo;
-			ui::bindings::hud_rupee_amount = player.rupee_amount;
+			ui::bindings::hud_arrow_ammo = player.arrows;
+			ui::bindings::hud_bomb_ammo = player.bombs;
+			ui::bindings::hud_rupee_amount = player.rupees;
 
 			// CLEAR INPUT
 
@@ -317,49 +320,41 @@ namespace ecs
 
 	void debug_draw_player()
 	{
-		bool randomize_character = false;
+		ImGui::Begin("Player");
 
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-			ImGui::Begin("Player");
-
-			if (ImGui::Button("Randomize Character")) {
-				randomize_character = true;
-			}
-
-			if (ImGui::Button("Hurt Player")) {
-				hurt_player(entity, 1);
-			}
-
-			if (ImGui::Button("Kill Player")) {
-				kill_player(entity);
-			}
-
-			if (ImGui::Button("Increase Ammo")) {
-				player.arrow_ammo += 5;
-			}
-
-			// Increase Rupee Button
-			if (ImGui::Button("Increase Rupee")) {
-				// Increase rupee by 5, modify this number as needed
-				player.rupee_amount += 5;
-			}
-
-			// Use magic enum to display player state
-			ImGui::Text("Player State: %s", magic_enum::enum_name(player.state).data());
-			ImGui::Text("Current Health: %d", player.health);
-			ImGui::Text("Current Ammo: %d", player.arrow_ammo);
-			ImGui::Text("Current Rupee: %d", player.rupee_amount);
-
-			ImGui::End();
+		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
+			ImGui::Text("Position: %.1f, %.1f", body->GetWorldCenter().x, body->GetWorldCenter().y);
 		}
 
-		if (randomize_character) {
-			for (auto [entity, player, tile] : _registry.view<Player, Tile>().each()) {
+		for (auto [entity, player] : _registry.view<Player>().each()) {
+
+			ImGui::Text("State: %s", magic_enum::enum_name(player.state).data());
+			ImGui::Text("Health: %d", player.health);
+			ImGui::Text("Arrows: %d", player.arrows);
+			ImGui::Text("Rupees: %d", player.rupees);
+			
+			if (ImGui::Button("Hurt"))
+				hurt_player(entity, 1);
+			ImGui::SameLine();
+			if (ImGui::Button("Kill"))
+				kill_player(entity);
+
+			if (ImGui::Button("Give 5 Arrows"))
+				player.arrows += 5;
+			ImGui::SameLine();
+			if (ImGui::Button("Give 5 Rupees"))
+				player.rupees += 5;
+		}
+
+		for (auto [entity, player, tile] : _registry.view<Player, Tile>().each()) {
+			if (ImGui::Button("Randomize")) {
 				Character character{};
 				character.randomize();
 				tile.texture = character.bake_texture();
 			}
 		}
+
+		ImGui::End();
 	}
 
 	void emplace_player(entt::entity entity, const Player& player) {
