@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <imgui-SFML.h>
+#include "steam.h"
 #include "window.h"
 #include "audio.h"
 #include "fonts.h"
@@ -25,6 +26,8 @@
 
 int main(int argc, char* argv[])
 {
+    steam::initialize();
+
     // INITIALIZATION PASS 1
 
     sf::RenderWindow window;
@@ -214,14 +217,12 @@ int main(int argc, char* argv[])
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
-
-    // UNLOAD ASSETS
-
     tiled::unload_assets();
     background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();
     textures::shutdown();
+    steam::shutdown();
 
     return 0;
 }

@@ -256,6 +256,9 @@
     <ClCompile Include="map_grid.cpp">
       <Filter>map</Filter>
     </ClCompile>
+    <ClCompile Include="steam.cpp">
+      <Filter>steam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -582,6 +585,141 @@
     <ClInclude Include="map_grid.h">
       <Filter>map</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamapps.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamappticket.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamclient.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamcontroller.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamdualsense.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamfriends.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamgamecoordinator.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamgameserver.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamgameserverstats.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamhtmlsurface.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamhttp.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteaminput.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteaminventory.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteammatchmaking.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteammusic.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteammusicremote.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamnetworking.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamnetworkingmessages.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamnetworkingsockets.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamnetworkingutils.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamparentalsettings.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamps3overlayrenderer.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamremoteplay.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamremotestorage.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamscreenshots.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamugc.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamuser.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamuserstats.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamutils.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\isteamvideo.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\matchmakingtypes.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steam_api.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steam_api_common.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steam_api_flat.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steam_api_internal.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steam_gameserver.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamclientpublic.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamencryptedappticket.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamhttpenums.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamnetworkingfakeip.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamnetworkingtypes.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamps3params.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamtypes.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\steam\steamuniverse.h">
+      <Filter>steam\api</Filter>
+    </ClInclude>
+    <ClInclude Include="steam.h">
+      <Filter>steam</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -634,6 +772,12 @@
     </Filter>
     <Filter Include="ecs\player">
       <UniqueIdentifier>{db0d950d-591f-470a-935b-0082a4e1b134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="steam">
+      <UniqueIdentifier>{029569e4-8e84-4e37-99f3-3b57c5057e89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="steam\api">
+      <UniqueIdentifier>{d3ef2347-9886-432b-9205-5a7bb0ae438e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
