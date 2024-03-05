@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
     background::load_assets();
 
     // INITIALIZATION PASS 2
-        
     {
         // Settings::set() affects window and audio, so these must be initialized first.
         Settings settings{};
@@ -222,8 +221,7 @@ int main(int argc, char* argv[])
     background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();
-    textures::clear_texture_cache();
-    textures::clear_render_texture_pool();
+    textures::shutdown();
 
     return 0;
 }

@@ -151,9 +151,6 @@ namespace tiled
 	const std::vector<Object>& get_templates();
 	const std::vector<Map>& get_maps();
 
-	const Tileset& get_error_tileset();
-	const Tile& get_error_tile();
-
 	const Tileset* find_tileset_by_name(const std::string& name);
 }
 

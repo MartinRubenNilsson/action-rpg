@@ -118,10 +118,6 @@ namespace tiled
 	{
 		unload_assets();
 
-		// ALLOCATE ROOM FOR ERROR TILESET
-
-		_tilesets.emplace_back();
-
 		// FIND AND ALLOCATE ROOM FOR TILESETS, TEMPLATES, AND MAPS
 		
 		for (const std::filesystem::directory_entry& entry :
@@ -137,32 +133,9 @@ namespace tiled
 				_maps.emplace_back().path = entry.path().lexically_normal();
 		}
 
-		// INITIALIZE ERROR TILESET
-		{
-			Tileset& tileset = _tilesets[0];
-			tileset.name = "error";
-			tileset.class_ = "error";
-			tileset.tile_count = 1;
-			tileset.columns = 1;
-
-			Tile& tile = tileset.tiles.emplace_back();
-			tile.tileset = &tileset;
-			tile.class_ = "error";
-
-			tileset.image_path = textures::ERROR_TEXTURE_PATH;
-			tileset.image = textures::load_texture(textures::ERROR_TEXTURE_PATH);
-			if (tileset.image) {
-				sf::Vector2u size = tileset.image->getSize();
-				tileset.tile_width = size.x;
-				tileset.tile_height = size.y;
-				tile.sprite.setTexture(*tileset.image);
-			}
-		}
-
 		// LOAD TILESETS
 		
-		for (size_t tileset_index = 1; tileset_index < _tilesets.size(); ++tileset_index) {
-			Tileset& tileset = _tilesets[tileset_index];
+		for (Tileset& tileset : _tilesets) {
 			pugi::xml_document doc;
 			if (!doc.load_file(tileset.path.string().c_str())) {
 				console::log_error("Failed to load tileset: " + tileset.path.string());
@@ -450,14 +423,6 @@ namespace tiled
 
 	const std::vector<Map>& get_maps() {
 		return _maps;
-	}
-
-	const Tileset& get_error_tileset() {
-		return _tilesets.front();
-	}
-
-	const Tile& get_error_tile() {
-		return get_error_tileset().tiles.front();
 	}
 
 	const Tileset* find_tileset_by_name(const std::string& name)

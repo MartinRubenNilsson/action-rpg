@@ -24,7 +24,7 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile(); // creates an invalid tile
+		Tile() = default;
 		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position;
@@ -44,7 +44,7 @@ namespace ecs
 		bool animation_loop = true;
 		bool animation_flip_x_on_loop = false;
 
-		bool is_valid() const { return _valid; }
+		bool is_valid() const { return _tile; }
 		bool set(const tiled::Tile* tile);
 		bool set(const std::string& tile_class); // uses the current tileset
 		bool set(const std::string& tile_class, const std::string& tileset_name);
@@ -57,10 +57,9 @@ namespace ecs
 		float get_animation_duration() const; // in seconds
 
 	private:
-		bool _valid = false;
-		const tiled::Tile* _tile = nullptr; // current tile
-		const tiled::Tile* _frame = nullptr; // current animation frame
+		const tiled::Tile* _tile = nullptr;
 		uint32_t _animation_duration_ms = 0;
+		uint32_t _animation_frame_index = 0;
 		uint32_t _animation_loop_count = 0; // unused right now
 	};
 

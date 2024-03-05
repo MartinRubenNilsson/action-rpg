@@ -2,6 +2,7 @@
 #include "physics_helpers.h"
 #include "tiled.h"
 #include "shaders.h"
+#include "textures.h"
 
 namespace ecs
 {
@@ -25,11 +26,6 @@ namespace ecs
 		return SortingLayer::Objects;
 	}
 
-	Tile::Tile()
-		: _tile(&tiled::get_error_tile())
-		, _frame(_tile)
-	{}
-
 	Tile::Tile(const tiled::Tile* tile)
 	{
 		assert(tile);
@@ -47,31 +43,29 @@ namespace ecs
 	{
 		if (!tile) return false;
 		if (tile == _tile) return false;
-		_valid = true;
 		_tile = tile;
-		_frame = tile;
 		_animation_duration_ms = 0;
+		_animation_frame_index = 0;
+		_animation_loop_count = 0;
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
-		_animation_loop_count = 0;
 		return true;
 	}
 
 	bool Tile::set(const std::string& tile_class)
 	{
+		if (!_tile) return false; // no tileset to look in
 		if (tile_class.empty()) return false;
 		if (tile_class == _tile->class_) return false;
-		_valid = false;
 		return set(_tile->tileset->find_tile_by_class(tile_class));
 	}
 
 	bool Tile::set(const std::string& tile_class, const std::string& tileset_name)
 	{
 		if (tile_class.empty() || tileset_name.empty()) return false;
-		if (tile_class == _tile->class_ && tileset_name == _tile->tileset->name) return false;
-		_valid = false;
+		if (_tile && tile_class == _tile->class_ && tileset_name == _tile->tileset->name) return false;
 		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset) return false;
 		return set(tileset->find_tile_by_class(tile_class));
@@ -79,17 +73,21 @@ namespace ecs
 
 	sf::Sprite Tile::get_sprite() const
 	{
-		sf::Sprite sprite = _frame->sprite;
+		sf::Sprite sprite;
+		if (!_tile) {
+			if (std::shared_ptr<sf::Texture> error_texture = textures::get_error_texture())
+				sprite.setTexture(*error_texture, true);
+			return sprite;
+		}
+		if (_animation_duration_ms && _animation_frame_index < _tile->animation.size()) {
+			const tiled::Frame& frame = _tile->animation[_animation_frame_index];
+			sprite = frame.tile->sprite;
+		} else {
+			sprite = _tile->sprite;
+		}
 		sf::Vector2f origin = pivot;
 		sf::Vector2f scale(1.f, 1.f);
-		sf::Vector2f size = sprite.getGlobalBounds().getSize();
-		if (!_valid) {
-			sprite = tiled::get_error_tile().sprite;
-			sf::Vector2f new_size = sprite.getGlobalBounds().getSize();
-			origin *= new_size / size;
-			scale *= size / new_size;
-			size = new_size;
-		}
+		sf::Vector2f size = sprite.getLocalBounds().getSize();
 		if (flip_x) {
 			origin.x = size.x - origin.x;
 			scale.x *= -1.f;
@@ -102,16 +100,17 @@ namespace ecs
 		sprite.setPosition(position);
 		sprite.setScale(scale);
 		sprite.setColor(color);
-		if (texture) sprite.setTexture(*texture);
+		if (texture)
+			sprite.setTexture(*texture);
 		return sprite;
 	}
 
 	std::string Tile::get_tile_class() const {
-		return _tile->class_;
+		return _tile ? _tile->class_ : "";
 	}
 
 	std::string Tile::get_tileset_name() const {
-		return _tile->tileset->name;
+		return _tile ? _tile->tileset->name : "";
 	}
 
 	bool Tile::is_animated() const {
@@ -120,6 +119,7 @@ namespace ecs
 
 	void Tile::update_animation(float dt)
 	{
+		if (!_tile) return;
 		if (!_animation_duration_ms) return;
 		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
 			++_animation_loop_count;
@@ -129,10 +129,11 @@ namespace ecs
 		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
 		uint32_t time = time_in_ms % _animation_duration_ms;
 		uint32_t current_time = 0;
-		for (const tiled::Frame& frame : _tile->animation) {
+		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
+			const tiled::Frame& frame = _tile->animation[frame_index];
 			current_time += frame.duration;
 			if (time < current_time) {
-				_frame = frame.tile;
+				_animation_frame_index = frame_index;
 				break;
 			}
 		}

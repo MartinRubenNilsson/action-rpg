@@ -274,6 +274,9 @@
     <None Include="bake_character.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="checkerboard.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
