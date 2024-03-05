@@ -1,5 +1,5 @@
 #include "audio.h"
-#include "fmod_studio.hpp"
+#include <fmod/fmod_studio.hpp>
 #include "console.h"
 
 #ifdef _DEBUG

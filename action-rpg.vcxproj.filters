@@ -317,39 +317,6 @@
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="fmod_studio_common.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod.hpp">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_codec.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_common.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_dsp.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_dsp_effects.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_errors.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_output.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_studio.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="fmod_studio.hpp">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
     <ClInclude Include="physics_helpers.h">
       <Filter>physics</Filter>
     </ClInclude>
@@ -719,6 +686,39 @@
     </ClInclude>
     <ClInclude Include="steam.h">
       <Filter>steam</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod.hpp">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_codec.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_common.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_dsp.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_dsp_effects.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_errors.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_output.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_studio.h">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_studio.hpp">
+      <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\fmod\fmod_studio_common.h">
+      <Filter>audio\fmod</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
