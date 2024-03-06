@@ -486,6 +486,7 @@ namespace map
 			float f = 0.f;           // g + h
 			bool closed = false;
 			bool passable = true;
+			bool in_open_list = false;
 		};
 
 		// Pathfind using A* algorithm
@@ -537,83 +538,61 @@ namespace map
 			sf::Vector2i(1, 1),
 		};
 
-		//struct CompareNodesByF
-		//{
-		//	bool operator()(const AStarNode* a, const AStarNode* b) const
-		//	{
-		//		return a->f > b->f;
-		//	}
-		//};
-		//
-		//std::priority_queue<AStarNode*, std::vector<AStarNode*>, CompareNodesByF> priority_queue;
-		//priority_queue.push(&start_node);
-
-		// Open list and closed list
-		std::set<sf::Vector2i, CompareNodes> open_list;
-		open_list.insert(start_node.position);
+		struct CompareNodesByF
+		{
+			bool operator()(const AStarNode* a, const AStarNode* b) const
+			{
+				return a->f > b->f;
+			}
+		};
+		
+		std::priority_queue<AStarNode*, std::vector<AStarNode*>, CompareNodesByF> open_list;
+		open_list.push(&start_node);
 
 		all_nodes[grid_start_y][grid_start_x] = start_node;
-
 		while (!open_list.empty()) {
-			// Find the node with the lowest f score
-			sf::Vector2i current_pos = *open_list.begin();
-			AStarNode* current_node = &all_nodes[current_pos.y][current_pos.x];
-			for (const auto& pos : open_list) {
-				if (all_nodes[pos.y][pos.x].f < current_node -> f) {
-					current_pos = pos;
-					current_node = &all_nodes[pos.y][pos.x];
-				}
+			// The top of the priority queue is the node with the lowest f score
+			AStarNode* current_node = open_list.top(); // Get this node
+			sf::Vector2i current_pos = current_node->position; // Current node position
+			open_list.pop(); // Remove this node from the open list
+
+			// If we have reached the end node, we can reconstruct the path and exit the loop
+			if (current_pos == end_node.position) {
+				break; // Add path reconstruction logic here before the break if you reach the end
 			}
 
-			// Move current node from open to closed list
-			open_list.erase(current_pos);
-			current_node -> closed = true; // Mark the node as closed
+			current_node->closed = true; // Mark the current node as closed
 
-			// Inlined get_neighbors with fixed-size array
-			std::array<sf::Vector2i, 8> neighbors;
-			int num_neighbors = 0; // Keep track of actual neighbors
-
+			// Process neighbors
 			for (const sf::Vector2i& dir : directions) {
 				sf::Vector2i neighbor_pos = current_pos + dir;
 
 				if (neighbor_pos.x >= 0 && neighbor_pos.x < collision_layer->width &&
 					neighbor_pos.y >= 0 && neighbor_pos.y < collision_layer->height) {
-
 					AStarNode& neighbor_node = all_nodes[neighbor_pos.y][neighbor_pos.x];
 
-					if (neighbor_node.passable) {
-						neighbors[num_neighbors++] = neighbor_pos; // Store in the array
+					if (!neighbor_node.passable || neighbor_node.closed) {
+						continue; // Skip if neighbor is not passable or already closed
+					}
+
+					float tentative_g_score = current_node->g + distance_between(current_pos, neighbor_pos); // Calculate tentative G score
+
+					// If new path to neighbor is shorter or neighbor is not in open list
+					if (tentative_g_score < neighbor_node.g || !neighbor_node.in_open_list) {
+						neighbor_node.parent = current_pos;
+						neighbor_node.g = tentative_g_score;
+						neighbor_node.h = heuristic(neighbor_pos, grid_end);
+						neighbor_node.f = neighbor_node.g + neighbor_node.h;
+
+						if (!neighbor_node.in_open_list) {
+							open_list.push(&neighbor_node); // Add to open list
+							neighbor_node.in_open_list = true; // Mark as in open list
+						}
 					}
 				}
 			}
-
-
-			// Process the neighbors you've collected in the 'neighbors' array
-			for (int i = 0; i < num_neighbors; ++i) {
-				const sf::Vector2i neighbor_pos = neighbors[i];
-				uint32_t neighbor_pos_x = static_cast<uint32_t>(neighbor_pos.x);
-				uint32_t neighbor_pos_y = static_cast<uint32_t>(neighbor_pos.y);
-
-				AStarNode& neighbor_node = all_nodes[neighbor_pos_y][neighbor_pos_x]; // Get reference
-
-				if (neighbor_node.closed) continue; // Already evaluated
-
-				float tentative_g_score = current_node -> g + distance_between(current_pos, neighbor_pos); // or 1 if uniform cost
-
-				if (open_list.find(neighbor_pos) == open_list.end()) { // Discover a new node
-					open_list.insert(neighbor_pos);
-				}
-				else if (tentative_g_score >= all_nodes[neighbor_pos_y][neighbor_pos_x].g) {
-					continue; // Not a better path
-				}
-
-				// This is the best path until now. Record it
-				all_nodes[neighbor_pos_y][neighbor_pos_x].parent = current_pos;
-				all_nodes[neighbor_pos_y][neighbor_pos_x].g = tentative_g_score;
-				all_nodes[neighbor_pos_y][neighbor_pos_x].h = heuristic(neighbor_pos, grid_end);
-				all_nodes[neighbor_pos_y][neighbor_pos_x].f = all_nodes[neighbor_pos_y][neighbor_pos_x].g + all_nodes[neighbor_pos_y][neighbor_pos_x].h;
-			}
 		}
+
 
 		// Convert back to world coordinates. The world position of a tile is the center of the tile.
 		std::vector<sf::Vector2f> path;
