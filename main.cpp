@@ -28,7 +28,8 @@ int main(int argc, char* argv[])
 {
     if (steam::restart_app_if_necessary())
         return EXIT_FAILURE;
-    steam::initialize();
+    if (!steam::initialize())
+		return EXIT_FAILURE;
 
     // INITIALIZATION PASS 1
 
@@ -76,6 +77,8 @@ int main(int argc, char* argv[])
     // GAME LOOP
 
     while (window.isOpen()) {
+
+        steam::process_events();
 
         // PROCESS WINDOW EVENTS
         {
@@ -152,7 +155,7 @@ int main(int argc, char* argv[])
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
-        if (!ui::should_pause_game())
+        if (!ui::should_pause_game() && !steam::is_overlay_active())
             ecs::update(dt.asSeconds());
 
         if (debug_stats) {
