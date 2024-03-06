@@ -2,7 +2,8 @@
 
 namespace steam
 {
-	bool initialize();
+	bool restart_app_if_necessary();
+	void initialize();
 	void shutdown();
 }
 

@@ -26,6 +26,8 @@
 
 int main(int argc, char* argv[])
 {
+    if (steam::restart_app_if_necessary())
+        return EXIT_FAILURE;
     steam::initialize();
 
     // INITIALIZATION PASS 1
@@ -224,5 +226,5 @@ int main(int argc, char* argv[])
     textures::shutdown();
     steam::shutdown();
 
-    return 0;
+    return EXIT_SUCCESS;
 }

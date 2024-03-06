@@ -6,8 +6,14 @@
 
 namespace steam
 {
-	bool initialize() {
-		return SteamAPI_Init();
+	const uint32_t _APP_ID = 0; // Invalid ID for now
+
+	bool restart_app_if_necessary() {
+		return SteamAPI_RestartAppIfNecessary(_APP_ID);
+	}
+
+	void initialize() {
+		SteamAPI_Init();
 	}
 
 	void shutdown() {
