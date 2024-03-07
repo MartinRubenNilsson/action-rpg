@@ -1,19 +1,20 @@
 #include "stdafx.h"
 #include "steam.h"
-
-#ifdef BUILD_STEAM
 #include <steam/steam_api.h>
+
 #pragma comment(lib, "steam_api64")
-#endif
 
 namespace steam
 {
-#ifdef BUILD_STEAM
 	const uint32_t _APP_ID = 0; // Invalid ID for now
 	bool _is_overlay_active = false;
 
 	bool restart_app_if_necessary() {
 		return SteamAPI_RestartAppIfNecessary(_APP_ID);
+	}
+
+	bool is_steam_running() {
+		return SteamAPI_IsSteamRunning();
 	}
 
 	bool initialize()
@@ -64,11 +65,4 @@ namespace steam
 	bool is_overlay_active() {
 		return _is_overlay_active;
 	}
-#else
-	bool restart_app_if_necessary() { return false; }
-	bool initialize() { return true; }
-	void shutdown() { }
-	void run_message_loop() { }
-	bool is_overlay_active() { return false; }
-#endif
 }

@@ -3,6 +3,7 @@
 namespace steam
 {
 	bool restart_app_if_necessary();
+	bool is_steam_running();
 	bool initialize();
 	void shutdown();
 	void run_message_loop();

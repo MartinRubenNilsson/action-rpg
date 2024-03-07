@@ -17,6 +17,15 @@
 #include "textures.h"
 #include "cursor.h"
 
+#if defined(_DEBUG) && defined(_WIN32)
+#include <Windows.h>
+void fatal_error(const char* message) {
+	MessageBoxA(nullptr, message, "Fatal Error", MB_ICONERROR);
+}
+#else
+void fatal_error(const char* message) {}
+#endif
+
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
 #pragma comment(lib, "sfml-main-d")
@@ -28,8 +37,13 @@ int main(int argc, char* argv[])
 {
     if (steam::restart_app_if_necessary())
         return EXIT_FAILURE;
-    if (!steam::initialize())
+    if (!steam::initialize()) {
+        if (!steam::is_steam_running())
+            fatal_error("Error 12831: Steam must be running to play this game.");
+		else
+            fatal_error("Error 41594: Failed to initialize Steam API.");
 		return EXIT_FAILURE;
+    }
 
     // INITIALIZATION PASS 1
 
