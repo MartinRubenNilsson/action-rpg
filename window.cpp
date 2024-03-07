@@ -41,7 +41,11 @@ namespace window
 				sf::VideoMode(size.x, size.y);
 			sf::Uint32 style = desc.fullscreen ? 
 				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
-			_window->create(mode, desc.title, style);
+			sf::ContextSettings settings{};
+//#ifdef _DEBUG
+//			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
+//#endif
+			_window->create(mode, desc.title, style, settings);
 			_window->setKeyRepeatEnabled(false);
 			// Spoof a resize event to ensure that other systems are aware of the new window size.
 			sf::Event ev{};

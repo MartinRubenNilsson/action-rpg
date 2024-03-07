@@ -259,6 +259,9 @@
     <ClCompile Include="steam.cpp">
       <Filter>steam</Filter>
     </ClCompile>
+    <ClCompile Include="console_commands_misc.cpp">
+      <Filter>console</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -719,6 +722,9 @@
     </ClInclude>
     <ClInclude Include="dependencies\fmod\fmod_studio_common.h">
       <Filter>audio\fmod</Filter>
+    </ClInclude>
+    <ClInclude Include="console_commands.h">
+      <Filter>console</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "console.h"
+#include "console_commands.h"
 
 namespace console
 {
@@ -20,18 +22,13 @@ namespace console
 	std::deque<std::pair<std::string, ImColor>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
-	// Defined in console_commands.cpp
-	extern void _initialize_commands();
-	extern void _execute_command(const std::string& command_line);
-	extern std::vector<std::string> _complete_command(const std::string& prefix);
-
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
 	{
 		// COMPLETE COMMANDS
 
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
 			std::string prefix(data->Buf, data->Buf + data->BufTextLen);
-			std::vector<std::string> completions = _complete_command(prefix);
+			std::vector<std::string> completions = complete_command(prefix);
 			if (completions.empty()) return 0;
 			if (completions.size() == 1) {
 				data->DeleteChars(0, data->BufTextLen);
@@ -72,9 +69,9 @@ namespace console
 		std::cout.rdbuf(_cout_stream.rdbuf());
 		std::cerr.rdbuf(_cerr_stream.rdbuf());
 
-		// INITIALIZE COMMANDS
+		// REGISTER COMMANDS
 
-		_initialize_commands();
+		register_commands();
 
 		// SETUP IMGUI STYLE
 		{
@@ -282,7 +279,7 @@ namespace console
 		_history.emplace_back(command_line, _COLOR_COMMAND);
 		if (_history.size() > _MAX_HISTORY)
 			_history.pop_front();
-		_execute_command(command_line);
+		parse_and_execute_command(command_line);
 	}
 
 	void execute(int argc, char* argv[])
