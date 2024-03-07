@@ -30,5 +30,6 @@ namespace console
 	CommandIt commands_begin();
 	CommandIt commands_end();
 	CommandIt find_command(const std::string& name);
-	std::pair<CommandIt, CommandIt> find_commands_starting_with(const std::string& prefix); // [first, )
+	// Returns a consecutive range of commands starting with the given prefix.
+	std::pair<CommandIt, CommandIt> find_commands_starting_with(const std::string& prefix);
 }
