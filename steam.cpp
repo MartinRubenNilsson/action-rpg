@@ -1,11 +1,14 @@
 #include "stdafx.h"
 #include "steam.h"
-#include <steam/steam_api.h>
 
+#ifdef BUILD_STEAM
+#include <steam/steam_api.h>
 #pragma comment(lib, "steam_api64")
+#endif
 
 namespace steam
 {
+#ifdef BUILD_STEAM
 	const uint32_t _APP_ID = 0; // Invalid ID for now
 	bool _is_overlay_active = false;
 
@@ -25,7 +28,7 @@ namespace steam
 		SteamAPI_Shutdown();
 	}
 
-	void process_events()
+	void run_message_loop()
 	{
 		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
 		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
@@ -61,4 +64,11 @@ namespace steam
 	bool is_overlay_active() {
 		return _is_overlay_active;
 	}
+#else
+	bool restart_app_if_necessary() { return false; }
+	bool initialize() { return true; }
+	void shutdown() { }
+	void run_message_loop() { }
+	bool is_overlay_active() { return false; }
+#endif
 }

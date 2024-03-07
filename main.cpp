@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
     while (window.isOpen()) {
 
-        steam::process_events();
+        steam::run_message_loop();
 
         // PROCESS WINDOW EVENTS
         {
