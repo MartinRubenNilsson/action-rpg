@@ -108,6 +108,16 @@ namespace console
 				log(steam::get_steam_id());
 			};
 		}
+		{
+			Command& cmd = commands.emplace_back();
+			cmd.name = "steam_friends";
+			cmd.desc = "Prints the names of the friends of the current user";
+			cmd.callback = [](const Params&) {
+				auto names = steam::get_friends_persona_names();
+				for (const std::string& name : names)
+					log(name);
+			};
+		}
 
 		// SHADERS
 		{

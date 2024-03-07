@@ -8,6 +8,8 @@ namespace steam
 	void shutdown();
 	void run_message_loop();
 	bool is_overlay_active();
+
 	std::string get_steam_id();
+	std::vector<std::string> get_friends_persona_names();
 }
 

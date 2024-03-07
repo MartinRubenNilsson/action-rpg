@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "steam.h"
 #include <steam/steam_api.h>
+#include "console.h"
 
 #pragma comment(lib, "steam_api64")
 
@@ -57,6 +58,15 @@ namespace steam
 				GameOverlayActivated_t* overlay_activated = (GameOverlayActivated_t*)callback.m_pubParam;
 				_is_overlay_active = overlay_activated->m_bActive;
 			} break;
+			/*case GameConnectedFriendChatMsg_t::k_iCallback: {
+				GameConnectedFriendChatMsg_t* chat_msg = (GameConnectedFriendChatMsg_t*)callback.m_pubParam;
+				std::string log_msg;
+				log_msg += SteamFriends()->GetFriendPersonaName(chat_msg->m_steamIDUser);
+				log_msg += ": ";
+				log_msg += SteamFriends()->GetFriendMessage(chat_msg->m_steamIDUser, chat_msg->m_iMessageID);
+
+				log_error("Received chat message from friend " + std::to_string(chat_msg->m_steamIDUser.ConvertToUint64()) + ": " + chat_msg->m_data);
+			} break;*/
 			}
 			SteamAPI_ManualDispatch_FreeLastCallback(steam_pipe);
 		}
@@ -70,5 +80,16 @@ namespace steam
 	{
 		CSteamID steam_id = SteamUser()->GetSteamID();
 		return std::to_string(steam_id.ConvertToUint64());
+	}
+
+	std::vector<std::string> get_friends_persona_names()
+	{
+		std::vector<std::string> names;
+		int friends_count = SteamFriends()->GetFriendCount(k_EFriendFlagImmediate);
+		for (int i = 0; i < friends_count; i++) {
+			CSteamID friend_id = SteamFriends()->GetFriendByIndex(i, k_EFriendFlagImmediate);
+			names.push_back(SteamFriends()->GetFriendPersonaName(friend_id));
+		}
+		return names;
 	}
 }
