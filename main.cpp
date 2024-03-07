@@ -19,8 +19,10 @@
 
 #if defined(_DEBUG) && defined(_WIN32)
 #include <Windows.h>
-void fatal_error(const char* message) {
+void fatal_error(const char* message)
+{
 	MessageBoxA(nullptr, message, "Fatal Error", MB_ICONERROR);
+    __debugbreak();
 }
 #else
 void fatal_error(const char* message) {}
