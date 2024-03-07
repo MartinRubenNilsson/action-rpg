@@ -22,8 +22,9 @@ namespace console
 			cmd.desc = "Shows help for a command";
 			cmd.params[0] = { "", "command", "The command to show help for" };
 			cmd.callback = [](const Params& params) {
-				if (const Command* cmd = find_command(std::get<std::string>(params[0].arg)))
-					log(format_help_message(*cmd));
+				auto it = find_command(std::get<std::string>(params[0].arg));
+				if (it != commands_end())
+					log(format_help_message(*it));
 			};
 		}
 		{

@@ -69,14 +69,6 @@ namespace console
 		return ret;
 	}
 
-	const Command* find_command(const std::string& name)
-	{
-		// Do a binary search to find the command. We assume the commands are sorted by name.
-		auto it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
-		if (it != _commands.end() && it->name == name) return &*it;
-		log_error("Unknown command: " + name);
-		return nullptr;
-	}
 
 	extern void _register_commands_misc(std::vector<Command>& commands);
 
@@ -92,8 +84,8 @@ namespace console
 		std::istringstream iss(command_line);
 		std::string name;
 		if (!(iss >> name)) return;
-		const Command* cmd = find_command(name);
-		if (!cmd) return;
+		CommandIt cmd = find_command(name);
+		if (cmd == _commands.end()) return;
 		if (!cmd->callback) {
 			log_error("Command not implemented: " + name);
 			return;
@@ -115,21 +107,30 @@ namespace console
 		cmd->callback(params);
 	}
 
-	std::vector<std::string> complete_command(const std::string& prefix)
+	CommandIt commands_begin() {
+		return _commands.begin();
+	}
+
+	CommandIt commands_end() {
+		return _commands.end();
+	}
+
+	CommandIt find_command(const std::string& name)
 	{
-		struct Compare
-		{
-			size_t size = 0;
-			bool operator()(const Command& left, const Command& right) const {
-				return strncmp(left.name, right.name, size) < 0;
+		// Do a binary search to find the command. We assume the commands are sorted by name.
+		CommandIt it = std::lower_bound(_commands.begin(), _commands.end(), Command{ name.c_str() });
+		if (it != _commands.end() && it->name == name) return it;
+		log_error("Unknown command: " + name);
+		return _commands.end();
+	}
+
+	std::pair<CommandIt, CommandIt> find_commands_starting_with(const std::string& prefix)
+	{
+		const size_t prefix_size = prefix.size();
+		return std::equal_range(_commands.begin(), _commands.end(), Command{ prefix.c_str() },
+			[prefix_size](const Command& left, const Command& right) {
+				return strncmp(left.name, right.name, prefix_size) < 0;
 			}
-		};
-		auto [begin, end] = std::equal_range(_commands.begin(), _commands.end(),
-			Command{ prefix.c_str() }, Compare{ prefix.size() });
-		std::vector<std::string> matches;
-		for (auto it = begin; it != end; ++it) {
-			matches.push_back(it->name);
-		}
-		return matches;
+		);
 	}
 }

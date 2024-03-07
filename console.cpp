@@ -28,15 +28,15 @@ namespace console
 
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
 			std::string prefix(data->Buf, data->Buf + data->BufTextLen);
-			std::vector<std::string> completions = complete_command(prefix);
-			if (completions.empty()) return 0;
-			if (completions.size() == 1) {
+			auto [begin, end] = find_commands_starting_with(prefix);
+			if (begin == commands_end()) return 0;
+			if (begin + 1 == end) {
 				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, completions[0].c_str());
+				data->InsertChars(0, begin->name);
 				return 0;
 			}
-			for (const std::string& completion : completions)
-				log(completion);
+			for (CommandIt it = begin; it != end; ++it)
+				log(it->name);
 			return 0;
 		}
 
