@@ -65,4 +65,10 @@ namespace steam
 	bool is_overlay_active() {
 		return _is_overlay_active;
 	}
+
+	std::string get_steam_id()
+	{
+		CSteamID steam_id = SteamUser()->GetSteamID();
+		return std::to_string(steam_id.ConvertToUint64());
+	}
 }

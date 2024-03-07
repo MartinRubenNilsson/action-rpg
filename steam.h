@@ -7,7 +7,7 @@ namespace steam
 	bool initialize();
 	void shutdown();
 	void run_message_loop();
-
 	bool is_overlay_active();
+	std::string get_steam_id();
 }
 

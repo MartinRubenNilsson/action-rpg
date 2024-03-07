@@ -2,6 +2,7 @@
 #include "console_commands.h"
 #include "console.h"
 #include "window.h"
+#include "steam.h"
 #include "audio.h"
 #include "map.h"
 #include "ui.h"
@@ -95,6 +96,16 @@ namespace console
 			cmd.params[0] = { "", "key", "The key to unbind" };
 			cmd.callback = [](const Params& params) {
 				unbind(std::get<std::string>(params[0].arg));
+			};
+		}
+
+		// STEAM
+		{
+			Command& cmd = commands.emplace_back();
+			cmd.name = "steam_id";
+			cmd.desc = "Prints the Steam ID of the current user";
+			cmd.callback = [](const Params&) {
+				log(steam::get_steam_id());
 			};
 		}
 
