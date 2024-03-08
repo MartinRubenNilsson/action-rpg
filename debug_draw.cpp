@@ -1,9 +1,12 @@
 #include "stdafx.h"
 #include "debug_draw.h"
+#include "fonts.h"
 
 namespace debug
 {
+#ifdef _DEBUG
 	std::vector<Line> _lines;
+	std::vector<Text> _texts;
 
 	template <typename T>
 	void _update(std::vector<T>& vec, float dt)
@@ -29,6 +32,7 @@ namespace debug
 	void update(float dt)
 	{
 		_update(_lines, dt);
+		_update(_texts, dt);
 	}
 
 	void render(sf::RenderTarget& target)
@@ -47,10 +51,39 @@ namespace debug
 			};
 			target.draw(vertices, 2, sf::Lines);
 		}
+
+		std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
+		if (!font) return;
+
+		sf::Text text{};
+		text.setFont(*font);
+		text.setCharacterSize(48);
+		text.setScale(0.1f, 0.1f);
+		text.setFillColor(sf::Color::White);
+		text.setOutlineColor(sf::Color::Black);
+		text.setOutlineThickness(2.f);
+
+		for (const Text& t : _texts) {
+			text.setString(t.string);
+			text.setPosition(t.position);
+			text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
+			//TODO: culling
+			target.draw(text);
+		}
 	}
 
 	void draw_line(const Line& line) {
 		_lines.push_back(line);
 	}
+
+	void draw_text(const Text& text) {
+		_texts.push_back(text);
+	}
+#else
+	void update(float) {}
+	void render(sf::RenderTarget&) {}
+	void draw_line(const Line&) {}
+	void draw_text(const Text&) {}
+#endif
 }
 

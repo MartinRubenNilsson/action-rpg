@@ -5,7 +5,6 @@
 #include "ecs_tile.h"
 #include "physics_helpers.h"
 #include "map.h"
-#include "fonts.h"
 #include "random.h"
 #include "debug_draw.h"
 
@@ -70,7 +69,7 @@ namespace ecs
 		}
     }
 
-    void debug_draw_ai(sf::RenderTarget& target)
+    void debug_draw_ai()
     {
         const AiWorld& world = get_ai_world();
 
@@ -81,24 +80,11 @@ namespace ecs
 			}
         }
 
-        std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
-        if (!font) return;
-
-        sf::Text text{};
-        text.setFont(*font);
-        text.setCharacterSize(48);
-        text.setScale(0.1f, 0.1f);
-        text.setFillColor(sf::Color::White);
-        text.setOutlineColor(sf::Color::Black);
-        text.setOutlineThickness(2.f);
-
         for (auto [entity, knowledge, action] :
             _registry.view<const AiKnowledge, const AiAction>().each()) {
-            std::string action_name(magic_enum::enum_name(action.type));
-            text.setString(action_name);
-            text.setPosition(knowledge.me.position + sf::Vector2f(0.f, -10.f));
-            text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
-            target.draw(text);
+            std::string text_string(magic_enum::enum_name(action.type));
+            sf::Vector2f text_position = knowledge.me.position + sf::Vector2f(0.f, -10.f);
+            debug::draw_text({ text_string, text_position });
 		}
     }
 
