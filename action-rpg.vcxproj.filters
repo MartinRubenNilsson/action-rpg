@@ -265,6 +265,9 @@
     <ClCompile Include="steam_networking.cpp">
       <Filter>steam</Filter>
     </ClCompile>
+    <ClCompile Include="debug_draw.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -731,6 +734,9 @@
     </ClInclude>
     <ClInclude Include="steam_networking.h">
       <Filter>steam</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_draw.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

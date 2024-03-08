@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <imgui-SFML.h>
 #include "steam.h"
+#include "debug_draw.h"
 #include "window.h"
 #include "audio.h"
 #include "fonts.h"
@@ -171,6 +172,7 @@ int main(int argc, char* argv[])
         map::update();
         audio::update();
         ui::update(dt.asSeconds());
+        debug::update(dt.asSeconds());
         if (!ui::should_pause_game() && !steam::is_overlay_active())
             ecs::update(dt.asSeconds());
 
@@ -186,7 +188,7 @@ int main(int argc, char* argv[])
             ImGui::End();
         }
 
-        // RENDER BACKGROUND, ECS
+        // RENDER BACKGROUND, ECS, DEBUG DRAW
 
         const sf::Vector2u target_size = window.getSize();
         std::unique_ptr<sf::RenderTexture> target = textures::get_render_texture(target_size);
@@ -194,6 +196,7 @@ int main(int argc, char* argv[])
         target->setView(window::get_default_view());
 		background::render(*target);
 		ecs::render(*target);
+        debug::render(*target);
         target->display();
 
         // POSTPROCESS

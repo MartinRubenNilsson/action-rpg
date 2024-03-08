@@ -7,6 +7,7 @@
 #include "map.h"
 #include "fonts.h"
 #include "random.h"
+#include "debug_draw.h"
 
 namespace ecs
 {
@@ -74,17 +75,10 @@ namespace ecs
         const AiWorld& world = get_ai_world();
 
         for (const AiEntityInfo& ai : world.ais) {
-            // Debug draw path
-            {
-                std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
-                if (path.size() < 2) continue;
-                std::vector<sf::Vertex> vertices(path.size());
-                for (size_t i = 0; i < path.size(); ++i) {
-                    vertices[i].position = path[i];
-                    vertices[i].color = sf::Color::Red;
-                }
-                target.draw(vertices.data(), vertices.size(), sf::PrimitiveType::LineStrip);
-            }
+            std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
+            for (size_t i = 0; i + 1 < path.size(); ++i) {
+				debug::draw_line({ path[i], path[i + 1], sf::Color::Green });
+			}
         }
 
         std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
