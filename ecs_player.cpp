@@ -136,7 +136,6 @@ namespace ecs
 			std::string class_ = get_class(hit.entity);
 			if (class_ == "slime") {
 				destroy_at_end_of_frame(hit.entity);
-				create_vfx(VfxType::Explosion, position);
 			}
 			else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
 				std::string tile_class = tile->get_tile_class();

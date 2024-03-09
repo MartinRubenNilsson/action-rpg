@@ -2,6 +2,12 @@
 #include <entt/entt.hpp>
 #include "ecs_tile.h"
 #include "ecs_common.h"
+#include "audio.h"
+#include "ecs_camera.h"
+#include "ecs_physics.h"
+#include "ecs_vfx.h"
+#include "postprocess.h"
+
 
 namespace ecs
 {
@@ -21,7 +27,8 @@ namespace ecs
                 // Update the timer
                 if (bomb.timer.update(dt)) {
                     // The timer finished counting down
-                    explode_bomb(entity, bomb.blast_radius);
+                    explode_bomb(entity, bomb.blast_radius, tile.position);
+
                 }
                 else {
                     // Check if the bomb should start blinking
@@ -55,12 +62,25 @@ namespace ecs
         return bomb_entity;
     }
 
-    void explode_bomb(entt::entity bomb_entity, float blast_radius)
+    void explode_bomb(entt::entity bomb_entity, float blast_radius, const sf::Vector2f& position)
     {
         // Explosion logic goes here
         // You can use the blast_radius to determine the affected area
         // ...
+        sf::Vector2f box_center = position;
+        sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
+        sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
 
+        for (const BoxHit& hit : boxcast(box_min, box_max)) {
+            std::string class_ = get_class(hit.entity);
+            if (class_ == "slime") {
+                destroy_at_end_of_frame(hit.entity);
+            }
+        }
+        postprocess::shockwaves.push_back({ position, 0.1f, 0.1f, 0.1f });
+        ecs::add_trauma_to_active_camera(0.8f);
+        create_vfx(VfxType::Explosion, position);
+        audio::play("event:/snd_glass_smash");
         destroy_at_end_of_frame(bomb_entity);
     }
 }
