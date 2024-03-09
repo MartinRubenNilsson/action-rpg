@@ -85,6 +85,58 @@ namespace debug
 		_update(_circles, dt);
 	}
 
+	void _render_lines(sf::RenderTarget& target)
+	{
+		if (_lines.empty()) return;
+		sf::Vertex vertices[2];
+		for (const Line& line : _lines) {
+			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
+				continue;
+			vertices[0].position = line.p1;
+			vertices[1].position = line.p2;
+			vertices[0].color = line.color;
+			vertices[1].color = line.color;
+			target.draw(vertices, 2, sf::Lines);
+		}
+	}
+
+	void _render_circles(sf::RenderTarget& target)
+	{
+		if (_circles.empty()) return;
+		sf::CircleShape shape;
+		shape.setFillColor(sf::Color::Transparent);
+		shape.setOutlineThickness(0.25f);
+		for (const Circle& circle : _circles) {
+			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius))
+				continue;
+			shape.setRadius(circle.radius);
+			shape.setPosition(circle.center - sf::Vector2f{ circle.radius, circle.radius });
+			shape.setOutlineColor(circle.color);
+			target.draw(shape);
+		}
+	}
+
+	void _render_texts(sf::RenderTarget& target)
+	{
+		if (_texts.empty()) return;
+		std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
+		if (!font) return;
+		sf::Text text{};
+		text.setFont(*font);
+		text.setCharacterSize(48);
+		text.setScale(0.1f, 0.1f);
+		text.setFillColor(sf::Color::White);
+		text.setOutlineColor(sf::Color::Black);
+		text.setOutlineThickness(2.f);
+		for (const Text& t : _texts) {
+			//TODO: culling
+			text.setString(t.string);
+			text.setPosition(t.position);
+			text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
+			target.draw(text);
+		}
+	}
+
 	void render(sf::RenderTarget& target)
 	{
 		const sf::Vector2f view_center = target.getView().getCenter();
@@ -94,59 +146,25 @@ namespace debug
 		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
-		// RENDER LINES
-
-		for (const Line& line : _lines) {
-			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
-				continue;
-			sf::Vertex vertices[] = {
-				sf::Vertex(line.p1, line.color),
-				sf::Vertex(line.p2, line.color)
-			};
-			target.draw(vertices, 2, sf::Lines);
-		}
-
-		// RENDER CIRCLES
-		{
-			sf::CircleShape shape;
-			shape.setFillColor(sf::Color::Transparent);
-			shape.setOutlineThickness(0.25f);
-			for (const Circle& circle : _circles) {
-				if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius))
-					continue;
-				shape.setRadius(circle.radius);
-				shape.setPosition(circle.center - sf::Vector2f{ circle.radius, circle.radius });
-				shape.setOutlineColor(circle.color);
-				target.draw(shape);
-			}
-		}
-
-		// RENDER TEXT
-
-		std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
-		if (!font) return;
-
-		sf::Text text{};
-		text.setFont(*font);
-		text.setCharacterSize(48);
-		text.setScale(0.1f, 0.1f);
-		text.setFillColor(sf::Color::White);
-		text.setOutlineColor(sf::Color::Black);
-		text.setOutlineThickness(2.f);
-
-		for (const Text& t : _texts) {
-			text.setString(t.string);
-			text.setPosition(t.position);
-			text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
-			//TODO: culling
-			target.draw(text);
-		}
+		_render_lines(target);
+		_render_circles(target);
+		_render_texts(target);
 	}
 
 	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
 	{
 		if (lifetime > 0.f || !_cull_line(_last_calculated_view_bounds, p1, p2))
 			_lines.emplace_back(p1, p2, color, lifetime);
+	}
+
+	void draw_rect(const sf::FloatRect& rect, const sf::Color& color, float lifetime)
+	{
+		// TODO: implmenet
+	}
+
+	void draw_polygon(const sf::Vector2f* points, size_t count, const sf::Color& color, float lifetime)
+	{
+		// TODO: implmeent
 	}
 
 	void draw_circle(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)

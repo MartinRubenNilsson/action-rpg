@@ -62,11 +62,11 @@ namespace physics
 		debug::draw_line(_to_sf(p1), _to_sf(p2), _to_sf(color));
 	}
 
-	void DebugDrawSFML::DrawTransform(const b2Transform& xf)
-	{
+	void DebugDrawSFML::DrawTransform(const b2Transform& xf) {
+		std::cerr << "DrawTransform not implemented" << std::endl;
 	}
 
-	void DebugDrawSFML::DrawPoint(const b2Vec2& p, float size, const b2Color& color)
-	{
+	void DebugDrawSFML::DrawPoint(const b2Vec2& p, float size, const b2Color& color) {
+		std::cerr << "DrawPoint not implemented" << std::endl;
 	}
 }
