@@ -9,13 +9,23 @@ namespace debug
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
 
-	enum OutCode : unsigned char
+	enum OutCode
 	{
 		LEFT   = (1 << 1),
 		RIGHT  = (1 << 2),
 		BOTTOM = (1 << 3),
 		TOP    = (1 << 4),
 	};
+
+	int _compute_outcode(const sf::FloatRect& rect, const sf::Vector2f& point)
+	{
+		int code = 0;
+		if (point.x < rect.left) code |= LEFT;
+		else if (point.x > rect.left + rect.width) code |= RIGHT;
+		if (point.y < rect.top) code |= TOP;
+		else if (point.y > rect.top + rect.height) code |= BOTTOM;
+		return code;
+	}
 
 	//bool _intersects_line(const sf::FloatRect& rect, const Line& line)
 	//{
