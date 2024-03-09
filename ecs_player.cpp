@@ -61,31 +61,7 @@ namespace ecs
 			tile.animation_flip_x_on_loop = true;
 			break;
 		}
-		// Set other animation properties as needed
 	}
-
-	//// Animation functions
-	//void animate_normal(Player& player, Tile& tile, float movement_speed, char dir) {
-	//	set_direction_for_animation(tile, dir);
-
-	//	// Set animations for normal state
-	//	// 
-	//}
-
-	//void animate_attacking(Player& player, Tile& tile, char dir) {
-	//	// Set animations for attacking state
-	//	// ...
-	//}
-
-	//void animate_dying(Player& player, Tile& tile) {
-	//	// Set animations for dying state
-	//	// ...
-	//}
-
-	//void animate_dead(Player& player, Tile& tile) {
-	//	// Set animations for dead state
-	//	// ...
-	//}
 
 	void fire_arrow(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
 		// Calculate the offset position
@@ -142,9 +118,9 @@ namespace ecs
 				if (tile_class == "grass") {
 					audio_events_to_play.insert("event:/snd_cut_grass");
 					if (random::chance(0.2f))
-						create_arrow_pickup(tile->position + sf::Vector2f(8.f, 8.f));
+						create_arrow_pickup(tile->position + sf::Vector2f(2.f, 2.f));
 					if (random::chance(0.9f))
-						create_rupee_pickup(tile->position + sf::Vector2f(8.f, 8.f));
+						create_rupee_pickup(tile->position + sf::Vector2f(2.f, 2.f));
 					destroy_at_end_of_frame(hit.entity);
 				}
 			}
@@ -177,14 +153,10 @@ namespace ecs
 			// UPDATE TIMERS
 
 			player.hurt_timer.update(dt);
-			if (player.kill_timer.update(dt)) { // If player died this frame
-				kill_player(player_entity);
-				continue;
-			}
 
 			// UPDATE INPUT
 
-			if (player.kill_timer.finished() && window::has_focus() && !console::has_focus()) {
+			if (window::has_focus() && !console::has_focus()) {
 				player.input.axis_x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
 				player.input.axis_x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
 				player.input.axis_y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
@@ -224,10 +196,6 @@ namespace ecs
 						movement_speed = PLAYER_WALK_SPEED;
 					}
 				}
-				//} else { // Player is dying
-				//float spin_speed = 30.f * (1.f - player.kill_timer.get_progress());
-				//player.facing_direction = rotate(player.facing_direction, spin_speed * dt);
-				//}
 
 				set_linear_velocity(body, movement_direction * movement_speed);
 
@@ -286,8 +254,19 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dying: {
-				// Handle dying animation and logic
-				// Make sure no other input or updates occur
+				// Lock movement
+				set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
+
+				tile.animation_loop = false;
+
+				if (tile.animation_timer.finished()) {
+					tile.set("dead_"s + dir);
+					kill_player(player_entity);
+					player.state = PlayerState::Dead;
+					break;
+				}
+				if (dir == 'd') dir = 'u';
+				tile.set("dying_"s + dir);
 			} break;
 			case PlayerState::Dead: {
 				// The player is dead, no input or updates
@@ -298,7 +277,7 @@ namespace ecs
 			// UPDATE COLOR
 
 			sf::Color color = sf::Color::White;
-			if (player.kill_timer.finished() && player.hurt_timer.running()) {
+			if (player.hurt_timer.running()) {
 				float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
 				color.a = (sf::Uint8)(255 * fraction);
 			}
@@ -368,7 +347,6 @@ namespace ecs
 	{
 		if (!_registry.all_of<Player>(entity)) return false;
 		detach_camera(entity);
-		destroy_at_end_of_frame(entity);
 		audio::stop_all_in_bus();
 		audio::play("event:/snd_player_die");
 		audio::play("event:/mus_coffin_dance");
@@ -385,12 +363,12 @@ namespace ecs
 		Player& player = _registry.get<Player>(entity);
 		if (player.health <= 0) return false; // Player is already dead
 		if (player.hurt_timer.running()) return false; // Player is invulnerable
-		player.hurt_timer.start();
 		player.health = std::max(0, player.health - health_to_remove);
 		if (player.health > 0) { // Player survived
 			audio::play("event:/snd_player_hurt");
+			player.hurt_timer.start();
 		} else { // Player died
-			player.kill_timer.start();
+			player.state = PlayerState::Dying;
 		}
 		return true;
 	}

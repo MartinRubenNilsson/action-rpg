@@ -7,7 +7,7 @@
 #include "ecs_physics.h"
 #include "ecs_vfx.h"
 #include "postprocess.h"
-
+#include "ecs_player.h"
 
 namespace ecs
 {
@@ -76,10 +76,14 @@ namespace ecs
             if (class_ == "slime") {
                 destroy_at_end_of_frame(hit.entity);
             }
+            else if (class_ == "player") {
+				hurt_player(hit.entity, 1);
+			}
         }
         postprocess::shockwaves.push_back({ position, 0.1f, 0.1f, 0.1f });
         ecs::add_trauma_to_active_camera(0.8f);
         create_vfx(VfxType::Explosion, position);
+
         audio::play("event:/snd_glass_smash");
         destroy_at_end_of_frame(bomb_entity);
     }
