@@ -12,19 +12,15 @@ namespace debug
 	void _update(std::vector<T>& vec, float dt)
 	{
 		size_t size = vec.size();
-		for (size_t i = 0; i < size;) {
+		for (size_t i = size; i--;) {
 			vec[i].lifetime -= dt;
-			if (vec[i].lifetime <= 0.f) {
-				if (i != size - 1) {
-					if constexpr (std::is_trivially_copyable_v<T>)
-						std::memcpy(&vec[i], &vec[size - 1], sizeof(T));
-					else
-						vec[i] = std::move(vec[size - 1]);
-				}
-				--size;
-			} else {
-				++i;
-			}
+			if (vec[i].lifetime > 0.f) continue;
+			--size;
+			if (i == size) continue;
+			if constexpr (std::is_trivially_copyable_v<T>)
+				std::memcpy(&vec[i], &vec[size], sizeof(T));
+			else
+				vec[i] = std::move(vec[size]);
 		}
 		vec.resize(size);
 	}
