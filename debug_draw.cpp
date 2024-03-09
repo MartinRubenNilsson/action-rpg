@@ -5,22 +5,28 @@
 namespace debug
 {
 #ifdef _DEBUG
-	sf::FloatRect _last_calculated_view_bounds;
+	struct ViewBounds
+	{
+		float min_x = 0.f;
+		float min_y = 0.f;
+		float max_x = 0.f;
+		float max_y = 0.f;
+	};
+
+	// Culling will use the view bounds from last render call,
+	// leading to one frame of lag, but it's not a big deal.
+	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
 
-	enum OutCode : unsigned char
+	bool _cull_line(const ViewBounds& bounds, const Line& line)
 	{
-		LEFT   = (1 << 1),
-		RIGHT  = (1 << 2),
-		BOTTOM = (1 << 3),
-		TOP    = (1 << 4),
-	};
-
-	//bool _intersects_line(const sf::FloatRect& rect, const Line& line)
-	//{
-	//
-	//}
+		if (line.start.x < bounds.min_x && line.end.x < bounds.min_x) return true;
+		if (line.start.x > bounds.max_x && line.end.x > bounds.max_x) return true;
+		if (line.start.y < bounds.min_y && line.end.y < bounds.min_y) return true;
+		if (line.start.y > bounds.max_y && line.end.y > bounds.max_y) return true;
+		return false;
+	}
 
 	template <typename T>
 	void _update(std::vector<T>& vec, float dt)
@@ -49,17 +55,14 @@ namespace debug
 	{
 		const sf::Vector2f view_center = target.getView().getCenter();
 		const sf::Vector2f view_size = target.getView().getSize();
-		_last_calculated_view_bounds = sf::FloatRect(view_center - view_size / 2.f, view_size);
+		_last_calculated_view_bounds.min_x = view_center.x - view_size.x / 2.f;
+		_last_calculated_view_bounds.min_y = view_center.y - view_size.y / 2.f;
+		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
+		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
 		for (const Line& line : _lines) {
-			//sf::FloatRect line_bounds(
-			//	std::min(line.start.x, line.end.x),
-			//	std::min(line.start.y, line.end.y),
-			//	std::abs(line.end.x - line.start.x),
-			//	std::abs(line.end.y - line.start.y)
-			//);
-			//if (!view_bounds.intersects(line_bounds))
-			//	continue;
+			if (_cull_line(_last_calculated_view_bounds, line))
+				continue;
 			sf::Vertex vertices[] = {
 				sf::Vertex(line.start, line.color),
 				sf::Vertex(line.end, line.color)
@@ -87,7 +90,10 @@ namespace debug
 		}
 	}
 
-	void draw_line(const Line& line) {
+	void draw_line(const Line& line)
+	{
+		if (line.lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, line))
+			return;
 		_lines.push_back(line);
 	}
 
