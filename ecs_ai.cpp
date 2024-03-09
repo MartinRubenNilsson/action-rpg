@@ -4,7 +4,7 @@
 #include "ecs_ai_action.h"
 #include "ecs_tile.h"
 #include "physics_helpers.h"
-#include "map.h"
+#include "map_grid.h"
 #include "random.h"
 #include "debug_draw.h"
 

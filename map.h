@@ -1,8 +1,5 @@
 #pragma once
 
-// The map module is responsible for:
-// - Populating the ECS based on a Tiled map
-// - Querying the map for e.g. pathfinding
 namespace map
 {
 	// Calling open(), close(), or reset() will not immediately change the map.
@@ -16,8 +13,6 @@ namespace map
 	std::string get_name();
 	sf::IntRect get_tile_bounds();
 	sf::FloatRect get_world_bounds();
-
-	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end);
 
 	bool play_footstep_sound_at(const sf::Vector2f& position);
 }

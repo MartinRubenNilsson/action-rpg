@@ -253,7 +253,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="character.cpp" />
-    <ClCompile Include="map_grid.cpp">
+    <ClCompile Include="map_tilegrid.cpp">
       <Filter>map</Filter>
     </ClCompile>
     <ClCompile Include="steam.cpp">
@@ -558,7 +558,7 @@
     <ClInclude Include="cursor.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="map_grid.h">
+    <ClInclude Include="map_tilegrid.h">
       <Filter>map</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\steam\isteamapps.h">
