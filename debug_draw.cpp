@@ -13,18 +13,33 @@ namespace debug
 		float max_y = 0.f;
 	};
 
+	struct Line
+	{
+		sf::Vector2f p1;
+		sf::Vector2f p2;
+		sf::Color color = sf::Color::White;
+		float lifetime = 0.f;
+	};
+
+	struct Text
+	{
+		std::string string;
+		sf::Vector2f position;
+		float lifetime = 0.f;
+	};
+
 	// Culling will use the view bounds from last render call,
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
 
-	bool _cull_line(const ViewBounds& bounds, const Line& line)
+	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& start, const sf::Vector2f& end)
 	{
-		if (line.start.x < bounds.min_x && line.end.x < bounds.min_x) return true;
-		if (line.start.x > bounds.max_x && line.end.x > bounds.max_x) return true;
-		if (line.start.y < bounds.min_y && line.end.y < bounds.min_y) return true;
-		if (line.start.y > bounds.max_y && line.end.y > bounds.max_y) return true;
+		if (start.x < bounds.min_x && end.x < bounds.min_x) return true;
+		if (start.x > bounds.max_x && end.x > bounds.max_x) return true;
+		if (start.y < bounds.min_y && end.y < bounds.min_y) return true;
+		if (start.y > bounds.max_y && end.y > bounds.max_y) return true;
 		return false;
 	}
 
@@ -61,11 +76,11 @@ namespace debug
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
 		for (const Line& line : _lines) {
-			if (_cull_line(_last_calculated_view_bounds, line))
+			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
 				continue;
 			sf::Vertex vertices[] = {
-				sf::Vertex(line.start, line.color),
-				sf::Vertex(line.end, line.color)
+				sf::Vertex(line.p1, line.color),
+				sf::Vertex(line.p2, line.color)
 			};
 			target.draw(vertices, 2, sf::Lines);
 		}
@@ -90,15 +105,14 @@ namespace debug
 		}
 	}
 
-	void draw_line(const Line& line)
+	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
 	{
-		if (line.lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, line))
-			return;
-		_lines.push_back(line);
+		if (lifetime > 0.f || !_cull_line(_last_calculated_view_bounds, p1, p2))
+			_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void draw_text(const Text& text) {
-		_texts.push_back(text);
+	void draw_text(const std::string& string, const sf::Vector2f& position, float lifetime) {
+		_texts.emplace_back(string, position, lifetime);
 	}
 #else
 	void update(float) {}

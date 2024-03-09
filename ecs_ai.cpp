@@ -4,7 +4,7 @@
 #include "ecs_ai_action.h"
 #include "ecs_tile.h"
 #include "physics_helpers.h"
-#include "map_grid.h"
+#include "map_tilegrid.h"
 #include "random.h"
 #include "debug_draw.h"
 
@@ -76,15 +76,15 @@ namespace ecs
         for (const AiEntityInfo& ai : world.ais) {
             std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
             for (size_t i = 0; i + 1 < path.size(); ++i) {
-				debug::draw_line({ path[i], path[i + 1], sf::Color::Green });
+				debug::draw_line(path[i], path[i + 1]);
 			}
         }
 
         for (auto [entity, knowledge, action] :
             _registry.view<const AiKnowledge, const AiAction>().each()) {
             std::string text_string(magic_enum::enum_name(action.type));
-            sf::Vector2f text_position = knowledge.me.position + sf::Vector2f(0.f, -10.f);
-            debug::draw_text({ text_string, text_position });
+            sf::Vector2f text_pos = knowledge.me.position + sf::Vector2f(0.f, -10.f);
+            debug::draw_text(text_string, text_pos);
 		}
     }
 
