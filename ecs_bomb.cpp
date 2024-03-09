@@ -60,6 +60,7 @@ namespace ecs
         // Explosion logic goes here
         // You can use the blast_radius to determine the affected area
         // ...
+
         destroy_at_end_of_frame(bomb_entity);
     }
 }

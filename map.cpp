@@ -448,8 +448,6 @@ namespace map
 		// If there is no collision layer, we can't pathfind.
 		if (!collision_layer) return {};
 
-
-		// NOTES TO TIM:
 		collision_layer->width; // number of tiles in x direction
 		collision_layer->height; // number of tiles in y direction
 		uint32_t x = 0;
@@ -500,22 +498,21 @@ namespace map
 		AStarNode end_node;
 		end_node.position = grid_end;
 
-		std::vector<std::vector<AStarNode>> all_nodes(collision_layer->height, std::vector<AStarNode>(collision_layer->width));
+		std::vector<AStarNode> all_nodes(collision_layer->height* collision_layer->width);
+
+		// Accessing a node in the flattened vector
+		auto get_node = [&](int x, int y) -> AStarNode& {
+			return all_nodes[y * collision_layer->width + x];
+		};
 		
-		// Initialize all nodes and set their passability based on the collision layer
+		// Initialize all nodes and set their passability
 		for (uint32_t y = 0; y < collision_layer->height; ++y) {
 			for (uint32_t x = 0; x < collision_layer->width; ++x) {
 				const tiled::Tile* tile = collision_layer->tiles[y * collision_layer->width + x].first;
-				all_nodes[y][x].position = sf::Vector2i(x, y);
-				all_nodes[y][x].passable = (tile == nullptr); // Set to true if tile is null (passable), false otherwise
+				AStarNode& node = get_node(x, y);
+				node.position = sf::Vector2i(x, y);
+				node.passable = (tile == nullptr); // Set to true if tile is null (passable), false otherwise
 			}
-		}
-
-
-		// If the start or end tile is impassable, we can't pathfind.
-		if (!all_nodes[grid_start_y][grid_start_x].passable || !all_nodes[grid_end_y][grid_end_x].passable) {
-			// Start or end point is impassable, return empty path or handle error
-			return {};
 		}
 
 		struct CompareNodes
@@ -549,7 +546,8 @@ namespace map
 		std::priority_queue<AStarNode*, std::vector<AStarNode*>, CompareNodesByF> open_list;
 		open_list.push(&start_node);
 
-		all_nodes[grid_start_y][grid_start_x] = start_node;
+		get_node(grid_start_x, grid_start_y) = start_node;
+
 		while (!open_list.empty()) {
 			// The top of the priority queue is the node with the lowest f score
 			AStarNode* current_node = open_list.top(); // Get this node
@@ -563,65 +561,52 @@ namespace map
 
 			current_node->closed = true; // Mark the current node as closed
 
-			// Process neighbors
 			for (const sf::Vector2i& dir : directions) {
 				sf::Vector2i neighbor_pos = current_pos + dir;
 
 				if (neighbor_pos.x >= 0 && neighbor_pos.x < collision_layer->width &&
 					neighbor_pos.y >= 0 && neighbor_pos.y < collision_layer->height) {
-					AStarNode& neighbor_node = all_nodes[neighbor_pos.y][neighbor_pos.x];
+					AStarNode& neighbor_node = get_node(neighbor_pos.x, neighbor_pos.y);
 
 					if (!neighbor_node.passable || neighbor_node.closed) {
 						continue; // Skip if neighbor is not passable or already closed
 					}
 
-					float tentative_g_score = current_node->g + distance_between(current_pos, neighbor_pos); // Calculate tentative G score
+					float tentative_g_score = current_node->g + distance_between(current_pos, neighbor_pos);
 
-					// If new path to neighbor is shorter or neighbor is not in open list
 					if (tentative_g_score < neighbor_node.g || !neighbor_node.in_open_list) {
-						neighbor_node.parent = current_pos;
+						neighbor_node.parent = current_pos; // Update parent
 						neighbor_node.g = tentative_g_score;
 						neighbor_node.h = heuristic(neighbor_pos, grid_end);
 						neighbor_node.f = neighbor_node.g + neighbor_node.h;
 
 						if (!neighbor_node.in_open_list) {
 							open_list.push(&neighbor_node); // Add to open list
-							neighbor_node.in_open_list = true; // Mark as in open list
+							neighbor_node.in_open_list = true;
 						}
 					}
 				}
 			}
 		}
 
-
-		// Convert back to world coordinates. The world position of a tile is the center of the tile.
 		std::vector<sf::Vector2f> path;
 
-		// Backtrack from the end node to the start node
 		sf::Vector2i current_pos = grid_end;
-		while (current_pos != grid_start) {
-			// Check bounds manually, not using find
-			if (current_pos.y < 0 || current_pos.y >= all_nodes.size() ||
-				current_pos.x < 0 || current_pos.x >= all_nodes[current_pos.y].size()) {
-				// If the current position is out of bounds, something went wrong
-				return {}; // Return an empty path or handle the error
-			}
 
-			// Add the current position to the path
+		while (current_pos != grid_start) {
+			// Convert the grid position to world position and add it to the path
 			path.push_back(grid_to_world(current_pos));
 
-			// Move to the parent of the current node
-			current_pos = all_nodes[current_pos.y][current_pos.x].parent; // Access using y for row, then x for column
+			// Move to the parent of the current node using get_node for direct access
+			current_pos = get_node(current_pos.x, current_pos.y).parent;
 		}
-
 
 		// Add the start position to the path
 		path.push_back(grid_to_world(grid_start));
 
-		// Reverse the path so it goes from start to end
+		// Reverse the path to go from start to end
 		std::reverse(path.begin(), path.end());
 
-		//return { start, end };
 		return path;
 	}
 
