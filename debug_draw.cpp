@@ -13,6 +13,8 @@ namespace debug
 		float max_y = 0.f;
 	};
 
+	// Culling will use the view bounds from last render call,
+	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
