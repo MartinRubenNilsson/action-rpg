@@ -25,29 +25,12 @@ namespace physics
 		_view_bounds = sf::FloatRect(view.getCenter() - view.getSize() / 2.0f, view.getSize());
 	}
 
-	void DebugDrawSFML::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
-	{
-		// TODO
+	void DebugDrawSFML::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
+		debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 	}
 
-	void DebugDrawSFML::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
-	{
-		bool in_view = false;
-		for (int32 i = 0; i < vertexCount; ++i) {
-			if (_view_bounds.contains(vertices[i].x, vertices[i].y)) {
-				in_view = true;
-				break;
-			}
-		}
-		if (!in_view) return;
-		sf::Color sf_color = _to_sf(color);
-		sf::VertexArray polygon(sf::LineStrip, vertexCount + 1);
-		for (int32 i = 0; i < vertexCount + 1; ++i) {
-			const b2Vec2& vertex = vertices[i % vertexCount];
-			polygon[i].position = sf::Vector2f(vertex.x, vertex.y);
-			polygon[i].color = sf_color;
-		}
-		_target.draw(polygon);
+	void DebugDrawSFML::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
+		debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 	}
 
 	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color) {

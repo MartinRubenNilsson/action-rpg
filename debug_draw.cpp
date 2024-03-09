@@ -21,6 +21,13 @@ namespace debug
 		float lifetime = 0.f;
 	};
 
+	struct Polygon
+	{
+		std::vector<sf::Vector2f> points;
+		sf::Color color = sf::Color::White;
+		float lifetime = 0.f;
+	};
+
 	struct Circle
 	{
 		sf::Vector2f center;
@@ -40,8 +47,18 @@ namespace debug
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
-	std::vector<Text> _texts;
+	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
+	std::vector<Text> _texts;
+
+	bool _cull_aabb(const ViewBounds& bounds, const sf::Vector2f& min, const sf::Vector2f& max)
+	{
+		if (max.x < bounds.min_x) return true;
+		if (min.x > bounds.max_x) return true;
+		if (max.y < bounds.min_y) return true;
+		if (min.y > bounds.max_y) return true;
+		return false;
+	}
 
 	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
 	{
@@ -50,6 +67,20 @@ namespace debug
 		if (p1.y < bounds.min_y && p2.y < bounds.min_y) return true;
 		if (p1.y > bounds.max_y && p2.y > bounds.max_y) return true;
 		return false;
+	}
+
+	bool _cull_polygon(const ViewBounds& bounds, const sf::Vector2f* points, uint32_t count)
+	{
+		if (count < 3) return true;
+		sf::Vector2f min = points[0];
+		sf::Vector2f max = points[0];
+		for (uint32_t i = 1; i < count; ++i) {
+			min.x = std::min(min.x, points[i].x);
+			min.y = std::min(min.y, points[i].y);
+			max.x = std::max(max.x, points[i].x);
+			max.y = std::max(max.y, points[i].y);
+		}
+		return _cull_aabb(bounds, min, max);
 	}
 
 	bool _cull_circle(const ViewBounds& bounds, const sf::Vector2f& center, float radius)
@@ -81,8 +112,9 @@ namespace debug
 	void update(float dt)
 	{
 		_update(_lines, dt);
-		_update(_texts, dt);
+		_update(_polygons, dt);
 		_update(_circles, dt);
+		_update(_texts, dt);
 	}
 
 	void _render_lines(sf::RenderTarget& target)
@@ -97,6 +129,24 @@ namespace debug
 			vertices[0].color = line.color;
 			vertices[1].color = line.color;
 			target.draw(vertices, 2, sf::Lines);
+		}
+	}
+
+	void _render_polygons(sf::RenderTarget& target)
+	{
+		if (_polygons.empty()) return;
+		sf::VertexArray vertices(sf::PrimitiveType::LineStrip);
+		for (const Polygon& polygon : _polygons) {
+			uint32_t count = (uint32_t)polygon.points.size();
+			if (_cull_polygon(_last_calculated_view_bounds, polygon.points.data(), count))
+				continue;
+			vertices.resize(count + 1);
+			for (size_t i = 0; i < count; ++i) {
+				vertices[i].position = polygon.points[i];
+				vertices[i].color = polygon.color;
+			}
+			vertices[count] = vertices[0];
+			target.draw(vertices);
 		}
 	}
 
@@ -147,14 +197,15 @@ namespace debug
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
 		_render_lines(target);
+		_render_polygons(target);
 		_render_circles(target);
 		_render_texts(target);
 	}
 
 	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
 	{
-		if (lifetime > 0.f || !_cull_line(_last_calculated_view_bounds, p1, p2))
-			_lines.emplace_back(p1, p2, color, lifetime);
+		if (lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, p1, p2)) return;
+		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
 	void draw_rect(const sf::FloatRect& rect, const sf::Color& color, float lifetime)
@@ -162,15 +213,17 @@ namespace debug
 		// TODO: implmenet
 	}
 
-	void draw_polygon(const sf::Vector2f* points, size_t count, const sf::Color& color, float lifetime)
+	void draw_polygon(const sf::Vector2f* points, uint32_t count, const sf::Color& color, float lifetime)
 	{
-		// TODO: implmeent
+		if (count < 3) return;
+		if (lifetime <= 0.f && _cull_polygon(_last_calculated_view_bounds, points, count)) return;
+		_polygons.emplace_back(std::vector<sf::Vector2f>(points, points + count), color, lifetime);
 	}
 
 	void draw_circle(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
 	{
-		if (lifetime > 0.f || !_cull_circle(_last_calculated_view_bounds, center, radius))
-			_circles.emplace_back(center, radius, color, lifetime);
+		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
+		_circles.emplace_back(center, radius, color, lifetime);
 	}
 
 	void draw_text(const std::string& string, const sf::Vector2f& position, float lifetime) {
