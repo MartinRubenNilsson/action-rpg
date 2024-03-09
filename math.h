@@ -36,12 +36,15 @@ float length_squared(const sf::Vector2f& v);
 float length(const sf::Vector2f& v);
 sf::Vector2f unit_vector(float angle);
 sf::Vector2f normalize(const sf::Vector2f& v);
+sf::Vector2f abs(const sf::Vector2f& v);
 float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
 float det(const sf::Vector2f& a, const sf::Vector2f& b); // Determinant, aka 2D cross product
 float angle_unsigned(const sf::Vector2f& a, const sf::Vector2f& b);
 float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b);
 bool is_clockwise(const sf::Vector2f& a, const sf::Vector2f& b); // True if b is clockwise of a
 sf::Vector2f rotate(const sf::Vector2f& v, float angle);
+sf::Vector2f min(const sf::Vector2f& a, const sf::Vector2f& b);
+sf::Vector2f max(const sf::Vector2f& a, const sf::Vector2f& b);
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
 sf::Vector2f lerp_polar(const sf::Vector2f& a, const sf::Vector2f& b, float t);
 sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt);

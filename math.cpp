@@ -64,6 +64,10 @@ sf::Vector2f normalize(const sf::Vector2f& v) {
 	return sf::Vector2f(0.f, 0.f);
 }
 
+sf::Vector2f abs(const sf::Vector2f& v) {
+	return sf::Vector2f(std::abs(v.x), std::abs(v.y));
+}
+
 float dot(const sf::Vector2f& a, const sf::Vector2f& b) {
 	return a.x * b.x + a.y * b.y;
 }
@@ -91,6 +95,14 @@ sf::Vector2f rotate(const sf::Vector2f& v, float angle)
 	float c = std::cos(angle);
 	float s = std::sin(angle);
 	return sf::Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
+}
+
+sf::Vector2f min(const sf::Vector2f& a, const sf::Vector2f& b) {
+	return sf::Vector2f(std::min(a.x, b.x), std::min(a.y, b.y));
+}
+
+sf::Vector2f max(const sf::Vector2f& a, const sf::Vector2f& b) {
+	return sf::Vector2f(std::max(a.x, b.x), std::max(a.y, b.y));
 }
 
 sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t) {

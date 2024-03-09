@@ -33,14 +33,19 @@ namespace debug
 
 	void render(sf::RenderTarget& target)
 	{
-		sf::Vector2f view_center = target.getView().getCenter();
-		sf::Vector2f view_size = target.getView().getSize();
-		sf::FloatRect view_rect(view_center - view_size / 2.f, view_size);
+		const sf::Vector2f view_center = target.getView().getCenter();
+		const sf::Vector2f view_size = target.getView().getSize();
+		const sf::FloatRect view_bounds(view_center - view_size / 2.f, view_size);
 
 		for (const Line& line : _lines) {
-			//TODO: culling
-			//TODO: batch into bigger vertex array
-			//TODO: store static list of vertices
+			//sf::FloatRect line_bounds(
+			//	std::min(line.start.x, line.end.x),
+			//	std::min(line.start.y, line.end.y),
+			//	std::abs(line.end.x - line.start.x),
+			//	std::abs(line.end.y - line.start.y)
+			//);
+			//if (!view_bounds.intersects(line_bounds))
+			//	continue;
 			sf::Vertex vertices[] = {
 				sf::Vertex(line.start, line.color),
 				sf::Vertex(line.end, line.color)
