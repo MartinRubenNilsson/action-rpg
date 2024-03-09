@@ -1,10 +1,14 @@
+#include "stdafx.h"
 #include "physics_debug.h"
+#include "debug_draw.h"
 
 namespace physics
 {
-	// TODO: frustum culling
+	sf::Vector2f _to_sf(const b2Vec2& vec) {
+		return sf::Vector2f(vec.x, vec.y);
+	}
 
-	sf::Color _b2_to_sf(const b2Color& color)
+	sf::Color _to_sf(const b2Color& color)
 	{
 		return sf::Color(
 			(sf::Uint8)(color.r * 255),
@@ -36,7 +40,7 @@ namespace physics
 			}
 		}
 		if (!in_view) return;
-		sf::Color sf_color = _b2_to_sf(color);
+		sf::Color sf_color = _to_sf(color);
 		sf::VertexArray polygon(sf::LineStrip, vertexCount + 1);
 		for (int32 i = 0; i < vertexCount + 1; ++i) {
 			const b2Vec2& vertex = vertices[i % vertexCount];
@@ -46,31 +50,16 @@ namespace physics
 		_target.draw(polygon);
 	}
 
-	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color)
-	{
-		// TODO
+	void DebugDrawSFML::DrawCircle(const b2Vec2& center, float radius, const b2Color& color) {
+		debug::draw_circle(_to_sf(center), radius, _to_sf(color));
 	}
 
-	void DebugDrawSFML::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color)
-	{
-		sf::FloatRect circle_bounds(
-			center.x - radius,
-			center.y - radius,
-			radius * 2.0f,
-			radius * 2.0f);
-		if (!_view_bounds.intersects(circle_bounds)) return;
-		// TODO: What is axis?
-		sf::CircleShape circle(radius);
-		circle.setPosition(center.x, center.y);
-		circle.setOrigin(radius, radius);
-		circle.setFillColor(sf::Color::Transparent);
-		circle.setOutlineThickness(0.3f);
-		circle.setOutlineColor(_b2_to_sf(color));
-		_target.draw(circle);
+	void DebugDrawSFML::DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) {
+		debug::draw_circle(_to_sf(center), radius, _to_sf(color));
 	}
 
-	void DebugDrawSFML::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
-	{
+	void DebugDrawSFML::DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) {
+		debug::draw_line(_to_sf(p1), _to_sf(p2), _to_sf(color));
 	}
 
 	void DebugDrawSFML::DrawTransform(const b2Transform& xf)

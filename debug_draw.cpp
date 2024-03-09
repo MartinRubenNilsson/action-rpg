@@ -21,6 +21,14 @@ namespace debug
 		float lifetime = 0.f;
 	};
 
+	struct Circle
+	{
+		sf::Vector2f center;
+		float radius;
+		sf::Color color = sf::Color::White;
+		float lifetime = 0.f;
+	};
+
 	struct Text
 	{
 		std::string string;
@@ -33,13 +41,23 @@ namespace debug
 	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
+	std::vector<Circle> _circles;
 
-	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& start, const sf::Vector2f& end)
+	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
 	{
-		if (start.x < bounds.min_x && end.x < bounds.min_x) return true;
-		if (start.x > bounds.max_x && end.x > bounds.max_x) return true;
-		if (start.y < bounds.min_y && end.y < bounds.min_y) return true;
-		if (start.y > bounds.max_y && end.y > bounds.max_y) return true;
+		if (p1.x < bounds.min_x && p2.x < bounds.min_x) return true;
+		if (p1.x > bounds.max_x && p2.x > bounds.max_x) return true;
+		if (p1.y < bounds.min_y && p2.y < bounds.min_y) return true;
+		if (p1.y > bounds.max_y && p2.y > bounds.max_y) return true;
+		return false;
+	}
+
+	bool _cull_circle(const ViewBounds& bounds, const sf::Vector2f& center, float radius)
+	{
+		if (center.x + radius < bounds.min_x) return true;
+		if (center.x - radius > bounds.max_x) return true;
+		if (center.y + radius < bounds.min_y) return true;
+		if (center.y - radius > bounds.max_y) return true;
 		return false;
 	}
 
@@ -64,6 +82,7 @@ namespace debug
 	{
 		_update(_lines, dt);
 		_update(_texts, dt);
+		_update(_circles, dt);
 	}
 
 	void render(sf::RenderTarget& target)
@@ -75,6 +94,8 @@ namespace debug
 		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
+		// RENDER LINES
+
 		for (const Line& line : _lines) {
 			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
 				continue;
@@ -84,6 +105,23 @@ namespace debug
 			};
 			target.draw(vertices, 2, sf::Lines);
 		}
+
+		// RENDER CIRCLES
+		{
+			sf::CircleShape shape;
+			shape.setFillColor(sf::Color::Transparent);
+			shape.setOutlineThickness(0.25f);
+			for (const Circle& circle : _circles) {
+				if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius))
+					continue;
+				shape.setRadius(circle.radius);
+				shape.setPosition(circle.center - sf::Vector2f{ circle.radius, circle.radius });
+				shape.setOutlineColor(circle.color);
+				target.draw(shape);
+			}
+		}
+
+		// RENDER TEXT
 
 		std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
 		if (!font) return;
@@ -111,7 +149,14 @@ namespace debug
 			_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
+	void draw_circle(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
+	{
+		if (lifetime > 0.f || !_cull_circle(_last_calculated_view_bounds, center, radius))
+			_circles.emplace_back(center, radius, color, lifetime);
+	}
+
 	void draw_text(const std::string& string, const sf::Vector2f& position, float lifetime) {
+		//TODO: culling
 		_texts.emplace_back(string, position, lifetime);
 	}
 #else
