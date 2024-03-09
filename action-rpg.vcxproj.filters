@@ -24,9 +24,6 @@
     <ClCompile Include="console_commands.cpp">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="physics_debug.cpp">
-      <Filter>physics</Filter>
-    </ClCompile>
     <ClCompile Include="behavior.cpp">
       <Filter>behavior</Filter>
     </ClCompile>
@@ -309,9 +306,6 @@
     </ClInclude>
     <ClInclude Include="console.h">
       <Filter>console</Filter>
-    </ClInclude>
-    <ClInclude Include="physics_debug.h">
-      <Filter>physics</Filter>
     </ClInclude>
     <ClInclude Include="behavior.h">
       <Filter>behavior</Filter>

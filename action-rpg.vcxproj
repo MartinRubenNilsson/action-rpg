@@ -215,7 +215,6 @@
     <ClCompile Include="ecs_physics.cpp" />
     <ClCompile Include="ecs_player.cpp" />
     <ClCompile Include="math.cpp" />
-    <ClCompile Include="physics_debug.cpp" />
     <ClCompile Include="settings.cpp" />
     <ClCompile Include="shaders.cpp" />
     <ClCompile Include="steam.cpp" />
@@ -387,7 +386,6 @@
     <ClInclude Include="ecs_physics.h" />
     <ClInclude Include="ecs_player.h" />
     <ClInclude Include="math.h" />
-    <ClInclude Include="physics_debug.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="steam.h" />
