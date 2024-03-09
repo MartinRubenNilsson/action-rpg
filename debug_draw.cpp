@@ -5,8 +5,22 @@
 namespace debug
 {
 #ifdef _DEBUG
+	sf::FloatRect _last_calculated_view_bounds;
 	std::vector<Line> _lines;
 	std::vector<Text> _texts;
+
+	enum OutCode : unsigned char
+	{
+		LEFT   = (1 << 1),
+		RIGHT  = (1 << 2),
+		BOTTOM = (1 << 3),
+		TOP    = (1 << 4),
+	};
+
+	//bool _intersects_line(const sf::FloatRect& rect, const Line& line)
+	//{
+	//
+	//}
 
 	template <typename T>
 	void _update(std::vector<T>& vec, float dt)
@@ -35,7 +49,7 @@ namespace debug
 	{
 		const sf::Vector2f view_center = target.getView().getCenter();
 		const sf::Vector2f view_size = target.getView().getSize();
-		const sf::FloatRect view_bounds(view_center - view_size / 2.f, view_size);
+		_last_calculated_view_bounds = sf::FloatRect(view_center - view_size / 2.f, view_size);
 
 		for (const Line& line : _lines) {
 			//sf::FloatRect line_bounds(
