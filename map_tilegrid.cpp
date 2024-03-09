@@ -106,6 +106,7 @@ namespace map
 		_grid.size = sf::Vector2i(map.width, map.height);
 		_grid.tile_size = sf::Vector2i(map.tile_width, map.tile_height);
 		_grid.tiles.resize(_grid.size.x * _grid.size.y);
+		_grid.open_tiles.clear();
 
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.name != "Collision") continue;
@@ -128,18 +129,22 @@ namespace map
 		return _grid.tile_size;
 	}
 
-	float _euclidean_distance(const sf::Vector2i& start, const sf::Vector2i& end)
-	{
-		int dx = end.x - start.x;
-		int dy = end.y - start.y;
-		return std::sqrt(dx * dx + dy * dy);
+	int _manhattan_distance(const sf::Vector2i& a, const sf::Vector2i& b) {
+		return std::abs(b.x - a.x) + std::abs(b.y - a.y);
 	}
 
-	float _euclidean_distance_on_grid(const sf::Vector2i& start, const sf::Vector2i& end)
+	float _euclidean_distance(const sf::Vector2i& a, const sf::Vector2i& b)
+	{
+		int dx = b.x - a.x;
+		int dy = b.y - a.y;
+		return std::sqrt((float)(dx * dx + dy * dy));
+	}
+
+	float _euclidean_distance_on_grid(const sf::Vector2i& a, const sf::Vector2i& b)
 	{
 		constexpr float SQRT_2 = 1.41421356237f;
-		int dx = std::abs(end.x - start.x);
-		int dy = std::abs(end.y - start.y);
+		int dx = std::abs(b.x - a.x);
+		int dy = std::abs(b.y - a.y);
 		return std::abs(dx - dy) + std::min(dx, dy) * SQRT_2;
 	}
 
@@ -205,6 +210,7 @@ namespace map
 		for (Tile* tile = end_tile; tile; tile = _try_get_tile(tile->parent))
 			path.push_back(tile->position);
 		std::reverse(path.begin(), path.end());
+
 		return path;
 	}
 
