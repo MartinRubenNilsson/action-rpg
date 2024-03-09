@@ -90,8 +90,9 @@ namespace debug
 
 	void draw_line(const Line& line)
 	{
-		if (line.lifetime > 0.f || !_cull_line(_last_calculated_view_bounds, line))
-			_lines.push_back(line);
+		if (line.lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, line))
+			return;
+		_lines.push_back(line);
 	}
 
 	void draw_text(const Text& text) {
