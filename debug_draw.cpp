@@ -23,7 +23,8 @@ namespace debug
 
 	struct Polygon
 	{
-		std::vector<sf::Vector2f> points;
+		sf::Vector2f points[MAX_POLYGON_VERTICES];
+		size_t count = 0;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
 	};
@@ -69,12 +70,12 @@ namespace debug
 		return false;
 	}
 
-	bool _cull_polygon(const ViewBounds& bounds, const sf::Vector2f* points, uint32_t count)
+	bool _cull_polygon(const ViewBounds& bounds, const sf::Vector2f* points, size_t count)
 	{
 		if (count < 3) return true;
 		sf::Vector2f min = points[0];
 		sf::Vector2f max = points[0];
-		for (uint32_t i = 1; i < count; ++i) {
+		for (size_t i = 1; i < count; ++i) {
 			min.x = std::min(min.x, points[i].x);
 			min.y = std::min(min.y, points[i].y);
 			max.x = std::max(max.x, points[i].x);
@@ -135,18 +136,17 @@ namespace debug
 	void _render_polygons(sf::RenderTarget& target)
 	{
 		if (_polygons.empty()) return;
-		sf::VertexArray vertices(sf::PrimitiveType::LineStrip);
+		sf::Vertex vertices[MAX_POLYGON_VERTICES + 1];
 		for (const Polygon& polygon : _polygons) {
-			uint32_t count = (uint32_t)polygon.points.size();
-			if (_cull_polygon(_last_calculated_view_bounds, polygon.points.data(), count))
+			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count))
 				continue;
-			vertices.resize(count + 1);
-			for (size_t i = 0; i < count; ++i) {
+			for (size_t i = 0; i < polygon.count; ++i) {
 				vertices[i].position = polygon.points[i];
 				vertices[i].color = polygon.color;
 			}
-			vertices[count] = vertices[0];
-			target.draw(vertices);
+			vertices[polygon.count].position = polygon.points[0];
+			vertices[polygon.count].color = polygon.color;
+			target.draw(vertices, polygon.count + 1, sf::LineStrip);
 		}
 	}
 
@@ -213,11 +213,16 @@ namespace debug
 		// TODO: implmenet
 	}
 
-	void draw_polygon(const sf::Vector2f* points, uint32_t count, const sf::Color& color, float lifetime)
+	void draw_polygon(const sf::Vector2f* points, size_t count, const sf::Color& color, float lifetime)
 	{
+		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
 		if (lifetime <= 0.f && _cull_polygon(_last_calculated_view_bounds, points, count)) return;
-		_polygons.emplace_back(std::vector<sf::Vector2f>(points, points + count), color, lifetime);
+		Polygon& polygon = _polygons.emplace_back();
+		std::memcpy(polygon.points, points, count * sizeof(sf::Vector2f));
+		polygon.count = count;
+		polygon.color = color;
+		polygon.lifetime = lifetime;
 	}
 
 	void draw_circle(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
