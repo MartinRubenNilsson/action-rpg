@@ -39,7 +39,7 @@ namespace ecs
         vfx.sprite.setPosition(position);
         switch (type) {
         case VfxType::Explosion:
-            vfx.texture = textures::load_texture("assets/textures/vfx/EXPLOSION.png");
+            vfx.texture = textures::load_cached_texture("assets/textures/vfx/EXPLOSION.png");
             vfx.frame_rows = 1;
             vfx.frame_cols = 12;
             vfx.frame_duration = 0.05f;

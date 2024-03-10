@@ -68,7 +68,7 @@ namespace textures
 		return std::make_shared<sf::Texture>(render_texture.getTexture());
 	}
 
-	std::shared_ptr<sf::Texture> load_texture(const std::filesystem::path& path)
+	std::shared_ptr<sf::Texture> load_cached_texture(const std::filesystem::path& path)
 	{
 		std::filesystem::path normal_path = path.lexically_normal();
 		TextureAsset& asset = _texture_cache[normal_path];
@@ -84,7 +84,7 @@ namespace textures
 		_texture_cache.clear();
 	}
 
-	std::unique_ptr<sf::RenderTexture> get_render_texture(const sf::Vector2u& size)
+	std::unique_ptr<sf::RenderTexture> take_render_texture_from_pool(const sf::Vector2u& size)
 	{
 		for (auto it = _render_texture_pool.begin(); it != _render_texture_pool.end(); ++it) {
 			if ((*it)->getSize() != size) continue;
@@ -92,13 +92,13 @@ namespace textures
 			_render_texture_pool.erase(it);
 			return texture;
 		}
-		auto texture = std::make_unique<sf::RenderTexture>();
+		std::unique_ptr<sf::RenderTexture> texture = std::make_unique<sf::RenderTexture>();
 		bool created = texture->create(size.x, size.y);
 		assert(created);
 		return texture;
 	}
 
-	void recycle_render_texture(std::unique_ptr<sf::RenderTexture> texture) {
+	void give_render_texture_to_pool(std::unique_ptr<sf::RenderTexture> texture) {
 		_render_texture_pool.push_back(std::move(texture));
 	}
 

@@ -153,7 +153,7 @@ namespace tiled
 			tileset.image_path = tileset.path.parent_path();
 			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
 			tileset.image_path = tileset.image_path.lexically_normal();
-			tileset.image = textures::load_texture(tileset.image_path);
+			tileset.image = textures::load_cached_texture(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t i = 0; i < tileset.tile_count; ++i) {

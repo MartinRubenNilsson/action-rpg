@@ -13,7 +13,7 @@ namespace cursor
 	void render(sf::RenderTarget& target)
 	{
 		if (!_visible) return;
-		std::shared_ptr<sf::Texture> texture = textures::load_texture(_CURSOR_TEXTURE_PATH);
+		std::shared_ptr<sf::Texture> texture = textures::load_cached_texture(_CURSOR_TEXTURE_PATH);
 		if (!texture) return;
 		sf::Sprite sprite(*texture, _texture_rect);
 		sprite.setPosition(_position);

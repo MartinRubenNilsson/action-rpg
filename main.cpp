@@ -188,30 +188,20 @@ int main(int argc, char* argv[])
             ImGui::End();
         }
 
-        // RENDER BACKGROUND, ECS, DEBUG DRAW
-
-        const sf::Vector2u target_size = window.getSize();
-        std::unique_ptr<sf::RenderTexture> target = textures::get_render_texture(target_size);
-        target->clear();
-        target->setView(window::get_default_view());
-		background::render(*target);
-		ecs::render(*target);
-        debug::render(*target);
-        target->display();
-
-        // POSTPROCESS
-
-        for (const postprocess::Shockwave& shockwave : postprocess::shockwaves) {
-            std::unique_ptr<sf::RenderTexture> source = std::move(target);
-            target = textures::get_render_texture(target_size);
-            target->setView(target->getDefaultView());
-            postprocess::render_shockwave(*target, source->getTexture(), shockwave);
+        // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
+        {
+            std::unique_ptr<sf::RenderTexture> target =
+                textures::take_render_texture_from_pool(window.getSize());
+            target->clear();
+            target->setView(window::get_default_view());
+            background::render(*target);
+            ecs::render(*target);
+            debug::render(*target);
             target->display();
-            textures::recycle_render_texture(std::move(source));
+            target = postprocess::render(std::move(target));
+            window.draw(sf::Sprite(target->getTexture())); // Copy to window.
+            textures::give_render_texture_to_pool(std::move(target));
         }
-
-        postprocess::render_copy(window, target->getTexture());
-        textures::recycle_render_texture(std::move(target));
 
         // RENDER UI
 

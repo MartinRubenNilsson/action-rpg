@@ -12,7 +12,7 @@ namespace postprocess
 
 	extern std::vector<Shockwave> shockwaves;
 
-	void render_copy(sf::RenderTarget& target, const sf::Texture& source);
-	void render_shockwave(sf::RenderTarget& target, const sf::Texture& source, const Shockwave& shockwave);
+	void update(float dt);
+	std::unique_ptr<sf::RenderTexture> render(std::unique_ptr<sf::RenderTexture> source);
 }
 
