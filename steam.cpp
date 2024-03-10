@@ -30,8 +30,7 @@ namespace steam
 	void shutdown()
 	{
 		SteamAPI_Shutdown();
-		if (server_is_initialized())
-			server_shutdown();
+		server_shutdown();
 	}
 
 	void run_message_loop()

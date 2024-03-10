@@ -17,54 +17,43 @@
 namespace steam
 {
 	const char _SERVER_VERSION_STRING[] = "0.0.0.0";
-	bool _server_is_initialized = false;
-
-	bool server_is_initialized() {
-		return _server_is_initialized;
-	}
 
 	bool server_initialize()
 	{
-		if (_server_is_initialized) {
+		if (SteamGameServer()) {
 			console::log_error("Failed to initialize Steam server: already initialized.");
 			return false;
 		}
-		_server_is_initialized = SteamGameServer_Init(
-			0, 27015, 27016, eServerModeAuthenticationAndSecure, _SERVER_VERSION_STRING);
-		if (!_server_is_initialized) {
-			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
-			return false;
-		}
-		return true;
+		bool ok = SteamGameServer_Init(0, 27015, 27016, eServerModeAuthenticationAndSecure, _SERVER_VERSION_STRING);
+		if (!ok) console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
+		return ok;
 	}
 
-	void server_shutdown()
-	{
+	void server_shutdown() {
 		SteamGameServer_Shutdown();
-		_server_is_initialized = false;
 	}
 
 	void server_log_on_anonymous()
 	{
-		if (!_server_is_initialized) return;
+		if (!SteamGameServer()) return;
 		SteamGameServer()->LogOnAnonymous();
 	}
 
 	void server_log_off()
 	{
-		if (!_server_is_initialized) return;
+		if (!SteamGameServer()) return;
 		SteamGameServer()->LogOff();
 	}
 
 	bool server_logged_on()
 	{
-		if (!_server_is_initialized) return false;
+		if (!SteamGameServer()) return false;
 		return SteamGameServer()->BLoggedOn();
 	}
 
 	std::string server_get_public_ip()
 	{
-		if (!_server_is_initialized) return std::string();
+		if (!SteamGameServer()) return std::string();
 		SteamIPAddress_t ip = SteamGameServer()->GetPublicIP();
 		SteamNetworkingIPAddr ip_addr;
 		if (ip.m_eType == k_ESteamIPTypeIPv4) {
