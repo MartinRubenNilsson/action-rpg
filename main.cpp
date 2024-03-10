@@ -173,9 +173,10 @@ int main(int argc, char* argv[])
         audio::update();
         ui::update(dt.asSeconds());
         debug::update(dt.asSeconds());
-        if (!ui::should_pause_game() && !steam::is_overlay_active())
+        if (!ui::should_pause_game() && !steam::is_overlay_active()) {
             ecs::update(dt.asSeconds());
-        postprocess::update(dt.asSeconds());
+            postprocess::update(dt.asSeconds());
+        }
 
         if (debug_stats) {
             static float smoothed_dt = 0.f;

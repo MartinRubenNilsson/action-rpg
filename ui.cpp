@@ -14,12 +14,11 @@ namespace ui
 {
 	struct SystemInterface_SFML : Rml::SystemInterface
 	{
-		sf::Clock timer;
+		sf::Clock clock;
 
 		double GetElapsedTime() override {
-			return (double)timer.getElapsedTime().asMicroseconds() / 1'000'000.0;
+			return (double)clock.getElapsedTime().asMicroseconds() / 1'000'000.0;
 		}
-
 		void SetMouseCursor(const Rml::String& cursor_name) override
 		{
 			if (cursor_name.empty() || cursor_name == "arrow")
@@ -39,11 +38,9 @@ namespace ui
 			else if (cursor_name.starts_with("rmlui-scroll"))
 				window::set_cursor(sf::Cursor::SizeAll);
 		}
-
 		void SetClipboardText(const Rml::String& text_utf8) override {
 			sf::Clipboard::setString(text_utf8);
 		}
-
 		void GetClipboardText(Rml::String& text) override {
 			text = sf::Clipboard::getString();
 		}
