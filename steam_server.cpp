@@ -16,7 +16,10 @@
 
 namespace steam
 {
+	const uint32_t _GAME_PORT = 27015;
+	const uint32_t _QUERY_PORT = 27016;
 	const char _SERVER_VERSION_STRING[] = "0.0.0.0";
+	HSteamListenSocket _listen_socket = k_HSteamListenSocket_Invalid;
 
 	bool server_initialize()
 	{
@@ -24,7 +27,7 @@ namespace steam
 			console::log_error("Failed to initialize Steam server: already initialized.");
 			return false;
 		}
-		bool ok = SteamGameServer_Init(0, 27015, 27016, eServerModeNoAuthentication, _SERVER_VERSION_STRING);
+		bool ok = SteamGameServer_Init(0, _GAME_PORT, _QUERY_PORT, eServerModeNoAuthentication, _SERVER_VERSION_STRING);
 		if (!ok) {
 			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
 			return false;
@@ -33,12 +36,17 @@ namespace steam
 		SteamGameServer()->SetGameDescription("Action RPG");
 		SteamGameServer()->LogOnAnonymous();
 		//SteamNetworkingUtils()->InitRelayNetworkAccess();
+		SteamNetworkingIPAddr server_addr;
+		server_addr.Clear();
+		server_addr.m_port = _GAME_PORT;
+		_listen_socket = SteamGameServerNetworkingSockets()->CreateListenSocketIP(server_addr, 0, nullptr);
 		return true;
 	}
 
 	void server_shutdown()
 	{
 		if (!SteamGameServer()) return;
+		SteamGameServerNetworkingSockets()->CloseListenSocket(_listen_socket);
 		SteamGameServer()->LogOff();
 		SteamGameServer_Shutdown();
 	}
