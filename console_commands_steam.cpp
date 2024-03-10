@@ -42,7 +42,7 @@ namespace console
 				steam::server_shutdown();
 			};
 		}
-		{
+		/*{
 			Command& cmd = commands.emplace_back();
 			cmd.name = "server_log_on_anonymous";
 			cmd.desc = "Logs on the server anonymously";
@@ -65,7 +65,7 @@ namespace console
 			cmd.callback = [](const Params&) {
 				log(steam::server_logged_on() ? "true" : "false");
 			};
-		}
+		}*/
 		{
 			Command& cmd = commands.emplace_back();
 			cmd.name = "server_ip";

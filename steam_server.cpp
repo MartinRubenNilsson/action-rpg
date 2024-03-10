@@ -24,16 +24,26 @@ namespace steam
 			console::log_error("Failed to initialize Steam server: already initialized.");
 			return false;
 		}
-		bool ok = SteamGameServer_Init(0, 27015, 27016, eServerModeAuthenticationAndSecure, _SERVER_VERSION_STRING);
-		if (!ok) console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
-		return ok;
+		bool ok = SteamGameServer_Init(0, 27015, 27016, eServerModeNoAuthentication, _SERVER_VERSION_STRING);
+		if (!ok) {
+			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
+			return false;
+		}
+		SteamGameServer()->SetProduct("ActionRPG");
+		SteamGameServer()->SetGameDescription("Action RPG");
+		SteamGameServer()->LogOnAnonymous();
+		//SteamNetworkingUtils()->InitRelayNetworkAccess();
+		return true;
 	}
 
-	void server_shutdown() {
+	void server_shutdown()
+	{
+		if (!SteamGameServer()) return;
+		SteamGameServer()->LogOff();
 		SteamGameServer_Shutdown();
 	}
 
-	void server_log_on_anonymous()
+	/*void server_log_on_anonymous()
 	{
 		if (!SteamGameServer()) return;
 		SteamGameServer()->LogOnAnonymous();
@@ -49,7 +59,7 @@ namespace steam
 	{
 		if (!SteamGameServer()) return false;
 		return SteamGameServer()->BLoggedOn();
-	}
+	}*/
 
 	std::string server_get_public_ip()
 	{
