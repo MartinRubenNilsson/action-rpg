@@ -183,7 +183,7 @@ namespace ecs
 		return _registry.try_get<Tile>(entity);
 	}
 
-	void remove_tile(entt::entity entity) {
-		_registry.remove<Tile>(entity);
+	bool remove_tile(entt::entity entity) {
+		return _registry.remove<Tile>(entity);
 	}
 }

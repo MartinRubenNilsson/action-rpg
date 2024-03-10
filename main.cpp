@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
             ecs::render(*target);
             debug::render(*target);
             target->display();
-            target = postprocess::render(std::move(target));
+            postprocess::render(target);
             window.draw(sf::Sprite(target->getTexture())); // Copy to window.
             textures::give_render_texture_to_pool(std::move(target));
         }
