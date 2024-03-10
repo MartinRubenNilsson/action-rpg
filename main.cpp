@@ -190,17 +190,17 @@ int main(int argc, char* argv[])
 
         // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
         {
-            std::unique_ptr<sf::RenderTexture> target =
+            std::unique_ptr<sf::RenderTexture> texture =
                 textures::take_render_texture_from_pool(window.getSize());
-            target->clear();
-            target->setView(window::get_default_view());
-            background::render(*target);
-            ecs::render(*target);
-            debug::render(*target);
-            target->display();
-            postprocess::render(target);
-            window.draw(sf::Sprite(target->getTexture())); // Copy to window.
-            textures::give_render_texture_to_pool(std::move(target));
+            texture->clear();
+            texture->setView(window::get_default_view());
+            background::render(*texture);
+            ecs::render(*texture);
+            debug::render(*texture);
+            texture->display();
+            postprocess::render(texture);
+            window.draw(sf::Sprite(texture->getTexture())); // Copy to window.
+            textures::give_render_texture_to_pool(std::move(texture));
         }
 
         // RENDER UI
