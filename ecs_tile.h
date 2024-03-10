@@ -68,5 +68,6 @@ namespace ecs
 	Tile& emplace_tile(entt::entity entity); // emplaces an invalid tile
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile& get_tile(entt::entity entity);
+	Tile* try_get_tile(entt::entity entity);
 	void remove_tile(entt::entity entity);
 }

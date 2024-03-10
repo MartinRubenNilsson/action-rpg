@@ -179,6 +179,10 @@ namespace ecs
 		return _registry.get_or_emplace<Tile>(entity);
 	}
 
+	Tile* try_get_tile(entt::entity entity) {
+		return _registry.try_get<Tile>(entity);
+	}
+
 	void remove_tile(entt::entity entity) {
 		_registry.remove<Tile>(entity);
 	}
