@@ -119,24 +119,26 @@ namespace ecs
 
 	void Tile::update_animation(float dt)
 	{
-		if (!_tile) return;
+		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
 		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
 			++_animation_loop_count;
 			if (animation_flip_x_on_loop)
 				flip_x = !flip_x;
 		}
-		uint32_t time_in_ms = (uint32_t)(animation_timer.get_time() * 1000.f);
-		uint32_t time = time_in_ms % _animation_duration_ms;
-		uint32_t current_time = 0;
+		uint32_t time = (uint32_t)(animation_timer.get_time() * 1000.f); // in milliseconds
 		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
-			const tiled::Frame& frame = _tile->animation[frame_index];
-			current_time += frame.duration;
-			if (time < current_time) {
+			uint32_t frame_duration = _tile->animation[frame_index].duration;
+			if (time < frame_duration) {
 				_animation_frame_index = frame_index;
-				break;
+				return;
+			} else {
+				time -= frame_duration;
 			}
 		}
+		// Park on the last frame. We will for example get here if
+		// animation_timer.get_time() == animation_timer.get_duration().
+		_animation_frame_index = (uint32_t)_tile->animation.size() - 1;
 	}
 
 	float Tile::get_animation_duration() const {
