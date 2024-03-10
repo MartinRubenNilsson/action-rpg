@@ -36,8 +36,8 @@ namespace ecs
 	};
 
 	void process_event_player(const sf::Event& ev);
-	void update_player(float dt);
-	void debug_draw_player();
+	void update_players(float dt);
+	void debug_draw_players();
 
 	void emplace_player(entt::entity entity, const Player& player = Player());
 	void remove_player(entt::entity entity);

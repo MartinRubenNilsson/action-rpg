@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "steam.h"
+#include "steam_server.h"
 #include <steam/steam_api.h>
 #include "console.h"
 
@@ -26,8 +27,11 @@ namespace steam
 		return true;
 	}
 
-	void shutdown() {
+	void shutdown()
+	{
 		SteamAPI_Shutdown();
+		if (server_is_initialized())
+			server_shutdown();
 	}
 
 	void run_message_loop()

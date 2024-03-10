@@ -138,7 +138,7 @@ namespace ecs
 			audio::play(audio_event);
 	}
 
-	void update_player(float dt)
+	void update_players(float dt)
 	{
 		for (auto [player_entity, player, body, tile] :
 			_registry.view<Player, b2Body*, Tile>().each()) {
@@ -296,7 +296,7 @@ namespace ecs
 		}
 	}
 
-	void debug_draw_player()
+	void debug_draw_players()
 	{
 		ImGui::Begin("Player");
 

@@ -259,11 +259,14 @@
     <ClCompile Include="console_commands_misc.cpp">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="steam_networking.cpp">
-      <Filter>steam</Filter>
-    </ClCompile>
     <ClCompile Include="debug_draw.cpp">
       <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="steam_server.cpp">
+      <Filter>steam</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_steam.cpp">
+      <Filter>console</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -726,11 +729,11 @@
     <ClInclude Include="console_commands.h">
       <Filter>console</Filter>
     </ClInclude>
-    <ClInclude Include="steam_networking.h">
-      <Filter>steam</Filter>
-    </ClInclude>
     <ClInclude Include="debug_draw.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_server.h">
+      <Filter>steam</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

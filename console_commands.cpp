@@ -36,17 +36,17 @@ namespace console
 
 	std::vector<Command> _commands; // Sorted by name
 
-	std::string _format_type_and_name(const Param& param)
+	bool operator<(const Command& left, const Command& right) {
+		return strcmp(left.name, right.name) < 0; // Order by name
+	}
+
+	std::string format_type_and_name(const Param& param)
 	{
 		std::string ret;
 		ret += std::visit(ArgTypenameVisitor{}, param.arg);
 		ret += " ";
 		ret += param.name;
 		return ret;
-	}
-	
-	bool operator<(const Command& left, const Command& right) {
-		return strcmp(left.name, right.name) < 0; // Order by name
 	}
 
 	std::string format_help_message(const Command& command)
@@ -55,7 +55,7 @@ namespace console
 		ret += command.name;
 		for (const Param& param : command.params) {
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
-			ret += " [" + _format_type_and_name(param) + "]";
+			ret += " [" + format_type_and_name(param) + "]";
 		}
 		ret += "\n- ";
 		ret += command.desc;
@@ -69,13 +69,11 @@ namespace console
 		return ret;
 	}
 
-
-	extern void _register_commands_misc(std::vector<Command>& commands);
-
 	void register_commands()
 	{
 		_commands.clear();
-		_register_commands_misc(_commands);
+		register_commands_misc(_commands);
+		register_commands_steam(_commands);
 		std::sort(_commands.begin(), _commands.end());
 	}
 
@@ -95,12 +93,12 @@ namespace console
 			if (std::holds_alternative<std::monostate>(param.arg)) break;
 			iss.ignore(64, ' '); // Skip any leading spaces
 			if (iss.eof()) {
-				log_error("Missing argument: " + _format_type_and_name(param));
+				log_error("Missing argument: " + format_type_and_name(param));
 				return;
 			}
 			std::visit(ArgParserVisitor{ iss }, param.arg);
 			if (iss.fail()) {
-				log_error("Invalid argument: " + _format_type_and_name(param));
+				log_error("Invalid argument: " + format_type_and_name(param));
 				return;
 			}
 		}

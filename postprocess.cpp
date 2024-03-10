@@ -7,7 +7,7 @@ namespace postprocess
 {
 	struct Shockwave
 	{
-		sf::Vector2f world_position; // in target coordinates
+		sf::Vector2f world_position;
 		float force = 0.f;
 		float size = 0.f;
 		float thickness = 0.f;

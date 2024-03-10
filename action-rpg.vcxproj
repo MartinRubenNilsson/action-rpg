@@ -149,6 +149,7 @@
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
+    <ClCompile Include="console_commands_steam.cpp" />
     <ClCompile Include="cursor.cpp" />
     <ClCompile Include="debug_draw.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp" />
@@ -218,7 +219,7 @@
     <ClCompile Include="settings.cpp" />
     <ClCompile Include="shaders.cpp" />
     <ClCompile Include="steam.cpp" />
-    <ClCompile Include="steam_networking.cpp" />
+    <ClCompile Include="steam_server.cpp" />
     <ClCompile Include="textures.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
@@ -389,7 +390,7 @@
     <ClInclude Include="settings.h" />
     <ClInclude Include="shaders.h" />
     <ClInclude Include="steam.h" />
-    <ClInclude Include="steam_networking.h" />
+    <ClInclude Include="steam_server.h" />
     <ClInclude Include="textures.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />

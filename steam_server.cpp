@@ -1,0 +1,63 @@
+#include "stdafx.h"
+#include "steam_server.h"
+#include <steam/steam_gameserver.h>
+#include "console.h"
+
+// After initializing a game server you have access to the two game server
+// exclusive interfaces ISteamGameServer and ISteamGameServerStats.
+// 
+// You can also access the following regular interfaces from the game server:
+// ISteamClient which you can access via the global interface: SteamGameServerClient()
+// ISteamUtils which you can access via the global interface: SteamGameServerUtils()
+// ISteamNetworking which you can access via the global interface: SteamGameServerNetworking()
+// ISteamHTTP which you can access via the global interface: SteamGameServerHTTP()
+// ISteamUGC which you can access via the global interface: SteamGameServerUGC()
+// ISteamApps which you can access via the global interface: SteamGameServerApps()
+
+namespace steam
+{
+	const char _SERVER_VERSION_STRING[] = "0.0.0.0";
+	bool _server_is_initialized = false;
+
+	bool server_is_initialized() {
+		return _server_is_initialized;
+	}
+
+	bool server_initialize()
+	{
+		if (_server_is_initialized) {
+			console::log_error("Failed to initialize Steam server: already initialized.");
+			return false;
+		}
+		_server_is_initialized = SteamGameServer_Init(
+			0, 27015, 27016, eServerModeAuthenticationAndSecure, _SERVER_VERSION_STRING);
+		if (!_server_is_initialized) {
+			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
+		}
+		return _server_is_initialized;
+	}
+
+	void server_shutdown()
+	{
+		SteamGameServer_Shutdown();
+		_server_is_initialized = false;
+	}
+
+	void server_log_on_anonymous()
+	{
+		if (!_server_is_initialized) return;
+		SteamGameServer()->LogOnAnonymous();
+	}
+
+	void server_log_off()
+	{
+		if (!_server_is_initialized) return;
+		SteamGameServer()->LogOff();
+	}
+
+	bool server_logged_on()
+	{
+		if (!_server_is_initialized) return false;
+		return SteamGameServer()->BLoggedOn();
+	}
+}
