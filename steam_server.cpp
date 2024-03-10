@@ -67,7 +67,6 @@ namespace steam
 		if (!_server_is_initialized) return std::string();
 		SteamIPAddress_t ip = SteamGameServer()->GetPublicIP();
 		SteamNetworkingIPAddr ip_addr;
-		ip_addr.Clear();
 		if (ip.m_eType == k_ESteamIPTypeIPv4) {
 			ip_addr.SetIPv4(ip.m_unIPv4, 0);
 		} else {
