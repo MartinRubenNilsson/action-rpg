@@ -33,8 +33,9 @@ namespace steam
 			0, 27015, 27016, eServerModeAuthenticationAndSecure, _SERVER_VERSION_STRING);
 		if (!_server_is_initialized) {
 			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
+			return false;
 		}
-		return _server_is_initialized;
+		return true;
 	}
 
 	void server_shutdown()
@@ -59,5 +60,21 @@ namespace steam
 	{
 		if (!_server_is_initialized) return false;
 		return SteamGameServer()->BLoggedOn();
+	}
+
+	std::string server_get_public_ip()
+	{
+		if (!_server_is_initialized) return std::string();
+		SteamIPAddress_t ip = SteamGameServer()->GetPublicIP();
+		SteamNetworkingIPAddr ip_addr;
+		ip_addr.Clear();
+		if (ip.m_eType == k_ESteamIPTypeIPv4) {
+			ip_addr.SetIPv4(ip.m_unIPv4, 0);
+		} else {
+			ip_addr.SetIPv6(ip.m_rgubIPv6, 0);
+		}
+		char ip_str[SteamNetworkingIPAddr::k_cchMaxString];
+		ip_addr.ToString(ip_str, SteamNetworkingIPAddr::k_cchMaxString, false);
+		return ip_str;
 	}
 }

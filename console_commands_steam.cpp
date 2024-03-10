@@ -66,5 +66,13 @@ namespace console
 				log(steam::server_logged_on() ? "true" : "false");
 			};
 		}
+		{
+			Command& cmd = commands.emplace_back();
+			cmd.name = "server_ip";
+			cmd.desc = "Prints the public IP of the server";
+			cmd.callback = [](const Params&) {
+				log(steam::server_get_public_ip());
+			};
+		}
 	}
 }
