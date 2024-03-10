@@ -64,9 +64,12 @@ namespace ecs
 
     void explode_bomb(entt::entity bomb_entity, float blast_radius, const sf::Vector2f& position)
     {
-        // Explosion logic goes here
-        // You can use the blast_radius to determine the affected area
-        // ...
+        destroy_at_end_of_frame(bomb_entity);
+        create_vfx(VfxType::Explosion, position);
+        add_trauma_to_active_camera(0.8f);
+        audio::play("event:/snd_glass_smash");
+        postprocess::create_shockwave(position);
+
         sf::Vector2f box_center = position;
         sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
         sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
@@ -75,16 +78,9 @@ namespace ecs
             std::string class_ = get_class(hit.entity);
             if (class_ == "slime") {
                 destroy_at_end_of_frame(hit.entity);
-            }
-            else if (class_ == "player") {
+            } else if (class_ == "player") {
 				hurt_player(hit.entity, 1);
 			}
         }
-        postprocess::shockwaves.push_back({ position, 0.1f, 0.1f, 0.1f });
-        ecs::add_trauma_to_active_camera(0.8f);
-        create_vfx(VfxType::Explosion, position);
-
-        audio::play("event:/snd_glass_smash");
-        destroy_at_end_of_frame(bomb_entity);
     }
 }
