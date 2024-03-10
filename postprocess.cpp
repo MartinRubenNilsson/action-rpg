@@ -15,9 +15,23 @@ namespace postprocess
 
 	std::vector<Shockwave> _shockwaves;
 
+	void _update_shockwaves(float dt)
+	{
+		for (auto it = _shockwaves.begin(); it != _shockwaves.end();) {
+			it->force -= dt * 0.4f;
+			it->size += dt * 0.7f;
+			it->thickness += dt * 0.2f;
+			if (it->force <= 0.f) {
+				it = _shockwaves.erase(it);
+			} else {
+				++it;
+			}
+		}
+	}
+
 	void update(float dt)
 	{
-		//TODO
+		_update_shockwaves(dt);
 	}
 
 	sf::Vector2f _map_world_to_target(const sf::View& view, const sf::Vector2u& size, const sf::Vector2f& pos)
@@ -67,9 +81,9 @@ namespace postprocess
 	{
 		Shockwave shockwave{};
 		shockwave.world_position = world_position;
-		shockwave.force = 0.1f;
-		shockwave.size = 0.1f;
-		shockwave.thickness = 0.1f;
+		shockwave.force = 0.2f;
+		shockwave.size = 0.f;
+		shockwave.thickness = 0.f;
 		_shockwaves.push_back(shockwave);
 	}
 }
