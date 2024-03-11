@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "map_tilegrid.h"
 #include "tiled.h"
+#include "console.h"
 
 namespace map
 {
@@ -112,6 +113,7 @@ namespace map
 		if (name == "cobblestone")   return TerrainType::Cobblestone;
 		if (name == "shallow water") return TerrainType::ShallowWater;
 		if (name == "deep water")    return TerrainType::DeepWater;
+		console::log_error("Unknown terrain type: " + name);
 		return TerrainType::None;
 	}
 
@@ -159,12 +161,26 @@ namespace map
 		}
 	}
 
-	sf::Vector2i get_tilegrid_size() {
+	sf::Vector2i get_grid_size() {
 		return _grid.size;
 	}
 
-	sf::Vector2i get_tilegrid_tile_size() {
+	sf::Vector2i get_tile_size() {
 		return _grid.tile_size;
+	}
+
+	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos)
+	{
+		sf::Vector2f pos = world_pos / sf::Vector2f(_grid.tile_size);
+		sf::Vector2i floored_pos((int)floor(pos.x), (int)floor(pos.y));
+		Tile* tile = _try_get_tile(floored_pos);
+		if (!tile) return TerrainType::None;
+		const bool left = (pos.x - floored_pos.x) < 0.5f;
+		const bool top = (pos.y - floored_pos.y) < 0.5f;
+		const int corner =
+			top ? (left ? tiled::WangTile::TOP_LEFT : tiled::WangTile::TOP_RIGHT)
+			: (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
+		return tile->terrains[corner];
 	}
 
 	int _manhattan_distance(const sf::Vector2i& a, const sf::Vector2i& b) {

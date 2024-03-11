@@ -19,6 +19,7 @@
 #include "character.h"
 #include "ecs_vfx.h"
 #include "debug_draw.h"
+#include "map_tilegrid.h"
 
 using namespace std::literals::string_literals;
 
@@ -314,7 +315,9 @@ namespace ecs
 		ImGui::Begin("Player");
 
 		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
-			ImGui::Text("Position: %.1f, %.1f", body->GetWorldCenter().x, body->GetWorldCenter().y);
+			sf::Vector2f position = get_world_center(body);
+			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
+			ImGui::Text("Terrain: %s", magic_enum::enum_name(map::get_terrain_type_at(position)).data());
 		}
 
 		for (auto [entity, player] : _registry.view<Player>().each()) {
@@ -323,6 +326,7 @@ namespace ecs
 			ImGui::Text("Health: %d", player.health);
 			ImGui::Text("Arrows: %d", player.arrows);
 			ImGui::Text("Rupees: %d", player.rupees);
+			
 			
 			if (ImGui::Button("Hurt"))
 				hurt_player(entity, 1);
