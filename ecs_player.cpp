@@ -89,25 +89,6 @@ namespace ecs
 		}
 	}
 
-	void set_direction_for_animation(Tile& tile, char& dir) {
-		// Set the flip and animation class based on direction
-		switch (dir) {
-		case 'r':
-			tile.flip_x = false;
-			tile.animation_flip_x_on_loop = false;
-			break;
-		case 'l':
-			dir = 'r';
-			tile.flip_x = true;
-			tile.animation_flip_x_on_loop = false;
-			break;
-		case 'u':
-		case 'd':
-			tile.animation_flip_x_on_loop = true;
-			break;
-		}
-	}
-
 	void fire_arrow(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
 		// Calculate the offset position
 		float offsetDistance = 1.0f; // Adjust this value as needed
@@ -143,7 +124,7 @@ namespace ecs
 		audio::play("event:/snd_glass_smash");
 
 		Tile& tile = emplace_tile(arrow_entity);
-		tile.set("arrow", "items1");
+		tile.set_sprite("arrow", "items1");
 		tile.pivot = sf::Vector2f(6.f, 6.f);
 	}
 
@@ -193,96 +174,85 @@ namespace ecs
 				player.input = {};
 			}
 
-			const sf::Vector2f player_position = get_world_center(body);
-			const sf::Vector2f player_velocity = get_linear_velocity(body);
-
-			// UPDATE AUDIO LISTENER POSITION
-
-			audio::set_listener_position(player_position);
-
 			// UPDATE TIMERS
 
 			player.hurt_timer.update(dt);
 
-			char dir = get_direction(player.facing_direction);
+			const sf::Vector2f position = get_world_center(body);
+			const sf::Vector2f velocity = get_linear_velocity(body);
+			sf::Vector2f new_velocity = velocity; // will be modified differently depending on the state
 
-			set_direction_for_animation(tile, dir);
+			audio::set_listener_position(position);
 
-			// Switch statement to handle behavior based on the current state
+			char dir = get_direction(player.look_dir);
+
+			switch (dir) {
+			case 'r':
+				tile.flip_x = false;
+				tile.animation_flip_x_on_loop = false;
+				break;
+			case 'l':
+				dir = 'r';
+				tile.flip_x = true;
+				tile.animation_flip_x_on_loop = false;
+				break;
+			case 'u':
+			case 'd':
+				tile.animation_flip_x_on_loop = true;
+				break;
+			}
+
 			switch (player.state) {
 			case PlayerState::Normal: {
 
-				// UPDATE PHYSICS
-
-				sf::Vector2f movement_direction;
-				float movement_speed = 0.f;
+				sf::Vector2f new_move_dir;
+				float new_move_speed = 0.f;
 
 				if (player.input.axis_x || player.input.axis_y) {
-
-					// Determine movement direction
-					movement_direction.x = (float)player.input.axis_x;
-					movement_direction.y = (float)player.input.axis_y;
-					movement_direction = normalize(movement_direction);
-
-					// Determine movement speed
+					new_move_dir = normalize({
+						(float)player.input.axis_x,
+						(float)player.input.axis_y });
+					player.look_dir = new_move_dir;
 					if (player.input.stealth) {
-						movement_speed = PLAYER_STEALTH_SPEED;
-					}
-					else if (player.input.run) {
-						movement_speed = PLAYER_RUN_SPEED;
-					}
-					else {
-						movement_speed = PLAYER_WALK_SPEED;
+						new_move_speed = PLAYER_STEALTH_SPEED;
+					} else if (player.input.run) {
+						new_move_speed = PLAYER_RUN_SPEED;
+					} else {
+						new_move_speed = PLAYER_WALK_SPEED;
 					}
 				}
 
-				set_linear_velocity(body, movement_direction * movement_speed);
+				new_velocity = new_move_dir * new_move_speed;
 
-				if (!is_zero(movement_direction)) {
-					player.facing_direction = movement_direction;
-				}
-				// Handling arrow attack
 				if (player.input.fire_arrow && player.arrows > 0) {
-
-					tile.set("bow_shot_"s + dir); // Trigger bow shot animation
-					player.bow_shot_timer.start(); // Start the timer with 660 ms
+					tile.set_sprite("bow_shot_"s + dir);
+					player.bow_shot_timer.start();
 					tile.animation_loop = false; // Ensure that the animation will not loop
-					player.input.fire_arrow = false;
 					player.state = PlayerState::Attacking;
-				}
-				else if (player.input.drop_bomb && player.bombs > 0) {
-					create_bomb(player_position + player.facing_direction * 16.f);
+				} else if (player.input.drop_bomb && player.bombs > 0) {
+					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
-					player.input.drop_bomb = false;
-				}
-				else if (movement_speed >= PLAYER_RUN_SPEED) {
-					tile.set("run_"s + dir);
+				} else if (new_move_speed >= PLAYER_RUN_SPEED) {
+					tile.set_sprite("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
-				}
-				else if (movement_speed >= PLAYER_WALK_SPEED) {
-					tile.set("walk_"s + dir);
+				} else if (new_move_speed >= PLAYER_WALK_SPEED) {
+					tile.set_sprite("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
-				}
-				else {
-					tile.set("idle_"s + dir);
+				} else if (player.input.interact) {
+					_player_interact(position + player.look_dir * 16.f);
+				} else {
+					tile.set_sprite("idle_"s + dir);
 					tile.animation_loop = true;
 				}
 
-				// HANDLE INTERACTION
-
-				// TODO refactor sometime
-				if (player.input.interact) {
-					_player_interact(player_position + player.facing_direction * 16.f);
-				}
 			} break;
 			case PlayerState::Attacking: {
-				// Lock movement
-				set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
+				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 
 				if (player.bow_shot_timer.update(dt)) {
-					fire_arrow(player_position, player.facing_direction, 1);
+					fire_arrow(position, player.look_dir, 1);
 					player.arrows--;
 				}
 
@@ -293,25 +263,25 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dying: {
-				// Lock movement
-				set_linear_velocity(body, sf::Vector2f(0.f, 0.f));
+				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 
 				tile.animation_loop = false;
 
 				if (tile.animation_timer.finished()) {
-					tile.set("dead_"s + dir);
+					tile.set_sprite("dead_"s + dir);
 					kill_player(player_entity);
 					player.state = PlayerState::Dead;
 					break;
 				}
 				if (dir == 'd') dir = 'u';
-				tile.set("dying_"s + dir);
+				tile.set_sprite("dying_"s + dir);
 			} break;
 			case PlayerState::Dead: {
-				// The player is dead, no input or updates
-				// Wait for respawn or game over logic
+				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 			} break;
 			}
+
+			set_linear_velocity(body, new_velocity);
 
 			// UPDATE COLOR
 

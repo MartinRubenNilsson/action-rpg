@@ -29,7 +29,7 @@ namespace ecs
 	Tile::Tile(const tiled::Tile* tile)
 	{
 		assert(tile);
-		set(tile);
+		_set_sprite(tile);
 
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
@@ -39,7 +39,7 @@ namespace ecs
 		}
 	}
 
-	bool Tile::set(const tiled::Tile* tile)
+	bool Tile::_set_sprite(const tiled::Tile* tile)
 	{
 		if (!tile) return false;
 		if (tile == _tile) return false;
@@ -54,21 +54,21 @@ namespace ecs
 		return true;
 	}
 
-	bool Tile::set(const std::string& tile_class)
+	bool Tile::set_sprite(const std::string& tile_class)
 	{
 		if (!_tile) return false; // no tileset to look in
 		if (tile_class.empty()) return false;
 		if (tile_class == _tile->class_) return false;
-		return set(_tile->tileset->find_tile_by_class(tile_class));
+		return _set_sprite(_tile->tileset->find_tile_by_class(tile_class));
 	}
 
-	bool Tile::set(const std::string& tile_class, const std::string& tileset_name)
+	bool Tile::set_sprite(const std::string& tile_class, const std::string& tileset_name)
 	{
 		if (tile_class.empty() || tileset_name.empty()) return false;
 		if (_tile && tile_class == _tile->class_ && tileset_name == _tile->tileset->name) return false;
 		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset) return false;
-		return set(tileset->find_tile_by_class(tile_class));
+		return _set_sprite(tileset->find_tile_by_class(tile_class));
 	}
 
 	sf::Sprite Tile::get_sprite() const

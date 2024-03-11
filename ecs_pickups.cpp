@@ -32,7 +32,7 @@ namespace ecs
 		}
 
 		Tile& tile = emplace_tile(entity);
-		tile.set("arrow", "items1");
+		tile.set_sprite("arrow", "items1");
 		tile.position = position;
 		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 
@@ -62,7 +62,7 @@ namespace ecs
 		}
 
 		Tile& tile = emplace_tile(entity);
-		tile.set("rupee", "items1");
+		tile.set_sprite("rupee", "items1");
 		tile.position = position;
 		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 

@@ -45,9 +45,8 @@ namespace ecs
 		bool animation_flip_x_on_loop = false;
 
 		bool is_valid() const { return _tile; }
-		bool set(const tiled::Tile* tile);
-		bool set(const std::string& tile_class); // uses the current tileset
-		bool set(const std::string& tile_class, const std::string& tileset_name);
+		bool set_sprite(const std::string& tile_class); // uses the current tileset
+		bool set_sprite(const std::string& tile_class, const std::string& tileset_name);
 		sf::Sprite get_sprite() const;
 		std::string get_tile_class() const; 
 		std::string get_tileset_name() const;
@@ -61,6 +60,8 @@ namespace ecs
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_frame_index = 0;
 		uint32_t _animation_loop_count = 0; // unused right now
+
+		bool _set_sprite(const tiled::Tile* tile);
 	};
 
 	void update_tiles(float dt);

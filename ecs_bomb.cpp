@@ -55,7 +55,7 @@ namespace ecs
         // ... setup other necessary components like physics, tile, etc.
 
         Tile& tile = emplace_tile(bomb_entity);
-        tile.set("bomb", "items1");
+        tile.set_sprite("bomb", "items1");
         tile.position = position;
         tile.pivot = sf::Vector2f(6.f, 6.f);
 
