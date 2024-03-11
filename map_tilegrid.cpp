@@ -14,10 +14,11 @@ namespace map
 		};
 
 		sf::Vector2i position{ -1, -1 };
+		bool passable = true;
+		TerrainType terrains[tiled::WangTile::COUNT] = {};
 		sf::Vector2i parent{ -1, -1 };
 		float g = FLT_MAX;
 		float h = FLT_MAX;
-		bool passable = true;
 		State state = UNVISITED;
 	};
 
@@ -103,6 +104,17 @@ namespace map
 		return &_grid.tiles[position.x + position.y * _grid.size.x];
 	}
 
+	TerrainType _terrain_name_to_type(const std::string& name)
+	{
+		if (name == "dirt")          return TerrainType::Dirt;
+		if (name == "light grass")   return TerrainType::LightGrass;
+		if (name == "dark grass")    return TerrainType::DarkGrass;
+		if (name == "cobblestone")   return TerrainType::Cobblestone;
+		if (name == "shallow water") return TerrainType::ShallowWater;
+		if (name == "deep water")    return TerrainType::DeepWater;
+		return TerrainType::None;
+	}
+
 	void recreate_tilegrid(const tiled::Map& map)
 	{
 		_grid.size = sf::Vector2i(map.width, map.height);
@@ -110,16 +122,40 @@ namespace map
 		_grid.tiles.resize(_grid.size.x * _grid.size.y);
 		_grid.open_tiles.clear();
 
+		for (int y = 0; y < _grid.size.x; ++y) {
+			for (int x = 0; x < _grid.size.y; ++x) {
+				int index = x + y * _grid.size.x;
+				_grid.tiles[index].position = sf::Vector2i(x, y);
+				_grid.tiles[index].passable = true;
+			}
+		}
+
 		for (const tiled::Layer& layer : map.layers) {
-			if (layer.name != "Collision") continue;
-			for (int y = 0; y < _grid.size.x; ++y) {
-				for (int x = 0; x < _grid.size.y; ++x) {
-					int index = x + y * _grid.size.x;
-					_grid.tiles[index].position = sf::Vector2i(x, y);
-					_grid.tiles[index].passable = (layer.tiles[index].first == nullptr);
+			if (layer.tiles.size() != _grid.tiles.size())
+				continue;
+			if (layer.name == "Collision") {
+				for (int y = 0; y < _grid.size.x; ++y) {
+					for (int x = 0; x < _grid.size.y; ++x) {
+						int index = x + y * _grid.size.x;
+						_grid.tiles[index].passable = (layer.tiles[index].first == nullptr);
+					}
+				}
+			} else if (layer.name == "Under Sprite 1") {
+				for (int y = 0; y < _grid.size.x; ++y) {
+					for (int x = 0; x < _grid.size.y; ++x) {
+						int index = x + y * _grid.size.x;
+						const tiled::Tile* layer_tile = layer.tiles[index].first;
+						if (!layer_tile) continue;
+						if (layer_tile->wangtiles.empty()) continue;
+						const tiled::WangTile& wangtile = layer_tile->wangtiles[0];
+						Tile& grid_tile = _grid.tiles[index];
+						for (int i = 0; i < tiled::WangTile::COUNT; ++i) {
+							if (!wangtile.wangcolors[i]) continue;
+							grid_tile.terrains[i] = _terrain_name_to_type(wangtile.wangcolors[i]->name);
+						}
+					}
 				}
 			}
-			break;
 		}
 	}
 

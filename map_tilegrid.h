@@ -7,6 +7,17 @@ namespace tiled
 
 namespace map
 {
+	enum class TerrainType
+	{
+		None,
+		Dirt,
+		LightGrass,
+		DarkGrass,
+		Cobblestone,
+		ShallowWater,
+		DeepWater,
+	};
+
 	void recreate_tilegrid(const tiled::Map& map);
 
 	sf::Vector2i get_tilegrid_size(); // in tiles
