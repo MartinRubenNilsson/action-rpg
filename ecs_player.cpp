@@ -18,6 +18,7 @@
 #include "ecs_bomb.h"
 #include "character.h"
 #include "ecs_vfx.h"
+#include "debug_draw.h"
 
 using namespace std::literals::string_literals;
 
@@ -133,6 +134,7 @@ namespace ecs
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
+		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
 		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);

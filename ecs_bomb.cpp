@@ -1,13 +1,14 @@
+#include "stdafx.h"
 #include "ecs_bomb.h"
-#include <entt/entt.hpp>
 #include "ecs_tile.h"
 #include "ecs_common.h"
-#include "audio.h"
 #include "ecs_camera.h"
 #include "ecs_physics.h"
 #include "ecs_vfx.h"
-#include "postprocess.h"
 #include "ecs_player.h"
+#include "audio.h"
+#include "postprocess.h"
+#include "debug_draw.h"
 
 namespace ecs
 {
@@ -73,6 +74,7 @@ namespace ecs
         sf::Vector2f box_center = position;
         sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
         sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
+        debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
 
         for (const BoxHit& hit : boxcast(box_min, box_max)) {
             std::string class_ = get_class(hit.entity);

@@ -21,6 +21,14 @@ namespace debug
 		float lifetime = 0.f;
 	};
 
+	struct Box
+	{
+		sf::Vector2f min;
+		sf::Vector2f max;
+		sf::Color color = sf::Color::White;
+		float lifetime = 0.f;
+	};
+
 	struct Polygon
 	{
 		sf::Vector2f points[MAX_POLYGON_VERTICES];
@@ -32,7 +40,7 @@ namespace debug
 	struct Circle
 	{
 		sf::Vector2f center;
-		float radius;
+		float radius = 0.f;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
 	};
@@ -48,18 +56,11 @@ namespace debug
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
 	std::vector<Line> _lines;
+	std::vector<Box> _boxes;
 	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
 	std::vector<Text> _texts;
 
-	bool _cull_aabb(const ViewBounds& bounds, const sf::Vector2f& min, const sf::Vector2f& max)
-	{
-		if (max.x < bounds.min_x) return true;
-		if (min.x > bounds.max_x) return true;
-		if (max.y < bounds.min_y) return true;
-		if (min.y > bounds.max_y) return true;
-		return false;
-	}
 
 	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
 	{
@@ -67,6 +68,15 @@ namespace debug
 		if (p1.x > bounds.max_x && p2.x > bounds.max_x) return true;
 		if (p1.y < bounds.min_y && p2.y < bounds.min_y) return true;
 		if (p1.y > bounds.max_y && p2.y > bounds.max_y) return true;
+		return false;
+	}
+
+	bool _cull_box(const ViewBounds& bounds, const sf::Vector2f& min, const sf::Vector2f& max)
+	{
+		if (max.x < bounds.min_x) return true;
+		if (min.x > bounds.max_x) return true;
+		if (max.y < bounds.min_y) return true;
+		if (min.y > bounds.max_y) return true;
 		return false;
 	}
 
@@ -81,7 +91,7 @@ namespace debug
 			max.x = std::max(max.x, points[i].x);
 			max.y = std::max(max.y, points[i].y);
 		}
-		return _cull_aabb(bounds, min, max);
+		return _cull_box(bounds, min, max);
 	}
 
 	bool _cull_circle(const ViewBounds& bounds, const sf::Vector2f& center, float radius)
@@ -113,6 +123,7 @@ namespace debug
 	void update(float dt)
 	{
 		_update(_lines, dt);
+		_update(_boxes, dt);
 		_update(_polygons, dt);
 		_update(_circles, dt);
 		_update(_texts, dt);
@@ -130,6 +141,24 @@ namespace debug
 			vertices[0].color = line.color;
 			vertices[1].color = line.color;
 			target.draw(vertices, 2, sf::Lines);
+		}
+	}
+
+	void _render_boxes(sf::RenderTarget& target)
+	{
+		if (_boxes.empty()) return;
+		sf::Vertex vertices[5];
+		for (const Box& box : _boxes) {
+			if (_cull_box(_last_calculated_view_bounds, box.min, box.max))
+				continue;
+			vertices[0].position = { box.min.x, box.min.y };
+			vertices[1].position = { box.max.x, box.min.y };
+			vertices[2].position = { box.max.x, box.max.y };
+			vertices[3].position = { box.min.x, box.max.y };
+			vertices[4].position = { box.min.x, box.min.y };
+			for (size_t i = 0; i < 5; ++i)
+				vertices[i].color = box.color;
+			target.draw(vertices, 5, sf::LineStrip);
 		}
 	}
 
@@ -197,6 +226,7 @@ namespace debug
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 
 		_render_lines(target);
+		_render_boxes(target);
 		_render_polygons(target);
 		_render_circles(target);
 		_render_texts(target);
@@ -208,9 +238,10 @@ namespace debug
 		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void draw_rect(const sf::FloatRect& rect, const sf::Color& color, float lifetime)
+	void draw_box(const sf::Vector2f& min, const sf::Vector2f& max, const sf::Color& color, float lifetime)
 	{
-		// TODO: implmenet
+		if (lifetime <= 0.f && _cull_box(_last_calculated_view_bounds, min, max)) return;
+		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
 	void draw_polygon(const sf::Vector2f* points, size_t count, const sf::Color& color, float lifetime)
@@ -239,6 +270,9 @@ namespace debug
 	void update(float) {}
 	void render(sf::RenderTarget&) {}
 	void draw_line(const Line&) {}
+	void draw_box(const Box&) {}
+	void draw_polygon(const Polygon&) {}
+	void draw_circle(const Circle&) {}
 	void draw_text(const Text&) {}
 #endif
 }
