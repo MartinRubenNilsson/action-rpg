@@ -30,16 +30,61 @@ namespace ecs
 	const float PLAYER_STEALTH_SPEED = 36.f;
 	const float ARROW_SPEED = 160.f;
 
-	void process_event_player(const sf::Event& ev)
+	void process_player_events(const sf::Event& ev)
 	{
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			if (ev.type == sf::Event::KeyPressed) {
-				if (ev.key.code == sf::Keyboard::C)
+				switch (ev.key.code) {
+				case sf::Keyboard::Left:
+					player.input.axis_x--;
+					break;
+				case sf::Keyboard::Right:
+					player.input.axis_x++;
+					break;
+				case sf::Keyboard::Up:
+					player.input.axis_y--;
+					break;
+				case sf::Keyboard::Down:
+					player.input.axis_y++;
+					break;
+				case sf::Keyboard::LShift:
+					player.input.run = true;
+					break;
+				case sf::Keyboard::LControl:
+					player.input.stealth = true;
+					break;
+				case sf::Keyboard::C:
 					player.input.interact = true;
-				if (ev.key.code == sf::Keyboard::Z)
-					player.input.arrow_attack = true;
-				if (ev.key.code == sf::Keyboard::B)
+					break;
+				case sf::Keyboard::X:
+					player.input.fire_arrow = true;
+					break;
+				case sf::Keyboard::Z:
 					player.input.drop_bomb = true;
+					break;
+
+				}
+			} else if (ev.type == sf::Event::KeyReleased) {
+				switch (ev.key.code) {
+				case sf::Keyboard::Left:
+					player.input.axis_x++;
+					break;
+				case sf::Keyboard::Right:
+					player.input.axis_x--;
+					break;
+				case sf::Keyboard::Up:
+					player.input.axis_y++;
+					break;
+				case sf::Keyboard::Down:
+					player.input.axis_y--;
+					break;
+				case sf::Keyboard::LShift:
+					player.input.run = false;
+					break;
+				case sf::Keyboard::LControl:
+					player.input.stealth = false;
+					break;
+				}
 			}
 		}
 	}
@@ -140,8 +185,13 @@ namespace ecs
 
 	void update_players(float dt)
 	{
-		for (auto [player_entity, player, body, tile] :
-			_registry.view<Player, b2Body*, Tile>().each()) {
+		const bool player_accepts_input = (window::has_focus() && !console::has_focus());
+
+		for (auto [player_entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
+
+			if (!player_accepts_input) {
+				player.input = {};
+			}
 
 			const sf::Vector2f player_position = get_world_center(body);
 			const sf::Vector2f player_velocity = get_linear_velocity(body);
@@ -153,17 +203,6 @@ namespace ecs
 			// UPDATE TIMERS
 
 			player.hurt_timer.update(dt);
-
-			// UPDATE INPUT
-
-			if (window::has_focus() && !console::has_focus()) {
-				player.input.axis_x -= sf::Keyboard::isKeyPressed(sf::Keyboard::Left);
-				player.input.axis_x += sf::Keyboard::isKeyPressed(sf::Keyboard::Right);
-				player.input.axis_y -= sf::Keyboard::isKeyPressed(sf::Keyboard::Up);
-				player.input.axis_y += sf::Keyboard::isKeyPressed(sf::Keyboard::Down);
-				player.input.run = sf::Keyboard::isKeyPressed(sf::Keyboard::X);
-				player.input.stealth = sf::Keyboard::isKeyPressed(sf::Keyboard::V);
-			}
 
 			char dir = get_direction(player.facing_direction);
 
@@ -203,12 +242,12 @@ namespace ecs
 					player.facing_direction = movement_direction;
 				}
 				// Handling arrow attack
-				if (player.input.arrow_attack && player.arrows > 0) {
+				if (player.input.fire_arrow && player.arrows > 0) {
 
 					tile.set("bow_shot_"s + dir); // Trigger bow shot animation
 					player.bow_shot_timer.start(); // Start the timer with 660 ms
 					tile.animation_loop = false; // Ensure that the animation will not loop
-					player.input.arrow_attack = false;
+					player.input.fire_arrow = false;
 					player.state = PlayerState::Attacking;
 				}
 				else if (player.input.drop_bomb && player.bombs > 0) {
@@ -292,7 +331,9 @@ namespace ecs
 
 			// CLEAR INPUT
 
-			player.input = {};
+			player.input.interact = false;
+			player.input.fire_arrow = false;
+			player.input.drop_bomb = false;
 		}
 	}
 
@@ -339,8 +380,8 @@ namespace ecs
 		_registry.emplace_or_replace<Player>(entity, player);
 	}
 
-	void remove_player(entt::entity entity) {
-		_registry.remove<Player>(entity);
+	bool remove_player(entt::entity entity) {
+		return _registry.remove<Player>(entity);
 	}
 
 	bool kill_player(entt::entity entity)

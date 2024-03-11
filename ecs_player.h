@@ -18,7 +18,7 @@ namespace ecs
 		bool run = false;
 		bool stealth = false;
 		bool interact = false;
-		bool arrow_attack = false; 
+		bool fire_arrow = false; 
 		bool drop_bomb = false;
 	};
 
@@ -35,12 +35,12 @@ namespace ecs
 		int rupees = 10;
 	};
 
-	void process_event_player(const sf::Event& ev);
+	void process_player_events(const sf::Event& ev);
 	void update_players(float dt);
 	void debug_draw_players();
 
 	void emplace_player(entt::entity entity, const Player& player = Player());
-	void remove_player(entt::entity entity);
+	bool remove_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);
 	bool hurt_player(entt::entity entity, int health_to_remove);
