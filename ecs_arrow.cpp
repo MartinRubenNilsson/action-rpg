@@ -26,12 +26,10 @@ namespace ecs
 		{
 			b2BodyDef body_def{};
 			body_def.type = b2_dynamicBody;
-			body_def.position.Set(position.x, position.y); // Set the offset position here
+			body_def.position.Set(position.x, position.y);
 			b2Body* body = emplace_body(entity, body_def);
 
 			b2CircleShape shape{};
-			shape.m_p.x = 0;
-			shape.m_p.y = 0;
 			shape.m_radius = 6.f;
 			b2FixtureDef fixture_def{};
 			fixture_def.shape = &shape;
