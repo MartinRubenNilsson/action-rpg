@@ -271,6 +271,9 @@
     <ClCompile Include="ecs_arrow.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="map_entities.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -737,6 +740,9 @@
     </ClInclude>
     <ClInclude Include="steam_server.h">
       <Filter>steam</Filter>
+    </ClInclude>
+    <ClInclude Include="map_entities.h">
+      <Filter>map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -10,6 +10,7 @@ namespace map
 	void reset();
 	void update();
 
+	bool is_open();
 	std::string get_name();
 	sf::FloatRect get_world_bounds();
 }

@@ -117,7 +117,7 @@ namespace map
 		return TerrainType::None;
 	}
 
-	void recreate_tilegrid(const tiled::Map& map)
+	void create_tilegrid(const tiled::Map& map)
 	{
 		_grid.size = sf::Vector2i(map.width, map.height);
 		_grid.tile_size = sf::Vector2i(map.tile_width, map.tile_height);
@@ -159,6 +159,10 @@ namespace map
 				}
 			}
 		}
+	}
+
+	void destroy_tilegrid() {
+		_grid = TileGrid();
 	}
 
 	sf::Vector2i get_grid_size() {

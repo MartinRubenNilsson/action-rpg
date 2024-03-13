@@ -18,13 +18,12 @@ namespace map
 		DeepWater,
 	};
 
-	void recreate_tilegrid(const tiled::Map& map);
+	void create_tilegrid(const tiled::Map& map);
+	void destroy_tilegrid();
 
 	sf::Vector2i get_grid_size(); // in tiles
 	sf::Vector2i get_tile_size(); // in pixels
-
 	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos);
-
 	std::vector<sf::Vector2i> pathfind(const sf::Vector2i& start, const sf::Vector2i& end);
 	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end);
 }
