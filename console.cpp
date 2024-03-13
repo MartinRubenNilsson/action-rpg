@@ -228,13 +228,19 @@ namespace console
 	void set_visible(bool visible)
 	{
 		_visible = visible;
-		if (_visible) _reclaim_focus = true;
+		if (_visible)
+			_reclaim_focus = true;
+		else
+			_has_focus = false;
 	}
 
 	void toggle_visible()
 	{
 		_visible = !_visible;
-		if (_visible) _reclaim_focus = true;
+		if (_visible)
+			_reclaim_focus = true;
+		else
+			_has_focus = false;
 	}
 
 	bool has_focus() {

@@ -76,10 +76,10 @@ namespace map
 		TilePriorityQueue open_tiles;
 	};
 
+	// The order of these directions has been chosen to minimize cache misses
+	// when iterating over the array while pathfinding, so don't change it.
 	const sf::Vector2i _ALLOWED_MOVEMENT_DIRECTIONS[] =
 	{
-		// The order of these directions has been chosen to minimize cache misses
-		// when iterating over the array while pathfinding, so don't change it.
 		sf::Vector2i(-1, -1),
 		sf::Vector2i( 0, -1),
 		sf::Vector2i( 1, -1),
@@ -173,11 +173,18 @@ namespace map
 		return _grid.tile_size;
 	}
 
+	sf::Vector2f world_to_grid(const sf::Vector2f& world_pos)
+	{
+		if (!_grid.tile_size.x || !_grid.tile_size.y)
+			return sf::Vector2f(-1, -1); // Invalid tile size (grid not initialized?)
+		return world_pos / sf::Vector2f(_grid.tile_size);
+	}
+
 	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos)
 	{
-		sf::Vector2f pos = world_pos / sf::Vector2f(_grid.tile_size);
-		sf::Vector2i floored_pos((int)floor(pos.x), (int)floor(pos.y));
-		Tile* tile = _try_get_tile(floored_pos);
+		sf::Vector2f pos = world_to_grid(world_pos);
+		sf::Vector2f floored_pos = sf::Vector2f(std::floor(pos.x), std::floor(pos.y));
+		Tile* tile = _try_get_tile(sf::Vector2i(floored_pos));
 		if (!tile) return TerrainType::None;
 		const bool left = (pos.x - floored_pos.x) < 0.5f;
 		const bool top = (pos.y - floored_pos.y) < 0.5f;

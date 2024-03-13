@@ -90,6 +90,7 @@ namespace ecs
 		}
 	}
 
+	// TODO: Put in a separate file
 	void _player_interact(sf::Vector2f position)
 	{
 		sf::Vector2f box_center = position;
@@ -101,19 +102,17 @@ namespace ecs
 			std::string class_ = get_class(hit.entity);
 			if (class_ == "slime") {
 				destroy_at_end_of_frame(hit.entity);
-			}
-			else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
+			} else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
 				std::string tile_class = tile->get_tile_class();
 				if (tile_class == "grass") {
 					audio_events_to_play.insert("event:/snd_cut_grass");
 					if (random::chance(0.2f))
 						create_arrow_pickup(tile->position + sf::Vector2f(2.f, 2.f));
-					if (random::chance(0.9f))
+					else if (random::chance(0.2f))
 						create_rupee_pickup(tile->position + sf::Vector2f(2.f, 2.f));
 					destroy_at_end_of_frame(hit.entity);
 				}
-			}
-			else {
+			} else {
 				std::string string;
 				if (get_string(hit.entity, "textbox", string)) {
 					ui::push_textbox_presets(string);
