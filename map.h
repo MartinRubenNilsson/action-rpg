@@ -11,8 +11,5 @@ namespace map
 	void update();
 
 	std::string get_name();
-	sf::IntRect get_tile_bounds();
 	sf::FloatRect get_world_bounds();
-
-	bool play_footstep_sound_at(const sf::Vector2f& position);
 }

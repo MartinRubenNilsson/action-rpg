@@ -268,6 +268,9 @@
     <ClCompile Include="console_commands_steam.cpp">
       <Filter>console</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_arrow.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

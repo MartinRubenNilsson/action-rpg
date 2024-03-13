@@ -3,21 +3,20 @@
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_arrow.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
+#include "ecs_pickups.h"
+#include "ecs_bomb.h"
+#include "ecs_vfx.h"
 #include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"
 #include "window.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
-#include "ecs_arrow.h"
-#include "ecs_pickups.h"
 #include "random.h"
-#include "tiled.h"
-#include "ecs_bomb.h"
 #include "character.h"
-#include "ecs_vfx.h"
 #include "debug_draw.h"
 #include "map_tilegrid.h"
 
@@ -27,10 +26,10 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	const float PLAYER_WALK_SPEED = 72.f;
-	const float PLAYER_RUN_SPEED = 136.f;
-	const float PLAYER_STEALTH_SPEED = 36.f;
-	const float ARROW_SPEED = 160.f;
+	const float _PLAYER_WALK_SPEED = 72.f;
+	const float _PLAYER_RUN_SPEED = 136.f;
+	const float _PLAYER_STEALTH_SPEED = 36.f;
+	const float _PLAYER_ARROW_SPEED = 160.f;
 
 	void process_player_events(const sf::Event& ev)
 	{
@@ -89,45 +88,6 @@ namespace ecs
 				}
 			}
 		}
-	}
-
-	void fire_arrow(const sf::Vector2f& position, const sf::Vector2f& direction, int damage) {
-		// Calculate the offset position
-		float offsetDistance = 1.0f; // Adjust this value as needed
-		sf::Vector2f offset = normalize(direction) * offsetDistance;
-		sf::Vector2f fire_position = position + offset;
-
-		entt::entity arrow_entity = _registry.create();
-		set_class(arrow_entity, "arrow");
-
-		// Setup the Arrow component
-		Arrow arrow = { damage, 5.0f };
-		_registry.emplace<Arrow>(arrow_entity, arrow);
-
-		// Create a physics body for the arrow
-		b2BodyDef bodyDef;
-		bodyDef.type = b2_dynamicBody;
-		bodyDef.position.Set(fire_position.x, fire_position.y); // Set the offset position here
-		b2Body* body = emplace_body(arrow_entity, bodyDef);
-		b2CircleShape shape;
-		shape.m_p.x = 0;
-		shape.m_p.y = 0;
-		shape.m_radius = 6.f;
-		b2FixtureDef fixture_def;
-		fixture_def.shape = &shape;
-		fixture_def.density = 1.f;
-		fixture_def.filter = get_filter_for_class("arrow");
-		body->CreateFixture(&fixture_def);
-
-		// Set the velocity of the arrow
-		sf::Vector2f arrow_velocity = normalize(direction) * ARROW_SPEED;
-		body->SetLinearVelocity(b2Vec2(arrow_velocity.x, arrow_velocity.y));
-
-		audio::play("event:/snd_glass_smash");
-
-		Tile& tile = emplace_tile(arrow_entity);
-		tile.set_sprite("arrow", "items1");
-		tile.pivot = sf::Vector2f(6.f, 6.f);
 	}
 
 	void _player_interact(sf::Vector2f position)
@@ -217,11 +177,11 @@ namespace ecs
 						(float)player.input.axis_y });
 					player.look_dir = new_move_dir;
 					if (player.input.stealth) {
-						new_move_speed = PLAYER_STEALTH_SPEED;
+						new_move_speed = _PLAYER_STEALTH_SPEED;
 					} else if (player.input.run) {
-						new_move_speed = PLAYER_RUN_SPEED;
+						new_move_speed = _PLAYER_RUN_SPEED;
 					} else {
-						new_move_speed = PLAYER_WALK_SPEED;
+						new_move_speed = _PLAYER_WALK_SPEED;
 					}
 				}
 
@@ -235,11 +195,11 @@ namespace ecs
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
-				} else if (new_move_speed >= PLAYER_RUN_SPEED) {
+				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 					tile.set_sprite("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
-				} else if (new_move_speed >= PLAYER_WALK_SPEED) {
+				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_sprite("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
@@ -254,15 +214,17 @@ namespace ecs
 			case PlayerState::Attacking: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 
-				if (player.bow_shot_timer.update(dt)) {
-					fire_arrow(position, player.look_dir, 1);
+				// Fire an arrow a while after the animation starts.
+				if (player.bow_shot_timer.update(dt) && player.arrows > 0) {
 					player.arrows--;
+					create_arrow(
+						position + player.look_dir * 16.f,
+						player.look_dir * _PLAYER_ARROW_SPEED);
 				}
 
-				//if (player.bow_shot_timer.update(dt)) {
+				// When animation is done, we are done attacking.
 				if (tile.animation_timer.finished()) {
-					// Fire the arrow and then...
-					player.state = PlayerState::Normal; // Go back to normal after attack
+					player.state = PlayerState::Normal;
 				}
 			} break;
 			case PlayerState::Dying: {
@@ -286,14 +248,15 @@ namespace ecs
 
 			set_linear_velocity(body, new_velocity);
 
-			// UPDATE COLOR
-
-			sf::Color color = sf::Color::White;
-			if (player.hurt_timer.running()) {
-				float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
-				color.a = (sf::Uint8)(255 * fraction);
+			// UPDATE TILE COLOR
+			{
+				sf::Color color = sf::Color::White;
+				if (player.hurt_timer.running()) {
+					float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
+					color.a = (sf::Uint8)(255 * fraction);
+				}
+				tile.color = color;
 			}
-			tile.color = color;
 
 			// UPDATE HUD
 

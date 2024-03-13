@@ -200,6 +200,7 @@
     <ClCompile Include="ecs_ai_action.cpp" />
     <ClCompile Include="ecs_ai.cpp" />
     <ClCompile Include="ecs_ai_knowledge.cpp" />
+    <ClCompile Include="ecs_arrow.cpp" />
     <ClCompile Include="ecs_bomb.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
     <ClCompile Include="ecs_physics_contacts.cpp" />

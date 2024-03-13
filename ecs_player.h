@@ -26,7 +26,7 @@ namespace ecs
 	{
 		PlayerInput input;
 		PlayerState state = PlayerState::Normal;
-		sf::Vector2f look_dir; // The direction the player is facing
+		sf::Vector2f look_dir = { 0.f, 1.f };
 		Timer hurt_timer = { 1.f };
 		Timer bow_shot_timer = { 0.66f };
 		int health = 3;

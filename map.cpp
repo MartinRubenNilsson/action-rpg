@@ -46,7 +46,7 @@ namespace map
 		_request = Request::Reset;
 	}
 
-	const tiled::Map* find_map(const std::string& map_name)
+	const tiled::Map* _find_tiled_map_by_name(const std::string& map_name)
 	{
 		for (const tiled::Map& map : tiled::get_maps())
 			if (map.name == map_name)
@@ -62,7 +62,7 @@ namespace map
 		case Request::None:
 			return;
 		case Request::Open:
-			next_map = find_map(_name_of_map_to_open);
+			next_map = _find_tiled_map_by_name(_name_of_map_to_open);
 			if (!next_map)
 				console::log_error("Map not found: " + _name_of_map_to_open);
 			break;
@@ -377,48 +377,11 @@ namespace map
 		return _map ? _map->name : "";
 	}
 
-	sf::IntRect get_tile_bounds()
-	{
-		if (!_map) return sf::IntRect();
-		return sf::IntRect(0, 0, (int)_map->width, (int)_map->height);
-	}
-
 	sf::FloatRect get_world_bounds()
 	{
 		if (!_map) return sf::FloatRect();
 		return sf::FloatRect(0.f, 0.f,
 			(float)_map->width * _map->tile_width,
 			(float)_map->height * _map->tile_height);
-	}
-
-	bool play_footstep_sound_at(const sf::Vector2f& position)
-	{
-		if (!_map) return false;
-		if (position.x < 0.f || position.y < 0.f) return false;
-		const uint32_t x = (uint32_t)position.x;
-		const uint32_t y = (uint32_t)position.y;
-		const bool left = (position.x - (float)x) < 0.5f;
-		const bool top  = (position.y - (float)y) < 0.5f;
-		const int corner =
-			top ? (left ? tiled::WangTile::TOP_LEFT    : tiled::WangTile::TOP_RIGHT)
-			    : (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
-		for (const tiled::Layer& layer : std::ranges::reverse_view(_map->layers)) {
-			if (x >= layer.width || y >= layer.height) continue;
-			const auto [tile, flip_flags] = layer.tiles[y * layer.width + x];
-			//TODO: take into account flip flags?
-			if (!tile) continue;
-			for (const tiled::WangTile& wangtile : tile->wangtiles) {
-				const tiled::WangColor* wangcolor = wangtile.wangcolors[corner];
-				if (!wangcolor) continue;
-				if (wangcolor->name.empty()) continue;
-				bool is_logging_errors = audio::log_errors;
-				audio::log_errors = false; // so we don't get spammed with errors
-				if (audio::set_parameter_label("terrain", wangcolor->name))
-					audio::play("event:/snd_step");
-				audio::log_errors = is_logging_errors;
-				return true;
-			}
-		}
-		return false;
 	}
 }
