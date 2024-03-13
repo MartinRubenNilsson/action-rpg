@@ -105,7 +105,7 @@ namespace map
 		return &_grid.tiles[position.x + position.y * _grid.size.x];
 	}
 
-	TerrainType _terrain_name_to_type(const std::string& name)
+	TerrainType _tiled_terrain_name_to_type(const std::string& name)
 	{
 		if (name == "dirt")          return TerrainType::Dirt;
 		if (name == "light grass")   return TerrainType::LightGrass;
@@ -115,6 +115,10 @@ namespace map
 		if (name == "deep water")    return TerrainType::DeepWater;
 		console::log_error("Unknown terrain type: " + name);
 		return TerrainType::None;
+	}
+
+	std::string to_string(TerrainType type) {
+		return std::string(magic_enum::enum_name(type));
 	}
 
 	void create_tilegrid(const tiled::Map& map)
@@ -153,7 +157,7 @@ namespace map
 						Tile& grid_tile = _grid.tiles[index];
 						for (int i = 0; i < tiled::WangTile::COUNT; ++i) {
 							if (!wangtile.wangcolors[i]) continue;
-							grid_tile.terrains[i] = _terrain_name_to_type(wangtile.wangcolors[i]->name);
+							grid_tile.terrains[i] = _tiled_terrain_name_to_type(wangtile.wangcolors[i]->name);
 						}
 					}
 				}

@@ -18,6 +18,8 @@ namespace map
 		DeepWater,
 	};
 
+	std::string to_string(TerrainType type);
+
 	void create_tilegrid(const tiled::Map& map);
 	void destroy_tilegrid();
 

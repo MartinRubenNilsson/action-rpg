@@ -146,6 +146,30 @@ namespace ecs
 
 			audio::set_listener_position(position);
 
+			// HANDLE TERRAIN
+
+			const map::TerrainType terrain = map::get_terrain_type_at(position);
+
+			switch (terrain) {
+			case map::TerrainType::None:
+				break; // TODO
+			case map::TerrainType::Dirt:
+				break; // TODO
+			case map::TerrainType::LightGrass:
+				break; // TODO
+			case map::TerrainType::DarkGrass:
+				break; // TODO
+			case map::TerrainType::Cobblestone:
+				break; // TODO
+			case map::TerrainType::ShallowWater:
+				break; // TODO
+			case map::TerrainType::DeepWater:
+				break; // TODO
+			default: {
+				console::log_error("Unknown terrain type: " + map::to_string(terrain));
+			} break;
+			}
+
 			char dir = get_direction(player.look_dir);
 
 			switch (dir) {
@@ -279,7 +303,7 @@ namespace ecs
 		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
 			sf::Vector2f position = get_world_center(body);
 			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
-			ImGui::Text("Terrain: %s", magic_enum::enum_name(map::get_terrain_type_at(position)).data());
+			ImGui::Text("Terrain: %s", map::to_string(map::get_terrain_type_at(position)).c_str());
 		}
 
 		for (auto [entity, player] : _registry.view<Player>().each()) {
@@ -288,7 +312,6 @@ namespace ecs
 			ImGui::Text("Health: %d", player.health);
 			ImGui::Text("Arrows: %d", player.arrows);
 			ImGui::Text("Rupees: %d", player.rupees);
-			
 			
 			if (ImGui::Button("Hurt"))
 				hurt_player(entity, 1);
