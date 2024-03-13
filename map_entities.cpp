@@ -16,9 +16,9 @@ namespace map
 {
 	void create_entities(const tiled::Map& map)
 	{
-		sf::FloatRect map_bounds{};
-		map_bounds.width = (float)map.width * map.tile_width;
-		map_bounds.height = (float)map.height * map.tile_height;
+		const sf::FloatRect map_bounds{ 0.f, 0.f,
+			(float)map.width * map.tile_width,
+			(float)map.height * map.tile_height };
 
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
@@ -76,8 +76,7 @@ namespace map
 							b2Vec2 collider_center(collider_x + collider_hw, collider_y + collider_hh);
 
 							switch (collider.type) {
-							case tiled::ObjectType::Rectangle:
-							{
+							case tiled::ObjectType::Rectangle: {
 								b2PolygonShape shape;
 								shape.SetAsBox(collider_hw, collider_hh, collider_center, 0.f);
 								b2FixtureDef fixture_def;
@@ -85,10 +84,8 @@ namespace map
 								fixture_def.density = 1.f;
 								fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								body->CreateFixture(&fixture_def);
-								break;
-							}
-							case tiled::ObjectType::Ellipse:
-							{
+							} break;
+							case tiled::ObjectType::Ellipse: {
 								b2CircleShape shape;
 								shape.m_p = collider_center;
 								shape.m_radius = collider_hw;
@@ -97,8 +94,7 @@ namespace map
 								fixture_def.density = 1.f;
 								fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								body->CreateFixture(&fixture_def);
-								break;
-							}
+							} break;
 							}
 						}
 					}
@@ -118,8 +114,7 @@ namespace map
 					b2Vec2 center(hw, hh);
 
 					switch (object.type) {
-					case tiled::ObjectType::Rectangle:
-					{
+					case tiled::ObjectType::Rectangle: {
 						b2PolygonShape shape;
 						shape.SetAsBox(hw, hh, center, 0.f);
 						b2FixtureDef fixture_def;
@@ -127,10 +122,8 @@ namespace map
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
 						body->CreateFixture(&fixture_def);
-						break;
-					}
-					case tiled::ObjectType::Ellipse:
-					{
+					} break;
+					case tiled::ObjectType::Ellipse: {
 						b2CircleShape shape;
 						shape.m_p = center;
 						shape.m_radius = hw;
@@ -139,8 +132,7 @@ namespace map
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
 						body->CreateFixture(&fixture_def);
-						break;
-					}
+					} break;
 					}
 				}
 
@@ -229,27 +221,22 @@ namespace map
 						collider.properties.get_bool("sensor", fixture_def.isSensor);
 
 						switch (collider.type) {
-						case tiled::ObjectType::Rectangle:
-						{
+						case tiled::ObjectType::Rectangle: {
 							b2PolygonShape shape;
 							shape.SetAsBox(collider_hw, collider_hh,
 								b2Vec2(collider_cx + collider_hw, collider_cy + collider_hh), 0.f);
 							fixture_def.shape = &shape;
 							body->CreateFixture(&fixture_def);
-							break;
-						}
-						case tiled::ObjectType::Ellipse:
-						{
+						} break;
+						case tiled::ObjectType::Ellipse: {
 							b2CircleShape shape;
 							shape.m_p.x = collider_cx;
 							shape.m_p.y = collider_cy;
 							shape.m_radius = collider_hw;
 							fixture_def.shape = &shape;
 							body->CreateFixture(&fixture_def);
-							break;
-						}
-						case tiled::ObjectType::Polygon:
-						{
+						} break;
+						case tiled::ObjectType::Polygon: {
 							size_t count = collider.points.size();
 							if (count < 3) {
 								console::log_error(
@@ -277,8 +264,7 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								}
-							}
-							break;
+							} break;
 						}
 						}
 					}
