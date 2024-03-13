@@ -9,6 +9,7 @@
 namespace steam
 {
 	const uint32_t _APP_ID = 0; // Invalid ID for now
+	bool _is_initialized = false;
 	bool _is_overlay_active = false;
 
 	bool restart_app_if_necessary() {
@@ -21,20 +22,24 @@ namespace steam
 
 	bool initialize()
 	{
-		if (!SteamAPI_Init())
-			return false;
+		if (_is_initialized) return false;
+		if (!SteamAPI_Init()) return false;
 		SteamAPI_ManualDispatch_Init();
+		_is_initialized = true;
 		return true;
 	}
 
 	void shutdown()
 	{
+		if (!_is_initialized) return;
 		SteamAPI_Shutdown();
 		server_shutdown();
+		_is_initialized = false;
 	}
 
 	void run_message_loop()
 	{
+		if (!_is_initialized) return;
 		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
 		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
 		CallbackMsg_t callback{};
@@ -81,12 +86,14 @@ namespace steam
 
 	std::string get_steam_id()
 	{
+		if (!SteamUser()) return {};
 		CSteamID steam_id = SteamUser()->GetSteamID();
 		return std::to_string(steam_id.ConvertToUint64());
 	}
 
 	std::vector<std::string> get_friends_persona_names()
 	{
+		if (!SteamFriends()) return {};
 		std::vector<std::string> names;
 		int friends_count = SteamFriends()->GetFriendCount(k_EFriendFlagImmediate);
 		for (int i = 0; i < friends_count; i++) {
