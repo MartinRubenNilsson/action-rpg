@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{2394e338-3ecf-4de4-8f08-2d5b667df442}">
+		<property name="assetPath">
+			<value>snd_step_dirt2.ogg</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.37485260770975054</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{4e61cbb7-ccd0-44ba-a9d9-fc01c676f119}</destination>
+		</relationship>
+	</object>
+</objects>
