@@ -48,19 +48,19 @@ namespace ecs
 
     entt::entity create_bomb(const sf::Vector2f& position)
     {
-        entt::entity bomb_entity = _registry.create();
-        // Add a Bomb component
-        Bomb bomb = {};
-        bomb.timer.start();
-        _registry.emplace<Bomb>(bomb_entity, bomb);
-        // ... setup other necessary components like physics, tile, etc.
-
-        Tile& tile = emplace_tile(bomb_entity);
-        tile.set_sprite("bomb", "items1");
-        tile.position = position;
-        tile.pivot = sf::Vector2f(6.f, 6.f);
-
-        return bomb_entity;
+        entt::entity entity = _registry.create();
+        {
+            Bomb& bomb = _registry.emplace<Bomb>(entity);
+            bomb.timer.start();
+        }
+        {
+            Tile& tile = emplace_tile(entity);
+            tile.set_sprite("bomb", "items1");
+            tile.position = position;
+            tile.pivot = sf::Vector2f(8.f, 16.f);
+            tile.sorting_pivot = sf::Vector2f(8.f, 16.f);
+        }
+        return entity;
     }
 
     void explode_bomb(entt::entity bomb_entity, float blast_radius, const sf::Vector2f& position)
