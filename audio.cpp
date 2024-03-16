@@ -12,16 +12,19 @@
 
 namespace audio
 {
+	const int INVALID_EVENT_ID = -1;
+	const std::string BUS_MASTER = "bus:/";
+	const std::string BUS_SOUND = "bus:/sound";
+	const std::string BUS_MUSIC = "bus:/music";
+	const float _PIXELS_PER_METER = 16.f;
+
 	bool log_errors =
 #ifdef _DEBUG
 		true;
 #else
 		false;
 #endif
-	const std::string BUS_MASTER = "bus:/";
-	const std::string BUS_SOUND = "bus:/sound";
-	const std::string BUS_MUSIC = "bus:/music";
-	const float _PIXELS_PER_METER = 16.f;
+
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
 	int _next_event_id = 0;
@@ -211,9 +214,9 @@ namespace audio
 	int play(const std::string& event_path)
 	{
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return -1;
+		if (!desc) return INVALID_EVENT_ID;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
-		if (!instance) return -1;
+		if (!instance) return INVALID_EVENT_ID;
 		int event_id = _next_event_id++;
 		_event_id_to_instance[event_id] = instance;
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
@@ -223,7 +226,9 @@ namespace audio
 		return event_id;
 	}
 
-	bool is_valid(int event_id) {
+	bool is_valid(int event_id)
+	{
+		if (event_id == INVALID_EVENT_ID) return false;
 		return _event_id_to_instance.contains(event_id);
 	}
 

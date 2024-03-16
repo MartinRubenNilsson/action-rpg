@@ -149,26 +149,7 @@ namespace ecs
 			// HANDLE TERRAIN
 
 			const map::TerrainType terrain = map::get_terrain_type_at(position);
-
-			switch (terrain) {
-			case map::TerrainType::None:
-				break; // TODO
-			case map::TerrainType::Dirt:
-				break; // TODO
-			case map::TerrainType::LightGrass:
-				break; // TODO
-			case map::TerrainType::DarkGrass:
-				break; // TODO
-			case map::TerrainType::Cobblestone:
-				break; // TODO
-			case map::TerrainType::ShallowWater:
-				break; // TODO
-			case map::TerrainType::DeepWater:
-				break; // TODO
-			default: {
-				console::log_error("Unknown terrain type: " + map::to_string(terrain));
-			} break;
-			}
+			audio::set_parameter_label("terrain", map::to_string(terrain));
 
 			char dir = get_direction(player.look_dir);
 

@@ -2,10 +2,12 @@
 
 namespace audio
 {
-	extern bool log_errors;
+	extern const int INVALID_EVENT_ID;
 	extern const std::string BUS_MASTER;
 	extern const std::string BUS_SOUND;
 	extern const std::string BUS_MUSIC;
+
+	extern bool log_errors;
 
 	void initialize();
 	void shutdown();
@@ -29,7 +31,7 @@ namespace audio
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
 
-	// Returns a new unique event id on success, or -1 on failure.
+	// Returns a new unique event id on success, or INVALID_EVENT_ID on failure.
 	int play(const std::string& event_path);
 	bool is_valid(int event_id);
 	bool set_volume(int event_id, float volume);
