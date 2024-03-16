@@ -28,7 +28,7 @@ namespace ecs
 	}
 
 	void process_event(const sf::Event& event) {
-		process_player_events(event);
+		process_event_players(event);
 	}
 
 	void update(float dt)

@@ -31,7 +31,7 @@ namespace ecs
 	const float _PLAYER_STEALTH_SPEED = 36.f;
 	const float _PLAYER_ARROW_SPEED = 160.f;
 
-	void process_player_events(const sf::Event& ev)
+	void process_event_players(const sf::Event& ev)
 	{
 		for (auto [entity, player] : _registry.view<Player>().each()) {
 			if (ev.type == sf::Event::KeyPressed) {
@@ -91,7 +91,7 @@ namespace ecs
 	}
 
 	// TODO: Put in a separate file
-	void _player_interact(sf::Vector2f position)
+	void _player_interact(const sf::Vector2f& position)
 	{
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
@@ -222,10 +222,14 @@ namespace ecs
 					tile.set_sprite("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
+					if (tile.animation_looped_last_update())
+						audio::play("event:/snd_footstep");
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_sprite("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.animation_loop = true;
+					if (tile.animation_looped_last_update())
+						audio::play("event:/snd_footstep");
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {

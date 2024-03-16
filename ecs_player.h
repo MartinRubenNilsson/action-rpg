@@ -35,7 +35,7 @@ namespace ecs
 		int rupees = 10;
 	};
 
-	void process_player_events(const sf::Event& ev);
+	void process_event_players(const sf::Event& ev);
 	void update_players(float dt);
 	void debug_draw_players();
 

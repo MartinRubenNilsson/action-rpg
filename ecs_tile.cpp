@@ -46,7 +46,7 @@ namespace ecs
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame_index = 0;
-		_animation_loop_count = 0;
+		_animation_looped_last_update = false;
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
@@ -121,8 +121,9 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
+		_animation_looped_last_update = false;
 		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
-			++_animation_loop_count;
+			_animation_looped_last_update = true;
 			if (animation_flip_x_on_loop)
 				flip_x = !flip_x;
 		}
@@ -143,6 +144,10 @@ namespace ecs
 
 	float Tile::get_animation_duration() const {
 		return _animation_duration_ms / 1000.f;
+	}
+
+	bool Tile::animation_looped_last_update() const {
+		return _animation_looped_last_update;
 	}
 
 	void update_tiles(float dt)

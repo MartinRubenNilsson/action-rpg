@@ -54,12 +54,13 @@ namespace ecs
 		bool is_animated() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
+		bool animation_looped_last_update() const;
 
 	private:
 		const tiled::Tile* _tile = nullptr;
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_frame_index = 0;
-		uint32_t _animation_loop_count = 0; // unused right now
+		bool _animation_looped_last_update = false;
 
 		bool _set_sprite(const tiled::Tile* tile);
 	};
