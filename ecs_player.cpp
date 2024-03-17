@@ -128,18 +128,17 @@ namespace ecs
 		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
+			sf::Vector2f hit_position = get_world_center(hit.body);
 			if (class_ == "slime") {
 				destroy_at_end_of_frame(hit.entity);
-			} else if (Tile* tile = _registry.try_get<Tile>(hit.entity)) {
-				std::string tile_class = tile->get_tile_class();
-				if (tile_class == "grass") {
-					audio_events_to_play.insert("event:/snd_cut_grass");
-					if (random::chance(0.2f))
-						create_arrow_pickup(tile->position + sf::Vector2f(2.f, 2.f));
-					else if (random::chance(0.2f))
-						create_rupee_pickup(tile->position + sf::Vector2f(2.f, 2.f));
-					destroy_at_end_of_frame(hit.entity);
-				}
+			} 
+			if (class_ == "grass") {
+				audio_events_to_play.insert("event:/snd_cut_grass");
+				if (random::chance(0.2f))
+					create_arrow_pickup(hit_position + sf::Vector2f(2.f, 2.f));
+				else if (random::chance(0.2f))
+					create_rupee_pickup(hit_position + sf::Vector2f(2.f, 2.f));
+				destroy_at_end_of_frame(hit.entity);
 			} else {
 				std::string string;
 				if (get_string(hit.entity, "textbox", string)) {

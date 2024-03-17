@@ -81,8 +81,13 @@ namespace ecs
 
             if (class_ == "slime") {
                 destroy_at_end_of_frame(hit.entity);
-            } else if (class_ == "player") {
-				hurt_player(hit.entity, 2);
+            }
+            else if (class_ == "player") {
+                hurt_player(hit.entity, 2);
+            }
+            else if (class_ == "grass") {
+				destroy_at_end_of_frame(hit.entity);
+			}
         }
     }
 }
