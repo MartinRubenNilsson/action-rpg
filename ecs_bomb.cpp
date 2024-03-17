@@ -78,11 +78,11 @@ namespace ecs
 
         for (const BoxHit& hit : boxcast(box_min, box_max)) {
             std::string class_ = get_class(hit.entity);
+
             if (class_ == "slime") {
                 destroy_at_end_of_frame(hit.entity);
             } else if (class_ == "player") {
-				hurt_player(hit.entity, 1);
-			}
+				hurt_player(hit.entity, 2);
         }
     }
 }

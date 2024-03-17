@@ -92,7 +92,8 @@ namespace ecs
 		}
 	}
 
-	void _player_attack(const sf::Vector2f& position)
+	// TODO: Put in a separate file with _player_attack below
+	void _player_interact(const sf::Vector2f& position)
 	{
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
@@ -118,8 +119,7 @@ namespace ecs
 			audio::play(audio_event);
 	}
 
-	// TODO: Put in a separate file
-	void _player_interact(const sf::Vector2f& position)
+	void _player_attack(const sf::Vector2f& position)
 	{
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
@@ -227,7 +227,7 @@ namespace ecs
 				} else if (player.input.sword_attack) {
 					tile.set_sprite("sword_attack_"s + dir);
 					player.sword_attack_timer.start();
-					tile.animation_loop = false; // Ensure that the animation will not loop
+					tile.animation_loop = false;
 					player.state = PlayerState::Attacking;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
@@ -261,8 +261,7 @@ namespace ecs
 						position + player.look_dir * 16.f,
 						player.look_dir * _PLAYER_ARROW_SPEED);
 				}
-
-				if (player.sword_attack_timer.update(dt)) {
+				else if (player.sword_attack_timer.update(dt)) {
 					_player_attack(position + player.look_dir * 16.f);
 				}
 
