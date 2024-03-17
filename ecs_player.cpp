@@ -63,7 +63,9 @@ namespace ecs
 				case sf::Keyboard::Z:
 					player.input.drop_bomb = true;
 					break;
-
+				case sf::Keyboard::Space:
+					player.input.sword_attack = true;
+					break;
 				}
 			} else if (ev.type == sf::Event::KeyReleased) {
 				switch (ev.key.code) {
@@ -88,6 +90,32 @@ namespace ecs
 				}
 			}
 		}
+	}
+
+	void _player_attack(const sf::Vector2f& position)
+	{
+		sf::Vector2f box_center = position;
+		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
+		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
+		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
+		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
+		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
+			std::string class_ = get_class(hit.entity);
+			if (class_ == "slime") {
+				destroy_at_end_of_frame(hit.entity);
+			}
+			else {
+				std::string string;
+				if (get_string(hit.entity, "textbox", string)) {
+					ui::push_textbox_presets(string);
+					ui::pop_textbox();
+				}
+				if (get_string(hit.entity, "sound", string))
+					audio_events_to_play.insert(string);
+			}
+		}
+		for (const std::string& audio_event : audio_events_to_play)
+			audio::play(audio_event);
 	}
 
 	// TODO: Put in a separate file
@@ -196,6 +224,11 @@ namespace ecs
 					player.bow_shot_timer.start();
 					tile.animation_loop = false; // Ensure that the animation will not loop
 					player.state = PlayerState::Attacking;
+				} else if (player.input.sword_attack) {
+					tile.set_sprite("sword_attack_"s + dir);
+					player.sword_attack_timer.start();
+					tile.animation_loop = false; // Ensure that the animation will not loop
+					player.state = PlayerState::Attacking;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
@@ -217,7 +250,6 @@ namespace ecs
 					tile.set_sprite("idle_"s + dir);
 					tile.animation_loop = true;
 				}
-
 			} break;
 			case PlayerState::Attacking: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
@@ -228,6 +260,10 @@ namespace ecs
 					create_arrow(
 						position + player.look_dir * 16.f,
 						player.look_dir * _PLAYER_ARROW_SPEED);
+				}
+
+				if (player.sword_attack_timer.update(dt)) {
+					_player_attack(position + player.look_dir * 16.f);
 				}
 
 				// When animation is done, we are done attacking.
@@ -278,6 +314,7 @@ namespace ecs
 			player.input.interact = false;
 			player.input.fire_arrow = false;
 			player.input.drop_bomb = false;
+			player.input.sword_attack = false;
 		}
 	}
 

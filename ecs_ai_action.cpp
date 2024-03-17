@@ -23,7 +23,8 @@ namespace ecs
 				action.running_time += dt;
 		}
 
-		for (auto [entity, action, body] : _registry.view<AiAction, b2Body*>().each()) {
+		for (auto [entity, action, body] :
+			_registry.view<AiAction, b2Body*>().each()) {
 			if (action.status != AiActionStatus::Running) continue;
 
 			const sf::Vector2f my_pos = get_world_center(body);

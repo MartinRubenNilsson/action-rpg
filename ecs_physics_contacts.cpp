@@ -35,29 +35,33 @@ namespace ecs
 			if (class_b == "arrow") {
 				destroy_at_end_of_frame(entity_b);
 			}
-		} else if (class_a == "arrow") {
+		}
+		else if (class_a == "arrow") {
 			if (class_b == "slime") {
 				destroy_at_end_of_frame(entity_a);
 				destroy_at_end_of_frame(entity_b);
 			}
-		} else if (class_a == "pickup") {
+		}
+		else if (class_a == "pickup") {
 			if (class_b == "player") {
 				audio::play("event:/snd_pickup");
 				auto& player = _registry.get<Player>(entity_b);
 				auto& pickup = _registry.get<Pickup>(entity_a);
 				switch (pickup.type) {
-					case PickupType::Arrow:
-						player.arrows++;
-						break;
-					case PickupType::Rupee:
-						player.rupees++;
-						break;
+				case PickupType::Arrow:
+					player.arrows++;
+					break;
+				case PickupType::Rupee:
+					player.rupees++;
+					break;
 				}
 				destroy_at_end_of_frame(entity_a);
 			}
-		} else if (class_a == "player") {
+		}
+		else if (class_a == "player") {
 			if (class_b == "slime") {
 				hurt_player(entity_a, 1);
+
 			}
 		}
 	}

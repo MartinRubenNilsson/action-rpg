@@ -61,6 +61,14 @@
    <frame tileid="71" duration="155"/>
   </animation>
  </tile>
+ <tile id="132" type="sword_attack_d">
+  <animation>
+   <frame tileid="132" duration="180"/>
+   <frame tileid="133" duration="80"/>
+   <frame tileid="12" duration="80"/>
+   <frame tileid="12" duration="300"/>
+  </animation>
+ </tile>
  <tile id="133" type="bow_shot_d">
   <animation>
    <frame tileid="133" duration="160"/>
@@ -70,6 +78,14 @@
    <frame tileid="135" duration="300"/>
   </animation>
  </tile>
+ <tile id="148" type="sword_attack_u">
+  <animation>
+   <frame tileid="149" duration="180"/>
+   <frame tileid="148" duration="80"/>
+   <frame tileid="28" duration="80"/>
+   <frame tileid="28" duration="300"/>
+  </animation>
+ </tile>
  <tile id="149" type="bow_shot_u">
   <animation>
    <frame tileid="149" duration="160"/>
@@ -77,6 +93,14 @@
    <frame tileid="151" duration="80"/>
    <frame tileid="151" duration="80"/>
    <frame tileid="151" duration="500"/>
+  </animation>
+ </tile>
+ <tile id="164" type="sword_attack_r">
+  <animation>
+   <frame tileid="164" duration="180"/>
+   <frame tileid="165" duration="80"/>
+   <frame tileid="44" duration="80"/>
+   <frame tileid="44" duration="300"/>
   </animation>
  </tile>
  <tile id="165" type="bow_shot_r">
