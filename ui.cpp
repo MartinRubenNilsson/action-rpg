@@ -66,7 +66,7 @@ namespace ui
 
 	bool debug = false;
 	SystemInterface_SFML _system_interface;
-	RenderInterface_GL2_SFML _render_interface;
+	RenderInterface_SFML _render_interface;
 	Rml::Context* _context = nullptr;
 	Rml::Context* _debugger_context = nullptr; // The debugger needs its own context to render at the right size.
 	CommonEventListener _common_event_listener;
