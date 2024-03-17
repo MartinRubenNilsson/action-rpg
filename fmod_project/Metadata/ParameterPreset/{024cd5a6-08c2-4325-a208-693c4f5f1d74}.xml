@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="ParameterPreset" id="{024cd5a6-08c2-4325-a208-693c4f5f1d74}">
+		<property name="name">
+			<value>terrain_footstep</value>
+		</property>
+		<relationship name="folder">
+			<destination>{8fe7283b-7769-4bfe-868b-439c88495ae3}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{d79b7404-33aa-4001-a9b9-694ba0acec68}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{d79b7404-33aa-4001-a9b9-694ba0acec68}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>7</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>None</value>
+			<value>Dirt</value>
+			<value>LightGrass</value>
+			<value>DarkGrass</value>
+			<value>Cobblestone</value>
+			<value>ShallowWater</value>
+			<value>DeepWater</value>
+		</property>
+		<property name="isReadOnly">
+			<value>true</value>
+		</property>
+		<property name="isHeld">
+			<value>true</value>
+		</property>
+		<property name="initialValue">
+			<value>1</value>
+		</property>
+		<property name="isExposedRecursively">
+			<value>false</value>
+		</property>
+		<relationship name="automators">
+			<destination>{0f499fde-91b7-41b3-b658-5cf8a3c15e8b}</destination>
+		</relationship>
+	</object>
+	<object class="Automator" id="{0f499fde-91b7-41b3-b658-5cf8a3c15e8b}">
+		<property name="nameOfPropertyBeingAutomated">
+			<value>cursorPosition</value>
+		</property>
+		<relationship name="automationCurves">
+			<destination>{407e4fb4-0fb1-4a47-a23f-fdab6c8d09ab}</destination>
+		</relationship>
+	</object>
+	<object class="AutomationCurve" id="{407e4fb4-0fb1-4a47-a23f-fdab6c8d09ab}">
+		<relationship name="parameter">
+			<destination>{5531e798-ed87-4982-8405-57b58af5c178}</destination>
+		</relationship>
+		<relationship name="automationPoints">
+			<destination>{01234db2-df8a-4510-b2b8-d2d446e9c5be}</destination>
+			<destination>{9f4db748-1c76-4a82-8b74-89796c8e7b78}</destination>
+			<destination>{d92c3657-62dc-4e8c-9f4d-c6440a9f0087}</destination>
+			<destination>{e9d638f4-1493-4279-a078-a92be0bf4313}</destination>
+			<destination>{0201b055-8175-44b5-8759-01f18dfc160a}</destination>
+			<destination>{2d208184-22aa-420a-8178-106f211b856f}</destination>
+			<destination>{93696e4c-d2bb-4900-8056-c5bed6d1090d}</destination>
+		</relationship>
+	</object>
+	<object class="AutomationPoint" id="{01234db2-df8a-4510-b2b8-d2d446e9c5be}">
+		<property name="position">
+			<value>2</value>
+		</property>
+		<property name="value">
+			<value>2</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{9f4db748-1c76-4a82-8b74-89796c8e7b78}">
+		<property name="position">
+			<value>1</value>
+		</property>
+		<property name="value">
+			<value>1</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{d92c3657-62dc-4e8c-9f4d-c6440a9f0087}">
+		<property name="position">
+			<value>0</value>
+		</property>
+		<property name="value">
+			<value>0</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{e9d638f4-1493-4279-a078-a92be0bf4313}">
+		<property name="position">
+			<value>3</value>
+		</property>
+		<property name="value">
+			<value>3</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{0201b055-8175-44b5-8759-01f18dfc160a}">
+		<property name="position">
+			<value>4</value>
+		</property>
+		<property name="value">
+			<value>4</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{2d208184-22aa-420a-8178-106f211b856f}">
+		<property name="position">
+			<value>5</value>
+		</property>
+		<property name="value">
+			<value>5</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{93696e4c-d2bb-4900-8056-c5bed6d1090d}">
+		<property name="position">
+			<value>6</value>
+		</property>
+		<property name="value">
+			<value>6</value>
+		</property>
+	</object>
+</objects>
