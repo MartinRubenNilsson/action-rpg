@@ -1,6 +1,40 @@
 #include "stdafx.h"
 #include "physics_helpers.h"
 
+b2FixtureDef get_fixture_def(const b2Fixture* fixture)
+{
+	b2FixtureDef def{};
+	def.shape = fixture->GetShape();
+	def.userData = fixture->GetUserData();
+	def.friction = fixture->GetFriction();
+	def.restitution = fixture->GetRestitution();
+	def.restitutionThreshold = fixture->GetRestitutionThreshold();
+	def.density = fixture->GetDensity();
+	def.isSensor = fixture->IsSensor();
+	def.filter = fixture->GetFilterData();
+	return def;
+}
+
+b2BodyDef get_body_def(const b2Body* body)
+{
+	b2BodyDef def{};
+	def.type = body->GetType();
+	def.position = body->GetPosition();
+	def.angle = body->GetAngle();
+	def.linearVelocity = body->GetLinearVelocity();
+	def.angularVelocity = body->GetAngularVelocity();
+	def.linearDamping = body->GetLinearDamping();
+	def.angularDamping = body->GetAngularDamping();
+	def.allowSleep = body->IsSleepingAllowed();
+	def.awake = body->IsAwake();
+	def.fixedRotation = body->IsFixedRotation();
+	def.bullet = body->IsBullet();
+	def.enabled = body->IsEnabled();
+	def.userData = body->GetUserData();
+	def.gravityScale = body->GetGravityScale();
+	return def;
+}
+
 entt::entity get_entity(b2Body* body) {
 	return body->GetUserData().entity;
 }

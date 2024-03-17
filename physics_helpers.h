@@ -1,7 +1,12 @@
 #pragma once
 
-class b2Body; // Forward declaration.
+struct b2FixtureDef;
+struct b2BodyDef;
+class b2Fixture;
+class b2Body;
 
+b2FixtureDef get_fixture_def(const b2Fixture* fixture);
+b2BodyDef    get_body_def(const b2Body* body);
 entt::entity get_entity(b2Body* body);
 void         set_position(b2Body* body, const sf::Vector2f& position); // Typically the top-left corner.
 sf::Vector2f get_position(const b2Body* body); // Typically the top-left corner.
