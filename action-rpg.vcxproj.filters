@@ -209,7 +209,7 @@
     <ClCompile Include="ecs_physics_filters.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
-    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp">
+    <ClCompile Include="ui_rmlui_interfaces.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="shaders.cpp">
@@ -519,7 +519,7 @@
     <ClInclude Include="ecs_physics_filters.h">
       <Filter>ecs\physics</Filter>
     </ClInclude>
-    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h">
+    <ClInclude Include="ui_rmlui_interfaces.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="shaders.h">

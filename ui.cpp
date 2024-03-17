@@ -1,6 +1,6 @@
 ﻿#include "ui.h"
 #include <RmlUi/Debugger.h>
-#include "RmlUi_Renderer_GL2_SFML.h"
+#include "ui_rmlui_interfaces.h"
 #include "ui_bindings.h"
 #include "ui_menus.h"
 #include "ui_hud.h"
@@ -12,40 +12,6 @@
 
 namespace ui
 {
-	struct SystemInterface_SFML : Rml::SystemInterface
-	{
-		sf::Clock clock;
-
-		double GetElapsedTime() override {
-			return (double)clock.getElapsedTime().asMicroseconds() / 1'000'000.0;
-		}
-		void SetMouseCursor(const Rml::String& cursor_name) override
-		{
-			if (cursor_name.empty() || cursor_name == "arrow")
-				window::set_cursor(sf::Cursor::Arrow);
-			else if (cursor_name == "move")
-				window::set_cursor(sf::Cursor::SizeAll);
-			else if (cursor_name == "pointer")
-				window::set_cursor(sf::Cursor::Hand);
-			else if (cursor_name == "resize")
-				window::set_cursor(sf::Cursor::SizeTopLeftBottomRight);
-			else if (cursor_name == "cross")
-				window::set_cursor(sf::Cursor::Cross);
-			else if (cursor_name == "text")
-				window::set_cursor(sf::Cursor::Text);
-			else if (cursor_name == "unavailable")
-				window::set_cursor(sf::Cursor::NotAllowed);
-			else if (cursor_name.starts_with("rmlui-scroll"))
-				window::set_cursor(sf::Cursor::SizeAll);
-		}
-		void SetClipboardText(const Rml::String& text_utf8) override {
-			sf::Clipboard::setString(text_utf8);
-		}
-		void GetClipboardText(Rml::String& text) override {
-			text = sf::Clipboard::getString();
-		}
-	};
-
 	// All documents share this event listener.
 	struct CommonEventListener : Rml::EventListener
 	{
@@ -65,8 +31,8 @@ namespace ui
 	};
 
 	bool debug = false;
-	SystemInterface_SFML _system_interface;
-	RenderInterface_SFML _render_interface;
+	RmlUiSystemInterface _system_interface;
+	RmlUiRenderInterface _render_interface;
 	Rml::Context* _context = nullptr;
 	Rml::Context* _debugger_context = nullptr; // The debugger needs its own context to render at the right size.
 	CommonEventListener _common_event_listener;

@@ -228,7 +228,7 @@
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
-    <ClCompile Include="RmlUi_Renderer_GL2_SFML.cpp" />
+    <ClCompile Include="ui_rmlui_interfaces.cpp" />
     <ClCompile Include="ui_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -399,7 +399,7 @@
     <ClInclude Include="timer.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
-    <ClInclude Include="RmlUi_Renderer_GL2_SFML.h" />
+    <ClInclude Include="ui_rmlui_interfaces.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_tile.h" />
