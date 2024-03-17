@@ -3,6 +3,7 @@
 class Properties
 {
 public:
+	bool empty() const { return _properties.empty(); }
 	void set_string(const std::string& name, const std::string& value) { set(name, value); }
 	bool get_string(const std::string& name, std::string& value) const { return get(name, value); }
 	void set_int(const std::string& name, int value) { set(name, value); }

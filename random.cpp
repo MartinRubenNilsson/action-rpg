@@ -10,6 +10,7 @@ namespace random
 	const float PI_2 = 6.28318530718f;
 
 	std::default_random_engine _engine(std::random_device{}());
+	std::default_random_engine _seeded_engine;
 
 	bool chance(float probability_of_true)
 	{
@@ -27,6 +28,19 @@ namespace random
 	{
 		std::uniform_int_distribution<int> dist(min, max);
 		return dist(_engine);
+	}
+
+	sf::Color color()
+	{
+		std::uniform_int_distribution <int> dist(0, 255);
+		return sf::Color(dist(_engine), dist(_engine), dist(_engine));
+	}
+
+	sf::Color color(uint32_t seed)
+	{
+		_seeded_engine.seed(seed);
+		std::uniform_int_distribution <int> dist(0, 255);
+		return sf::Color(dist(_seeded_engine), dist(_seeded_engine), dist(_seeded_engine));
 	}
 
 	sf::Vector2f on_circle(float radius)

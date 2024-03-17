@@ -1,22 +1,29 @@
 #include "stdafx.h"
+
+// IMPORTANT:
+// Do not include or use AiKnowledge, AiWorld or AiType in this file.
+// The AiActions need to be decoupled from these, since we want to be
+// able to trigger AiActions from other systems as well.
+// Hence they need to run independently from the rest of the AI system.
+
 #include "ecs_ai_action.h"
+#include "ecs_physics.h"
 #include "physics_helpers.h"
 #include "random.h"
+#include "map_tilegrid.h"
 
 namespace ecs
 {
 	extern entt::registry _registry;
 	float _ai_action_time = 0.f;
 
+	std::string to_string(AiActionType type) {
+		return std::string(magic_enum::enum_name(type));
+	}
+
 	void update_ai_actions(float dt)
 	{
 		_ai_action_time += dt;
-
-		// IMPORTANT:
-		// Do not include AiKnowledge, AiWorld or AiType in the view below.
-		// The AiActions need to be decoupled from these, since we want to be
-		// able to trigger AiActions from other systems as well.
-		// Hence they need to run independently from the rest of the AI system.
 
 		for (auto [entity, action] : _registry.view<AiAction>().each()) {
 			if (action.status == AiActionStatus::Running)
@@ -50,25 +57,39 @@ namespace ecs
 				}
 			} break;
 			case AiActionType::Pursue: {
-				if (!_registry.all_of<b2Body*>(action.entity)) {
+				if (!has_body(action.entity)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				sf::Vector2f target_pos = get_world_center(_registry.get<b2Body*>(action.entity));
-				sf::Vector2f to_target = target_pos - my_pos;
-				float dist = length(to_target);
-				if (dist <= action.radius) {
+				const sf::Vector2f target_pos = get_world_center(get_body(action.entity));
+				const sf::Vector2f me_to_target = target_pos - my_pos;
+				const float dist_to_target = length(me_to_target);
+				if (dist_to_target <= action.radius) {
 					action.status = AiActionStatus::Succeeded;
-				} else {
-					my_new_vel = (to_target / dist) * action.speed;
+					break;
 				}
+				my_new_vel = (me_to_target / dist_to_target) * action.speed;
+				if (!action.pathfind)
+					break;
+				sf::Vector2i my_tile_pos = map::world_to_tile(my_pos);
+				sf::Vector2i target_tile_pos = map::world_to_tile(target_pos);
+				if (my_tile_pos == target_tile_pos)
+					break;
+				if (!map::pathfind(my_tile_pos, target_tile_pos, action.path)) {
+					action.status = AiActionStatus::Failed;
+					break;
+				}
+				sf::Vector2f next_tile_center = map::get_tile_center(action.path[1]);
+				sf::Vector2f me_to_next_tile = next_tile_center - my_pos;
+				float dist_to_next_tile = length(me_to_next_tile);
+				my_new_vel = (me_to_next_tile / dist_to_next_tile) * action.speed;
 			} break;
 			case AiActionType::Flee: {
-				if (!_registry.all_of<b2Body*>(action.entity)) {
+				if (!has_body(action.entity)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				sf::Vector2f danger_pos = get_world_center(_registry.get<b2Body*>(action.entity));
+				sf::Vector2f danger_pos = get_world_center(get_body(action.entity));
 				sf::Vector2f to_danger = danger_pos - my_pos;
 				float dist = length(to_danger);
 				if (dist >= action.radius) {
@@ -127,23 +148,25 @@ namespace ecs
 		_set_ai_action(entity, action);
 	}
 
-	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius)
+	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius, bool pathfind)
 	{
 		AiAction action{};
 		action.type = AiActionType::MoveTo;
 		action.position = target_position;
 		action.speed = speed;
 		action.radius = acceptance_radius;
+		action.pathfind = pathfind;
 		_set_ai_action(entity, action);
 	}
 
-	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
+	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius, bool pathfind)
 	{
 		AiAction action{};
 		action.type = AiActionType::Pursue;
 		action.entity = target_entity;
 		action.speed = speed;
 		action.radius = acceptance_radius;
+		action.pathfind = pathfind;
 		_set_ai_action(entity, action);
 	}
 

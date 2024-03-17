@@ -27,8 +27,7 @@ namespace steam
 			console::log_error("Failed to initialize Steam server: already initialized.");
 			return false;
 		}
-		bool ok = SteamGameServer_Init(0, _GAME_PORT, _QUERY_PORT, eServerModeNoAuthentication, _SERVER_VERSION_STRING);
-		if (!ok) {
+		if (!SteamGameServer_Init(0, _GAME_PORT, _QUERY_PORT, eServerModeNoAuthentication, _SERVER_VERSION_STRING)) {
 			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
 			return false;
 		}
@@ -36,7 +35,7 @@ namespace steam
 		SteamGameServer()->SetGameDescription("Action RPG");
 		SteamGameServer()->LogOnAnonymous();
 		//SteamNetworkingUtils()->InitRelayNetworkAccess();
-		SteamNetworkingIPAddr server_addr;
+		SteamNetworkingIPAddr server_addr{};
 		server_addr.Clear();
 		server_addr.m_port = _GAME_PORT;
 		_listen_socket = SteamGameServerNetworkingSockets()->CreateListenSocketIP(server_addr, 0, nullptr);

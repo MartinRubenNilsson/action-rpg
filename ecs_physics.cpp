@@ -106,6 +106,10 @@ namespace ecs
 		_physics_world->DebugDraw();
 	}
 
+	bool has_body(entt::entity entity) {
+		return _registry.all_of<b2Body*>(entity);
+	}
+
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
 	{
 		b2BodyDef body_def_copy = body_def;
@@ -115,8 +119,12 @@ namespace ecs
 		return body;
 	}
 
-	void remove_body(entt::entity entity) {
-		_registry.remove<b2Body*>(entity);
+	b2Body* get_body(entt::entity entity) {
+		return _registry.get<b2Body*>(entity);
+	}
+
+	bool remove_body(entt::entity entity) {
+		return _registry.remove<b2Body*>(entity);
 	}
 
 	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)

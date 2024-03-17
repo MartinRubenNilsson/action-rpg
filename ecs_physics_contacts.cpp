@@ -12,7 +12,6 @@ namespace ecs
 
 	void on_begin_contact(const PhysicsContact& contact)
 	{
-
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
 		b2Body* body_a = fixture_a->GetBody();
@@ -35,14 +34,12 @@ namespace ecs
 			if (class_b == "arrow") {
 				destroy_at_end_of_frame(entity_b);
 			}
-		}
-		else if (class_a == "arrow") {
+		} else if (class_a == "arrow") {
 			if (class_b == "slime") {
 				destroy_at_end_of_frame(entity_a);
 				destroy_at_end_of_frame(entity_b);
 			}
-		}
-		else if (class_a == "pickup") {
+		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 				audio::play("event:/snd_pickup");
 				auto& player = _registry.get<Player>(entity_b);
@@ -57,11 +54,9 @@ namespace ecs
 				}
 				destroy_at_end_of_frame(entity_a);
 			}
-		}
-		else if (class_a == "player") {
+		} else if (class_a == "player") {
 			if (class_b == "slime") {
 				hurt_player(entity_a, 1);
-
 			}
 		}
 	}

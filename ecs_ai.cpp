@@ -32,7 +32,7 @@ namespace ecs
                 } else if (player_exists && dist_to_player < 25.f) {
 					ai_flee(entity, world.player.entity, knowledge.me.p_speed, 60.f);
                 } else if (player_exists && dist_to_player < 100.f) {
-					ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f);
+					ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f, true);
 				} else if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
 				} else if (action.type == AiActionType::Wander && action.status == AiActionStatus::Succeeded) {
                     float duration = random::range_f(0.5f, 1.5f);
@@ -71,20 +71,32 @@ namespace ecs
 
     void debug_draw_ai()
     {
-        const AiWorld& world = get_ai_world();
-
-        for (const AiEntityInfo& ai : world.ais) {
-            std::vector<sf::Vector2f> path = map::pathfind(ai.position, world.player.position);
-            for (size_t i = 0; i + 1 < path.size(); ++i) {
-				debug::draw_line(path[i], path[i + 1]);
-			}
-        }
+        uint32_t paths_drawn = 0;
 
         for (auto [entity, knowledge, action] :
             _registry.view<const AiKnowledge, const AiAction>().each()) {
-            std::string text_string(magic_enum::enum_name(action.type));
-            sf::Vector2f text_pos = knowledge.me.position + sf::Vector2f(0.f, -10.f);
-            debug::draw_text(text_string, text_pos);
+
+            // DRAW ACTION TYPE
+            {
+                std::string text_string = to_string(action.type);
+                sf::Vector2f text_position = knowledge.me.position + sf::Vector2f(0.f, -10.f);
+                debug::draw_text(text_string, text_position);
+            }
+
+            // DRAW ACTION PATH
+            if (action.path.size() >= 2) {
+                for (size_t i = 0; i + 1 < action.path.size(); ++i) {
+                    sf::Vector2f p1 = map::get_tile_center(action.path[i]);
+                    sf::Vector2f p2 = map::get_tile_center(action.path[i + 1]);
+                    sf::Color color = random::color((uint32_t)entity * 2);
+                    p1.x += paths_drawn * 2.f;
+                    p1.y += paths_drawn * 2.f;
+                    p2.x += paths_drawn * 2.f;
+                    p2.y += paths_drawn * 2.f;
+                    debug::draw_line(p1, p2, color);
+                }
+                ++paths_drawn;
+            }
 		}
     }
 

@@ -131,8 +131,7 @@ namespace ecs
 			sf::Vector2f hit_position = get_world_center(hit.body);
 			if (class_ == "slime") {
 				destroy_at_end_of_frame(hit.entity);
-			} 
-			if (class_ == "grass") {
+			} else if (class_ == "grass") {
 				audio_events_to_play.insert("event:/snd_cut_grass");
 				if (random::chance(0.2f))
 					create_arrow_pickup(hit_position + sf::Vector2f(2.f, 2.f));

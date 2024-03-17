@@ -2,6 +2,8 @@
 
 namespace ecs
 {
+	//TODO: rename "Action" to "Task" maybe?
+
 	enum class AiActionType
 	{
 		None, // Do nothing. Runs forever.
@@ -12,6 +14,8 @@ namespace ecs
 		Wander, // Wander around randomly. Runs forever.
 		//PlayAnimation, // Play a certain animation. Succeeds when it's finished, fails if it doesn't exist.
 	};
+
+	std::string to_string(AiActionType type);
 
 	enum class AiActionStatus
 	{
@@ -25,6 +29,7 @@ namespace ecs
 		AiActionType type = AiActionType::None;
 		AiActionStatus status = AiActionStatus::Running;
 		float running_time = 0.f;
+		std::vector<sf::Vector2i> path; // path of tile positions
 
 		// ACTION-SPECIFIC PARAMETERS
 
@@ -33,6 +38,7 @@ namespace ecs
 		float speed = 0.f;
 		float radius = 0.f;
 		float duration = 0.f;
+		bool pathfind = false;
 	};
 
 	void update_ai_actions(float dt);
@@ -41,8 +47,8 @@ namespace ecs
 
 	void ai_none(entt::entity entity);
 	void ai_wait(entt::entity entity, float duration);
-	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius);
-	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
+	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius, bool pathfind = false);
+	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius, bool pathfind = false);
 	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
 	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius, float duration = 0.f);
 	//void ai_play_animation(entt::entity entity, const std::string& animation_name);

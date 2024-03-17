@@ -80,14 +80,14 @@ namespace map
 	// when iterating over the array while pathfinding, so don't change it.
 	const sf::Vector2i _ALLOWED_MOVEMENT_DIRECTIONS[] =
 	{
-		sf::Vector2i(-1, -1),
+		//sf::Vector2i(-1, -1),
 		sf::Vector2i( 0, -1),
-		sf::Vector2i( 1, -1),
+		//sf::Vector2i( 1, -1),
 		sf::Vector2i(-1,  0),
 		sf::Vector2i( 1,  0),
-		sf::Vector2i(-1,  1),
+		//sf::Vector2i(-1,  1),
 		sf::Vector2i( 0,  1),
-		sf::Vector2i( 1,  1),
+		//sf::Vector2i( 1,  1),
 	};
 
 	TileGrid _grid;
@@ -174,21 +174,29 @@ namespace map
 		return _grid.tile_size;
 	}
 
-	sf::Vector2f world_to_grid(const sf::Vector2f& world_pos)
+	sf::Vector2i world_to_tile(const sf::Vector2f& world_pos)
 	{
 		if (!_grid.tile_size.x || !_grid.tile_size.y)
-			return sf::Vector2f(-1, -1); // Invalid tile size (grid not initialized?)
-		return world_pos / sf::Vector2f(_grid.tile_size);
+			return sf::Vector2i(-1, -1); // Invalid tile size (grid not initialized?)
+		return sf::Vector2i(
+			(int)floor(world_pos.x / _grid.tile_size.x),
+			(int)floor(world_pos.y / _grid.tile_size.y));
+	}
+
+	sf::Vector2f get_tile_center(const sf::Vector2i& tile_pos)
+	{
+		return sf::Vector2f(
+			(tile_pos.x + 0.5f) * _grid.tile_size.x,
+			(tile_pos.y + 0.5f) * _grid.tile_size.y);
 	}
 
 	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos)
 	{
-		sf::Vector2f pos = world_to_grid(world_pos);
-		sf::Vector2f floored_pos = sf::Vector2f(std::floor(pos.x), std::floor(pos.y));
-		Tile* tile = _try_get_tile(sf::Vector2i(floored_pos));
+		sf::Vector2i tile_pos = world_to_tile(world_pos);
+		Tile* tile = _try_get_tile(tile_pos);
 		if (!tile) return TerrainType::None;
-		const bool left = (pos.x - floored_pos.x) < 0.5f;
-		const bool top = (pos.y - floored_pos.y) < 0.5f;
+		const bool left = (int)world_pos.x % _grid.tile_size.x < _grid.tile_size.x / 2;
+		const bool top = (int)world_pos.y % _grid.tile_size.y < _grid.tile_size.y / 2;
 		const int corner =
 			top ? (left ? tiled::WangTile::TOP_LEFT : tiled::WangTile::TOP_RIGHT)
 			: (left ? tiled::WangTile::BOTTOM_LEFT : tiled::WangTile::BOTTOM_RIGHT);
@@ -214,20 +222,28 @@ namespace map
 		return std::abs(dx - dy) + std::min(dx, dy) * SQRT_2;
 	}
 
-	std::vector<sf::Vector2i> pathfind(const sf::Vector2i& start, const sf::Vector2i& end)
+	bool pathfind(const sf::Vector2i& start_tile_pos, const sf::Vector2i& end_tile_pos, std::vector<sf::Vector2i>& path)
 	{
-		Tile* start_tile = _try_get_tile(start);
-		if (!start_tile || !start_tile->passable) return {};
-		Tile* end_tile = _try_get_tile(end);
-		if (!end_tile || !end_tile->passable) return {};
+		if (start_tile_pos == end_tile_pos)
+			return false; // Does this make sense?
 
-		if (start_tile == end_tile) return { start };
+		//TODO: better check here. we should validate that all tiles in the path are passable
+		//and neighbors of each other
+		if (path.size() >= 2 && path.front() == start_tile_pos && path.back() == end_tile_pos)
+			return true;
+
+		Tile* start_tile = _try_get_tile(start_tile_pos);
+		if (!start_tile || !start_tile->passable)
+			return false;
+		Tile* end_tile = _try_get_tile(end_tile_pos);
+		if (!end_tile || !end_tile->passable)
+			return false;
 
 		for (Tile& tile : _grid.tiles)
 			_reset_a_star_state(tile);
 
 		start_tile->g = 0.f;
-		start_tile->h = _euclidean_distance_on_grid(start, end);
+		start_tile->h = _euclidean_distance_on_grid(start_tile_pos, end_tile_pos);
 		start_tile->state = Tile::OPEN;
 
 		_grid.open_tiles.clear();
@@ -257,12 +273,12 @@ namespace map
 				if (neighbor_tile->state == Tile::CLOSED) continue;
 
 				float tentative_neighbor_g = current_g +
-					_euclidean_distance_on_grid(current_pos, neighbor_pos);
+					_manhattan_distance(current_pos, neighbor_pos);
 				if (tentative_neighbor_g >= neighbor_tile->g) continue;
 
 				neighbor_tile->parent = current_pos;
 				neighbor_tile->g = tentative_neighbor_g;
-				neighbor_tile->h = _euclidean_distance_on_grid(neighbor_pos, end);
+				neighbor_tile->h = _euclidean_distance_on_grid(neighbor_pos, end_tile_pos);
 				if (neighbor_tile->state == Tile::OPEN) continue;
 
 				neighbor_tile->state = Tile::OPEN;
@@ -270,28 +286,14 @@ namespace map
 			}
 		}
 
-		if (!path_found) return {};
+		if (!path_found)
+			return false;
 
-		std::vector<sf::Vector2i> path;
+		path.clear();
 		for (Tile* tile = end_tile; tile; tile = _try_get_tile(tile->parent))
 			path.push_back(tile->position);
 		std::reverse(path.begin(), path.end());
 
-		return path;
-	}
-
-	std::vector<sf::Vector2f> pathfind(const sf::Vector2f& start, const sf::Vector2f& end)
-	{
-		sf::Vector2f tile_size = sf::Vector2f(_grid.tile_size);
-		sf::Vector2i start_i(start / tile_size);
-		sf::Vector2i end_i(end / tile_size);
-
-		std::vector<sf::Vector2i> path = pathfind(start_i, end_i);
-
-		std::vector<sf::Vector2f> pathf;
-		pathf.resize(path.size());
-		for (size_t i = 0; i < path.size(); ++i)
-			pathf[i] = sf::Vector2f(path[i]) * tile_size + tile_size * 0.5f;
-		return pathf;
+		return true;
 	}
 }
