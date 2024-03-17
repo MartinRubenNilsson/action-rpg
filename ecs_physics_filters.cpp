@@ -5,6 +5,7 @@ namespace ecs
 {
 	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
 		{ "player", make_filter(CC_Player, CM_Player) },
+		{ "slime", make_filter(CC_Enemy) },
 		{ "arrow", make_filter(CC_PlayerAttack) },
 	};
 

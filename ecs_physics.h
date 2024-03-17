@@ -29,6 +29,7 @@ namespace ecs
 	b2Body* get_body(entt::entity entity); // WARNING: undefined behavior if entity has no body
 	bool remove_body(entt::entity entity);
 
+	bool raycast_any(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
 	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
 	std::vector<BoxHit> boxcast(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits = 0xFFFF);
 }

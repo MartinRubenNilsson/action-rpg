@@ -81,22 +81,24 @@ namespace map
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
-								b2PolygonShape shape;
+								b2PolygonShape shape{};
 								shape.SetAsBox(collider_hw, collider_hh, collider_center, 0.f);
-								b2FixtureDef fixture_def;
+								b2FixtureDef fixture_def{};
 								fixture_def.shape = &shape;
 								fixture_def.density = 1.f;
-								fixture_def.filter = ecs::get_filter_for_class(object.class_);
+								if (!object.class_.empty())
+									fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								body->CreateFixture(&fixture_def);
 							} break;
 							case tiled::ObjectType::Ellipse: {
-								b2CircleShape shape;
+								b2CircleShape shape{};
 								shape.m_p = collider_center;
 								shape.m_radius = collider_hw;
-								b2FixtureDef fixture_def;
+								b2FixtureDef fixture_def{};
 								fixture_def.shape = &shape;
 								fixture_def.density = 1.f;
-								fixture_def.filter = ecs::get_filter_for_class(object.class_);
+								if (!object.class_.empty())
+									fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								body->CreateFixture(&fixture_def);
 							} break;
 							}

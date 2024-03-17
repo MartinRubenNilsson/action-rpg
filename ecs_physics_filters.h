@@ -44,6 +44,7 @@ namespace ecs
 	{
 		CM_Default = ~CC_None, // everything
 		CM_Player = ~CC_PlayerAttack, // everything except player attack
+		CM_Enemy = ~CC_Enemy, // everything except enemy
 	};
 
 	// Collision groups allow a certain group of objects to never collide (negative)

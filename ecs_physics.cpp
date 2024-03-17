@@ -127,6 +127,35 @@ namespace ecs
 		return _registry.remove<b2Body*>(entity);
 	}
 
+	bool raycast_any(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
+	{
+		struct RayCastCallback : public b2RayCastCallback
+		{
+			bool hit = false;
+			uint16 mask_bits = 0xFFFF;
+
+			float ReportFixture(
+				b2Fixture* fixture,
+				const b2Vec2& point,
+				const b2Vec2& normal,
+				float fraction) override
+			{
+				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				if (!(category_bits & mask_bits)) return -1.f;
+				hit = true;
+				return 0.f;
+			}
+		};
+
+		RayCastCallback callback{};
+		callback.mask_bits = mask_bits;
+		_physics_world->RayCast(&callback,
+			b2Vec2(ray_start.x, ray_start.y),
+			b2Vec2(ray_end.x, ray_end.y));
+
+		return callback.hit;
+	}
+
 	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
 	{
 		struct RayCastCallback : public b2RayCastCallback
@@ -154,9 +183,12 @@ namespace ecs
 			}
 		};
 
-		RayCastCallback callback;
+		RayCastCallback callback{};
 		callback.mask_bits = mask_bits;
-		_physics_world->RayCast(&callback, b2Vec2(ray_start.x, ray_start.y), b2Vec2(ray_end.x, ray_end.y));
+		_physics_world->RayCast(&callback,
+			b2Vec2(ray_start.x, ray_start.y),
+			b2Vec2(ray_end.x, ray_end.y));
+
 		return callback.hits;
 	}
 
@@ -180,9 +212,12 @@ namespace ecs
 			}
 		};
 
-		QueryCallback callback;
+		QueryCallback callback{};
 		callback.mask_bits = mask_bits;
-		_physics_world->QueryAABB(&callback, b2AABB{ b2Vec2(box_min.x, box_min.y), b2Vec2(box_max.x, box_max.y) });
+		_physics_world->QueryAABB(&callback, b2AABB{
+			b2Vec2(box_min.x, box_min.y),
+			b2Vec2(box_max.x, box_max.y) });
+
 		return callback.hits;
 	}
 }

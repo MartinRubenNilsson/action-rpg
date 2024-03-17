@@ -33,3 +33,20 @@ float get_linear_speed(const b2Body* body) {
 	return length(get_linear_velocity(body));
 }
 
+void set_category_bits(b2Body* body, uint32_t category_bits)
+{
+	for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		b2Filter filter = fixture->GetFilterData();
+		filter.categoryBits = category_bits;
+		fixture->SetFilterData(filter);
+	}
+}
+
+uint32_t get_category_bits(const b2Body* body)
+{
+	uint32_t category_bits = 0;
+	for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext())
+		category_bits |= fixture->GetFilterData().categoryBits;
+	return category_bits;
+}
+

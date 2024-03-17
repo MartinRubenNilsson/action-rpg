@@ -61,9 +61,10 @@ namespace ecs
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				const sf::Vector2f target_pos = get_world_center(get_body(action.entity));
-				const sf::Vector2f me_to_target = target_pos - my_pos;
-				const float dist_to_target = length(me_to_target);
+				b2Body* target_body = get_body(action.entity);
+				sf::Vector2f target_pos = get_world_center(target_body);
+				sf::Vector2f me_to_target = target_pos - my_pos;
+				float dist_to_target = length(me_to_target);
 				if (dist_to_target <= action.radius) {
 					action.status = AiActionStatus::Succeeded;
 					break;
@@ -71,6 +72,12 @@ namespace ecs
 				my_new_vel = (me_to_target / dist_to_target) * action.speed;
 				if (!action.pathfind)
 					break;
+				uint32_t my_category_bits = get_category_bits(body);
+				uint32_t target_category_bits = get_category_bits(target_body);
+				if (!raycast_any(my_pos, target_pos, ~(my_category_bits | target_category_bits))) {
+					action.path.clear();
+					break;
+				}
 				sf::Vector2i my_tile_pos = map::world_to_tile(my_pos);
 				sf::Vector2i target_tile_pos = map::world_to_tile(target_pos);
 				if (my_tile_pos == target_tile_pos)
