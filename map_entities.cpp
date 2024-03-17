@@ -30,9 +30,13 @@ namespace map
 				// Attempt to use the object's UID as the entity identifier.
 				// If the identifier is already in use, a new one will be generated.
 				entt::entity entity = ecs::create(object.entity);
-				ecs::set_name(entity, object.name);
-				ecs::set_class(entity, object.class_);
-				ecs::set_properties(entity, object.properties);
+
+				if (!object.name.empty())
+					ecs::set_name(entity, object.name);
+				if (!object.class_.empty())
+					ecs::set_class(entity, object.class_);
+				if (!object.properties.empty())
+					ecs::set_properties(entity, object.properties);
 
 				float x = object.position.x;
 				float y = object.position.y;
@@ -189,6 +193,8 @@ namespace map
 					entt::entity entity = ecs::create();
 					if (!tile->class_.empty())
 						ecs::set_class(entity, tile->class_);
+					if (!tile->properties.empty())
+						ecs::set_properties(entity, tile->properties);
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 					ecs_tile.visible = layer.visible;
