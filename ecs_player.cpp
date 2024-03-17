@@ -385,6 +385,7 @@ namespace ecs
 		if (player.health <= 0) return false; // Player is already dead
 		if (player.hurt_timer.running()) return false; // Player is invulnerable
 		player.health = std::max(0, player.health - health_to_remove);
+		add_trauma_to_active_camera(0.8f);
 		if (player.health > 0) { // Player survived
 			audio::play("event:/snd_player_hurt");
 			player.hurt_timer.start();
