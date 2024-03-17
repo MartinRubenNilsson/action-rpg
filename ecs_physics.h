@@ -26,6 +26,7 @@ namespace ecs
 
 	bool has_body(entt::entity entity);
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
+	b2Body* clone_body(entt::entity entity, const b2Body* body); // Returns the newly created body
 	b2Body* get_body(entt::entity entity); // WARNING: undefined behavior if entity has no body
 	bool remove_body(entt::entity entity);
 

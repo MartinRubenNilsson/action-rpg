@@ -119,6 +119,38 @@ namespace ecs
 		return body;
 	}
 
+	b2Body* clone_body(entt::entity entity, const b2Body* body)
+	{
+		b2BodyDef body_def{};
+		body_def.type = body->GetType();
+		body_def.position = body->GetPosition();
+		body_def.angle = body->GetAngle();
+		body_def.linearVelocity = body->GetLinearVelocity();
+		body_def.angularVelocity = body->GetAngularVelocity();
+		body_def.linearDamping = body->GetLinearDamping();
+		body_def.angularDamping = body->GetAngularDamping();
+		body_def.allowSleep = body->IsSleepingAllowed();
+		body_def.awake = body->IsAwake();
+		body_def.fixedRotation = body->IsFixedRotation();
+		body_def.bullet = body->IsBullet();
+		//body_def.active = ???
+		body_def.userData.entity = entity;
+		body_def.gravityScale = body->GetGravityScale();
+		b2Body* new_body = _physics_world->CreateBody(&body_def);
+		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			b2FixtureDef fixture_def{};
+			fixture_def.shape = fixture->GetShape();
+			fixture_def.friction = fixture->GetFriction();
+			fixture_def.restitution = fixture->GetRestitution();
+			fixture_def.restitutionThreshold = fixture->GetRestitutionThreshold();
+			fixture_def.density = fixture->GetDensity();
+			fixture_def.isSensor = fixture->IsSensor();
+			fixture_def.filter = fixture->GetFilterData();
+			new_body->CreateFixture(&fixture_def);
+		}
+		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
+	}
+
 	b2Body* get_body(entt::entity entity) {
 		return _registry.get<b2Body*>(entity);
 	}
