@@ -102,18 +102,13 @@ namespace ecs
 		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
-			if (class_ == "slime") {
-				destroy_at_end_of_frame(hit.entity);
+			std::string string;
+			if (get_string(hit.entity, "textbox", string)) {
+				ui::push_textbox_presets(string);
+				ui::pop_textbox();
 			}
-			else {
-				std::string string;
-				if (get_string(hit.entity, "textbox", string)) {
-					ui::push_textbox_presets(string);
-					ui::pop_textbox();
-				}
-				if (get_string(hit.entity, "sound", string))
-					audio_events_to_play.insert(string);
-			}
+			if (get_string(hit.entity, "sound", string))
+				audio_events_to_play.insert(string);
 		}
 		for (const std::string& audio_event : audio_events_to_play)
 			audio::play(audio_event);
