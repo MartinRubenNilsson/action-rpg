@@ -187,6 +187,9 @@ namespace map
 					float sorting_pivot_y = tile->tileset->tile_height - map.tile_height / 2.f;
 
 					entt::entity entity = ecs::create();
+					if (!tile->class_.empty())
+						ecs::set_class(entity, tile->class_);
+
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 					ecs_tile.visible = layer.visible;
 					ecs_tile.flip_x = flip_flags & tiled::FLIP_HORIZONTAL;
