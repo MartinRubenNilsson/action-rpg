@@ -104,8 +104,8 @@ namespace ecs
 					action.path.clear();
 					break;
 				}
-				sf::Vector2i my_tile = map::world_to_tilegrid(my_pos);
-				sf::Vector2i target_tile = map::world_to_tilegrid(target_pos);
+				sf::Vector2i my_tile = map::world_to_tile(my_pos);
+				sf::Vector2i target_tile = map::world_to_tile(target_pos);
 				if (my_tile == target_tile)
 					break;
 				if (!map::pathfind(my_tile, target_tile, action.path)) {
@@ -115,7 +115,7 @@ namespace ecs
 				sf::Vector2i next_tile = action.path[1];
 				sf::Vector2i to_next_tile = next_tile - my_tile;
 				sf::Vector2f magnetic_field_origin =
-					(map::tilegrid_to_world(my_tile) + map::tilegrid_to_world(next_tile)) * 0.5f;
+					(map::get_tile_center(my_tile) + map::get_tile_center(next_tile)) * 0.5f;
 				sf::Vector2f magnetic_field_to_me = my_pos - magnetic_field_origin;
 				float magnetic_field_rotation = atan2((float)to_next_tile.y, (float)to_next_tile.x);
 				my_new_dir = _get_magnetic_field_line_at(magnetic_field_to_me, magnetic_field_rotation);
