@@ -21,6 +21,33 @@ namespace ecs
 		return std::string(magic_enum::enum_name(type));
 	}
 
+	// Imagine a magnetic dipole at the origin, with the north pole pointing in the
+	// positive x direction. This function returns a normalized vector that points
+	// in the direction of the magnetic field line at the given position. It's fake
+	// since the arcs are perfect circles, unlike a real magnetic field, but that's
+	// ok since we're just using it for AI pathfinding.
+	sf::Vector2f _get_magnetic_field_line_at(const sf::Vector2f& pos)
+	{
+		sf::Vector2f result(1.f, 0.f);
+		float x2 = pos.x * pos.x;
+		float y2 = pos.y * pos.y;
+		float r2 = x2 + y2;
+		if (r2 > 0.0001f) {
+			result.x = (x2 - y2) / r2;
+			result.y = 2.f * pos.x * pos.y / r2;
+		}
+		return result;
+	}
+
+	sf::Vector2f _get_magnetic_field_line_at(const sf::Vector2f& pos, float field_rotation)
+	{
+		float c = cos(field_rotation);
+		float s = sin(field_rotation);
+		sf::Vector2f result = _get_magnetic_field_line_at(
+			sf::Vector2f(c * pos.x + s * pos.y, -s * pos.x + c * pos.y));
+		return sf::Vector2f(c * result.x - s * result.y, s * result.x + c * result.y);
+	}
+
 	void update_ai_actions(float dt)
 	{
 		_ai_action_time += dt;
@@ -35,9 +62,8 @@ namespace ecs
 			if (action.status != AiActionStatus::Running) continue;
 
 			const sf::Vector2f my_pos = get_world_center(body);
-			const sf::Vector2f my_old_vel = get_linear_velocity(body);
-			const sf::Vector2f my_old_dir = normalize(my_old_vel);
-			sf::Vector2f my_new_vel;
+			const sf::Vector2f my_old_dir = normalize(get_linear_velocity(body));
+			sf::Vector2f my_new_dir;
 
 			switch (action.type) {
 			case AiActionType::None: {
@@ -53,7 +79,7 @@ namespace ecs
 				if (dist <= action.radius) {
 					action.status = AiActionStatus::Succeeded;
 				} else {
-					my_new_vel = (to_target / dist) * action.speed;
+					my_new_dir = to_target / dist;
 				}
 			} break;
 			case AiActionType::Pursue: {
@@ -69,7 +95,7 @@ namespace ecs
 					action.status = AiActionStatus::Succeeded;
 					break;
 				}
-				my_new_vel = (me_to_target / dist_to_target) * action.speed;
+				my_new_dir = me_to_target / dist_to_target;
 				if (!action.pathfind)
 					break;
 				uint32_t my_category_bits = get_category_bits(body);
@@ -78,18 +104,21 @@ namespace ecs
 					action.path.clear();
 					break;
 				}
-				sf::Vector2i my_tile_pos = map::world_to_tile(my_pos);
-				sf::Vector2i target_tile_pos = map::world_to_tile(target_pos);
-				if (my_tile_pos == target_tile_pos)
+				sf::Vector2i my_tile = map::world_to_tilegrid(my_pos);
+				sf::Vector2i target_tile = map::world_to_tilegrid(target_pos);
+				if (my_tile == target_tile)
 					break;
-				if (!map::pathfind(my_tile_pos, target_tile_pos, action.path)) {
+				if (!map::pathfind(my_tile, target_tile, action.path)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				sf::Vector2f next_tile_center = map::get_tile_center(action.path[1]);
-				sf::Vector2f me_to_next_tile = next_tile_center - my_pos;
-				float dist_to_next_tile = length(me_to_next_tile);
-				my_new_vel = (me_to_next_tile / dist_to_next_tile) * action.speed;
+				sf::Vector2i next_tile = action.path[1];
+				sf::Vector2i to_next_tile = next_tile - my_tile;
+				sf::Vector2f magnetic_field_origin =
+					(map::tilegrid_to_world(my_tile) + map::tilegrid_to_world(next_tile)) * 0.5f;
+				sf::Vector2f magnetic_field_to_me = my_pos - magnetic_field_origin;
+				float magnetic_field_rotation = atan2((float)to_next_tile.y, (float)to_next_tile.x);
+				my_new_dir = _get_magnetic_field_line_at(magnetic_field_to_me, magnetic_field_rotation);
 			} break;
 			case AiActionType::Flee: {
 				if (!has_body(action.entity)) {
@@ -102,7 +131,7 @@ namespace ecs
 				if (dist >= action.radius) {
 					action.status = AiActionStatus::Succeeded;
 				} else {
-					my_new_vel = -(to_danger / dist) * action.speed; // Note the minus sign.
+					my_new_dir = -(to_danger / dist); // Note the minus sign.
 				}
 			} break;
 			case AiActionType::Wander: {
@@ -128,11 +157,10 @@ namespace ecs
 					float lerp_t = std::clamp((dist / action.radius - 0.5f) * 2.f, 0.f, 1.f);
 					my_new_dir = lerp_polar(my_new_dir, to_center / dist, lerp_t);
 				}
-				my_new_vel = my_new_dir * action.speed;
 			} break;
 			}
 
-			set_linear_velocity(body, my_new_vel);
+			set_linear_velocity(body, action.speed * my_new_dir);
 		}
 	}
 

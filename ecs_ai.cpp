@@ -86,8 +86,8 @@ namespace ecs
             // DRAW ACTION PATH
             if (action.path.size() >= 2) {
                 for (size_t i = 0; i + 1 < action.path.size(); ++i) {
-                    sf::Vector2f p1 = map::get_tile_center(action.path[i]);
-                    sf::Vector2f p2 = map::get_tile_center(action.path[i + 1]);
+                    sf::Vector2f p1 = map::tilegrid_to_world(action.path[i]);
+                    sf::Vector2f p2 = map::tilegrid_to_world(action.path[i + 1]);
                     sf::Color color = random::color((uint32_t)entity * 2);
                     p1.x += paths_drawn * 2.f;
                     p1.y += paths_drawn * 2.f;
