@@ -164,7 +164,7 @@ namespace ecs
 		}
 	}
 
-	void _set_ai_action(entt::entity entity, const AiAction& action) {
+	void _replace_ai_action(entt::entity entity, const AiAction& action) {
 		_registry.emplace_or_replace<AiAction>(entity, action);
 	}
 
@@ -172,7 +172,7 @@ namespace ecs
 	{
 		AiAction action{};
 		action.type = AiActionType::None;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 
 	void ai_wait(entt::entity entity, float duration)
@@ -180,7 +180,7 @@ namespace ecs
 		AiAction action{};
 		action.type = AiActionType::Wait;
 		action.duration = duration;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 
 	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius, bool pathfind)
@@ -191,7 +191,7 @@ namespace ecs
 		action.speed = speed;
 		action.radius = acceptance_radius;
 		action.pathfind = pathfind;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 
 	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius, bool pathfind)
@@ -202,7 +202,7 @@ namespace ecs
 		action.speed = speed;
 		action.radius = acceptance_radius;
 		action.pathfind = pathfind;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 
 	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius)
@@ -212,7 +212,7 @@ namespace ecs
 		action.entity = target_entity;
 		action.speed = speed;
 		action.radius = acceptance_radius;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 
 	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius, float duration)
@@ -223,6 +223,6 @@ namespace ecs
 		action.speed = speed;
 		action.radius = wander_radius;
 		action.duration = duration;
-		_set_ai_action(entity, action);
+		_replace_ai_action(entity, action);
 	}
 }
