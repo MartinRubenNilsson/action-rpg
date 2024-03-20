@@ -23,9 +23,10 @@ namespace ecs
 	// Returns true if the entity was damaged, false otherwise.
 	bool apply_damage(entt::entity entity, const Damage& damage);
 
-	// CLASS-SPECIFIC DAMAGE FUNCTIONS (don't call these directly, use apply_damage() instead!)
+	// CLASS-SPECIFIC DAMAGE FUNCTIONS
 
 	bool apply_damage_to_player(entt::entity entity, const Damage& damage);
+	bool apply_damage_to_slime(entt::entity entity, const Damage& damage);
 	bool apply_damage_to_grass(entt::entity entity, const Damage& damage);
 }
 

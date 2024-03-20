@@ -120,7 +120,7 @@ namespace ecs
 	}
 
 
-	b2Body* clone_body(entt::entity entity, const b2Body* body)
+	b2Body* clone_and_emplace_body(entt::entity entity, const b2Body* body)
 	{
 		b2BodyDef body_def = get_body_def(body);
 		b2Body* new_body = _physics_world->CreateBody(&body_def);
@@ -137,6 +137,10 @@ namespace ecs
 
 	bool remove_body(entt::entity entity) {
 		return _registry.remove<b2Body*>(entity);
+	}
+
+	sf::Vector2f get_world_center(entt::entity entity) {
+		return has_body(entity) ? get_world_center(get_body(entity)) : sf::Vector2f(0.f, 0.f);
 	}
 
 	bool raycast_any(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)

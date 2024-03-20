@@ -9,6 +9,7 @@
 #include "ecs_pickups.h"
 #include "ecs_bomb.h"
 #include "ecs_vfx.h"
+#include "ecs_damage.h"
 #include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"
@@ -19,8 +20,6 @@
 #include "character.h"
 #include "debug_draw.h"
 #include "map_tilegrid.h"
-
-using namespace std::literals::string_literals;
 
 namespace ecs
 {
@@ -98,7 +97,7 @@ namespace ecs
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
+		debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
 		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
@@ -120,31 +119,11 @@ namespace ecs
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
 		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
-		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
 		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
 			sf::Vector2f hit_position = get_world_center(hit.body);
-			if (class_ == "slime") {
-				destroy_at_end_of_frame(hit.entity);
-			} else if (class_ == "grass") {
-				audio_events_to_play.insert("event:/snd_cut_grass");
-				if (random::chance(0.2f))
-					create_arrow_pickup(hit_position + sf::Vector2f(2.f, 2.f));
-				else if (random::chance(0.2f))
-					create_rupee_pickup(hit_position + sf::Vector2f(2.f, 2.f));
-				destroy_at_end_of_frame(hit.entity);
-			} else {
-				std::string string;
-				if (get_string(hit.entity, "textbox", string)) {
-					ui::push_textbox_presets(string);
-					ui::pop_textbox();
-				}
-				if (get_string(hit.entity, "sound", string))
-					audio_events_to_play.insert(string);
-			}
+			apply_damage(hit.entity, { DamageType::Melee, 1 });
 		}
-		for (const std::string& audio_event : audio_events_to_play)
-			audio::play(audio_event);
 	}
 
 	void update_players(float dt)
