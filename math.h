@@ -37,6 +37,7 @@ float length(const sf::Vector2f& v);
 sf::Vector2f unit_vector(float angle);
 sf::Vector2f normalize(const sf::Vector2f& v);
 sf::Vector2f abs(const sf::Vector2f& v);
+sf::Vector2f rotate_90deg(const sf::Vector2f& v);
 float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
 float det(const sf::Vector2f& a, const sf::Vector2f& b); // Determinant, aka 2D cross product
 float angle_unsigned(const sf::Vector2f& a, const sf::Vector2f& b);

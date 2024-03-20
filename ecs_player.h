@@ -3,14 +3,6 @@
 
 namespace ecs
 {
-	enum class PlayerState
-	{
-		Normal,
-		Attacking,
-		Dying,
-		Dead
-	};
-
 	struct PlayerInput
 	{
 		int axis_x = 0;
@@ -21,6 +13,14 @@ namespace ecs
 		bool fire_arrow = false; 
 		bool drop_bomb = false;
 		bool sword_attack = false;
+	};
+
+	enum class PlayerState
+	{
+		Normal,
+		Attacking,
+		Dying,
+		Dead
 	};
 
 	struct Player

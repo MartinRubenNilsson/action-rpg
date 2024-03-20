@@ -36,9 +36,9 @@ namespace ecs
 				destroy_at_end_of_frame(entity_b);
 			}
 		} else if (class_a == "arrow") {
-			if (class_b == "slime") {
-				destroy_at_end_of_frame(entity_a);
-				apply_damage_to_slime(entity_b, { DamageType::Projectile, 1 });
+			destroy_at_end_of_frame(entity_a);
+			if (class_b == "slime" || class_b == "bomb") {
+				apply_damage(entity_b, { DamageType::Projectile, 1 });
 			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
