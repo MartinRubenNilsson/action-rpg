@@ -29,6 +29,7 @@ namespace audio
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
 	int _next_event_id = 0;
 	std::unordered_map<int, FMOD::Studio::EventInstance*> _event_id_to_instance;
+	std::unordered_set<std::string> _events_played_this_frame;
 
 	FMOD_RESULT F_CALLBACK _on_event_destroyed(
 		FMOD_STUDIO_EVENT_CALLBACK_TYPE type,
@@ -115,8 +116,10 @@ namespace audio
 		}
 	}
 
-	void update() {
+	void update()
+	{
 		_system->update();
+		_events_played_this_frame.clear();
 	}
 
 	FMOD_3D_ATTRIBUTES _pos_to_3d_attribs(const sf::Vector2f& position)
@@ -213,12 +216,14 @@ namespace audio
 
 	int play(const std::string& event_path)
 	{
+		if (_events_played_this_frame.contains(event_path)) return INVALID_EVENT_ID;
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
 		if (!desc) return INVALID_EVENT_ID;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
 		if (!instance) return INVALID_EVENT_ID;
 		int event_id = _next_event_id++;
 		_event_id_to_instance[event_id] = instance;
+		_events_played_this_frame.insert(event_path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
 		instance->setUserData((void*)(uintptr_t)event_id);
 		instance->start();

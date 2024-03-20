@@ -31,6 +31,8 @@ namespace audio
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
 
+	// TODO: struct EventOptions
+
 	// Returns a new unique event id on success, or INVALID_EVENT_ID on failure.
 	int play(const std::string& event_path);
 	bool is_valid(int event_id);
