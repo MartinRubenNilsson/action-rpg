@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "postprocess.h"
+#include "postprocessing.h"
 #include "shaders.h"
 #include "textures.h"
 
-namespace postprocess
+namespace postprocessing
 {
 	struct Shockwave
 	{

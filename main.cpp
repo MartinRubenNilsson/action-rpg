@@ -13,7 +13,7 @@
 #include "console.h"
 #include "tiled.h"
 #include "background.h"
-#include "postprocess.h"
+#include "postprocessing.h"
 #include "settings.h"
 #include "textures.h"
 #include "cursor.h"
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 #if 0
                     if (ev.mouseButton.button == sf::Mouse::Left) {
                         sf::Vector2f mouse_pos((float)ev.mouseButton.x, (float)ev.mouseButton.y);
-						postprocess::_shockwaves.emplace_back(mouse_pos, 0.1f, 0.1f, 0.1f);
+						postprocessing::_shockwaves.emplace_back(mouse_pos, 0.1f, 0.1f, 0.1f);
 					}
 #endif
 				}
@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
         debug::update(dt.asSeconds());
         if (!ui::should_pause_game() && !steam::is_overlay_active()) {
             ecs::update(dt.asSeconds());
-            postprocess::update(dt.asSeconds());
+            postprocessing::update(dt.asSeconds());
         }
 
         if (debug_stats) {
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
             ecs::render(*texture);
             debug::render(*texture);
             texture->display();
-            postprocess::render(texture);
+            postprocessing::render(texture);
             window.draw(sf::Sprite(texture->getTexture())); // Copy to window.
             textures::give_render_texture_to_pool(std::move(texture));
         }

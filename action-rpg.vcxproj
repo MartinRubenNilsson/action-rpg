@@ -211,7 +211,7 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="map_entities.cpp" />
     <ClCompile Include="map_tilegrid.cpp" />
-    <ClCompile Include="postprocess.cpp" />
+    <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_common.cpp" />
@@ -382,7 +382,7 @@
     <ClInclude Include="fonts.h" />
     <ClInclude Include="map_entities.h" />
     <ClInclude Include="map_tilegrid.h" />
-    <ClInclude Include="postprocess.h" />
+    <ClInclude Include="postprocessing.h" />
     <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="ecs.h" />

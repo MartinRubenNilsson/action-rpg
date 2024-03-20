@@ -7,7 +7,7 @@
 #include "ecs_vfx.h"
 #include "ecs_player.h"
 #include "audio.h"
-#include "postprocess.h"
+#include "postprocessing.h"
 #include "debug_draw.h"
 
 namespace ecs
@@ -69,7 +69,7 @@ namespace ecs
         create_vfx(VfxType::Explosion, position);
         add_trauma_to_active_camera(0.8f);
         audio::play("event:/snd_glass_smash");
-        postprocess::create_shockwave(position);
+        postprocessing::create_shockwave(position);
 
         sf::Vector2f box_center = position;
         sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
