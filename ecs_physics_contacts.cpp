@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "ecs_physics_contacts.h"
 #include "physics_helpers.h"
-#include "audio.h"
 #include "ecs_common.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"
+#include "ecs_damage.h"
+#include "audio.h"
 
 namespace ecs
 {
@@ -37,13 +38,14 @@ namespace ecs
 		} else if (class_a == "arrow") {
 			if (class_b == "slime") {
 				destroy_at_end_of_frame(entity_a);
-				destroy_at_end_of_frame(entity_b);
+				apply_damage_to_slime(entity_b, { DamageType::Projectile, 1 });
 			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
+				//TODO: put somewehere else in a helper function
 				audio::play("event:/snd_pickup");
-				auto& player = _registry.get<Player>(entity_b);
-				auto& pickup = _registry.get<Pickup>(entity_a);
+				Player& player = _registry.get<Player>(entity_b);
+				Pickup& pickup = _registry.get<Pickup>(entity_a);
 				switch (pickup.type) {
 				case PickupType::Arrow:
 					player.arrows++;
@@ -56,7 +58,7 @@ namespace ecs
 			}
 		} else if (class_a == "player") {
 			if (class_b == "slime") {
-				hurt_player(entity_a, 1);
+				apply_damage_to_player(entity_a, { DamageType::Melee, 1 });
 			}
 		}
 	}

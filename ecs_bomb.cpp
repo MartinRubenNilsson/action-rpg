@@ -5,10 +5,10 @@
 #include "ecs_camera.h"
 #include "ecs_physics.h"
 #include "ecs_vfx.h"
-#include "ecs_player.h"
+#include "ecs_damage.h"
+#include "debug_draw.h"
 #include "audio.h"
 #include "postprocessing.h"
-#include "debug_draw.h"
 
 namespace ecs
 {
@@ -76,18 +76,11 @@ namespace ecs
         sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
         debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
 
+        Damage damage{};
+        damage.type = DamageType::Explosion;
+        damage.amount = 2;
         for (const BoxHit& hit : boxcast(box_min, box_max)) {
-            std::string class_ = get_class(hit.entity);
-
-            if (class_ == "slime") {
-                destroy_at_end_of_frame(hit.entity);
-            }
-            else if (class_ == "player") {
-                hurt_player(hit.entity, 2);
-            }
-            else if (class_ == "grass") {
-				destroy_at_end_of_frame(hit.entity);
-			}
+            apply_damage(hit.entity, damage);
         }
     }
 }

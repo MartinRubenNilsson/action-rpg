@@ -45,5 +45,4 @@ namespace ecs
 	bool remove_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);
-	bool hurt_player(entt::entity entity, int health_to_remove);
 }

@@ -304,7 +304,7 @@ namespace ecs
 			ImGui::Text("Rupees: %d", player.rupees);
 			
 			if (ImGui::Button("Hurt"))
-				hurt_player(entity, 1);
+				apply_damage_to_player(entity, { DamageType::Default, 1 });
 			ImGui::SameLine();
 			if (ImGui::Button("Kill"))
 				kill_player(entity);
@@ -348,14 +348,14 @@ namespace ecs
 		return true;
 	}
 
-	bool hurt_player(entt::entity entity, int health_to_remove)
+	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
 	{
-		if (health_to_remove <= 0) return false;
+		if (damage.amount <= 0) return false;
 		if (!_registry.all_of<Player>(entity)) return false;
 		Player& player = _registry.get<Player>(entity);
 		if (player.health <= 0) return false; // Player is already dead
 		if (player.hurt_timer.running()) return false; // Player is invulnerable
-		player.health = std::max(0, player.health - health_to_remove);
+		player.health = std::max(0, player.health - damage.amount);
 		add_trauma_to_active_camera(0.8f);
 		if (player.health > 0) { // Player survived
 			audio::play("event:/snd_player_hurt");
