@@ -25,7 +25,7 @@ namespace ecs
 	// positive x direction. This function returns a normalized vector that points
 	// in the direction of the magnetic field line at the given position. It's fake
 	// since the arcs are perfect circles, unlike a real magnetic field, but that's
-	// ok since we're just using it for AI pathfinding.
+	// ok since we're just using it to make the pathfinding smoother.
 	sf::Vector2f _get_magnetic_field_line_at(const sf::Vector2f& pos)
 	{
 		sf::Vector2f result(1.f, 0.f);
@@ -100,7 +100,12 @@ namespace ecs
 					break;
 				uint32_t my_category_bits = get_category_bits(body);
 				uint32_t target_category_bits = get_category_bits(target_body);
-				if (!raycast_any(my_pos, target_pos, ~(my_category_bits | target_category_bits))) {
+				uint32_t mask_bits = ~(my_category_bits | target_category_bits); // Exclude self and target.
+				sf::Vector2f strafe_dir = rotate_90deg(my_new_dir);
+				// If there's a direct line of sight, don't bother with pathfinding.
+				if (!raycast_any(my_pos + 8.f * strafe_dir, target_pos, mask_bits) &&
+					!raycast_any(my_pos - 8.f * strafe_dir, target_pos, mask_bits))
+				{
 					action.path.clear();
 					break;
 				}
