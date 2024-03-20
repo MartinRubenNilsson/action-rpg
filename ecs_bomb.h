@@ -16,5 +16,4 @@ namespace ecs
     void update_bombs(float dt);
 
     entt::entity create_bomb(const sf::Vector2f& position);
-    void explode_bomb(entt::entity bomb_entity, float blast_radius, const sf::Vector2f& position);
 }

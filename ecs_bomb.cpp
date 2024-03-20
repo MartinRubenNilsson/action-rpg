@@ -16,6 +16,27 @@ namespace ecs
 
     float _bomb_elapsed_time = 0.f;
 
+    void _explode_bomb(entt::entity entity, float blast_radius, const sf::Vector2f& position)
+    {
+        create_vfx(VfxType::Explosion, position);
+        add_trauma_to_active_camera(0.8f);
+        destroy_at_end_of_frame(entity);
+        audio::play("event:/snd_glass_smash");
+        postprocessing::create_shockwave(position);
+
+        sf::Vector2f box_center = position;
+        sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
+        sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
+        debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
+
+        Damage damage{};
+        damage.type = DamageType::Explosion;
+        damage.amount = 2;
+        for (const BoxHit& hit : boxcast(box_min, box_max)) {
+            apply_damage(hit.entity, damage);
+        }
+    }
+
     void update_bombs(float dt)
     {
         _bomb_elapsed_time += dt;
@@ -28,7 +49,7 @@ namespace ecs
                 // Update the timer
                 if (bomb.timer.update(dt)) {
                     // The timer finished counting down
-                    explode_bomb(entity, bomb.blast_radius, tile.position);
+                    _explode_bomb(entity, bomb.blast_radius, tile.position);
 
                 }
                 else {
@@ -61,26 +82,5 @@ namespace ecs
             tile.sorting_pivot = sf::Vector2f(8.f, 16.f);
         }
         return entity;
-    }
-
-    void explode_bomb(entt::entity bomb_entity, float blast_radius, const sf::Vector2f& position)
-    {
-        destroy_at_end_of_frame(bomb_entity);
-        create_vfx(VfxType::Explosion, position);
-        add_trauma_to_active_camera(0.8f);
-        audio::play("event:/snd_glass_smash");
-        postprocessing::create_shockwave(position);
-
-        sf::Vector2f box_center = position;
-        sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
-        sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
-        debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
-
-        Damage damage{};
-        damage.type = DamageType::Explosion;
-        damage.amount = 2;
-        for (const BoxHit& hit : boxcast(box_min, box_max)) {
-            apply_damage(hit.entity, damage);
-        }
     }
 }

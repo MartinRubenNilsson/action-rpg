@@ -15,8 +15,7 @@ namespace ecs
 		if (!_registry.valid(entity)) return false;
 		std::string class_ = get_class(entity);
 		if (class_ == "player") {
-			//return apply_damage_to_player(entity, damage);
-			return false; //TODO
+			return apply_damage_to_player(entity, damage);
 		} else if (class_ == "slime") {
 			return apply_damage_to_slime(entity, damage);
 		} else if (class_ == "grass") {
