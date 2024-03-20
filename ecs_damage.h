@@ -19,6 +19,8 @@ namespace ecs
 		//sf::Vector2f direction; //Could be useful for knockback
 	};
 
+	//TODO: apply_radial_damage, apply_box_damage, apply_cone_damage, etc.
+
 	// Delegates to the appropriate function based on the entity's class (e.g. player, enemy, etc.)
 	// Returns true if the entity was damaged, false otherwise.
 	bool apply_damage(entt::entity entity, const Damage& damage);
@@ -27,6 +29,7 @@ namespace ecs
 
 	bool apply_damage_to_player(entt::entity entity, const Damage& damage);
 	bool apply_damage_to_slime(entt::entity entity, const Damage& damage);
+	bool apply_damage_to_bomb(entt::entity entity, const Damage& damage);
 	bool apply_damage_to_grass(entt::entity entity, const Damage& damage);
 }
 

@@ -91,7 +91,7 @@ namespace ecs
 		}
 	}
 
-	// TODO: Put in a separate file with _player_attack below
+	// TODO: Put in a separate unit
 	void _player_interact(const sf::Vector2f& position)
 	{
 		sf::Vector2f box_center = position;

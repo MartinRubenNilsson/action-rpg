@@ -16,23 +16,26 @@ namespace ecs
 
     float _bomb_elapsed_time = 0.f;
 
-    void _explode_bomb(entt::entity entity, float blast_radius, const sf::Vector2f& position)
+    void _explode_bomb(entt::entity entity)
     {
-        create_vfx(VfxType::Explosion, position);
+        if (!_registry.all_of<Bomb>(entity)) return;
+        Bomb& bomb = _registry.get<Bomb>(entity);
+
+        create_vfx(VfxType::Explosion, bomb.explosion_center);
         add_trauma_to_active_camera(0.8f);
         destroy_at_end_of_frame(entity);
         audio::play("event:/snd_glass_smash");
-        postprocessing::create_shockwave(position);
+        postprocessing::create_shockwave(bomb.explosion_center);
 
-        sf::Vector2f box_center = position;
-        sf::Vector2f box_min = box_center - sf::Vector2f(12.f, 12.f);
-        sf::Vector2f box_max = box_center + sf::Vector2f(12.f, 12.f);
+        sf::Vector2f box_min = bomb.explosion_center - sf::Vector2f(12.f, 12.f);
+        sf::Vector2f box_max = bomb.explosion_center + sf::Vector2f(12.f, 12.f);
         debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
 
         Damage damage{};
         damage.type = DamageType::Explosion;
         damage.amount = 2;
         for (const BoxHit& hit : boxcast(box_min, box_max)) {
+            if (hit.entity == entity) continue; // IMPORTANT: I got a stack overflow when this line was missing
             apply_damage(hit.entity, damage);
         }
     }
@@ -40,39 +43,52 @@ namespace ecs
     void update_bombs(float dt)
     {
         _bomb_elapsed_time += dt;
-        auto view = _registry.view<Bomb, Tile>();
-        for (auto entity : view) {
-            auto& bomb = view.get<Bomb>(entity);
-            auto& tile = view.get<Tile>(entity);
 
-            if (bomb.is_active) {
-                // Update the timer
-                if (bomb.timer.update(dt)) {
-                    // The timer finished counting down
-                    _explode_bomb(entity, bomb.blast_radius, tile.position);
+        for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
 
-                }
-                else {
-                    // Check if the bomb should start blinking
-                    if (bomb.timer.get_progress() > 0.5f) {  // Start blinking at >50% progress
-                        // Blinking effect
-                        constexpr float BLINK_SPEED = 20.f;
-                        float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
-                        tile.color.a = (sf::Uint8)(255 * blink_fraction);
-
-                        bomb.should_blink = true;
-                    }
-                }
+            bomb.explosion_timer.update(dt);
+            if (bomb.explosion_timer.finished()) {
+                _explode_bomb(entity);
+                continue;
             }
+
+            // Start blinking at >50% progress
+            if (bomb.explosion_timer.get_progress() < 0.5f) continue;  
+            constexpr float BLINK_SPEED = 20.f;
+            float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
+            tile.color.a = (sf::Uint8)(255 * blink_fraction);
         }
+    }
+
+    bool apply_damage_to_bomb(entt::entity entity, const Damage& damage)
+    {
+        // DON'T call _explode_bomb() directly here, I got a stack overflow
+        // when two bombs kept on exploding each other in an infinite loop!
+        if (damage.amount <= 0) return false;
+        if (!_registry.all_of<Bomb>(entity)) return false;
+        Bomb& bomb = _registry.get<Bomb>(entity);
+        bomb.explosion_timer.finish();
+        return true;
     }
 
     entt::entity create_bomb(const sf::Vector2f& position)
     {
         entt::entity entity = _registry.create();
+        set_class(entity, "bomb");
         {
             Bomb& bomb = _registry.emplace<Bomb>(entity);
-            bomb.timer.start();
+            bomb.explosion_timer.start();
+            bomb.explosion_center = position;
+        }
+        {
+            b2BodyDef body_def{};
+            body_def.type = b2_staticBody;
+            body_def.position.Set(position.x, position.y);
+            body_def.fixedRotation = true;
+            b2Body* body = emplace_body(entity, body_def);
+            b2CircleShape shape{};
+            shape.m_radius = 4.f;
+            body->CreateFixture(&shape, 0.f);
         }
         {
             Tile& tile = emplace_tile(entity);

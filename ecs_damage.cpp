@@ -18,6 +18,8 @@ namespace ecs
 			return apply_damage_to_player(entity, damage);
 		} else if (class_ == "slime") {
 			return apply_damage_to_slime(entity, damage);
+		} else if (class_ == "bomb") {
+			return apply_damage_to_bomb(entity, damage);
 		} else if (class_ == "grass") {
 			return apply_damage_to_grass(entity, damage);
 		}
