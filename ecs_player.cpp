@@ -6,9 +6,7 @@
 #include "ecs_arrow.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
-#include "ecs_pickups.h"
 #include "ecs_bomb.h"
-#include "ecs_vfx.h"
 #include "ecs_damage.h"
 #include "physics_helpers.h"
 #include "console.h"
@@ -110,11 +108,11 @@ namespace ecs
 		}
 	}
 
-	void _player_attack(const sf::Vector2f& position)
+	void _player_attack(entt::entity entity, const sf::Vector2f& position)
 	{
 		sf::Vector2f box_min = position - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = position + sf::Vector2f(6.f, 6.f);
-		apply_damage_in_box({ DamageType::Melee, 1 }, box_min, box_max, ~CC_Player);
+		apply_damage_in_box({ DamageType::Melee, 1, entity }, box_min, box_max, ~CC_Player);
 	}
 
 	void update_players(float dt)
@@ -225,7 +223,7 @@ namespace ecs
 						player.look_dir * _PLAYER_ARROW_SPEED);
 				}
 				else if (player.sword_attack_timer.update(dt)) {
-					_player_attack(position + player.look_dir * 16.f);
+					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 
 				// When animation is done, we are done attacking.
