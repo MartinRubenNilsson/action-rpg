@@ -112,15 +112,9 @@ namespace ecs
 
 	void _player_attack(const sf::Vector2f& position)
 	{
-		sf::Vector2f box_center = position;
-		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
-		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
-		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
-			std::string class_ = get_class(hit.entity);
-			sf::Vector2f hit_position = get_world_center(hit.body);
-			apply_damage(hit.entity, { DamageType::Melee, 1 });
-		}
+		sf::Vector2f box_min = position - sf::Vector2f(6.f, 6.f);
+		sf::Vector2f box_max = position + sf::Vector2f(6.f, 6.f);
+		apply_damage_in_box({ DamageType::Melee, 1 }, box_min, box_max, ~CC_Player);
 	}
 
 	void update_players(float dt)

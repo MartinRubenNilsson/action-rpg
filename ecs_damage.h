@@ -19,6 +19,8 @@ namespace ecs
 		//sf::Vector2f direction; //Could be useful for knockback
 	};
 
+	void apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits = 0xFFFF);
+
 	//TODO: apply_radial_damage, apply_box_damage, apply_cone_damage, etc.
 
 	// Delegates to the appropriate function based on the entity's class (e.g. player, enemy, etc.)

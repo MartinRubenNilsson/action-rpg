@@ -5,10 +5,20 @@
 #include "ecs_pickups.h"
 #include "random.h"
 #include "audio.h"
+#include "debug_draw.h"
 
 namespace ecs
 {
 	extern entt::registry _registry;
+
+	void apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits)
+	{
+		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
+		for (const BoxHit& hit : boxcast(box_min, box_max, mask_bits)) {
+			// TODO: don't apply damage to the same entity multiple times
+			apply_damage(hit.entity, damage);
+		}
+	}
 
 	bool apply_damage(entt::entity entity, const Damage& damage)
 	{
