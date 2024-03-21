@@ -7,7 +7,7 @@ namespace ecs
     {
         Timer explosion_timer = { 3.f };
         sf::Vector2f explosion_center;
-        float explosion_radius = 16.f;
+        float explosion_radius = 20.f;
     };
 
     void update_bombs(float dt);

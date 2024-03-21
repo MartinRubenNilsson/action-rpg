@@ -2,6 +2,7 @@
 
 namespace ecs
 {
+	//Not really used right now, but could be useful for future features.
 	enum class DamageType
 	{
 		Default,
@@ -16,15 +17,22 @@ namespace ecs
 	{
 		DamageType type = DamageType::Default;
 		int amount = 0;
-		//sf::Vector2f direction; //Could be useful for knockback
+		// The entity that dealt the damage (e.g. the bomb that exploded).
+		// As a safety measure, the source entity cannot damage itself.
+		entt::entity source = entt::null; 
 	};
 
-	void apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits = 0xFFFF);
+	// AREA-BASED DAMAGE FUNCTIONS
 
-	//TODO: apply_radial_damage, apply_box_damage, apply_cone_damage, etc.
+	// Applies damage to all entities that intersect the given box.
+	void apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits = 0xFFFF);
+	// Applies damage to all entities that intersect the given circle.
+	void apply_damage_in_circle(const Damage& damage, const sf::Vector2f& center, float radius, uint16_t mask_bits = 0xFFFF);
+
+	// "UNIVERSAL" DAMAGE FUNCTION
 
 	// Delegates to the appropriate function based on the entity's class (e.g. player, enemy, etc.)
-	// Returns true if the entity was damaged, false otherwise.
+	// Returns true if the damage carried through, false if the entity was immune or invalid.
 	bool apply_damage(entt::entity entity, const Damage& damage);
 
 	// CLASS-SPECIFIC DAMAGE FUNCTIONS

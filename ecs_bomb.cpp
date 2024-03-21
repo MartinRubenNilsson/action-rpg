@@ -20,24 +20,13 @@ namespace ecs
     {
         if (!_registry.all_of<Bomb>(entity)) return;
         Bomb& bomb = _registry.get<Bomb>(entity);
-
-        create_vfx(VfxType::Explosion, bomb.explosion_center);
+        apply_damage_in_circle({ DamageType::Explosion, 2, entity },
+            bomb.explosion_center, bomb.explosion_radius);
         add_trauma_to_active_camera(0.8f);
+        create_vfx(VfxType::Explosion, bomb.explosion_center);
         destroy_at_end_of_frame(entity);
         audio::play("event:/snd_glass_smash");
         postprocessing::create_shockwave(bomb.explosion_center);
-
-        sf::Vector2f box_min = bomb.explosion_center - sf::Vector2f(12.f, 12.f);
-        sf::Vector2f box_max = bomb.explosion_center + sf::Vector2f(12.f, 12.f);
-        debug::draw_box(box_min, box_max, sf::Color::Red, 0.3f);
-
-        Damage damage{};
-        damage.type = DamageType::Explosion;
-        damage.amount = 2;
-        for (const BoxHit& hit : boxcast(box_min, box_max)) {
-            if (hit.entity == entity) continue; // IMPORTANT: I got a stack overflow when this line was missing
-            apply_damage(hit.entity, damage);
-        }
     }
 
     void update_bombs(float dt)
