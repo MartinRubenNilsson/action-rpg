@@ -203,7 +203,8 @@ namespace map
 					// EMPLACE BODY
 
 					if (!tile->objects.empty()) {
-						b2BodyDef body_def;
+
+						b2BodyDef body_def{};
 						body_def.type = b2_staticBody;
 						body_def.position.x = position_x;
 						body_def.position.y = position_y;
@@ -221,19 +222,19 @@ namespace map
 							float collider_hw = collider.size.x / 2.0f;
 							float collider_hh = collider.size.y / 2.0f;
 
-							b2FixtureDef fixture_def;
+							b2FixtureDef fixture_def{};
 							collider.properties.get_bool("sensor", fixture_def.isSensor);
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
-								b2PolygonShape shape;
+								b2PolygonShape shape{};
 								shape.SetAsBox(collider_hw, collider_hh,
 									b2Vec2(collider_cx + collider_hw, collider_cy + collider_hh), 0.f);
 								fixture_def.shape = &shape;
 								body->CreateFixture(&fixture_def);
 							} break;
 							case tiled::ObjectType::Ellipse: {
-								b2CircleShape shape;
+								b2CircleShape shape{};
 								shape.m_p.x = collider_cx;
 								shape.m_p.y = collider_cy;
 								shape.m_radius = collider_hw;
@@ -243,8 +244,7 @@ namespace map
 							case tiled::ObjectType::Polygon: {
 								size_t count = collider.points.size();
 								if (count < 3) {
-									console::log_error(
-										"Too few points in polygon collider! Got " +
+									console::log_error("Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
 								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
 									b2Vec2 points[b2_maxPolygonVertices];
@@ -252,18 +252,18 @@ namespace map
 										points[i].x = collider_cx + collider.points[i].x;
 										points[i].y = collider_cy + collider.points[i].y;
 									}
-									b2PolygonShape shape;
+									b2PolygonShape shape{};
 									shape.Set(points, (int32)count);
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
-									for (const std::array<sf::Vector2f, 3>&triangle : triangulate(collider.points)) {
+									for (const std::array<sf::Vector2f, 3>& triangle : triangulate(collider.points)) {
 										b2Vec2 points[3];
 										for (size_t i = 0; i < 3; ++i) {
 											points[i].x = collider_cx + triangle[i].x;
 											points[i].y = collider_cy + triangle[i].y;
 										}
-										b2PolygonShape shape;
+										b2PolygonShape shape{};
 										shape.Set(points, 3);
 										fixture_def.shape = &shape;
 										body->CreateFixture(&fixture_def);
