@@ -35,10 +35,10 @@ namespace ecs
 					ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f, true);
 				} else if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
 				} else if (action.type == AiActionType::Wander && action.status == AiActionStatus::Succeeded) {
-                    float duration = random::range_f(0.5f, 1.5f);
+                    float duration = random::range_float(0.5f, 1.5f);
 					ai_wait(entity, duration);
 				} else if (action.type != AiActionType::Wander) {
-                    float duration = random::range_f(1.f, 3.f);
+                    float duration = random::range_float(1.f, 3.f);
                     ai_wander(entity, knowledge.initial_position, 20.f, 50.f, duration);
                 }
 

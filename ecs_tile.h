@@ -62,11 +62,13 @@ namespace ecs
 
 	private:
 		const tiled::Tile* _tile = nullptr;
+		sf::IntRect _texture_rect;
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_frame_index = 0;
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;
 
 		bool _set_sprite(const tiled::Tile* tile);
+		const tiled::Tile* _get_visible_tile() const;
 	};
 
 	void update_tiles(float dt);

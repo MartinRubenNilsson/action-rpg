@@ -13,11 +13,13 @@ namespace ecs
 
 	struct Pickup
 	{
-		PickupType type;
+		PickupType type = PickupType::Arrow;
 	};
 
-	entt::entity create_pickup(const sf::Vector2f& position, PickupType pickup);
+	void update_pickups(float dt);
 
-	void emplace_pickup(entt::entity entity, const Pickup& pickup);
+	entt::entity create_pickup(PickupType type, const sf::Vector2f& position);
+
+	Pickup& emplace_pickup(entt::entity entity);
 	bool remove_pickup(entt::entity entity);
 }

@@ -54,6 +54,14 @@ namespace ecs
 		return true;
 	}
 
+	const tiled::Tile* Tile::_get_visible_tile() const
+	{
+		if (!_tile) return nullptr;
+		if (_animation_frame_index < _tile->animation.size())
+			return _tile->animation[_animation_frame_index].tile;
+		return _tile;
+	}
+
 	bool Tile::set_sprite(const std::string& tile_class)
 	{
 		if (!_tile) return false; // no tileset to look in
@@ -74,20 +82,10 @@ namespace ecs
 	sf::Sprite Tile::get_sprite() const
 	{
 		sf::Sprite sprite;
-		if (!_tile) {
-			if (std::shared_ptr<sf::Texture> error_texture = textures::get_error_texture())
-				sprite.setTexture(*error_texture, true);
-			return sprite;
+		if (const tiled::Tile* tile = _get_visible_tile()) {
+			sprite.setTexture(*tile->tileset->image);
+			sprite.setTextureRect(tile->image_rect);
 		}
-		if (_animation_duration_ms && _animation_frame_index < _tile->animation.size()) {
-			const tiled::Frame& frame = _tile->animation[_animation_frame_index];
-			sprite.setTexture(*frame.tile->tileset->image);
-			sprite.setTextureRect(frame.tile->image_rect);
-		} else {
-			sprite.setTexture(*_tile->tileset->image);
-			sprite.setTextureRect(_tile->image_rect);
-		}
-		sf::Vector2f origin = pivot;
 		if (get_flag(TF_FLIP_X)) {
 			sf::IntRect texture_rect = sprite.getTextureRect();
 			texture_rect.left += texture_rect.width;
@@ -100,7 +98,7 @@ namespace ecs
 			texture_rect.height = -texture_rect.height;
 			sprite.setTextureRect(texture_rect);
 		}
-		sprite.setOrigin(origin);
+		sprite.setOrigin(pivot);
 		sprite.setPosition(position);
 		sprite.setColor(color);
 		if (texture)

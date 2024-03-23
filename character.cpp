@@ -6,30 +6,30 @@
 
 void Character::randomize()
 {
-	body = (Body)(random::range_i(1, (int)Body::Count - 1));
-	skin_color = random::range_i(0, SKIN_COLORS - 1);
-	sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
-	sock_color = random::range_i(0, SOCK_COLORS - 1);
-	shoe = (Shoe)(random::range_i(0, (int)Shoe::Count - 1));
-	shoe_color = random::range_i(0, SHOE_COLORS - 1);
-	lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
-	lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
-	shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
-	shirt_color = random::range_i(0, SHIRT_COLORS - 1);
-	gloves = (Gloves)(random::range_i(0, (int)Gloves::Count - 1));
-	gloves_color = random::range_i(0, GLOVES_COLORS - 1);
-	outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
-	outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
-	neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
-	neckwear_color_1 = random::range_i(0, NECKWEAR_COLORS_1 - 1);
-	neckwear_color_2 = random::range_i(0, NECKWEAR_COLORS_2 - 1);
-	glasses = (Glasses)(random::range_i(0, (int)Glasses::Count - 1));
-	glasses_color = random::range_i(0, GLASSES_COLORS - 1);
-	hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
-	hair_color = random::range_i(0, HAIR_COLORS - 1);
-	hat = (Hat)(random::range_i(0, (int)Hat::Count - 1));
-	hat_color_1 = random::range_i(0, HAT_COLORS_1 - 1);
-	hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
+	body = (Body)(random::range_int(1, (int)Body::Count - 1));
+	skin_color = random::range_int(0, SKIN_COLORS - 1);
+	sock = (Sock)(random::range_int(0, (int)Sock::Count - 1));
+	sock_color = random::range_int(0, SOCK_COLORS - 1);
+	shoe = (Shoe)(random::range_int(0, (int)Shoe::Count - 1));
+	shoe_color = random::range_int(0, SHOE_COLORS - 1);
+	lowerwear = (Lowerwear)(random::range_int(0, (int)Lowerwear::Count - 1));
+	lowerwear_color = random::range_int(0, LOWERWEAR_COLORS - 1);
+	shirt = (Shirt)(random::range_int(0, (int)Shirt::Count - 1));
+	shirt_color = random::range_int(0, SHIRT_COLORS - 1);
+	gloves = (Gloves)(random::range_int(0, (int)Gloves::Count - 1));
+	gloves_color = random::range_int(0, GLOVES_COLORS - 1);
+	outerwear = (Outerwear)(random::range_int(0, (int)Outerwear::Count - 1));
+	outerwear_color = random::range_int(0, OUTERWEAR_COLORS - 1);
+	neckwear = (Neckwear)(random::range_int(0, (int)Neckwear::Count - 1));
+	neckwear_color_1 = random::range_int(0, NECKWEAR_COLORS_1 - 1);
+	neckwear_color_2 = random::range_int(0, NECKWEAR_COLORS_2 - 1);
+	glasses = (Glasses)(random::range_int(0, (int)Glasses::Count - 1));
+	glasses_color = random::range_int(0, GLASSES_COLORS - 1);
+	hair = (Hair)(random::range_int(0, (int)Hair::Count - 1));
+	hair_color = random::range_int(0, HAIR_COLORS - 1);
+	hat = (Hat)(random::range_int(0, (int)Hat::Count - 1));
+	hat_color_1 = random::range_int(0, HAT_COLORS_1 - 1);
+	hat_color_2 = random::range_int(0, HAT_COLORS_2 - 1);
 }
 
 std::shared_ptr<sf::Texture> Character::bake_texture() const
