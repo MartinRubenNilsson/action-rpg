@@ -171,7 +171,7 @@ namespace map
 					if (object.properties.get_string("event", event_name)) {
 						audio::EventOptions options{};
 						options.position = sf::Vector2f(x, y);
-						audio::play("event:/" + event_name, &options);
+						audio::play("event:/" + event_name, options);
 					}
 				}
 			}
