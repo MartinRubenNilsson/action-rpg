@@ -11,15 +11,18 @@
 namespace ecs
 {
 	extern entt::registry _registry;
+	std::unordered_set<entt::entity> _entities_that_took_damage;
 
 	void apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits)
 	{
 		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, mask_bits)) {
 			if (hit.entity == damage.source) continue;
-			// TODO: don't apply damage to the same entity multiple times
-			apply_damage(hit.entity, damage);
+			if (_entities_that_took_damage.contains(hit.entity)) continue;
+			if (apply_damage(hit.entity, damage))
+				_entities_that_took_damage.insert(hit.entity);
 		}
+		_entities_that_took_damage.clear();
 	}
 
 	void apply_damage_in_circle(const Damage& damage, const sf::Vector2f& center, float radius, uint16_t mask_bits)
@@ -27,9 +30,11 @@ namespace ecs
 		debug::draw_circle(center, radius, sf::Color::Red, 0.2f);
 		for (const OverlapHit& hit : overlap_circle(center, radius, mask_bits)) {
 			if (hit.entity == damage.source) continue;
-			// TODO: don't apply damage to the same entity multiple times
-			apply_damage(hit.entity, damage);
+			if (_entities_that_took_damage.contains(hit.entity)) continue;
+			if (apply_damage(hit.entity, damage))
+				_entities_that_took_damage.insert(hit.entity);
 		}
+		_entities_that_took_damage.clear();
 	}
 
 	bool apply_damage(entt::entity entity, const Damage& damage)
@@ -66,7 +71,6 @@ namespace ecs
 			create_pickup(pickup_type, position + sf::Vector2f(2.f, 2.f));
 		}
 		destroy_at_end_of_frame(entity);
-
 		return true;
 	}
 }
