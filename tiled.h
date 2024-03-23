@@ -37,7 +37,7 @@ namespace tiled
 		sf::Vector2f size; // in pixels
 		entt::entity entity = entt::null;
 		ObjectType type = ObjectType::Rectangle;
-		FlipFlags flip_flags = FLIP_NONE; // only for tile objects
+		uint8_t flip_flags = FLIP_NONE; // only for tile objects
 	};
 
 	struct Frame
@@ -70,9 +70,9 @@ namespace tiled
 
 	struct Tile
 	{
-		sf::Sprite sprite;
 		std::string class_;
 		Properties properties;
+		sf::IntRect image_rect; // in pixels
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of

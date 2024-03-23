@@ -159,14 +159,10 @@ namespace tiled
 			for (uint32_t i = 0; i < tileset.tile_count; ++i) {
 				Tile& tile = tileset.tiles[i];
 				tile.tileset = &tileset;
-				if (tileset.image)
-					tile.sprite.setTexture(*tileset.image);
-				sf::IntRect texture_rect;
-				texture_rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
-				texture_rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
-				texture_rect.width = tileset.tile_width;
-				texture_rect.height = tileset.tile_height;
-				tile.sprite.setTextureRect(texture_rect);
+				tile.image_rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
+				tile.image_rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
+				tile.image_rect.width = tileset.tile_width;
+				tile.image_rect.height = tileset.tile_height;
 			}
 			for (pugi::xml_node tile_node : tileset_node.children("tile")) {
 				Tile& tile = tileset.tiles.at(tile_node.attribute("id").as_uint());

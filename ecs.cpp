@@ -75,7 +75,7 @@ namespace ecs
 		// Collect all visible sprites in view.
 		std::vector<SortedSprite> sprites;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
-			if (!tile.visible) continue;
+			if (!tile.get_flag(TF_VISIBLE)) continue;
 			sf::Sprite sprite = tile.get_sprite();
 			sf::FloatRect sprite_bounds = sprite.getGlobalBounds();
 			if (!view_bounds.intersects(sprite_bounds)) continue;

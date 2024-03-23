@@ -31,10 +31,16 @@ namespace audio
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
 
-	// TODO: struct EventOptions
+	struct EventOptions
+	{
+		float volume = 1.f;
+		sf::Vector2f position;
+		bool start = true;
+		bool release = true;
+	};
 
 	// Returns a new unique event id on success, or INVALID_EVENT_ID on failure.
-	int play(const std::string& event_path);
+	int play(const std::string& event_path, const EventOptions& options = EventOptions());
 	bool is_valid(int event_id);
 	bool set_volume(int event_id, float volume);
 	bool get_volume(int event_id, float& volume);

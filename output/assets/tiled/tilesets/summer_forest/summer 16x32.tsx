@@ -6,14 +6,13 @@
    <property name="shader" value="grass"/>
   </properties>
   <objectgroup draworder="index" id="6">
-   <object id="6" x="6.72727" y="22" width="4.81818" height="4.81818">
+   <object id="7" name="pivot" x="8.25" y="30.6875">
+    <point/>
+   </object>
+   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182">
     <properties>
      <property name="sensor" type="bool" value="true"/>
     </properties>
-    <ellipse/>
-   </object>
-   <object id="7" name="pivot" x="8.25" y="30.6875">
-    <point/>
    </object>
   </objectgroup>
  </tile>
@@ -22,14 +21,13 @@
    <property name="shader" value="grass"/>
   </properties>
   <objectgroup draworder="index" id="4">
-   <object id="3" x="5.27273" y="22" width="5.45455" height="5.45455">
+   <object id="4" name="pivot" x="8.3125" y="30.875">
+    <point/>
+   </object>
+   <object id="6" x="1.90909" y="21.9091" width="12.4545" height="6.90909">
     <properties>
      <property name="sensor" type="bool" value="true"/>
     </properties>
-    <ellipse/>
-   </object>
-   <object id="4" name="pivot" x="8.3125" y="30.875">
-    <point/>
    </object>
   </objectgroup>
  </tile>
@@ -38,14 +36,13 @@
    <property name="shader" value="grass"/>
   </properties>
   <objectgroup draworder="index" id="3">
-   <object id="2" x="3.72727" y="22.9091" width="5.27273" height="5.27273">
+   <object id="4" name="pivot" x="6.3125" y="30.1875">
+    <point/>
+   </object>
+   <object id="5" x="1.27273" y="22.7273" width="13.1818" height="7.63636">
     <properties>
      <property name="sensor" type="bool" value="true"/>
     </properties>
-    <ellipse/>
-   </object>
-   <object id="4" name="pivot" x="6.3125" y="30.1875">
-    <point/>
    </object>
   </objectgroup>
  </tile>

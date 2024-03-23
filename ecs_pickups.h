@@ -19,7 +19,5 @@ namespace ecs
 	entt::entity create_pickup(const sf::Vector2f& position, PickupType pickup);
 
 	void emplace_pickup(entt::entity entity, const Pickup& pickup);
-	void remove_pickup(entt::entity entity);
-
-	void update_pickups(float dt);
+	bool remove_pickup(entt::entity entity);
 }

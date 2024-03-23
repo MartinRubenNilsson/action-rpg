@@ -16,7 +16,7 @@ namespace audio
 	const std::string BUS_MASTER = "bus:/";
 	const std::string BUS_SOUND = "bus:/sound";
 	const std::string BUS_MUSIC = "bus:/music";
-	const float _PIXELS_PER_METER = 16.f;
+	const float _PIXELS_PER_FMOD_UNIT = 16.f;
 
 	bool log_errors =
 #ifdef _DEBUG
@@ -122,22 +122,22 @@ namespace audio
 		_events_played_this_frame.clear();
 	}
 
-	FMOD_3D_ATTRIBUTES _pos_to_3d_attribs(const sf::Vector2f& position)
+	FMOD_3D_ATTRIBUTES _pos_to_3d_attributes(const sf::Vector2f& position)
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
-		attributes.position = { position.x / _PIXELS_PER_METER, -position.y / _PIXELS_PER_METER, 0.f };
+		attributes.position = { position.x / _PIXELS_PER_FMOD_UNIT, -position.y / _PIXELS_PER_FMOD_UNIT, 0.f };
 		attributes.forward = { 0.f, 0.f, 1.f };
 		attributes.up = { 0.f, 1.f, 0.f };
 		return attributes;
 	}
 
-	sf::Vector2f _3d_attribs_to_pos(const FMOD_3D_ATTRIBUTES& attributes) {
-		return { attributes.position.x * _PIXELS_PER_METER, -attributes.position.y * _PIXELS_PER_METER };
+	sf::Vector2f _3d_attributes_to_pos(const FMOD_3D_ATTRIBUTES& attributes) {
+		return { attributes.position.x * _PIXELS_PER_FMOD_UNIT, -attributes.position.y * _PIXELS_PER_FMOD_UNIT };
 	}
 
 	void set_listener_position(const sf::Vector2f& position)
 	{
-		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(position);
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(position);
 		_system->setListenerAttributes(0, &attributes);
 	}
 
@@ -145,7 +145,7 @@ namespace audio
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
 		_system->getListenerAttributes(0, &attributes);
-		return _3d_attribs_to_pos(attributes);
+		return _3d_attributes_to_pos(attributes);
 	}
 
 	bool set_parameter(const std::string& name, float value)
@@ -214,7 +214,7 @@ namespace audio
 		return false;
 	}
 
-	int play(const std::string& event_path)
+	int play(const std::string& event_path, const EventOptions& options)
 	{
 		if (_events_played_this_frame.contains(event_path)) return INVALID_EVENT_ID;
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
@@ -226,8 +226,13 @@ namespace audio
 		_events_played_this_frame.insert(event_path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
 		instance->setUserData((void*)(uintptr_t)event_id);
-		instance->start();
-		instance->release();
+		instance->setVolume(options.volume);
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(options.position);
+		instance->set3DAttributes(&attributes);
+		if (options.start)
+			instance->start();
+		if (options.release)
+			instance->release();
 		return event_id;
 	}
 
@@ -257,7 +262,7 @@ namespace audio
 	{
 		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
 		if (!instance) return false;
-		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(position);
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(position);
 		instance->set3DAttributes(&attributes);
 		return true;
 	}
@@ -268,7 +273,7 @@ namespace audio
 		if (!instance) return false;
 		FMOD_3D_ATTRIBUTES attributes{};
 		instance->get3DAttributes(&attributes);
-		position = _3d_attribs_to_pos(attributes);
+		position = _3d_attributes_to_pos(attributes);
 		return true;
 	}
 

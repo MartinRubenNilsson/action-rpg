@@ -46,7 +46,7 @@ namespace ecs
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame_index = 0;
-		_animation_looped_last_update = false;
+		set_flag(TF_JUST_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
@@ -81,24 +81,27 @@ namespace ecs
 		}
 		if (_animation_duration_ms && _animation_frame_index < _tile->animation.size()) {
 			const tiled::Frame& frame = _tile->animation[_animation_frame_index];
-			sprite = frame.tile->sprite;
+			sprite.setTexture(*frame.tile->tileset->image);
+			sprite.setTextureRect(frame.tile->image_rect);
 		} else {
-			sprite = _tile->sprite;
+			sprite.setTexture(*_tile->tileset->image);
+			sprite.setTextureRect(_tile->image_rect);
 		}
 		sf::Vector2f origin = pivot;
-		sf::Vector2f scale(1.f, 1.f);
-		sf::Vector2f size = sprite.getLocalBounds().getSize();
-		if (flip_x) {
-			origin.x = size.x - origin.x;
-			scale.x *= -1.f;
+		if (get_flag(TF_FLIP_X)) {
+			sf::IntRect texture_rect = sprite.getTextureRect();
+			texture_rect.left += texture_rect.width;
+			texture_rect.width = -texture_rect.width;
+			sprite.setTextureRect(texture_rect);
 		}
-		if (flip_y) {
-			origin.y = size.y - origin.y;
-			scale.y *= -1.f;
+		if (get_flag(TF_FLIP_Y)) {
+			sf::IntRect texture_rect = sprite.getTextureRect();
+			texture_rect.top += texture_rect.height;
+			texture_rect.height = -texture_rect.height;
+			sprite.setTextureRect(texture_rect);
 		}
 		sprite.setOrigin(origin);
 		sprite.setPosition(position);
-		sprite.setScale(scale);
 		sprite.setColor(color);
 		if (texture)
 			sprite.setTexture(*texture);
@@ -113,7 +116,7 @@ namespace ecs
 		return _tile ? _tile->tileset->name : "";
 	}
 
-	bool Tile::is_animated() const {
+	bool Tile::has_animation() const {
 		return _animation_duration_ms != 0;
 	}
 
@@ -121,11 +124,12 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
-		_animation_looped_last_update = false;
-		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
-			_animation_looped_last_update = true;
-			if (animation_flip_x_on_loop)
-				flip_x = !flip_x;
+		set_flag(TF_JUST_LOOPED, false);
+		bool loop = get_flag(TF_LOOP);
+		if (animation_timer.update(animation_speed * dt, loop) && loop) {
+			set_flag(TF_JUST_LOOPED, true);
+			if (get_flag(TF_FLIP_X_ON_LOOP))
+				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
 		}
 		uint32_t time = (uint32_t)(animation_timer.get_time() * 1000.f); // in milliseconds
 		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
@@ -146,8 +150,17 @@ namespace ecs
 		return _animation_duration_ms / 1000.f;
 	}
 
-	bool Tile::animation_looped_last_update() const {
-		return _animation_looped_last_update;
+	void Tile::set_flag(TileFlags flag, bool value)
+	{
+		if (value) {
+			_flags |= flag;
+		} else {
+			_flags &= ~flag;
+		}
+	}
+
+	bool Tile::get_flag(TileFlags flag) const {
+		return (_flags & flag) != 0;
 	}
 
 	void update_tiles(float dt)
@@ -172,6 +185,10 @@ namespace ecs
 		}
 	}
 	
+	bool has_tile(entt::entity entity) {
+		return _registry.all_of<Tile>(entity);
+	}
+
 	Tile& emplace_tile(entt::entity entity) {
 		return _registry.emplace_or_replace<Tile>(entity);
 	}
@@ -181,7 +198,7 @@ namespace ecs
 	}
 
 	Tile& get_tile(entt::entity entity) {
-		return _registry.get_or_emplace<Tile>(entity);
+		return _registry.get<Tile>(entity);
 	}
 
 	Tile* try_get_tile(entt::entity entity) {

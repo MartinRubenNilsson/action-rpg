@@ -49,7 +49,8 @@ namespace ecs
 		}
 
 		tile.position = position;
-		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
+		tile.pivot = sf::Vector2f(8.f, 8.f);
+		tile.sorting_pivot = sf::Vector2f(8.f, 16.f);
 
 		return entity;
 	}
@@ -58,20 +59,8 @@ namespace ecs
 		_registry.emplace_or_replace<Pickup>(entity, pickup);
 	}
 
-	void remove_pickup(entt::entity entity) {
-		_registry.remove<Pickup>(entity);
-	}
-
-	void update_pickups(float dt)
-	{
-		_pickup_elapsed_time += dt;
-
-		// Blinking effect
-		for (auto [entity, pickup, tile] : _registry.view<Pickup, Tile>().each()) {
-			constexpr float BLINK_SPEED = 10.f;
-			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
-			tile.color.a = (sf::Uint8)(255 * blink_fraction);
-		}
+	bool remove_pickup(entt::entity entity) {
+		return _registry.remove<Pickup>(entity);
 	}
 }
 
