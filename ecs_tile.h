@@ -29,6 +29,7 @@ namespace ecs
 		TF_FLIP_Y         = 1 << 2,
 		TF_LOOP           = 1 << 3, // loop the animation
 		TF_FLIP_X_ON_LOOP = 1 << 4, // flip the sprite horizontally when the animation loops
+		TF_JUST_LOOPED	  = 1 << 5, // is set when the animation looped last update
 	};
 
 	class Tile
@@ -56,7 +57,6 @@ namespace ecs
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
-		bool animation_looped_last_update() const;
 		void set_flag(TileFlags flag, bool value);
 		bool get_flag(TileFlags flag) const;
 
@@ -64,7 +64,6 @@ namespace ecs
 		const tiled::Tile* _tile = nullptr;
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_frame_index = 0;
-		bool _animation_looped_last_update = false;
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;
 
 		bool _set_sprite(const tiled::Tile* tile);

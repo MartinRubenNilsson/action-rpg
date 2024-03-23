@@ -46,7 +46,7 @@ namespace ecs
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame_index = 0;
-		_animation_looped_last_update = false;
+		set_flag(TF_JUST_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
@@ -121,10 +121,10 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
-		_animation_looped_last_update = false;
-		bool animation_loop = get_flag(TF_LOOP);
-		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
-			_animation_looped_last_update = true;
+		set_flag(TF_JUST_LOOPED, false);
+		bool loop = get_flag(TF_LOOP);
+		if (animation_timer.update(animation_speed * dt, loop) && loop) {
+			set_flag(TF_JUST_LOOPED, true);
 			if (get_flag(TF_FLIP_X_ON_LOOP))
 				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
 		}
@@ -145,10 +145,6 @@ namespace ecs
 
 	float Tile::get_animation_duration() const {
 		return _animation_duration_ms / 1000.f;
-	}
-
-	bool Tile::animation_looped_last_update() const {
-		return _animation_looped_last_update;
 	}
 
 	void Tile::set_flag(TileFlags flag, bool value)

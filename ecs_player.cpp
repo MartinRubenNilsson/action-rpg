@@ -197,13 +197,13 @@ namespace ecs
 					tile.set_sprite("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.animation_looped_last_update())
+					if (tile.get_flag(TF_JUST_LOOPED))
 						audio::play("event:/snd_footstep");
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_sprite("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.animation_looped_last_update())
+					if (tile.get_flag(TF_JUST_LOOPED))
 						audio::play("event:/snd_footstep");
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
