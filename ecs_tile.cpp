@@ -154,16 +154,11 @@ namespace ecs
 
 	void update_tiles(float dt)
 	{
-		// UPDATE TILE POSITIONS
-
-		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
-			tile.position = get_position(body);
-		}
-
-		// UPDATE TILE ANIMATIONS
-
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			tile.update_animation(dt);
+		}
+		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
+			tile.position = get_position(body);
 		}
 	}
 	

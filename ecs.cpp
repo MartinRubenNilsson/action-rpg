@@ -13,6 +13,14 @@
 
 namespace ecs
 {
+	enum SpriteFlags : uint8_t
+	{
+		SF_NONE          = 0,
+		SF_FLIP_X        = 1 << 0,
+		SF_FLIP_Y        = 1 << 1,
+		SF_FLIP_DIAGONAL = 1 << 2,
+	};
+
 	//This should be put in its own file
 	struct Sprite
 	{
@@ -25,6 +33,7 @@ namespace ecs
 		std::shared_ptr<sf::Texture> texture;
 		std::shared_ptr<sf::Shader> shader;
 		sf::Color color = sf::Color::White;
+		uint8_t flags = SF_NONE;
 	};
 
 	bool operator<(const Sprite& left, const Sprite& right)
@@ -95,12 +104,17 @@ namespace ecs
 			sf::Vector2f tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
 			sf::Vector2f max = min + tex_max - tex_min;
 			if (max.x < view_min.x || max.y < view_min.y) continue;
-			if (tile.get_flag(TF_FLIP_X)) std::swap(tex_min.x, tex_max.x);
-			if (tile.get_flag(TF_FLIP_Y)) std::swap(tex_min.y, tex_max.y);
+			uint8_t sprite_flags = SF_NONE;
+			if (tile.get_flag(TF_FLIP_X))
+				sprite_flags |= SF_FLIP_X;
+			if (tile.get_flag(TF_FLIP_Y))
+				sprite_flags |= SF_FLIP_Y;
+			if (tile.get_flag(TF_FLIP_DIAGONAL))
+				sprite_flags |= SF_FLIP_DIAGONAL;
 			_sprites_draw_order.push_back((uint32_t)_sprites.size());
 			_sprites.emplace_back(
 				min, max, tex_min, tex_max, min + tile.sorting_pivot, tile.sorting_layer,
-				tile.get_texture(), tile.shader, tile.color);
+				tile.get_texture(), tile.shader, tile.color, sprite_flags);
 		}
 		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
@@ -115,6 +129,24 @@ namespace ecs
 			// are the triangle strips of two sprites, the batched triangle strip will be ABCDDEEFGH.
 
 			const Sprite& sprite = _sprites[sprite_index];
+
+			sf::Vector2f tl = sprite.min; // top-left corner
+			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
+			sf::Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
+			sf::Vector2f br = sprite.max; // bottom-right corner
+
+			if (sprite.flags & SF_FLIP_X) {
+				std::swap(tl, tr);
+				std::swap(bl, br);
+			}
+			if (sprite.flags & SF_FLIP_Y) {
+				std::swap(tl, bl);
+				std::swap(tr, br);
+			}
+			if (sprite.flags & SF_FLIP_DIAGONAL) {
+				std::swap(bl, tr);
+			}
+
 			// Are we in the middle of a batch?
 			if (!_vertices.empty()) { 
 				// Can we add the new sprite to the batch?
@@ -122,7 +154,7 @@ namespace ecs
 				if (!sprite.shader && sprite.texture.get() == states.texture) {
 					// Add degenerate triangles to separate the sprites
 					_vertices.push_back(_vertices.back()); // D
-					_vertices.emplace_back(sprite.min, sprite.color, sprite.tex_min); // E
+					_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
 				} else {
 					// Draw the current batch and start a new one
 					target.draw(_vertices.data(), _vertices.size(), sf::TriangleStrip, states);
@@ -130,10 +162,10 @@ namespace ecs
 				}
 			}
 			// Add the vertices of the new sprite to the batch
-			_vertices.emplace_back(sprite.min, sprite.color, sprite.tex_min);
-			_vertices.emplace_back(sf::Vector2f(sprite.min.x, sprite.max.y), sprite.color, sf::Vector2f(sprite.tex_min.x, sprite.tex_max.y));
-			_vertices.emplace_back(sf::Vector2f(sprite.max.x, sprite.min.y), sprite.color, sf::Vector2f(sprite.tex_max.x, sprite.tex_min.y));
-			_vertices.emplace_back(sprite.max, sprite.color, sprite.tex_max);
+			_vertices.emplace_back(tl, sprite.color, sprite.tex_min);
+			_vertices.emplace_back(bl, sprite.color, sf::Vector2f(sprite.tex_min.x, sprite.tex_max.y));
+			_vertices.emplace_back(tr, sprite.color, sf::Vector2f(sprite.tex_max.x, sprite.tex_min.y));
+			_vertices.emplace_back(br, sprite.color, sprite.tex_max);
 			// Update shader uniforms
 			if (sprite.shader.get()) {
 				sprite.shader->setUniform("time", _time);

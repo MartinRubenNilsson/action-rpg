@@ -58,6 +58,7 @@ namespace map
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
 					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
 
 					// LOAD COLLIDERS
 
@@ -290,6 +291,7 @@ namespace map
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TF_FLIP_X, flip_flags & tiled::FLIP_HORIZONTAL);
 					ecs_tile.set_flag(ecs::TF_FLIP_Y, flip_flags & tiled::FLIP_VERTICAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, flip_flags & tiled::FLIP_DIAGONAL);
 				}
 			}
 		}

@@ -24,12 +24,16 @@ namespace ecs
 	enum TileFlags
 	{
 		TF_NONE           = 0,
-		TF_VISIBLE        = 1 << 0,
-		TF_FLIP_X         = 1 << 1,
-		TF_FLIP_Y         = 1 << 2,
-		TF_LOOP           = 1 << 3, // loop the animation
-		TF_FLIP_X_ON_LOOP = 1 << 4, // flip the sprite horizontally when the animation loops
-		TF_JUST_LOOPED	  = 1 << 5, // is set if the animation looped last update
+		TF_VISIBLE        = 1 << 0, // if not set, the tile is not rendered
+		TF_FLIP_X         = 1 << 1, // flip the sprite horizontally
+		TF_FLIP_Y         = 1 << 2, // flip the sprite vertically
+		TF_FLIP_DIAGONAL  = 1 << 3, // flip the bottom-left and top-right corners
+		TF_ROTATE_90      = TF_FLIP_X | TF_FLIP_DIAGONAL,
+		TF_ROTATE_180     = TF_FLIP_X | TF_FLIP_Y,
+		TF_ROTATE_270     = TF_FLIP_Y | TF_FLIP_DIAGONAL,
+		TF_LOOP           = 1 << 4, // loop the animation
+		TF_FLIP_X_ON_LOOP = 1 << 5, // flip the sprite horizontally when the animation loops
+		TF_JUST_LOOPED	  = 1 << 6, // is set if the animation looped last update
 	};
 
 	class Tile
