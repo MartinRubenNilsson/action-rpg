@@ -164,12 +164,22 @@ int main(int argc, char* argv[])
         if (debug_stats) {
             static float smoothed_dt = 0.f;
             static float smoothed_fps = 0.f;
-            smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt.asSeconds();
-            smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt.asSeconds();
+            static float dt_buffer[256] = { 0.f };
+            static float fps_buffer[256] = { 0.f };
+            static int buffer_offset = 0;
+            float dt_f = dt.asSeconds();
+            dt_buffer[buffer_offset] = dt_f;
+            fps_buffer[buffer_offset] = 1.f / dt_f;
+            buffer_offset = (buffer_offset + 1) % 256;
+            smoothed_dt = 0.9f * smoothed_dt + 0.1f * dt_f;
+            smoothed_fps = 0.9f * smoothed_fps + 0.1f / dt_f;
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::Text("dt: %.3f ms", smoothed_dt * 1000.f);
-            ImGui::Text("FPS: %.1f", smoothed_fps);
+            char overlay_text[64];
+            sprintf(overlay_text, "%.3f ms", smoothed_dt * 1000.f);
+            ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
+            sprintf(overlay_text, "%.f FPS", smoothed_fps);
+            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
             ImGui::End();
         }
 
