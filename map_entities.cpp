@@ -200,6 +200,88 @@ namespace map
 					if (!tile->properties.empty())
 						ecs::set_properties(entity, tile->properties);
 
+					// EMPLACE BODY
+
+					if (!tile->objects.empty()) {
+						b2BodyDef body_def;
+						body_def.type = b2_staticBody;
+						body_def.position.x = position_x;
+						body_def.position.y = position_y;
+						body_def.fixedRotation = true;
+						b2Body* body = ecs::emplace_body(entity, body_def);
+
+						for (const tiled::Object& collider : tile->objects) {
+							if (collider.name == "pivot") {
+								sorting_pivot_x = collider.position.x;
+								sorting_pivot_y = collider.position.y;
+							}
+
+							float collider_cx = (collider.position.x - pivot_x);
+							float collider_cy = (collider.position.y - pivot_y);
+							float collider_hw = collider.size.x / 2.0f;
+							float collider_hh = collider.size.y / 2.0f;
+
+							b2FixtureDef fixture_def;
+							collider.properties.get_bool("sensor", fixture_def.isSensor);
+
+							switch (collider.type) {
+							case tiled::ObjectType::Rectangle: {
+								b2PolygonShape shape;
+								shape.SetAsBox(collider_hw, collider_hh,
+									b2Vec2(collider_cx + collider_hw, collider_cy + collider_hh), 0.f);
+								fixture_def.shape = &shape;
+								body->CreateFixture(&fixture_def);
+							} break;
+							case tiled::ObjectType::Ellipse: {
+								b2CircleShape shape;
+								shape.m_p.x = collider_cx;
+								shape.m_p.y = collider_cy;
+								shape.m_radius = collider_hw;
+								fixture_def.shape = &shape;
+								body->CreateFixture(&fixture_def);
+							} break;
+							case tiled::ObjectType::Polygon: {
+								size_t count = collider.points.size();
+								if (count < 3) {
+									console::log_error(
+										"Too few points in polygon collider! Got " +
+										std::to_string(count) + ", need >= 3.");
+								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
+									b2Vec2 points[b2_maxPolygonVertices];
+									for (size_t i = 0; i < count; ++i) {
+										points[i].x = collider_cx + collider.points[i].x;
+										points[i].y = collider_cy + collider.points[i].y;
+									}
+									b2PolygonShape shape;
+									shape.Set(points, (int32)count);
+									fixture_def.shape = &shape;
+									body->CreateFixture(&fixture_def);
+								} else {
+									for (const std::array<sf::Vector2f, 3>&triangle : triangulate(collider.points)) {
+										b2Vec2 points[3];
+										for (size_t i = 0; i < 3; ++i) {
+											points[i].x = collider_cx + triangle[i].x;
+											points[i].y = collider_cy + triangle[i].y;
+										}
+										b2PolygonShape shape;
+										shape.Set(points, 3);
+										fixture_def.shape = &shape;
+										body->CreateFixture(&fixture_def);
+									}
+								} break;
+							}
+							}
+						}
+					}
+
+					// CRITICAL: This is an important optimization. Iterating through all entities
+					// with both a Tile and b2Body* component can be expensive if there are many such
+					// entities. "Pure" colliders don't need a tile component, so let's skip adding one.
+					if (sorting_layer == ecs::SortingLayer::Collision)
+						continue;
+
+					// EMPLACE TILE
+
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 					ecs_tile.position = sf::Vector2f(position_x, position_y);
 					ecs_tile.pivot = sf::Vector2f(pivot_x, pivot_y);
@@ -208,79 +290,6 @@ namespace map
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TF_FLIP_X, flip_flags & tiled::FLIP_HORIZONTAL);
 					ecs_tile.set_flag(ecs::TF_FLIP_Y, flip_flags & tiled::FLIP_VERTICAL);
-
-					if (tile->objects.empty())
-						continue;
-
-					// LOAD COLLIDERS
-
-					b2BodyDef body_def;
-					body_def.type = b2_staticBody;
-					body_def.position.x = position_x;
-					body_def.position.y = position_y;
-					body_def.fixedRotation = true;
-					b2Body* body = ecs::emplace_body(entity, body_def);
-
-					for (const tiled::Object& collider : tile->objects) {
-						if (collider.name == "pivot")
-							ecs_tile.sorting_pivot = collider.position;
-
-						float collider_cx = (collider.position.x - pivot_x);
-						float collider_cy = (collider.position.y - pivot_y);
-						float collider_hw = collider.size.x / 2.0f;
-						float collider_hh = collider.size.y / 2.0f;
-
-						b2FixtureDef fixture_def;
-						collider.properties.get_bool("sensor", fixture_def.isSensor);
-
-						switch (collider.type) {
-						case tiled::ObjectType::Rectangle: {
-							b2PolygonShape shape;
-							shape.SetAsBox(collider_hw, collider_hh,
-								b2Vec2(collider_cx + collider_hw, collider_cy + collider_hh), 0.f);
-							fixture_def.shape = &shape;
-							body->CreateFixture(&fixture_def);
-						} break;
-						case tiled::ObjectType::Ellipse: {
-							b2CircleShape shape;
-							shape.m_p.x = collider_cx;
-							shape.m_p.y = collider_cy;
-							shape.m_radius = collider_hw;
-							fixture_def.shape = &shape;
-							body->CreateFixture(&fixture_def);
-						} break;
-						case tiled::ObjectType::Polygon: {
-							size_t count = collider.points.size();
-							if (count < 3) {
-								console::log_error(
-									"Too few points in polygon collider! Got " +
-									std::to_string(count) + ", need >= 3.");
-							} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
-								b2Vec2 points[b2_maxPolygonVertices];
-								for (size_t i = 0; i < count; ++i) {
-									points[i].x = collider_cx + collider.points[i].x;
-									points[i].y = collider_cy + collider.points[i].y;
-								}
-								b2PolygonShape shape;
-								shape.Set(points, (int32)count);
-								fixture_def.shape = &shape;
-								body->CreateFixture(&fixture_def);
-							} else {
-								for (const std::array<sf::Vector2f, 3>&triangle : triangulate(collider.points)) {
-									b2Vec2 points[3];
-									for (size_t i = 0; i < 3; ++i) {
-										points[i].x = collider_cx + triangle[i].x;
-										points[i].y = collider_cy + triangle[i].y;
-									}
-									b2PolygonShape shape;
-									shape.Set(points, 3);
-									fixture_def.shape = &shape;
-									body->CreateFixture(&fixture_def);
-								}
-							} break;
-						}
-						}
-					}
 				}
 			}
 		}
