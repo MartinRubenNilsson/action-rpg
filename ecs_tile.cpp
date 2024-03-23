@@ -7,7 +7,6 @@
 namespace ecs
 {
 	extern entt::registry _registry;
-	float _shader_time_accumulator = 0.f; // sent to shaders as uniform float "time"
 
 	const std::unordered_map<std::string, SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
 		{ "Under Sprite 1", SortingLayer::Background1 },
@@ -155,22 +154,16 @@ namespace ecs
 
 	void update_tiles(float dt)
 	{
-		_shader_time_accumulator += dt;
-
-		// UPDATE TILE POSITION
+		// UPDATE TILE POSITIONS
 
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
 			tile.position = get_position(body);
 		}
 
-		// UPDATE TILE ANIMATION AND SHADER
+		// UPDATE TILE ANIMATIONS
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			tile.update_animation(dt);
-			if (tile.shader) {
-				tile.shader->setUniform("time", _shader_time_accumulator);
-				tile.shader->setUniform("position", tile.position);
-			}
 		}
 	}
 	

@@ -44,6 +44,7 @@ namespace ecs
 
 	int debug_flags = DEBUG_NONE;
 	entt::registry _registry;
+	float _time = 0.f;
 	std::vector<Sprite> _sprites;
 	std::vector<uint32_t> _sprites_draw_order; // indices into _sprites
 	std::vector<sf::Vertex> _vertices;
@@ -64,6 +65,7 @@ namespace ecs
 
 	void update(float dt)
 	{
+		_time += dt;
 		update_players(dt);
 		update_pickups(dt);
 		update_bombs(dt);	
@@ -116,7 +118,8 @@ namespace ecs
 			// Are we in the middle of a batch?
 			if (!_vertices.empty()) { 
 				// Can we add the new sprite to the batch?
-				if (states.texture == sprite.texture.get() && states.shader == sprite.shader.get()) {
+				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
+				if (!sprite.shader && sprite.texture.get() == states.texture) {
 					// Add degenerate triangles to separate the sprites
 					_vertices.push_back(_vertices.back()); // D
 					_vertices.emplace_back(sprite.min, sprite.color, sprite.tex_min); // E
@@ -131,6 +134,11 @@ namespace ecs
 			_vertices.emplace_back(sf::Vector2f(sprite.min.x, sprite.max.y), sprite.color, sf::Vector2f(sprite.tex_min.x, sprite.tex_max.y));
 			_vertices.emplace_back(sf::Vector2f(sprite.max.x, sprite.min.y), sprite.color, sf::Vector2f(sprite.tex_max.x, sprite.tex_min.y));
 			_vertices.emplace_back(sprite.max, sprite.color, sprite.tex_max);
+			// Update shader uniforms
+			if (sprite.shader.get()) {
+				sprite.shader->setUniform("time", _time);
+				sprite.shader->setUniform("position", sprite.min);
+			}
 			// Update the render states
 			states.texture = sprite.texture.get();
 			states.shader = sprite.shader.get();
