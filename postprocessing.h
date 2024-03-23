@@ -1,6 +1,6 @@
 #pragma once
 
-namespace postprocess
+namespace postprocessing
 {
 	void update(float dt);
 	// Some postprocessing effects use intermediate render textures, which

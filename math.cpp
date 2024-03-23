@@ -68,6 +68,10 @@ sf::Vector2f abs(const sf::Vector2f& v) {
 	return sf::Vector2f(std::abs(v.x), std::abs(v.y));
 }
 
+sf::Vector2f rotate_90deg(const sf::Vector2f& v) {
+	return sf::Vector2f(-v.y, v.x);
+}
+
 float dot(const sf::Vector2f& a, const sf::Vector2f& b) {
 	return a.x * b.x + a.y * b.y;
 }

@@ -18,6 +18,8 @@
 #include <variant>
 #include <vector>
 
+using namespace std::literals::string_literals;
+
 #include <SFML/Graphics.hpp>
 #include <entt/entity/registry.hpp>
 #include <box2d/box2d.h>

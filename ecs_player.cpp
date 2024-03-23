@@ -6,9 +6,8 @@
 #include "ecs_arrow.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
-#include "ecs_pickups.h"
 #include "ecs_bomb.h"
-#include "ecs_vfx.h"
+#include "ecs_damage.h"
 #include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"
@@ -19,8 +18,6 @@
 #include "character.h"
 #include "debug_draw.h"
 #include "map_tilegrid.h"
-
-using namespace std::literals::string_literals;
 
 namespace ecs
 {
@@ -92,15 +89,14 @@ namespace ecs
 		}
 	}
 
-	// TODO: Put in a separate file with _player_attack below
+	// TODO: Put in a separate unit
 	void _player_interact(const sf::Vector2f& position)
 	{
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
-		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
-		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
+		debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
+		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
 			std::string string;
 			if (get_string(hit.entity, "textbox", string)) {
@@ -108,43 +104,15 @@ namespace ecs
 				ui::pop_textbox();
 			}
 			if (get_string(hit.entity, "sound", string))
-				audio_events_to_play.insert(string);
+				audio::play(string);
 		}
-		for (const std::string& audio_event : audio_events_to_play)
-			audio::play(audio_event);
 	}
 
-	void _player_attack(const sf::Vector2f& position)
+	void _player_attack(entt::entity entity, const sf::Vector2f& position)
 	{
-		sf::Vector2f box_center = position;
-		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
-		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
-		std::unordered_set<std::string> audio_events_to_play; //So we don't play the same sound twice
-		for (const BoxHit& hit : boxcast(box_min, box_max, ~CC_Player)) {
-			std::string class_ = get_class(hit.entity);
-			sf::Vector2f hit_position = get_world_center(hit.body);
-			if (class_ == "slime") {
-				destroy_at_end_of_frame(hit.entity);
-			} else if (class_ == "grass") {
-				audio_events_to_play.insert("event:/snd_cut_grass");
-				if (random::chance(0.2f))
-					create_arrow_pickup(hit_position + sf::Vector2f(2.f, 2.f));
-				else if (random::chance(0.2f))
-					create_rupee_pickup(hit_position + sf::Vector2f(2.f, 2.f));
-				destroy_at_end_of_frame(hit.entity);
-			} else {
-				std::string string;
-				if (get_string(hit.entity, "textbox", string)) {
-					ui::push_textbox_presets(string);
-					ui::pop_textbox();
-				}
-				if (get_string(hit.entity, "sound", string))
-					audio_events_to_play.insert(string);
-			}
-		}
-		for (const std::string& audio_event : audio_events_to_play)
-			audio::play(audio_event);
+		sf::Vector2f box_min = position - sf::Vector2f(6.f, 6.f);
+		sf::Vector2f box_max = position + sf::Vector2f(6.f, 6.f);
+		apply_damage_in_box({ DamageType::Melee, 1, entity }, box_min, box_max, ~CC_Player);
 	}
 
 	void update_players(float dt)
@@ -255,7 +223,7 @@ namespace ecs
 						player.look_dir * _PLAYER_ARROW_SPEED);
 				}
 				else if (player.sword_attack_timer.update(dt)) {
-					_player_attack(position + player.look_dir * 16.f);
+					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 
 				// When animation is done, we are done attacking.
@@ -328,7 +296,7 @@ namespace ecs
 			ImGui::Text("Rupees: %d", player.rupees);
 			
 			if (ImGui::Button("Hurt"))
-				hurt_player(entity, 1);
+				apply_damage_to_player(entity, { DamageType::Default, 1 });
 			ImGui::SameLine();
 			if (ImGui::Button("Kill"))
 				kill_player(entity);
@@ -372,14 +340,14 @@ namespace ecs
 		return true;
 	}
 
-	bool hurt_player(entt::entity entity, int health_to_remove)
+	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
 	{
-		if (health_to_remove <= 0) return false;
+		if (damage.amount <= 0) return false;
 		if (!_registry.all_of<Player>(entity)) return false;
 		Player& player = _registry.get<Player>(entity);
 		if (player.health <= 0) return false; // Player is already dead
 		if (player.hurt_timer.running()) return false; // Player is invulnerable
-		player.health = std::max(0, player.health - health_to_remove);
+		player.health = std::max(0, player.health - damage.amount);
 		add_trauma_to_active_camera(0.8f);
 		if (player.health > 0) { // Player survived
 			audio::play("event:/snd_player_hurt");

@@ -215,7 +215,7 @@
     <ClCompile Include="shaders.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="postprocess.cpp">
+    <ClCompile Include="postprocessing.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="ui_menus.cpp">
@@ -273,6 +273,9 @@
     </ClCompile>
     <ClCompile Include="map_entities.cpp">
       <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_damage.cpp">
+      <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -525,7 +528,7 @@
     <ClInclude Include="shaders.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="postprocess.h">
+    <ClInclude Include="postprocessing.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="ui_menus.h">
@@ -743,6 +746,9 @@
     </ClInclude>
     <ClInclude Include="map_entities.h">
       <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_damage.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

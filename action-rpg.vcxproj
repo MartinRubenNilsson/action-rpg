@@ -203,6 +203,7 @@
     <ClCompile Include="ecs_arrow.cpp" />
     <ClCompile Include="ecs_bomb.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
+    <ClCompile Include="ecs_damage.cpp" />
     <ClCompile Include="ecs_physics_contacts.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
@@ -211,7 +212,7 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="map_entities.cpp" />
     <ClCompile Include="map_tilegrid.cpp" />
-    <ClCompile Include="postprocess.cpp" />
+    <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="ecs.cpp" />
     <ClCompile Include="ecs_common.cpp" />
@@ -373,6 +374,7 @@
     <ClInclude Include="ecs_ai_knowledge.h" />
     <ClInclude Include="ecs_bomb.h" />
     <ClInclude Include="ecs_camera.h" />
+    <ClInclude Include="ecs_damage.h" />
     <ClInclude Include="ecs_physics_contacts.h" />
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
@@ -382,7 +384,7 @@
     <ClInclude Include="fonts.h" />
     <ClInclude Include="map_entities.h" />
     <ClInclude Include="map_tilegrid.h" />
-    <ClInclude Include="postprocess.h" />
+    <ClInclude Include="postprocessing.h" />
     <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="ecs.h" />

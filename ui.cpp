@@ -319,7 +319,6 @@ namespace ui
 		_render_interface.BeginFrame();
 		_context->Render();
 		_debugger_context->Render();
-		_render_interface.EndFrame();
 		target.resetGLStates();
 	}
 

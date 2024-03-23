@@ -12,7 +12,7 @@ namespace ecs
 		float fraction = 0.f; // 0 = start of ray, 1 = end of ray
 	};
 
-	struct BoxHit
+	struct OverlapHit
 	{
 		b2Fixture* fixture = nullptr;
 		b2Body* body = nullptr;
@@ -26,12 +26,13 @@ namespace ecs
 
 	bool has_body(entt::entity entity);
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
-	b2Body* clone_body(entt::entity entity, const b2Body* body); // Returns the newly created body
+	b2Body* clone_and_emplace_body(entt::entity entity, const b2Body* body); // Returns the newly created body
 	b2Body* get_body(entt::entity entity); // WARNING: undefined behavior if entity has no body
 	bool remove_body(entt::entity entity);
 
-	bool raycast_any(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
-	std::vector<RayHit> raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
-	std::vector<BoxHit> boxcast(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits = 0xFFFF);
+	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RayHit* hit = nullptr);
+	std::vector<RayHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
+	std::vector<OverlapHit> overlap_box(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits = 0xFFFF);
+	std::vector<OverlapHit> overlap_circle(const sf::Vector2f& center, float radius, uint16 mask_bits = 0xFFFF);
 }
 

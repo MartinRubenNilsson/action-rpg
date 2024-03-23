@@ -21,7 +21,6 @@ namespace ui
 	public:
 		void SetViewport(int viewport_width, int viewport_height);
 		void BeginFrame();
-		void EndFrame();
 
 		void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation) override;
 

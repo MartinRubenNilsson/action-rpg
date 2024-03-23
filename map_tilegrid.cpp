@@ -183,11 +183,11 @@ namespace map
 			(int)floor(world_pos.y / _grid.tile_size.y));
 	}
 
-	sf::Vector2f get_tile_center(const sf::Vector2i& tile_pos)
+	sf::Vector2f get_tile_center(const sf::Vector2i& tile)
 	{
 		return sf::Vector2f(
-			(tile_pos.x + 0.5f) * _grid.tile_size.x,
-			(tile_pos.y + 0.5f) * _grid.tile_size.y);
+			(tile.x + 0.5f) * _grid.tile_size.x,
+			(tile.y + 0.5f) * _grid.tile_size.y);
 	}
 
 	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos)
@@ -222,20 +222,20 @@ namespace map
 		return std::abs(dx - dy) + std::min(dx, dy) * SQRT_2;
 	}
 
-	bool pathfind(const sf::Vector2i& start_tile_pos, const sf::Vector2i& end_tile_pos, std::vector<sf::Vector2i>& path)
+	bool pathfind(const sf::Vector2i& start, const sf::Vector2i& end, std::vector<sf::Vector2i>& path)
 	{
-		if (start_tile_pos == end_tile_pos)
+		if (start == end)
 			return false; // Does this make sense?
 
 		//TODO: better check here. we should validate that all tiles in the path are passable
 		//and neighbors of each other
-		if (path.size() >= 2 && path.front() == start_tile_pos && path.back() == end_tile_pos)
+		if (path.size() >= 2 && path.front() == start && path.back() == end)
 			return true;
 
-		Tile* start_tile = _try_get_tile(start_tile_pos);
+		Tile* start_tile = _try_get_tile(start);
 		if (!start_tile || !start_tile->passable)
 			return false;
-		Tile* end_tile = _try_get_tile(end_tile_pos);
+		Tile* end_tile = _try_get_tile(end);
 		if (!end_tile || !end_tile->passable)
 			return false;
 
@@ -243,7 +243,7 @@ namespace map
 			_reset_a_star_state(tile);
 
 		start_tile->g = 0.f;
-		start_tile->h = _euclidean_distance_on_grid(start_tile_pos, end_tile_pos);
+		start_tile->h = _euclidean_distance_on_grid(start, end);
 		start_tile->state = Tile::OPEN;
 
 		_grid.open_tiles.clear();
@@ -278,7 +278,7 @@ namespace map
 
 				neighbor_tile->parent = current_pos;
 				neighbor_tile->g = tentative_neighbor_g;
-				neighbor_tile->h = _euclidean_distance_on_grid(neighbor_pos, end_tile_pos);
+				neighbor_tile->h = _euclidean_distance_on_grid(neighbor_pos, end);
 				if (neighbor_tile->state == Tile::OPEN) continue;
 
 				neighbor_tile->state = Tile::OPEN;

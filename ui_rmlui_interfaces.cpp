@@ -101,8 +101,6 @@ namespace ui
 		_has_transform = false;
 	}
 
-	void RmlUiRenderInterface::EndFrame() {}
-
 	void RmlUiRenderInterface::RenderGeometry(Rml::Vertex* vertices, int /*num_vertices*/, int* indices, int num_indices, const Rml::TextureHandle texture, const Rml::Vector2f& translation)
 	{
 		glPushMatrix();
