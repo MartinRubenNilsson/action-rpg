@@ -9,7 +9,11 @@
    <object id="7" name="pivot" x="8.25" y="30.6875">
     <point/>
    </object>
-   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182"/>
+   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="2" type="grass">
@@ -20,7 +24,11 @@
    <object id="4" name="pivot" x="8.3125" y="30.875">
     <point/>
    </object>
-   <object id="6" x="1.90909" y="21.9091" width="12.4545" height="6.90909"/>
+   <object id="6" x="1.90909" y="21.9091" width="12.4545" height="6.90909">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="3" type="grass">
@@ -31,7 +39,11 @@
    <object id="4" name="pivot" x="6.3125" y="30.1875">
     <point/>
    </object>
-   <object id="5" x="1.27273" y="22.7273" width="13.1818" height="7.63636"/>
+   <object id="5" x="1.27273" y="22.7273" width="13.1818" height="7.63636">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
 </tileset>
