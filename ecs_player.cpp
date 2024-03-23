@@ -144,17 +144,17 @@ namespace ecs
 
 			switch (dir) {
 			case 'r':
-				tile.flip_x = false;
-				tile.animation_flip_x_on_loop = false;
+				tile.set_flag(TF_FLIP_X, false);
+				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
 				break;
 			case 'l':
 				dir = 'r';
-				tile.flip_x = true;
-				tile.animation_flip_x_on_loop = false;
+				tile.set_flag(TF_FLIP_X, true);
+				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
 				break;
 			case 'u':
 			case 'd':
-				tile.animation_flip_x_on_loop = true;
+				tile.set_flag(TF_FLIP_X_ON_LOOP, true);
 				break;
 			}
 
@@ -183,12 +183,12 @@ namespace ecs
 				if (player.input.fire_arrow && player.arrows > 0) {
 					tile.set_sprite("bow_shot_"s + dir);
 					player.bow_shot_timer.start();
-					tile.animation_loop = false; // Ensure that the animation will not loop
+					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
 				} else if (player.input.sword_attack) {
 					tile.set_sprite("sword_attack_"s + dir);
 					player.sword_attack_timer.start();
-					tile.animation_loop = false;
+					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
@@ -196,20 +196,20 @@ namespace ecs
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 					tile.set_sprite("run_"s + dir);
 					tile.animation_speed = 1.2f;
-					tile.animation_loop = true;
+					tile.set_flag(TF_LOOP, true);
 					if (tile.animation_looped_last_update())
 						audio::play("event:/snd_footstep");
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_sprite("walk_"s + dir);
 					tile.animation_speed = 1.2f;
-					tile.animation_loop = true;
+					tile.set_flag(TF_LOOP, true);
 					if (tile.animation_looped_last_update())
 						audio::play("event:/snd_footstep");
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {
 					tile.set_sprite("idle_"s + dir);
-					tile.animation_loop = true;
+					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
 			case PlayerState::Attacking: {
@@ -234,7 +234,7 @@ namespace ecs
 			case PlayerState::Dying: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 
-				tile.animation_loop = false;
+				tile.set_flag(TF_LOOP, false);
 
 				if (tile.animation_timer.finished()) {
 					tile.set_sprite("dead_"s + dir);

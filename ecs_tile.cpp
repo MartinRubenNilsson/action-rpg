@@ -88,11 +88,11 @@ namespace ecs
 		sf::Vector2f origin = pivot;
 		sf::Vector2f scale(1.f, 1.f);
 		sf::Vector2f size = sprite.getLocalBounds().getSize();
-		if (flip_x) {
+		if (get_flag(TF_FLIP_X)) {
 			origin.x = size.x - origin.x;
 			scale.x *= -1.f;
 		}
-		if (flip_y) {
+		if (get_flag(TF_FLIP_Y)) {
 			origin.y = size.y - origin.y;
 			scale.y *= -1.f;
 		}
@@ -113,7 +113,7 @@ namespace ecs
 		return _tile ? _tile->tileset->name : "";
 	}
 
-	bool Tile::is_animated() const {
+	bool Tile::has_animation() const {
 		return _animation_duration_ms != 0;
 	}
 
@@ -122,10 +122,11 @@ namespace ecs
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
 		_animation_looped_last_update = false;
+		bool animation_loop = get_flag(TF_LOOP);
 		if (animation_timer.update(animation_speed * dt, animation_loop) && animation_loop) {
 			_animation_looped_last_update = true;
-			if (animation_flip_x_on_loop)
-				flip_x = !flip_x;
+			if (get_flag(TF_FLIP_X_ON_LOOP))
+				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
 		}
 		uint32_t time = (uint32_t)(animation_timer.get_time() * 1000.f); // in milliseconds
 		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
@@ -150,6 +151,19 @@ namespace ecs
 		return _animation_looped_last_update;
 	}
 
+	void Tile::set_flag(TileFlags flag, bool value)
+	{
+		if (value) {
+			_flags |= flag;
+		} else {
+			_flags &= ~flag;
+		}
+	}
+
+	bool Tile::get_flag(TileFlags flag) const {
+		return (_flags & flag) != 0;
+	}
+
 	void update_tiles(float dt)
 	{
 		_shader_time_accumulator += dt;
@@ -172,6 +186,10 @@ namespace ecs
 		}
 	}
 	
+	bool has_tile(entt::entity entity) {
+		return _registry.all_of<Tile>(entity);
+	}
+
 	Tile& emplace_tile(entt::entity entity) {
 		return _registry.emplace_or_replace<Tile>(entity);
 	}
@@ -181,7 +199,7 @@ namespace ecs
 	}
 
 	Tile& get_tile(entt::entity entity) {
-		return _registry.get_or_emplace<Tile>(entity);
+		return _registry.get<Tile>(entity);
 	}
 
 	Tile* try_get_tile(entt::entity entity) {

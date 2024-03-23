@@ -52,12 +52,12 @@ namespace map
 					y -= h;
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
-					ecs_tile.visible = layer.visible;
-					ecs_tile.flip_x = object.flip_flags & tiled::FLIP_HORIZONTAL;
-					ecs_tile.flip_y = object.flip_flags & tiled::FLIP_VERTICAL;
 					ecs_tile.position = sf::Vector2f(x, y);
 					ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
 					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
+					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
 
 					// LOAD COLLIDERS
 
@@ -155,7 +155,8 @@ namespace map
 
 					Character character{};
 					character.randomize();
-					ecs::get_tile(entity).texture = character.bake_texture();
+					if (ecs::Tile* tile = ecs::try_get_tile(entity))
+						tile->texture = character.bake_texture();
 
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
@@ -199,13 +200,13 @@ namespace map
 						ecs::set_properties(entity, tile->properties);
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
-					ecs_tile.visible = layer.visible;
-					ecs_tile.flip_x = flip_flags & tiled::FLIP_HORIZONTAL;
-					ecs_tile.flip_y = flip_flags & tiled::FLIP_VERTICAL;
 					ecs_tile.position = sf::Vector2f(position_x, position_y);
 					ecs_tile.pivot = sf::Vector2f(pivot_x, pivot_y);
 					ecs_tile.sorting_layer = sorting_layer;
 					ecs_tile.sorting_pivot = sf::Vector2f(sorting_pivot_x, sorting_pivot_y);
+					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TF_FLIP_X, flip_flags & tiled::FLIP_HORIZONTAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_Y, flip_flags & tiled::FLIP_VERTICAL);
 
 					if (tile->objects.empty())
 						continue;
