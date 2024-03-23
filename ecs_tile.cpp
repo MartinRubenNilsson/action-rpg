@@ -88,19 +88,20 @@ namespace ecs
 			sprite.setTextureRect(_tile->image_rect);
 		}
 		sf::Vector2f origin = pivot;
-		sf::Vector2f scale(1.f, 1.f);
-		sf::Vector2f size = sprite.getLocalBounds().getSize();
 		if (get_flag(TF_FLIP_X)) {
-			origin.x = size.x - origin.x;
-			scale.x *= -1.f;
+			sf::IntRect texture_rect = sprite.getTextureRect();
+			texture_rect.left += texture_rect.width;
+			texture_rect.width = -texture_rect.width;
+			sprite.setTextureRect(texture_rect);
 		}
 		if (get_flag(TF_FLIP_Y)) {
-			origin.y = size.y - origin.y;
-			scale.y *= -1.f;
+			sf::IntRect texture_rect = sprite.getTextureRect();
+			texture_rect.top += texture_rect.height;
+			texture_rect.height = -texture_rect.height;
+			sprite.setTextureRect(texture_rect);
 		}
 		sprite.setOrigin(origin);
 		sprite.setPosition(position);
-		sprite.setScale(scale);
 		sprite.setColor(color);
 		if (texture)
 			sprite.setTexture(*texture);
