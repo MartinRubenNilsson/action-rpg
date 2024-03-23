@@ -13,11 +13,11 @@ namespace ecs
 		PickupType type;
 	};
 
+	void update_pickups(float dt);
+
 	entt::entity create_arrow_pickup(const sf::Vector2f& position);
 	entt::entity create_rupee_pickup(const sf::Vector2f& position);
 
 	void emplace_pickup(entt::entity entity, const Pickup& pickup);
-	void remove_pickup(entt::entity entity);
-
-	void update_pickups(float dt);
+	bool remove_pickup(entt::entity entity);
 }
