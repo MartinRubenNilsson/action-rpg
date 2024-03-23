@@ -214,7 +214,7 @@ namespace audio
 		return false;
 	}
 
-	int play(const std::string& event_path)
+	int play(const std::string& event_path, const EventOptions* options)
 	{
 		if (_events_played_this_frame.contains(event_path)) return INVALID_EVENT_ID;
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
@@ -226,6 +226,11 @@ namespace audio
 		_events_played_this_frame.insert(event_path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
 		instance->setUserData((void*)(uintptr_t)event_id);
+		if (options) {
+			instance->setVolume(options->volume);
+			FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attribs(options->position);
+			instance->set3DAttributes(&attributes);
+		}
 		instance->start();
 		instance->release();
 		return event_id;

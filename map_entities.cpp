@@ -169,8 +169,9 @@ namespace map
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;
 					if (object.properties.get_string("event", event_name)) {
-						int event_id = audio::play("event:/" + event_name);
-						audio::set_position(event_id, sf::Vector2f(x, y));
+						audio::EventOptions options{};
+						options.position = sf::Vector2f(x, y);
+						audio::play("event:/" + event_name, &options);
 					}
 				}
 			}
