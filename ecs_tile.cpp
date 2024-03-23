@@ -169,7 +169,6 @@ namespace ecs
 			tile.update_animation(dt);
 			if (tile.shader) {
 				tile.shader->setUniform("time", _shader_time_accumulator);
-				tile.shader->setUniform("time_delta", dt);
 				tile.shader->setUniform("position", tile.position);
 			}
 		}

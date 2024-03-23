@@ -86,24 +86,19 @@ namespace ecs
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
-			Sprite sprite{};
-			sprite.min = tile.position - tile.pivot;
-			if (sprite.min.x > view_max.x || sprite.min.y > view_max.y) continue;
+			sf::Vector2f min = tile.position - tile.pivot;
+			if (min.x > view_max.x || min.y > view_max.y) continue;
 			sf::IntRect texture_rect = tile.get_texture_rect();
-			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
-			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
-			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
-			if (sprite.max.x < view_min.x || sprite.max.y < view_min.y) continue;
-			if (tile.get_flag(TF_FLIP_X)) std::swap(sprite.tex_min.x, sprite.tex_max.x);
-			if (tile.get_flag(TF_FLIP_Y)) std::swap(sprite.tex_min.y, sprite.tex_max.y);
-			sprite.sorting_layer = tile.sorting_layer;
-			sprite.sorting_position = sprite.min + tile.sorting_pivot;
-			sprite.texture = tile.get_texture();
-			sprite.shader = tile.shader;
-			sprite.color = tile.color;
-			uint32_t sprite_count = (uint32_t)_sprites.size();
-			_sprites.push_back(sprite);
-			_sprites_draw_order.push_back(sprite_count);
+			sf::Vector2f tex_min = { (float)texture_rect.left, (float)texture_rect.top };
+			sf::Vector2f tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
+			sf::Vector2f max = min + tex_max - tex_min;
+			if (max.x < view_min.x || max.y < view_min.y) continue;
+			if (tile.get_flag(TF_FLIP_X)) std::swap(tex_min.x, tex_max.x);
+			if (tile.get_flag(TF_FLIP_Y)) std::swap(tex_min.y, tex_max.y);
+			_sprites_draw_order.push_back((uint32_t)_sprites.size());
+			_sprites.emplace_back(
+				min, max, tex_min, tex_max, min + tile.sorting_pivot, tile.sorting_layer,
+				tile.get_texture(), tile.shader, tile.color);
 		}
 		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
