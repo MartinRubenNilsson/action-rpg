@@ -105,14 +105,7 @@ int main(int argc, char* argv[])
                     else if (ev.key.code == sf::Keyboard::F6)
                         ui::debug = !ui::debug;
 #endif
-                } else if (ev.type == sf::Event::MouseButtonPressed) {
-#if 0
-                    if (ev.mouseButton.button == sf::Mouse::Left) {
-                        sf::Vector2f mouse_pos((float)ev.mouseButton.x, (float)ev.mouseButton.y);
-						postprocessing::_shockwaves.emplace_back(mouse_pos, 0.1f, 0.1f, 0.1f);
-					}
-#endif
-				}
+                }
                 ImGui::SFML::ProcessEvent(window, ev);
                 if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
                     continue;
