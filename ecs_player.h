@@ -35,6 +35,7 @@ namespace ecs
 		int arrows = 10;
 		int bombs = 5;
 		int rupees = 10;
+		int max_health = 3;
 	};
 
 	void process_event_players(const sf::Event& ev);

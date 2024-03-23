@@ -51,6 +51,7 @@ namespace ecs
 	bool apply_damage_to_slime(entt::entity entity, const Damage& damage)
 	{
 		//TODO: more stuff here
+		audio::play("event:/snd_slime_dying");
 		destroy_at_end_of_frame(entity);
 		return true;
 	}
@@ -61,11 +62,13 @@ namespace ecs
 		b2Body* body = get_body(entity);
 		sf::Vector2f position = get_world_center(body);
 		audio::play("event:/snd_cut_grass");
-		if (random::chance(0.2f))
-			create_arrow_pickup(position + sf::Vector2f(2.f, 2.f));
-		else if (random::chance(0.2f))
-			create_rupee_pickup(position + sf::Vector2f(2.f, 2.f));
+		if (random::chance(0.2f)) {
+			int rand_int = random::range_i(0, (int)PickupType::Count - 1);
+			PickupType pickup_type = (PickupType)rand_int;
+			create_pickup(position + sf::Vector2f(2.f, 2.f), pickup_type);
+		}
 		destroy_at_end_of_frame(entity);
+
 		return true;
 	}
 }

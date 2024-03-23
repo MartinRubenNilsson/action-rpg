@@ -6,6 +6,9 @@ namespace ecs
 	{
 		Arrow,
 		Rupee,
+		Bomb,
+		Heart,
+		Count,
 	};
 
 	struct Pickup
@@ -13,8 +16,7 @@ namespace ecs
 		PickupType type;
 	};
 
-	entt::entity create_arrow_pickup(const sf::Vector2f& position);
-	entt::entity create_rupee_pickup(const sf::Vector2f& position);
+	entt::entity create_pickup(const sf::Vector2f& position, PickupType pickup);
 
 	void emplace_pickup(entt::entity entity, const Pickup& pickup);
 	void remove_pickup(entt::entity entity);

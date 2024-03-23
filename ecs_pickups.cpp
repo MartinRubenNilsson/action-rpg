@@ -9,14 +9,14 @@ namespace ecs
 	extern entt::registry _registry;
 	float _pickup_elapsed_time = 0.f;
 
-	entt::entity create_arrow_pickup(const sf::Vector2f& position)
+	entt::entity create_pickup(const sf::Vector2f& position, PickupType pickup_type)
 	{
 		entt::entity entity = _registry.create();
 
 		set_class(entity, "pickup");
 
 		Pickup pickup{};
-		pickup.type = PickupType::Arrow;
+		pickup.type = pickup_type;
 		_registry.emplace<Pickup>(entity, pickup);
 
 		b2BodyDef body_def;
@@ -32,37 +32,22 @@ namespace ecs
 		}
 
 		Tile& tile = emplace_tile(entity);
-		tile.set_sprite("arrow", "items1");
-		tile.position = position;
-		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 
-		return entity;
-	}
-
-	entt::entity create_rupee_pickup(const sf::Vector2f& position)
-	{
-		entt::entity entity = _registry.create();
-
-		set_class(entity, "pickup");
-
-		Pickup pickup{};
-		pickup.type = PickupType::Rupee;
-		_registry.emplace<Pickup>(entity, pickup);
-
-		b2BodyDef body_def;
-		body_def.type = b2_staticBody;
-		body_def.position.Set(position.x, position.y);
-		if (b2Body* body = emplace_body(entity, body_def)) {
-			b2CircleShape shape;
-			shape.m_radius = 4.f; // Adjust if needed
-			b2FixtureDef fixture_def;
-			fixture_def.shape = &shape;
-			fixture_def.isSensor = true;
-			body->CreateFixture(&fixture_def);
+		switch (pickup_type) {
+		case PickupType::Arrow:
+			tile.set_sprite("arrow", "items1");
+			break;
+		case PickupType::Rupee:
+			tile.set_sprite("rupee", "items1");
+			break;
+		case PickupType::Bomb:
+			tile.set_sprite("bomb", "items1");
+			break;
+		case PickupType::Heart:
+			tile.set_sprite("heart", "items1");
+			break;
 		}
 
-		Tile& tile = emplace_tile(entity);
-		tile.set_sprite("rupee", "items1");
 		tile.position = position;
 		tile.pivot = sf::Vector2f(16.f / 2.f, 16.f / 2.f);
 
