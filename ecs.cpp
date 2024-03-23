@@ -35,15 +35,18 @@ namespace ecs
 			return left.sorting_position.y < right.sorting_position.y;
 		if (left.sorting_position.x != right.sorting_position.x)
 			return left.sorting_position.x < right.sorting_position.x;
+		if (left.texture != right.texture)
+			return left.texture < right.texture;
+		if (left.shader != right.shader)
+			return left.shader < right.shader;
 		return false;
 	}
 
 	int debug_flags = DEBUG_NONE;
-
 	entt::registry _registry;
 	std::vector<Sprite> _sprites;
 	std::vector<uint32_t> _sprites_draw_order; // indices into _sprites
-	uint32_t _sprite_count = 0;
+	std::vector<sf::Vertex> _vertices;
 
 	void initialize() {
 		initialize_physics();
@@ -98,29 +101,48 @@ namespace ecs
 			sprite.texture = tile.get_texture();
 			sprite.shader = tile.shader;
 			sprite.color = tile.color;
+			uint32_t sprite_count = (uint32_t)_sprites.size();
 			_sprites.push_back(sprite);
-			_sprites_draw_order.push_back(_sprite_count++);
+			_sprites_draw_order.push_back(sprite_count);
 		}
 		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
 		});
-		sf::Vertex vertices[4];
 		sf::RenderStates states{};
 		for (uint32_t sprite_index : _sprites_draw_order) {
+
+			// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
+			// This is done by creating a triangle strip for each batch and drawing it only when the state changes.
+			// Each sprite is represented by 4 vertices in the triangle strip, but we also need to add duplicate
+			// vertices to create the degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
+			// are the triangle strips of two sprites, the batched triangle strip will be ABCDDEEFGH.
+
 			const Sprite& sprite = _sprites[sprite_index];
-			vertices[0].position = sprite.min;
-			vertices[1].position = { sprite.min.x, sprite.max.y };
-			vertices[2].position = { sprite.max.x, sprite.min.y };
-			vertices[3].position = sprite.max;
-			vertices[0].texCoords = sprite.tex_min;
-			vertices[1].texCoords = { sprite.tex_min.x, sprite.tex_max.y };
-			vertices[2].texCoords = { sprite.tex_max.x, sprite.tex_min.y };
-			vertices[3].texCoords = sprite.tex_max;
-			for (size_t i = 0; i < 4; ++i)
-				vertices[i].color = sprite.color;
+			// Are we in the middle of a batch?
+			if (!_vertices.empty()) { 
+				// Can we add the new sprite to the batch?
+				if (states.texture == sprite.texture.get() && states.shader == sprite.shader.get()) {
+					// Add degenerate triangles to separate the sprites
+					_vertices.push_back(_vertices.back()); // D
+					_vertices.emplace_back(sprite.min, sprite.color, sprite.tex_min); // E
+				} else {
+					// Draw the current batch and start a new one
+					target.draw(_vertices.data(), _vertices.size(), sf::TriangleStrip, states);
+					_vertices.clear();
+				}
+			}
+			// Add the vertices of the new sprite to the batch
+			_vertices.emplace_back(sprite.min, sprite.color, sprite.tex_min);
+			_vertices.emplace_back(sf::Vector2f(sprite.min.x, sprite.max.y), sprite.color, sf::Vector2f(sprite.tex_min.x, sprite.tex_max.y));
+			_vertices.emplace_back(sf::Vector2f(sprite.max.x, sprite.min.y), sprite.color, sf::Vector2f(sprite.tex_max.x, sprite.tex_min.y));
+			_vertices.emplace_back(sprite.max, sprite.color, sprite.tex_max);
+			// Update the render states
 			states.texture = sprite.texture.get();
 			states.shader = sprite.shader.get();
-			target.draw(vertices, 4, sf::TriangleStrip, states);
+		}
+		if (!_vertices.empty()) { // Draw the last batch if there is one
+			target.draw(_vertices.data(), _vertices.size(), sf::TriangleStrip, states);
+			_vertices.clear();
 		}
 
 		// DRAW VFX
@@ -149,6 +171,5 @@ namespace ecs
 
 		_sprites.clear();
 		_sprites_draw_order.clear();
-		_sprite_count = 0;
 	}
 }
