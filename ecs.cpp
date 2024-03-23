@@ -13,9 +13,37 @@
 
 namespace ecs
 {
+	//This should be put in its own file
+	struct Sprite
+	{
+		sf::Vector2f min; // top-left corner
+		sf::Vector2f max; // bottom-right corner
+		sf::Vector2f tex_min; // texture coordinates in pixels
+		sf::Vector2f tex_max; // texture coordinates in pixels
+		sf::Vector2f sorting_position;
+		SortingLayer sorting_layer;
+		std::shared_ptr<sf::Texture> texture;
+		std::shared_ptr<sf::Shader> shader;
+		sf::Color color = sf::Color::White;
+	};
+
+	bool operator<(const Sprite& left, const Sprite& right)
+	{
+		if (left.sorting_layer != right.sorting_layer)
+			return left.sorting_layer < right.sorting_layer;
+		if (left.sorting_position.y != right.sorting_position.y)
+			return left.sorting_position.y < right.sorting_position.y;
+		if (left.sorting_position.x != right.sorting_position.x)
+			return left.sorting_position.x < right.sorting_position.x;
+		return false;
+	}
+
 	int debug_flags = DEBUG_NONE;
 
 	entt::registry _registry;
+	std::vector<Sprite> _sprites;
+	std::vector<uint32_t> _sprites_draw_order; // indices into _sprites
+	uint32_t _sprite_count = 0;
 
 	void initialize() {
 		initialize_physics();
@@ -52,28 +80,6 @@ namespace ecs
 		const sf::Vector2f view_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
 		target.setView(view);
 
-		struct Sprite
-		{
-			sf::Vector2f min; // top-left corner
-			sf::Vector2f max; // bottom-right corner
-			sf::Vector2f tex_min; // texture coordinates in pixels
-			sf::Vector2f tex_max; // texture coordinates in pixels
-			sf::Vector2f sorting_position;
-			SortingLayer sorting_layer;
-			std::shared_ptr<sf::Texture> texture;
-			std::shared_ptr<sf::Shader> shader;
-			sf::Color color = sf::Color::White;
-
-			bool operator<(const Sprite& other) const
-			{
-				if (sorting_layer != other.sorting_layer) return sorting_layer < other.sorting_layer;
-				if (sorting_position.y != other.sorting_position.y) return sorting_position.y < other.sorting_position.y;
-				if (sorting_position.x != other.sorting_position.x) return sorting_position.x < other.sorting_position.x;
-				return false;
-			}
-		};
-
-		std::vector<Sprite> sprites;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
@@ -92,12 +98,16 @@ namespace ecs
 			sprite.texture = tile.get_texture();
 			sprite.shader = tile.shader;
 			sprite.color = tile.color;
-			sprites.push_back(sprite);
+			_sprites.push_back(sprite);
+			_sprites_draw_order.push_back(_sprite_count++);
 		}
-		std::sort(sprites.begin(), sprites.end());
+		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
+			return _sprites[left] < _sprites[right];
+		});
 		sf::Vertex vertices[4];
 		sf::RenderStates states{};
-		for (const Sprite& sprite : sprites) {
+		for (uint32_t sprite_index : _sprites_draw_order) {
+			const Sprite& sprite = _sprites[sprite_index];
 			vertices[0].position = sprite.min;
 			vertices[1].position = { sprite.min.x, sprite.max.y };
 			vertices[2].position = { sprite.max.x, sprite.min.y };
@@ -121,7 +131,8 @@ namespace ecs
 		// DEBUG DRAWING
 
 		if (debug_flags & DEBUG_PIVOTS) {
-			for (const Sprite& sprite : sprites) {
+			// Here the draw order is not important
+			for (const Sprite& sprite : _sprites) {
 				if (sprite.sorting_layer != SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
 				circle.setPosition(sprite.sorting_position);
@@ -135,5 +146,9 @@ namespace ecs
 			debug_draw_ai();
 		if (debug_flags & DEBUG_PLAYER)
 			debug_draw_players();
+
+		_sprites.clear();
+		_sprites_draw_order.clear();
+		_sprite_count = 0;
 	}
 }
