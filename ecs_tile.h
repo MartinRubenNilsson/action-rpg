@@ -39,21 +39,22 @@ namespace ecs
 		Tile(const tiled::Tile* tile);
 
 		sf::Vector2f position; // in pixels
-		sf::Vector2f pivot; // in pixels
-		sf::Vector2f sorting_pivot; // in pixels
+		sf::Vector2f pivot; // in pixels, relative to the top-left corner
+		sf::Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		SortingLayer sorting_layer = SortingLayer::Objects;
 		sf::Color color = sf::Color::White;
-		std::shared_ptr<sf::Texture> texture; // optional
-		std::shared_ptr<sf::Shader> shader; // optional
+		std::shared_ptr<sf::Texture> texture; // optional, if not set, the tileset texture is used
+		std::shared_ptr<sf::Shader> shader; // optional, if not set, the default shader is used
 		Timer animation_timer;
 		float animation_speed = 1.f;
 
 		bool is_valid() const { return _tile; }
 		bool set_sprite(const std::string& tile_class); // uses the current tileset
 		bool set_sprite(const std::string& tile_class, const std::string& tileset_name);
-		sf::Sprite get_sprite() const;
 		std::string get_tile_class() const; 
 		std::string get_tileset_name() const;
+		std::shared_ptr<sf::Texture> get_texture() const;
+		sf::IntRect get_texture_rect() const;
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
@@ -62,7 +63,6 @@ namespace ecs
 
 	private:
 		const tiled::Tile* _tile = nullptr;
-		sf::IntRect _texture_rect;
 		uint32_t _animation_duration_ms = 0;
 		uint32_t _animation_frame_index = 0;
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;

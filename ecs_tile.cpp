@@ -79,39 +79,31 @@ namespace ecs
 		return _set_sprite(tileset->find_tile_by_class(tile_class));
 	}
 
-	sf::Sprite Tile::get_sprite() const
-	{
-		sf::Sprite sprite;
-		if (const tiled::Tile* tile = _get_visible_tile()) {
-			sprite.setTexture(*tile->tileset->image);
-			sprite.setTextureRect(tile->image_rect);
-		}
-		if (get_flag(TF_FLIP_X)) {
-			sf::IntRect texture_rect = sprite.getTextureRect();
-			texture_rect.left += texture_rect.width;
-			texture_rect.width = -texture_rect.width;
-			sprite.setTextureRect(texture_rect);
-		}
-		if (get_flag(TF_FLIP_Y)) {
-			sf::IntRect texture_rect = sprite.getTextureRect();
-			texture_rect.top += texture_rect.height;
-			texture_rect.height = -texture_rect.height;
-			sprite.setTextureRect(texture_rect);
-		}
-		sprite.setOrigin(pivot);
-		sprite.setPosition(position);
-		sprite.setColor(color);
-		if (texture)
-			sprite.setTexture(*texture);
-		return sprite;
-	}
-
 	std::string Tile::get_tile_class() const {
 		return _tile ? _tile->class_ : "";
 	}
 
 	std::string Tile::get_tileset_name() const {
 		return _tile ? _tile->tileset->name : "";
+	}
+
+	std::shared_ptr<sf::Texture> Tile::get_texture() const
+	{
+		std::shared_ptr<sf::Texture> ret;
+		if (texture) {
+			ret = texture;
+		} else if (const tiled::Tile* tile = _get_visible_tile()) {
+			ret = tile->tileset->image;
+		}
+		return ret;
+	}
+
+	sf::IntRect Tile::get_texture_rect() const
+	{
+		sf::IntRect rect{};
+		if (const tiled::Tile* tile = _get_visible_tile())
+			rect = tile->image_rect;
+		return rect;
 	}
 
 	bool Tile::has_animation() const {

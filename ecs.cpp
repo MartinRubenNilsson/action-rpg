@@ -47,51 +47,70 @@ namespace ecs
 	 
 	void render(sf::RenderTarget& target)
 	{
-		// Get and set the current view.
-		sf::View view = ecs::get_blended_camera_view();
+		const sf::View view = ecs::get_blended_camera_view();
+		const sf::Vector2f view_min = view.getCenter() - view.getSize() / 2.f; // assumes no rotation
+		const sf::Vector2f view_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
 		target.setView(view);
 
-		// Compute the view bounds (assuming no rotation).
-		sf::FloatRect view_bounds(
-			view.getCenter() - view.getSize() / 2.f, // top left
-			view.getSize());
-
-		struct SortedSprite
+		struct Sprite
 		{
-			sf::Sprite sprite;
-			std::shared_ptr<sf::Shader> shader;
+			sf::Vector2f min; // top-left corner
+			sf::Vector2f max; // bottom-right corner
+			sf::Vector2f tex_min; // texture coordinates in pixels
+			sf::Vector2f tex_max; // texture coordinates in pixels
+			sf::Vector2f sorting_position;
 			SortingLayer sorting_layer;
-			sf::Vector2f sorting_pos;
+			std::shared_ptr<sf::Texture> texture;
+			std::shared_ptr<sf::Shader> shader;
+			sf::Color color = sf::Color::White;
 
-			bool operator<(const SortedSprite& other) const
+			bool operator<(const Sprite& other) const
 			{
 				if (sorting_layer != other.sorting_layer) return sorting_layer < other.sorting_layer;
-				if (sorting_pos.y != other.sorting_pos.y) return sorting_pos.y < other.sorting_pos.y;
-				if (sorting_pos.x != other.sorting_pos.x) return sorting_pos.x < other.sorting_pos.x;
+				if (sorting_position.y != other.sorting_position.y) return sorting_position.y < other.sorting_position.y;
+				if (sorting_position.x != other.sorting_position.x) return sorting_position.x < other.sorting_position.x;
 				return false;
 			}
 		};
 
-		// Collect all visible sprites in view.
-		std::vector<SortedSprite> sprites;
+		std::vector<Sprite> sprites;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
-			sf::Sprite sprite = tile.get_sprite();
-			sf::FloatRect sprite_bounds = sprite.getGlobalBounds();
-			if (!view_bounds.intersects(sprite_bounds)) continue;
-			sf::Vector2f sorting_pos = sprite_bounds.getPosition() + tile.sorting_pivot;
-			sprites.emplace_back(sprite, tile.shader, tile.sorting_layer, sorting_pos);
+			Sprite sprite{};
+			sprite.min = tile.position - tile.pivot;
+			if (sprite.min.x > view_max.x || sprite.min.y > view_max.y) continue;
+			sf::IntRect texture_rect = tile.get_texture_rect();
+			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
+			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
+			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			if (sprite.max.x < view_min.x || sprite.max.y < view_min.y) continue;
+			if (tile.get_flag(TF_FLIP_X)) std::swap(sprite.tex_min.x, sprite.tex_max.x);
+			if (tile.get_flag(TF_FLIP_Y)) std::swap(sprite.tex_min.y, sprite.tex_max.y);
+			sprite.sorting_layer = tile.sorting_layer;
+			sprite.sorting_position = sprite.min + tile.sorting_pivot;
+			sprite.texture = tile.get_texture();
+			sprite.shader = tile.shader;
+			sprite.color = tile.color;
+			sprites.push_back(sprite);
 		}
-
-		// Sort sprites by layer and position.
 		std::sort(sprites.begin(), sprites.end());
-
-		// Draw sprites.
-		for (const SortedSprite& sorted_sprite : sprites) {
-			if (sorted_sprite.shader)
-				target.draw(sorted_sprite.sprite, sorted_sprite.shader.get());
-			else
-				target.draw(sorted_sprite.sprite);
+		sf::Vertex vertices[4];
+		sf::RenderStates states{};
+		for (const Sprite& sprite : sprites) {
+			vertices[0].position = sprite.min;
+			vertices[1].position = { sprite.min.x, sprite.max.y };
+			vertices[2].position = { sprite.max.x, sprite.min.y };
+			vertices[3].position = sprite.max;
+			vertices[0].texCoords = sprite.tex_min;
+			vertices[1].texCoords = { sprite.tex_min.x, sprite.tex_max.y };
+			vertices[2].texCoords = { sprite.tex_max.x, sprite.tex_min.y };
+			vertices[3].texCoords = sprite.tex_max;
+			for (size_t i = 0; i < 4; ++i)
+				vertices[i].color = sprite.color;
+			states.texture = sprite.texture.get();
+			states.shader = sprite.shader.get();
+			target.draw(vertices, 4, sf::TriangleStrip, states);
 		}
 
 		// DRAW VFX
@@ -102,10 +121,10 @@ namespace ecs
 		// DEBUG DRAWING
 
 		if (debug_flags & DEBUG_PIVOTS) {
-			for (const SortedSprite& sorted_sprite : sprites) {
-				if (sorted_sprite.sorting_layer != SortingLayer::Objects) continue;
+			for (const Sprite& sprite : sprites) {
+				if (sprite.sorting_layer != SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
-				circle.setPosition(sorted_sprite.sorting_pos);
+				circle.setPosition(sprite.sorting_position);
 				circle.setFillColor(sf::Color::Red);
 				target.draw(circle);
 			}
