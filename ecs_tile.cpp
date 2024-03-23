@@ -81,9 +81,11 @@ namespace ecs
 		}
 		if (_animation_duration_ms && _animation_frame_index < _tile->animation.size()) {
 			const tiled::Frame& frame = _tile->animation[_animation_frame_index];
-			sprite = frame.tile->sprite;
+			sprite.setTexture(*frame.tile->tileset->image);
+			sprite.setTextureRect(frame.tile->image_rect);
 		} else {
-			sprite = _tile->sprite;
+			sprite.setTexture(*_tile->tileset->image);
+			sprite.setTextureRect(_tile->image_rect);
 		}
 		sf::Vector2f origin = pivot;
 		sf::Vector2f scale(1.f, 1.f);
