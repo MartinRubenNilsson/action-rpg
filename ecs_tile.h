@@ -29,7 +29,7 @@ namespace ecs
 		TF_FLIP_Y         = 1 << 2,
 		TF_LOOP           = 1 << 3, // loop the animation
 		TF_FLIP_X_ON_LOOP = 1 << 4, // flip the sprite horizontally when the animation loops
-		TF_JUST_LOOPED	  = 1 << 5, // is set when the animation looped last update
+		TF_JUST_LOOPED	  = 1 << 5, // is set if the animation looped last update
 	};
 
 	class Tile
