@@ -7,10 +7,10 @@ namespace sprites
 	{
 		if (left.sorting_layer != right.sorting_layer)
 			return left.sorting_layer < right.sorting_layer;
-		if (left.sorting_position.y != right.sorting_position.y)
-			return left.sorting_position.y < right.sorting_position.y;
-		if (left.sorting_position.x != right.sorting_position.x)
-			return left.sorting_position.x < right.sorting_position.x;
+		if (left.sorting_pos.y != right.sorting_pos.y)
+			return left.sorting_pos.y < right.sorting_pos.y;
+		if (left.sorting_pos.x != right.sorting_pos.x)
+			return left.sorting_pos.x < right.sorting_pos.x;
 		if (left.texture != right.texture)
 			return left.texture < right.texture;
 		if (left.shader != right.shader)

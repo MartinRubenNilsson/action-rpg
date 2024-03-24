@@ -57,27 +57,32 @@ namespace ecs
 		const sf::Vector2f view_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
 		target.setView(view);
 
+		sprites::Sprite sprite{}; // so we don't recreate it every iteration
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
-			sf::Vector2f min = tile.position - tile.pivot;
-			if (min.x > view_max.x || min.y > view_max.y) continue;
+			sprite.texture = tile.get_texture();
+			if (!sprite.texture) continue;
+			sprite.shader = tile.shader;
+			sprite.min = tile.position - tile.pivot;
+			if (sprite.min.x > view_max.x || sprite.min.y > view_max.y) continue;
 			sf::IntRect texture_rect = tile.get_texture_rect();
-			sf::Vector2f tex_min = { (float)texture_rect.left, (float)texture_rect.top };
-			sf::Vector2f tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
-			sf::Vector2f max = min + tex_max - tex_min;
-			if (max.x < view_min.x || max.y < view_min.y) continue;
-			uint8_t sprite_flags = sprites::SF_NONE;
+			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
+			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
+			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			if (sprite.max.x < view_min.x || sprite.max.y < view_min.y) continue;
+			sprite.color = tile.color;
+			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
+			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
+			sprite.flags = 0;
 			if (tile.get_flag(TF_FLIP_X))
-				sprite_flags |= sprites::SF_FLIP_X;
+				sprite.flags |= sprites::SF_FLIP_X;
 			if (tile.get_flag(TF_FLIP_Y))
-				sprite_flags |= sprites::SF_FLIP_Y;
+				sprite.flags |= sprites::SF_FLIP_Y;
 			if (tile.get_flag(TF_FLIP_DIAGONAL))
-				sprite_flags |= sprites::SF_FLIP_DIAGONAL;
+				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
 			_sprites_draw_order.push_back((uint32_t)_sprites.size());
-			_sprites.emplace_back(
-				min, max, tex_min, tex_max, min + tile.sorting_pivot,
-				tile.get_texture(), tile.shader, tile.color, (uint8_t)tile.sorting_layer, sprite_flags);
+			_sprites.push_back(sprite);
 		}
 		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
@@ -155,7 +160,7 @@ namespace ecs
 			for (const sprites::Sprite& sprite : _sprites) {
 				if (sprite.sorting_layer != (uint8_t)SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
-				circle.setPosition(sprite.sorting_position);
+				circle.setPosition(sprite.sorting_pos);
 				circle.setFillColor(sf::Color::Red);
 				target.draw(circle);
 			}
