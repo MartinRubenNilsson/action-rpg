@@ -63,7 +63,7 @@ namespace ecs
 			sprite.shader = tile.shader;
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > view_max.x || sprite.min.y > view_max.y) continue;
-			sf::IntRect texture_rect = tile.get_texture_rect(true);
+			sf::IntRect texture_rect = tile.get_texture_rect();
 			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
 			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;

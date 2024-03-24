@@ -140,7 +140,7 @@ namespace ecs
 			const map::TerrainType terrain = map::get_terrain_type_at(position);
 			audio::set_parameter_label("terrain", map::to_string(terrain));
 
-			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties(true).has("step")) {
+			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("step")) {
 				audio::play("event:/snd_footstep");
 			}
 

@@ -58,10 +58,10 @@ namespace ecs
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
 		std::shared_ptr<sf::Texture> get_texture() const;
-		sf::IntRect get_texture_rect(bool account_for_animation = false) const;
-		const std::string& get_class(bool account_for_animation = false) const;
+		sf::IntRect get_texture_rect(bool account_for_animation = true) const;
+		const std::string& get_class(bool account_for_animation = true) const;
 		const std::string& get_tileset_name() const;
-		const Properties& get_properties(bool account_for_animation = false) const;
+		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
