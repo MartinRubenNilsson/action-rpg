@@ -134,8 +134,10 @@ namespace ecs
 			const sf::Vector2f position = get_world_center(body);
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity; // will be modified differently depending on the state
-			sf::Vector2f new_sword_position;
-			bool new_sword_visible = false;
+
+			std::string new_held_item_tile_class;
+			sf::Vector2f new_held_item_position;
+			bool new_held_item_visible = false;
 
 			// UPDATE AUDIO
 
@@ -210,8 +212,9 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingSword: {
-				new_sword_position = position + player.look_dir * 16.f;
-				new_sword_visible = true;
+				new_held_item_tile_class = "sword";
+				new_held_item_position = position + player.look_dir * 16.f;
+				new_held_item_visible = true;
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -220,8 +223,9 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
-				new_sword_position = position + player.look_dir * 16.f;
-				new_sword_visible = true;
+				new_held_item_tile_class = "bow";
+				new_held_item_position = position + player.look_dir * 16.f;
+				new_held_item_visible = true;
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
@@ -247,9 +251,11 @@ namespace ecs
 
 			set_linear_velocity(body, new_velocity);
 
-			if (Tile* sword_tile = try_get_tile(player.sword)) {
-				sword_tile->position = new_sword_position;
-				sword_tile->set_flag(TF_VISIBLE, new_sword_visible);
+			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
+				held_item_tile->set_flag(TF_VISIBLE, new_held_item_visible);
+				held_item_tile->set_tile(new_held_item_tile_class, "items1");
+				held_item_tile->position = new_held_item_position;
+				held_item_tile->pivot = { 0.f, 16.f };
 			}
 
 			// UPDATE TILE COLOR

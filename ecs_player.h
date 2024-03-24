@@ -35,7 +35,7 @@ namespace ecs
 		int arrows = 10;
 		int bombs = 5;
 		int rupees = 10;
-		entt::entity sword = entt::null;
+		entt::entity held_item = entt::null;
 	};
 
 	void process_event_players(const sf::Event& ev);

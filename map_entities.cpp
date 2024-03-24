@@ -148,13 +148,8 @@ namespace map
 				if (object.class_ == "player") {
 					{
 						ecs::Player player{};
-						player.sword = ecs::create();
-						{
-							ecs::Tile& sword_tile = ecs::emplace_tile(player.sword);
-							sword_tile.set_tile("sword", "items1");
-							sword_tile.set_flag(ecs::TF_VISIBLE, false);
-							sword_tile.pivot = { 0.f, 16.f };
-						}
+						player.held_item = ecs::create();
+						ecs::emplace_tile(player.held_item);
 						ecs::emplace_player(entity, player);
 					}
 					{
