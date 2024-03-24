@@ -78,7 +78,7 @@ namespace ecs
 				sprite.flags |= sprites::SF_FLIP_Y;
 			if (tile.get_flag(TF_FLIP_DIAGONAL))
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
-			sprites::draw(sprite);
+			sprites::submit(sprite);
 		}
 		sprites::set_time(_time);
 		sprites::render(target);

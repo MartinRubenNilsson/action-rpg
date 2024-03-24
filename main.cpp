@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "textures.h"
 #include "cursor.h"
+#include "sprites.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -174,6 +175,8 @@ int main(int argc, char* argv[])
             ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
             sprintf(overlay_text, "%.f FPS", smoothed_fps);
             ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
+            ImGui::Value("Sprites", sprites::get_sprite_draw_count());
+            ImGui::Value("Batches", sprites::get_batch_draw_count());
             ImGui::End();
         }
 

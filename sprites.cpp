@@ -21,20 +21,22 @@ namespace sprites
 	std::vector<Sprite> _sprites;
 	std::vector<uint32_t> _sprites_by_draw_order; // indices into _sprites_to_draw
 	std::vector<sf::Vertex> _batch_vertices;
-	float _time = 0.f;
+	uint32_t _sprite_draw_count = 0;
+	uint32_t _batch_draw_count = 0;
+	float _time = 0.f; //HACK
 
 	void _render_and_clear_batch(sf::RenderTarget& target, const sf::RenderStates& states)
 	{
 		target.draw(_batch_vertices.data(), _batch_vertices.size(), sf::TriangleStrip, states);
 		_batch_vertices.clear();
+		++_batch_draw_count;
 	}
 
-	void set_time(float time)
-	{
+	void set_time(float time) {
 		_time = time;
 	}
 
-	void draw(const Sprite& sprite)
+	void submit(const Sprite& sprite)
 	{
 		_sprites.push_back(sprite);
 		_sprites_by_draw_order.push_back((uint32_t)_sprites.size() - 1);
@@ -42,6 +44,9 @@ namespace sprites
 
 	void render(sf::RenderTarget& target)
 	{
+		_sprite_draw_count = (uint32_t)_sprites.size();
+		_batch_draw_count = 0;
+
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order.begin(), _sprites_by_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
@@ -112,5 +117,13 @@ namespace sprites
 
 		_sprites.clear();
 		_sprites_by_draw_order.clear();
+	}
+
+	uint32_t get_sprite_draw_count() {
+		return _sprite_draw_count;
+	}
+
+	uint32_t get_batch_draw_count() {
+		return _batch_draw_count;
 	}
 }

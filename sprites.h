@@ -16,12 +16,12 @@ namespace sprites
 	struct Sprite
 	{
 		std::shared_ptr<sf::Texture> texture; // required
-		std::shared_ptr<sf::Shader> shader; // optional, if not set, the default shader is used
+		std::shared_ptr<sf::Shader> shader; // optional; if not set, the default shader is used
 		sf::Vector2f min; // top-left corner world position in pixels
 		sf::Vector2f max; // bottom-right corner world position in pixels
 		sf::Vector2f tex_min; // top-left corner texture coordinates in pixels
 		sf::Vector2f tex_max; // bottom-right corner texture coordinates in pixels
-		sf::Vector2f sorting_pos; // world position in pixels used for sorting
+		sf::Vector2f sorting_pos;
 		sf::Color color = sf::Color::White;
 		uint8_t sorting_layer = 0;
 		uint8_t flags = 0;
@@ -41,6 +41,16 @@ namespace sprites
 	bool operator<(const Sprite& left, const Sprite& right);
 
 	void set_time(float time); // HACK: for shader uniforms
-	void draw(const Sprite& sprite);
+
+	// Submits a sprite for rendering. The sprite is not rendered immediately, but
+	// instead copied to a list of sprites to be rendered when render() is called.
+	void submit(const Sprite& sprite);
+	// Renders all sprites submitted since the last call to render().
 	void render(sf::RenderTarget& target);
+	// Returns the number of sprites rendered during the last call to render().
+	// This is also equal to the number of sprites submitted before the last call.
+	uint32_t get_sprite_draw_count(); 
+	// Returns the number of sprite batches rendered during the last call to render().
+	// This will typically be less than get_submitted_sprite_count() and never greater.
+	uint32_t get_batch_draw_count();
 }
