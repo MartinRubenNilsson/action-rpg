@@ -18,19 +18,33 @@ namespace sprites
 		return false;
 	}
 
+	constexpr uint32_t _calc_vertices_in_batch(uint32_t sprite_count) {
+		return 6 * sprite_count - 2;
+	}
+
+	constexpr uint32_t _calc_sprites_in_batch(uint32_t vertex_count) {
+		return (vertex_count + 2) / 6;
+	}
+
+	const uint32_t MAX_SPRITES_PER_BATCH = 512;
+	const uint32_t MAX_VERTICES_PER_BATCH = _calc_vertices_in_batch(MAX_SPRITES_PER_BATCH);
 	bool enable_batching = true;
 	std::vector<Sprite> _sprites_to_draw;
 	std::vector<uint32_t> _sprites_by_draw_order; // indices into _sprites_to_draw
-	std::vector<sf::Vertex> _batch_vertices;
-	uint32_t _sprite_draw_count = 0;
-	uint32_t _batch_draw_count = 0;
+	sf::Vertex _batch_vertex_buffer[MAX_VERTICES_PER_BATCH];
+	uint32_t _batch_vertex_count = 0;
+	uint32_t _sprites_drawn = 0;
+	uint32_t _batches_drawn = 0;
+	uint32_t _largest_batch_vertex_count = 0;
+
 	float _time = 0.f; //HACK
 
-	void _render_and_clear_batch(sf::RenderTarget& target, const sf::RenderStates& states)
+	void _render_batch(sf::RenderTarget& target, const sf::RenderStates& states)
 	{
-		target.draw(_batch_vertices.data(), _batch_vertices.size(), sf::TriangleStrip, states);
-		_batch_vertices.clear();
-		++_batch_draw_count;
+		_batches_drawn++;
+		_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, (uint32_t)_batch_vertex_count);
+		target.draw(_batch_vertex_buffer, _batch_vertex_count, sf::TriangleStrip, states);
+		_batch_vertex_count = 0;
 	}
 
 	void set_time(float time) {
@@ -45,8 +59,9 @@ namespace sprites
 
 	void render(sf::RenderTarget& target)
 	{
-		_sprite_draw_count = (uint32_t)_sprites_to_draw.size();
-		_batch_draw_count = 0;
+		_sprites_drawn = (uint32_t)_sprites_to_draw.size();
+		_batches_drawn = 0;
+		_largest_batch_vertex_count = 0;
 
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order.begin(), _sprites_by_draw_order.end(), [](uint32_t left, uint32_t right) {
@@ -81,24 +96,25 @@ namespace sprites
 			}
 
 			// Are we in the middle of a batch?
-			if (!_batch_vertices.empty()) {
+			if (_batch_vertex_count > 0) {
 				// Can we add the new sprite to the batch?
 				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
-				if (enable_batching && !sprite.shader && sprite.texture == states.texture) {
+				if (enable_batching && _batch_vertex_count != MAX_VERTICES_PER_BATCH && !sprite.shader && sprite.texture == states.texture) {
 					// Add degenerate triangles to separate the sprites
-					_batch_vertices.push_back(_batch_vertices.back()); // D
-					_batch_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
+					uint32_t previous_vertex_index = _batch_vertex_count - 1; // so we don't get undefined behavior in the next line
+					_batch_vertex_buffer[_batch_vertex_count++] = _batch_vertex_buffer[previous_vertex_index]; // D
+					_batch_vertex_buffer[_batch_vertex_count++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
 					// Draw the current batch and start a new one
-					_render_and_clear_batch(target, states);
+					_render_batch(target, states);
 				}
 			}
 
 			// Add the vertices of the new sprite to the batch
-			_batch_vertices.emplace_back(tl, sprite.color, sprite.tex_min);
-			_batch_vertices.emplace_back(bl, sprite.color, sf::Vector2f(sprite.tex_min.x, sprite.tex_max.y));
-			_batch_vertices.emplace_back(tr, sprite.color, sf::Vector2f(sprite.tex_max.x, sprite.tex_min.y));
-			_batch_vertices.emplace_back(br, sprite.color, sprite.tex_max);
+			_batch_vertex_buffer[_batch_vertex_count++] = { tl, sprite.color, sprite.tex_min };
+			_batch_vertex_buffer[_batch_vertex_count++] = { bl, sprite.color, { sprite.tex_min.x, sprite.tex_max.y } };
+			_batch_vertex_buffer[_batch_vertex_count++] = { tr, sprite.color, { sprite.tex_max.x, sprite.tex_min.y } };
+			_batch_vertex_buffer[_batch_vertex_count++] = { br, sprite.color, sprite.tex_max };
 
 			// Update shader uniforms
 			if (sprite.shader) {
@@ -112,19 +128,27 @@ namespace sprites
 		}
 
 		// Draw the last batch if there is one
-		if (!_batch_vertices.empty()) { 
-			_render_and_clear_batch(target, states);
+		if (_batch_vertex_count > 0) {
+			_render_batch(target, states);
 		}
 
 		_sprites_to_draw.clear();
 		_sprites_by_draw_order.clear();
 	}
 
-	uint32_t get_sprite_draw_count() {
-		return _sprite_draw_count;
+	uint32_t get_sprites_drawn() {
+		return _sprites_drawn;
 	}
 
-	uint32_t get_batch_draw_count() {
-		return _batch_draw_count;
+	uint32_t get_batches_drawn() {
+		return _batches_drawn;
+	}
+
+	uint32_t get_largest_batch_vertex_count() {
+		return _largest_batch_vertex_count;
+	}
+
+	uint32_t get_largest_batch_sprite_count() {
+		return _calc_sprites_in_batch(_largest_batch_vertex_count);
 	}
 }

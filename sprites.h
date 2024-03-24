@@ -51,19 +51,20 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
+	extern const uint32_t MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
 
 	void set_time(float time); // HACK: for shader uniforms
 
 	// Submits a sprite for rendering. The sprite is not rendered immediately, but
-	// instead copied to a list of sprites to be rendered when render() is called.
+	// instead copied to a buffer of sprites to be rendered when render() is called.
 	void draw(const Sprite& sprite);
-	// Renders all sprites submitted since the last call to render().
 	void render(sf::RenderTarget& target);
-	// Returns the number of sprites rendered during the last call to render().
-	// This is also equal to the number of sprites submitted before the last call.
-	uint32_t get_sprite_draw_count(); 
-	// Returns the number of sprite batches rendered during the last call to render().
-	// This will typically be less than get_submitted_sprite_count() and never greater.
-	uint32_t get_batch_draw_count();
+
+	// STATISTICS FOR LAST RENDER CALL
+
+	uint32_t get_sprites_drawn(); 
+	uint32_t get_batches_drawn();
+	uint32_t get_largest_batch_vertex_count();
+	uint32_t get_largest_batch_sprite_count();
 }

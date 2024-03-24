@@ -96,6 +96,8 @@ namespace ecs
 		return _set_tile(tileset->find_tile_by_class(class_));
 	}
 
+	// For optimization purposes; returning a reference to a dummy object
+	// is cheaper than having to construct and return an empty object.
 	const std::string _DUMMY_EMPTY_STRING;
 	const Properties _DUMMY_EMPTY_PROPERTIES;
 	const std::shared_ptr<sf::Texture> _DUMMY_EMPTY_TEXTURE;
