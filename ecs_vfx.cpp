@@ -3,7 +3,6 @@
 #include "textures.h"
 #include "sprites.h"
 #include "console.h"
-#include "ecs_tile.h" // HACK: so we get access to sortinglayer
 
 namespace ecs
 {
@@ -46,7 +45,7 @@ namespace ecs
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
             sprite.texture = vfx.texture;
             sprite.sorting_pos = sprite.min + tex_half_size;
-            sprite.sorting_layer = (uint8_t)SortingLayer::VFX;
+            sprite.sorting_layer = sprites::SL_VFX;
 			sprites::draw(sprite);
 		}
     }

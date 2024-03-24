@@ -2,6 +2,7 @@
 #include "map_entities.h"
 #include "tiled.h"
 #include "console.h"
+#include "sprites.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
@@ -14,6 +15,23 @@
 
 namespace map
 {
+	const std::unordered_map<std::string, sprites::SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
+		{ "Under Sprite 1", sprites::SL_BACKGROUND_1 },
+		{ "Under Sprite 2", sprites::SL_BACKGROUND_2 },
+		{ "Object Layer",   sprites::SL_OBJECTS      },
+		{ "Entities",       sprites::SL_OBJECTS      },
+		{ "Over Sprite 1",  sprites::SL_FOREGROUND_1 },
+		{ "Over Sprite 2",  sprites::SL_FOREGROUND_2 },
+		{ "Collision",      sprites::SL_COLLIDERS    },
+	};
+
+	sprites::SortingLayer _layer_name_to_sorting_layer(const std::string& name)
+	{
+		auto it = _LAYER_NAME_TO_SORTING_LAYER.find(name);
+		if (it != _LAYER_NAME_TO_SORTING_LAYER.end()) return it->second;
+		return sprites::SL_OBJECTS;
+	}
+
 	void create_entities(const tiled::Map& map)
 	{
 		const sf::FloatRect map_bounds{ 0.f, 0.f,
@@ -24,7 +42,7 @@ namespace map
 		// object UIDs we get from Tiled are free to use as entity identifiers.
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.objects.empty()) continue;
-			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
+			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
 			for (const tiled::Object& object : layer.objects) {
 
 				// Attempt to use the object's UID as the entity identifier.
@@ -53,7 +71,7 @@ namespace map
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
 					ecs_tile.position = sf::Vector2f(x, y);
-					ecs_tile.sorting_layer = ecs::SortingLayer::Objects;
+					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
 					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
@@ -186,7 +204,7 @@ namespace map
 		// Create tile entities second.
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.tiles.empty()) continue;
-			ecs::SortingLayer sorting_layer = ecs::layer_name_to_sorting_layer(layer.name);
+			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
 			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 
@@ -283,7 +301,7 @@ namespace map
 					// CRITICAL: This is an important optimization. Iterating through all entities
 					// with both a Tile and b2Body* component can be expensive if there are many such
 					// entities. "Pure" colliders don't need a tile component, so let's skip adding one.
-					if (sorting_layer == ecs::SortingLayer::Collision)
+					if (sorting_layer == sprites::SL_COLLIDERS)
 						continue;
 
 					// EMPLACE TILE

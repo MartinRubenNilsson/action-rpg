@@ -56,7 +56,6 @@ namespace ecs
 		sprites::set_time(_time);
 		draw_tiles(camera_min, camera_max);
 		draw_vfx(camera_min, camera_max);
-
 	}
 
 	void debug_draw()

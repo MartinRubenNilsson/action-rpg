@@ -10,24 +10,12 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	const std::unordered_map<std::string, SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
-		{ "Under Sprite 1", SortingLayer::Background1 },
-		{ "Under Sprite 2", SortingLayer::Background2 },
-		{ "Object Layer",   SortingLayer::Objects     },
-		{ "Entities",       SortingLayer::Objects     },
-		{ "Over Sprite 1",  SortingLayer::Foreground1 },
-		{ "Over Sprite 2",  SortingLayer::Foreground2 },
-		{ "Collision",      SortingLayer::Collision   },
-	};
-
-	SortingLayer layer_name_to_sorting_layer(const std::string& name)
-	{
-		auto it = _LAYER_NAME_TO_SORTING_LAYER.find(name);
-		if (it != _LAYER_NAME_TO_SORTING_LAYER.end()) return it->second;
-		return SortingLayer::Objects;
-	}
+	Tile::Tile()
+		: sorting_layer(sprites::SL_OBJECTS)
+	{}
 
 	Tile::Tile(const tiled::Tile* tile)
+		: Tile()
 	{
 		assert(tile);
 		_set_tile(tile);
