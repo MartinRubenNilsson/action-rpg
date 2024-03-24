@@ -1,7 +1,6 @@
 #pragma once
 #include "timer.h"
-
-class Properties;
+#include "properties.h"
 
 namespace tiled
 {
@@ -35,7 +34,7 @@ namespace ecs
 		TF_ROTATE_270     = TF_FLIP_Y | TF_FLIP_DIAGONAL,
 		TF_LOOP           = 1 << 4, // loop the animation
 		TF_FLIP_X_ON_LOOP = 1 << 5, // flip the sprite horizontally when the animation loops
-		TF_NEW_FRAME      = 1 << 6, // the animation frame changed last update
+		TF_FRAME_CHANGED  = 1 << 6, // the animation frame changed last update
 		TF_LOOPED	      = 1 << 7, // the animation looped last update
 	};
 
@@ -82,7 +81,7 @@ namespace ecs
 	void update_tiles(float dt);
 
 	bool has_tile(entt::entity entity);
-	Tile& emplace_tile(entt::entity entity); // emplaces an invalid tile
+	Tile& emplace_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile& get_tile(entt::entity entity); // WARNING: undefined behavior if the entity does not have a tile component
 	Tile* try_get_tile(entt::entity entity);

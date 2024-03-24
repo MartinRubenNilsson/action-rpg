@@ -44,7 +44,7 @@ namespace ecs
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame_index = 0;
-		set_flag(TF_NEW_FRAME, false);
+		set_flag(TF_FRAME_CHANGED, false);
 		set_flag(TF_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
@@ -125,7 +125,7 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
-		set_flag(TF_NEW_FRAME, false);
+		set_flag(TF_FRAME_CHANGED, false);
 		set_flag(TF_LOOPED, false);
 		const bool loop = get_flag(TF_LOOP);
 		if (animation_timer.update(animation_speed * dt, loop) && loop) {
@@ -137,6 +137,7 @@ namespace ecs
 		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
 			uint32_t frame_duration = _tile->animation[frame_index].duration;
 			if (time < frame_duration) {
+				set_flag(TF_FRAME_CHANGED, frame_index != _animation_frame_index);
 				_animation_frame_index = frame_index;
 				return;
 			} else {

@@ -140,6 +140,10 @@ namespace ecs
 			const map::TerrainType terrain = map::get_terrain_type_at(position);
 			audio::set_parameter_label("terrain", map::to_string(terrain));
 
+			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties(true).has("step")) {
+				audio::play("event:/snd_footstep");
+			}
+
 			char dir = get_direction(player.look_dir);
 
 			switch (dir) {
@@ -197,14 +201,10 @@ namespace ecs
 					tile.set_tile("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.get_flag(TF_LOOPED))
-						audio::play("event:/snd_footstep");
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_tile("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.get_flag(TF_LOOPED))
-						audio::play("event:/snd_footstep");
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {

@@ -14,6 +14,9 @@
  <tile id="16" type="idle_u"/>
  <tile id="32" type="idle_r"/>
  <tile id="48" type="walk_d">
+  <properties>
+   <property name="step" value=""/>
+  </properties>
   <animation>
    <frame tileid="48" duration="135"/>
    <frame tileid="49" duration="135"/>
@@ -28,6 +31,9 @@
   </animation>
  </tile>
  <tile id="52" type="walk_u">
+  <properties>
+   <property name="step" value=""/>
+  </properties>
   <animation>
    <frame tileid="52" duration="135"/>
    <frame tileid="53" duration="135"/>
@@ -42,6 +48,9 @@
   </animation>
  </tile>
  <tile id="64" type="walk_r">
+  <properties>
+   <property name="step" value=""/>
+  </properties>
   <animation>
    <frame tileid="64" duration="135"/>
    <frame tileid="65" duration="135"/>
@@ -50,6 +59,11 @@
    <frame tileid="68" duration="135"/>
    <frame tileid="69" duration="135"/>
   </animation>
+ </tile>
+ <tile id="67">
+  <properties>
+   <property name="step" value=""/>
+  </properties>
  </tile>
  <tile id="70" type="run_r">
   <animation>
