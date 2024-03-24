@@ -55,6 +55,8 @@ namespace ecs
 		float animation_speed = 1.f;
 
 		bool is_valid() const { return _tile; }
+		bool set_tile(uint32_t id); // uses the current tileset
+		bool set_tile(uint32_t id, const std::string& tileset_name);
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
 		std::shared_ptr<sf::Texture> get_texture() const;

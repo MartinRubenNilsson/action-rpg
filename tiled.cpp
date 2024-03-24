@@ -156,11 +156,12 @@ namespace tiled
 			tileset.image = textures::load_cached_texture(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
-			for (uint32_t i = 0; i < tileset.tile_count; ++i) {
-				Tile& tile = tileset.tiles[i];
+			for (uint32_t id = 0; id < tileset.tile_count; ++id) {
+				Tile& tile = tileset.tiles[id];
 				tile.tileset = &tileset;
-				tile.image_rect.left = (i % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
-				tile.image_rect.top = (i / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
+				tile.id = id;
+				tile.image_rect.left = (id % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
+				tile.image_rect.top = (id / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
 				tile.image_rect.width = tileset.tile_width;
 				tile.image_rect.height = tileset.tile_height;
 			}

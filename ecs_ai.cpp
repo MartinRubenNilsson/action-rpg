@@ -62,7 +62,7 @@ namespace ecs
             case AiType::Slime: {
                 sf::Vector2f velocity = get_linear_velocity(body);
                 if (!is_zero(velocity))
-                    tile.set_tile({ get_direction(velocity) });
+                    tile.set_tile(std::string() + get_direction(velocity));
                 tile.animation_speed = length(velocity) / 32.f;
             } break;
 			}

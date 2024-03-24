@@ -61,6 +61,29 @@ namespace ecs
 		return _tile;
 	}
 
+	bool Tile::set_tile(uint32_t id)
+	{
+		if (!_tile) return false; // no tileset to look in
+		if (id == _tile->id) return false;
+		if (id >= _tile->tileset->tiles.size()) return false;
+		return _set_tile(&_tile->tileset->tiles[id]);
+	}
+
+	bool Tile::set_tile(uint32_t id, const std::string& tileset_name)
+	{
+		if (tileset_name.empty()) return false;
+		const tiled::Tileset* tileset = nullptr;
+		if (_tile && tileset_name == _tile->tileset->name) {
+			if (id == _tile->id) return false;
+			tileset = _tile->tileset;
+		} else {
+			tileset = tiled::find_tileset_by_name(tileset_name);
+		}
+		if (!tileset) return false;
+		if (id >= tileset->tiles.size()) return false;
+		return _set_tile(&tileset->tiles[id]);
+	}
+
 	bool Tile::set_tile(const std::string& class_)
 	{
 		if (class_.empty()) return false;
@@ -72,8 +95,13 @@ namespace ecs
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
 	{
 		if (class_.empty() || tileset_name.empty()) return false;
-		if (_tile && class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
-		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
+		const tiled::Tileset* tileset = nullptr;
+		if (_tile && tileset_name == _tile->tileset->name) {
+			if (class_ == _tile->class_) return false;
+			tileset = _tile->tileset;
+		} else {
+			tileset = tiled::find_tileset_by_name(tileset_name);
+		}
 		if (!tileset) return false;
 		return _set_tile(tileset->find_tile_by_class(class_));
 	}

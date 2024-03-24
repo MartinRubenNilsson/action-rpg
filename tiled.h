@@ -70,6 +70,7 @@ namespace tiled
 
 	struct Tile
 	{
+		uint32_t id = 0; // index into Tileset::tiles
 		sf::IntRect image_rect; // in pixels
 		std::string class_;
 		Properties properties;
