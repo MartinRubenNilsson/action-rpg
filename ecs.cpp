@@ -16,6 +16,7 @@ namespace ecs
 {
 	int debug_flags = DEBUG_NONE;
 	entt::registry _registry;
+	float _time = 0.f;
 
 	void initialize() {
 		initialize_physics();
@@ -33,6 +34,7 @@ namespace ecs
 
 	void update(float dt)
 	{
+		_time += dt;
 		update_players(dt);
 		update_pickups(dt);
 		update_bombs(dt);	
@@ -78,6 +80,7 @@ namespace ecs
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
 			sprites::draw(sprite);
 		}
+		sprites::set_time(_time);
 		sprites::render(target);
 
 		// DRAW VFX

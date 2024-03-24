@@ -40,6 +40,7 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
+	void set_time(float time); // HACK: for shader uniforms
 	void draw(const Sprite& sprite);
 	void render(sf::RenderTarget& target);
 }
