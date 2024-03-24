@@ -18,6 +18,7 @@ namespace sprites
 		return false;
 	}
 
+	bool enable_batching = true;
 	std::vector<Sprite> _sprites;
 	std::vector<uint32_t> _sprites_by_draw_order; // indices into _sprites_to_draw
 	std::vector<sf::Vertex> _batch_vertices;
@@ -83,7 +84,7 @@ namespace sprites
 			if (!_batch_vertices.empty()) {
 				// Can we add the new sprite to the batch?
 				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
-				if (!sprite.shader && sprite.texture.get() == states.texture) {
+				if (enable_batching && !sprite.shader && sprite.texture.get() == states.texture) {
 					// Add degenerate triangles to separate the sprites
 					_batch_vertices.push_back(_batch_vertices.back()); // D
 					_batch_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E

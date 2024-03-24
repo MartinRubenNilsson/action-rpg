@@ -176,7 +176,8 @@ int main(int argc, char* argv[])
             sprintf(overlay_text, "%.f FPS", smoothed_fps);
             ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
             ImGui::Value("Sprites", sprites::get_sprite_draw_count());
-            ImGui::Value("Batches", sprites::get_batch_draw_count());
+            ImGui::Value("Sprite Batches", sprites::get_batch_draw_count());
+            ImGui::Checkbox("Sprite Batching", &sprites::enable_batching);
             ImGui::End();
         }
 

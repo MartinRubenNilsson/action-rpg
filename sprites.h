@@ -40,6 +40,8 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
+	extern bool enable_batching;
+
 	void set_time(float time); // HACK: for shader uniforms
 
 	// Submits a sprite for rendering. The sprite is not rendered immediately, but
