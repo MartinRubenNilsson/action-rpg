@@ -35,12 +35,12 @@ namespace ecs
 	void update(float dt)
 	{
 		_time += dt;
+		update_physics(dt);
 		update_players(dt);
 		update_pickups(dt);
 		update_bombs(dt);	
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
-		update_physics(dt);
 		update_common(dt);
 		update_tiles(dt);
 		update_vfx(dt);

@@ -55,13 +55,13 @@ namespace ecs
 					player.input.interact = true;
 					break;
 				case sf::Keyboard::X:
-					player.input.fire_arrow = true;
+					player.input.shoot_bow = true;
 					break;
 				case sf::Keyboard::Z:
 					player.input.drop_bomb = true;
 					break;
 				case sf::Keyboard::Space:
-					player.input.sword_attack = true;
+					player.input.use_sword = true;
 					break;
 				}
 			} else if (ev.type == sf::Event::KeyReleased) {
@@ -129,17 +129,24 @@ namespace ecs
 
 			player.hurt_timer.update(dt);
 
+			// GET PHYSICS STATE
+
 			const sf::Vector2f position = get_world_center(body);
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity = velocity; // will be modified differently depending on the state
 
+			// UPDATE AUDIO
+
 			audio::set_listener_position(position);
-
-			// PLAY FOOTSTEP AUDIO EVENTS
-
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
 			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("step")) {
 				audio::play("event:/snd_footstep");
+			}
+
+			// UPDATE WEAPON POSITION
+
+			if (Tile* sword_tile = try_get_tile(player.sword)) {
+				sword_tile->position = position;
 			}
 
 			char dir = get_direction(player.look_dir);
@@ -182,14 +189,14 @@ namespace ecs
 
 				new_velocity = new_move_dir * new_move_speed;
 
-				if (player.input.fire_arrow && player.arrows > 0) {
-					tile.set_tile("bow_shot_"s + dir);
-					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::Attacking;
-				} else if (player.input.sword_attack) {
+				if (player.input.use_sword) {
 					tile.set_tile("sword_attack_"s + dir);
 					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::Attacking;
+					player.state = PlayerState::UsingSword;
+				} else if (player.input.shoot_bow && player.arrows > 0) {
+					tile.set_tile("bow_shot_"s + dir);
+					tile.set_flag(TF_LOOP, false);
+					player.state = PlayerState::UsingBow;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
@@ -206,21 +213,21 @@ namespace ecs
 					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
-			case PlayerState::Attacking: {
+			case PlayerState::UsingSword: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
-
-				if (tile.get_flag(TF_FRAME_CHANGED)) {
-					const Properties& properties = tile.get_properties();
-					if (properties.has("strike")) {
-						_player_attack(player_entity, position + player.look_dir * 16.f);
-					}
-					if (player.arrows > 0 && properties.has("shoot")) {
-						player.arrows--;
-						create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
-					}
+				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
+					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
-
-				// When animation is done, we are done attacking.
+				if (tile.animation_timer.finished()) {
+					player.state = PlayerState::Normal;
+				}
+			} break;
+			case PlayerState::UsingBow: {
+				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
+				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
+					player.arrows--;
+					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
+				}
 				if (tile.animation_timer.finished()) {
 					player.state = PlayerState::Normal;
 				}
@@ -266,9 +273,9 @@ namespace ecs
 			// CLEAR INPUT
 
 			player.input.interact = false;
-			player.input.fire_arrow = false;
+			player.input.shoot_bow = false;
 			player.input.drop_bomb = false;
-			player.input.sword_attack = false;
+			player.input.use_sword = false;
 		}
 	}
 

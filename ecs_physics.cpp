@@ -135,6 +135,12 @@ namespace ecs
 		return _registry.get<b2Body*>(entity);
 	}
 
+	b2Body* try_get_body(entt::entity entity)
+	{
+		b2Body** body_ptr = _registry.try_get<b2Body*>(entity);
+		return body_ptr ? *body_ptr : nullptr;
+	}
+
 	bool remove_body(entt::entity entity) {
 		return _registry.remove<b2Body*>(entity);
 	}

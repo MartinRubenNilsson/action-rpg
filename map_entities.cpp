@@ -146,26 +146,35 @@ namespace map
 				// CLASS-SPECIFIC ENTITY SETUP
 
 				if (object.class_ == "player") {
-					ecs::emplace_player(entity);
-
-					ecs::Camera camera;
-					camera.follow = entity;
-					camera.confining_rect = map_bounds;
-					ecs::emplace_camera(entity, camera);
-					ecs::activate_camera(entity, true);
-
-					Character character{};
-					character.randomize();
-					if (ecs::Tile* tile = ecs::try_get_tile(entity))
+					{
+						ecs::Player player{};
+						player.sword = ecs::create();
+						{
+							ecs::Tile& sword_tile = ecs::emplace_tile(player.sword);
+							sword_tile.set_tile("sword", "items1");
+							sword_tile.set_flag(ecs::TF_VISIBLE, false);
+						}
+						ecs::emplace_player(entity, player);
+					}
+					{
+						ecs::Camera camera{};
+						camera.follow = entity;
+						camera.confining_rect = map_bounds;
+						ecs::emplace_camera(entity, camera);
+						ecs::activate_camera(entity, true);
+					}
+					if (ecs::Tile* tile = ecs::try_get_tile(entity)) {
+						Character character{};
+						character.randomize();
 						tile->texture = character.bake_texture();
-
+					}
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "camera") {
-					ecs::Camera camera;
+					ecs::Camera camera{};
 					camera.view.setCenter(x, y);
-					ecs::get_entity(entity, "follow", camera.follow);
 					camera.confining_rect = map_bounds;
+					ecs::get_entity(entity, "follow", camera.follow);
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;

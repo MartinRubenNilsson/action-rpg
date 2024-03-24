@@ -3,5 +3,6 @@
  <image source="items1.png" width="208" height="240"/>
  <tile id="40" type="rupee"/>
  <tile id="77" type="bomb"/>
+ <tile id="94" type="sword"/>
  <tile id="96" type="arrow"/>
 </tileset>

@@ -10,15 +10,16 @@ namespace ecs
 		bool run = false;
 		bool stealth = false;
 		bool interact = false;
-		bool fire_arrow = false; 
+		bool shoot_bow = false; 
 		bool drop_bomb = false;
-		bool sword_attack = false;
+		bool use_sword = false;
 	};
 
 	enum class PlayerState
 	{
 		Normal,
-		Attacking,
+		UsingSword,
+		UsingBow,
 		Dying,
 		Dead
 	};
