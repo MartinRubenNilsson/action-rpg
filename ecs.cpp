@@ -61,7 +61,7 @@ namespace ecs
 
 	void debug_draw()
 	{
-		if (debug_flags & DEBUG_PIVOTS) {
+		if (debug_flags & DEBUG_TILES) {
 			//TODO
 		}
 		if (debug_flags & DEBUG_PHYSICS)
