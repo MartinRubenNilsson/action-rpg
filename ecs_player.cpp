@@ -133,7 +133,7 @@ namespace ecs
 
 			const sf::Vector2f position = get_world_center(body);
 			const sf::Vector2f velocity = get_linear_velocity(body);
-			sf::Vector2f new_velocity = velocity; // will be modified differently depending on the state
+			sf::Vector2f new_velocity; // will be modified differently depending on the state
 
 			// UPDATE AUDIO
 
@@ -214,7 +214,6 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingSword: {
-				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -223,7 +222,6 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
-				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
@@ -233,21 +231,17 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dying: {
-				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
-
+				if (dir == 'd') dir = 'u';
+				tile.set_tile("dying_"s + dir);
 				tile.set_flag(TF_LOOP, false);
-
 				if (tile.animation_timer.finished()) {
 					tile.set_tile("dead_"s + dir);
 					kill_player(player_entity);
 					player.state = PlayerState::Dead;
-					break;
 				}
-				if (dir == 'd') dir = 'u';
-				tile.set_tile("dying_"s + dir);
 			} break;
 			case PlayerState::Dead: {
-				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
+				// Do nothing
 			} break;
 			}
 

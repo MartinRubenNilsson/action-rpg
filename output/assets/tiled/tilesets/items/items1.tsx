@@ -5,4 +5,5 @@
  <tile id="77" type="bomb"/>
  <tile id="94" type="sword"/>
  <tile id="96" type="arrow"/>
+ <tile id="128" type="bow"/>
 </tileset>
