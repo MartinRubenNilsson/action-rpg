@@ -26,25 +26,31 @@ namespace sprites
 		return (vertex_count + 2) / 6;
 	}
 
+	const uint32_t MAX_SPRITES = 1024;
 	const uint32_t MAX_SPRITES_PER_BATCH = 512;
 	const uint32_t MAX_VERTICES_PER_BATCH = _calc_vertices_in_batch(MAX_SPRITES_PER_BATCH);
+
 	bool enable_batching = true;
-	std::vector<Sprite> _sprites_to_draw;
-	std::vector<uint32_t> _sprites_by_draw_order; // indices into _sprites_to_draw
+
+	Sprite _sprite_buffer[MAX_SPRITES];
+	uint32_t _sprites_by_draw_order[MAX_SPRITES]; // indices into _sprite_buffer
+	uint32_t _sprites = 0;
+
 	sf::Vertex _batch_vertex_buffer[MAX_VERTICES_PER_BATCH];
-	uint32_t _batch_vertex_count = 0;
+	uint32_t _batch_vertices = 0;
+
 	uint32_t _sprites_drawn = 0;
 	uint32_t _batches_drawn = 0;
-	uint32_t _largest_batch_vertex_count = 0;
+	uint32_t _vertices_in_largest_batch = 0;
 
 	float _time = 0.f; //HACK
 
 	void _render_batch(sf::RenderTarget& target, const sf::RenderStates& states)
 	{
+		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, states);
 		_batches_drawn++;
-		_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, (uint32_t)_batch_vertex_count);
-		target.draw(_batch_vertex_buffer, _batch_vertex_count, sf::TriangleStrip, states);
-		_batch_vertex_count = 0;
+		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (uint32_t)_batch_vertices);
+		_batch_vertices = 0;
 	}
 
 	void set_time(float time) {
@@ -53,19 +59,21 @@ namespace sprites
 
 	void draw(const Sprite& sprite)
 	{
-		_sprites_to_draw.push_back(sprite);
-		_sprites_by_draw_order.push_back((uint32_t)_sprites_to_draw.size() - 1);
+		if (_sprites == MAX_SPRITES) return;
+		memcpy(&_sprite_buffer[_sprites], &sprite, sizeof(Sprite));
+		_sprites_by_draw_order[_sprites] = _sprites;
+		_sprites++;
 	}
 
 	void render(sf::RenderTarget& target)
 	{
-		_sprites_drawn = (uint32_t)_sprites_to_draw.size();
+		_sprites_drawn = _sprites;
 		_batches_drawn = 0;
-		_largest_batch_vertex_count = 0;
+		_vertices_in_largest_batch = 0;
 
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
-		std::sort(_sprites_by_draw_order.begin(), _sprites_by_draw_order.end(), [](uint32_t left, uint32_t right) {
-			return _sprites_to_draw[left] < _sprites_to_draw[right];
+		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](uint32_t left, uint32_t right) {
+			return _sprite_buffer[left] < _sprite_buffer[right];
 		});
 
 		// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
@@ -75,8 +83,8 @@ namespace sprites
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
 		sf::RenderStates states{};
-		for (uint32_t sprite_index : _sprites_by_draw_order) {
-			const Sprite& sprite = _sprites_to_draw[sprite_index];
+		for (uint32_t i = 0; i < _sprites; ++i) {
+			const Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
 
 			sf::Vector2f tl = sprite.min; // top-left corner
 			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
@@ -96,14 +104,14 @@ namespace sprites
 			}
 
 			// Are we in the middle of a batch?
-			if (_batch_vertex_count > 0) {
+			if (_batch_vertices > 0) {
 				// Can we add the new sprite to the batch?
 				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
-				if (enable_batching && _batch_vertex_count != MAX_VERTICES_PER_BATCH && !sprite.shader && sprite.texture == states.texture) {
+				if (enable_batching && _batch_vertices != MAX_VERTICES_PER_BATCH && !sprite.shader && sprite.texture == states.texture) {
 					// Add degenerate triangles to separate the sprites
-					uint32_t previous_vertex_index = _batch_vertex_count - 1; // so we don't get undefined behavior in the next line
-					_batch_vertex_buffer[_batch_vertex_count++] = _batch_vertex_buffer[previous_vertex_index]; // D
-					_batch_vertex_buffer[_batch_vertex_count++] = { tl, sprite.color, sprite.tex_min }; // E
+					uint32_t previous_vertex_index = _batch_vertices - 1; // so we don't get undefined behavior in the next line
+					_batch_vertex_buffer[_batch_vertices++] = _batch_vertex_buffer[previous_vertex_index]; // D
+					_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
 					// Draw the current batch and start a new one
 					_render_batch(target, states);
@@ -111,10 +119,10 @@ namespace sprites
 			}
 
 			// Add the vertices of the new sprite to the batch
-			_batch_vertex_buffer[_batch_vertex_count++] = { tl, sprite.color, sprite.tex_min };
-			_batch_vertex_buffer[_batch_vertex_count++] = { bl, sprite.color, { sprite.tex_min.x, sprite.tex_max.y } };
-			_batch_vertex_buffer[_batch_vertex_count++] = { tr, sprite.color, { sprite.tex_max.x, sprite.tex_min.y } };
-			_batch_vertex_buffer[_batch_vertex_count++] = { br, sprite.color, sprite.tex_max };
+			_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min };
+			_batch_vertex_buffer[_batch_vertices++] = { bl, sprite.color, { sprite.tex_min.x, sprite.tex_max.y } };
+			_batch_vertex_buffer[_batch_vertices++] = { tr, sprite.color, { sprite.tex_max.x, sprite.tex_min.y } };
+			_batch_vertex_buffer[_batch_vertices++] = { br, sprite.color, sprite.tex_max };
 
 			// Update shader uniforms
 			if (sprite.shader) {
@@ -128,12 +136,11 @@ namespace sprites
 		}
 
 		// Draw the last batch if there is one
-		if (_batch_vertex_count > 0) {
+		if (_batch_vertices > 0) {
 			_render_batch(target, states);
 		}
 
-		_sprites_to_draw.clear();
-		_sprites_by_draw_order.clear();
+		_sprites = 0;
 	}
 
 	uint32_t get_sprites_drawn() {
@@ -144,11 +151,11 @@ namespace sprites
 		return _batches_drawn;
 	}
 
-	uint32_t get_largest_batch_vertex_count() {
-		return _largest_batch_vertex_count;
+	uint32_t get_vertices_in_largest_batch() {
+		return _vertices_in_largest_batch;
 	}
 
-	uint32_t get_largest_batch_sprite_count() {
-		return _calc_sprites_in_batch(_largest_batch_vertex_count);
+	uint32_t get_sprites_in_largest_batch() {
+		return _calc_sprites_in_batch(_vertices_in_largest_batch);
 	}
 }

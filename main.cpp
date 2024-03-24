@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
             ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
             ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
             ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
-            ImGui::Value("Largest Batch Size", sprites::get_largest_batch_sprite_count());
+            ImGui::Value("Largest Batch Size", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Sprite Batching", &sprites::enable_batching);
             ImGui::End();
         }

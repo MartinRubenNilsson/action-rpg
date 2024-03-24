@@ -51,6 +51,7 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
+	extern const uint32_t MAX_SPRITES;
 	extern const uint32_t MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
 
@@ -65,6 +66,6 @@ namespace sprites
 
 	uint32_t get_sprites_drawn(); 
 	uint32_t get_batches_drawn();
-	uint32_t get_largest_batch_vertex_count();
-	uint32_t get_largest_batch_sprite_count();
+	uint32_t get_vertices_in_largest_batch();
+	uint32_t get_sprites_in_largest_batch();
 }
