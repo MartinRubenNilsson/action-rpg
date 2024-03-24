@@ -1,6 +1,8 @@
 #pragma once
 #include "timer.h"
 
+class Properties;
+
 namespace tiled
 {
 	struct Tile;
@@ -43,8 +45,8 @@ namespace ecs
 		Tile() = default;
 		Tile(const tiled::Tile* tile);
 
-		std::shared_ptr<sf::Texture> texture; // optional, if not set, the tileset texture is used
-		std::shared_ptr<sf::Shader> shader; // optional, if not set, the default shader is used
+		std::shared_ptr<sf::Texture> texture; // optional; if not set, the tileset texture is used
+		std::shared_ptr<sf::Shader> shader; // optional; if not set, the default shader is used
 		sf::Vector2f position; // in pixels
 		sf::Vector2f pivot; // in pixels, relative to the top-left corner
 		sf::Vector2f sorting_pivot; // in pixels, relative to the top-left corner
@@ -56,10 +58,11 @@ namespace ecs
 		bool is_valid() const { return _tile; }
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
-		const std::string& get_class() const; 
-		const std::string& get_tileset_name() const;
 		std::shared_ptr<sf::Texture> get_texture() const;
-		sf::IntRect get_texture_rect() const;
+		sf::IntRect get_texture_rect(bool account_for_animation = false) const;
+		const std::string& get_class(bool account_for_animation = false) const;
+		const std::string& get_tileset_name() const;
+		const Properties& get_properties(bool account_for_animation = false) const;
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
@@ -73,7 +76,7 @@ namespace ecs
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;
 
 		bool _set_tile(const tiled::Tile* tile);
-		const tiled::Tile* _get_visible_tile() const;
+		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};
 
 	void update_tiles(float dt);

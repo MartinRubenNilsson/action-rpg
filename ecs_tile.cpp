@@ -27,6 +27,7 @@ namespace ecs
 
 	Tile::Tile(const tiled::Tile* tile)
 	{
+		assert(tile);
 		_set_tile(tile);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
@@ -38,7 +39,7 @@ namespace ecs
 
 	bool Tile::_set_tile(const tiled::Tile* tile)
 	{
-		assert(tile);
+		if (!tile) return false;
 		if (tile == _tile) return false;
 		_tile = tile;
 		_animation_duration_ms = 0;
@@ -52,10 +53,10 @@ namespace ecs
 		return true;
 	}
 
-	const tiled::Tile* Tile::_get_visible_tile() const
+	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
 		if (!_tile) return nullptr;
-		if (_animation_frame_index < _tile->animation.size())
+		if (account_for_animation && _animation_frame_index < _tile->animation.size())
 			return _tile->animation[_animation_frame_index].tile;
 		return _tile;
 	}
@@ -77,14 +78,25 @@ namespace ecs
 		return _set_tile(tileset->find_tile_by_class(class_));
 	}
 
-	const std::string _DUMMY_EMPTY_STRING = "";
+	const std::string _DUMMY_EMPTY_STRING;
+	const Properties _DUMMY_EMPTY_PROPERTIES;
 
-	const std::string& Tile::get_class() const {
-		return _tile ? _tile->class_ : _DUMMY_EMPTY_STRING;
+	const std::string& Tile::get_class(bool account_for_animation) const
+	{
+		if (const tiled::Tile* tile = _get_tile(account_for_animation))
+			return tile->class_;
+		return _DUMMY_EMPTY_STRING;
 	}
 
 	const std::string& Tile::get_tileset_name() const {
 		return _tile ? _tile->tileset->name : _DUMMY_EMPTY_STRING;
+	}
+
+	const Properties& Tile::get_properties(bool account_for_animation) const
+	{
+		if (const tiled::Tile* tile = _get_tile(account_for_animation))
+			return tile->properties;
+		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
 	std::shared_ptr<sf::Texture> Tile::get_texture() const
@@ -92,18 +104,17 @@ namespace ecs
 		std::shared_ptr<sf::Texture> ret;
 		if (texture) {
 			ret = texture;
-		} else if (const tiled::Tile* tile = _get_visible_tile()) {
+		} else if (const tiled::Tile* tile = _get_tile(false)) {
 			ret = tile->tileset->image;
 		}
 		return ret;
 	}
 
-	sf::IntRect Tile::get_texture_rect() const
+	sf::IntRect Tile::get_texture_rect(bool account_for_animation) const
 	{
-		sf::IntRect rect{};
-		if (const tiled::Tile* tile = _get_visible_tile())
-			rect = tile->image_rect;
-		return rect;
+		if (const tiled::Tile* tile = _get_tile(account_for_animation))
+			return tile->image_rect;
+		return sf::IntRect();
 	}
 
 	bool Tile::has_animation() const {
@@ -114,6 +125,7 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
+		set_flag(TF_NEW_FRAME, false);
 		set_flag(TF_LOOPED, false);
 		const bool loop = get_flag(TF_LOOP);
 		if (animation_timer.update(animation_speed * dt, loop) && loop) {

@@ -70,9 +70,9 @@ namespace tiled
 
 	struct Tile
 	{
+		sf::IntRect image_rect; // in pixels
 		std::string class_;
 		Properties properties;
-		sf::IntRect image_rect; // in pixels
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
