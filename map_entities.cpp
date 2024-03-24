@@ -143,7 +143,7 @@ namespace map
 					}
 				}
 
-				// CLASS-SPECIFIC COMPONENTS
+				// CLASS-SPECIFIC ENTITY SETUP
 
 				if (object.class_ == "player") {
 					ecs::emplace_player(entity);

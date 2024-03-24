@@ -120,7 +120,7 @@ namespace ecs
 	}
 
 
-	b2Body* clone_and_emplace_body(entt::entity entity, const b2Body* body)
+	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body)
 	{
 		b2BodyDef body_def = get_body_def(body);
 		b2Body* new_body = _physics_world->CreateBody(&body_def);
