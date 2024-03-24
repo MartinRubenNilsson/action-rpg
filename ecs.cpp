@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ecs.h"
-#include "console.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_player.h"
@@ -10,51 +9,15 @@
 #include "ecs_vfx.h"
 #include "ecs_pickups.h"
 #include "ecs_bomb.h"
+#include "console.h"
+#include "sprites.h"
 
 namespace ecs
 {
-	enum SpriteFlags : uint8_t
-	{
-		SF_NONE          = 0,
-		SF_FLIP_X        = 1 << 0,
-		SF_FLIP_Y        = 1 << 1,
-		SF_FLIP_DIAGONAL = 1 << 2,
-	};
-
-	//This should be put in its own file
-	struct Sprite
-	{
-		sf::Vector2f min; // top-left corner
-		sf::Vector2f max; // bottom-right corner
-		sf::Vector2f tex_min; // texture coordinates in pixels
-		sf::Vector2f tex_max; // texture coordinates in pixels
-		sf::Vector2f sorting_position;
-		SortingLayer sorting_layer;
-		std::shared_ptr<sf::Texture> texture;
-		std::shared_ptr<sf::Shader> shader;
-		sf::Color color = sf::Color::White;
-		uint8_t flags = SF_NONE;
-	};
-
-	bool operator<(const Sprite& left, const Sprite& right)
-	{
-		if (left.sorting_layer != right.sorting_layer)
-			return left.sorting_layer < right.sorting_layer;
-		if (left.sorting_position.y != right.sorting_position.y)
-			return left.sorting_position.y < right.sorting_position.y;
-		if (left.sorting_position.x != right.sorting_position.x)
-			return left.sorting_position.x < right.sorting_position.x;
-		if (left.texture != right.texture)
-			return left.texture < right.texture;
-		if (left.shader != right.shader)
-			return left.shader < right.shader;
-		return false;
-	}
-
 	int debug_flags = DEBUG_NONE;
 	entt::registry _registry;
 	float _time = 0.f;
-	std::vector<Sprite> _sprites;
+	std::vector<sprites::Sprite> _sprites;
 	std::vector<uint32_t> _sprites_draw_order; // indices into _sprites
 	std::vector<sf::Vertex> _vertices;
 
@@ -104,17 +67,17 @@ namespace ecs
 			sf::Vector2f tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
 			sf::Vector2f max = min + tex_max - tex_min;
 			if (max.x < view_min.x || max.y < view_min.y) continue;
-			uint8_t sprite_flags = SF_NONE;
+			uint8_t sprite_flags = sprites::SF_NONE;
 			if (tile.get_flag(TF_FLIP_X))
-				sprite_flags |= SF_FLIP_X;
+				sprite_flags |= sprites::SF_FLIP_X;
 			if (tile.get_flag(TF_FLIP_Y))
-				sprite_flags |= SF_FLIP_Y;
+				sprite_flags |= sprites::SF_FLIP_Y;
 			if (tile.get_flag(TF_FLIP_DIAGONAL))
-				sprite_flags |= SF_FLIP_DIAGONAL;
+				sprite_flags |= sprites::SF_FLIP_DIAGONAL;
 			_sprites_draw_order.push_back((uint32_t)_sprites.size());
 			_sprites.emplace_back(
-				min, max, tex_min, tex_max, min + tile.sorting_pivot, tile.sorting_layer,
-				tile.get_texture(), tile.shader, tile.color, sprite_flags);
+				min, max, tex_min, tex_max, min + tile.sorting_pivot,
+				tile.get_texture(), tile.shader, tile.color, (uint8_t)tile.sorting_layer, sprite_flags);
 		}
 		std::sort(_sprites_draw_order.begin(), _sprites_draw_order.end(), [](uint32_t left, uint32_t right) {
 			return _sprites[left] < _sprites[right];
@@ -128,22 +91,22 @@ namespace ecs
 			// vertices to create the degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 			// are the triangle strips of two sprites, the batched triangle strip will be ABCDDEEFGH.
 
-			const Sprite& sprite = _sprites[sprite_index];
+			const sprites::Sprite& sprite = _sprites[sprite_index];
 
 			sf::Vector2f tl = sprite.min; // top-left corner
 			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
 			sf::Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
 			sf::Vector2f br = sprite.max; // bottom-right corner
 
-			if (sprite.flags & SF_FLIP_X) {
+			if (sprite.flags & sprites::SF_FLIP_X) {
 				std::swap(tl, tr);
 				std::swap(bl, br);
 			}
-			if (sprite.flags & SF_FLIP_Y) {
+			if (sprite.flags & sprites::SF_FLIP_Y) {
 				std::swap(tl, bl);
 				std::swap(tr, br);
 			}
-			if (sprite.flags & SF_FLIP_DIAGONAL) {
+			if (sprite.flags & sprites::SF_FLIP_DIAGONAL) {
 				std::swap(bl, tr);
 			}
 
@@ -189,8 +152,8 @@ namespace ecs
 
 		if (debug_flags & DEBUG_PIVOTS) {
 			// Here the draw order is not important
-			for (const Sprite& sprite : _sprites) {
-				if (sprite.sorting_layer != SortingLayer::Objects) continue;
+			for (const sprites::Sprite& sprite : _sprites) {
+				if (sprite.sorting_layer != (uint8_t)SortingLayer::Objects) continue;
 				sf::CircleShape circle(1.f);
 				circle.setPosition(sprite.sorting_position);
 				circle.setFillColor(sf::Color::Red);

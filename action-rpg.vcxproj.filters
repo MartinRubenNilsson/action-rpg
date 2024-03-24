@@ -277,6 +277,9 @@
     <ClCompile Include="ecs_damage.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="sprites.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -749,6 +752,9 @@
     </ClInclude>
     <ClInclude Include="ecs_damage.h">
       <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="sprites.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -221,6 +221,7 @@
     <ClCompile Include="math.cpp" />
     <ClCompile Include="settings.cpp" />
     <ClCompile Include="shaders.cpp" />
+    <ClCompile Include="sprites.cpp" />
     <ClCompile Include="steam.cpp" />
     <ClCompile Include="steam_server.cpp" />
     <ClCompile Include="textures.cpp" />
@@ -394,6 +395,7 @@
     <ClInclude Include="math.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="shaders.h" />
+    <ClInclude Include="sprites.h" />
     <ClInclude Include="steam.h" />
     <ClInclude Include="steam_server.h" />
     <ClInclude Include="textures.h" />
