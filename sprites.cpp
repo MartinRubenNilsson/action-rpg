@@ -19,7 +19,7 @@ namespace sprites
 	}
 
 	bool enable_batching = true;
-	std::vector<Sprite> _sprites;
+	std::vector<Sprite> _sprites_to_draw;
 	std::vector<uint32_t> _sprites_by_draw_order; // indices into _sprites_to_draw
 	std::vector<sf::Vertex> _batch_vertices;
 	uint32_t _sprite_draw_count = 0;
@@ -37,20 +37,20 @@ namespace sprites
 		_time = time;
 	}
 
-	void submit(const Sprite& sprite)
+	void draw(const Sprite& sprite)
 	{
-		_sprites.push_back(sprite);
-		_sprites_by_draw_order.push_back((uint32_t)_sprites.size() - 1);
+		_sprites_to_draw.push_back(sprite);
+		_sprites_by_draw_order.push_back((uint32_t)_sprites_to_draw.size() - 1);
 	}
 
 	void render(sf::RenderTarget& target)
 	{
-		_sprite_draw_count = (uint32_t)_sprites.size();
+		_sprite_draw_count = (uint32_t)_sprites_to_draw.size();
 		_batch_draw_count = 0;
 
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order.begin(), _sprites_by_draw_order.end(), [](uint32_t left, uint32_t right) {
-			return _sprites[left] < _sprites[right];
+			return _sprites_to_draw[left] < _sprites_to_draw[right];
 		});
 
 		// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
@@ -61,7 +61,7 @@ namespace sprites
 
 		sf::RenderStates states{};
 		for (uint32_t sprite_index : _sprites_by_draw_order) {
-			const Sprite& sprite = _sprites[sprite_index];
+			const Sprite& sprite = _sprites_to_draw[sprite_index];
 
 			sf::Vector2f tl = sprite.min; // top-left corner
 			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
@@ -116,7 +116,7 @@ namespace sprites
 			_render_and_clear_batch(target, states);
 		}
 
-		_sprites.clear();
+		_sprites_to_draw.clear();
 		_sprites_by_draw_order.clear();
 	}
 

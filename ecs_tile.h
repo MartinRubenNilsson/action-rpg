@@ -17,6 +17,7 @@ namespace ecs
 		Foreground1,
 		Foreground2,
 		Collision,
+		VFX,
 		Count
 	};
 

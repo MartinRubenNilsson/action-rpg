@@ -46,7 +46,7 @@ namespace sprites
 
 	// Submits a sprite for rendering. The sprite is not rendered immediately, but
 	// instead copied to a list of sprites to be rendered when render() is called.
-	void submit(const Sprite& sprite);
+	void draw(const Sprite& sprite);
 	// Renders all sprites submitted since the last call to render().
 	void render(sf::RenderTarget& target);
 	// Returns the number of sprites rendered during the last call to render().

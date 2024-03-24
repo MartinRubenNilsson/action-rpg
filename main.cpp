@@ -189,6 +189,7 @@ int main(int argc, char* argv[])
             texture->setView(window::get_default_view());
             background::render(*texture);
             ecs::render(*texture);
+            sprites::render(*texture);
             debug::render(*texture);
             texture->display();
             postprocessing::render(texture);

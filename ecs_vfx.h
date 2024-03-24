@@ -13,14 +13,15 @@ namespace ecs
 	{
 		VfxType type = VfxType::None;
 		std::shared_ptr<sf::Texture> texture;
+		sf::Vector2f position;
 		uint32_t frame_rows = 1;
 		uint32_t frame_cols = 1;
-		float frame_duration = 0.0f;
-		float elapsed_time = 0.0f;
-		sf::Sprite sprite;
+		float frame_duration = 0.f;
+		float time = 0.f;
 	};
 
 	void update_vfx(float dt);
+	void draw_vfx(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
 
 	entt::entity create_vfx(VfxType type, const sf::Vector2f& position);
 }
