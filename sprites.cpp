@@ -84,7 +84,7 @@ namespace sprites
 			if (!_batch_vertices.empty()) {
 				// Can we add the new sprite to the batch?
 				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
-				if (enable_batching && !sprite.shader && sprite.texture.get() == states.texture) {
+				if (enable_batching && !sprite.shader && sprite.texture == states.texture) {
 					// Add degenerate triangles to separate the sprites
 					_batch_vertices.push_back(_batch_vertices.back()); // D
 					_batch_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
@@ -101,14 +101,14 @@ namespace sprites
 			_batch_vertices.emplace_back(br, sprite.color, sprite.tex_max);
 
 			// Update shader uniforms
-			if (sprite.shader.get()) {
+			if (sprite.shader) {
 				sprite.shader->setUniform("time", _time);
 				sprite.shader->setUniform("position", sprite.min);
 			}
 
 			// Update the render states
-			states.texture = sprite.texture.get();
-			states.shader = sprite.shader.get();
+			states.texture = sprite.texture;
+			states.shader = sprite.shader;
 		}
 
 		// Draw the last batch if there is one

@@ -43,7 +43,7 @@ namespace ecs
             if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
             sprite.max = vfx.position + tex_half_size;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-            sprite.texture = vfx.texture;
+            sprite.texture = vfx.texture.get();
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = sprites::SL_VFX;
 			sprites::draw(sprite);

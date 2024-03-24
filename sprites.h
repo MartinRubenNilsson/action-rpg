@@ -26,8 +26,8 @@ namespace sprites
 
 	struct Sprite
 	{
-		std::shared_ptr<sf::Texture> texture; // required
-		std::shared_ptr<sf::Shader> shader; // optional; if not set, the default shader is used
+		sf::Texture* texture = nullptr; // required
+		sf::Shader* shader = nullptr; // optional; if not set, the default shader is used
 		sf::Vector2f min; // top-left corner world position in pixels
 		sf::Vector2f max; // bottom-right corner world position in pixels
 		sf::Vector2f tex_min; // top-left corner texture coordinates in pixels
