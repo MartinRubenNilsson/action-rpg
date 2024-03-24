@@ -21,13 +21,13 @@ namespace sprites
 		sf::Vector2f max; // bottom-right corner world position in pixels
 		sf::Vector2f tex_min; // top-left corner texture coordinates in pixels
 		sf::Vector2f tex_max; // bottom-right corner texture coordinates in pixels
-		sf::Vector2f sorting_pos; // world position used for sorting
+		sf::Vector2f sorting_pos; // world position in pixels used for sorting
 		sf::Color color = sf::Color::White;
 		uint8_t sorting_layer = 0;
 		uint8_t flags = 0;
 	};
 
-	// Orders sprites by draw order. Members are considered in the following order:
+	// Orders sprites by draw order. Members are compared in a cascading fashion:
 	// 
 	// 1. sorting_layer
 	// 2. sorting_pos.y
@@ -39,4 +39,7 @@ namespace sprites
 	// If one case yields a tie, then the next case is considered, and so on.
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
+
+	void draw(const Sprite& sprite);
+	void render(sf::RenderTarget& target);
 }

@@ -8,7 +8,7 @@ namespace tiled
 
 namespace ecs
 {
-	enum class SortingLayer
+	enum class SortingLayer : uint8_t
 	{
 		Background1,
 		Background2,
@@ -42,13 +42,13 @@ namespace ecs
 		Tile() = default;
 		Tile(const tiled::Tile* tile);
 
+		std::shared_ptr<sf::Texture> texture; // optional, if not set, the tileset texture is used
+		std::shared_ptr<sf::Shader> shader; // optional, if not set, the default shader is used
 		sf::Vector2f position; // in pixels
 		sf::Vector2f pivot; // in pixels, relative to the top-left corner
 		sf::Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		SortingLayer sorting_layer = SortingLayer::Objects;
 		sf::Color color = sf::Color::White;
-		std::shared_ptr<sf::Texture> texture; // optional, if not set, the tileset texture is used
-		std::shared_ptr<sf::Shader> shader; // optional, if not set, the default shader is used
 		Timer animation_timer;
 		float animation_speed = 1.f;
 
