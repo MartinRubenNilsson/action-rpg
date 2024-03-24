@@ -134,6 +134,8 @@ namespace ecs
 			const sf::Vector2f position = get_world_center(body);
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity; // will be modified differently depending on the state
+			sf::Vector2f new_sword_position;
+			bool new_sword_visible = false;
 
 			// UPDATE AUDIO
 
@@ -141,12 +143,6 @@ namespace ecs
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
 			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("step")) {
 				audio::play("event:/snd_footstep");
-			}
-
-			// UPDATE WEAPON POSITION
-
-			if (Tile* sword_tile = try_get_tile(player.sword)) {
-				sword_tile->position = position;
 			}
 
 			char dir = get_direction(player.look_dir);
@@ -214,6 +210,8 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingSword: {
+				new_sword_position = position + player.look_dir * 16.f;
+				new_sword_visible = true;
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -222,6 +220,8 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
+				new_sword_position = position + player.look_dir * 16.f;
+				new_sword_visible = true;
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
@@ -241,11 +241,16 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dead: {
-				// Do nothing
+				// Do nothing, u r ded
 			} break;
 			}
 
 			set_linear_velocity(body, new_velocity);
+
+			if (Tile* sword_tile = try_get_tile(player.sword)) {
+				sword_tile->position = new_sword_position;
+				sword_tile->set_flag(TF_VISIBLE, new_sword_visible);
+			}
 
 			// UPDATE TILE COLOR
 			{
@@ -267,9 +272,9 @@ namespace ecs
 			// CLEAR INPUT
 
 			player.input.interact = false;
+			player.input.use_sword = false;
 			player.input.shoot_bow = false;
 			player.input.drop_bomb = false;
-			player.input.use_sword = false;
 		}
 	}
 
