@@ -17,6 +17,7 @@ namespace ecs
 	void shutdown();
 	void process_event(const sf::Event& event);
 	void update(float dt);
-	void render(sf::RenderTarget& target);
+	void draw(sf::RenderTarget& target);
+	void debug_draw();
 }
 

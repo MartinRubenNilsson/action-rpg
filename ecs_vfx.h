@@ -14,8 +14,8 @@ namespace ecs
 		VfxType type = VfxType::None;
 		std::shared_ptr<sf::Texture> texture;
 		sf::Vector2f position;
-		uint32_t frame_rows = 1;
-		uint32_t frame_cols = 1;
+		uint32_t frame_rows = 0;
+		uint32_t frame_cols = 0;
 		float frame_duration = 0.f;
 		float time = 0.f;
 	};

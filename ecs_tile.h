@@ -82,6 +82,7 @@ namespace ecs
 	};
 
 	void update_tiles(float dt);
+	void draw_tiles(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
 
 	bool has_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity);

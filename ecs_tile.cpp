@@ -1,8 +1,10 @@
+#include "stdafx.h"
 #include "ecs_tile.h"
 #include "physics_helpers.h"
 #include "tiled.h"
-#include "shaders.h"
 #include "textures.h"
+#include "shaders.h"
+#include "sprites.h"
 
 namespace ecs
 {
@@ -201,6 +203,36 @@ namespace ecs
 		}
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
 			tile.position = get_position(body);
+		}
+	}
+
+	void draw_tiles(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	{
+		sprites::Sprite sprite{};
+		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
+			if (!tile.is_valid()) continue;
+			if (!tile.get_flag(TF_VISIBLE)) continue;
+			sprite.texture = tile.get_texture();
+			if (!sprite.texture) continue;
+			sprite.min = tile.position - tile.pivot;
+			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
+			sf::IntRect texture_rect = tile.get_texture_rect();
+			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
+			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
+			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
+			sprite.shader = tile.shader;
+			sprite.color = tile.color;
+			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
+			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
+			sprite.flags = 0;
+			if (tile.get_flag(TF_FLIP_X))
+				sprite.flags |= sprites::SF_FLIP_X;
+			if (tile.get_flag(TF_FLIP_Y))
+				sprite.flags |= sprites::SF_FLIP_Y;
+			if (tile.get_flag(TF_FLIP_DIAGONAL))
+				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
+			sprites::draw(sprite);
 		}
 	}
 	

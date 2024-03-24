@@ -47,56 +47,22 @@ namespace ecs
 		update_cameras(dt);
 	}
 	 
-	void render(sf::RenderTarget& target)
+	void draw(sf::RenderTarget& target)
 	{
 		const sf::View view = ecs::get_blended_camera_view();
 		const sf::Vector2f camera_min = view.getCenter() - view.getSize() / 2.f; // assumes no rotation
 		const sf::Vector2f camera_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
 		target.setView(view);
-
-		sprites::Sprite sprite{}; // so we don't recreate it every iteration
-		for (auto [entity, tile] : _registry.view<Tile>().each()) {
-			if (!tile.is_valid()) continue;
-			if (!tile.get_flag(TF_VISIBLE)) continue;
-			sprite.texture = tile.get_texture();
-			if (!sprite.texture) continue;
-			sprite.shader = tile.shader;
-			sprite.min = tile.position - tile.pivot;
-			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			sf::IntRect texture_rect = tile.get_texture_rect();
-			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
-			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
-			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
-			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-			sprite.color = tile.color;
-			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
-			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
-			sprite.flags = 0;
-			if (tile.get_flag(TF_FLIP_X))
-				sprite.flags |= sprites::SF_FLIP_X;
-			if (tile.get_flag(TF_FLIP_Y))
-				sprite.flags |= sprites::SF_FLIP_Y;
-			if (tile.get_flag(TF_FLIP_DIAGONAL))
-				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
-			sprites::draw(sprite);
-		}
 		sprites::set_time(_time);
-
-		// DRAW VFX
-
+		draw_tiles(camera_min, camera_max);
 		draw_vfx(camera_min, camera_max);
 
-		// DEBUG DRAWING
+	}
 
+	void debug_draw()
+	{
 		if (debug_flags & DEBUG_PIVOTS) {
-			//// Here the draw order is not important
-			//for (const sprites::Sprite& sprite : _sprites) {
-			//	if (sprite.sorting_layer != (uint8_t)SortingLayer::Objects) continue;
-			//	sf::CircleShape circle(1.f);
-			//	circle.setPosition(sprite.sorting_pos);
-			//	circle.setFillColor(sf::Color::Red);
-			//	target.draw(circle);
-			//}
+			//TODO
 		}
 		if (debug_flags & DEBUG_PHYSICS)
 			debug_draw_physics();
