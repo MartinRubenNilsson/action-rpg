@@ -81,7 +81,7 @@ namespace ecs
         }
         {
             Tile& tile = emplace_tile(entity);
-            tile.set_sprite("bomb", "items1");
+            tile.set_tile("bomb", "items1");
             tile.position = position;
             tile.pivot = sf::Vector2f(8.f, 16.f);
             tile.sorting_pivot = sf::Vector2f(8.f, 16.f);

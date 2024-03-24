@@ -45,16 +45,16 @@ namespace ecs
 			Tile& tile = emplace_tile(entity);
 			switch (type) {
 			case PickupType::Arrow:
-				tile.set_sprite("arrow", "items1");
+				tile.set_tile("arrow", "items1");
 				break;
 			case PickupType::Rupee:
-				tile.set_sprite("rupee", "items1");
+				tile.set_tile("rupee", "items1");
 				break;
 			case PickupType::Bomb:
-				tile.set_sprite("bomb", "items1");
+				tile.set_tile("bomb", "items1");
 				break;
 			case PickupType::Heart:
-				tile.set_sprite("heart", "items1");
+				tile.set_tile("heart", "items1");
 				break;
 			}
 			tile.position = position;

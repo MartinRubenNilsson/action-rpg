@@ -27,9 +27,7 @@ namespace ecs
 
 	Tile::Tile(const tiled::Tile* tile)
 	{
-		assert(tile);
-		_set_sprite(tile);
-
+		_set_tile(tile);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
 			shader = shaders::get(shader_name);
@@ -38,14 +36,15 @@ namespace ecs
 		}
 	}
 
-	bool Tile::_set_sprite(const tiled::Tile* tile)
+	bool Tile::_set_tile(const tiled::Tile* tile)
 	{
-		if (!tile) return false;
+		assert(tile);
 		if (tile == _tile) return false;
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame_index = 0;
-		set_flag(TF_JUST_LOOPED, false);
+		set_flag(TF_NEW_FRAME, false);
+		set_flag(TF_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation)
 			_animation_duration_ms += frame.duration;
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
@@ -61,29 +60,31 @@ namespace ecs
 		return _tile;
 	}
 
-	bool Tile::set_sprite(const std::string& tile_class)
+	bool Tile::set_tile(const std::string& class_)
 	{
+		if (class_.empty()) return false;
 		if (!_tile) return false; // no tileset to look in
-		if (tile_class.empty()) return false;
-		if (tile_class == _tile->class_) return false;
-		return _set_sprite(_tile->tileset->find_tile_by_class(tile_class));
+		if (class_ == _tile->class_) return false;
+		return _set_tile(_tile->tileset->find_tile_by_class(class_));
 	}
 
-	bool Tile::set_sprite(const std::string& tile_class, const std::string& tileset_name)
+	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
 	{
-		if (tile_class.empty() || tileset_name.empty()) return false;
-		if (_tile && tile_class == _tile->class_ && tileset_name == _tile->tileset->name) return false;
+		if (class_.empty() || tileset_name.empty()) return false;
+		if (_tile && class_ == _tile->class_ && tileset_name == _tile->tileset->name) return false;
 		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset) return false;
-		return _set_sprite(tileset->find_tile_by_class(tile_class));
+		return _set_tile(tileset->find_tile_by_class(class_));
 	}
 
-	std::string Tile::get_tile_class() const {
-		return _tile ? _tile->class_ : "";
+	const std::string _DUMMY_EMPTY_STRING = "";
+
+	const std::string& Tile::get_class() const {
+		return _tile ? _tile->class_ : _DUMMY_EMPTY_STRING;
 	}
 
-	std::string Tile::get_tileset_name() const {
-		return _tile ? _tile->tileset->name : "";
+	const std::string& Tile::get_tileset_name() const {
+		return _tile ? _tile->tileset->name : _DUMMY_EMPTY_STRING;
 	}
 
 	std::shared_ptr<sf::Texture> Tile::get_texture() const
@@ -113,10 +114,10 @@ namespace ecs
 	{
 		if (!_tile || _tile->animation.empty()) return;
 		if (!_animation_duration_ms) return;
-		set_flag(TF_JUST_LOOPED, false);
-		bool loop = get_flag(TF_LOOP);
+		set_flag(TF_LOOPED, false);
+		const bool loop = get_flag(TF_LOOP);
 		if (animation_timer.update(animation_speed * dt, loop) && loop) {
-			set_flag(TF_JUST_LOOPED, true);
+			set_flag(TF_LOOPED, true);
 			if (get_flag(TF_FLIP_X_ON_LOOP))
 				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
 		}

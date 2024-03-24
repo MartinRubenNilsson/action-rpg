@@ -181,12 +181,12 @@ namespace ecs
 				new_velocity = new_move_dir * new_move_speed;
 
 				if (player.input.fire_arrow && player.arrows > 0) {
-					tile.set_sprite("bow_shot_"s + dir);
+					tile.set_tile("bow_shot_"s + dir);
 					player.bow_shot_timer.start();
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
 				} else if (player.input.sword_attack) {
-					tile.set_sprite("sword_attack_"s + dir);
+					tile.set_tile("sword_attack_"s + dir);
 					player.sword_attack_timer.start();
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
@@ -194,21 +194,21 @@ namespace ecs
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
-					tile.set_sprite("run_"s + dir);
+					tile.set_tile("run_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.get_flag(TF_JUST_LOOPED))
+					if (tile.get_flag(TF_LOOPED))
 						audio::play("event:/snd_footstep");
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
-					tile.set_sprite("walk_"s + dir);
+					tile.set_tile("walk_"s + dir);
 					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
-					if (tile.get_flag(TF_JUST_LOOPED))
+					if (tile.get_flag(TF_LOOPED))
 						audio::play("event:/snd_footstep");
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {
-					tile.set_sprite("idle_"s + dir);
+					tile.set_tile("idle_"s + dir);
 					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
@@ -237,13 +237,13 @@ namespace ecs
 				tile.set_flag(TF_LOOP, false);
 
 				if (tile.animation_timer.finished()) {
-					tile.set_sprite("dead_"s + dir);
+					tile.set_tile("dead_"s + dir);
 					kill_player(player_entity);
 					player.state = PlayerState::Dead;
 					break;
 				}
 				if (dir == 'd') dir = 'u';
-				tile.set_sprite("dying_"s + dir);
+				tile.set_tile("dying_"s + dir);
 			} break;
 			case PlayerState::Dead: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement

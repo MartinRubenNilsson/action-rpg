@@ -33,7 +33,8 @@ namespace ecs
 		TF_ROTATE_270     = TF_FLIP_Y | TF_FLIP_DIAGONAL,
 		TF_LOOP           = 1 << 4, // loop the animation
 		TF_FLIP_X_ON_LOOP = 1 << 5, // flip the sprite horizontally when the animation loops
-		TF_JUST_LOOPED	  = 1 << 6, // is set if the animation looped last update
+		TF_NEW_FRAME      = 1 << 6, // the animation frame changed last update
+		TF_LOOPED	      = 1 << 7, // the animation looped last update
 	};
 
 	class Tile
@@ -53,10 +54,10 @@ namespace ecs
 		float animation_speed = 1.f;
 
 		bool is_valid() const { return _tile; }
-		bool set_sprite(const std::string& tile_class); // uses the current tileset
-		bool set_sprite(const std::string& tile_class, const std::string& tileset_name);
-		std::string get_tile_class() const; 
-		std::string get_tileset_name() const;
+		bool set_tile(const std::string& class_); // uses the current tileset
+		bool set_tile(const std::string& class_, const std::string& tileset_name);
+		const std::string& get_class() const; 
+		const std::string& get_tileset_name() const;
 		std::shared_ptr<sf::Texture> get_texture() const;
 		sf::IntRect get_texture_rect() const;
 		bool has_animation() const;
@@ -71,7 +72,7 @@ namespace ecs
 		uint32_t _animation_frame_index = 0;
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;
 
-		bool _set_sprite(const tiled::Tile* tile);
+		bool _set_tile(const tiled::Tile* tile);
 		const tiled::Tile* _get_visible_tile() const;
 	};
 

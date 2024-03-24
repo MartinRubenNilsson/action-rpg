@@ -43,7 +43,7 @@ namespace ecs
 		// GRAPHICS
 		{
 			Tile& tile = emplace_tile(entity);
-			tile.set_sprite("arrow", "items1");
+			tile.set_tile("arrow", "items1");
 			tile.pivot = sf::Vector2f(6.f, 6.f);
 		}
 
