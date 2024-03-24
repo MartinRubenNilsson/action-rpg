@@ -23,7 +23,7 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	const float _PLAYER_WALK_SPEED = 72.f;
+	const float _PLAYER_WALK_SPEED = 60.f;
 	const float _PLAYER_RUN_SPEED = 136.f;
 	const float _PLAYER_STEALTH_SPEED = 36.f;
 	const float _PLAYER_ARROW_SPEED = 160.f;
@@ -195,11 +195,9 @@ namespace ecs
 					player.bombs--;
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 					tile.set_tile("run_"s + dir);
-					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_tile("walk_"s + dir);
-					tile.animation_speed = 1.2f;
 					tile.set_flag(TF_LOOP, true);
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
