@@ -98,6 +98,7 @@ namespace ecs
 
 	const std::string _DUMMY_EMPTY_STRING;
 	const Properties _DUMMY_EMPTY_PROPERTIES;
+	const std::shared_ptr<sf::Texture> _DUMMY_EMPTY_TEXTURE;
 
 	const std::string& Tile::get_class(bool account_for_animation) const
 	{
@@ -117,15 +118,14 @@ namespace ecs
 		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
-	std::shared_ptr<sf::Texture> Tile::get_texture() const
+	const std::shared_ptr<sf::Texture>& Tile::get_texture() const
 	{
-		std::shared_ptr<sf::Texture> ret;
 		if (texture) {
-			ret = texture;
+			return texture;
 		} else if (const tiled::Tile* tile = _get_tile(false)) {
-			ret = tile->tileset->image;
+			return tile->tileset->image;
 		}
-		return ret;
+		return _DUMMY_EMPTY_TEXTURE;
 	}
 
 	sf::IntRect Tile::get_texture_rect(bool account_for_animation) const
