@@ -145,11 +145,11 @@ namespace ecs
 		return _registry.remove<b2Body*>(entity);
 	}
 
-	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits, RayHit* hit)
+	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits, RaycastHit* hit)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
-			RayHit hit{};
+			RaycastHit hit{};
 			uint16 mask_bits = 0xFFFF;
 			bool hit_something = false;
 
@@ -181,11 +181,11 @@ namespace ecs
 		return callback.hit_something;
 	}
 
-	std::vector<RayHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
+	std::vector<RaycastHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
-			std::vector<RayHit> hits;
+			std::vector<RaycastHit> hits;
 			uint16 mask_bits = 0xFFFF;
 
 			float ReportFixture(
@@ -196,7 +196,7 @@ namespace ecs
 			{
 				uint16 category_bits = fixture->GetFilterData().categoryBits;
 				if (!(category_bits & mask_bits)) return -1.f;
-				RayHit hit{};
+				RaycastHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
 				hit.entity = get_entity(hit.body);

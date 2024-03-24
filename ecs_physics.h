@@ -2,7 +2,7 @@
 
 namespace ecs
 {
-	struct RayHit
+	struct RaycastHit
 	{
 		b2Fixture* fixture = nullptr;
 		b2Body* body = nullptr;
@@ -33,8 +33,8 @@ namespace ecs
 	b2Body* try_get_body(entt::entity entity);
 	bool remove_body(entt::entity entity);
 
-	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RayHit* hit = nullptr);
-	std::vector<RayHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
+	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RaycastHit* hit = nullptr);
+	std::vector<RaycastHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
 	std::vector<OverlapHit> overlap_box(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits = 0xFFFF);
 	std::vector<OverlapHit> overlap_circle(const sf::Vector2f& center, float radius, uint16 mask_bits = 0xFFFF);
 }
