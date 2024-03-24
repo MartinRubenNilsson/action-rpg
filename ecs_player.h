@@ -29,13 +29,11 @@ namespace ecs
 		PlayerState state = PlayerState::Normal;
 		sf::Vector2f look_dir = { 0.f, 1.f };
 		Timer hurt_timer = { 1.f };
-		Timer bow_shot_timer = { 0.66f };
-		Timer sword_attack_timer = { 0.18f };
+		int max_health = 3;
 		int health = 3;
 		int arrows = 10;
 		int bombs = 5;
 		int rupees = 10;
-		int max_health = 3;
 	};
 
 	void process_event_players(const sf::Event& ev);

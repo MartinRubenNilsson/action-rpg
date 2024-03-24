@@ -135,11 +135,9 @@ namespace ecs
 
 			audio::set_listener_position(position);
 
-			// HANDLE TERRAIN
+			// PLAY FOOTSTEP AUDIO EVENTS
 
-			const map::TerrainType terrain = map::get_terrain_type_at(position);
-			audio::set_parameter_label("terrain", map::to_string(terrain));
-
+			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
 			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("step")) {
 				audio::play("event:/snd_footstep");
 			}
@@ -186,12 +184,10 @@ namespace ecs
 
 				if (player.input.fire_arrow && player.arrows > 0) {
 					tile.set_tile("bow_shot_"s + dir);
-					player.bow_shot_timer.start();
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
 				} else if (player.input.sword_attack) {
 					tile.set_tile("sword_attack_"s + dir);
-					player.sword_attack_timer.start();
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::Attacking;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
@@ -215,15 +211,15 @@ namespace ecs
 			case PlayerState::Attacking: {
 				new_velocity = sf::Vector2f(0.f, 0.f); // lock movement
 
-				// Fire an arrow a while after the animation starts.
-				if (player.bow_shot_timer.update(dt) && player.arrows > 0) {
-					player.arrows--;
-					create_arrow(
-						position + player.look_dir * 16.f,
-						player.look_dir * _PLAYER_ARROW_SPEED);
-				}
-				else if (player.sword_attack_timer.update(dt)) {
-					_player_attack(player_entity, position + player.look_dir * 16.f);
+				if (tile.get_flag(TF_FRAME_CHANGED)) {
+					const Properties& properties = tile.get_properties();
+					if (properties.has("strike")) {
+						_player_attack(player_entity, position + player.look_dir * 16.f);
+					}
+					if (player.arrows > 0 && properties.has("shoot")) {
+						player.arrows--;
+						create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
+					}
 				}
 
 				// When animation is done, we are done attacking.

@@ -79,52 +79,67 @@
   <animation>
    <frame tileid="132" duration="180"/>
    <frame tileid="133" duration="80"/>
-   <frame tileid="12" duration="80"/>
-   <frame tileid="12" duration="300"/>
+   <frame tileid="12" duration="380"/>
   </animation>
  </tile>
  <tile id="133" type="bow_shot_d">
+  <properties>
+   <property name="strike" value=""/>
+  </properties>
   <animation>
    <frame tileid="133" duration="160"/>
    <frame tileid="134" duration="500"/>
-   <frame tileid="135" duration="80"/>
-   <frame tileid="135" duration="80"/>
-   <frame tileid="135" duration="300"/>
+   <frame tileid="135" duration="460"/>
   </animation>
+ </tile>
+ <tile id="135">
+  <properties>
+   <property name="shoot" value=""/>
+  </properties>
  </tile>
  <tile id="148" type="sword_attack_u">
   <animation>
-   <frame tileid="149" duration="180"/>
-   <frame tileid="148" duration="80"/>
-   <frame tileid="28" duration="80"/>
-   <frame tileid="28" duration="300"/>
+   <frame tileid="148" duration="180"/>
+   <frame tileid="149" duration="80"/>
+   <frame tileid="28" duration="380"/>
   </animation>
  </tile>
  <tile id="149" type="bow_shot_u">
+  <properties>
+   <property name="strike" value=""/>
+  </properties>
   <animation>
    <frame tileid="149" duration="160"/>
    <frame tileid="150" duration="500"/>
-   <frame tileid="151" duration="80"/>
-   <frame tileid="151" duration="80"/>
-   <frame tileid="151" duration="500"/>
+   <frame tileid="151" duration="460"/>
   </animation>
+ </tile>
+ <tile id="151">
+  <properties>
+   <property name="shoot" value=""/>
+  </properties>
  </tile>
  <tile id="164" type="sword_attack_r">
   <animation>
    <frame tileid="164" duration="180"/>
    <frame tileid="165" duration="80"/>
-   <frame tileid="44" duration="80"/>
-   <frame tileid="44" duration="300"/>
+   <frame tileid="44" duration="380"/>
   </animation>
  </tile>
  <tile id="165" type="bow_shot_r">
+  <properties>
+   <property name="strike" value=""/>
+  </properties>
   <animation>
    <frame tileid="165" duration="160"/>
    <frame tileid="166" duration="500"/>
-   <frame tileid="167" duration="80"/>
-   <frame tileid="167" duration="80"/>
-   <frame tileid="167" duration="300"/>
+   <frame tileid="167" duration="460"/>
   </animation>
+ </tile>
+ <tile id="167">
+  <properties>
+   <property name="shoot" value=""/>
+  </properties>
  </tile>
  <tile id="178" type="dying_r">
   <animation>
