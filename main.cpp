@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
     ui::load_rml_documents("assets/ui");
-    background::load_assets();
 
     // INITIALIZATION PASS 2
     {
@@ -123,14 +122,14 @@ int main(int argc, char* argv[])
             while (ui::poll_event(ev)) {
                 switch (ev.type) {
 				case ui::Event::PlayGame:
-					background::type = background::Type::None;
+					background::set_type(background::Type::None);
 					map::open("summer_forest");
 					break;
 				case ui::Event::RestartMap:
 					map::reset();
 					break;
 				case ui::Event::GoToMainMenu:
-					background::type = background::Type::MountainDusk;
+                    background::set_type(background::Type::MountainDusk);
 					map::close();
 					break;
 				case ui::Event::QuitApp:
@@ -223,12 +222,12 @@ int main(int argc, char* argv[])
 
     // SHUTDOWN
 
+    background::set_type(background::Type::None);
     ecs::shutdown();
     ui::shutdown();
     audio::shutdown();
     ImGui::SFML::Shutdown();
     tiled::unload_assets();
-    background::unload_assets();
     shaders::unload_assets();
     fonts::unload_assets();
     textures::shutdown();

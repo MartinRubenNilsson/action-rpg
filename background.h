@@ -8,10 +8,7 @@ namespace background
 		MountainDusk,
 	};
 
-	extern Type type;
-
-	void load_assets();
-	void unload_assets();
+	void set_type(Type type);
 	void update(float dt);
 	void render(sf::RenderTarget& target);
 }
