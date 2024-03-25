@@ -44,15 +44,12 @@ namespace background
 
 	void update(float dt)
 	{
-		switch (_type) {
-		case Type::MountainDusk:
-			for (size_t i = 0; i < _layers.size(); ++i) {
-				Layer& layer = _layers[i];
-				const unsigned int texture_width = layer.texture->getSize().x;
-				layer.offset += i * i * i * dt;
-				if (layer.offset >= texture_width)
-					layer.offset -= texture_width;
-			}
+		for (size_t i = 0; i < _layers.size(); ++i) {
+			Layer& layer = _layers[i];
+			const unsigned int texture_width = layer.texture->getSize().x;
+			layer.offset += i * i * i * dt;
+			if (layer.offset >= texture_width)
+				layer.offset -= texture_width;
 		}
 	}
 
