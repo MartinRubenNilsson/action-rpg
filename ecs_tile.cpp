@@ -143,7 +143,7 @@ namespace ecs
 
 	void Tile::update_animation(float dt)
 	{
-		if (!_tile || _tile->animation.empty()) return;
+		if (!_tile) return;
 		if (!_animation_duration_ms) return;
 		set_flag(TF_FRAME_CHANGED, false);
 		set_flag(TF_LOOPED, false);
