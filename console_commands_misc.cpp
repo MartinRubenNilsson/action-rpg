@@ -155,10 +155,19 @@ namespace console
 		{
 			Command& cmd = commands.emplace_back();
 			cmd.name = "destroy";
-			cmd.desc = "Destroy an entity by its ID";
-			cmd.params[0] = { 0, "entity", "The entity ID" };
+			cmd.desc = "Destroy an entity";
+			cmd.params[0] = { 0, "entity", "The ID of the entity to destroy" };
 			cmd.callback = [](const Params& params) {
 				ecs::destroy_at_end_of_frame((entt::entity)std::get<int>(params[0].arg));
+			};
+		}
+		{
+			Command& cmd = commands.emplace_back();
+			cmd.name = "clone";
+			cmd.desc = "Clone an entity";
+			cmd.params[0] = { 0, "entity", "The ID of the entity to clone" };
+			cmd.callback = [](const Params& params) {
+				ecs::deep_copy((entt::entity)std::get<int>(params[0].arg));
 			};
 		}
 		{
