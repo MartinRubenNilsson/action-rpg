@@ -128,6 +128,10 @@ namespace ecs
 			b2FixtureDef fixture_def = get_fixture_def(fixture);
 			new_body->CreateFixture(&fixture_def);
 		}
+		//HACK: so they don't spawn inside each other
+		b2Vec2 pos = new_body->GetPosition();
+		pos.x += 16.f; //one tile
+		new_body->SetTransform(pos, 0.f);
 		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
 	}
 

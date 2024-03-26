@@ -43,7 +43,8 @@ namespace ecs
 			if (storage.type() == entt::type_id<b2Body*>()) {
 				deep_copy_and_emplace_body(copied_entity, *(b2Body**)storage.value(entity));
 			} else if (storage.type() == entt::type_id<Player>()) {
-				// TODO: deep copy player along with weapon
+				// TODO: deep copy player, since it holds a held item entity
+				storage.push(copied_entity, storage.value(entity));
 			} else {
 				storage.push(copied_entity, storage.value(entity));
 			}
