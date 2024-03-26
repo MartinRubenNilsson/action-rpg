@@ -4,16 +4,14 @@
 
 namespace ui
 {
-	class RmlUiSystemInterface : public Rml::SystemInterface
+	struct RmlUiSystemInterface : Rml::SystemInterface
 	{
-	public:
+		sf::Clock clock;
+
 		double GetElapsedTime() override;
 		void SetMouseCursor(const Rml::String& cursor_name) override;
 		void SetClipboardText(const Rml::String& text_utf8) override;
 		void GetClipboardText(Rml::String& text) override;
-
-	private:
-		sf::Clock _clock;
 	};
 
 	class RmlUiRenderInterface : public Rml::RenderInterface

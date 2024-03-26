@@ -41,7 +41,7 @@
 namespace ui
 {
 	double RmlUiSystemInterface::GetElapsedTime() {
-		return (double)_clock.getElapsedTime().asMicroseconds() / 1'000'000.0;
+		return (double)clock.getElapsedTime().asMicroseconds() / 1'000'000.0;
 	}
 
 	void RmlUiSystemInterface::SetMouseCursor(const Rml::String& cursor_name)
