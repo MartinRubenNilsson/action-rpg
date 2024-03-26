@@ -154,6 +154,15 @@ namespace console
 		// GAME
 		{
 			Command& cmd = commands.emplace_back();
+			cmd.name = "destroy";
+			cmd.desc = "Destroy an entity by its ID";
+			cmd.params[0] = { 0, "entity", "The entity ID" };
+			cmd.callback = [](const Params& params) {
+				ecs::destroy_at_end_of_frame((entt::entity)std::get<int>(params[0].arg));
+			};
+		}
+		{
+			Command& cmd = commands.emplace_back();
 			cmd.name = "kill_player";
 			cmd.desc = "Kills the player";
 			cmd.callback = [](const Params&) {
