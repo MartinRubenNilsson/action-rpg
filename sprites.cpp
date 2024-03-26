@@ -84,7 +84,7 @@ namespace sprites
 
 		sf::RenderStates states{};
 		for (uint32_t i = 0; i < _sprites; ++i) {
-			const Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
+			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
 
 			sf::Vector2f tl = sprite.min; // top-left corner
 			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
@@ -123,6 +123,10 @@ namespace sprites
 			_batch_vertex_buffer[_batch_vertices++] = { bl, sprite.color, { sprite.tex_min.x, sprite.tex_max.y } };
 			_batch_vertex_buffer[_batch_vertices++] = { tr, sprite.color, { sprite.tex_max.x, sprite.tex_min.y } };
 			_batch_vertex_buffer[_batch_vertices++] = { br, sprite.color, sprite.tex_max };
+
+			if (sprite.pre_render_callback) {
+				sprite.pre_render_callback(sprite);
+			}
 
 			// Update shader uniforms
 			if (sprite.shader) {

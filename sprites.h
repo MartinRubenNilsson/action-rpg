@@ -26,6 +26,8 @@ namespace sprites
 
 	struct Sprite
 	{
+		void (*pre_render_callback)(Sprite&) = nullptr; // optional; called just before the sprite is rendered
+		void* userdata = nullptr; // optional; can be used to store additional data
 		sf::Texture* texture = nullptr; // required
 		sf::Shader* shader = nullptr; // optional; if not set, the default shader is used
 		sf::Vector2f min; // top-left corner world position in pixels
