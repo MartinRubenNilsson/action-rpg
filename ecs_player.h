@@ -3,6 +3,7 @@
 
 namespace ecs
 {
+	//TODO: refactor into PlayerInputFlags. except axis?
 	struct PlayerInput
 	{
 		int axis_x = 0;

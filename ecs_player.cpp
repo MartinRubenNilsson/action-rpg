@@ -286,40 +286,44 @@ namespace ecs
 
 	void debug_draw_players()
 	{
-		ImGui::Begin("Player");
+		const size_t player_count = _registry.view<Player>().size();
 
-		for (auto [entity, player, body] : _registry.view<Player, b2Body*>().each()) {
+		ImGui::Begin("Players"); 
+		for (auto [entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
+			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
+
+			// For convenience, if there's just one player, open debug menu immediately. 
+			ImGui::SetNextItemOpen(player_count == 1, ImGuiCond_Appearing);
+			if (!ImGui::TreeNode(tree_node_label.c_str())) continue;
+
 			sf::Vector2f position = get_world_center(body);
 			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
 			ImGui::Text("Terrain: %s", map::to_string(map::get_terrain_type_at(position)).c_str());
-		}
-
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-
 			ImGui::Text("State: %s", magic_enum::enum_name(player.state).data());
 			ImGui::Text("Health: %d", player.health);
 			ImGui::Text("Arrows: %d", player.arrows);
 			ImGui::Text("Rupees: %d", player.rupees);
 			
-			if (ImGui::Button("Hurt"))
+			if (ImGui::Button("Apply 1 Damage"))
 				apply_damage_to_player(entity, { DamageType::Default, 1 });
-			ImGui::SameLine();
 			if (ImGui::Button("Kill"))
 				kill_player(entity);
 
 			if (ImGui::Button("Give 5 Arrows"))
 				player.arrows += 5;
-			ImGui::SameLine();
+			if (ImGui::Button("Give 5 Bombs"))
+				player.bombs += 5;
 			if (ImGui::Button("Give 5 Rupees"))
 				player.rupees += 5;
-		}
 
-		for (auto [entity, player, tile] : _registry.view<Player, Tile>().each()) {
-			if (ImGui::Button("Randomize")) {
+			if (ImGui::Button("Randomize Appearance")) {
 				Character character{};
 				character.randomize();
 				tile.texture = character.bake_texture();
 			}
+
+			ImGui::Spacing(); //did this even do anything??
+			ImGui::TreePop();
 		}
 
 		ImGui::End();
