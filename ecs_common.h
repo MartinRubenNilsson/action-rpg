@@ -11,6 +11,7 @@ namespace ecs
 	void clear();
 	entt::entity create();
 	entt::entity create(entt::entity hint);
+	entt::entity deep_copy(entt::entity entity);
 	void destroy_immediately(entt::entity entity);
 	void destroy_at_end_of_frame(entt::entity entity);
 

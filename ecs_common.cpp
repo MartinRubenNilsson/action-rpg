@@ -1,4 +1,7 @@
+#include "stdafx.h"
 #include "ecs_common.h"
+#include "ecs_physics.h"
+#include "ecs_player.h"
 #include "tiled.h"
 #include "properties.h"
 
@@ -30,6 +33,23 @@ namespace ecs
 
 	entt::entity create(entt::entity hint) {
 		return _registry.create(hint);
+	}
+
+	entt::entity deep_copy(entt::entity entity)
+	{
+		entt::entity copied_entity = _registry.create();
+		for (auto [name, storage] : _registry.storage()) {
+			if (storage.contains(entity)) {
+				if (storage.type() == entt::type_id<b2Body*>()) {
+					deep_copy_and_emplace_body(copied_entity, (b2Body*)storage.value(entity));
+				} else if (storage.type() == entt::type_id<Player>()) {
+					// TODO
+				} else {
+					storage.push(copied_entity, storage.value(entity));
+				}
+			}
+		}
+		return copied_entity;
 	}
 
 	void destroy_immediately(entt::entity entity)
