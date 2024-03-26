@@ -11,6 +11,7 @@
 #include "ecs_bomb.h"
 #include "console.h"
 #include "sprites.h"
+#include "debug_draw.h"
 
 namespace ecs
 {
@@ -58,11 +59,21 @@ namespace ecs
 		draw_vfx(camera_min, camera_max);
 	}
 
+	void _debug_draw_entities()
+	{
+		for (auto [entity, body] : _registry.view<b2Body*>().each()) {
+			if (!_registry.any_of<Player, AiType>(entity)) continue;
+			std::string entity_string = std::to_string((entt::id_type)entity);
+			sf::Vector2f position = vector_cast<sf::Vector2f>(body->GetWorldCenter());
+			position.y -= 16.f;
+			debug::draw_text(entity_string, position);
+		}
+	}
+
 	void debug_draw()
 	{
-		if (debug_flags & DEBUG_TILES) {
-			//TODO
-		}
+		if (debug_flags & DEBUG_ENTITIES)
+			_debug_draw_entities();
 		if (debug_flags & DEBUG_PHYSICS)
 			debug_draw_physics();
 		if (debug_flags & DEBUG_AI)

@@ -95,9 +95,9 @@ int main(int argc, char* argv[])
                     else if (ev.key.code == sf::Keyboard::F1)
                         debug_stats = !debug_stats;
                     else if (ev.key.code == sf::Keyboard::F2)
-                        ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
+                        ecs::debug_flags ^= ecs::DEBUG_ENTITIES;
                     else if (ev.key.code == sf::Keyboard::F3)
-                        ecs::debug_flags ^= ecs::DEBUG_TILES;
+                        ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                     else if (ev.key.code == sf::Keyboard::F4)
                         ecs::debug_flags ^= ecs::DEBUG_AI;
                     else if (ev.key.code == sf::Keyboard::F5)
