@@ -54,7 +54,6 @@ namespace ecs
 		const sf::Vector2f camera_min = view.getCenter() - view.getSize() / 2.f; // assumes no rotation
 		const sf::Vector2f camera_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
 		target.setView(view);
-		sprites::set_time(_time);
 		draw_tiles(camera_min, camera_max);
 		draw_vfx(camera_min, camera_max);
 	}

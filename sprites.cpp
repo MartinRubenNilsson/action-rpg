@@ -43,18 +43,12 @@ namespace sprites
 	uint32_t _batches_drawn = 0;
 	uint32_t _vertices_in_largest_batch = 0;
 
-	float _time = 0.f; //HACK
-
 	void _render_batch(sf::RenderTarget& target, const sf::RenderStates& states)
 	{
 		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, states);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (uint32_t)_batch_vertices);
 		_batch_vertices = 0;
-	}
-
-	void set_time(float time) {
-		_time = time;
 	}
 
 	void draw(const Sprite& sprite)
@@ -106,8 +100,12 @@ namespace sprites
 			// Are we in the middle of a batch?
 			if (_batch_vertices > 0) {
 				// Can we add the new sprite to the batch?
-				// HACK: to render grass with different shader uniforms, break the batch for every custom shader
-				if (enable_batching && _batch_vertices != MAX_VERTICES_PER_BATCH && !sprite.shader && sprite.texture == states.texture) {
+				if (enable_batching &&
+					_batch_vertices != MAX_VERTICES_PER_BATCH &&
+					sprite.texture == states.texture &&
+					sprite.shader == states.shader &&
+					!sprite.pre_render_callback)
+				{
 					// Add degenerate triangles to separate the sprites
 					uint32_t previous_vertex_index = _batch_vertices - 1; // so we don't get undefined behavior in the next line
 					_batch_vertex_buffer[_batch_vertices++] = _batch_vertex_buffer[previous_vertex_index]; // D
@@ -124,14 +122,9 @@ namespace sprites
 			_batch_vertex_buffer[_batch_vertices++] = { tr, sprite.color, { sprite.tex_max.x, sprite.tex_min.y } };
 			_batch_vertex_buffer[_batch_vertices++] = { br, sprite.color, sprite.tex_max };
 
+			// Execute the pre-render callback
 			if (sprite.pre_render_callback) {
 				sprite.pre_render_callback(sprite);
-			}
-
-			// Update shader uniforms
-			if (sprite.shader) {
-				sprite.shader->setUniform("time", _time);
-				sprite.shader->setUniform("position", sprite.min);
 			}
 
 			// Update the render states

@@ -9,6 +9,7 @@
 namespace ecs
 {
 	extern entt::registry _registry;
+	float _tile_time_accumulator = 0.f;
 
 	Tile::Tile()
 		: sorting_layer(sprites::SL_OBJECTS)
@@ -188,6 +189,7 @@ namespace ecs
 
 	void update_tiles(float dt)
 	{
+		_tile_time_accumulator += dt;
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 			tile.update_animation(dt);
 		}
@@ -222,6 +224,13 @@ namespace ecs
 				sprite.flags |= sprites::SF_FLIP_Y;
 			if (tile.get_flag(TF_FLIP_DIAGONAL))
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
+			if (tile.get_class() == "grass") {
+				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
+					if (!sprite.shader) return;
+					sprite.shader->setUniform("time", _tile_time_accumulator);
+					sprite.shader->setUniform("position", sprite.min);
+				};
+			}
 			sprites::draw(sprite);
 		}
 	}

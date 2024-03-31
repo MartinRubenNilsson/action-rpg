@@ -26,7 +26,7 @@ namespace sprites
 
 	struct Sprite
 	{
-		void (*pre_render_callback)(Sprite&) = nullptr; // optional; called just before the sprite is rendered
+		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
 		void* userdata = nullptr; // optional; can be used to store additional data
 		sf::Texture* texture = nullptr; // required
 		sf::Shader* shader = nullptr; // optional; if not set, the default shader is used
@@ -50,14 +50,15 @@ namespace sprites
 	// 
 	// In all cases, a less-than comparison is used. (In 4-5, the pointers are compared.)
 	// If one case yields a tie, then the next case is considered, and so on.
+	// 
+	// If batching is enabled, then sprites that compare equal are merged into the same batch,
+	// unless the pre_render_callback member is set, in which case the sprite is not batched.
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
 	extern const uint32_t MAX_SPRITES;
 	extern const uint32_t MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
-
-	void set_time(float time); // HACK: for shader uniforms
 
 	// Submits a sprite for rendering. The sprite is not rendered immediately, but
 	// instead copied to a buffer of sprites to be rendered when render() is called.
