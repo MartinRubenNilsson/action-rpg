@@ -31,9 +31,9 @@ namespace steam
 
 	void shutdown()
 	{
+		server_shutdown();
 		if (!_is_initialized) return;
 		SteamAPI_Shutdown();
-		server_shutdown();
 		_is_initialized = false;
 	}
 
