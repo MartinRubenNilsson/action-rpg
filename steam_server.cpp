@@ -20,7 +20,6 @@ namespace steam
 	const uint32_t _QUERY_PORT = 27016;
 	const char _SERVER_VERSION_STRING[] = "0.0.0.0";
 	HSteamListenSocket _listen_socket = k_HSteamListenSocket_Invalid;
-	
 
 	bool server_initialize()
 	{

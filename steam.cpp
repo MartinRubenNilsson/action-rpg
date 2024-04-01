@@ -115,12 +115,16 @@ namespace steam
 		case SteamNetConnectionStatusChangedCallback_t::k_iCallback: {
 			_process_steam_net_connection_status_changed_callback((SteamNetConnectionStatusChangedCallback_t*)callback);
 		} break;
+		case SteamServerConnectFailure_t::k_iCallback: {
+			console::log_error("Failed to connect to Steam server");
+		} break;
 		}
 	}
 
 	void run_message_loop()
 	{
 		if (!_is_initialized) return;
+		SteamGameServer_RunCallbacks();
 		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
 		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
 		CallbackMsg_t callback{};
