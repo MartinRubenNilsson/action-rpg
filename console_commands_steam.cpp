@@ -3,6 +3,7 @@
 #include "console.h"
 #include "steam.h"
 #include "steam_server.h"
+#include "steam_client.h"
 
 namespace console
 {
@@ -72,6 +73,15 @@ namespace console
 			cmd.desc = "Prints the public IP of the server";
 			cmd.callback = [](const Params&) {
 				log(steam::server_get_public_ip());
+			};
+		}
+		{
+			Command& cmd = commands.emplace_back();
+			cmd.name = "client_connect";
+			cmd.desc = "Connects the client to a server";
+			cmd.params[0] = { "", "IP", "The IP address of the server" };
+			cmd.callback = [](const Params& params) {
+				steam::connect_client_to_server_by_ip(std::get<std::string>(params[0].arg));
 			};
 		}
 	}

@@ -283,6 +283,9 @@
     <ClCompile Include="opengl.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="steam_client.cpp">
+      <Filter>steam</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -761,6 +764,9 @@
     </ClInclude>
     <ClInclude Include="opengl.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="steam_client.h">
+      <Filter>steam</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

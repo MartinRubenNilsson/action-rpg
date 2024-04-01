@@ -31,10 +31,48 @@ namespace steam
 
 	void shutdown()
 	{
-		server_shutdown();
+		server_shutdown(); // Make sure any sockets are closed
 		if (!_is_initialized) return;
 		SteamAPI_Shutdown();
 		_is_initialized = false;
+	}
+
+	void _process_game_overlay_activated_callback(GameOverlayActivated_t* callback)
+	{
+		_is_overlay_active = callback->m_bActive;
+	}
+
+	void _process_steam_net_connection_status_changed_callback(SteamNetConnectionStatusChangedCallback_t* callback)
+	{
+		switch (callback->m_info.m_eState) {
+		case k_ESteamNetworkingConnectionState_None: {
+			console::log("Connection doesn't exist or has already been closed");
+		} break;
+		case k_ESteamNetworkingConnectionState_Connecting: {
+			console::log("Connection is connecting");
+		} break;
+		case k_ESteamNetworkingConnectionState_FindingRoute: {
+			console::log("Connection is finding the route");
+		} break;
+		case k_ESteamNetworkingConnectionState_Connected: {
+			console::log("Connection is connected");
+		} break;
+		case k_ESteamNetworkingConnectionState_ClosedByPeer: {
+			console::log("Connection was closed by the peer");
+		} break;
+		case k_ESteamNetworkingConnectionState_ProblemDetectedLocally: {
+			console::log("Connection has a problem detected locally");
+		} break;
+		case k_ESteamNetworkingConnectionState_FinWait: {
+			console::log("Connection is in the fin wait state");
+		} break;
+		case k_ESteamNetworkingConnectionState_Linger: {
+			console::log("Connection is in the linger state");
+		} break;
+		case k_ESteamNetworkingConnectionState_Dead: {
+			console::log("Connection is dead");
+		} break;
+		}
 	}
 
 	void run_message_loop()
@@ -63,8 +101,7 @@ namespace steam
 			//	free(call_result);
 			//} break;
 			case GameOverlayActivated_t::k_iCallback: {
-				GameOverlayActivated_t* overlay_activated = (GameOverlayActivated_t*)callback.m_pubParam;
-				_is_overlay_active = overlay_activated->m_bActive;
+				_process_game_overlay_activated_callback((GameOverlayActivated_t*)callback.m_pubParam);
 			} break;
 			/*case GameConnectedFriendChatMsg_t::k_iCallback: {
 				GameConnectedFriendChatMsg_t* chat_msg = (GameConnectedFriendChatMsg_t*)callback.m_pubParam;
@@ -75,6 +112,9 @@ namespace steam
 
 				log_error("Received chat message from friend " + std::to_string(chat_msg->m_steamIDUser.ConvertToUint64()) + ": " + chat_msg->m_data);
 			} break;*/
+			case SteamNetConnectionStatusChangedCallback_t::k_iCallback: {
+				_process_steam_net_connection_status_changed_callback((SteamNetConnectionStatusChangedCallback_t*)callback.m_pubParam);
+			} break;
 			}
 			SteamAPI_ManualDispatch_FreeLastCallback(steam_pipe);
 		}

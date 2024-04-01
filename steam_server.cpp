@@ -20,6 +20,7 @@ namespace steam
 	const uint32_t _QUERY_PORT = 27016;
 	const char _SERVER_VERSION_STRING[] = "0.0.0.0";
 	HSteamListenSocket _listen_socket = k_HSteamListenSocket_Invalid;
+	
 
 	bool server_initialize()
 	{
@@ -31,7 +32,8 @@ namespace steam
 			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
 			return false;
 		}
-		SteamGameServer()->SetProduct("ActionRPG");
+		SteamAPI_ManualDispatch_Init();
+		SteamGameServer()->SetProduct("Action RPG");
 		SteamGameServer()->SetGameDescription("Action RPG");
 		SteamGameServer()->LogOnAnonymous();
 		//SteamNetworkingUtils()->InitRelayNetworkAccess();
@@ -73,6 +75,7 @@ namespace steam
 		if (!SteamGameServer()) return std::string();
 		SteamIPAddress_t ip = SteamGameServer()->GetPublicIP();
 		SteamNetworkingIPAddr ip_addr;
+		ip_addr.Clear();
 		if (ip.m_eType == k_ESteamIPTypeIPv4) {
 			ip_addr.SetIPv4(ip.m_unIPv4, 0);
 		} else {
