@@ -124,7 +124,6 @@ namespace steam
 	void run_message_loop()
 	{
 		if (!_is_initialized) return;
-		SteamGameServer_RunCallbacks();
 		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
 		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
 		CallbackMsg_t callback{};
