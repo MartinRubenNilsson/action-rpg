@@ -32,7 +32,6 @@ namespace steam
 			console::log_error("Failed to initialize Steam server: SteamGameServer_Init failed.");
 			return false;
 		}
-		SteamAPI_ManualDispatch_Init();
 		SteamGameServer()->SetProduct("Action RPG");
 		SteamGameServer()->SetGameDescription("Action RPG");
 		SteamGameServer()->LogOnAnonymous();

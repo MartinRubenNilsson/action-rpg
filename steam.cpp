@@ -37,6 +37,25 @@ namespace steam
 		_is_initialized = false;
 	}
 
+	void _process_callback(HSteamPipe steam_pipe, int identifier, void* callback);
+
+	void _process_steam_api_call_completed_callback(HSteamPipe steam_pipe, SteamAPICallCompleted_t* callback)
+	{
+		void* call_result = malloc(callback->m_cubParam);
+		bool failed = true;
+		if (SteamAPI_ManualDispatch_GetAPICallResult(
+			steam_pipe,
+			callback->m_hAsyncCall,
+			call_result,
+			callback->m_cubParam,
+			callback->m_iCallback,
+			&failed))
+		{
+			_process_callback(steam_pipe, callback->m_iCallback, call_result);
+		}
+		free(call_result);
+	}
+
 	void _process_game_overlay_activated_callback(GameOverlayActivated_t* callback)
 	{
 		_is_overlay_active = callback->m_bActive;
@@ -75,34 +94,15 @@ namespace steam
 		}
 	}
 
-	void run_message_loop()
+	void _process_callback(HSteamPipe steam_pipe, int identifier, void* callback)
 	{
-		if (!_is_initialized) return;
-		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
-		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
-		CallbackMsg_t callback{};
-		while (SteamAPI_ManualDispatch_GetNextCallback(steam_pipe, &callback)) {
-			switch (callback.m_iCallback) {
-			//case SteamAPICallCompleted_t::k_iCallback: {
-			//	SteamAPICallCompleted_t* call_completed = (SteamAPICallCompleted_t*)callback.m_pubParam;
-			//	void* call_result = malloc(call_completed->m_cubParam);
-			//	bool failed = true;
-			//	if (SteamAPI_ManualDispatch_GetAPICallResult(
-			//		steam_pipe,
-			//		call_completed->m_hAsyncCall,
-			//		call_result,
-			//		call_completed->m_cubParam,
-			//		call_completed->m_iCallback,
-			//		&failed))
-			//	{
-			//		// Dispatch the call result to the registered handler(s) for the
-			//		// call identified by pCallCompleted->m_hAsyncCall
-			//	}
-			//	free(call_result);
-			//} break;
-			case GameOverlayActivated_t::k_iCallback: {
-				_process_game_overlay_activated_callback((GameOverlayActivated_t*)callback.m_pubParam);
-			} break;
+		switch (identifier) {
+		case SteamAPICallCompleted_t::k_iCallback: {
+			_process_steam_api_call_completed_callback(steam_pipe, (SteamAPICallCompleted_t*)callback);
+		} break;
+		case GameOverlayActivated_t::k_iCallback: {
+			_process_game_overlay_activated_callback((GameOverlayActivated_t*)callback);
+		} break;
 			/*case GameConnectedFriendChatMsg_t::k_iCallback: {
 				GameConnectedFriendChatMsg_t* chat_msg = (GameConnectedFriendChatMsg_t*)callback.m_pubParam;
 				std::string log_msg;
@@ -112,10 +112,20 @@ namespace steam
 
 				log_error("Received chat message from friend " + std::to_string(chat_msg->m_steamIDUser.ConvertToUint64()) + ": " + chat_msg->m_data);
 			} break;*/
-			case SteamNetConnectionStatusChangedCallback_t::k_iCallback: {
-				_process_steam_net_connection_status_changed_callback((SteamNetConnectionStatusChangedCallback_t*)callback.m_pubParam);
-			} break;
-			}
+		case SteamNetConnectionStatusChangedCallback_t::k_iCallback: {
+			_process_steam_net_connection_status_changed_callback((SteamNetConnectionStatusChangedCallback_t*)callback);
+		} break;
+		}
+	}
+
+	void run_message_loop()
+	{
+		if (!_is_initialized) return;
+		HSteamPipe steam_pipe = SteamAPI_GetHSteamPipe();
+		SteamAPI_ManualDispatch_RunFrame(steam_pipe);
+		CallbackMsg_t callback{};
+		while (SteamAPI_ManualDispatch_GetNextCallback(steam_pipe, &callback)) {
+			_process_callback(steam_pipe, callback.m_iCallback, callback.m_pubParam);
 			SteamAPI_ManualDispatch_FreeLastCallback(steam_pipe);
 		}
 	}
