@@ -286,7 +286,7 @@
     <ClCompile Include="steam_client.cpp">
       <Filter>steam</Filter>
     </ClCompile>
-    <ClCompile Include="tween.cpp">
+    <ClCompile Include="easings.cpp">
       <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -771,7 +771,7 @@
     <ClInclude Include="steam_client.h">
       <Filter>steam</Filter>
     </ClInclude>
-    <ClInclude Include="tween.h">
+    <ClInclude Include="easings.h">
       <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>

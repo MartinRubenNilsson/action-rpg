@@ -229,7 +229,7 @@
     <ClCompile Include="textures.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
-    <ClCompile Include="tween.cpp" />
+    <ClCompile Include="easings.cpp" />
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -406,7 +406,7 @@
     <ClInclude Include="textures.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
-    <ClInclude Include="tween.h" />
+    <ClInclude Include="easings.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ui_rmlui_interfaces.h" />

@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "ecs_camera.h"
-#include <tweeny/easing.h>
 #include "physics_helpers.h"
 #include "random.h"
 #include "console.h"
 #include "window.h"
+#include "easings.h"
 
 namespace ecs
 {
@@ -107,10 +107,10 @@ namespace ecs
 
 		// Update the blended camera view.
 		float blend_factor = _camera_blend_time / _CAMERA_BLEND_DURATION;
-		_blended_camera_view.setCenter(
-			tweeny::easing::exponentialOut.run(blend_factor,
-				_last_camera_view.getCenter(),
-				_active_camera_view.getCenter()));
+		_blended_camera_view.setCenter(lerp(
+			_last_camera_view.getCenter(),
+			_active_camera_view.getCenter(),
+			ease_out_expo(blend_factor)));
 	}
 
 	const sf::View& get_active_camera_view() {
