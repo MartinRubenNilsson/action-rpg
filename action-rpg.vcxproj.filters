@@ -286,6 +286,9 @@
     <ClCompile Include="steam_client.cpp">
       <Filter>steam</Filter>
     </ClCompile>
+    <ClCompile Include="tween.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -767,6 +770,9 @@
     </ClInclude>
     <ClInclude Include="steam_client.h">
       <Filter>steam</Filter>
+    </ClInclude>
+    <ClInclude Include="tween.h">
+      <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
