@@ -26,6 +26,7 @@ namespace ecs
         create_vfx(VfxType::Explosion, bomb.explosion_center);
         destroy_at_end_of_frame(entity);
         audio::play("event:/snd_glass_smash");
+        audio::stop(bomb.fuse_sounds_event_id);
         postprocessing::create_shockwave(bomb.explosion_center);
     }
 
@@ -37,6 +38,7 @@ namespace ecs
 
             bomb.explosion_timer.update(dt);
             if (bomb.explosion_timer.finished()) {
+
                 _explode_bomb(entity);
                 continue;
             }
@@ -67,6 +69,7 @@ namespace ecs
         {
             Bomb& bomb = _registry.emplace<Bomb>(entity);
             bomb.explosion_timer.start();
+            bomb.fuse_sounds_event_id = audio::play("event:/snd_bomb_fuse");
             bomb.explosion_center = position;
         }
         {

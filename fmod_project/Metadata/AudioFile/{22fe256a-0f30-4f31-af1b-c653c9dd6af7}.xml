@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{22fe256a-0f30-4f31-af1b-c653c9dd6af7}">
+		<property name="assetPath">
+			<value>snd_bomb_fuse.mp3</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>14.688000000000001</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{4e61cbb7-ccd0-44ba-a9d9-fc01c676f119}</destination>
+		</relationship>
+	</object>
+</objects>
