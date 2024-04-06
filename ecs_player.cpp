@@ -135,10 +135,16 @@ namespace ecs
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity; // will be modified differently depending on the state
 
-			std::string new_held_item_tileset_name;
+			enum class HeldItemType
+			{
+				None,
+				Sword,
+				Bow,
+			};
+
+			HeldItemType held_item_type = HeldItemType::None;
 			std::string new_held_item_tile_class = "n";
 			sf::Vector2f new_held_item_position;
-			bool new_held_item_visible = false;
 
 			// UPDATE AUDIO
 
@@ -149,6 +155,7 @@ namespace ecs
 			}
 
 			char dir = get_direction(player.look_dir);
+			char tile_dir = dir;
 
 			switch (dir) {
 			case 'r':
@@ -156,7 +163,7 @@ namespace ecs
 				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
 				break;
 			case 'l':
-				dir = 'r';
+				tile_dir = 'r';
 				tile.set_flag(TF_FLIP_X, true);
 				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
 				break;
@@ -189,34 +196,31 @@ namespace ecs
 				new_velocity = new_move_dir * new_move_speed;
 
 				if (player.input.use_sword) {
-					tile.set_tile("sword_attack_"s + dir);
+					tile.set_tile("sword_attack_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::UsingSword;
 				} else if (player.input.shoot_bow && player.arrows > 0) {
-					tile.set_tile("bow_shot_"s + dir);
+					tile.set_tile("bow_shot_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::UsingBow;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
-					tile.set_tile("run_"s + dir);
+					tile.set_tile("run_"s + tile_dir);
 					tile.set_flag(TF_LOOP, true);
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
-					tile.set_tile("walk_"s + dir);
+					tile.set_tile("walk_"s + tile_dir);
 					tile.set_flag(TF_LOOP, true);
 				} else if (player.input.interact) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {
-					tile.set_tile("idle_"s + dir);
+					tile.set_tile("idle_"s + tile_dir);
 					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
 			case PlayerState::UsingSword: {
-				new_held_item_tileset_name = "sword";
-				new_held_item_tile_class = "n";
-				new_held_item_position = position + player.look_dir * 16.f;
-				new_held_item_visible = true;
+				held_item_type = HeldItemType::Sword;
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -225,9 +229,7 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
-				new_held_item_tileset_name = "bow_01";
-				new_held_item_position = position + player.look_dir * 16.f;
-				new_held_item_visible = true;
+				held_item_type = HeldItemType::Bow;
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
@@ -237,11 +239,11 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dying: {
-				if (dir == 'd') dir = 'u';
-				tile.set_tile("dying_"s + dir);
+				if (tile_dir == 'd') tile_dir = 'u';
+				tile.set_tile("dying_"s + tile_dir);
 				tile.set_flag(TF_LOOP, false);
 				if (tile.animation_timer.finished()) {
-					tile.set_tile("dead_"s + dir);
+					tile.set_tile("dead_"s + tile_dir);
 					kill_player(player_entity);
 					player.state = PlayerState::Dead;
 				}
@@ -256,10 +258,44 @@ namespace ecs
 			// UPDATE HELD ITEM
 
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
-				held_item_tile->set_flag(TF_VISIBLE, new_held_item_visible);
-				held_item_tile->set_tile(new_held_item_tile_class, new_held_item_tileset_name);
-				held_item_tile->position = new_held_item_position;
-				held_item_tile->pivot = { 16.f, 28.f };
+				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
+				sf::Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
+				switch (held_item_type) {
+				case HeldItemType::Sword: {
+					held_item_tile->set_tile("n", "sword");
+					held_item_tile->position = position + player.look_dir * 16.f;
+					held_item_tile->pivot = { 16.f, 28.f };
+				} break;
+				case HeldItemType::Bow: {
+					float offset_y = 14.f;
+					held_item_tile->set_tile("n", "bow_01");
+					held_item_tile->position = position;
+					held_item_tile->position.y -= offset_y;
+					held_item_tile->pivot = { 16.f, 16.f };
+					held_item_tile->sorting_pivot =
+						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
+					switch (dir) {
+					case 'l':
+						held_item_tile->set_rotation(0);
+						held_item_tile->position.x -= 6.f;
+						held_item_tile->position.y += 4.f;
+						break;
+					case 'u':
+						held_item_tile->set_rotation(1);
+						held_item_tile->position.y -= 4.f;
+						break;
+					case 'r':
+						held_item_tile->set_rotation(2);
+						held_item_tile->position.x += 6.f;
+						held_item_tile->position.y += 4.f;
+						break;
+					case 'd':
+						held_item_tile->set_rotation(3);
+						held_item_tile->position.y += 4.f;
+						break;
+					}
+				} break;
+				} 
 			}
 
 			// UPDATE TILE COLOR

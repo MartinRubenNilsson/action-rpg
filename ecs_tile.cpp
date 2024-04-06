@@ -34,7 +34,7 @@ namespace ecs
 		if (tile == _tile) return false;
 		_tile = tile;
 		_animation_duration_ms = 0;
-		_animation_frame_index = 0;
+		_animation_frame = 0;
 		set_flag(TF_FRAME_CHANGED, false);
 		set_flag(TF_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation)
@@ -47,8 +47,8 @@ namespace ecs
 	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
 		if (!_tile) return nullptr;
-		if (account_for_animation && _animation_frame_index < _tile->animation.size())
-			return _tile->animation[_animation_frame_index].tile;
+		if (account_for_animation && _animation_frame < _tile->animation.size())
+			return _tile->animation[_animation_frame].tile;
 		return _tile;
 	}
 
@@ -158,8 +158,8 @@ namespace ecs
 		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
 			uint32_t frame_duration = _tile->animation[frame_index].duration;
 			if (time < frame_duration) {
-				set_flag(TF_FRAME_CHANGED, frame_index != _animation_frame_index);
-				_animation_frame_index = frame_index;
+				set_flag(TF_FRAME_CHANGED, frame_index != _animation_frame);
+				_animation_frame = frame_index;
 				return;
 			} else {
 				time -= frame_duration;
@@ -167,11 +167,15 @@ namespace ecs
 		}
 		// Park on the last frame. We will for example get here if
 		// animation_timer.get_time() == animation_timer.get_duration().
-		_animation_frame_index = (uint32_t)_tile->animation.size() - 1;
+		_animation_frame = (uint32_t)_tile->animation.size() - 1;
 	}
 
 	float Tile::get_animation_duration() const {
 		return _animation_duration_ms / 1000.f;
+	}
+
+	uint32_t Tile::get_animation_frame() const {
+		return _animation_frame;
 	}
 
 	void Tile::set_flag(TileFlags flag, bool value)
@@ -185,6 +189,19 @@ namespace ecs
 
 	bool Tile::get_flag(TileFlags flag) const {
 		return (_flags & flag) != 0;
+	}
+
+	int _get_nth_bit(int value, int n) {
+		return (value & (1 << n)) >> n;
+	}
+
+	void Tile::set_rotation(int clockwise_quarter_turns)
+	{
+		int bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
+		int bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
+		set_flag(TF_FLIP_X, bit_0 ^ bit_1);
+		set_flag(TF_FLIP_Y, bit_1);
+		set_flag(TF_FLIP_DIAGONAL, bit_0);
 	}
 
 	void update_tiles(float dt)

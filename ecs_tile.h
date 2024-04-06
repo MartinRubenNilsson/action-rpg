@@ -16,9 +16,6 @@ namespace ecs
 		TF_FLIP_X         = 1 << 1, // flip the sprite horizontally
 		TF_FLIP_Y         = 1 << 2, // flip the sprite vertically
 		TF_FLIP_DIAGONAL  = 1 << 3, // flip the bottom-left and top-right corners
-		TF_ROTATE_90      = TF_FLIP_X | TF_FLIP_DIAGONAL,
-		TF_ROTATE_180     = TF_FLIP_X | TF_FLIP_Y,
-		TF_ROTATE_270     = TF_FLIP_Y | TF_FLIP_DIAGONAL,
 		TF_LOOP           = 1 << 4, // loop the animation
 		TF_FLIP_X_ON_LOOP = 1 << 5, // flip the sprite horizontally when the animation loops
 		TF_FRAME_CHANGED  = 1 << 6, // the animation frame changed last update
@@ -54,13 +51,15 @@ namespace ecs
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
+		uint32_t get_animation_frame() const;
 		void set_flag(TileFlags flag, bool value);
 		bool get_flag(TileFlags flag) const;
+		void set_rotation(int clockwise_quarter_turns);
 
 	private:
 		const tiled::Tile* _tile = nullptr;
 		uint32_t _animation_duration_ms = 0;
-		uint32_t _animation_frame_index = 0;
+		uint32_t _animation_frame = 0;
 		uint32_t _flags = TF_VISIBLE | TF_LOOP;
 
 		bool _set_tile(const tiled::Tile* tile);
