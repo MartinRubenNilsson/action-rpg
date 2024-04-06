@@ -186,7 +186,7 @@ namespace map
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
-					camera.view.setCenter(x, y);
+					camera.view.center = { x, y };
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					ecs::get_entity(entity, "follow", camera.follow);

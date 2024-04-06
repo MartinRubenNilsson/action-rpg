@@ -50,10 +50,10 @@ namespace ecs
 	 
 	void draw(sf::RenderTarget& target)
 	{
-		const sf::View view = ecs::get_blended_camera_view();
-		const sf::Vector2f camera_min = view.getCenter() - view.getSize() / 2.f; // assumes no rotation
-		const sf::Vector2f camera_max = view.getCenter() + view.getSize() / 2.f; // assumes no rotation
-		target.setView(view);
+		const CameraView view = ecs::get_blended_camera_view();
+		const sf::Vector2f camera_min = view.center - view.size / 2.f; // assumes no rotation
+		const sf::Vector2f camera_max = view.center + view.size / 2.f; // assumes no rotation
+		target.setView(sf::View(view.center, view.size));
 		draw_tiles(camera_min, camera_max);
 		draw_vfx(camera_min, camera_max);
 	}

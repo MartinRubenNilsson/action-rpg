@@ -2,8 +2,8 @@
 
 namespace window
 {
-	sf::Vector2u get_default_size();
-	sf::View get_default_view();
+	extern const sf::Vector2u BASE_SIZE;
+	extern const sf::View BASE_VIEW;
 
 	struct Desc
 	{
@@ -11,7 +11,7 @@ namespace window
 		std::string icon_filename = "assets/window/swordsman.png";
 		bool cursor_visible = true;
 		bool fullscreen = false;
-		uint32_t scale = 5; // 1 = VIEW_SIZE, 2 = VIEW_SIZE * 2, etc. Only used if fullscreen is false.
+		uint32_t scale = 5; // Only used if fullscreen is false.
 		bool vsync = false;
 	};
 

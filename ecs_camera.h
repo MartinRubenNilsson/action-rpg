@@ -6,7 +6,7 @@
 namespace ecs
 {
 	// view:               The camera view, which determines the camera's position, rotation, and zoom.
-	// _shaky_view:        The camera view with shake applied to it. Read-only!
+	// _shaken_view:       The camera view with shake applied to it. Read-only!
 	// follow:             If not null, the camera will center its view on this entity.
 	// confines_min/max:   The camera view will be confined to this box. If the width or height is zero,
 	//                     the view will not be confined along that axis, and if the width or height is
@@ -17,12 +17,16 @@ namespace ecs
 	//					   total_shake_amplitude = shake_amplitude * trauma^2. It decays linearly over time.
 	// trauma_decay:       The trauma decreases by this amount per second.
 
+	struct CameraView
+	{
+		sf::Vector2f size = { 320, 180 };
+		sf::Vector2f center;
+	};
+
 	struct Camera
 	{
-		static const sf::View DEFAULT_VIEW;
-
-		sf::View view = DEFAULT_VIEW;
-		sf::View _shaky_view; // Read-only!
+		CameraView view;
+		CameraView _shaken_view; // Read-only!
 		entt::entity follow = entt::null;
 		sf::Vector2f confines_min;
 		sf::Vector2f confines_max;
@@ -34,8 +38,8 @@ namespace ecs
 
 	void update_cameras(float dt);
 
-	const sf::View& get_active_camera_view(); // Hard-cuts when activating new camera.
-	const sf::View& get_blended_camera_view(); // Smoothly transitions between cameras.
+	const CameraView& get_active_camera_view(); // Hard-cuts when activating new camera.
+	const CameraView& get_blended_camera_view(); // Smoothly transitions between cameras.
 
 	void emplace_camera(entt::entity entity, const Camera& camera);
 	// Copies the camera to a new entity, removes it from the old entity, and returns the new entity.

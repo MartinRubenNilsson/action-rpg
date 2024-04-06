@@ -2,87 +2,37 @@
 #include "ecs_camera.h"
 #include "physics_helpers.h"
 #include "random.h"
-#include "console.h"
-#include "window.h"
 #include "easings.h"
 
 namespace ecs
 {
-	const sf::View Camera::DEFAULT_VIEW = window::get_default_view();
 	const float _CAMERA_BLEND_DURATION = 1.f;
 
 	extern entt::registry _registry;
 
 	entt::entity _active_camera_entity = entt::null;
-	sf::View _last_camera_view = Camera::DEFAULT_VIEW;
-	sf::View _active_camera_view = Camera::DEFAULT_VIEW;
-	sf::View _blended_camera_view = Camera::DEFAULT_VIEW;
+	CameraView _last_camera_view;
+	CameraView _active_camera_view;
+	CameraView _blended_camera_view;
 	float _camera_shake_time = 0.f;
 	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
-	// Assumes that the view has a rotation angle of 0.
-	sf::FloatRect _get_rect(const sf::View& view)
+	CameraView _confine_camera_view(const CameraView& view, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max)
 	{
-		return sf::FloatRect(
-			view.getCenter() - view.getSize() / 2.f,
-			view.getSize());
-	}
-
-	/*sf::FloatRect _confine(const sf::FloatRect& rect, const sf::FloatRect& confining_rect)
-	{
-		sf::FloatRect result = rect;
-
-		if (confining_rect.width > 0.f) {
-			if (result.width < confining_rect.width) {
-				if (result.left < confining_rect.left)
-					result.left = confining_rect.left;
-				if (result.left + result.width > confining_rect.left + confining_rect.width)
-					result.left = confining_rect.left + confining_rect.width - result.width;
-			} else {
-				result.left = confining_rect.left + confining_rect.width / 2.f - result.width / 2.f;
-			}
-		}
-
-		if (confining_rect.height > 0.f) {
-			if (result.height < confining_rect.height) {
-				if (result.top < confining_rect.top)
-					result.top = confining_rect.top;
-				if (result.top + result.height > confining_rect.top + confining_rect.height)
-					result.top = confining_rect.top + confining_rect.height - result.height;
-			} else {
-				result.top = confining_rect.top + confining_rect.height / 2.f - result.height / 2.f;
-			}
-		}
-
-		return result;
-	}*/
-
-	sf::FloatRect _confine(const sf::FloatRect& rect, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max)
-	{
-		float confines_width = confines_max.x - confines_min.x;
-		float confines_height = confines_max.y - confines_min.y;
-		sf::FloatRect result = rect;
-		if (result.width < confines_width) {
-			if (result.left < confines_min.x)
-				result.left = confines_min.x;
-			if (result.left + result.width > confines_max.x)
-				result.left = confines_max.x - result.width;
+		const sf::Vector2f camera_center_min = confines_min + view.size / 2.f;
+		const sf::Vector2f camera_center_max = confines_max - view.size / 2.f;
+		CameraView result = view;
+		if (camera_center_min.x < camera_center_max.x) {
+			result.center.x = std::clamp(result.center.x, camera_center_min.x, camera_center_max.x);
 		} else {
-			result.left = confines_min.x + confines_width / 2.f - result.width / 2.f;
+			result.center.x = (confines_min.x + confines_max.x) / 2.f;
 		}
-		if (result.height < confines_height) {
-			if (result.top < confines_min.y)
-				result.top = confines_min.y;
-			if (result.top + result.height > confines_max.y)
-				result.top = confines_max.y - result.height;
+		if (camera_center_min.y < camera_center_max.y) {
+			result.center.y = std::clamp(result.center.y, camera_center_min.y, camera_center_max.y);
 		} else {
-			result.top = confines_min.y + confines_height / 2.f - result.height / 2.f;
+			result.center.y = (confines_min.y + confines_max.y) / 2.f;
 		}
 		return result;
-	}
-
-	void _confine(sf::View& view, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max) {
-		view.reset(_confine(_get_rect(view), confines_min, confines_max));
 	}
 
 	void update_cameras(float dt)
@@ -93,14 +43,12 @@ namespace ecs
 
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 			// If the camera has a follow target, center the view on the target.
-			if (_registry.valid(camera.follow) &&
-				_registry.all_of<b2Body*>(camera.follow)) {
-				camera.view.setCenter(get_world_center(
-					_registry.get<b2Body*>(camera.follow)));
+			if (_registry.valid(camera.follow) && _registry.all_of<b2Body*>(camera.follow)) {
+				camera.view.center = get_world_center(_registry.get<b2Body*>(camera.follow));
 			}
 
 			// Confine the view.
-			_confine(camera.view, camera.confines_min, camera.confines_max);
+			camera.view = _confine_camera_view(camera.view, camera.confines_min, camera.confines_max);
 
 			// Update the trauma.
 			camera.trauma = std::clamp(camera.trauma - camera.trauma_decay * dt, 0.f, 1.f);
@@ -114,33 +62,31 @@ namespace ecs
 				shake_offset.y = total_shake_amplitude *
 					random::fractal_perlin_noise(1, camera.shake_frequency * _camera_shake_time);
 			}
-			camera._shaky_view = camera.view;
-			camera._shaky_view.move(shake_offset);
+			camera._shaken_view = camera.view;
+			camera._shaken_view.center += shake_offset;
 
 			// Confine the shaky view.
-			_confine(camera._shaky_view, camera.confines_min, camera.confines_max);
+			camera._shaken_view = _confine_camera_view(camera._shaken_view, camera.confines_min, camera.confines_max);
 		}
 
 		// Update the active camera view.
 		if (Camera* camera = _registry.try_get<Camera>(_active_camera_entity)) {
-			_active_camera_view = camera->_shaky_view;
+			_active_camera_view = camera->_shaken_view;
 		} else {
-			_active_camera_view = Camera::DEFAULT_VIEW;
+			_active_camera_view = {};
 		}
 
 		// Update the blended camera view.
-		float blend_factor = _camera_blend_time / _CAMERA_BLEND_DURATION;
-		_blended_camera_view.setCenter(lerp(
-			_last_camera_view.getCenter(),
-			_active_camera_view.getCenter(),
-			ease_out_expo(blend_factor)));
+		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
+		_blended_camera_view.size = lerp(_last_camera_view.size, _active_camera_view.size, blend_factor);
+		_blended_camera_view.center = lerp(_last_camera_view.center, _active_camera_view.center, blend_factor);
 	}
 
-	const sf::View& get_active_camera_view() {
+	const CameraView& get_active_camera_view() {
 		return _active_camera_view;
 	}
 
-	const sf::View& get_blended_camera_view() {
+	const CameraView& get_blended_camera_view() {
 		return _blended_camera_view;
 	}
 

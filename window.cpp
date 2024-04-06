@@ -2,16 +2,8 @@
 
 namespace window
 {
-	sf::Vector2u get_default_size() {
-		return sf::Vector2u(320, 180);
-	}
-
-	sf::View get_default_view()
-	{
-		sf::Vector2f default_size(get_default_size());
-		return sf::View(default_size / 2.f, default_size);
-	}
-
+	const sf::Vector2u BASE_SIZE(320, 180);
+	const sf::View BASE_VIEW(sf::FloatRect(0.f, 0.f, (float)BASE_SIZE.x, (float)BASE_SIZE.y));
 	const size_t _SYSTEM_CURSOR_COUNT = (size_t)sf::Cursor::Type::NotAllowed;
 
 	sf::RenderWindow* _window = nullptr;
@@ -35,7 +27,7 @@ namespace window
 		// We need to recreate the window to change the fullscreen mode.
 		bool recreate = (!_window->isOpen() || desc.fullscreen != _desc.fullscreen);
 		if (recreate) {
-			sf::Vector2u size = desc.scale * get_default_size();
+			sf::Vector2u size = desc.scale * BASE_SIZE;
 			sf::VideoMode mode = desc.fullscreen ?
 				sf::VideoMode::getFullscreenModes().at(0) :
 				sf::VideoMode(size.x, size.y);
@@ -65,7 +57,7 @@ namespace window
 					icon.getPixelsPtr());
 		}
 		if (!recreate && desc.scale != _desc.scale) {
-			sf::Vector2 size = desc.scale * get_default_size();
+			sf::Vector2 size = desc.scale * BASE_SIZE;
 			_window->setSize(size);
 			_window->setView(sf::View(sf::Vector2f(size) / 2.f, sf::Vector2f(size)));
 		}

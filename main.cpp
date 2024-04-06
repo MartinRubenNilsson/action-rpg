@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
             std::unique_ptr<sf::RenderTexture> texture =
                 textures::take_render_texture_from_pool(window.getSize());
             texture->clear();
-            texture->setView(window::get_default_view());
+            texture->setView(window::BASE_VIEW);
             background::render(*texture);
             ecs::draw(*texture);
             ecs::debug_draw();
