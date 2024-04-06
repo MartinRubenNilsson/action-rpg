@@ -242,6 +242,14 @@ namespace audio
 		return _event_id_to_instance.contains(event_id);
 	}
 
+	bool stop(int event_id)
+	{
+		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		if (!instance) return false;
+		instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+		return true;
+	}
+
 	bool set_volume(int event_id, float volume)
 	{
 		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);

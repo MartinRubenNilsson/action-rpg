@@ -42,6 +42,7 @@ namespace audio
 	// Returns a new unique event id on success, or INVALID_EVENT_ID on failure.
 	int play(const std::string& event_path, const EventOptions& options = EventOptions());
 	bool is_valid(int event_id);
+	bool stop(int event_id);
 	bool set_volume(int event_id, float volume);
 	bool get_volume(int event_id, float& volume);
 	bool set_position(int event_id, const sf::Vector2f& position);

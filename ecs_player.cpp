@@ -21,12 +21,12 @@
 
 namespace ecs
 {
-	extern entt::registry _registry;
-
 	const float _PLAYER_WALK_SPEED = 60.f;
 	const float _PLAYER_RUN_SPEED = 136.f;
 	const float _PLAYER_STEALTH_SPEED = 36.f;
 	const float _PLAYER_ARROW_SPEED = 160.f;
+
+	extern entt::registry _registry;
 
 	void process_event_players(const sf::Event& ev)
 	{
@@ -135,7 +135,7 @@ namespace ecs
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity; // will be modified differently depending on the state
 
-			uint32_t new_held_item_tile_id = 0;
+			std::string new_held_item_tile_class = "n";
 			sf::Vector2f new_held_item_position;
 			bool new_held_item_visible = false;
 
@@ -212,7 +212,7 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingSword: {
-				new_held_item_tile_id = 3;
+				new_held_item_tile_class = "n";
 				new_held_item_position = position + player.look_dir * 16.f;
 				new_held_item_visible = true;
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
@@ -223,7 +223,6 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
-				new_held_item_tile_id = 3;
 				new_held_item_position = position + player.look_dir * 16.f;
 				new_held_item_visible = true;
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
@@ -251,9 +250,11 @@ namespace ecs
 
 			set_linear_velocity(body, new_velocity);
 
+			// UPDATE HELD ITEM
+
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, new_held_item_visible);
-				held_item_tile->set_tile(new_held_item_tile_id, "sword");
+				held_item_tile->set_tile(new_held_item_tile_class, "sword");
 				held_item_tile->position = new_held_item_position;
 				held_item_tile->pivot = { 16.f, 28.f };
 			}
