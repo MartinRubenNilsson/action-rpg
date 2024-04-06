@@ -28,7 +28,7 @@ namespace ecs
 			view.getSize());
 	}
 
-	sf::FloatRect _confine(const sf::FloatRect& rect, const sf::FloatRect& confining_rect)
+	/*sf::FloatRect _confine(const sf::FloatRect& rect, const sf::FloatRect& confining_rect)
 	{
 		sf::FloatRect result = rect;
 
@@ -55,11 +55,34 @@ namespace ecs
 		}
 
 		return result;
+	}*/
+
+	sf::FloatRect _confine(const sf::FloatRect& rect, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max)
+	{
+		float confines_width = confines_max.x - confines_min.x;
+		float confines_height = confines_max.y - confines_min.y;
+		sf::FloatRect result = rect;
+		if (result.width < confines_width) {
+			if (result.left < confines_min.x)
+				result.left = confines_min.x;
+			if (result.left + result.width > confines_max.x)
+				result.left = confines_max.x - result.width;
+		} else {
+			result.left = confines_min.x + confines_width / 2.f - result.width / 2.f;
+		}
+		if (result.height < confines_height) {
+			if (result.top < confines_min.y)
+				result.top = confines_min.y;
+			if (result.top + result.height > confines_max.y)
+				result.top = confines_max.y - result.height;
+		} else {
+			result.top = confines_min.y + confines_height / 2.f - result.height / 2.f;
+		}
+		return result;
 	}
 
-	// Assumes that the view has a rotation angle of 0.
-	void _confine(sf::View& view, const sf::FloatRect& confining_rect) {
-		view.reset(_confine(_get_rect(view), confining_rect));
+	void _confine(sf::View& view, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max) {
+		view.reset(_confine(_get_rect(view), confines_min, confines_max));
 	}
 
 	void update_cameras(float dt)
@@ -77,7 +100,7 @@ namespace ecs
 			}
 
 			// Confine the view.
-			_confine(camera.view, camera.confining_rect);
+			_confine(camera.view, camera.confines_min, camera.confines_max);
 
 			// Update the trauma.
 			camera.trauma = std::clamp(camera.trauma - camera.trauma_decay * dt, 0.f, 1.f);
@@ -95,7 +118,7 @@ namespace ecs
 			camera._shaky_view.move(shake_offset);
 
 			// Confine the shaky view.
-			_confine(camera._shaky_view, camera.confining_rect);
+			_confine(camera._shaky_view, camera.confines_min, camera.confines_max);
 		}
 
 		// Update the active camera view.

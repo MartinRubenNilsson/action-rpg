@@ -8,9 +8,9 @@ namespace ecs
 	// view:               The camera view, which determines the camera's position, rotation, and zoom.
 	// _shaky_view:        The camera view with shake applied to it. Read-only!
 	// follow:             If not null, the camera will center its view on this entity.
-	// confining_rect:     The camera view will be confined to this rect. If the width or height is zero,
+	// confines_min/max:   The camera view will be confined to this box. If the width or height is zero,
 	//                     the view will not be confined along that axis, and if the width or height is
-	//                     smaller than that of the view, the view will be centered on the rect.
+	//                     smaller than that of the view, the view will be centered on the box.
 	// shake_amplitude:    The amplitude of the camera shake.
 	// shake_frequency:    The frequency of the camera shake.
 	// trauma:			   A number between 0 and 1 that determines the total shake amplitude by the formula:
@@ -24,7 +24,8 @@ namespace ecs
 		sf::View view = DEFAULT_VIEW;
 		sf::View _shaky_view; // Read-only!
 		entt::entity follow = entt::null;
-		sf::FloatRect confining_rect;
+		sf::Vector2f confines_min;
+		sf::Vector2f confines_max;
 		float shake_amplitude = 6.f;
 		float shake_frequency = 10.f;
 		float trauma = 0.f;
