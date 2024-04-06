@@ -61,10 +61,10 @@ namespace window
 			_window->setSize(size);
 			_window->setView(sf::View(sf::Vector2f(size) / 2.f, sf::Vector2f(size)));
 		}
-		if (recreate || state.cursor_visible != _state.cursor_visible)
-			_window->setMouseCursorVisible(state.cursor_visible);
 		if (recreate || state.vsync != _state.vsync)
 			_window->setVerticalSyncEnabled(state.vsync);
+		if (recreate || state.cursor_visible != _state.cursor_visible)
+			_window->setMouseCursorVisible(state.cursor_visible);
 		_state = state;
 	}
 

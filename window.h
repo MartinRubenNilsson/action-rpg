@@ -9,10 +9,10 @@ namespace window
 	{
 		std::string title = "Action RPG";
 		std::string icon = "assets/window/swordsman.png"; // Path to icon file.
-		bool cursor_visible = true;
-		bool fullscreen = false;
 		uint32_t scale = 5; // Only used if fullscreen is false.
+		bool fullscreen = false;
 		bool vsync = false;
+		bool cursor_visible = true;
 	};
 
 	// Does not call sf::RenderWindow::create()
