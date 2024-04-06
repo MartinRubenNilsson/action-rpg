@@ -267,31 +267,39 @@ namespace ecs
 					held_item_tile->pivot = { 16.f, 28.f };
 				} break;
 				case HeldItemType::Bow: {
-					float offset_y = 14.f;
-					held_item_tile->set_tile("n", "bow_01");
+					uint32_t frame = tile.get_animation_frame();
+					held_item_tile->set_tile(frame, "bow_01");
 					held_item_tile->position = position;
-					held_item_tile->position.y -= offset_y;
+					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };
 					held_item_tile->sorting_pivot =
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
-					case 'l':
-						held_item_tile->set_rotation(0);
-						held_item_tile->position.x -= 6.f;
-						held_item_tile->position.y += 4.f;
-						break;
-					case 'u':
-						held_item_tile->set_rotation(1);
-						held_item_tile->position.y -= 4.f;
-						break;
 					case 'r':
-						held_item_tile->set_rotation(2);
-						held_item_tile->position.x += 6.f;
-						held_item_tile->position.y += 4.f;
+						held_item_tile->set_rotation(0);
+						held_item_tile->position.x += 16.f;
+						held_item_tile->position.y += 2.f;
+						held_item_tile->sorting_pivot.y -= 2.f;
+						held_item_tile->sorting_pivot.y += 1.f;
 						break;
 					case 'd':
+						held_item_tile->set_rotation(1);
+						held_item_tile->position.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'l':
+						held_item_tile->set_rotation(2);
+						held_item_tile->position.x -= 16.f;
+						held_item_tile->position.y += 3.f;
+						held_item_tile->sorting_pivot.y -= 3.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'u':
 						held_item_tile->set_rotation(3);
-						held_item_tile->position.y += 4.f;
+						held_item_tile->position.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 1.f;
 						break;
 					}
 				} break;
