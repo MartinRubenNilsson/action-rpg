@@ -5,7 +5,7 @@
 			<value>snd_bomb_fuse</value>
 		</property>
 		<property name="outputFormat">
-			<value>0</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{2193e7ff-7646-43d4-b0ee-a4f2213d8c77}</destination>
@@ -113,6 +113,7 @@
 	<object class="MixerBusEffectChain" id="{7359afa4-503d-4bbd-b550-df642298ae50}">
 		<relationship name="effects">
 			<destination>{ace0f6ce-41fd-4ea4-bc8b-3de4916d4048}</destination>
+			<destination>{2dd213e3-9d0e-4724-bde4-f30d7fec205e}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{61913985-abed-4719-93e3-f23f8ab15dab}" />
@@ -124,5 +125,13 @@
 	</object>
 	<object class="MixerBusPanner" id="{6bca8a77-9722-4cd7-83e4-a89fab613493}" />
 	<object class="MixerBusFader" id="{ace0f6ce-41fd-4ea4-bc8b-3de4916d4048}" />
+	<object class="SpatialiserEffect" id="{2dd213e3-9d0e-4724-bde4-f30d7fec205e}">
+		<property name="extentMode">
+			<value>1</value>
+		</property>
+		<property name="soundSize">
+			<value>12</value>
+		</property>
+	</object>
 	<object class="MixerBusFader" id="{0dbb41aa-730b-48c8-918c-a55498762d01}" />
 </objects>

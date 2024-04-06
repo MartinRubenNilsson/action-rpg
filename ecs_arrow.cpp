@@ -48,7 +48,7 @@ namespace ecs
 		}
 
 		// AUDIO
-		audio::play("event:/snd_glass_smash");
+		audio::play("event:/snd_fire_arrow");
 
 		return entity;
 	}

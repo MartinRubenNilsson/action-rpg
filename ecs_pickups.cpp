@@ -15,6 +15,15 @@ namespace ecs
 
 		// Blinking effect
 		for (auto [entity, pickup, tile] : _registry.view<Pickup, Tile>().each()) {
+
+			pickup.pickup_timer.update(dt);
+			if (pickup.pickup_timer.finished()) {
+				destroy_at_end_of_frame(entity);
+				continue;
+			}
+
+			// Start blinking at >50% progress
+			if (pickup.pickup_timer.get_progress() < 0.5f) continue;
 			constexpr float BLINK_SPEED = 10.f;
 			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
 			tile.color.a = (sf::Uint8)(255 * blink_fraction);
@@ -28,6 +37,7 @@ namespace ecs
 		{
 			Pickup& pickup = emplace_pickup(entity);
 			pickup.type = type;
+			pickup.pickup_timer.start();
 		}
 		{
 			b2BodyDef body_def{};
