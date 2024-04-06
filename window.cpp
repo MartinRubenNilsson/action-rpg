@@ -8,11 +8,11 @@ namespace window
 
 	sf::RenderWindow* _window = nullptr;
 	std::array<sf::Cursor, _SYSTEM_CURSOR_COUNT> _system_cursors;
-	Desc _desc;
+	State _state;
 	std::vector<sf::Event> _custom_event_queue;
 
-	const Desc& get_desc() {
-		return _desc;
+	const State& get_state() {
+		return _state;
 	}
 
 	void initialize(sf::RenderWindow& window)
@@ -22,22 +22,22 @@ namespace window
 			_system_cursors[i].loadFromSystem((sf::Cursor::Type)i);
 	}
 
-	void create_or_update(const Desc& desc)
+	void set_state(const State& state)
 	{
 		// We need to recreate the window to change the fullscreen mode.
-		bool recreate = (!_window->isOpen() || desc.fullscreen != _desc.fullscreen);
+		bool recreate = (!_window->isOpen() || state.fullscreen != _state.fullscreen);
 		if (recreate) {
-			sf::Vector2u size = desc.scale * BASE_SIZE;
-			sf::VideoMode mode = desc.fullscreen ?
+			sf::Vector2u size = state.scale * BASE_SIZE;
+			sf::VideoMode mode = state.fullscreen ?
 				sf::VideoMode::getFullscreenModes().at(0) :
 				sf::VideoMode(size.x, size.y);
-			sf::Uint32 style = desc.fullscreen ? 
+			sf::Uint32 style = state.fullscreen ? 
 				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
 			sf::ContextSettings settings{};
 //#ifdef _DEBUG
 //			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
 //#endif
-			_window->create(mode, desc.title, style, settings);
+			_window->create(mode, state.title, style, settings);
 			_window->setKeyRepeatEnabled(false);
 			// Spoof a resize event to ensure that other systems are aware of the new window size.
 			sf::Event ev{};
@@ -46,26 +46,26 @@ namespace window
 			ev.size.height = mode.height;
 			_custom_event_queue.push_back(ev);
 		}
-		if (desc.title != _desc.title)
-			_window->setTitle(desc.title);
-		if (recreate || desc.icon_filename != _desc.icon_filename) {
+		if (state.title != _state.title)
+			_window->setTitle(state.title);
+		if (recreate || state.icon != _state.icon) {
 			sf::Image icon;
-			if (icon.loadFromFile(desc.icon_filename))
+			if (icon.loadFromFile(state.icon))
 				_window->setIcon(
 					icon.getSize().x,
 					icon.getSize().y,
 					icon.getPixelsPtr());
 		}
-		if (!recreate && desc.scale != _desc.scale) {
-			sf::Vector2 size = desc.scale * BASE_SIZE;
+		if (!recreate && state.scale != _state.scale) {
+			sf::Vector2 size = state.scale * BASE_SIZE;
 			_window->setSize(size);
 			_window->setView(sf::View(sf::Vector2f(size) / 2.f, sf::Vector2f(size)));
 		}
-		if (recreate || desc.cursor_visible != _desc.cursor_visible)
-			_window->setMouseCursorVisible(desc.cursor_visible);
-		if (recreate || desc.vsync != _desc.vsync)
-			_window->setVerticalSyncEnabled(desc.vsync);
-		_desc = desc;
+		if (recreate || state.cursor_visible != _state.cursor_visible)
+			_window->setMouseCursorVisible(state.cursor_visible);
+		if (recreate || state.vsync != _state.vsync)
+			_window->setVerticalSyncEnabled(state.vsync);
+		_state = state;
 	}
 
 	bool poll_event(sf::Event& ev)
