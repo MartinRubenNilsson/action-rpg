@@ -13,6 +13,8 @@ namespace postprocessing
 		float thickness = 0.f;
 	};
 
+	const size_t MAX_GAUSSIAN_BLUR_ITERATIONS = 5;
+	size_t _gaussian_blur_iterations = 0;
 	std::vector<Shockwave> _shockwaves;
 
 	void _update_shockwaves(float dt)
@@ -50,6 +52,7 @@ namespace postprocessing
 
 	void _render_shockwaves(std::unique_ptr<sf::RenderTexture>& texture)
 	{
+		if (_shockwaves.empty()) return;
 		std::shared_ptr<sf::Shader> shader = shaders::get("shockwave");
 		if (!shader) return;
 		const sf::View view = texture->getView();
@@ -72,9 +75,45 @@ namespace postprocessing
 		texture->setView(view);
 	}
 
+	void _render_gaussian_blur(std::unique_ptr<sf::RenderTexture>& texture)
+	{
+		if (_gaussian_blur_iterations == 0) return;
+		std::shared_ptr<sf::Shader> shader_hor = shaders::get("gaussian_blur_hor");
+		if (!shader_hor) return;
+		std::shared_ptr<sf::Shader> shader_ver = shaders::get("gaussian_blur_ver");
+		if (!shader_ver) return;
+		const sf::Vector2 size = texture->getSize();
+		// Set uniforms
+		shader_hor->setUniform("tex_size", sf::Vector2f(size));
+		shader_ver->setUniform("tex_size", sf::Vector2f(size));
+		std::unique_ptr<sf::RenderTexture> intermediate_texture =
+			textures::take_render_texture_from_pool(size);
+		// Set linear filtering
+		const bool texture_was_smooth = texture->getTexture().isSmooth();
+		const bool intermediate_texture_was_smooth = intermediate_texture->getTexture().isSmooth();
+		texture->setSmooth(true);
+		intermediate_texture->setSmooth(true);
+		// Apply blur
+		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
+			// Horizontal pass
+			intermediate_texture->setView(intermediate_texture->getDefaultView());
+			intermediate_texture->draw(sf::Sprite(texture->getTexture()), shader_hor.get());
+			intermediate_texture->display();
+			// Vertical pass
+			texture->setView(texture->getDefaultView());
+			texture->draw(sf::Sprite(intermediate_texture->getTexture()), shader_ver.get());
+			texture->display();
+		}
+		// Cleanup
+		texture->setSmooth(texture_was_smooth);
+		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
+		textures::give_render_texture_to_pool(std::move(intermediate_texture));
+	}
+
 	void render(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		_render_shockwaves(texture);
+		_render_gaussian_blur(texture);
 	}
 
 	void create_shockwave(const sf::Vector2f& world_position)
@@ -85,6 +124,10 @@ namespace postprocessing
 		shockwave.size = 0.f;
 		shockwave.thickness = 0.f;
 		_shockwaves.push_back(shockwave);
+	}
+
+	void set_gaussian_blur_iterations(size_t iterations) {
+		_gaussian_blur_iterations = std::min(iterations, MAX_GAUSSIAN_BLUR_ITERATIONS);
 	}
 }
 

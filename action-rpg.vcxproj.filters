@@ -310,6 +310,12 @@
     <None Include="checkerboard.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="gaussian_blur_hor.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="gaussian_blur_ver.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />

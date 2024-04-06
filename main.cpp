@@ -154,6 +154,17 @@ int main(int argc, char* argv[])
             postprocessing::update(dt.asSeconds());
         }
 
+        switch (ui::get_top_menu()) {
+        case ui::MenuType::Pause:
+        case ui::MenuType::Settings:
+        case ui::MenuType::Credits:
+            postprocessing::set_gaussian_blur_iterations(3);
+            break;
+        default:
+            postprocessing::set_gaussian_blur_iterations(0);
+			break;
+        }
+
         if (debug_stats) {
             constexpr float smoothing_factor = 0.99f;
             static float smoothed_dt = 0.f;
