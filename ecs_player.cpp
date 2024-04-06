@@ -135,6 +135,7 @@ namespace ecs
 			const sf::Vector2f velocity = get_linear_velocity(body);
 			sf::Vector2f new_velocity; // will be modified differently depending on the state
 
+			std::string new_held_item_tileset_name;
 			std::string new_held_item_tile_class = "n";
 			sf::Vector2f new_held_item_position;
 			bool new_held_item_visible = false;
@@ -212,6 +213,7 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingSword: {
+				new_held_item_tileset_name = "sword";
 				new_held_item_tile_class = "n";
 				new_held_item_position = position + player.look_dir * 16.f;
 				new_held_item_visible = true;
@@ -223,6 +225,7 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::UsingBow: {
+				new_held_item_tileset_name = "bow_01";
 				new_held_item_position = position + player.look_dir * 16.f;
 				new_held_item_visible = true;
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
@@ -254,7 +257,7 @@ namespace ecs
 
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, new_held_item_visible);
-				held_item_tile->set_tile(new_held_item_tile_class, "sword");
+				held_item_tile->set_tile(new_held_item_tile_class, new_held_item_tileset_name);
 				held_item_tile->position = new_held_item_position;
 				held_item_tile->pivot = { 16.f, 28.f };
 			}
