@@ -5,11 +5,11 @@
 
 void Settings::set() const
 {
-	window::Desc window_desc = window::get_desc();
+	window::State window_desc = window::get_state();
 	window_desc.fullscreen = fullscreen;
 	window_desc.scale = window_scale;
 	window_desc.vsync = vsync;
-	window::create_or_update(window_desc);
+	window::set_state(window_desc);
 	audio::set_bus_volume(audio::BUS_MASTER, volume_master);
 	audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
 	audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
@@ -17,9 +17,9 @@ void Settings::set() const
 
 void Settings::get()
 {
-	fullscreen = window::get_desc().fullscreen;
-	vsync = window::get_desc().vsync;
-	window_scale = window::get_desc().scale;
+	fullscreen = window::get_state().fullscreen;
+	vsync = window::get_state().vsync;
+	window_scale = window::get_state().scale;
 	audio::get_bus_volume(audio::BUS_MASTER, volume_master);
 	audio::get_bus_volume(audio::BUS_MUSIC, volume_music);
 	audio::get_bus_volume(audio::BUS_SOUND, volume_sound);

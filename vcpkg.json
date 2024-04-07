@@ -6,7 +6,6 @@
     "rmlui",
     "entt",
     "magic-enum",
-    "tweeny",
     "pugixml"
   ]
 }

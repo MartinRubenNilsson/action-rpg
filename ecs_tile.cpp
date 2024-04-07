@@ -191,15 +191,15 @@ namespace ecs
 		return (_flags & flag) != 0;
 	}
 
-	int _get_nth_bit(int value, int n) {
+	bool _get_nth_bit(int value, int n) {
 		return (value & (1 << n)) >> n;
 	}
 
 	void Tile::set_rotation(int clockwise_quarter_turns)
 	{
-		int bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
-		int bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
-		set_flag(TF_FLIP_X, bit_0 ^ bit_1);
+		bool bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
+		bool bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
+		set_flag(TF_FLIP_X, bit_0 != bit_1); // XOR
 		set_flag(TF_FLIP_Y, bit_1);
 		set_flag(TF_FLIP_DIAGONAL, bit_0);
 	}

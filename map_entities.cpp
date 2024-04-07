@@ -34,9 +34,8 @@ namespace map
 
 	void create_entities(const tiled::Map& map)
 	{
-		const sf::FloatRect map_bounds{ 0.f, 0.f,
-			(float)map.width * map.tile_width,
-			(float)map.height * map.tile_height };
+		const sf::Vector2f map_bounds_min = { 0.f, 0.f };
+		const sf::Vector2f map_bounds_max = { (float)map.width * map.tile_width, (float)map.height * map.tile_height };
 
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
@@ -173,7 +172,8 @@ namespace map
 					{
 						ecs::Camera camera{};
 						camera.follow = entity;
-						camera.confining_rect = map_bounds;
+						camera.confines_min = map_bounds_min;
+						camera.confines_max = map_bounds_max;
 						ecs::emplace_camera(entity, camera);
 						ecs::activate_camera(entity, true);
 					}
@@ -186,8 +186,9 @@ namespace map
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
-					camera.view.setCenter(x, y);
-					camera.confining_rect = map_bounds;
+					camera.view.center = { x, y };
+					camera.confines_min = map_bounds_min;
+					camera.confines_max = map_bounds_max;
 					ecs::get_entity(entity, "follow", camera.follow);
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {

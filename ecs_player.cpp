@@ -95,7 +95,7 @@ namespace ecs
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
+		//debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
 			std::string string;
@@ -143,8 +143,6 @@ namespace ecs
 			};
 
 			HeldItemType held_item_type = HeldItemType::None;
-			std::string new_held_item_tile_class = "n";
-			sf::Vector2f new_held_item_position;
 
 			// UPDATE AUDIO
 
@@ -256,43 +254,83 @@ namespace ecs
 
 			set_linear_velocity(body, new_velocity);
 
-			// UPDATE HELD ITEM
+			// UPDATE HELD ITEM GRAPHICS
 
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
 				sf::Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
-					held_item_tile->set_tile("n", "sword");
-					held_item_tile->position = position + player.look_dir * 16.f;
-					held_item_tile->pivot = { 16.f, 28.f };
-				} break;
-				case HeldItemType::Bow: {
-					float offset_y = 14.f;
-					held_item_tile->set_tile("n", "bow_01");
+					uint32_t frame = tile.get_animation_frame();
+					held_item_tile->set_tile(3, "sword");
 					held_item_tile->position = position;
-					held_item_tile->position.y -= offset_y;
+					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };
 					held_item_tile->sorting_pivot =
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
-					case 'l':
-						held_item_tile->set_rotation(0);
-						held_item_tile->position.x -= 6.f;
-						held_item_tile->position.y += 4.f;
-						break;
 					case 'u':
-						held_item_tile->set_rotation(1);
-						held_item_tile->position.y -= 4.f;
+						held_item_tile->set_rotation((int)frame - 1);
+						held_item_tile->position.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 1.f;
 						break;
 					case 'r':
-						held_item_tile->set_rotation(2);
-						held_item_tile->position.x += 6.f;
-						held_item_tile->position.y += 4.f;
+						held_item_tile->set_rotation((int)frame - 0);
+						held_item_tile->position.x += 16.f;
+						held_item_tile->position.y += 2.f;
+						held_item_tile->sorting_pivot.y -= 2.f;
+						held_item_tile->sorting_pivot.y += 1.f;
 						break;
 					case 'd':
+						held_item_tile->set_rotation((int)frame + 1);
+						held_item_tile->position.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'l':
+						held_item_tile->set_rotation((int)frame + 2);
+						held_item_tile->position.x -= 16.f;
+						held_item_tile->position.y += 3.f;
+						held_item_tile->sorting_pivot.y -= 3.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					}
+				} break;
+				case HeldItemType::Bow: {
+					uint32_t frame = tile.get_animation_frame();
+					held_item_tile->set_tile(frame, "bow_01");
+					held_item_tile->position = position;
+					held_item_tile->position.y -= 13.f;
+					held_item_tile->pivot = { 16.f, 16.f };
+					held_item_tile->sorting_pivot =
+						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
+					switch (dir) {
+					case 'r':
+						held_item_tile->set_rotation(0);
+						held_item_tile->position.x += 16.f;
+						held_item_tile->position.y += 2.f;
+						held_item_tile->sorting_pivot.y -= 2.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'd':
+						held_item_tile->set_rotation(1);
+						held_item_tile->position.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'l':
+						held_item_tile->set_rotation(2);
+						held_item_tile->position.x -= 16.f;
+						held_item_tile->position.y += 3.f;
+						held_item_tile->sorting_pivot.y -= 3.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'u':
 						held_item_tile->set_rotation(3);
-						held_item_tile->position.y += 4.f;
+						held_item_tile->position.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 1.f;
 						break;
 					}
 				} break;
@@ -300,13 +338,13 @@ namespace ecs
 			}
 
 			// UPDATE TILE COLOR
-			{
-				sf::Color color = sf::Color::White;
-				if (player.hurt_timer.running()) {
-					float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
-					color.a = (sf::Uint8)(255 * fraction);
-				}
-				tile.color = color;
+
+			if (player.hurt_timer.running()) {
+				constexpr float BLINK_PERIOD = 0.15f;
+				float fraction = fmod(player.hurt_timer.get_time(), BLINK_PERIOD) / BLINK_PERIOD;
+				tile.color.a = (sf::Uint8)(255 * fraction);
+			} else {
+				tile.color.a = 255;
 			}
 
 			// UPDATE HUD

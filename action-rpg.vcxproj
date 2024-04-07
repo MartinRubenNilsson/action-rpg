@@ -229,6 +229,7 @@
     <ClCompile Include="textures.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
+    <ClCompile Include="easings.cpp" />
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
@@ -250,6 +251,8 @@
     <None Include="bake_character.frag" />
     <None Include="checkerboard.frag" />
     <None Include="darkness.frag" />
+    <None Include="gaussian_blur_hor.frag" />
+    <None Include="gaussian_blur_ver.frag" />
     <None Include="grass.frag" />
     <None Include="player.frag">
       <FileType>Document</FileType>
@@ -405,6 +408,7 @@
     <ClInclude Include="textures.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="easings.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="ui_rmlui_interfaces.h" />

@@ -8,7 +8,7 @@ namespace ui
 		Pause,
 		Settings,
 		Credits,
-		Count
+		Count,
 	};
 
 	void add_menu_event_listeners();

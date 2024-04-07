@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
         // Settings::set() affects window and audio, so these must be initialized first.
         Settings settings{};
         if (settings.load()) settings.set();
-        else window::create_or_update();
+        else window::set_state(window::State());
     }
     ui::add_event_listeners(); // Must come after loading RML documents.
     ImGui::SFML::Init(window, false); // Window must be created first.
@@ -154,6 +154,17 @@ int main(int argc, char* argv[])
             postprocessing::update(dt.asSeconds());
         }
 
+        switch (ui::get_top_menu()) {
+        case ui::MenuType::Pause:
+        case ui::MenuType::Settings:
+        case ui::MenuType::Credits:
+            postprocessing::set_gaussian_blur_iterations(3);
+            break;
+        default:
+            postprocessing::set_gaussian_blur_iterations(0);
+			break;
+        }
+
         if (debug_stats) {
             constexpr float smoothing_factor = 0.99f;
             static float smoothed_dt = 0.f;
@@ -186,7 +197,7 @@ int main(int argc, char* argv[])
             std::unique_ptr<sf::RenderTexture> texture =
                 textures::take_render_texture_from_pool(window.getSize());
             texture->clear();
-            texture->setView(window::get_default_view());
+            texture->setView(window::BASE_VIEW);
             background::render(*texture);
             ecs::draw(*texture);
             ecs::debug_draw();
@@ -208,7 +219,7 @@ int main(int argc, char* argv[])
         window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
         cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
-        cursor::set_scale((float)window::get_desc().scale);
+        cursor::set_scale((float)window::get_state().scale);
         cursor::render(window);
 
         // RENDER IMGUI
