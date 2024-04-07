@@ -274,21 +274,40 @@ namespace ecs
 					held_item_tile->pivot = { 16.f, 16.f };
 					held_item_tile->sorting_pivot =
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
-					sf::Vector2f offset;
-					switch (frame) {
-					case 0: offset = { 2.f, -17.f }; break;
-					case 1: offset = { 0.f, -24.f }; break;
-					case 2: offset = { 2.f, -17.f }; break;
-					}
-					int rotation = 0;
 					switch (dir) {
-					case 'u': rotation = (int)frame - 1; break;
-					case 'r': rotation = 2 - (int)frame; break;
-					case 'd': rotation = (int)frame + 1; break;
-					case 'l': rotation = (int)frame + 2; break;
+					case 'u':
+						held_item_tile->set_rotation((int)frame - 1);
+						switch (frame) {
+						case 0: held_item_tile->position += { -18.f, -3.f }; break;
+						case 1: held_item_tile->position += { 0.f, -21.f }; break;
+						case 2: held_item_tile->position += { 20.f, -1.f }; break;
+						}
+						break;
+					case 'r':
+						held_item_tile->set_rotation(2 - (int)frame);
+						switch (frame) {
+						case 0: held_item_tile->position += { -0.f, 18.f }; break;
+						case 1: held_item_tile->position += { 28.f, 0.f }; break;
+						case 2: held_item_tile->position += { 1.f, -18.f }; break;
+						}
+						break;
+					case 'd':
+						held_item_tile->set_rotation((int)frame + 1);
+						switch (frame) {
+						case 0: held_item_tile->position += { 18.f, 2.f }; break;
+						case 1: held_item_tile->position += { 0.f, 20.f }; break;
+						case 2: held_item_tile->position += { -18.f, -2.f }; break;
+						}
+						break;
+					case 'l':
+						held_item_tile->set_rotation((int)frame + 2);
+						switch (frame) {
+						case 0: held_item_tile->position += { 2.f, 18.f }; break;
+						case 1: held_item_tile->position += { -28.f, 0.f }; break;
+						case 2: held_item_tile->position += { -2.f, -18.f }; break;
+						}
+						break;
 					}
-					held_item_tile->set_rotation(rotation);
-					held_item_tile->position += rotate(offset, M_PIDIV2 * rotation);
 				} break;
 				case HeldItemType::Bow: {
 					uint32_t frame = tile.get_animation_frame();
