@@ -236,11 +236,9 @@ namespace ui
 		_textbox_queue.push_back(textbox);
 	}
 
-	bool push_textbox_presets(const std::string& name)
+	bool push_textbox_presets(const std::string& id)
 	{
-		std::vector<Textbox> textboxes;
-		if (!get_textbox_presets(name, textboxes)) return false;
-		for (const Textbox& textbox : textboxes)
+		for (const Textbox& textbox : find_textbox_presets(id))
 			_textbox_queue.push_back(textbox);
 		return true;
 	}

@@ -10,6 +10,7 @@ namespace ui
 		static const std::string DEFAULT_TYPING_SOUND;
 		static const float DEFAULT_TYPING_SPEED;
 
+		std::string id;
 		std::string text; // RML
 		std::string sprite;
 		std::string opening_sound; // name of sound event
@@ -45,10 +46,11 @@ namespace ui
 	void close_all_textboxes();
 	// Pushes the given textbox to the queue. Call pop_textbox() to open it.
 	void push_textbox(const Textbox& textbox);
-	bool get_textbox_presets(const std::string& name, std::vector<Textbox>& textboxes);
-	// Pushes the given textbox presets to the queue, if any exist.
-	bool push_textbox_presets(const std::string& name);
 	// If the queue is nonempty, pops the next textbox, opens it, and returns true.
 	// Otherwise, closes any currenty open textbox and returns false.
 	bool pop_textbox();
+
+	std::span<const Textbox> find_textbox_presets(const std::string& id);
+	// Pushes the given textbox presets to the queue, if any exist.
+	bool push_textbox_presets(const std::string& id);
 }
