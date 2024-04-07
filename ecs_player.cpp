@@ -143,8 +143,6 @@ namespace ecs
 			};
 
 			HeldItemType held_item_type = HeldItemType::None;
-			std::string new_held_item_tile_class = "n";
-			sf::Vector2f new_held_item_position;
 
 			// UPDATE AUDIO
 
@@ -255,16 +253,48 @@ namespace ecs
 
 			set_linear_velocity(body, new_velocity);
 
-			// UPDATE HELD ITEM
+			// UPDATE HELD ITEM GRAPHICS
 
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
 				sf::Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
-					held_item_tile->set_tile("n", "sword");
-					held_item_tile->position = position + player.look_dir * 16.f;
-					held_item_tile->pivot = { 16.f, 28.f };
+					uint32_t frame = tile.get_animation_frame();
+					held_item_tile->set_tile(3, "sword");
+					held_item_tile->position = position;
+					held_item_tile->position.y -= 13.f;
+					held_item_tile->pivot = { 16.f, 16.f };
+					held_item_tile->sorting_pivot =
+						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
+					switch (dir) {
+					case 'u':
+						held_item_tile->set_rotation((int)frame - 1);
+						held_item_tile->position.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 1.f;
+						break;
+					case 'r':
+						held_item_tile->set_rotation((int)frame - 0);
+						held_item_tile->position.x += 16.f;
+						held_item_tile->position.y += 2.f;
+						held_item_tile->sorting_pivot.y -= 2.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'd':
+						held_item_tile->set_rotation((int)frame + 1);
+						held_item_tile->position.y += 11.f;
+						held_item_tile->sorting_pivot.y -= 11.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					case 'l':
+						held_item_tile->set_rotation((int)frame + 2);
+						held_item_tile->position.x -= 16.f;
+						held_item_tile->position.y += 3.f;
+						held_item_tile->sorting_pivot.y -= 3.f;
+						held_item_tile->sorting_pivot.y += 1.f;
+						break;
+					}
 				} break;
 				case HeldItemType::Bow: {
 					uint32_t frame = tile.get_animation_frame();
