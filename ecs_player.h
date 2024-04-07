@@ -19,8 +19,8 @@ namespace ecs
 	enum class PlayerState
 	{
 		Normal,
-		UsingSword,
-		UsingBow,
+		SwingingSword,
+		ShootingBow,
 		Dying,
 		Dead
 	};

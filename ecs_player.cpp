@@ -197,11 +197,11 @@ namespace ecs
 					tile.set_tile("sword_attack_"s + tile_dir);
 					audio::play("event:/snd_sword_attack");
 					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::UsingSword;
+					player.state = PlayerState::SwingingSword;
 				} else if (player.input.shoot_bow && player.arrows > 0) {
 					tile.set_tile("bow_shot_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::UsingBow;
+					player.state = PlayerState::ShootingBow;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
@@ -218,8 +218,11 @@ namespace ecs
 					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
-			case PlayerState::UsingSword: {
+			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
+				if (tile_dir != 'r') {
+					tile.set_flag(TF_FLIP_X, false);
+				}
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -227,8 +230,11 @@ namespace ecs
 					player.state = PlayerState::Normal;
 				}
 			} break;
-			case PlayerState::UsingBow: {
+			case PlayerState::ShootingBow: {
 				held_item_type = HeldItemType::Bow;
+				if (tile_dir != 'r') {
+					tile.set_flag(TF_FLIP_X, false);
+				}
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
@@ -264,36 +270,42 @@ namespace ecs
 					uint32_t frame = tile.get_animation_frame();
 					held_item_tile->set_tile(3, "sword");
 					held_item_tile->position = position;
-					held_item_tile->position.y -= 13.f;
+					held_item_tile->position.y -= 10.f;
 					held_item_tile->pivot = { 16.f, 16.f };
 					held_item_tile->sorting_pivot =
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
 					case 'u':
 						held_item_tile->set_rotation((int)frame - 1);
-						held_item_tile->position.y -= 11.f;
-						held_item_tile->sorting_pivot.y += 11.f;
-						held_item_tile->sorting_pivot.y -= 1.f;
+						switch (frame) {
+						case 0: held_item_tile->position += { -18.f, -3.f }; break;
+						case 1: held_item_tile->position += { 0.f, -21.f }; break;
+						case 2: held_item_tile->position += { 20.f, -1.f }; break;
+						}
 						break;
 					case 'r':
-						held_item_tile->set_rotation((int)frame - 0);
-						held_item_tile->position.x += 16.f;
-						held_item_tile->position.y += 2.f;
-						held_item_tile->sorting_pivot.y -= 2.f;
-						held_item_tile->sorting_pivot.y += 1.f;
+						held_item_tile->set_rotation(2 - (int)frame);
+						switch (frame) {
+						case 0: held_item_tile->position += { -0.f, 18.f }; break;
+						case 1: held_item_tile->position += { 28.f, 0.f }; break;
+						case 2: held_item_tile->position += { 1.f, -18.f }; break;
+						}
 						break;
 					case 'd':
 						held_item_tile->set_rotation((int)frame + 1);
-						held_item_tile->position.y += 11.f;
-						held_item_tile->sorting_pivot.y -= 11.f;
-						held_item_tile->sorting_pivot.y += 1.f;
+						switch (frame) {
+						case 0: held_item_tile->position += { 18.f, 2.f }; break;
+						case 1: held_item_tile->position += { 0.f, 20.f }; break;
+						case 2: held_item_tile->position += { -18.f, -2.f }; break;
+						}
 						break;
 					case 'l':
 						held_item_tile->set_rotation((int)frame + 2);
-						held_item_tile->position.x -= 16.f;
-						held_item_tile->position.y += 3.f;
-						held_item_tile->sorting_pivot.y -= 3.f;
-						held_item_tile->sorting_pivot.y += 1.f;
+						switch (frame) {
+						case 0: held_item_tile->position += { 2.f, 18.f }; break;
+						case 1: held_item_tile->position += { -28.f, 0.f }; break;
+						case 2: held_item_tile->position += { -2.f, -18.f }; break;
+						}
 						break;
 					}
 				} break;
