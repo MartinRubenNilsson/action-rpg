@@ -34,23 +34,27 @@ namespace ui
 	void register_textbox_presets();
 	void update_textbox(float dt);
 
-	bool is_textbox_visible();
+	bool is_textbox_open();
 	bool is_textbox_typing();
 	void skip_textbox_typing();
 
-	// Opens the given textbox.
+	// In addition to the current textbox (which may or may not be closed/empty), we store a queue of textboxes.
+	// This is useful for sequencing textboxes, e.g. for a conversation. The interface works as follows:
+	// 
+	// - open_textbox(): immediately opens a new textbox, closing the current one if necessary.
+	// - enqueue_textbox(): appends a textbox to the queue without affecting the current textbox.
+	// - open_or_enqueue_textbox(): opens the textbox immediately if there is no current textbox, otherwise enqueues it.
+	// - open_next_textbox_in_queue(): opens the next textbox in the queue, if any.
+	// - close_textbox(): closes the current textbox without affecting the queue.
+	// - close_textbox_and_clear_queue(): closes the current textbox and clears the queue.
+
 	void open_textbox(const Textbox& textbox);
-	// Closes the current textbox. The queue is not affected.
+	void enqueue_textbox(const Textbox& textbox);
+	void open_or_enqueue_textbox(const Textbox& textbox);
+	bool open_next_textbox_in_queue();
 	void close_textbox();
-	// Closes the current textbox and clears the queue.
-	void close_all_textboxes();
-	// Pushes the given textbox to the queue. Call pop_textbox() to open it.
-	void push_textbox(const Textbox& textbox);
-	// If the queue is nonempty, pops the next textbox, opens it, and returns true.
-	// Otherwise, closes any currenty open textbox and returns false.
-	bool pop_textbox();
+	void close_textbox_and_clear_queue();
 
 	std::span<const Textbox> find_textbox_presets(const std::string& id);
-	// Pushes the given textbox presets to the queue, if any exist.
-	bool push_textbox_presets(const std::string& id);
+	void open_or_enqueue_textbox_presets(const std::string& id);
 }

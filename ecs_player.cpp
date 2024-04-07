@@ -100,8 +100,7 @@ namespace ecs
 			std::string class_ = get_class(hit.entity);
 			std::string string;
 			if (get_string(hit.entity, "textbox", string)) {
-				ui::push_textbox_presets(string);
-				ui::pop_textbox();
+				ui::open_or_enqueue_textbox_presets(string);
 			}
 			if (get_string(hit.entity, "sound", string))
 				audio::play(string);
@@ -435,8 +434,7 @@ namespace ecs
 		audio::stop_all_in_bus();
 		audio::play("event:/snd_player_die");
 		audio::play("event:/mus_coffin_dance");
-		ui::push_textbox_presets("player_die");
-		ui::pop_textbox();
+		ui::open_or_enqueue_textbox_presets("player_die");
 		ui::bindings::hud_player_health = 0;
 		return true;
 	}

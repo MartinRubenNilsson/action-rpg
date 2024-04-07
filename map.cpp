@@ -74,7 +74,7 @@ namespace map
 		if (_map) {
 			destroy_entities();
 			audio::stop_all_in_bus(audio::BUS_SOUND);
-			ui::close_all_textboxes();
+			ui::close_textbox_and_clear_queue();
 		}
 
 		// OPEN MAP

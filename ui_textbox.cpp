@@ -16,7 +16,7 @@ namespace ui
 	{
 		void ProcessEvent(Rml::Event& ev) override
 		{
-			if (!is_textbox_visible()) return;
+			if (!is_textbox_open()) return;
 			switch (ev.GetId()) {
 			case Rml::EventId::Keydown: {
 				switch (_get_key_identifier(ev)) {
@@ -57,22 +57,23 @@ namespace ui
 
 	extern Rml::Context* _context;
 	TextboxEventListener _textbox_event_listener;
-	Textbox _textbox;
+	std::optional<Textbox> _textbox;
 	std::deque<Textbox> _textbox_queue;
 	float _textbox_typing_time = 0.f; // time since last character was typed
 	size_t _textbox_typing_counter = 0; // number of characters typed
 
 	void _on_textbox_keydown_c()
 	{
+		if (!_textbox) return;
 		if (is_textbox_typing()) {
 			skip_textbox_typing();
-		} else if (_textbox.options_callback &&
+		} else if (_textbox->options_callback &&
 			bindings::textbox_selected_option < bindings::textbox_options.size()) {
 			const std::string& option = bindings::textbox_options[bindings::textbox_selected_option];
-			_textbox.options_callback(option);
+			_textbox->options_callback(option);
 			audio::play("event:/ui/snd_button_click");
 		} else {
-			pop_textbox();
+			open_next_textbox_in_queue();
 		}
 	}
 
@@ -148,7 +149,7 @@ namespace ui
 		return _context->GetDocument("textbox");
 	}
 
-	void _set_textbox_visible(bool visible)
+	void _set_textbox_document_visible(bool visible)
 	{
 		if (Rml::ElementDocument* doc = _get_textbox_document())
 			visible ? doc->Show() : doc->Hide();
@@ -156,16 +157,21 @@ namespace ui
 
 	void update_textbox(float dt)
 	{
-		if (!is_textbox_visible()) return;
+		if (_textbox) {
+			_set_textbox_document_visible(true);
+		} else {
+			_set_textbox_document_visible(false);
+			return;
+		}
 
-		size_t plain_count = _get_plain_count(_textbox.text);
-		if (_textbox_typing_counter < plain_count && _textbox.typing_speed > 0.f) {
-			float seconds_per_char = 1.f / _textbox.typing_speed;
+		size_t plain_count = _get_plain_count(_textbox->text);
+		if (_textbox_typing_counter < plain_count && _textbox->typing_speed > 0.f) {
+			float seconds_per_char = 1.f / _textbox->typing_speed;
 			_textbox_typing_time += dt;
 			if (_textbox_typing_time >= seconds_per_char) {
 				_textbox_typing_time -= seconds_per_char;
-				if (isgraph(_get_nth_plain(_textbox.text, _textbox_typing_counter)))
-					audio::play("event:/" + _textbox.typing_sound);
+				if (isgraph(_get_nth_plain(_textbox->text, _textbox_typing_counter)))
+					audio::play("event:/" + _textbox->typing_sound);
 				++_textbox_typing_counter;
 			}
 		} else {
@@ -175,12 +181,12 @@ namespace ui
 		const bool finished_typing = (_textbox_typing_counter == plain_count);
 
 		bindings::textbox_text = _replace_graphical_plain_with_nbsp(
-			_textbox.text, _textbox_typing_counter);
-		bindings::textbox_has_sprite = !_textbox.sprite.empty();
-		bindings::textbox_sprite = _textbox.sprite;
+			_textbox->text, _textbox_typing_counter);
+		bindings::textbox_has_sprite = !_textbox->sprite.empty();
+		bindings::textbox_sprite = _textbox->sprite;
 		if (finished_typing) {
-			bindings::textbox_has_options = !_textbox.options.empty();
-			bindings::textbox_options = _textbox.options;
+			bindings::textbox_has_options = !_textbox->options.empty();
+			bindings::textbox_options = _textbox->options;
 		} else {
 			bindings::textbox_has_options = false;
 			bindings::textbox_options.clear();
@@ -195,55 +201,45 @@ namespace ui
 		}
 	}
 
-	bool is_textbox_visible()
+	bool is_textbox_open() {
+		return _textbox.has_value();
+	}
+
+	bool is_textbox_typing()
 	{
-		Rml::ElementDocument* doc = _get_textbox_document();
-		return doc && doc->IsVisible();
+		if (!_textbox) return false;
+		return _textbox_typing_counter < _get_plain_count(_textbox->text);
 	}
 
-	bool is_textbox_typing() {
-		return _textbox_typing_counter < _get_plain_count(_textbox.text);
-	}
-
-	void skip_textbox_typing() {
-		_textbox_typing_counter = _get_plain_count(_textbox.text);
+	void skip_textbox_typing()
+	{
+		if (!_textbox) return;
+		_textbox_typing_counter = _get_plain_count(_textbox->text);
 	}
 
 	void open_textbox(const Textbox& textbox)
 	{
-		_set_textbox_visible(true);
 		_textbox = textbox;
 		_textbox_typing_time = 0.f;
 		_textbox_typing_counter = 0;
-		if (!_textbox.opening_sound.empty())
-			audio::play("event:/" + _textbox.opening_sound);
+		if (!_textbox->opening_sound.empty())
+			audio::play("event:/" + _textbox->opening_sound);
 	}
 
-	void close_textbox()
-	{
-		_set_textbox_visible(false);
-		_textbox = Textbox();
-		bindings::_clear_textbox_bindings();
-	}
-
-	void close_all_textboxes()
-	{
-		close_textbox();
-		_textbox_queue.clear();
-	}
-
-	void push_textbox(const Textbox& textbox) {
+	void enqueue_textbox(const Textbox& textbox) {
 		_textbox_queue.push_back(textbox);
 	}
 
-	bool push_textbox_presets(const std::string& id)
+	void open_or_enqueue_textbox(const Textbox& textbox)
 	{
-		for (const Textbox& textbox : find_textbox_presets(id))
-			_textbox_queue.push_back(textbox);
-		return true;
+		if (is_textbox_open()) {
+			enqueue_textbox(textbox);
+		} else {
+			open_textbox(textbox);
+		}
 	}
 
-	bool pop_textbox()
+	bool open_next_textbox_in_queue()
 	{
 		if (_textbox_queue.empty()) {
 			close_textbox();
@@ -252,5 +248,23 @@ namespace ui
 		open_textbox(_textbox_queue.front());
 		_textbox_queue.pop_front();
 		return true;
+	}
+
+	void close_textbox()
+	{
+		_textbox.reset();
+		bindings::_clear_textbox_bindings();
+	}
+
+	void close_textbox_and_clear_queue()
+	{
+		close_textbox();
+		_textbox_queue.clear();
+	}
+
+	void open_or_enqueue_textbox_presets(const std::string& id)
+	{
+		for (const Textbox& textbox : find_textbox_presets(id))
+			open_or_enqueue_textbox(textbox);
 	}
 }
