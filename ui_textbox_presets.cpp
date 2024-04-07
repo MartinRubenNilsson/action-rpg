@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ui_textbox_presets.h"
+#include "ui_textbox.h"
 #include "ui.h"
 #include "console.h"
 
@@ -24,7 +24,7 @@ namespace ui
 		return true;
 	}
 
-	void initialize_textbox_presets()
+	void register_textbox_presets()
 	{
 		// PLAYER DIE
 		{

@@ -419,7 +419,6 @@
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="physics_helpers.h" />
-    <ClInclude Include="ui_textbox_presets.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -5,7 +5,6 @@
 #include "ui_menus.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
-#include "ui_textbox_presets.h"
 #include "console.h"
 #include "audio.h"
 #include "window.h"
@@ -101,7 +100,7 @@ namespace ui
 		Rml::Debugger::Initialise(_debugger_context);
 		Rml::Debugger::SetContext(_context);
 		create_bindings();
-		initialize_textbox_presets();
+		register_textbox_presets();
 	}
 
 	void shutdown()
