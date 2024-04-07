@@ -337,13 +337,13 @@ namespace ecs
 			}
 
 			// UPDATE TILE COLOR
-			{
-				sf::Color color = sf::Color::White;
-				if (player.hurt_timer.running()) {
-					float fraction = fmod(player.hurt_timer.get_time(), 0.15f) / 0.15f;
-					color.a = (sf::Uint8)(255 * fraction);
-				}
-				tile.color = color;
+
+			if (player.hurt_timer.running()) {
+				constexpr float BLINK_PERIOD = 0.15f;
+				float fraction = fmod(player.hurt_timer.get_time(), BLINK_PERIOD) / BLINK_PERIOD;
+				tile.color.a = (sf::Uint8)(255 * fraction);
+			} else {
+				tile.color.a = 255;
 			}
 
 			// UPDATE HUD
