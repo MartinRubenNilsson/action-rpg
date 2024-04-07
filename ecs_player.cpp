@@ -95,7 +95,7 @@ namespace ecs
 		sf::Vector2f box_center = position;
 		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
 		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
-		debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
+		//debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
 			std::string string;
