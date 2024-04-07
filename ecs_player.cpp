@@ -196,11 +196,11 @@ namespace ecs
 				if (player.input.use_sword) {
 					tile.set_tile("sword_attack_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::UsingSword;
+					player.state = PlayerState::SwingingSword;
 				} else if (player.input.shoot_bow && player.arrows > 0) {
 					tile.set_tile("bow_shot_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
-					player.state = PlayerState::UsingBow;
+					player.state = PlayerState::ShootingBow;
 				} else if (player.input.drop_bomb && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
@@ -217,8 +217,11 @@ namespace ecs
 					tile.set_flag(TF_LOOP, true);
 				}
 			} break;
-			case PlayerState::UsingSword: {
+			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
+				if (tile_dir != 'r') {
+					tile.set_flag(TF_FLIP_X, false);
+				}
 				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -226,8 +229,11 @@ namespace ecs
 					player.state = PlayerState::Normal;
 				}
 			} break;
-			case PlayerState::UsingBow: {
+			case PlayerState::ShootingBow: {
 				held_item_type = HeldItemType::Bow;
+				if (tile_dir != 'r') {
+					tile.set_flag(TF_FLIP_X, false);
+				}
 				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().has("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
