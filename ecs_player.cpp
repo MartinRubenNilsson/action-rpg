@@ -270,38 +270,25 @@ namespace ecs
 					uint32_t frame = tile.get_animation_frame();
 					held_item_tile->set_tile(3, "sword");
 					held_item_tile->position = position;
-					held_item_tile->position.y -= 13.f;
+					held_item_tile->position.y -= 10.f;
 					held_item_tile->pivot = { 16.f, 16.f };
 					held_item_tile->sorting_pivot =
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
-					switch (dir) {
-					case 'u':
-						held_item_tile->set_rotation((int)frame - 1);
-						held_item_tile->position.y -= 11.f;
-						held_item_tile->sorting_pivot.y += 11.f;
-						held_item_tile->sorting_pivot.y -= 1.f;
-						break;
-					case 'r':
-						held_item_tile->set_rotation((int)frame - 0);
-						held_item_tile->position.x += 16.f;
-						held_item_tile->position.y += 2.f;
-						held_item_tile->sorting_pivot.y -= 2.f;
-						held_item_tile->sorting_pivot.y += 1.f;
-						break;
-					case 'd':
-						held_item_tile->set_rotation((int)frame + 1);
-						held_item_tile->position.y += 11.f;
-						held_item_tile->sorting_pivot.y -= 11.f;
-						held_item_tile->sorting_pivot.y += 1.f;
-						break;
-					case 'l':
-						held_item_tile->set_rotation((int)frame + 2);
-						held_item_tile->position.x -= 16.f;
-						held_item_tile->position.y += 3.f;
-						held_item_tile->sorting_pivot.y -= 3.f;
-						held_item_tile->sorting_pivot.y += 1.f;
-						break;
+					sf::Vector2f offset;
+					switch (frame) {
+					case 0: offset = { 2.f, -17.f }; break;
+					case 1: offset = { 0.f, -24.f }; break;
+					case 2: offset = { 2.f, -17.f }; break;
 					}
+					int rotation = 0;
+					switch (dir) {
+					case 'u': rotation = (int)frame - 1; break;
+					case 'r': rotation = 2 - (int)frame; break;
+					case 'd': rotation = (int)frame + 1; break;
+					case 'l': rotation = (int)frame + 2; break;
+					}
+					held_item_tile->set_rotation(rotation);
+					held_item_tile->position += rotate(offset, M_PIDIV2 * rotation);
 				} break;
 				case HeldItemType::Bow: {
 					uint32_t frame = tile.get_animation_frame();
