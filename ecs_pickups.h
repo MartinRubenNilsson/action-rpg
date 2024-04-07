@@ -1,4 +1,5 @@
 #pragma once
+#include "timer.h"
 
 namespace ecs
 {
@@ -14,6 +15,8 @@ namespace ecs
 	struct Pickup
 	{
 		PickupType type = PickupType::Arrow;
+		Timer pickup_timer = { 3.f };
+
 	};
 
 	void update_pickups(float dt);

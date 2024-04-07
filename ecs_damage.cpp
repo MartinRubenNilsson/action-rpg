@@ -60,7 +60,12 @@ namespace ecs
 	bool apply_damage_to_slime(entt::entity entity, const Damage& damage)
 	{
 		//TODO: more stuff here
+
 		audio::play("event:/snd_slime_dying");
+
+		// TODO use snd_slime_hurt when slime is damaged and snd_slime_dying when slime is dead
+		// audio::play("event:/snd_slime_hurt");
+
 		destroy_at_end_of_frame(entity);
 		return true;
 	}

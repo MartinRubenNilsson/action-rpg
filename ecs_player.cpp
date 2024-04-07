@@ -195,6 +195,7 @@ namespace ecs
 
 				if (player.input.use_sword) {
 					tile.set_tile("sword_attack_"s + tile_dir);
+					audio::play("event:/snd_sword_attack");
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::SwingingSword;
 				} else if (player.input.shoot_bow && player.arrows > 0) {

@@ -33,6 +33,7 @@ namespace ecs
 
 		if (class_a.empty()) {
 			if (class_b == "arrow") {
+				// TODO add audio::play("event:/snd_arrow_hit"); when we have nice animation for arrow hitting a wall
 				destroy_at_end_of_frame(entity_b);
 			}
 		} else if (class_a == "arrow") {
@@ -62,6 +63,7 @@ namespace ecs
 		
 				case PickupType::Heart:
 					player.health = std::min(player.health + 1, player.max_health);
+					//TODO
 					//audio::play("event:/snd_pickup_heart");
 					break;
 				}
