@@ -14,8 +14,11 @@ namespace postprocessing
 	};
 
 	const size_t MAX_GAUSSIAN_BLUR_ITERATIONS = 5;
-	size_t _gaussian_blur_iterations = 0;
+
+	float _pixel_scale = 1.f;
 	std::vector<Shockwave> _shockwaves;
+	size_t _gaussian_blur_iterations = 0;
+	float _screen_transition_progress = 0.f;
 
 	void _update_shockwaves(float dt)
 	{
@@ -64,13 +67,13 @@ namespace postprocessing
 			shader->setUniform("force", shockwave.force);
 			shader->setUniform("size", shockwave.size);
 			shader->setUniform("thickness", shockwave.thickness);
-			std::unique_ptr<sf::RenderTexture> target =
+			std::unique_ptr<sf::RenderTexture> target_texture =
 				textures::take_render_texture_from_pool(size);
-			target->setView(target->getDefaultView());
-			target->draw(sf::Sprite(texture->getTexture()), shader.get());
-			target->display();
+			target_texture->setView(target_texture->getDefaultView());
+			target_texture->draw(sf::Sprite(texture->getTexture()), shader.get());
+			target_texture->display();
 			textures::give_render_texture_to_pool(std::move(texture));
-			texture = std::move(target);
+			texture = std::move(target_texture);
 		}
 		texture->setView(view);
 	}
@@ -110,10 +113,31 @@ namespace postprocessing
 		textures::give_render_texture_to_pool(std::move(intermediate_texture));
 	}
 
+	void _render_screen_transition(std::unique_ptr<sf::RenderTexture>& texture)
+	{
+		if (_screen_transition_progress == 0.f) return;
+		std::shared_ptr<sf::Shader> shader = shaders::get("screen_transition");
+		if (!shader) return;
+		shader->setUniform("pixel_scale", _pixel_scale);
+		shader->setUniform("progress", _screen_transition_progress);
+		std::unique_ptr<sf::RenderTexture> target_texture =
+			textures::take_render_texture_from_pool(texture->getSize());
+		target_texture->setView(target_texture->getDefaultView());
+		target_texture->draw(sf::Sprite(texture->getTexture()), shader.get());
+		target_texture->display();
+		textures::give_render_texture_to_pool(std::move(texture));
+		texture = std::move(target_texture);
+	}
+
 	void render(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		_render_shockwaves(texture);
 		_render_gaussian_blur(texture);
+		_render_screen_transition(texture);
+	}
+
+	void set_pixel_scale(float scale) {
+		_pixel_scale = std::max(scale, 0.1f);
 	}
 
 	void create_shockwave(const sf::Vector2f& world_position)
@@ -128,6 +152,10 @@ namespace postprocessing
 
 	void set_gaussian_blur_iterations(size_t iterations) {
 		_gaussian_blur_iterations = std::min(iterations, MAX_GAUSSIAN_BLUR_ITERATIONS);
+	}
+
+	void set_screen_transition_progress(float progress) {
+		_screen_transition_progress = std::clamp(progress, -1.f, 1.f);
 	}
 }
 

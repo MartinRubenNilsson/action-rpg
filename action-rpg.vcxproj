@@ -259,6 +259,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
     </None>
+    <None Include="screen_transition.frag" />
     <None Include="shockwave.frag" />
     <None Include="vcpkg.json" />
   </ItemGroup>

@@ -165,6 +165,16 @@ int main(int argc, char* argv[])
 			break;
         }
 
+#if 0
+        {
+            static float screen_transition_progress = 0.f;
+            ImGui::Begin("Screen Transition");
+            ImGui::SliderFloat("Progress", &screen_transition_progress, -1.f, 1.f);
+            ImGui::End();
+            postprocessing::set_screen_transition_progress(screen_transition_progress);
+        }
+#endif
+
         if (debug_stats) {
             constexpr float smoothing_factor = 0.99f;
             static float smoothed_dt = 0.f;
@@ -204,6 +214,7 @@ int main(int argc, char* argv[])
             sprites::render(*texture);
             debug::render(*texture);
             texture->display();
+            postprocessing::set_pixel_scale((float)window::get_state().scale);
             postprocessing::render(texture);
             window.draw(sf::Sprite(texture->getTexture())); // Copy to window.
             textures::give_render_texture_to_pool(std::move(texture));
