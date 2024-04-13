@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="39" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="39" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="2">
  <tileset firstgid="1" source="../tilesets/muddy cave/muddy cave v1.tsx"/>
- <layer id="1" name="Tile Layer 1" width="39" height="34">
+ <tileset firstgid="321" source="../tilesets/characters/player/player.tsx"/>
+ <layer id="1" name="Under Sprite 1" width="39" height="34">
   <data encoding="csv">
 81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,22,235,271,271,291,269,41,81,81,81,81,81,81,
 81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,22,107,275,55,55,55,271,236,23,81,81,81,81,81,
@@ -39,7 +40,10 @@
 81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81,81
 </data>
  </layer>
- <layer id="2" name="Shadows" width="39" height="34">
+ <objectgroup id="5" name="Entities">
+  <object id="1" template="../templates/player.tx" x="124.667" y="308.667"/>
+ </objectgroup>
+ <layer id="2" name="Over Sprite 1" width="39" height="34">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -77,7 +81,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="3" name="Tile Layer 2" width="39" height="34">
+ <layer id="3" name="Over Sprite 2" width="39" height="34">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,35,35,15,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,35,61,0,0,0,0,0,0,

@@ -138,9 +138,9 @@
  </tile>
  <wangsets>
   <wangset name="autotiles" type="corner" tile="-1">
-   <wangcolor name="grass" color="#ff0000" tile="-1" probability="1"/>
-   <wangcolor name="dirt, dark" color="#00ff00" tile="-1" probability="1"/>
-   <wangcolor name="dirt, light" color="#0000ff" tile="-1" probability="1"/>
+   <wangcolor name="dark grass" color="#ff0000" tile="-1" probability="1"/>
+   <wangcolor name="dirt" color="#00ff00" tile="-1" probability="1"/>
+   <wangcolor name="dirt" color="#0000ff" tile="-1" probability="1"/>
    <wangtile tileid="100" wangid="0,2,0,2,0,2,0,2"/>
    <wangtile tileid="101" wangid="0,2,0,2,0,2,0,2"/>
    <wangtile tileid="102" wangid="0,2,0,2,0,2,0,2"/>
