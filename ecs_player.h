@@ -3,19 +3,23 @@
 
 namespace ecs
 {
-	//TODO: refactor into PlayerInputFlags. except axis?
-	struct PlayerInput
+	enum InputFlags : uint32_t
 	{
-		bool left = false;
-		bool right = false;
-		bool up = false;
-		bool down = false;
-		bool run = false;
-		bool stealth = false;
-		bool interact = false;
-		bool shoot_bow = false; 
-		bool drop_bomb = false;
-		bool use_sword = false;
+		// Continuous actions
+
+		INPUT_LEFT        = (1 << 1),
+		INPUT_RIGHT       = (1 << 2),
+		INPUT_UP          = (1 << 3),
+		INPUT_DOWN        = (1 << 4),
+		INPUT_RUN         = (1 << 5),
+		INPUT_STEALTH     = (1 << 6),
+
+		// One-shot actions
+
+		INPUT_INTERACT    = (1 << 7),
+		INPUT_SWING_SWORD = (1 << 8),
+		INPUT_SHOOT_BOW   = (1 << 9),
+		INPUT_DROP_BOMB   = (1 << 10),
 	};
 
 	enum class PlayerState
@@ -29,7 +33,7 @@ namespace ecs
 
 	struct Player
 	{
-		PlayerInput input;
+		uint32_t input_flags = 0;
 		PlayerState state = PlayerState::Normal;
 		sf::Vector2f look_dir = { 0.f, 1.f };
 		Timer hurt_timer = { 1.f };

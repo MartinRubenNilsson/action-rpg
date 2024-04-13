@@ -27,64 +27,64 @@ namespace ecs
 	const float _PLAYER_ARROW_SPEED = 160.f;
 
 	extern entt::registry _registry;
+	uint32_t _input_flags_to_enable = 0;
+	uint32_t _input_flags_to_disable = 0;
 
 	void process_event_players(const sf::Event& ev)
 	{
-		for (auto [entity, player] : _registry.view<Player>().each()) {
-			if (ev.type == sf::Event::KeyPressed) {
-				switch (ev.key.code) {
-				case sf::Keyboard::Left:
-					player.input.left = true;
-					break;
-				case sf::Keyboard::Right:
-					player.input.right = true;
-					break;
-				case sf::Keyboard::Up:
-					player.input.up = true;
-					break;
-				case sf::Keyboard::Down:
-					player.input.down = true;
-					break;
-				case sf::Keyboard::LShift:
-					player.input.run = true;
-					break;
-				case sf::Keyboard::LControl:
-					player.input.stealth = true;
-					break;
-				case sf::Keyboard::C:
-					player.input.interact = true;
-					break;
-				case sf::Keyboard::X:
-					player.input.shoot_bow = true;
-					break;
-				case sf::Keyboard::Z:
-					player.input.drop_bomb = true;
-					break;
-				case sf::Keyboard::Space:
-					player.input.use_sword = true;
-					break;
-				}
-			} else if (ev.type == sf::Event::KeyReleased) {
-				switch (ev.key.code) {
-				case sf::Keyboard::Left:
-					player.input.left = false;
-					break;
-				case sf::Keyboard::Right:
-					player.input.right = false;
-					break;
-				case sf::Keyboard::Up:
-					player.input.up = false;
-					break;
-				case sf::Keyboard::Down:
-					player.input.down = false;
-					break;
-				case sf::Keyboard::LShift:
-					player.input.run = false;
-					break;
-				case sf::Keyboard::LControl:
-					player.input.stealth = false;
-					break;
-				}
+		if (ev.type == sf::Event::KeyPressed) {
+			switch (ev.key.code) {
+			case sf::Keyboard::Left:
+				_input_flags_to_enable |= INPUT_LEFT;
+				break;
+			case sf::Keyboard::Right:
+				_input_flags_to_enable |= INPUT_RIGHT;
+				break;
+			case sf::Keyboard::Up:
+				_input_flags_to_enable |= INPUT_UP;
+				break;
+			case sf::Keyboard::Down:
+				_input_flags_to_enable |= INPUT_DOWN;
+				break;
+			case sf::Keyboard::LShift:
+				_input_flags_to_enable |= INPUT_RUN;
+				break;
+			case sf::Keyboard::LControl:
+				_input_flags_to_enable |= INPUT_STEALTH;
+				break;
+			case sf::Keyboard::C:
+				_input_flags_to_enable |= INPUT_INTERACT;
+				break;
+			case sf::Keyboard::X:
+				_input_flags_to_enable |= INPUT_SHOOT_BOW;
+				break;
+			case sf::Keyboard::Z:
+				_input_flags_to_enable |= INPUT_DROP_BOMB;
+				break;
+			case sf::Keyboard::Space:
+				_input_flags_to_enable |= INPUT_SWING_SWORD;
+				break;
+			}
+		} else if (ev.type == sf::Event::KeyReleased) {
+			switch (ev.key.code) {
+			case sf::Keyboard::Left:
+				_input_flags_to_disable |= INPUT_LEFT;
+				break;
+			case sf::Keyboard::Right:
+				_input_flags_to_disable |= INPUT_RIGHT;
+				break;
+			case sf::Keyboard::Up:
+				_input_flags_to_disable |= INPUT_UP;
+				break;
+			case sf::Keyboard::Down:
+				_input_flags_to_disable |= INPUT_DOWN;
+				break;
+			case sf::Keyboard::LShift:
+				_input_flags_to_disable |= INPUT_RUN;
+				break;
+			case sf::Keyboard::LControl:
+				_input_flags_to_disable |= INPUT_STEALTH;
+				break;
 			}
 		}
 	}
@@ -120,8 +120,11 @@ namespace ecs
 
 		for (auto [player_entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
 
-			if (!player_accepts_input) {
-				player.input = {};
+			if (player_accepts_input) {
+				player.input_flags |= _input_flags_to_enable;
+				player.input_flags &= ~_input_flags_to_disable;
+			} else {
+				player.input_flags = 0;
 			}
 
 			// UPDATE TIMERS
@@ -176,17 +179,17 @@ namespace ecs
 				sf::Vector2f new_move_dir;
 				float new_move_speed = 0.f;
 
-				if (player.input.left)  new_move_dir.x--;
-				if (player.input.right) new_move_dir.x++;
-				if (player.input.up)    new_move_dir.y--;
-				if (player.input.down)  new_move_dir.y++;
+				if (player.input_flags & INPUT_LEFT)  new_move_dir.x--;
+				if (player.input_flags & INPUT_RIGHT) new_move_dir.x++;
+				if (player.input_flags & INPUT_UP)    new_move_dir.y--;
+				if (player.input_flags & INPUT_DOWN)  new_move_dir.y++;
 
 				if (!is_zero(new_move_dir)) {
 					new_move_dir = normalize(new_move_dir);
 					player.look_dir = new_move_dir;
-					if (player.input.stealth) {
+					if (player.input_flags & INPUT_STEALTH) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;
-					} else if (player.input.run) {
+					} else if (player.input_flags & INPUT_RUN) {
 						new_move_speed = _PLAYER_RUN_SPEED;
 					} else {
 						new_move_speed = _PLAYER_WALK_SPEED;
@@ -195,16 +198,16 @@ namespace ecs
 
 				new_velocity = new_move_dir * new_move_speed;
 
-				if (player.input.use_sword) {
+				if (player.input_flags & INPUT_SWING_SWORD) {
 					tile.set_tile("sword_attack_"s + tile_dir);
 					audio::play("event:/snd_sword_attack");
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::SwingingSword;
-				} else if (player.input.shoot_bow && player.arrows > 0) {
+				} else if (player.input_flags & INPUT_SHOOT_BOW && player.arrows > 0) {
 					tile.set_tile("bow_shot_"s + tile_dir);
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::ShootingBow;
-				} else if (player.input.drop_bomb && player.bombs > 0) {
+				} else if (player.input_flags & INPUT_DROP_BOMB && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
@@ -213,7 +216,7 @@ namespace ecs
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_tile("walk_"s + tile_dir);
 					tile.set_flag(TF_LOOP, true);
-				} else if (player.input.interact) {
+				} else if (player.input_flags & INPUT_INTERACT) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {
 					tile.set_tile("idle_"s + tile_dir);
@@ -368,13 +371,16 @@ namespace ecs
 			ui::bindings::hud_bomb_ammo = player.bombs;
 			ui::bindings::hud_rupee_amount = player.rupees;
 
-			// CLEAR INPUT
+			// CLEAR ONE-SHOT INPUT FLAGS
 
-			player.input.interact = false;
-			player.input.use_sword = false;
-			player.input.shoot_bow = false;
-			player.input.drop_bomb = false;
+			player.input_flags &= ~INPUT_INTERACT;
+			player.input_flags &= ~INPUT_SWING_SWORD;
+			player.input_flags &= ~INPUT_SHOOT_BOW;
+			player.input_flags &= ~INPUT_DROP_BOMB;
 		}
+
+		_input_flags_to_enable = 0;
+		_input_flags_to_disable = 0;
 	}
 
 	void debug_draw_players()
