@@ -125,8 +125,8 @@ namespace map
 		_grid.tiles.resize(_grid.size.x * _grid.size.y);
 		_grid.open_tiles.clear();
 
-		for (int y = 0; y < _grid.size.x; ++y) {
-			for (int x = 0; x < _grid.size.y; ++x) {
+		for (int y = 0; y < _grid.size.y; ++y) {
+			for (int x = 0; x < _grid.size.x; ++x) {
 				int index = x + y * _grid.size.x;
 				_grid.tiles[index].position = sf::Vector2i(x, y);
 				_grid.tiles[index].passable = true;
@@ -137,15 +137,15 @@ namespace map
 			if (layer.tiles.size() != _grid.tiles.size())
 				continue;
 			if (layer.name == "Collision") {
-				for (int y = 0; y < _grid.size.x; ++y) {
-					for (int x = 0; x < _grid.size.y; ++x) {
+				for (int y = 0; y < _grid.size.y; ++y) {
+					for (int x = 0; x < _grid.size.x; ++x) {
 						int index = x + y * _grid.size.x;
 						_grid.tiles[index].passable = (layer.tiles[index].first == nullptr);
 					}
 				}
 			} else if (layer.name == "Under Sprite 1") {
-				for (int y = 0; y < _grid.size.x; ++y) {
-					for (int x = 0; x < _grid.size.y; ++x) {
+				for (int y = 0; y < _grid.size.y; ++y) {
+					for (int x = 0; x < _grid.size.x; ++x) {
 						int index = x + y * _grid.size.x;
 						const tiled::Tile* layer_tile = layer.tiles[index].first;
 						if (!layer_tile) continue;
