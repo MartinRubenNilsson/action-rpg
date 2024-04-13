@@ -17,7 +17,6 @@ namespace ecs
 {
 	int debug_flags = DEBUG_NONE;
 	entt::registry _registry;
-	float _time = 0.f;
 
 	void initialize() {
 		initialize_physics();
@@ -35,7 +34,6 @@ namespace ecs
 
 	void update(float dt)
 	{
-		_time += dt;
 		update_physics(dt);
 		update_players(dt);
 		update_pickups(dt);
