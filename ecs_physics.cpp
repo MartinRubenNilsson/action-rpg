@@ -7,9 +7,9 @@
 namespace ecs
 {
 	// IMPORTANT: The Box2D documentation says:
-	// Caution: Do not keep a reference to the pointers sent to b2ContactListener.
-	// Instead make a deep copy of the contact point data into your own buffer.
-	struct PhysicsContantListener : b2ContactListener
+	// "Caution: Do not keep a reference to the pointers sent to b2ContactListener.
+	// Instead make a deep copy of the contact point data into your own buffer."
+	struct PhysicsContactListener : b2ContactListener
 	{
 		std::vector<PhysicsContact> contacts;
 		
@@ -21,33 +21,34 @@ namespace ecs
 		}
 	};
 
+	sf::Vector2f _to_sf(const b2Vec2& vec) {
+		return sf::Vector2f(vec.x, vec.y);
+	}
+
+	sf::Color _to_sf(const b2Color& color) {
+		return sf::Color(
+			(sf::Uint8)(color.r * 255),
+			(sf::Uint8)(color.g * 255),
+			(sf::Uint8)(color.b * 255),
+			(sf::Uint8)(color.a * 255));
+	}
+
 	struct PhysicsDebugDrawer : b2Draw
 	{
-		static sf::Vector2f to_sf(const b2Vec2& vec) {
-			return sf::Vector2f(vec.x, vec.y);
-		}
-		static sf::Color to_sf(const b2Color& color)
-		{
-			return sf::Color(
-				(sf::Uint8)(color.r * 255),
-				(sf::Uint8)(color.g * 255),
-				(sf::Uint8)(color.b * 255),
-				(sf::Uint8)(color.a * 255));
-		};
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, to_sf(color));
+			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, to_sf(color));
+			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {
-			debug::draw_circle(to_sf(center), radius, to_sf(color));
+			debug::draw_circle(_to_sf(center), radius, _to_sf(color));
 		}
 		void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override {
-			debug::draw_circle(to_sf(center), radius, to_sf(color));
+			debug::draw_circle(_to_sf(center), radius, _to_sf(color));
 		}
 		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {
-			debug::draw_line(to_sf(p1), to_sf(p2), to_sf(color));
+			debug::draw_line(_to_sf(p1), _to_sf(p2), _to_sf(color));
 		}
 		void DrawTransform(const b2Transform& xf) override {}
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
@@ -58,7 +59,7 @@ namespace ecs
 	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
-	PhysicsContantListener _physics_contact_listener;
+	PhysicsContactListener _physics_contact_listener;
 	PhysicsDebugDrawer _physics_debug_drawer;
 	std::unique_ptr<b2World> _physics_world;
 	float _physics_time_accumulator = 0.f;
@@ -69,10 +70,10 @@ namespace ecs
 
 	void initialize_physics()
 	{
+		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
 		_physics_world = std::make_unique<b2World>(b2Vec2(0.f, 0.f));
 		_physics_world->SetContactListener(&_physics_contact_listener);
 		_physics_world->SetDebugDraw(&_physics_debug_drawer);
-		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 	}
 

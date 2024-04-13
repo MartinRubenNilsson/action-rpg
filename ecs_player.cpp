@@ -34,16 +34,16 @@ namespace ecs
 			if (ev.type == sf::Event::KeyPressed) {
 				switch (ev.key.code) {
 				case sf::Keyboard::Left:
-					player.input.axis_x--;
+					player.input.left = true;
 					break;
 				case sf::Keyboard::Right:
-					player.input.axis_x++;
+					player.input.right = true;
 					break;
 				case sf::Keyboard::Up:
-					player.input.axis_y--;
+					player.input.up = true;
 					break;
 				case sf::Keyboard::Down:
-					player.input.axis_y++;
+					player.input.down = true;
 					break;
 				case sf::Keyboard::LShift:
 					player.input.run = true;
@@ -67,16 +67,16 @@ namespace ecs
 			} else if (ev.type == sf::Event::KeyReleased) {
 				switch (ev.key.code) {
 				case sf::Keyboard::Left:
-					player.input.axis_x++;
+					player.input.left = false;
 					break;
 				case sf::Keyboard::Right:
-					player.input.axis_x--;
+					player.input.right = false;
 					break;
 				case sf::Keyboard::Up:
-					player.input.axis_y++;
+					player.input.up = false;
 					break;
 				case sf::Keyboard::Down:
-					player.input.axis_y--;
+					player.input.down = false;
 					break;
 				case sf::Keyboard::LShift:
 					player.input.run = false;
@@ -176,10 +176,13 @@ namespace ecs
 				sf::Vector2f new_move_dir;
 				float new_move_speed = 0.f;
 
-				if (player.input.axis_x || player.input.axis_y) {
-					new_move_dir = normalize({
-						(float)player.input.axis_x,
-						(float)player.input.axis_y });
+				if (player.input.left)  new_move_dir.x--;
+				if (player.input.right) new_move_dir.x++;
+				if (player.input.up)    new_move_dir.y--;
+				if (player.input.down)  new_move_dir.y++;
+
+				if (!is_zero(new_move_dir)) {
+					new_move_dir = normalize(new_move_dir);
 					player.look_dir = new_move_dir;
 					if (player.input.stealth) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;

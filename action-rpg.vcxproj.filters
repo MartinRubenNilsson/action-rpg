@@ -289,6 +289,9 @@
     <ClCompile Include="easings.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_portal.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -779,6 +782,9 @@
     </ClInclude>
     <ClInclude Include="easings.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_portal.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

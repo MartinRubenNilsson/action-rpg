@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="39" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="2">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="39" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="6" nextobjectid="3">
  <tileset firstgid="1" source="../tilesets/muddy cave/muddy cave v1.tsx"/>
  <tileset firstgid="321" source="../tilesets/characters/player/player.tsx"/>
  <layer id="1" name="Under Sprite 1" width="39" height="34">
@@ -42,6 +42,11 @@
  </layer>
  <objectgroup id="5" name="Entities">
   <object id="1" template="../templates/player.tx" x="124.667" y="308.667"/>
+  <object id="2" template="../templates/portal.tx" name="portal to summer_forest_00" x="544" y="320">
+   <properties>
+    <property name="target_map" value="summer_forest_00"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="2" name="Over Sprite 1" width="39" height="34">
   <data encoding="csv">

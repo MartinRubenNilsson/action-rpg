@@ -72,18 +72,20 @@ namespace ecs
 		_registry.emplace_or_replace<Class>(entity, class_);
 	}
 
-	std::string get_name(entt::entity entity)
+	const std::string _DUMMY_EMPTY_STRING;
+
+	const std::string& get_name(entt::entity entity)
 	{
 		if (auto name = _registry.try_get<const Name>(entity))
 			return name->value;
-		return "";
+		return _DUMMY_EMPTY_STRING;
 	}
 
-	std::string get_class(entt::entity entity)
+	const std::string& get_class(entt::entity entity)
 	{
 		if (auto class_ = _registry.try_get<const Class>(entity))
 			return class_->value;
-		return "";
+		return _DUMMY_EMPTY_STRING;
 	}
 
 	entt::entity find_entity_by_name(const std::string& name)

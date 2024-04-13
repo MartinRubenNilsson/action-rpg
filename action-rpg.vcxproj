@@ -208,6 +208,7 @@
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="ecs_portal.cpp" />
     <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="map_entities.cpp" />
@@ -387,6 +388,7 @@
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_arrow.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="ecs_portal.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="map_entities.h" />

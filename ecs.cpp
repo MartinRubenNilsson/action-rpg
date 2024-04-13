@@ -9,6 +9,7 @@
 #include "ecs_vfx.h"
 #include "ecs_pickups.h"
 #include "ecs_bomb.h"
+#include "ecs_portal.h"
 #include "console.h"
 #include "sprites.h"
 #include "debug_draw.h"
@@ -36,6 +37,7 @@ namespace ecs
 	{
 		update_physics(dt);
 		update_players(dt);
+		update_portals(dt);
 		update_pickups(dt);
 		update_bombs(dt);	
 		update_ai_logic(dt);

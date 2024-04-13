@@ -5,6 +5,7 @@
 #include "ecs_player.h"
 #include "ecs_pickups.h"
 #include "ecs_damage.h"
+#include "ecs_portal.h"
 #include "audio.h"
 
 namespace ecs
@@ -41,8 +42,7 @@ namespace ecs
 			if (class_b == "slime" || class_b == "bomb") {
 				apply_damage(entity_b, { DamageType::Projectile, 1 });
 			}
-		}
-		else if (class_a == "pickup") {
+		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 				//TODO: put somewehere else in a helper function
 				Player& player = _registry.get<Player>(entity_b);
@@ -68,10 +68,11 @@ namespace ecs
 					break;
 				}
 			}
-				destroy_at_end_of_frame(entity_a);
-			}
-		else if (class_a == "player") {
-			if (class_b == "slime") {
+			destroy_at_end_of_frame(entity_a);
+		} else if (class_a == "player") {
+			if (class_b == "portal") {
+				use_portal(entity_b);
+			} else if (class_b == "slime") {
 				apply_damage_to_player(entity_a, { DamageType::Melee, 1 });
 			}
 		}

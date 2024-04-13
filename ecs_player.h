@@ -6,8 +6,10 @@ namespace ecs
 	//TODO: refactor into PlayerInputFlags. except axis?
 	struct PlayerInput
 	{
-		int axis_x = 0;
-		int axis_y = 0;
+		bool left = false;
+		bool right = false;
+		bool up = false;
+		bool down = false;
 		bool run = false;
 		bool stealth = false;
 		bool interact = false;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <template>
- <object name="portal to muddy_cave_00" type="portal" width="16" height="16">
+ <object name="portal to (map)" type="portal" width="16" height="16">
   <properties>
-   <property name="map" value="muddy_cave_00"/>
+   <property name="target_map" value=""/>
   </properties>
  </object>
 </template>

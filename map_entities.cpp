@@ -10,6 +10,7 @@
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
+#include "ecs_portal.h"
 #include "character.h"
 #include "audio.h"
 
@@ -184,6 +185,10 @@ namespace map
 					}
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
+				} else if (object.class_ == "portal") {
+					ecs::Portal portal{};
+					object.properties.get_string("target_map", portal.target_map);
+					ecs::emplace_portal(entity, portal);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
 					camera.view.center = { x, y };

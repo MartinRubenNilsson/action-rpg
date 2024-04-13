@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="28">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="30">
  <properties>
   <property name="music" value="mus_forest"/>
  </properties>
@@ -135,7 +135,11 @@
    </properties>
    <point/>
   </object>
-  <object id="26" template="../templates/portal.tx" type="portal" x="32" y="320"/>
+  <object id="29" template="../templates/portal.tx" name="portal to muddy_cave_00" x="32" y="320">
+   <properties>
+    <property name="target_map" value="muddy_cave_00"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">
