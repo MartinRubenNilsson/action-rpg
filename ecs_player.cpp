@@ -440,8 +440,16 @@ namespace ecs
 		return _registry.get<Player>(entity);
 	}
 
+	Player* try_get_player(entt::entity entity) {
+		return _registry.try_get<Player>(entity);
+	}
+
 	bool remove_player(entt::entity entity) {
 		return _registry.remove<Player>(entity);
+	}
+
+	bool has_player(entt::entity entity) {
+		return _registry.all_of<Player>(entity);
 	}
 
 	bool kill_player(entt::entity entity)

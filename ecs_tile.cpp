@@ -253,10 +253,6 @@ namespace ecs
 			sprites::draw(sprite);
 		}
 	}
-	
-	bool has_tile(entt::entity entity) {
-		return _registry.all_of<Tile>(entity);
-	}
 
 	Tile& emplace_tile(entt::entity entity) {
 		return _registry.emplace_or_replace<Tile>(entity);
@@ -276,5 +272,9 @@ namespace ecs
 
 	bool remove_tile(entt::entity entity) {
 		return _registry.remove<Tile>(entity);
+	}
+
+	bool has_tile(entt::entity entity) {
+		return _registry.all_of<Tile>(entity);
 	}
 }

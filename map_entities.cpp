@@ -42,12 +42,16 @@ namespace map
 
 		// Save the player's state before destroying entities.
 		std::optional<ecs::Player> last_player;
+		std::optional<ecs::Character> last_player_character;
 		{
-			entt::entity last_player_entity = ecs::get_player_entity();
-			if (ecs::valid(last_player_entity))
-				last_player = ecs::get_player(last_player_entity);
+			entt::entity player_entity = ecs::get_player_entity();
+			if (ecs::Player* player = ecs::try_get_player(player_entity))
+				last_player = *player;
+			if (ecs::Character* character = ecs::try_get_character(player_entity))
+				last_player_character = *character;
 		}
 
+		// Destroy all entities before creating new ones.
 		destroy_entities();
 
 		// Create object entities first. This is because we want to be sure that the
@@ -176,27 +180,33 @@ namespace map
 				// CLASS-SPECIFIC ENTITY SETUP
 
 				if (object.class_ == "player") {
-					{
-						ecs::Player player{};
-						if (last_player)
-							player = *last_player;
-						player.held_item = ecs::create();
-						ecs::emplace_tile(player.held_item);
-						ecs::emplace_player(entity, player);
-					}
-					{
-						ecs::Camera camera{};
-						camera.follow = entity;
-						camera.confines_min = map_bounds_min;
-						camera.confines_max = map_bounds_max;
-						ecs::emplace_camera(entity, camera);
-						ecs::activate_camera(entity, true);
-					}
-					if (ecs::Tile* tile = ecs::try_get_tile(entity)) {
-						ecs::Character character{};
+
+					ecs::Player player{};
+					if (last_player)
+						player = *last_player;
+					player.held_item = ecs::create();
+					ecs::emplace_tile(player.held_item);
+					ecs::emplace_player(entity, player);
+
+					ecs::Camera camera{};
+					camera.follow = entity;
+					camera.confines_min = map_bounds_min;
+					camera.confines_max = map_bounds_max;
+					ecs::emplace_camera(entity, camera);
+					ecs::activate_camera(entity, true);
+
+					ecs::Character character{};
+					if (last_player_character) {
+						character = *last_player_character;
+					} else {
 						character.randomize();
+					}
+					ecs::emplace_character(entity, character);
+
+					if (ecs::Tile* tile = ecs::try_get_tile(entity)) {
 						tile->texture = character.bake_texture();
 					}
+
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "portal") {
