@@ -64,6 +64,10 @@ namespace ecs
 			_entities_to_destroy.insert(entity);
 	}
 
+	bool valid(entt::entity entity) {
+		return _registry.valid(entity);
+	}
+
 	void set_name(entt::entity entity, const std::string& name) {
 		_registry.emplace_or_replace<Name>(entity, name);
 	}

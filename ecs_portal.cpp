@@ -8,6 +8,7 @@ namespace ecs
 
 	void update_portals(float dt)
 	{
+		//Empty
 	}
 
 	Portal& emplace_portal(entt::entity entity, const Portal& portal) {

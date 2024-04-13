@@ -9,17 +9,16 @@ namespace tiled
 
 namespace ecs
 {
-	enum TileFlags
+	enum TileFlags : uint32_t
 	{
-		TF_NONE           = 0,
-		TF_VISIBLE        = 1 << 0, // if not set, the tile is not rendered
-		TF_FLIP_X         = 1 << 1, // flip the sprite horizontally
-		TF_FLIP_Y         = 1 << 2, // flip the sprite vertically
-		TF_FLIP_DIAGONAL  = 1 << 3, // flip the bottom-left and top-right corners
-		TF_LOOP           = 1 << 4, // loop the animation
-		TF_FLIP_X_ON_LOOP = 1 << 5, // flip the sprite horizontally when the animation loops
-		TF_FRAME_CHANGED  = 1 << 6, // the animation frame changed last update
-		TF_LOOPED	      = 1 << 7, // the animation looped last update
+		TF_VISIBLE        = (1 << 0), // if not set, the tile is not rendered
+		TF_FLIP_X         = (1 << 1), // flip the sprite horizontally
+		TF_FLIP_Y         = (1 << 2), // flip the sprite vertically
+		TF_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
+		TF_LOOP           = (1 << 4), // loop the animation
+		TF_FLIP_X_ON_LOOP = (1 << 5), // flip the sprite horizontally when the animation loops
+		TF_FRAME_CHANGED  = (1 << 6), // the animation frame changed last update
+		TF_LOOPED	      = (1 << 7), // the animation looped last update
 	};
 
 	class Tile
@@ -72,7 +71,7 @@ namespace ecs
 	bool has_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
-	Tile& get_tile(entt::entity entity); // WARNING: undefined behavior if the entity does not have a tile component
+	Tile& get_tile(entt::entity entity); // Undefined behavior if entity does not have a Tile component!
 	Tile* try_get_tile(entt::entity entity);
 	bool remove_tile(entt::entity entity);
 }

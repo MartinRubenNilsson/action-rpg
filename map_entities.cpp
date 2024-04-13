@@ -40,9 +40,12 @@ namespace map
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
 
-		std::optional<ecs::Player> player;
-		
+		// Save the player's state before destroying entities.
+		std::optional<ecs::Player> last_player;
 		{
+			entt::entity last_player_entity = ecs::get_player_entity();
+			if (ecs::valid(last_player_entity))
+				last_player = ecs::get_player(last_player_entity);
 		}
 
 		destroy_entities();
@@ -175,6 +178,9 @@ namespace map
 				if (object.class_ == "player") {
 					{
 						ecs::Player player{};
+						if (last_player) {
+							player = *last_player;
+						}
 						player.held_item = ecs::create();
 						ecs::emplace_tile(player.held_item);
 						ecs::emplace_player(entity, player);

@@ -14,6 +14,7 @@ namespace ecs
 	entt::entity deep_copy(entt::entity entity);
 	void destroy_immediately(entt::entity entity);
 	void destroy_at_end_of_frame(entt::entity entity);
+	bool valid(entt::entity entity);
 
 	// NAME AND CLASS
 

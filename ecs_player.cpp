@@ -428,8 +428,16 @@ namespace ecs
 		ImGui::End();
 	}
 
+	entt::entity get_player_entity() {
+		return _registry.view<Player>().front();
+	}
+
 	Player& emplace_player(entt::entity entity, const Player& player) {
 		return _registry.emplace_or_replace<Player>(entity, player);
+	}
+
+	Player& get_player(entt::entity entity) {
+		return _registry.get<Player>(entity);
 	}
 
 	bool remove_player(entt::entity entity) {
