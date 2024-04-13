@@ -185,8 +185,8 @@ namespace ecs
 				if (player.input_flags & INPUT_DOWN)  new_move_dir.y++;
 
 				if (!is_zero(new_move_dir)) {
-					new_move_dir = normalize(new_move_dir);
 					player.look_dir = new_move_dir;
+					new_move_dir = normalize(new_move_dir);
 					if (player.input_flags & INPUT_STEALTH) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;
 					} else if (player.input_flags & INPUT_RUN) {
@@ -428,8 +428,8 @@ namespace ecs
 		ImGui::End();
 	}
 
-	void emplace_player(entt::entity entity, const Player& player) {
-		_registry.emplace_or_replace<Player>(entity, player);
+	Player& emplace_player(entt::entity entity, const Player& player) {
+		return _registry.emplace_or_replace<Player>(entity, player);
 	}
 
 	bool remove_player(entt::entity entity) {

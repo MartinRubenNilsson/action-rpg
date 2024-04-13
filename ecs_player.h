@@ -49,7 +49,7 @@ namespace ecs
 	void update_players(float dt);
 	void debug_draw_players();
 
-	void emplace_player(entt::entity entity, const Player& player = Player());
+	Player& emplace_player(entt::entity entity, const Player& player = {});
 	bool remove_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);
