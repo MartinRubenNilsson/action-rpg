@@ -249,7 +249,6 @@
     <ClCompile Include="cursor.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="character.cpp" />
     <ClCompile Include="map_tilegrid.cpp">
       <Filter>map</Filter>
     </ClCompile>
@@ -290,6 +289,9 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="ecs_portal.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_character.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -578,7 +580,6 @@
     <ClInclude Include="ecs_player.h">
       <Filter>ecs\player</Filter>
     </ClInclude>
-    <ClInclude Include="character.h" />
     <ClInclude Include="background.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -784,6 +785,9 @@
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="ecs_portal.h">
+      <Filter>ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_character.h">
       <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>

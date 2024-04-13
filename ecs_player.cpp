@@ -15,7 +15,7 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "random.h"
-#include "character.h"
+#include "ecs_character.h"
 #include "debug_draw.h"
 #include "map_tilegrid.h"
 

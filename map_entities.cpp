@@ -11,7 +11,7 @@
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ecs_portal.h"
-#include "character.h"
+#include "ecs_character.h"
 #include "audio.h"
 
 namespace map
@@ -178,9 +178,8 @@ namespace map
 				if (object.class_ == "player") {
 					{
 						ecs::Player player{};
-						if (last_player) {
+						if (last_player)
 							player = *last_player;
-						}
 						player.held_item = ecs::create();
 						ecs::emplace_tile(player.held_item);
 						ecs::emplace_player(entity, player);
@@ -194,7 +193,7 @@ namespace map
 						ecs::activate_camera(entity, true);
 					}
 					if (ecs::Tile* tile = ecs::try_get_tile(entity)) {
-						Character character{};
+						ecs::Character character{};
 						character.randomize();
 						tile->texture = character.bake_texture();
 					}
