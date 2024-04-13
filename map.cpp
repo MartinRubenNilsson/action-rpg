@@ -17,6 +17,7 @@ namespace map
 		Reset,
 	};
 
+	bool debug = false;
 	const tiled::Map* _map = nullptr;
 	Request _request = Request::None;
 	std::string _name_of_map_to_open;
@@ -105,13 +106,5 @@ namespace map
 
 	std::string get_name() {
 		return _map ? _map->name : "";
-	}
-
-	sf::FloatRect get_world_bounds()
-	{
-		if (!_map) return sf::FloatRect();
-		return sf::FloatRect(0.f, 0.f,
-			(float)_map->width * _map->tile_width,
-			(float)_map->height * _map->tile_height);
 	}
 }

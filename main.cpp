@@ -104,6 +104,8 @@ int main(int argc, char* argv[])
                         ecs::debug_flags ^= ecs::DEBUG_PLAYER;
                     else if (ev.key.code == sf::Keyboard::F6)
                         ui::debug = !ui::debug;
+                    else if (ev.key.code == sf::Keyboard::F7)
+                        map::debug = !map::debug;
 #endif
                 }
                 ImGui::SFML::ProcessEvent(window, ev);

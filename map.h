@@ -2,6 +2,8 @@
 
 namespace map
 {
+	extern bool debug;
+
 	// Calling open(), close(), or reset() will not immediately change the map.
 	// Instead, the change will be queued and will take effect when update() is called.
 
@@ -12,5 +14,4 @@ namespace map
 
 	bool is_open();
 	std::string get_name();
-	sf::FloatRect get_world_bounds();
 }

@@ -1,5 +1,5 @@
-bind o "map_open muddy_cave_00"
+bind o "map_open summer_forest_00"
 bind p map_close
 bind r reload_shaders
-map_open muddy_cave_00
+map_open summer_forest_00
 ui_show hud
