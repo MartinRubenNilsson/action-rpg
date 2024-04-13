@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
         ImGui::SFML::Update(window, dt);
         console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update.
         background::update(dt.asSeconds());
-        map::update();
+        map::update(dt.asSeconds());
         audio::update();
         ui::update(dt.asSeconds());
         debug::update(dt.asSeconds());

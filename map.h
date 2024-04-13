@@ -2,16 +2,26 @@
 
 namespace map
 {
+	enum class RequestType
+	{
+		Open, // Open a new map.
+		Close, // Close the current map.
+		Reset, // Reset the current map.
+	};
+
+	struct Request
+	{
+		RequestType type = RequestType::Open;
+		std::string map_name;
+		bool reset_if_already_open = false;
+	};
+
 	extern bool debug;
 
-	// Calling open(), close(), or reset() will not immediately change the map.
-	// Instead, the change will be queued and will take effect when update() is called.
+	void update(float dt);
 
-	void open(const std::string& map_name, bool reset_if_open = false);
-	void close();
-	void reset();
-	void update();
-
-	bool is_open();
-	std::string get_name();
+	bool request(const Request& request);
+	bool open(const std::string& map_name);
+	bool close();
+	bool reset();
 }
