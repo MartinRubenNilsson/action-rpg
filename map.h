@@ -13,7 +13,6 @@ namespace map
 	{
 		RequestType type = RequestType::Open;
 		std::string map_name;
-		bool reset_if_already_open = false;
 	};
 
 	extern bool debug;

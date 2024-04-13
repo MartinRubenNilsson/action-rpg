@@ -80,7 +80,7 @@ namespace ecs
 		if (class_.empty()) return false;
 		if (!_tile) return false; // no tileset to look in
 		if (class_ == _tile->class_) return false;
-		return _set_tile(_tile->tileset->find_tile_by_class(class_));
+		return _set_tile(tiled::find_tile_by_class(*_tile->tileset, class_));
 	}
 
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
@@ -94,7 +94,7 @@ namespace ecs
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
 		if (!tileset) return false;
-		return _set_tile(tileset->find_tile_by_class(class_));
+		return _set_tile(tiled::find_tile_by_class(*tileset, class_));
 	}
 
 	// For optimization purposes; returning a reference to a dummy object
@@ -227,7 +227,9 @@ namespace ecs
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
 			sf::IntRect texture_rect = tile.get_texture_rect();
 			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
-			sprite.tex_max = { (float)texture_rect.left + texture_rect.width, (float)texture_rect.top + texture_rect.height };
+			sprite.tex_max = {
+				(float)texture_rect.left + texture_rect.width,
+				(float)texture_rect.top + texture_rect.height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader = tile.shader.get();

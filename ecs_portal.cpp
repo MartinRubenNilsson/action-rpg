@@ -18,11 +18,12 @@ namespace ecs
 		return _registry.remove<Portal>(entity);
 	}
 
-	bool use_portal(entt::entity entity)
+	bool activate_portal(entt::entity entity)
 	{
-		Portal* portal = _registry.try_get<Portal>(entity);
-		if (!portal) return false;
-		portal->used = true;
-		return map::open(portal->target_map);
+		if (!_registry.all_of<Portal>(entity)) return false;
+		Portal& portal = _registry.get<Portal>(entity);
+		if (portal.activated) return false;
+		portal.activated = true;
+		return map::open(portal.target_map);
 	}
 }

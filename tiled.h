@@ -115,8 +115,6 @@ namespace tiled
 		uint32_t tile_height = 0; // in pixels
 		uint32_t spacing = 0; // in pixels
 		uint32_t margin = 0; // in pixels
-
-		const Tile* find_tile_by_class(const std::string& class_) const;
 	};
 
 	struct Layer
@@ -148,10 +146,14 @@ namespace tiled
 	void load_assets(const std::filesystem::path& dir);
 	void unload_assets();
 
-	const std::vector<Tileset>& get_tilesets();
-	const std::vector<Object>& get_templates();
-	const std::vector<Map>& get_maps();
+	std::span<const Tileset> get_tilesets();
+	std::span<const Object> get_templates();
+	std::span<const Map> get_maps();
 
+	const Map* find_map_by_name(const std::string& name);
 	const Tileset* find_tileset_by_name(const std::string& name);
+	const Object* find_object_by_name(const Layer& layer, const std::string& name);
+	const Object* find_object_by_name(const Map& map, const std::string& name);
+	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_);
 }
 

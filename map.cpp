@@ -13,15 +13,6 @@ namespace map
 	std::string _map_name;
 	std::optional<Request> _request;
 
-	const tiled::Map* _find_tiled_map(const std::string& map_name)
-	{
-		if (map_name.empty()) return nullptr;
-		for (const tiled::Map& map : tiled::get_maps())
-			if (map.name == map_name)
-				return &map;
-		return nullptr;
-	}
-
 	void _debug(float dt)
 	{
 		ImGui::Begin("Maps");
@@ -45,12 +36,12 @@ namespace map
 		if (debug) _debug(dt);
 		if (!_request) return;
 
-		const tiled::Map* current_map = _find_tiled_map(_map_name);
+		const tiled::Map* current_map = tiled::find_map_by_name(_map_name);
 		const tiled::Map* next_map = nullptr;
 
 		switch (_request->type) {
 		case RequestType::Open:
-			next_map = _find_tiled_map(_request->map_name);
+			next_map = tiled::find_map_by_name(_request->map_name);
 			break;
 		case RequestType::Reset:
 			next_map = current_map;
@@ -63,7 +54,6 @@ namespace map
 		// CLOSE CURRENT MAP
 
 		if (current_map) {
-			destroy_entities();
 			audio::stop_all_in_bus(audio::BUS_SOUND);
 			ui::close_textbox_and_clear_queue();
 		}
@@ -71,6 +61,7 @@ namespace map
 		// OPEN NEXT MAP
 
 		if (!next_map) {
+			destroy_entities();
 			destroy_tilegrid();
 			audio::stop_all_in_bus();
 			return;
@@ -94,12 +85,8 @@ namespace map
 		switch (request.type) {
 		case RequestType::Open:
 			if (request.map_name.empty()) return false;
-			if (_map_name == request.map_name) {
-				if (!request.reset_if_already_open) return false;
-				_request = { RequestType::Reset };
-				return true;
-			}
-			if (!_find_tiled_map(request.map_name)) {
+			if (_map_name == request.map_name) return false;
+			if (!tiled::find_map_by_name(request.map_name)) {
 				console::log_error("Map not found: " + request.map_name);
 				return false;
 			}

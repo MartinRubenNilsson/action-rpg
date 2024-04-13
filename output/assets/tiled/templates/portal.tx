@@ -3,6 +3,7 @@
  <object name="portal to (map)" type="portal" width="16" height="16">
   <properties>
    <property name="target_map" value=""/>
+   <property name="target_point" value=""/>
   </properties>
  </object>
 </template>

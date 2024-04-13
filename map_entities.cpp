@@ -36,7 +36,16 @@ namespace map
 	void create_entities(const tiled::Map& map)
 	{
 		const sf::Vector2f map_bounds_min = { 0.f, 0.f };
-		const sf::Vector2f map_bounds_max = { (float)map.width * map.tile_width, (float)map.height * map.tile_height };
+		const sf::Vector2f map_bounds_max = {
+			(float)map.width * map.tile_width,
+			(float)map.height * map.tile_height };
+
+		std::optional<ecs::Player> player;
+		
+		{
+		}
+
+		destroy_entities();
 
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
@@ -188,6 +197,13 @@ namespace map
 				} else if (object.class_ == "portal") {
 					ecs::Portal portal{};
 					object.properties.get_string("target_map", portal.target_map);
+					std::string target_point_name;
+					if (object.properties.get_string("target_point", target_point_name)) {
+						if (const tiled::Object* target_point = tiled::find_object_by_name(layer, target_point_name)) {
+							portal.target_pos = target_point->position;
+							portal.has_target_pos = true;
+						}
+					}
 					ecs::emplace_portal(entity, portal);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};

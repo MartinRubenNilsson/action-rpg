@@ -410,16 +410,24 @@ namespace tiled
 		_tilesets.clear();
 	}
 
-	const std::vector<Tileset>& get_tilesets() {
+	std::span<const Tileset> get_tilesets() {
 		return _tilesets;
 	}
 
-	const std::vector<Object>& get_templates() {
+	std::span<const Object> get_templates() {
 		return _templates;
 	}
 
-	const std::vector<Map>& get_maps() {
+	std::span<const Map> get_maps() {
 		return _maps;
+	}
+
+	const Map* find_map_by_name(const std::string& name)
+	{
+		for (const Map& map : _maps)
+			if (map.name == name)
+				return &map;
+		return nullptr;
 	}
 
 	const Tileset* find_tileset_by_name(const std::string& name)
@@ -430,9 +438,26 @@ namespace tiled
 		return nullptr;
 	}
 
-	const Tile* Tileset::find_tile_by_class(const std::string& class_) const
+	const Object* find_object_by_name(const Layer& layer, const std::string& name)
 	{
-		for (const Tile& tile : tiles)
+		for (const Object& object : layer.objects)
+			if (object.name == name)
+				return &object;
+		return nullptr;
+	}
+
+	const Object* find_object_by_name(const Map& map, const std::string& name)
+	{
+		for (const Layer& layer : map.layers)
+			for (const Object& object : layer.objects)
+				if (object.name == name)
+					return &object;
+		return nullptr;
+	}
+
+	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
+	{
+		for (const Tile& tile : tileset.tiles)
 			if (tile.class_ == class_)
 				return &tile;
 		return nullptr;

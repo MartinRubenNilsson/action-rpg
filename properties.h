@@ -5,7 +5,7 @@ class Properties
 public:
 	bool empty() const { return _properties.empty(); }
 	void clear() { _properties.clear(); }
-	bool has(const std::string& name) const { return std::ranges::binary_search(_properties, name, {}, &Property::first); }
+	bool contains(const std::string& name) const { return std::ranges::binary_search(_properties, name, {}, &Property::first); }
 	void set_string(const std::string& name, const std::string& value) { set(name, value); }
 	bool get_string(const std::string& name, std::string& value) const { return get(name, value); }
 	void set_int(const std::string& name, int value) { set(name, value); }
@@ -16,6 +16,8 @@ public:
 	bool get_bool(const std::string& name, bool& value) const { return get(name, value); }
 	void set_entity(const std::string& name, entt::entity value) { set(name, value); }
 	bool get_entity(const std::string& name, entt::entity& value) const { return get(name, value); }
+	void set_vector2f(const std::string& name, const sf::Vector2f& value) { set(name, value); }
+	bool get_vector2f(const std::string& name, sf::Vector2f& value) const { return get(name, value); }
 
 private:
 	using Value = std::variant<
@@ -23,7 +25,8 @@ private:
 		int,
 		float,
 		bool,
-		entt::entity
+		entt::entity,
+		sf::Vector2f
 	>;
 
 	using Property = std::pair<std::string, Value>;
