@@ -40,15 +40,19 @@ namespace map
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
 
-		// Save the player's state before destroying entities.
+		// Save some game state before destroying all entities.
 		std::optional<ecs::Player> last_player;
 		std::optional<ecs::Character> last_player_character;
+		std::optional<ecs::Portal> last_active_portal;
 		{
-			entt::entity player_entity = ecs::get_player_entity();
+			entt::entity player_entity = ecs::find_player_entity();
 			if (ecs::Player* player = ecs::try_get_player(player_entity))
 				last_player = *player;
 			if (ecs::Character* character = ecs::try_get_character(player_entity))
 				last_player_character = *character;
+			entt::entity portal_entity = ecs::find_active_portal_entity();
+			if (ecs::Portal* portal = ecs::try_get_portal(portal_entity))
+				last_active_portal = *portal;
 		}
 
 		// Destroy all entities before creating new ones.
@@ -78,12 +82,24 @@ namespace map
 				float h = object.size.y;
 
 				if (object.type == tiled::ObjectType::Tile) {
-					assert(object.tile && "Tile not found.");
-
 					// Objects are positioned by their top-left corner, except for tiles,
 					// which are positioned by their bottom-left corner. This is confusing,
 					// so let's adjust the position here to make it consistent.
 					y -= h;
+				}
+
+				if (object.class_ == "player") {
+					if (last_active_portal && !last_active_portal->target_point.empty()) {
+						if (const tiled::Object* target_point =
+							tiled::find_object_by_name(map, last_active_portal->target_point)) {
+							x = target_point->position.x - w / 2.f;
+							y = target_point->position.y - h / 2.f;
+						}
+					}
+				}
+
+				if (object.type == tiled::ObjectType::Tile) {
+					assert(object.tile && "Tile not found.");
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
 					ecs_tile.position = sf::Vector2f(x, y);
@@ -210,16 +226,9 @@ namespace map
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "portal") {
-					ecs::Portal portal{};
+					ecs::Portal& portal = ecs::emplace_portal(entity);
 					object.properties.get_string("target_map", portal.target_map);
-					std::string target_point_name;
-					if (object.properties.get_string("target_point", target_point_name)) {
-						if (const tiled::Object* target_point = tiled::find_object_by_name(layer, target_point_name)) {
-							portal.target_pos = target_point->position;
-							portal.has_target_pos = true;
-						}
-					}
-					ecs::emplace_portal(entity, portal);
+					object.properties.get_string("target_point", portal.target_point);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
 					camera.view.center = { x, y };

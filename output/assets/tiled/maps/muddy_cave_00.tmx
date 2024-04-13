@@ -42,13 +42,13 @@
  </layer>
  <objectgroup id="5" name="Entities">
   <object id="1" template="../templates/player.tx" x="124.667" y="308.667"/>
-  <object id="2" template="../templates/portal.tx" name="to cave entrance" x="541.667" y="320">
+  <object id="2" template="../templates/portal.tx" name="to cave entrance" x="544" y="304">
    <properties>
     <property name="target_map" value="summer_forest_00"/>
     <property name="target_point" value="cave entrance"/>
    </properties>
   </object>
-  <object id="3" name="platform" x="526" y="350.333">
+  <object id="3" name="cave platform" x="535" y="344.667">
    <point/>
   </object>
  </objectgroup>

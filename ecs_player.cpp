@@ -428,10 +428,6 @@ namespace ecs
 		ImGui::End();
 	}
 
-	entt::entity get_player_entity() {
-		return _registry.view<Player>().front();
-	}
-
 	Player& emplace_player(entt::entity entity, const Player& player) {
 		return _registry.emplace_or_replace<Player>(entity, player);
 	}
@@ -450,6 +446,10 @@ namespace ecs
 
 	bool has_player(entt::entity entity) {
 		return _registry.all_of<Player>(entity);
+	}
+
+	entt::entity find_player_entity() {
+		return _registry.view<Player>().front();
 	}
 
 	bool kill_player(entt::entity entity)
