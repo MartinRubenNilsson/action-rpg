@@ -148,7 +148,7 @@ namespace ecs
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				sf::Vector2f my_new_dir = my_old_dir;
+				my_new_dir = my_old_dir;
 				if (is_zero(my_new_dir))
 					my_new_dir = random::on_circle();
 				float noise_sample = random::fractal_perlin_noise(
