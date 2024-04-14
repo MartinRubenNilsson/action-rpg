@@ -14,6 +14,11 @@
 #include "ecs_character.h"
 #include "audio.h"
 
+// Precautionary measure so people don't access entt::registry directly in this file.
+#define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
+#define registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
+#define _registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
+
 namespace map
 {
 	const std::unordered_map<std::string, sprites::SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
@@ -35,12 +40,29 @@ namespace map
 
 	void create_entities(const tiled::Map& map)
 	{
+		//
+		// IMPORTANT:
+		// 
+		// In a school project I was a part of, we had a similar function to this one,
+		// with the difference being that we used functions like entt::registry::emplace()
+		// directly. It turns out that this caused a lot of template bloat, which slowed down
+		// compilation times, and eventually made the .cpp file too large to compile.
+		// 
+		// The solution was to wrap calls to entt::registry::emplace() in our own helper functions
+		// and put them in separate .cpp files, so each template is instantiated in its own unit.
+		// This is why we have functions like ecs::emplace_tile() and ecs::emplace_body().
+		//
+		// TLDR: You may NOT access entt::registry directly in this file! Make a helper function
+		// in ecs_[your component here].cpp and call that instead!
+		//
+
 		const sf::Vector2f map_bounds_min = { 0.f, 0.f };
 		const sf::Vector2f map_bounds_max = {
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
 
-		// Save some game state before destroying entities.
+		// Save some components to be carried over between maps,
+		// or that is needed in general when populating the new map.
 		std::optional<ecs::Player> last_player;
 		std::optional<ecs::Character> last_player_character;
 		std::optional<ecs::Portal> last_active_portal;

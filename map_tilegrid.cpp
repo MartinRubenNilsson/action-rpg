@@ -105,7 +105,7 @@ namespace map
 		return &_grid.tiles[position.x + position.y * _grid.size.x];
 	}
 
-	TerrainType _terrain_name_to_type(std::string name)
+	TerrainType _terrain_name_to_type(std::string name) // Intentional copy of name by value
 	{
 		name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
 		auto type = magic_enum::enum_cast<TerrainType>(name, magic_enum::case_insensitive);

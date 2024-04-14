@@ -10,15 +10,16 @@
 namespace map
 {
 	bool debug = false;
-	std::string _map_name;
+	std::string _current_map_name;
 	std::optional<TransitionOptions> _transition;
+	float _transition_progress = 0.f;
 
 	void _debug(float dt)
 	{
 		ImGui::Begin("Maps");
-		if (ImGui::BeginCombo("Map", _map_name.c_str())) {
+		if (ImGui::BeginCombo("Map", _current_map_name.c_str())) {
 			for (const tiled::Map& map : tiled::get_maps()) {
-				bool is_selected = (_map_name == map.name);
+				bool is_selected = (_current_map_name == map.name);
 				if (ImGui::Selectable(map.name.c_str(), is_selected))
 					open(map.name);
 				if (is_selected)
@@ -36,20 +37,22 @@ namespace map
 		if (debug) _debug(dt);
 		if (!_transition) return;
 
-		const tiled::Map* current_map = tiled::find_map_by_name(_map_name);
+		const tiled::Map* current_map = tiled::find_map_by_name(_current_map_name);
 		const tiled::Map* next_map = nullptr;
 
 		switch (_transition->type) {
 		case TransitionType::Open:
-			next_map = tiled::find_map_by_name(_transition->map_name);
+			next_map = tiled::find_map_by_name(_transition->next_map_name);
 			break;
+		case TransitionType::Close:
+			break; // Intentionally let next_map be nullptr.
 		case TransitionType::Reset:
 			next_map = current_map;
 			break;
 		}
 
 		_transition.reset();
-		_map_name = next_map ? next_map->name : "";
+		_current_map_name = next_map ? next_map->name : "";
 
 		// CLOSE CURRENT MAP
 
@@ -80,22 +83,27 @@ namespace map
 		}
 	}
 
+	float get_transition_progress() {
+		return _transition_progress;
+	}
+
 	bool transition(const TransitionOptions& options)
 	{
 		if (_transition) return false;
 		switch (options.type) {
 		case TransitionType::Open:
-			if (options.map_name.empty()) return false;
-			if (_map_name == options.map_name) return false;
-			if (!tiled::find_map_by_name(options.map_name)) {
-				console::log_error("Map not found: " + options.map_name);
+			if (options.next_map_name.empty()) return false;
+			if (_current_map_name == options.next_map_name) return false;
+			if (!tiled::find_map_by_name(options.next_map_name)) {
+				console::log_error("Map not found: " + options.next_map_name);
 				return false;
 			}
 			_transition = options;
 			return true;
 		case TransitionType::Close:
+			[[fallthrough]];
 		case TransitionType::Reset:
-			if (_map_name.empty()) return false;
+			if (_current_map_name.empty()) return false;
 			_transition = options;
 			return true;
 		default:
@@ -103,8 +111,8 @@ namespace map
 		}
 	}
 
-	bool open(const std::string& map_name) {
-		return transition({ TransitionType::Open, map_name });
+	bool open(const std::string& next_map_name) {
+		return transition({ TransitionType::Open, next_map_name });
 	}
 
 	bool close() {

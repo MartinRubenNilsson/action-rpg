@@ -155,6 +155,7 @@ int main(int argc, char* argv[])
             ecs::update(dt.asSeconds());
             postprocessing::update(dt.asSeconds());
         }
+        postprocessing::set_screen_transition_progress(map::get_transition_progress());
 
         switch (ui::get_top_menu()) {
         case ui::MenuType::Pause:
