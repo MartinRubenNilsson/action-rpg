@@ -49,15 +49,15 @@ namespace ecs
 	void update_players(float dt);
 	void debug_draw_players();
 
+	// Returns the first entity with a Player component, or entt::null if none exists.
+	// Try to avoid using this function, as it can lead to spaghetti code.
+	entt::entity find_player_entity();
+
 	Player& emplace_player(entt::entity entity, const Player& player = {});
 	Player& get_player(entt::entity entity); // Undefined behavior if entity does not have a Player component!
 	Player* try_get_player(entt::entity entity);
 	bool remove_player(entt::entity entity);
 	bool has_player(entt::entity entity);
-
-	// Returns the first entity with a Player component, or entt::null if none exists.
-	// Try to avoid using this function, as it can lead to spaghetti code.
-	entt::entity find_player_entity();
 
 	bool kill_player(entt::entity entity);
 }

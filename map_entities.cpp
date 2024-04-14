@@ -260,7 +260,7 @@ namespace map
 					camera.view.center = { x, y };
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
-					ecs::get_entity(entity, "follow", camera.entity_to_follow);
+					object.properties.get_entity("follow", camera.entity_to_follow);
 					ecs::emplace_camera(entity, camera);
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;

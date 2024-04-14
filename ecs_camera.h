@@ -5,10 +5,10 @@
 
 namespace ecs
 {
-	// view:               The camera view, which determines the camera's position, rotation, and zoom.
+	// view:               The camera view, which determines which part of the world is visible.
 	// confines_min/max:   The camera view will be confined to this box. If the width or height is zero,
 	//                     the view will not be confined along that axis, and if the width or height is
-	//                     smaller than that of the view, the view will be centered on the box.
+	//                     smaller than that of the view, the view will be centered on the confining box.
 	// shake_offset:       The current camera shake offset.
 	// shake_amplitude:    The amplitude of the camera shake.
 	// shake_frequency:    The frequency of the camera shake.
