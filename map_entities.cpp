@@ -43,7 +43,7 @@ namespace map
 		//
 		// IMPORTANT:
 		// 
-		// In a school project I was a part of, we had a similar function to this one,
+		// In one of my school projects, my group had a similar function to this one,
 		// with the difference being that we used functions like entt::registry::emplace()
 		// directly. It turns out that this caused a lot of template bloat, which slowed down
 		// compilation times, and eventually made the .cpp file too large to compile.
@@ -225,6 +225,16 @@ namespace map
 					ecs::Player player{};
 					if (last_player)
 						player = *last_player;
+					if (last_active_portal) {
+						if (last_active_portal->exit_direction == "up")
+							player.look_dir = { 0.f, -1.f };
+						else if (last_active_portal->exit_direction == "down")
+							player.look_dir = { 0.f, 1.f };
+						else if (last_active_portal->exit_direction == "left")
+							player.look_dir = { -1.f, 0.f };
+						else if (last_active_portal->exit_direction == "right")
+							player.look_dir = { 1.f, 0.f };
+					}
 					player.held_item = ecs::create();
 					ecs::emplace_tile(player.held_item);
 					ecs::emplace_player(entity, player);
@@ -255,6 +265,7 @@ namespace map
 					ecs::Portal& portal = ecs::emplace_portal(entity);
 					object.properties.get_string("target_map", portal.target_map);
 					object.properties.get_string("target_point", portal.target_point);
+					object.properties.get_string("exit_direction", portal.exit_direction);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
 					camera.view.center = { x, y };

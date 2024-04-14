@@ -38,8 +38,8 @@ namespace ecs
 
 	void update_cameras(float dt);
 
-	const CameraView& get_active_camera_view(); // Hard-cuts when activating new camera.
-	const CameraView& get_blended_camera_view(); // Smoothly transitions between cameras.
+	CameraView get_active_camera_view(); // Hard-cuts when activating new camera.
+	CameraView get_blended_camera_view(); // Smoothly transitions between cameras.
 
 	void emplace_camera(entt::entity entity, const Camera& camera);
 	// Copies the camera to a new entity, removes it from the old entity, and returns the new entity.

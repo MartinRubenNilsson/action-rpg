@@ -135,13 +135,14 @@
    </properties>
    <point/>
   </object>
-  <object id="29" template="../templates/portal.tx" name="to cave platform" x="32" y="304">
+  <object id="29" template="../templates/portal.tx" name="portal to cave platform" x="32" y="304">
    <properties>
+    <property name="exit_direction" value="left"/>
     <property name="target_map" value="muddy_cave_00"/>
     <property name="target_point" value="cave platform"/>
    </properties>
   </object>
-  <object id="30" name="cave entrance" x="40.6667" y="345.333">
+  <object id="30" name="cave entrance" x="40.3334" y="336.333">
    <point/>
   </object>
  </objectgroup>

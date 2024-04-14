@@ -78,11 +78,11 @@ namespace ecs
 		}
 	}
 
-	const CameraView& get_active_camera_view() {
+	CameraView get_active_camera_view() {
 		return _active_camera_view;
 	}
 
-	const CameraView& get_blended_camera_view()
+	CameraView get_blended_camera_view()
 	{
 		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
 		return _lerp_camera_view(_last_active_camera_view, _active_camera_view, blend_factor);

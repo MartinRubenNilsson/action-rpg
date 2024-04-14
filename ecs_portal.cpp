@@ -11,6 +11,14 @@ namespace ecs
 		//Empty
 	}
 
+	entt::entity find_active_portal_entity()
+	{
+		for (auto [entity, portal] : _registry.view<const Portal>().each()) {
+			if (portal.activated) return entity;
+		}
+		return entt::null;
+	}
+
 	Portal& emplace_portal(entt::entity entity, const Portal& portal) {
 		return _registry.emplace_or_replace<Portal>(entity, portal);
 	}
@@ -29,14 +37,6 @@ namespace ecs
 
 	bool has_portal(entt::entity entity) {
 		return _registry.all_of<Portal>(entity);
-	}
-
-	entt::entity find_active_portal_entity()
-	{
-		for (auto [entity, portal] : _registry.view<const Portal>().each()) {
-			if (portal.activated) return entity;
-		}
-		return entt::null;
 	}
 
 	bool activate_portal(entt::entity entity)
