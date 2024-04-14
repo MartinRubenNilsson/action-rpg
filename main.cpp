@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
                 switch (ev.type) {
 				case ui::Event::PlayGame:
 					background::set_type(background::Type::None);
-					map::open("summer_forest");
+					map::open("summer_forest_00");
 					break;
 				case ui::Event::RestartMap:
 					map::reset();
