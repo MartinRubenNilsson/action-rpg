@@ -12,6 +12,7 @@
 #include "ecs_ai.h"
 #include "ecs_portal.h"
 #include "ecs_character.h"
+#include "physics_helpers.h"
 #include "audio.h"
 
 // Precautionary measure so people don't access entt::registry directly in this file.
@@ -108,20 +109,9 @@ namespace map
 				if (object.type == tiled::ObjectType::Tile)
 					position.y -= object.size.y;
 
-				// HACK: Adjust player position when exiting a portal.
-				if (object.class_ == "player") {
-					if (last_active_portal && !last_active_portal->target_point.empty()) {
-						if (const tiled::Object* target_point =
-							tiled::find_object_by_name(map, last_active_portal->target_point)) {
-							position = target_point->position - object.size / 2.f;
-						}
-					}
-				}
-
 				if (object.type == tiled::ObjectType::Tile) {
 					assert(object.tile && "Tile not found.");
 
-					sf::Vector2f pivot = { 0.f, 0.f };
 					sf::Vector2f sorting_pivot = object.size / 2.f;
 
 					// LOAD COLLIDERS
@@ -173,15 +163,14 @@ namespace map
 
 					// EMPLACE TILE
 
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
-					ecs_tile.position = position;
-					ecs_tile.pivot = pivot;
-					ecs_tile.sorting_pivot = sorting_pivot;
-					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
-					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
+					ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
+					tile.position = position;
+					tile.sorting_pivot = sorting_pivot;
+					tile.sorting_layer = sprites::SL_OBJECTS;
+					tile.set_flag(ecs::TF_VISIBLE, layer.visible);
+					tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
+					tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
+					tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
 
 				} else { // If object is not a tile
 
@@ -224,12 +213,25 @@ namespace map
 
 				if (object.class_ == "player") {
 
+					b2Body* body = ecs::try_get_body(entity);
+					ecs::Tile* tile = ecs::try_get_tile(entity);
+
 					ecs::Player player{};
 					if (last_player) {
 						player = *last_player;
 						player.input_flags = 0;
 					}
 					if (last_active_portal) {
+
+						if (const tiled::Object* target_point = tiled::find_object_by_name(map, last_active_portal->target_point)) {
+							if (body) {
+								set_world_center(body, target_point->position);
+							}
+							if (tile) {
+								position = target_point->position;
+							}
+						}
+
 						if (last_active_portal->exit_direction == "up")
 							player.look_dir = { 0.f, -1.f };
 						else if (last_active_portal->exit_direction == "down")
@@ -238,7 +240,9 @@ namespace map
 							player.look_dir = { -1.f, 0.f };
 						else if (last_active_portal->exit_direction == "right")
 							player.look_dir = { 1.f, 0.f };
+
 					}
+
 					player.held_item = ecs::create();
 					ecs::emplace_tile(player.held_item);
 					ecs::emplace_player(entity, player);
@@ -259,7 +263,7 @@ namespace map
 					}
 					ecs::emplace_character(entity, character);
 
-					if (ecs::Tile* tile = ecs::try_get_tile(entity)) {
+					if (tile) {
 						tile->texture = character.bake_texture();
 					}
 

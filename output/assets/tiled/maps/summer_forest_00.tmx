@@ -142,7 +142,7 @@
     <property name="target_point" value="cave platform"/>
    </properties>
   </object>
-  <object id="30" name="cave entrance" x="40.3334" y="336.333">
+  <object id="30" name="cave entrance" x="41.6667" y="336.333">
    <point/>
   </object>
  </objectgroup>
