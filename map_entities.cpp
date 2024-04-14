@@ -128,11 +128,10 @@ namespace map
 
 					if (!object.tile->objects.empty()) {
 
-						b2BodyDef body_def;
+						b2BodyDef body_def{};
 						body_def.type = b2_dynamicBody;
 						body_def.fixedRotation = true;
-						body_def.position.x = position.x;
-						body_def.position.y = position.y;
+						body_def.position.Set(position.x, position.y);
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : object.tile->objects) {
@@ -188,11 +187,10 @@ namespace map
 
 					// LOAD COLLIDERS
 
-					b2BodyDef body_def;
+					b2BodyDef body_def{};
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
-					body_def.position.x = position.x;
-					body_def.position.y = position.y;
+					body_def.position.Set(position.x, position.y);
 					b2Body* body = ecs::emplace_body(entity, body_def);
 
 					float hw = object.size.x / 2.f;
@@ -201,19 +199,19 @@ namespace map
 
 					switch (object.type) {
 					case tiled::ObjectType::Rectangle: {
-						b2PolygonShape shape;
+						b2PolygonShape shape{};
 						shape.SetAsBox(hw, hh, center, 0.f);
-						b2FixtureDef fixture_def;
+						b2FixtureDef fixture_def{};
 						fixture_def.shape = &shape;
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
 						body->CreateFixture(&fixture_def);
 					} break;
 					case tiled::ObjectType::Ellipse: {
-						b2CircleShape shape;
+						b2CircleShape shape{};
 						shape.m_p = center;
 						shape.m_radius = hw;
-						b2FixtureDef fixture_def;
+						b2FixtureDef fixture_def{};
 						fixture_def.shape = &shape;
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
