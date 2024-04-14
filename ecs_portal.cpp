@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ecs_portal.h"
 #include "map.h"
+#include "audio.h"
 
 namespace ecs
 {
@@ -45,6 +46,9 @@ namespace ecs
 		Portal& portal = _registry.get<Portal>(entity);
 		if (portal.activated) return false;
 		portal.activated = true;
-		return map::open(portal.target_map);
+		if (map::open(portal.target_map)) {
+			audio::play("event:/snd_map_transition");
+		}
+		return false;
 	}
 }
