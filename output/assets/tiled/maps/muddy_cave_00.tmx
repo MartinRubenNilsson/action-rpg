@@ -49,7 +49,7 @@
     <property name="target_point" value="cave entrance"/>
    </properties>
   </object>
-  <object id="3" name="cave platform" x="535.667" y="335.334">
+  <object id="3" name="cave platform" x="535.667" y="337.334">
    <point/>
   </object>
  </objectgroup>

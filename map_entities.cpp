@@ -100,25 +100,20 @@ namespace map
 				if (!object.properties.empty())
 					ecs::set_properties(entity, object.properties);
 
-				float x = object.position.x;
-				float y = object.position.y;
-				float w = object.size.x;
-				float h = object.size.y;
+				sf::Vector2f position = object.position;
 
-				if (object.type == tiled::ObjectType::Tile) {
-					// Objects are positioned by their top-left corner, except for tiles,
-					// which are positioned by their bottom-left corner. This is confusing,
-					// so let's adjust the position here to make it consistent.
-					y -= h;
-				}
+				// Objects are positioned by their top-left corner, except for tiles,
+				// which are positioned by their bottom-left corner. This is confusing,
+				// so let's adjust the position here to make it consistent.
+				if (object.type == tiled::ObjectType::Tile)
+					position.y -= object.size.y;
 
 				// HACK: Adjust player position when exiting a portal.
 				if (object.class_ == "player") {
 					if (last_active_portal && !last_active_portal->target_point.empty()) {
 						if (const tiled::Object* target_point =
 							tiled::find_object_by_name(map, last_active_portal->target_point)) {
-							x = target_point->position.x - w / 2.f;
-							y = target_point->position.y - h / 2.f;
+							position = target_point->position - object.size / 2.f;
 						}
 					}
 				}
@@ -126,28 +121,24 @@ namespace map
 				if (object.type == tiled::ObjectType::Tile) {
 					assert(object.tile && "Tile not found.");
 
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
-					ecs_tile.position = sf::Vector2f(x, y);
-					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
-					ecs_tile.sorting_pivot = sf::Vector2f(w / 2.f, h / 2.f);
-					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
+					sf::Vector2f pivot = { 0.f, 0.f };
+					sf::Vector2f sorting_pivot = object.size / 2.f;
 
 					// LOAD COLLIDERS
 
 					if (!object.tile->objects.empty()) {
+
 						b2BodyDef body_def;
 						body_def.type = b2_dynamicBody;
 						body_def.fixedRotation = true;
-						body_def.position.x = x;
-						body_def.position.y = y;
+						body_def.position.x = position.x;
+						body_def.position.y = position.y;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : object.tile->objects) {
+
 							if (collider.name == "pivot")
-								ecs_tile.sorting_pivot = collider.position;
+								sorting_pivot = collider.position;
 
 							float collider_x = collider.position.x;
 							float collider_y = collider.position.y;
@@ -180,6 +171,19 @@ namespace map
 							}
 						}
 					}
+
+					// EMPLACE TILE
+
+					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, object.tile);
+					ecs_tile.position = position;
+					ecs_tile.pivot = pivot;
+					ecs_tile.sorting_pivot = sorting_pivot;
+					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
+					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
+
 				} else { // If object is not a tile
 
 					// LOAD COLLIDERS
@@ -187,12 +191,12 @@ namespace map
 					b2BodyDef body_def;
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
-					body_def.position.x = x;
-					body_def.position.y = y;
+					body_def.position.x = position.x;
+					body_def.position.y = position.y;
 					b2Body* body = ecs::emplace_body(entity, body_def);
 
-					float hw = w / 2.0f;
-					float hh = h / 2.0f;
+					float hw = object.size.x / 2.f;
+					float hh = object.size.y / 2.f;
 					b2Vec2 center(hw, hh);
 
 					switch (object.type) {
@@ -223,8 +227,10 @@ namespace map
 				if (object.class_ == "player") {
 
 					ecs::Player player{};
-					if (last_player)
+					if (last_player) {
 						player = *last_player;
+						player.input_flags = 0;
+					}
 					if (last_active_portal) {
 						if (last_active_portal->exit_direction == "up")
 							player.look_dir = { 0.f, -1.f };
@@ -240,7 +246,7 @@ namespace map
 					ecs::emplace_player(entity, player);
 
 					ecs::Camera camera{};
-					camera.view.center = { x, y };
+					camera.view.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					camera.entity_to_follow = entity;
@@ -268,7 +274,7 @@ namespace map
 					object.properties.get_string("exit_direction", portal.exit_direction);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
-					camera.view.center = { x, y };
+					camera.view.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);
@@ -277,7 +283,7 @@ namespace map
 					std::string event_name;
 					if (object.properties.get_string("event", event_name)) {
 						audio::EventOptions options{};
-						options.position = sf::Vector2f(x, y);
+						options.position = position;
 						audio::play("event:/" + event_name, options);
 					}
 				}
