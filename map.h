@@ -2,16 +2,16 @@
 
 namespace map
 {
-	enum class RequestType
+	enum class TransitionType
 	{
 		Open, // Open a new map.
 		Close, // Close the current map.
 		Reset, // Reset the current map.
 	};
 
-	struct Request
+	struct TransitionOptions
 	{
-		RequestType type = RequestType::Open;
+		TransitionType type = TransitionType::Open;
 		std::string map_name;
 	};
 
@@ -19,7 +19,7 @@ namespace map
 
 	void update(float dt);
 
-	bool request(const Request& request);
+	bool transition(const TransitionOptions& options);
 	bool open(const std::string& map_name);
 	bool close();
 	bool reset();

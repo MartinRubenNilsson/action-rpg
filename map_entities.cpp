@@ -40,7 +40,7 @@ namespace map
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
 
-		// Save some game state before destroying all entities.
+		// Save some game state before destroying entities.
 		std::optional<ecs::Player> last_player;
 		std::optional<ecs::Character> last_player_character;
 		std::optional<ecs::Portal> last_active_portal;
@@ -50,6 +50,8 @@ namespace map
 				last_player = *player;
 			if (ecs::Character* character = ecs::try_get_character(player_entity))
 				last_player_character = *character;
+		}
+		{
 			entt::entity portal_entity = ecs::find_active_portal_entity();
 			if (ecs::Portal* portal = ecs::try_get_portal(portal_entity))
 				last_active_portal = *portal;
@@ -88,6 +90,7 @@ namespace map
 					y -= h;
 				}
 
+				// HACK: Adjust player position when exiting a portal.
 				if (object.class_ == "player") {
 					if (last_active_portal && !last_active_portal->target_point.empty()) {
 						if (const tiled::Object* target_point =

@@ -15,7 +15,7 @@ namespace ecs
 	void update_portals(float dt);
 
 	Portal& emplace_portal(entt::entity entity, const Portal& portal = {});
-	Portal& get_portal(entt::entity entity);
+	Portal& get_portal(entt::entity entity); // Undefined behavior if entity does not have a Portal component.
 	Portal* try_get_portal(entt::entity entity);
 	bool remove_portal(entt::entity entity);
 	bool has_portal(entt::entity entity);

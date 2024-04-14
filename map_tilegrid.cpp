@@ -140,14 +140,14 @@ namespace map
 				for (int y = 0; y < _grid.size.y; ++y) {
 					for (int x = 0; x < _grid.size.x; ++x) {
 						int index = x + y * _grid.size.x;
-						_grid.tiles[index].passable = (layer.tiles[index].first == nullptr);
+						_grid.tiles[index].passable = (layer.tiles[index].tile == nullptr);
 					}
 				}
 			} else if (layer.name == "Under Sprite 1") {
 				for (int y = 0; y < _grid.size.y; ++y) {
 					for (int x = 0; x < _grid.size.x; ++x) {
 						int index = x + y * _grid.size.x;
-						const tiled::Tile* layer_tile = layer.tiles[index].first;
+						const tiled::Tile* layer_tile = layer.tiles[index].tile;
 						if (!layer_tile) continue;
 						if (layer_tile->wangtiles.empty()) continue;
 						const tiled::WangTile& wangtile = layer_tile->wangtiles[0];

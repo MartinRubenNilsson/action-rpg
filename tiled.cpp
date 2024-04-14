@@ -6,25 +6,25 @@
 
 namespace tiled
 {
-	const uint32_t _FLIP_HORIZONTAL_BIT = 0x80000000;
-	const uint32_t _FLIP_VERTICAL_BIT   = 0x40000000;
-	const uint32_t _FLIP_DIAGONAL_BIT   = 0x20000000;
-	const uint32_t _FLIP_ROTATE_120_BIT = 0x10000000;
-	const uint32_t _FLIP_FLAGS_BITMASK =
+	constexpr uint32_t _FLIP_HORIZONTAL_BIT = 0x80000000;
+	constexpr uint32_t _FLIP_VERTICAL_BIT   = 0x40000000;
+	constexpr uint32_t _FLIP_DIAGONAL_BIT   = 0x20000000;
+	constexpr uint32_t _FLIP_ROTATE_120_BIT = 0x10000000;
+	constexpr uint32_t _FLIP_FLAGS_BITMASK =
 		_FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
 
 	uint32_t _get_gid(uint32_t gid_with_flip_flags) {
 		return gid_with_flip_flags & ~_FLIP_FLAGS_BITMASK;
 	}
 
-	FlipFlags _get_flip_flags(uint32_t gid_with_flip_flags)
+	uint8_t _get_flip_flags(uint32_t gid_with_flip_flags)
 	{
-		uint8_t flip_flags = FLIP_NONE;
+		uint8_t flip_flags = 0;
 		if (gid_with_flip_flags & _FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
 		if (gid_with_flip_flags & _FLIP_VERTICAL_BIT)   flip_flags |= FLIP_VERTICAL;
 		if (gid_with_flip_flags & _FLIP_DIAGONAL_BIT)   flip_flags |= FLIP_DIAGONAL;
 		if (gid_with_flip_flags & _FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
-		return (FlipFlags)flip_flags;
+		return flip_flags;
 	}
 
 	std::vector<Tileset> _tilesets;
@@ -410,6 +410,10 @@ namespace tiled
 		_tilesets.clear();
 	}
 
+	std::span<const Map> get_maps() {
+		return _maps;
+	}
+
 	std::span<const Tileset> get_tilesets() {
 		return _tilesets;
 	}
@@ -418,12 +422,9 @@ namespace tiled
 		return _templates;
 	}
 
-	std::span<const Map> get_maps() {
-		return _maps;
-	}
-
 	const Map* find_map_by_name(const std::string& name)
 	{
+		if (name.empty()) return nullptr;
 		for (const Map& map : _maps)
 			if (map.name == name)
 				return &map;
@@ -432,6 +433,7 @@ namespace tiled
 
 	const Tileset* find_tileset_by_name(const std::string& name)
 	{
+		if (name.empty()) return nullptr;
 		for (const Tileset& tileset : _tilesets)
 			if (tileset.name == name)
 				return &tileset;
@@ -440,6 +442,7 @@ namespace tiled
 
 	const Object* find_object_by_name(const Layer& layer, const std::string& name)
 	{
+		if (name.empty()) return nullptr;
 		for (const Object& object : layer.objects)
 			if (object.name == name)
 				return &object;
@@ -448,6 +451,7 @@ namespace tiled
 
 	const Object* find_object_by_name(const Map& map, const std::string& name)
 	{
+		if (name.empty()) return nullptr;
 		for (const Layer& layer : map.layers)
 			for (const Object& object : layer.objects)
 				if (object.name == name)
@@ -457,6 +461,7 @@ namespace tiled
 
 	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
 	{
+		if (class_.empty()) return nullptr;
 		for (const Tile& tile : tileset.tiles)
 			if (tile.class_ == class_)
 				return &tile;

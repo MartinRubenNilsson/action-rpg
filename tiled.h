@@ -17,12 +17,11 @@ namespace tiled
 
 	enum FlipFlags : uint8_t
 	{
-		FLIP_NONE       = 0,
-		FLIP_HORIZONTAL = 1 << 0,
-		FLIP_VERTICAL   = 1 << 1,
-		FLIP_DIAGONAL   = 1 << 2, // in orthogonal and isometric maps
+		FLIP_HORIZONTAL = (1 << 0),
+		FLIP_VERTICAL   = (1 << 1),
+		FLIP_DIAGONAL   = (1 << 2), // in orthogonal and isometric maps
 		FLIP_ROTATE_60  = FLIP_DIAGONAL, // in hexagonal maps
-		FLIP_ROTATE_120 = 1 << 3, // in hexagonal maps
+		FLIP_ROTATE_120 = (1 << 3), // in hexagonal maps
 	};
 
 	struct Object
@@ -37,7 +36,7 @@ namespace tiled
 		sf::Vector2f size; // in pixels
 		entt::entity entity = entt::null;
 		ObjectType type = ObjectType::Rectangle;
-		uint8_t flip_flags = FLIP_NONE; // only for tile objects
+		uint8_t flip_flags = 0; // only for tile objects
 	};
 
 	struct Frame
@@ -78,6 +77,12 @@ namespace tiled
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
 		const Tileset* tileset = nullptr;
+	};
+
+	struct TileInstance
+	{
+		const Tile* tile = nullptr;
+		uint8_t flip_flags = 0;
 	};
 
 	struct WangColor
@@ -122,7 +127,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		std::vector<std::pair<const Tile*, FlipFlags>> tiles; // nonempty if tile layer; size = width * height
+		std::vector<TileInstance> tiles; // nonempty if tile layer; size = width * height
 		std::vector<Object> objects; // nonempty if object layer 
 		uint32_t width = 0; // in tiles
 		uint32_t height = 0; // in tiles
@@ -146,9 +151,9 @@ namespace tiled
 	void load_assets(const std::filesystem::path& dir);
 	void unload_assets();
 
+	std::span<const Map> get_maps();
 	std::span<const Tileset> get_tilesets();
 	std::span<const Object> get_templates();
-	std::span<const Map> get_maps();
 
 	const Map* find_map_by_name(const std::string& name);
 	const Tileset* find_tileset_by_name(const std::string& name);

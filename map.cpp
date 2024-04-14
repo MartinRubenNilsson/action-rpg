@@ -11,7 +11,7 @@ namespace map
 {
 	bool debug = false;
 	std::string _map_name;
-	std::optional<Request> _request;
+	std::optional<TransitionOptions> _transition;
 
 	void _debug(float dt)
 	{
@@ -34,21 +34,21 @@ namespace map
 	void update(float dt)
 	{
 		if (debug) _debug(dt);
-		if (!_request) return;
+		if (!_transition) return;
 
 		const tiled::Map* current_map = tiled::find_map_by_name(_map_name);
 		const tiled::Map* next_map = nullptr;
 
-		switch (_request->type) {
-		case RequestType::Open:
-			next_map = tiled::find_map_by_name(_request->map_name);
+		switch (_transition->type) {
+		case TransitionType::Open:
+			next_map = tiled::find_map_by_name(_transition->map_name);
 			break;
-		case RequestType::Reset:
+		case TransitionType::Reset:
 			next_map = current_map;
 			break;
 		}
 
-		_request.reset();
+		_transition.reset();
 		_map_name = next_map ? next_map->name : "";
 
 		// CLOSE CURRENT MAP
@@ -80,22 +80,23 @@ namespace map
 		}
 	}
 
-	bool request(const Request& request)
+	bool transition(const TransitionOptions& options)
 	{
-		switch (request.type) {
-		case RequestType::Open:
-			if (request.map_name.empty()) return false;
-			if (_map_name == request.map_name) return false;
-			if (!tiled::find_map_by_name(request.map_name)) {
-				console::log_error("Map not found: " + request.map_name);
+		if (_transition) return false;
+		switch (options.type) {
+		case TransitionType::Open:
+			if (options.map_name.empty()) return false;
+			if (_map_name == options.map_name) return false;
+			if (!tiled::find_map_by_name(options.map_name)) {
+				console::log_error("Map not found: " + options.map_name);
 				return false;
 			}
-			_request = request;
+			_transition = options;
 			return true;
-		case RequestType::Close:
-		case RequestType::Reset:
+		case TransitionType::Close:
+		case TransitionType::Reset:
 			if (_map_name.empty()) return false;
-			_request = request;
+			_transition = options;
 			return true;
 		default:
 			return false;
@@ -103,14 +104,14 @@ namespace map
 	}
 
 	bool open(const std::string& map_name) {
-		return request({ RequestType::Open, map_name });
+		return transition({ TransitionType::Open, map_name });
 	}
 
 	bool close() {
-		return request({ RequestType::Close });
+		return transition({ TransitionType::Close });
 	}
 
 	bool reset() {
-		return request({ RequestType::Reset });
+		return transition({ TransitionType::Reset });
 	}
 }
