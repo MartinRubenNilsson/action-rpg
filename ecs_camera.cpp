@@ -11,28 +11,31 @@ namespace ecs
 	extern entt::registry _registry;
 
 	entt::entity _active_camera_entity = entt::null;
-	CameraView _last_camera_view;
+	CameraView _last_active_camera_view;
 	CameraView _active_camera_view;
-	CameraView _blended_camera_view;
 	float _camera_shake_time = 0.f;
 	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
 	CameraView _confine_camera_view(const CameraView& view, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max)
 	{
-		const sf::Vector2f camera_center_min = confines_min + view.size / 2.f;
-		const sf::Vector2f camera_center_max = confines_max - view.size / 2.f;
-		CameraView result = view;
-		if (camera_center_min.x < camera_center_max.x) {
-			result.center.x = std::clamp(result.center.x, camera_center_min.x, camera_center_max.x);
+		const sf::Vector2f center_min = confines_min + view.size / 2.f;
+		const sf::Vector2f center_max = confines_max - view.size / 2.f;
+		sf::Vector2f new_center = view.center;
+		if (center_min.x < center_max.x) {
+			new_center.x = std::clamp(new_center.x, center_min.x, center_max.x);
 		} else {
-			result.center.x = (confines_min.x + confines_max.x) / 2.f;
+			new_center.x = (confines_min.x + confines_max.x) / 2.f;
 		}
-		if (camera_center_min.y < camera_center_max.y) {
-			result.center.y = std::clamp(result.center.y, camera_center_min.y, camera_center_max.y);
+		if (center_min.y < center_max.y) {
+			new_center.y = std::clamp(new_center.y, center_min.y, center_max.y);
 		} else {
-			result.center.y = (confines_min.y + confines_max.y) / 2.f;
+			new_center.y = (confines_min.y + confines_max.y) / 2.f;
 		}
-		return result;
+		return { view.size, new_center };
+	}
+
+	CameraView _lerp_camera_view(const CameraView& a, const CameraView& b, float t) {
+		return { lerp(a.size, b.size, t), lerp(a.center, b.center, t) };
 	}
 
 	void update_cameras(float dt)
@@ -42,7 +45,8 @@ namespace ecs
 
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 			// If the camera has a follow target, center the view on the target.
-			if (_registry.valid(camera.entity_to_follow) && _registry.all_of<b2Body*>(camera.entity_to_follow)) {
+			if (_registry.valid(camera.entity_to_follow) &&
+				_registry.all_of<b2Body*>(camera.entity_to_follow)) {
 				camera.view.center = get_world_center(_registry.get<b2Body*>(camera.entity_to_follow));
 			}
 
@@ -72,26 +76,23 @@ namespace ecs
 		} else {
 			_active_camera_view = {};
 		}
-
-		// Update the blended camera view.
-		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
-		_blended_camera_view.size = lerp(_last_camera_view.size, _active_camera_view.size, blend_factor);
-		_blended_camera_view.center = lerp(_last_camera_view.center, _active_camera_view.center, blend_factor);
 	}
 
 	const CameraView& get_active_camera_view() {
 		return _active_camera_view;
 	}
 
-	const CameraView& get_blended_camera_view() {
-		return _blended_camera_view;
+	const CameraView& get_blended_camera_view()
+	{
+		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
+		return _lerp_camera_view(_last_active_camera_view, _active_camera_view, blend_factor);
 	}
 
 	bool activate_camera(entt::entity entity, bool hard_cut)
 	{
 		if (!_registry.all_of<Camera>(entity)) return false;
+		_last_active_camera_view = _active_camera_view;
 		_active_camera_entity = entity;
-		_last_camera_view = _active_camera_view;
 		_camera_blend_time = hard_cut ? _CAMERA_BLEND_DURATION : 0.f;
 		return true;
 	}

@@ -116,7 +116,7 @@ namespace ecs
 
 	void update_players(float dt)
 	{
-		const bool player_accepts_input = (window::has_focus() && !console::has_focus());
+		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
 		for (auto [player_entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
 

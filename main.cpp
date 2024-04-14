@@ -145,22 +145,25 @@ int main(int argc, char* argv[])
 
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
-        console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update.
+
+        float app_delta_time = dt.asSeconds();
+        console::update(app_delta_time); // Must come after ImGui::SFML::Update.
         audio::update();
-        background::update(dt.asSeconds());
-        map::update(dt.asSeconds());
-        ui::update(dt.asSeconds());
-        debug::update(dt.asSeconds());
+        background::update(app_delta_time);
+        map::update(app_delta_time);
+        ui::update(app_delta_time);
+        debug::update(app_delta_time);
 
-        bool pause_game = false;
-        pause_game = pause_game || steam::is_overlay_active();
-        pause_game = pause_game || ui::is_menu_or_textbox_visible();
-        pause_game = pause_game || map::get_transition_progress() != 0.f;
-        if (!pause_game) {
-            ecs::update(dt.asSeconds());
-            postprocessing::update(dt.asSeconds());
-        }
+        float game_delta_time = app_delta_time;
+        if (steam::is_overlay_active())
+			game_delta_time = 0.f;
+		if (ui::is_menu_or_textbox_visible())
+			game_delta_time = 0.f;
+		if (map::get_transition_progress() != 0.f)
+			game_delta_time = 0.f;
 
+        ecs::update(game_delta_time);
+        postprocessing::update(game_delta_time);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
 
         switch (ui::get_top_menu()) {
@@ -174,16 +177,6 @@ int main(int argc, char* argv[])
 			break;
         }
 
-#if 0
-        {
-            static float screen_transition_progress = 0.f;
-            ImGui::Begin("Screen Transition");
-            ImGui::SliderFloat("Progress", &screen_transition_progress, -1.f, 1.f);
-            ImGui::End();
-            postprocessing::set_screen_transition_progress(screen_transition_progress);
-        }
-#endif
-
         if (debug_stats) {
             constexpr float smoothing_factor = 0.99f;
             static float smoothed_dt = 0.f;
@@ -191,12 +184,11 @@ int main(int argc, char* argv[])
             static float dt_buffer[256] = { 0.f };
             static float fps_buffer[256] = { 0.f };
             static int buffer_offset = 0;
-            float dt_f = dt.asSeconds();
-            dt_buffer[buffer_offset] = dt_f;
-            fps_buffer[buffer_offset] = 1.f / dt_f;
+            dt_buffer[buffer_offset] = app_delta_time;
+            fps_buffer[buffer_offset] = 1.f / app_delta_time;
             buffer_offset = (buffer_offset + 1) % 256;
-            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * dt_f;
-            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / dt_f;
+            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * app_delta_time;
+            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / app_delta_time;
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];
