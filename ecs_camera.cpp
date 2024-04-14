@@ -37,41 +37,38 @@ namespace ecs
 
 	void update_cameras(float dt)
 	{
-		// Update timers.
 		_camera_shake_time += dt;
 		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, _CAMERA_BLEND_DURATION);
 
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 			// If the camera has a follow target, center the view on the target.
-			if (_registry.valid(camera.follow) && _registry.all_of<b2Body*>(camera.follow)) {
-				camera.view.center = get_world_center(_registry.get<b2Body*>(camera.follow));
+			if (_registry.valid(camera.entity_to_follow) && _registry.all_of<b2Body*>(camera.entity_to_follow)) {
+				camera.view.center = get_world_center(_registry.get<b2Body*>(camera.entity_to_follow));
 			}
 
-			// Confine the view.
 			camera.view = _confine_camera_view(camera.view, camera.confines_min, camera.confines_max);
-
-			// Update the trauma.
 			camera.trauma = std::clamp(camera.trauma - camera.trauma_decay * dt, 0.f, 1.f);
 
-			// Compute the shaky view.
-			sf::Vector2f shake_offset;
+			camera.shake_offset = { 0.f, 0.f };
 			if (camera.shake_amplitude && camera.shake_frequency && camera.trauma) {
 				float total_shake_amplitude = camera.shake_amplitude * camera.trauma * camera.trauma;
-				shake_offset.x = total_shake_amplitude *
+				camera.shake_offset.x = total_shake_amplitude *
 					random::fractal_perlin_noise(0, camera.shake_frequency * _camera_shake_time);
-				shake_offset.y = total_shake_amplitude *
+				camera.shake_offset.y = total_shake_amplitude *
 					random::fractal_perlin_noise(1, camera.shake_frequency * _camera_shake_time);
 			}
-			camera._shaken_view = camera.view;
-			camera._shaken_view.center += shake_offset;
 
-			// Confine the shaky view.
-			camera._shaken_view = _confine_camera_view(camera._shaken_view, camera.confines_min, camera.confines_max);
+			// Make sure shake_offset doesn't push the camera outside its confines.
+			CameraView shaky_view = camera.view;
+			shaky_view.center += camera.shake_offset;
+			shaky_view = _confine_camera_view(shaky_view, camera.confines_min, camera.confines_max);
+			camera.shake_offset = shaky_view.center - camera.view.center;
 		}
 
 		// Update the active camera view.
 		if (Camera* camera = _registry.try_get<Camera>(_active_camera_entity)) {
-			_active_camera_view = camera->_shaken_view;
+			_active_camera_view = camera->view;
+			_active_camera_view.center += camera->shake_offset;
 		} else {
 			_active_camera_view = {};
 		}
@@ -107,7 +104,7 @@ namespace ecs
 	{
 		Camera* camera = _registry.try_get<Camera>(entity);
 		if (!camera) return entt::null;
-		camera->follow = entt::null;
+		camera->entity_to_follow = entt::null;
 		entt::entity new_entity = _registry.create();
 		_registry.emplace<Camera>(new_entity, *camera);
 		_registry.remove<Camera>(entity);

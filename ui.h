@@ -42,5 +42,5 @@ namespace ui
 	void show_document(const std::string& name);
 
 	bool poll_event(Event& ev);
-	bool should_pause_game();
+	bool is_menu_or_textbox_visible();
 }

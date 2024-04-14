@@ -6,16 +6,16 @@
 namespace ecs
 {
 	// view:               The camera view, which determines the camera's position, rotation, and zoom.
-	// _shaken_view:       The camera view with shake applied to it. Read-only!
-	// follow:             If not null, the camera will center its view on this entity.
 	// confines_min/max:   The camera view will be confined to this box. If the width or height is zero,
 	//                     the view will not be confined along that axis, and if the width or height is
 	//                     smaller than that of the view, the view will be centered on the box.
+	// shake_offset:       The current camera shake offset.
 	// shake_amplitude:    The amplitude of the camera shake.
 	// shake_frequency:    The frequency of the camera shake.
 	// trauma:			   A number between 0 and 1 that determines the total shake amplitude by the formula:
 	//					   total_shake_amplitude = shake_amplitude * trauma^2. It decays linearly over time.
 	// trauma_decay:       The trauma decreases by this amount per second.
+	// entity_to_follow:   If not null, the camera will try to center its view on this entity.
 
 	struct CameraView
 	{
@@ -26,14 +26,14 @@ namespace ecs
 	struct Camera
 	{
 		CameraView view;
-		CameraView _shaken_view; // Read-only!
-		entt::entity follow = entt::null;
 		sf::Vector2f confines_min;
 		sf::Vector2f confines_max;
+		sf::Vector2f shake_offset;
 		float shake_amplitude = 6.f;
 		float shake_frequency = 10.f;
 		float trauma = 0.f;
 		float trauma_decay = 1.5f;
+		entt::entity entity_to_follow = entt::null;
 	};
 
 	void update_cameras(float dt);

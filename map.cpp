@@ -9,10 +9,12 @@
 
 namespace map
 {
+	constexpr float _TRANSITION_SPEED = 1.5f;
+
 	bool debug = false;
 	std::string _current_map_name;
-	std::optional<TransitionOptions> _transition;
 	float _transition_progress = 0.f;
+	std::optional<TransitionOptions> _transition;
 
 	void _debug(float dt)
 	{
@@ -29,13 +31,28 @@ namespace map
 		}
 		if (ImGui::Button("Close")) close(); ImGui::SameLine();
 		if (ImGui::Button("Reset")) reset();
+		ImGui::Value("Transition Progress", _transition_progress);
 		ImGui::End();
 	}
 
 	void update(float dt)
 	{
 		if (debug) _debug(dt);
+
+		// Transition in
+		if (_transition_progress < 0.f) {
+			_transition_progress += _TRANSITION_SPEED * dt;
+			if (_transition_progress > 0.f)
+				_transition_progress = 0.f;
+		}
+
 		if (!_transition) return;
+
+		// Transition out
+		if (!_current_map_name.empty()) {
+			_transition_progress += _TRANSITION_SPEED * dt;
+			if (_transition_progress < 1.f) return;
+		}
 
 		const tiled::Map* current_map = tiled::find_map_by_name(_current_map_name);
 		const tiled::Map* next_map = nullptr;
@@ -53,6 +70,7 @@ namespace map
 
 		_transition.reset();
 		_current_map_name = next_map ? next_map->name : "";
+		_transition_progress = next_map ? -1.f : 0.f;
 
 		// CLOSE CURRENT MAP
 

@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
                     continue;
                 console::process_event(ev);
                 ui::process_window_event(ev);
-                if (!ui::should_pause_game())
+                if (!ui::is_menu_or_textbox_visible())
                     ecs::process_event(ev);
             }
         }
@@ -146,15 +146,21 @@ int main(int argc, char* argv[])
         sf::Time dt = clock.restart();
         ImGui::SFML::Update(window, dt);
         console::update(dt.asSeconds()); // Must come after ImGui::SFML::Update.
+        audio::update();
         background::update(dt.asSeconds());
         map::update(dt.asSeconds());
-        audio::update();
         ui::update(dt.asSeconds());
         debug::update(dt.asSeconds());
-        if (!ui::should_pause_game() && !steam::is_overlay_active()) {
+
+        bool pause_game = false;
+        pause_game = pause_game || steam::is_overlay_active();
+        pause_game = pause_game || ui::is_menu_or_textbox_visible();
+        pause_game = pause_game || map::get_transition_progress() != 0.f;
+        if (!pause_game) {
             ecs::update(dt.asSeconds());
             postprocessing::update(dt.asSeconds());
         }
+
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
 
         switch (ui::get_top_menu()) {

@@ -341,7 +341,7 @@ namespace ui
 		return true;
 	}
 
-	bool should_pause_game() {
+	bool is_menu_or_textbox_visible() {
 		return (get_top_menu() != MenuType::Count) || is_textbox_open();
 	}
 }
