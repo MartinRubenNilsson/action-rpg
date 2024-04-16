@@ -101,10 +101,6 @@ namespace map
 		}
 	}
 
-	float get_transition_progress() {
-		return _transition_progress;
-	}
-
 	bool transition(const TransitionOptions& options)
 	{
 		if (_transition) return false;
@@ -139,5 +135,13 @@ namespace map
 
 	bool reset() {
 		return transition({ TransitionType::Reset });
+	}
+
+	float get_transition_progress() {
+		return _transition_progress;
+	}
+
+	bool is_dark() {
+		return _current_map_name.starts_with("muddy_cave"); // HACK
 	}
 }

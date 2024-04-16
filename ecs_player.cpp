@@ -18,6 +18,7 @@
 #include "ecs_character.h"
 #include "debug_draw.h"
 #include "map_tilegrid.h"
+#include "postprocessing.h"
 
 namespace ecs
 {
@@ -153,6 +154,9 @@ namespace ecs
 			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().contains("step")) {
 				audio::play("event:/snd_footstep");
 			}
+
+			// UPDATE POST-PROCESSING
+			postprocessing::set_darkness_center(position);
 
 			char dir = get_direction(player.look_dir);
 			char tile_dir = dir;

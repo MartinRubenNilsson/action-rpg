@@ -167,6 +167,11 @@ int main(int argc, char* argv[])
         debug::update(game_world_dt);
 
         postprocessing::update(game_world_dt);
+        if (map::is_dark()) {
+			postprocessing::set_darkness_intensity(0.95f);
+        } else {
+            postprocessing::set_darkness_intensity(0.f);
+        }
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
 
         switch (ui::get_top_menu()) {
