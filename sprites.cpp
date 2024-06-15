@@ -45,7 +45,11 @@ namespace sprites
 
 	void _render_batch(sf::RenderTarget& target, const sf::RenderStates& states)
 	{
+		//sf::Texture::bind(states.texture);
+		//sf::Shader::bind(states.shader);
 		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, states);
+		//sf::Shader::bind(nullptr);
+		//sf::Texture::bind(nullptr);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (uint32_t)_batch_vertices);
 		_batch_vertices = 0;

@@ -381,7 +381,9 @@ namespace ecs
 					shader->setUniform("lut2_type", -1);
 				}
 			}
-			render_texture->draw(sf::Sprite(*texture), { shader.get() });
+			sf::Shader::bind(shader.get());
+			render_texture->draw(sf::Sprite(*texture));
+			sf::Shader::bind(nullptr);
 		}
 		render_texture->display();
 

@@ -62,6 +62,7 @@ namespace postprocessing
 		if (!shader) return;
 		const sf::View view = texture->getView();
 		const sf::Vector2u size = texture->getSize();
+		sf::Shader::bind(shader.get());
 		for (const Shockwave& shockwave : _shockwaves) {
 			shader->setUniform("resolution", sf::Vector2f(size));
 			shader->setUniform("center", _map_world_to_target(view, size, shockwave.position_ws));
@@ -71,11 +72,12 @@ namespace postprocessing
 			std::unique_ptr<sf::RenderTexture> target_texture =
 				textures::take_render_texture_from_pool(size);
 			target_texture->setView(target_texture->getDefaultView());
-			target_texture->draw(sf::Sprite(texture->getTexture()), shader.get());
+			target_texture->draw(sf::Sprite(texture->getTexture()));
 			target_texture->display();
 			textures::give_render_texture_to_pool(std::move(texture));
 			texture = std::move(target_texture);
 		}
+		sf::Shader::bind(nullptr);
 		texture->setView(view);
 	}
 
@@ -91,9 +93,11 @@ namespace postprocessing
 		shader->setUniform("intensity", _darkness_intensity);
 		std::unique_ptr<sf::RenderTexture> target_texture =
 			textures::take_render_texture_from_pool(size);
+		sf::Shader::bind(shader.get());
 		target_texture->setView(target_texture->getDefaultView());
-		target_texture->draw(sf::Sprite(texture->getTexture()), shader.get());
+		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
+		sf::Shader::bind(nullptr);
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 		texture->setView(view); // Restore view
@@ -108,9 +112,11 @@ namespace postprocessing
 		shader->setUniform("progress", _screen_transition_progress);
 		std::unique_ptr<sf::RenderTexture> target_texture =
 			textures::take_render_texture_from_pool(texture->getSize());
+		sf::Shader::bind(shader.get());
 		target_texture->setView(target_texture->getDefaultView());
-		target_texture->draw(sf::Sprite(texture->getTexture()), shader.get());
+		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
+		sf::Shader::bind(nullptr);
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 	}
@@ -136,15 +142,18 @@ namespace postprocessing
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 			// Horizontal pass
+			sf::Shader::bind(shader_hor.get());
 			intermediate_texture->setView(intermediate_texture->getDefaultView());
-			intermediate_texture->draw(sf::Sprite(texture->getTexture()), shader_hor.get());
+			intermediate_texture->draw(sf::Sprite(texture->getTexture()));
 			intermediate_texture->display();
 			// Vertical pass
+			sf::Shader::bind(shader_ver.get());
 			texture->setView(texture->getDefaultView());
-			texture->draw(sf::Sprite(intermediate_texture->getTexture()), shader_ver.get());
+			texture->draw(sf::Sprite(intermediate_texture->getTexture()));
 			texture->display();
 		}
 		// Cleanup
+		sf::Shader::bind(nullptr);
 		texture->setSmooth(texture_was_smooth);
 		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
 		textures::give_render_texture_to_pool(std::move(intermediate_texture));
