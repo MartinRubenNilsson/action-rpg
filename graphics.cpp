@@ -51,10 +51,12 @@ void main()
 	{
 		if (!gladLoadGL()) {
 			console::log_error("Failed to load OpenGL functions.");
+			return;
 		}
+		load_shader({}, {}); // Load default shader
 	}
 
-	int shader_load(const std::filesystem::path& vertex_shader_path, const std::filesystem::path& fragment_shader_path)
+	int load_shader(const std::filesystem::path& vertex_shader_path, const std::filesystem::path& fragment_shader_path)
 	{
 		// CHECK CACHE FOR EXISTING SHADER
 		
@@ -170,14 +172,16 @@ void main()
 		return shader_id;
 	}
 
-	void shader_bind(int shader_id)
+	void bind_shader(int shader_id)
 	{
+		uint32_t program_object = 0;
 		if (const Shader* shader = _shader_get(shader_id)) {
-			glUseProgram(shader->program_object);
+			program_object = shader->program_object;
 		}
+		glUseProgram(program_object);
 	}
 
-	void shader_set_uniform_1f(int shader_id, const std::string& name, float x)
+	void set_shader_uniform_1f(int shader_id, const std::string& name, float x)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -187,7 +191,7 @@ void main()
 		}
 	}
 
-	void shader_set_uniform_2f(int shader_id, const std::string& name, float x, float y)
+	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -197,7 +201,7 @@ void main()
 		}
 	}
 
-	void shader_set_uniform_3f(int shader_id, const std::string& name, float x, float y, float z)
+	void set_shader_uniform_3f(int shader_id, const std::string& name, float x, float y, float z)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -207,7 +211,7 @@ void main()
 		}
 	}
 
-	void shader_set_uniform_4f(int shader_id, const std::string& name, float x, float y, float z, float w)
+	void set_shader_uniform_4f(int shader_id, const std::string& name, float x, float y, float z, float w)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -217,7 +221,7 @@ void main()
 		}
 	}
 
-	void shader_set_uniform_1i(int shader_id, const std::string& name, int x)
+	void set_shader_uniform_1i(int shader_id, const std::string& name, int x)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -227,7 +231,7 @@ void main()
 		}
 	}
 
-	void shader_set_uniform_2i(int shader_id, const std::string& name, int x, int y)
+	void set_shader_uniform_2i(int shader_id, const std::string& name, int x, int y)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			const auto it = shader->uniform_locations.find(name);

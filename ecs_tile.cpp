@@ -3,7 +3,7 @@
 #include "physics_helpers.h"
 #include "tiled.h"
 #include "textures.h"
-#include "shaders.h"
+#include "graphics.h"
 #include "sprites.h"
 
 namespace ecs
@@ -22,9 +22,9 @@ namespace ecs
 		_set_tile(tile);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
-			shader = shaders::get(shader_name);
+			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
 		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
-			shader = shaders::get(shader_name);
+			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
 		}
 	}
 
@@ -232,7 +232,7 @@ namespace ecs
 				(float)texture_rect.top + texture_rect.height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-			sprite.shader = tile.shader.get();
+			sprite.shader_id = tile.shader_id;
 			sprite.color = tile.color;
 			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
@@ -245,9 +245,9 @@ namespace ecs
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
-					if (!sprite.shader) return;
-					sprite.shader->setUniform("time", _tile_time_accumulator);
-					sprite.shader->setUniform("position", sprite.min);
+					if (sprite.shader_id <= 0) return;
+					graphics::set_shader_uniform_1f(sprite.shader_id, "time", _tile_time_accumulator);
+					graphics::set_shader_uniform_2f(sprite.shader_id, "position", sprite.min.x, sprite.min.y);
 				};
 			}
 			sprites::draw(sprite);

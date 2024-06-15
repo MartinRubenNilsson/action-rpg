@@ -29,7 +29,7 @@ namespace sprites
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
 		void* userdata = nullptr; // optional; can be used to store additional data
 		sf::Texture* texture = nullptr; // required
-		sf::Shader* shader = nullptr; // optional; if not set, the default shader is used
+		int shader_id = 0; // optional; if set, the shader with this ID is used to render the sprite
 		sf::Vector2f min; // top-left corner world position in pixels
 		sf::Vector2f max; // bottom-right corner world position in pixels
 		sf::Vector2f tex_min; // top-left corner texture coordinates in pixels

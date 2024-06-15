@@ -28,7 +28,7 @@ namespace ecs
 		Tile(const tiled::Tile* tile);
 
 		std::shared_ptr<sf::Texture> texture; // optional; if not set, the tileset texture is used
-		std::shared_ptr<sf::Shader> shader; // optional; if not set, the default shader is used
+		int shader_id = 0; // optional; if set, the shader with this ID is used
 		sf::Vector2f position; // in pixels
 		sf::Vector2f pivot; // in pixels, relative to the top-left corner
 		sf::Vector2f sorting_pivot; // in pixels, relative to the top-left corner

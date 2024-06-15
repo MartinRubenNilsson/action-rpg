@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "sprites.h"
+#include "graphics.h"
 
 namespace sprites
 {
@@ -13,8 +14,8 @@ namespace sprites
 			return left.sorting_pos.x < right.sorting_pos.x;
 		if (left.texture != right.texture)
 			return left.texture < right.texture;
-		if (left.shader != right.shader)
-			return left.shader < right.shader;
+		if (left.shader_id != right.shader_id)
+			return left.shader_id < right.shader_id;
 		return false;
 	}
 
@@ -43,13 +44,11 @@ namespace sprites
 	uint32_t _batches_drawn = 0;
 	uint32_t _vertices_in_largest_batch = 0;
 
-	void _render_batch(sf::RenderTarget& target, const sf::RenderStates& states)
+	void _render_batch(sf::RenderTarget& target, const sf::Texture* texture, int shader_id)
 	{
-		//sf::Texture::bind(states.texture);
-		//sf::Shader::bind(states.shader);
-		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, states);
-		//sf::Shader::bind(nullptr);
-		//sf::Texture::bind(nullptr);
+		graphics::bind_shader(shader_id);
+		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, { texture });
+		graphics::bind_shader();
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (uint32_t)_batch_vertices);
 		_batch_vertices = 0;
@@ -80,7 +79,9 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
-		sf::RenderStates states{};
+		sf::Texture* texture = nullptr;
+		int shader_id = -1;
+
 		for (uint32_t i = 0; i < _sprites; ++i) {
 			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
 
@@ -106,8 +107,8 @@ namespace sprites
 				// Can we add the new sprite to the batch?
 				if (enable_batching &&
 					_batch_vertices != MAX_VERTICES_PER_BATCH &&
-					sprite.texture == states.texture &&
-					sprite.shader == states.shader &&
+					sprite.texture == texture &&
+					sprite.shader_id == shader_id &&
 					!sprite.pre_render_callback)
 				{
 					// Add degenerate triangles to separate the sprites
@@ -116,7 +117,7 @@ namespace sprites
 					_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
 					// Draw the current batch and start a new one
-					_render_batch(target, states);
+					_render_batch(target, texture, shader_id);
 				}
 			}
 
@@ -132,13 +133,13 @@ namespace sprites
 			}
 
 			// Update the render states
-			states.texture = sprite.texture;
-			states.shader = sprite.shader;
+			texture = sprite.texture;
+			shader_id = sprite.shader_id;
 		}
 
 		// Draw the last batch if there is one
 		if (_batch_vertices > 0) {
-			_render_batch(target, states);
+			_render_batch(target, texture, shader_id);
 		}
 
 		_sprites = 0;
