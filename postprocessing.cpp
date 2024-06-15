@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "postprocessing.h"
-#include "shaders.h"
 #include "textures.h"
+#include "graphics.h"
 
 namespace postprocessing
 {
@@ -58,17 +58,18 @@ namespace postprocessing
 	void _render_shockwaves(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		if (_shockwaves.empty()) return;
-		std::shared_ptr<sf::Shader> shader = shaders::get("shockwave");
-		if (!shader) return;
+		const int shader_id = graphics::load_shader({}, "assets/shaders/shockwave.frag");
+		if (shader_id == -1) return;
 		const sf::View view = texture->getView();
 		const sf::Vector2u size = texture->getSize();
-		sf::Shader::bind(shader.get());
+		graphics::bind_shader(shader_id);
 		for (const Shockwave& shockwave : _shockwaves) {
-			shader->setUniform("resolution", sf::Vector2f(size));
-			shader->setUniform("center", _map_world_to_target(view, size, shockwave.position_ws));
-			shader->setUniform("force", shockwave.force);
-			shader->setUniform("size", shockwave.size);
-			shader->setUniform("thickness", shockwave.thickness);
+			const sf::Vector2f position_ts = _map_world_to_target(view, size, shockwave.position_ws);
+			graphics::set_shader_uniform_2f(shader_id, "resolution", (float)size.x, (float)size.y);
+			graphics::set_shader_uniform_2f(shader_id, "center", position_ts.x, position_ts.y);
+			graphics::set_shader_uniform_1f(shader_id, "force", shockwave.force);
+			graphics::set_shader_uniform_1f(shader_id, "size", shockwave.size);
+			graphics::set_shader_uniform_1f(shader_id, "thickness", shockwave.thickness);
 			std::unique_ptr<sf::RenderTexture> target_texture =
 				textures::take_render_texture_from_pool(size);
 			target_texture->setView(target_texture->getDefaultView());
@@ -77,27 +78,27 @@ namespace postprocessing
 			textures::give_render_texture_to_pool(std::move(texture));
 			texture = std::move(target_texture);
 		}
-		sf::Shader::bind(nullptr);
+		graphics::bind_shader();
 		texture->setView(view);
 	}
 
 	void _render_darkness(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		if (_darkness_intensity == 0.f) return;
-		std::shared_ptr<sf::Shader> shader = shaders::get("darkness");
-		if (!shader) return;
+		const int shader_id = graphics::load_shader({}, "assets/shaders/darkness.frag");
 		const sf::View view = texture->getView();
 		const sf::Vector2u size = texture->getSize();
-		shader->setUniform("resolution", sf::Vector2f(size));
-		shader->setUniform("center", _map_world_to_target(view, size, _darkness_center_ws));
-		shader->setUniform("intensity", _darkness_intensity);
+		const sf::Vector2f center_ts = _map_world_to_target(view, size, _darkness_center_ws);
+		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)size.x, (float)size.y);
+		graphics::set_shader_uniform_2f(shader_id, "center", center_ts.x, center_ts.y);
+		graphics::set_shader_uniform_1f(shader_id, "intensity", _darkness_intensity);
 		std::unique_ptr<sf::RenderTexture> target_texture =
 			textures::take_render_texture_from_pool(size);
-		sf::Shader::bind(shader.get());
 		target_texture->setView(target_texture->getDefaultView());
 		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
-		sf::Shader::bind(nullptr);
+		graphics::bind_shader();
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 		texture->setView(view); // Restore view
@@ -106,17 +107,17 @@ namespace postprocessing
 	void _render_screen_transition(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		if (_screen_transition_progress == 0.f) return;
-		std::shared_ptr<sf::Shader> shader = shaders::get("screen_transition");
-		if (!shader) return;
-		shader->setUniform("pixel_scale", _pixel_scale);
-		shader->setUniform("progress", _screen_transition_progress);
+		const int shader_id = graphics::load_shader({}, "assets/shaders/screen_transition.frag");
+		if (shader_id == -1) return;
+		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_1f(shader_id, "pixel_scale", _pixel_scale);
+		graphics::set_shader_uniform_1f(shader_id, "progress", _screen_transition_progress);
 		std::unique_ptr<sf::RenderTexture> target_texture =
 			textures::take_render_texture_from_pool(texture->getSize());
-		sf::Shader::bind(shader.get());
 		target_texture->setView(target_texture->getDefaultView());
 		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
-		sf::Shader::bind(nullptr);
+		graphics::bind_shader();
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 	}
@@ -124,14 +125,11 @@ namespace postprocessing
 	void _render_gaussian_blur(std::unique_ptr<sf::RenderTexture>& texture)
 	{
 		if (_gaussian_blur_iterations == 0) return;
-		std::shared_ptr<sf::Shader> shader_hor = shaders::get("gaussian_blur_hor");
-		if (!shader_hor) return;
-		std::shared_ptr<sf::Shader> shader_ver = shaders::get("gaussian_blur_ver");
-		if (!shader_ver) return;
+		const int shader_hor_id = graphics::load_shader({}, "assets/shaders/gaussian_blur_hor.frag");
+		if (shader_hor_id == -1) return;
+		const int shader_ver_id = graphics::load_shader({}, "assets/shaders/gaussian_blur_ver.frag");
+		if (shader_ver_id == -1) return;
 		const sf::Vector2 size = texture->getSize();
-		// Set uniforms
-		shader_hor->setUniform("tex_size", sf::Vector2f(size));
-		shader_ver->setUniform("tex_size", sf::Vector2f(size));
 		std::unique_ptr<sf::RenderTexture> intermediate_texture =
 			textures::take_render_texture_from_pool(size);
 		// Set linear filtering
@@ -142,18 +140,20 @@ namespace postprocessing
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 			// Horizontal pass
-			sf::Shader::bind(shader_hor.get());
+			graphics::bind_shader(shader_hor_id);
+			graphics::set_shader_uniform_2f(shader_hor_id, "tex_size", (float)size.x, (float)size.y);
 			intermediate_texture->setView(intermediate_texture->getDefaultView());
 			intermediate_texture->draw(sf::Sprite(texture->getTexture()));
 			intermediate_texture->display();
 			// Vertical pass
-			sf::Shader::bind(shader_ver.get());
+			graphics::bind_shader(shader_ver_id);
+			graphics::set_shader_uniform_2f(shader_ver_id, "tex_size", (float)size.x, (float)size.y);
 			texture->setView(texture->getDefaultView());
 			texture->draw(sf::Sprite(intermediate_texture->getTexture()));
 			texture->display();
 		}
 		// Cleanup
-		sf::Shader::bind(nullptr);
+		graphics::bind_shader();
 		texture->setSmooth(texture_was_smooth);
 		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
 		textures::give_render_texture_to_pool(std::move(intermediate_texture));

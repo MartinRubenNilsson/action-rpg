@@ -9,6 +9,7 @@ namespace graphics
 	//Pass -1 to unbind the current shader.
 	void bind_shader(int shader_id = -1);
 
+	//You need to bind the shader before calling these functions!
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x);
 	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y);
 	void set_shader_uniform_3f(int shader_id, const std::string& name, float x, float y, float z);
