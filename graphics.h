@@ -1,6 +1,6 @@
 #pragma once
 
-namespace gl
+namespace graphics
 {
 	// TODO: shader loading and creating
 	// TODO: set shader uniform variables

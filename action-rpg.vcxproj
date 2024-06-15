@@ -145,7 +145,6 @@
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="background.cpp" />
-    <ClCompile Include="behavior.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
@@ -213,7 +212,7 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="map_entities.cpp" />
     <ClCompile Include="map_tilegrid.cpp" />
-    <ClCompile Include="opengl.cpp" />
+    <ClCompile Include="graphics.cpp" />
     <ClCompile Include="postprocessing.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="ecs.cpp" />
@@ -267,7 +266,6 @@
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="background.h" />
-    <ClInclude Include="behavior.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
     <ClInclude Include="cursor.h" />
@@ -393,7 +391,7 @@
     <ClInclude Include="fonts.h" />
     <ClInclude Include="map_entities.h" />
     <ClInclude Include="map_tilegrid.h" />
-    <ClInclude Include="opengl.h" />
+    <ClInclude Include="graphics.h" />
     <ClInclude Include="postprocessing.h" />
     <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />

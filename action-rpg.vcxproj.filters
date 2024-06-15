@@ -24,9 +24,6 @@
     <ClCompile Include="console_commands.cpp">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="behavior.cpp">
-      <Filter>behavior</Filter>
-    </ClCompile>
     <ClCompile Include="ecs.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -279,7 +276,7 @@
     <ClCompile Include="sprites.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="opengl.cpp">
+    <ClCompile Include="graphics.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="steam_client.cpp">
@@ -344,9 +341,6 @@
     </ClInclude>
     <ClInclude Include="console.h">
       <Filter>console</Filter>
-    </ClInclude>
-    <ClInclude Include="behavior.h">
-      <Filter>behavior</Filter>
     </ClInclude>
     <ClInclude Include="ecs.h">
       <Filter>ecs</Filter>
@@ -775,7 +769,7 @@
     <ClInclude Include="sprites.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="opengl.h">
+    <ClInclude Include="graphics.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="steam_client.h">
@@ -809,9 +803,6 @@
     </Filter>
     <Filter Include="physics">
       <UniqueIdentifier>{27d29c38-832a-492b-a39c-7054ff93afad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="behavior">
-      <UniqueIdentifier>{e9215716-816e-4e89-b7f4-716d8fb5a9d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
