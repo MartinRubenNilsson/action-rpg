@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ecs_character.h"
 #include "textures.h"
-#include "shaders.h"
+#include "graphics.h"
 #include "random.h"
 
 namespace ecs
@@ -322,13 +322,15 @@ namespace ecs
 			break;
 		}
 
-		std::shared_ptr<sf::Shader> shader = shaders::get("bake_character");
-		if (!shader) return nullptr;
+		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
+		if (shader_id == -1) return nullptr;
 
 		const std::filesystem::path base_dir = "assets/textures/character";
 
 		std::unique_ptr<sf::RenderTexture> render_texture = textures::take_render_texture_from_pool({ 1024, 1024 });
 		render_texture->clear(sf::Color::Transparent);
+
+		graphics::bind_shader(shader_id);
 
 		for (const Layer& layer : layers) {
 			std::shared_ptr<sf::Texture> texture = textures::load_cached_texture(base_dir / layer.texture_path);
@@ -350,11 +352,11 @@ namespace ecs
 					break;
 				}
 				if (lut1) {
-					shader->setUniform("lut1", *lut1);
-					shader->setUniform("lut1_type", layer.lut1_type);
-					shader->setUniform("lut1_y", layer.lut1_y);
+					graphics::set_shader_uniform_1i(shader_id, "lut1", 0);
+					graphics::set_shader_uniform_1i(shader_id, "lut1_type", layer.lut1_type);
+					graphics::set_shader_uniform_1i(shader_id, "lut1_y", layer.lut1_y);
 				} else {
-					shader->setUniform("lut1_type", -1);
+					graphics::set_shader_uniform_1i(shader_id, "lut1_type", -1);
 				}
 			}
 			{
@@ -374,18 +376,18 @@ namespace ecs
 					break;
 				}
 				if (lut2) {
-					shader->setUniform("lut2", *lut2);
-					shader->setUniform("lut2_type", layer.lut2_type);
-					shader->setUniform("lut2_y", layer.lut2_y);
+					graphics::set_shader_uniform_1i(shader_id, "lut2", 1);
+					graphics::set_shader_uniform_1i(shader_id, "lut2_type", layer.lut2_type);
+					graphics::set_shader_uniform_1i(shader_id, "lut2_y", layer.lut2_y);
 				} else {
-					shader->setUniform("lut2_type", -1);
+					graphics::set_shader_uniform_1i(shader_id, "lut2_type", -1);
 				}
 			}
-			sf::Shader::bind(shader.get());
+			//TODO: broken because ->draw only binds at most one texture
 			render_texture->draw(sf::Sprite(*texture));
-			sf::Shader::bind(nullptr);
 		}
 		render_texture->display();
+		graphics::bind_shader();
 
 		auto result = std::make_shared<sf::Texture>(render_texture->getTexture());
 		textures::give_render_texture_to_pool(std::move(render_texture));
