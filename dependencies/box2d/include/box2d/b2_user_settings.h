@@ -1,6 +1,7 @@
 #pragma once
 #include <stdarg.h>
 #include <stdint.h>
+#include <entt/entity/entity.hpp>
 
 // Tunable Constants
 

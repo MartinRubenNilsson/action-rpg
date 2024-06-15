@@ -25,7 +25,7 @@ namespace ecs
 		if (class_a.empty() && class_b.empty()) return;
 
 		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
-		if (class_a.compare(class_b) > 0) {
+ 		if (class_a.compare(class_b) > 0) {
 			std::swap(fixture_a, fixture_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
