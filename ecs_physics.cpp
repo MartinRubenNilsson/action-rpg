@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ecs_physics.h"
 #include "ecs_physics_contacts.h"
 #include "ecs_physics_filters.h"

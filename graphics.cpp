@@ -6,6 +6,25 @@
 
 namespace graphics
 {
+	constexpr char _DEFAULT_VERTEX_SHADER_BYTECODE[] = R"(
+void main()
+{
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_FrontColor = gl_Color;
+}
+)";
+
+	constexpr char _DEFAULT_FRAGMENT_SHADER_BYTECODE[] = R"(
+uniform sampler2D texture;
+
+void main()
+{
+    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+    gl_FragColor = gl_Color * pixel;
+}
+)";
+
 	struct Shader
 	{
 		std::filesystem::path vertex_shader_path;
@@ -20,11 +39,18 @@ namespace graphics
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, int> _shader_handle_to_id;
 
-	Shader* shader_get(int shader_id)
+	Shader* _shader_get(int shader_id)
 	{
 		if (shader_id < 0 || shader_id >= (int)_shaders.size())
 			return nullptr;
 		return &_shaders[shader_id];
+	}
+
+	void initialize()
+	{
+		if (!gladLoadGL()) {
+			console::log_error("Failed to load OpenGL functions.");
+		}
 	}
 
 	int shader_load(const std::filesystem::path& vertex_shader_path, const std::filesystem::path& fragment_shader_path)
@@ -41,13 +67,20 @@ namespace graphics
 
 		// LOAD AND CREATE VERTEX SHADER
 
-		std::ifstream vertex_shader_file{ vertex_shader_path };
-		if (!vertex_shader_file) {
-			console::log_error("Failed to open vertex shader file: " + vertex_shader_path.string());
-			return -1;
+		std::string vertex_shader_bytecode;
+
+		if (vertex_shader_path.empty()) {
+			vertex_shader_bytecode = _DEFAULT_VERTEX_SHADER_BYTECODE;
+		} else {
+			std::ifstream vertex_shader_file{ vertex_shader_path };
+			if (!vertex_shader_file) {
+				console::log_error("Failed to open vertex shader file: " + vertex_shader_path.string());
+				return -1;
+			}
+			vertex_shader_bytecode = { std::istreambuf_iterator<char>(vertex_shader_file), std::istreambuf_iterator<char>() };
 		}
-		std::string vertex_shader_bytecode{ std::istreambuf_iterator<char>(vertex_shader_file), std::istreambuf_iterator<char>() };
-		const int vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
+
+		const uint32_t vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
 		const char* vertex_shader_bytecode_cstr = vertex_shader_bytecode.c_str();
 		glShaderSource(vertex_shader_object, 1, &vertex_shader_bytecode_cstr, nullptr);
 		glCompileShader(vertex_shader_object);
@@ -61,13 +94,21 @@ namespace graphics
 
 		// LOAD AND CREATE FRAGMENT SHADER
 
-		std::ifstream fragment_shader_file{ fragment_shader_path };
-		if (!fragment_shader_file) {
-			console::log_error("Failed to open fragment shader file: " + fragment_shader_path.string());
-			return -1;
+		std::string fragment_shader_bytecode;
+
+		if (fragment_shader_path.empty()) {
+			fragment_shader_bytecode = _DEFAULT_FRAGMENT_SHADER_BYTECODE;
+		} else {
+			std::ifstream fragment_shader_file{ fragment_shader_path };
+			if (!fragment_shader_file) {
+				console::log_error("Failed to open fragment shader file: " + fragment_shader_path.string());
+				return -1;
+			}
+			fragment_shader_bytecode = { std::istreambuf_iterator<char>(fragment_shader_file), std::istreambuf_iterator<char>() };
+			
 		}
-		std::string fragment_shader_bytecode{ std::istreambuf_iterator<char>(fragment_shader_file), std::istreambuf_iterator<char>() };
-		const int fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
+
+		const uint32_t fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
 		const char* fragment_shader_bytecode_cstr = fragment_shader_bytecode.c_str();
 		glShaderSource(fragment_shader_object, 1, &fragment_shader_bytecode_cstr, nullptr);
 		glCompileShader(fragment_shader_object);
@@ -82,8 +123,12 @@ namespace graphics
 		// CREATE PROGRAM OBJECT
 
 		const int program_object = glCreateProgram();
-		glAttachShader(program_object, vertex_shader_object);
-		glAttachShader(program_object, fragment_shader_object);
+		if (vertex_shader_object) {
+			glAttachShader(program_object, vertex_shader_object);
+		}
+		if (fragment_shader_object) {
+			glAttachShader(program_object, fragment_shader_object);
+		}
 		glLinkProgram(program_object);
 		glGetProgramiv(program_object, GL_LINK_STATUS, &success);
 		if (!success) {
@@ -112,7 +157,7 @@ namespace graphics
 
 	void shader_use(int shader_id)
 	{
-		if (const Shader* shader = shader_get(shader_id)) {
+		if (const Shader* shader = _shader_get(shader_id)) {
 			glUseProgram(shader->program_object);
 		}
 	}

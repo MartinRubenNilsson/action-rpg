@@ -18,6 +18,7 @@
 #include "textures.h"
 #include "cursor.h"
 #include "sprites.h"
+#include "graphics.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -61,6 +62,9 @@ int main(int argc, char* argv[])
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
     ImGui::SFML::UpdateFontTexture();
     console::initialize(); // Must come after ImGui::SFML::Init.
+    graphics::initialize();
+
+    //const int shader_id = graphics::shader_load({}, {});
 
     // PREPARE FOR GAME LOOP
 

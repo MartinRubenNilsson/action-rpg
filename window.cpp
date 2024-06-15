@@ -35,6 +35,8 @@ namespace window
 			sf::Uint32 style = state.fullscreen ? 
 				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
 			sf::ContextSettings settings{};
+			settings.majorVersion = 3;
+			settings.minorVersion = 3;
 //#ifdef _DEBUG
 //			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
 //#endif
