@@ -70,7 +70,7 @@ namespace ecs
 			}
 			destroy_at_end_of_frame(entity_a);
 		} else if (class_a == "player") {
-			if (class_b == "portal") {
+ 			if (class_b == "portal") {
 				activate_portal(entity_b);
 			} else if (class_b == "slime") {
 				apply_damage_to_player(entity_a, { DamageType::Melee, 1 });

@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
     // LOAD ASSETS
 
     fonts::load_assets("assets/fonts");
-    shaders::load_assets("assets/shaders");
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
@@ -63,8 +62,7 @@ int main(int argc, char* argv[])
     ImGui::SFML::UpdateFontTexture();
     console::initialize(); // Must come after ImGui::SFML::Init.
     graphics::initialize();
-
-    //const int shader_id = graphics::shader_load({}, {});
+    shaders::load_assets("assets/shaders");
 
     // PREPARE FOR GAME LOOP
 

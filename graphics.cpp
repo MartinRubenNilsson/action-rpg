@@ -34,6 +34,7 @@ void main()
 		uint32_t vertex_shader_object = 0;
 		uint32_t fragment_shader_object = 0;
 		uint32_t program_object = 0;
+		std::unordered_map<std::string, int> uniform_locations;
 	};
 
 	std::vector<Shader> _shaders;
@@ -139,6 +140,19 @@ void main()
 			return -1;
 		}
 
+		// GET UNIFORM LOCATIONS
+
+		std::unordered_map<std::string, int> uniform_locations;
+		int uniform_count;
+		glGetProgramiv(program_object, GL_ACTIVE_UNIFORMS, &uniform_count);
+		for (int i = 0; i < uniform_count; i++) {
+			char uniform_name[256];
+			int uniform_size;
+			uint32_t uniform_type;
+			glGetActiveUniform(program_object, i, sizeof(uniform_name), nullptr, &uniform_size, &uniform_type, uniform_name);
+			uniform_locations[uniform_name] = glGetUniformLocation(program_object, uniform_name);
+		}
+
 		// STORE SHADER
 
 		const int shader_id = (int)_shaders.size();
@@ -150,15 +164,76 @@ void main()
 		shader.vertex_shader_object = vertex_shader_object;
 		shader.fragment_shader_object = fragment_shader_object;
 		shader.program_object = program_object;
+		shader.uniform_locations = std::move(uniform_locations);
 		_shader_handle_to_id[shader_handle] = shader_id;
 
 		return shader_id;
 	}
 
-	void shader_use(int shader_id)
+	void shader_bind(int shader_id)
 	{
 		if (const Shader* shader = _shader_get(shader_id)) {
 			glUseProgram(shader->program_object);
+		}
+	}
+
+	void shader_set_uniform_1f(int shader_id, const std::string& name, float x)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform1f(it->second, x);
+			}
+		}
+	}
+
+	void shader_set_uniform_2f(int shader_id, const std::string& name, float x, float y)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform2f(it->second, x, y);
+			}
+		}
+	}
+
+	void shader_set_uniform_3f(int shader_id, const std::string& name, float x, float y, float z)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform3f(it->second, x, y, z);
+			}
+		}
+	}
+
+	void shader_set_uniform_4f(int shader_id, const std::string& name, float x, float y, float z, float w)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform4f(it->second, x, y, z, w);
+			}
+		}
+	}
+
+	void shader_set_uniform_1i(int shader_id, const std::string& name, int x)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform1i(it->second, x);
+			}
+		}
+	}
+
+	void shader_set_uniform_2i(int shader_id, const std::string& name, int x, int y)
+	{
+		if (const Shader* shader = _shader_get(shader_id)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform2i(it->second, x, y);
+			}
 		}
 	}
 }
