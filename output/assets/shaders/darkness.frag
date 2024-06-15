@@ -15,9 +15,8 @@ void main()
     const float OUTER_EDGE = 0.3;
     float mask = 1.0 - smoothstep(INNER_EDGE - 0.1, OUTER_EDGE, dist);
     mask *= smoothstep(INNER_EDGE + 0.1, INNER_EDGE, dist);
-    mask = clamp(mask, 0.0, 1.0); // Clamp the mask to valid [0, 1] range
+    mask = clamp(mask, 0.0, 1.0);
 
-    //gl_FragColor = vec4(pixel.rgb, mask);
     gl_FragColor.rgb = texture2D(tex, uv).rgb;
     gl_FragColor.rgb *= mix(1.0 - intensity, 1.0, mask);
     gl_FragColor.a = 1.0;

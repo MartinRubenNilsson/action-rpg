@@ -1,4 +1,5 @@
-﻿#include "ui.h"
+﻿#include "stdafx.h"
+#include "ui.h"
 #include <RmlUi/Debugger.h>
 #include "ui_rmlui_interfaces.h"
 #include "ui_bindings.h"

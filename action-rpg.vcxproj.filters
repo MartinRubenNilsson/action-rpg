@@ -291,6 +291,9 @@
     <ClCompile Include="ecs_character.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="dependencies\glad\glad.c">
+      <Filter>graphics\glad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -784,6 +787,12 @@
     <ClInclude Include="ecs_character.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\glad\glad.h">
+      <Filter>graphics\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glad\khrplatform.h">
+      <Filter>graphics\glad</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -839,6 +848,9 @@
     </Filter>
     <Filter Include="steam\api">
       <UniqueIdentifier>{d3ef2347-9886-432b-9205-5a7bb0ae438e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\glad">
+      <UniqueIdentifier>{cd7f8e4f-c12d-4cba-a8fe-9d0810bc25d5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

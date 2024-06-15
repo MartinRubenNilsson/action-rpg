@@ -74,7 +74,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies;$(SolutionDir)dependencies\box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
@@ -112,7 +113,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <ForcedIncludeFiles>stdafx.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies;$(SolutionDir)dependencies\box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
@@ -196,6 +198,10 @@
     <ClCompile Include="dependencies\box2d\src\dynamics\b2_world.cpp" />
     <ClCompile Include="dependencies\box2d\src\dynamics\b2_world_callbacks.cpp" />
     <ClCompile Include="dependencies\box2d\src\rope\b2_rope.cpp" />
+    <ClCompile Include="dependencies\glad\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ecs_ai_action.cpp" />
     <ClCompile Include="ecs_ai.cpp" />
     <ClCompile Include="ecs_ai_knowledge.cpp" />
@@ -331,6 +337,8 @@
     <ClInclude Include="dependencies\fmod\fmod_studio.h" />
     <ClInclude Include="dependencies\fmod\fmod_studio.hpp" />
     <ClInclude Include="dependencies\fmod\fmod_studio_common.h" />
+    <ClInclude Include="dependencies\glad\glad.h" />
+    <ClInclude Include="dependencies\glad\khrplatform.h" />
     <ClInclude Include="dependencies\steam\isteamapps.h" />
     <ClInclude Include="dependencies\steam\isteamappticket.h" />
     <ClInclude Include="dependencies\steam\isteamclient.h" />

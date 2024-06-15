@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "audio.h"
 #include <fmod/fmod_studio.hpp>
 #include "console.h"

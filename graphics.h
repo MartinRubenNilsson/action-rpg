@@ -2,7 +2,6 @@
 
 namespace graphics
 {
-	// TODO: shader loading and creating
-	// TODO: set shader uniform variables
-	// TODO: render target binding
+	//Returns -1 on failure.
+	int shader_load(const std::filesystem::path& vertex_shader_path, const std::filesystem::path& fragment_shader_path);
 }
