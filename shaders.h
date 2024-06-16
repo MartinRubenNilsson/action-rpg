@@ -7,7 +7,5 @@ namespace shaders
 	void load_assets(const std::filesystem::path& dir);
 	void reload_assets();
 	void unload_assets();
-
-	std::shared_ptr<sf::Shader> get(const std::string& name);
 }
 

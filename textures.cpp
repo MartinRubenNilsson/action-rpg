@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "textures.h"
-#include "shaders.h"
 #include "console.h"
+#include "graphics.h"
 
 namespace textures
 {
@@ -55,16 +55,20 @@ namespace textures
 	std::shared_ptr<sf::Texture> create_checkerboard_texture(
 		const sf::Vector2u& size, const sf::Vector2u& tile_size, const sf::Color& color1, const sf::Color& color2)
 	{
-		std::shared_ptr<sf::Shader> checkerboard_shader = shaders::get("checkerboard");
-		if (!checkerboard_shader) return nullptr;
-		checkerboard_shader->setUniform("tile_size", sf::Glsl::Ivec2(tile_size));
-		checkerboard_shader->setUniform("color1", sf::Glsl::Vec4(color1));
-		checkerboard_shader->setUniform("color2", sf::Glsl::Vec4(color2));
+		const int shader_id = graphics::load_shader({}, "assets/shaders/checkerboard.frag");
+		if (shader_id == -1) return nullptr;
+		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_2f(shader_id, "tile_size", (float)tile_size.x, (float)tile_size.y);
+		graphics::set_shader_uniform_4f(shader_id, "color1",
+			color1.r / 255.f, color1.g / 255.f, color1.b / 255.f, color1.a / 255.f);
+		graphics::set_shader_uniform_4f(shader_id, "color2",
+			color2.r / 255.f, color2.g / 255.f, color2.b / 255.f, color2.a / 255.f);
 		sf::RenderTexture render_texture;
 		render_texture.create(size.x, size.y);
 		render_texture.clear(sf::Color::Transparent);
-		render_texture.draw(sf::Sprite(), checkerboard_shader.get());
+		render_texture.draw(sf::Sprite());
 		render_texture.display();
+		graphics::bind_shader();
 		return std::make_shared<sf::Texture>(render_texture.getTexture());
 	}
 
