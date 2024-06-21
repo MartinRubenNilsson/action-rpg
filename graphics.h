@@ -23,6 +23,8 @@ namespace graphics
 
 	//Returns -1 on failure.
 	int load_texture(const std::string& path);
+	//Returns -1 on failure.
+	int copy_texture(unsigned int texture_object);
 	//Pass texture_id = -1 to unbind the current texture.
 	void bind_texture(unsigned int texture_slot, int texture_id);
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);

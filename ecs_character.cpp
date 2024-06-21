@@ -8,35 +8,35 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	void Character::randomize()
+	void randomize_character(Character& ch)
 	{
-		body = (Body)(random::range_i(1, (int)Body::Count - 1));
-		skin_color = random::range_i(0, SKIN_COLORS - 1);
-		sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
-		sock_color = random::range_i(0, SOCK_COLORS - 1);
-		shoe = (Shoe)(random::range_i(0, (int)Shoe::Count - 1));
-		shoe_color = random::range_i(0, SHOE_COLORS - 1);
-		lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
-		lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
-		shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
-		shirt_color = random::range_i(0, SHIRT_COLORS - 1);
-		gloves = (Gloves)(random::range_i(0, (int)Gloves::Count - 1));
-		gloves_color = random::range_i(0, GLOVES_COLORS - 1);
-		outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
-		outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
-		neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
-		neckwear_color_1 = random::range_i(0, NECKWEAR_COLORS_1 - 1);
-		neckwear_color_2 = random::range_i(0, NECKWEAR_COLORS_2 - 1);
-		glasses = (Glasses)(random::range_i(0, (int)Glasses::Count - 1));
-		glasses_color = random::range_i(0, GLASSES_COLORS - 1);
-		hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
-		hair_color = random::range_i(0, HAIR_COLORS - 1);
-		hat = (Hat)(random::range_i(0, (int)Hat::Count - 1));
-		hat_color_1 = random::range_i(0, HAT_COLORS_1 - 1);
-		hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
+		ch.body = (Character::Body)(random::range_i(1, (int)Character::Body::Count - 1));
+		ch.skin_color = random::range_i(0, Character::SKIN_COLORS - 1);
+		ch.sock = (Character::Sock)(random::range_i(0, (int)Character::Sock::Count - 1));
+		ch.sock_color = random::range_i(0, Character::SOCK_COLORS - 1);
+		ch.shoe = (Character::Shoe)(random::range_i(0, (int)Character::Shoe::Count - 1));
+		ch.shoe_color = random::range_i(0, Character::SHOE_COLORS - 1);
+		ch.lowerwear = (Character::Lowerwear)(random::range_i(0, (int)Character::Lowerwear::Count - 1));
+		ch.lowerwear_color = random::range_i(0, Character::LOWERWEAR_COLORS - 1);
+		ch.shirt = (Character::Shirt)(random::range_i(0, (int)Character::Shirt::Count - 1));
+		ch.shirt_color = random::range_i(0, Character::SHIRT_COLORS - 1);
+		ch.gloves = (Character::Gloves)(random::range_i(0, (int)Character::Gloves::Count - 1));
+		ch.gloves_color = random::range_i(0, Character::GLOVES_COLORS - 1);
+		ch.outerwear = (Character::Outerwear)(random::range_i(0, (int)Character::Outerwear::Count - 1));
+		ch.outerwear_color = random::range_i(0, Character::OUTERWEAR_COLORS - 1);
+		ch.neckwear = (Character::Neckwear)(random::range_i(0, (int)Character::Neckwear::Count - 1));
+		ch.neckwear_color_1 = random::range_i(0, Character::NECKWEAR_COLORS_1 - 1);
+		ch.neckwear_color_2 = random::range_i(0, Character::NECKWEAR_COLORS_2 - 1);
+		ch.glasses = (Character::Glasses)(random::range_i(0, (int)Character::Glasses::Count - 1));
+		ch.glasses_color = random::range_i(0, Character::GLASSES_COLORS - 1);
+		ch.hair = (Character::Hair)(random::range_i(0, (int)Character::Hair::Count - 1));
+		ch.hair_color = random::range_i(0, Character::HAIR_COLORS - 1);
+		ch.hat = (Character::Hat)(random::range_i(0, (int)Character::Hat::Count - 1));
+		ch.hat_color_1 = random::range_i(0, Character::HAT_COLORS_1 - 1);
+		ch.hat_color_2 = random::range_i(0, Character::HAT_COLORS_2 - 1);
 	}
 
-	std::shared_ptr<sf::Texture> Character::bake_texture() const
+	int create_character_texture(const Character& ch)
 	{
 		enum LookupTextureType
 		{
@@ -59,271 +59,271 @@ namespace ecs
 
 		// 00undr
 
-		switch (neckwear) {
-		case Neckwear::CloakPlain:
-			layers.emplace_back("00undr/fbas_00undr_cloakplain_00d.png", LUT_C3, neckwear_color_1, LUT_C4, neckwear_color_2);
+		switch (ch.neckwear) {
+		case Character::Neckwear::CloakPlain:
+			layers.emplace_back("00undr/fbas_00undr_cloakplain_00d.png", LUT_C3, ch.neckwear_color_1, LUT_C4, ch.neckwear_color_2);
 			break;
-		case Neckwear::CloakWithMantlePlain:
-			layers.emplace_back("00undr/fbas_00undr_cloakwithmantleplain_00b.png", LUT_C4, neckwear_color_1);
+		case Character::Neckwear::CloakWithMantlePlain:
+			layers.emplace_back("00undr/fbas_00undr_cloakwithmantleplain_00b.png", LUT_C4, ch.neckwear_color_1);
 			break;
 		}
 
 		// 01body
 
-		switch (body) {
-		case Body::Human:
-			layers.emplace_back("01body/fbas_01body_human_00.png", LUT_SKIN, skin_color);
+		switch (ch.body) {
+		case Character::Body::Human:
+			layers.emplace_back("01body/fbas_01body_human_00.png", LUT_SKIN, ch.skin_color);
 			break;
 		}
 
 		// 02sock
 
-		switch (sock) {
-		case Sock::SocksHigh:
-			layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_C3, sock_color);
+		switch (ch.sock) {
+		case Character::Sock::SocksHigh:
+			layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_C3, ch.sock_color);
 			break;
-		case Sock::SocksLow:
-			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, sock_color);
+		case Character::Sock::SocksLow:
+			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, ch.sock_color);
 			break;
-		case Sock::Stockings:
-			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, sock_color);
+		case Character::Sock::Stockings:
+			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, ch.sock_color);
 			break;
 		}
 
 		// 03fot1
 
-		switch (shoe) {
-		case Shoe::Boots:
-			layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3, shoe_color);
+		switch (ch.shoe) {
+		case Character::Shoe::Boots:
+			layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3, ch.shoe_color);
 			break;
-		case Shoe::Sandals:
-			layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3, shoe_color);
+		case Character::Shoe::Sandals:
+			layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3, ch.shoe_color);
 			break;
-		case Shoe::Shoes:
-			layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3, shoe_color);
+		case Character::Shoe::Shoes:
+			layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3, ch.shoe_color);
 			break;
 		}
 
 		// 04lwr1
 
-		switch (lowerwear) {
-		case Lowerwear::LongPants:
-			layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_C3, lowerwear_color);
+		switch (ch.lowerwear) {
+		case Character::Lowerwear::LongPants:
+			layers.emplace_back("04lwr1/fbas_04lwr1_longpants_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::Onepiece:
-			layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::Onepiece:
+			layers.emplace_back("04lwr1/fbas_04lwr1_onepiece_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::OnepieceBoobs:
-			layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::OnepieceBoobs:
+			layers.emplace_back("04lwr1/fbas_04lwr1_onepieceboobs_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::Shorts:
-			layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::Shorts:
+			layers.emplace_back("04lwr1/fbas_04lwr1_shorts_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::Undies:
-			layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::Undies:
+			layers.emplace_back("04lwr1/fbas_04lwr1_undies_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
 		}
 
 		// 05shrt
 
-		switch (shirt) {
-		case Shirt::Bra:
-			layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_C3, shirt_color);
+		switch (ch.shirt) {
+		case Character::Shirt::Bra:
+			layers.emplace_back("05shrt/fbas_05shrt_bra_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::LongShirt:
-			layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::LongShirt:
+			layers.emplace_back("05shrt/fbas_05shrt_longshirt_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::LongShirtBoobs:
-			layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::LongShirtBoobs:
+			layers.emplace_back("05shrt/fbas_05shrt_longshirtboobs_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::ShortShirt:
-			layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::ShortShirt:
+			layers.emplace_back("05shrt/fbas_05shrt_shortshirt_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::ShortShirtBoobs:
-			layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::ShortShirtBoobs:
+			layers.emplace_back("05shrt/fbas_05shrt_shortshirtboobs_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::TankTop:
-			layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::TankTop:
+			layers.emplace_back("05shrt/fbas_05shrt_tanktop_00a.png", LUT_C3, ch.shirt_color);
 			break;
-		case Shirt::TankTopBoobs:
-			layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_C3, shirt_color);
+		case Character::Shirt::TankTopBoobs:
+			layers.emplace_back("05shrt/fbas_05shrt_tanktopboobs_00a.png", LUT_C3, ch.shirt_color);
 			break;
 		}
 
 		// 06lwr2
 
-		switch (lowerwear) {
-		case Lowerwear::Overalls:
-			layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_C3, lowerwear_color);
+		switch (ch.lowerwear) {
+		case Character::Lowerwear::Overalls:
+			layers.emplace_back("06lwr2/fbas_06lwr2_overalls_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::OverallsBoobs:
-			layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::OverallsBoobs:
+			layers.emplace_back("06lwr2/fbas_06lwr2_overallsboobs_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::Shortalls:
-			layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::Shortalls:
+			layers.emplace_back("06lwr2/fbas_06lwr2_shortalls_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::ShortallsBoobs:
-			layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::ShortallsBoobs:
+			layers.emplace_back("06lwr2/fbas_06lwr2_shortallsboobs_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
 		}
 
 		// 07fot2
 
-		switch (shoe) {
-		case Shoe::CuffedBoots:
-			layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3, shoe_color);
+		switch (ch.shoe) {
+		case Character::Shoe::CuffedBoots:
+			layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3, ch.shoe_color);
 			break;
-		case Shoe::CurlyToeShoes:
-			layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3, shoe_color);
+		case Character::Shoe::CurlyToeShoes:
+			layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3, ch.shoe_color);
 			break;
 		}
 
 		// 08lwr3
 
-		switch (lowerwear) {
-		case Lowerwear::FrillyDress:
-			layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_C3, lowerwear_color);
+		switch (ch.lowerwear) {
+		case Character::Lowerwear::FrillyDress:
+			layers.emplace_back("08lwr3/fbas_08lwr3_frillydress_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::FrillyDressBoobs:
-			layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::FrillyDressBoobs:
+			layers.emplace_back("08lwr3/fbas_08lwr3_frillydressboobs_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::FrillySkirt:
-			layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::FrillySkirt:
+			layers.emplace_back("08lwr3/fbas_08lwr3_frillyskirt_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::LongDress:
-			layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::LongDress:
+			layers.emplace_back("08lwr3/fbas_08lwr3_longdress_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::LongDressBoobs:
-			layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::LongDressBoobs:
+			layers.emplace_back("08lwr3/fbas_08lwr3_longdressboobs_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
-		case Lowerwear::LongSkirt:
-			layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_C3, lowerwear_color);
+		case Character::Lowerwear::LongSkirt:
+			layers.emplace_back("08lwr3/fbas_08lwr3_longskirt_00a.png", LUT_C3, ch.lowerwear_color);
 			break;
 		}
 
 		// 09hand
 
-		switch (gloves) {
-		case Gloves::Gloves:
-			layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_C3, gloves_color);
+		switch (ch.gloves) {
+		case Character::Gloves::Gloves:
+			layers.emplace_back("09hand/fbas_09hand_gloves_00a.png", LUT_C3, ch.gloves_color);
 			break;
 		}
 
 		// 10outr
 
-		switch (outerwear) {
-		case Outerwear::Suspenders:
-			layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_C3, outerwear_color);
+		switch (ch.outerwear) {
+		case Character::Outerwear::Suspenders:
+			layers.emplace_back("10outr/fbas_10outr_suspenders_00a.png", LUT_C3, ch.outerwear_color);
 			break;
-		case Outerwear::Vest:
-			layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_C3, outerwear_color);
+		case Character::Outerwear::Vest:
+			layers.emplace_back("10outr/fbas_10outr_vest_00a.png", LUT_C3, ch.outerwear_color);
 			break;
 		}
 
 		// 11neck
 
-		switch (neckwear) {
-		case Neckwear::CloakPlain:
-			layers.emplace_back("11neck/fbas_11neck_cloakplain_00d.png", LUT_C3, neckwear_color_1, LUT_C4, neckwear_color_2);
+		switch (ch.neckwear) {
+		case Character::Neckwear::CloakPlain:
+			layers.emplace_back("11neck/fbas_11neck_cloakplain_00d.png", LUT_C3, ch.neckwear_color_1, LUT_C4, ch.neckwear_color_2);
 			break;
-		case Neckwear::CloakWithMantlePlain:
-			layers.emplace_back("11neck/fbas_11neck_cloakwithmantleplain_00b.png", LUT_C4, neckwear_color_1);
+		case Character::Neckwear::CloakWithMantlePlain:
+			layers.emplace_back("11neck/fbas_11neck_cloakwithmantleplain_00b.png", LUT_C4, ch.neckwear_color_1);
 			break;
-		case Neckwear::MantlePlain:
-			layers.emplace_back("11neck/fbas_11neck_mantleplain_00b.png", LUT_C4, neckwear_color_1);
+		case Character::Neckwear::MantlePlain:
+			layers.emplace_back("11neck/fbas_11neck_mantleplain_00b.png", LUT_C4, ch.neckwear_color_1);
 			break;
-		case Neckwear::Scarf:
-			layers.emplace_back("11neck/fbas_11neck_scarf_00b.png", LUT_C4, neckwear_color_1);
+		case Character::Neckwear::Scarf:
+			layers.emplace_back("11neck/fbas_11neck_scarf_00b.png", LUT_C4, ch.neckwear_color_1);
 			break;
 		}
 
 		// 12face
 
-		switch (glasses) {
-		case Glasses::Glasses:
-			layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_C3, glasses_color);
+		switch (ch.glasses) {
+		case Character::Glasses::Glasses:
+			layers.emplace_back("12face/fbas_12face_glasses_00a.png", LUT_C3, ch.glasses_color);
 			break;
-		case Glasses::Shades:
-			layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_C3, glasses_color);
+		case Character::Glasses::Shades:
+			layers.emplace_back("12face/fbas_12face_shades_00a.png", LUT_C3, ch.glasses_color);
 			break;
 		}
 
 		// 13hair
 
 		bool headwear_replaces_hair = false;
-		switch (hat) {
-		case Hat::Bandana:
-		case Hat::Headscarf:
+		switch (ch.hat) {
+		case Character::Hat::Bandana:
+		case Character::Hat::Headscarf:
 			headwear_replaces_hair = true;
 			break;
 		}
 
 		if (!headwear_replaces_hair) {
-			switch (hair) {
-			case Hair::Afro:
-				layers.emplace_back("13hair/fbas_13hair_afro_00.png", LUT_HAIR, hair_color);
+			switch (ch.hair) {
+			case Character::Hair::Afro:
+				layers.emplace_back("13hair/fbas_13hair_afro_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::AfroPuffs:
-				layers.emplace_back("13hair/fbas_13hair_afropuffs_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::AfroPuffs:
+				layers.emplace_back("13hair/fbas_13hair_afropuffs_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Bob1:
-				layers.emplace_back("13hair/fbas_13hair_bob1_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Bob1:
+				layers.emplace_back("13hair/fbas_13hair_bob1_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Bob2:
-				layers.emplace_back("13hair/fbas_13hair_bob2_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Bob2:
+				layers.emplace_back("13hair/fbas_13hair_bob2_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Dapper:
-				layers.emplace_back("13hair/fbas_13hair_dapper_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Dapper:
+				layers.emplace_back("13hair/fbas_13hair_dapper_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Flattop:
-				layers.emplace_back("13hair/fbas_13hair_flattop_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Flattop:
+				layers.emplace_back("13hair/fbas_13hair_flattop_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::LongWavy:
-				layers.emplace_back("13hair/fbas_13hair_longwavy_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::LongWavy:
+				layers.emplace_back("13hair/fbas_13hair_longwavy_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Ponytail1:
-				layers.emplace_back("13hair/fbas_13hair_ponytail1_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Ponytail1:
+				layers.emplace_back("13hair/fbas_13hair_ponytail1_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Spiky1:
-				layers.emplace_back("13hair/fbas_13hair_spiky1_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Spiky1:
+				layers.emplace_back("13hair/fbas_13hair_spiky1_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Spiky2:
-				layers.emplace_back("13hair/fbas_13hair_spiky2_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Spiky2:
+				layers.emplace_back("13hair/fbas_13hair_spiky2_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Twintail:
-				layers.emplace_back("13hair/fbas_13hair_twintail_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Twintail:
+				layers.emplace_back("13hair/fbas_13hair_twintail_00.png", LUT_HAIR, ch.hair_color);
 				break;
-			case Hair::Twists:
-				layers.emplace_back("13hair/fbas_13hair_twists_00.png", LUT_HAIR, hair_color);
+			case Character::Hair::Twists:
+				layers.emplace_back("13hair/fbas_13hair_twists_00.png", LUT_HAIR, ch.hair_color);
 				break;
 			}
 		}
 
 		// 14head
 
-		switch (hat) {
-		case Hat::Bandana:
-			layers.emplace_back("14head/fbas_14head_bandana_00b_e.png", LUT_C4, hat_color_1);
+		switch (ch.hat) {
+		case Character::Hat::Bandana:
+			layers.emplace_back("14head/fbas_14head_bandana_00b_e.png", LUT_C4, ch.hat_color_1);
 			break;
-		case Hat::BoaterHat:
-			layers.emplace_back("14head/fbas_14head_boaterhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
+		case Character::Hat::BoaterHat:
+			layers.emplace_back("14head/fbas_14head_boaterhat_00d.png", LUT_C3, ch.hat_color_1, LUT_C4, ch.hat_color_2);
 			break;
-		case Hat::CowboyHat:
-			layers.emplace_back("14head/fbas_14head_cowboyhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
+		case Character::Hat::CowboyHat:
+			layers.emplace_back("14head/fbas_14head_cowboyhat_00d.png", LUT_C3, ch.hat_color_1, LUT_C4, ch.hat_color_2);
 			break;
-		case Hat::FloppyHat:
-			layers.emplace_back("14head/fbas_14head_floppyhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
+		case Character::Hat::FloppyHat:
+			layers.emplace_back("14head/fbas_14head_floppyhat_00d.png", LUT_C3, ch.hat_color_1, LUT_C4, ch.hat_color_2);
 			break;
-		case Hat::Headscarf:
-			layers.emplace_back("14head/fbas_14head_headscarf_00b_e.png", LUT_C4, hat_color_1);
+		case Character::Hat::Headscarf:
+			layers.emplace_back("14head/fbas_14head_headscarf_00b_e.png", LUT_C4, ch.hat_color_1);
 			break;
-		case Hat::StrawHat:
-			layers.emplace_back("14head/fbas_14head_strawhat_00d.png", LUT_C3, hat_color_1, LUT_C4, hat_color_2);
+		case Character::Hat::StrawHat:
+			layers.emplace_back("14head/fbas_14head_strawhat_00d.png", LUT_C3, ch.hat_color_1, LUT_C4, ch.hat_color_2);
 			break;
 		}
 
 		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
-		if (shader_id == -1) return nullptr;
+		if (shader_id == -1) return -1;
 
 		const std::string base_dir = "assets/textures/character/";
 
@@ -410,14 +410,14 @@ namespace ecs
 		render_texture->display();
 		render_texture->resetGLStates();
 
-		auto result = std::make_shared<sf::Texture>(render_texture->getTexture());
+		int texture_id = graphics::copy_texture(render_texture->getTexture().getNativeHandle());
 		textures::give_render_texture_to_pool(std::move(render_texture));
 
-		return result;
+		return texture_id;
 	}
 
-	Character& emplace_character(entt::entity entity, const Character& character) {
-		return _registry.emplace<Character>(entity, character);
+	Character& emplace_character(entt::entity entity, const Character& ch) {
+		return _registry.emplace<Character>(entity, ch);
 	}
 
 	Character& get_character(entt::entity entity) {

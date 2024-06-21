@@ -259,13 +259,13 @@ namespace map
 					if (last_player_character) {
 						character = *last_player_character;
 					} else {
-						character.randomize();
+						ecs::randomize_character(character);
 					}
 					ecs::emplace_character(entity, character);
 
-					//if (tile) {
-					//	tile->texture = character.bake_texture();
-					//}
+					if (tile) {
+						tile->texture_id = ecs::create_character_texture(character);
+					}
 
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);

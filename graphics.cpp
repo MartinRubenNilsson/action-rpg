@@ -46,9 +46,9 @@ void main()
 	};
 
 	std::vector<Shader> _shaders;
-	std::unordered_map<std::string, int> _shader_handle_to_id;
+	std::unordered_map<std::string, int> _shader_name_to_id;
 	std::vector<Texture> _textures;
-	std::unordered_map<std::string, int> _texture_handle_to_id;
+	std::unordered_map<std::string, int> _texture_name_to_id;
 
 	Shader* _get_shader(int shader_id)
 	{
@@ -106,7 +106,7 @@ void main()
 			glDeleteProgram(shader.program_object);
 		}
 		_shaders.clear();
-		_shader_handle_to_id.clear();
+		_shader_name_to_id.clear();
 
 		// DELETE TEXTURES
 
@@ -114,17 +114,17 @@ void main()
 			glDeleteTextures(1, &texture.texture_object);
 		}
 		_textures.clear();
-		_texture_handle_to_id.clear();
+		_texture_name_to_id.clear();
 	}
 
 	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
 	{
 		// CHECK CACHE FOR EXISTING SHADER
 		
-		const std::string shader_handle = vertex_shader_path + ":" + fragment_shader_path;
+		const std::string shader_name = vertex_shader_path + ":" + fragment_shader_path;
 		{
-			const auto it = _shader_handle_to_id.find(shader_handle);
-			if (it != _shader_handle_to_id.end()) {
+			const auto it = _shader_name_to_id.find(shader_name);
+			if (it != _shader_name_to_id.end()) {
 				return it->second;
 			}
 		}
@@ -253,7 +253,7 @@ void main()
 		shader.fragment_shader_path = fragment_shader_path;
 		shader.uniform_locations = std::move(uniform_locations);
 		shader.program_object = program_object;
-		_shader_handle_to_id[shader_handle] = shader_id;
+		_shader_name_to_id[shader_name] = shader_id;
 
 		return shader_id;
 	}
@@ -331,8 +331,8 @@ void main()
 	{
 		// CHECK IF ALREADY LOADED
 
-		const auto it = _texture_handle_to_id.find(path);
-		if (it != _texture_handle_to_id.end()) {
+		const auto it = _texture_name_to_id.find(path);
+		if (it != _texture_name_to_id.end()) {
 			return it->second;
 		}
 
@@ -342,12 +342,13 @@ void main()
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 		if (!data) {
 			console::log_error("Failed to load texture: " + path);
+			console::log_error(std::format("STBI failure reason: {}", stbi_failure_reason()));
 			return -1;
 		}
 
 		// CREATE TEXTURE OBJECT
 
-		GLint format = GL_RED;
+		GLenum format = GL_RGBA;
 		if (channels == 1) {
 			format = GL_RED;
 		} else if (channels == 2) {
@@ -363,7 +364,7 @@ void main()
 		glBindTexture(GL_TEXTURE_2D, texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, channels, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		stbi_image_free(data);
 
 		// STORE TEXTURE
@@ -374,7 +375,34 @@ void main()
 		texture.width = width;
 		texture.height = height;
 		texture.texture_object = texture_object;
-		_texture_handle_to_id[path] = texture_id;
+		_texture_name_to_id[path] = texture_id;
+
+		return texture_id;
+	}
+
+	int copy_texture(unsigned int texture_object)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture_object);
+		int internal_format, width, height;
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+		unsigned int copy_texture_object;
+		glGenTextures(1, &copy_texture_object);
+		glBindTexture(GL_TEXTURE_2D, copy_texture_object);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glCopyImageSubData(
+			texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			copy_texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			width, height, 1);
+
+		const int texture_id = (int)_textures.size();
+		Texture& texture = _textures.emplace_back();
+		texture.width = width;
+		texture.height = height;
+		texture.texture_object = copy_texture_object;
 
 		return texture_id;
 	}

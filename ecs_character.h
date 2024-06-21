@@ -169,12 +169,12 @@ namespace ecs
 		Hat hat = Hat::None;
 		int hat_color_1 = 0;
 		int hat_color_2 = 0;
-
-		void randomize();
-		std::shared_ptr<sf::Texture> bake_texture() const;
 	};
 
-	Character& emplace_character(entt::entity entity, const Character& character = {});
+	void randomize_character(Character& ch);
+	int create_character_texture(const Character& ch);
+
+	Character& emplace_character(entt::entity entity, const Character& ch = {});
 	Character& get_character(entt::entity entity); // Undefined behavior if entity does not have a Character component!
 	Character* try_get_character(entt::entity entity);
 	bool remove_character(entt::entity entity);
