@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "tiled.h"
 #include <pugixml.hpp>
-#include "textures.h"
 #include "console.h"
 
 namespace tiled
@@ -126,19 +125,19 @@ namespace tiled
 			if (!entry.is_regular_file()) continue;
 			std::string extension = entry.path().extension().string();
 			if (extension == ".tsx")
-				_tilesets.emplace_back().path = entry.path().lexically_normal();
+				_tilesets.emplace_back().path = entry.path().lexically_normal().string();
 			else if (extension == ".tx")
-				_templates.emplace_back().path = entry.path().lexically_normal();
+				_templates.emplace_back().path = entry.path().lexically_normal().string();
 			else if (extension == ".tmx")
-				_maps.emplace_back().path = entry.path().lexically_normal();
+				_maps.emplace_back().path = entry.path().lexically_normal().string();
 		}
 
 		// LOAD TILESETS
 		
 		for (Tileset& tileset : _tilesets) {
 			pugi::xml_document doc;
-			if (!doc.load_file(tileset.path.string().c_str())) {
-				console::log_error("Failed to load tileset: " + tileset.path.string());
+			if (!doc.load_file(tileset.path.c_str())) {
+				console::log_error("Failed to load tileset: " + tileset.path);
 				continue;
 			}
 			pugi::xml_node tileset_node = doc.child("tileset");
@@ -150,10 +149,13 @@ namespace tiled
 			tileset.columns = tileset_node.attribute("columns").as_uint();
 			tileset.spacing = tileset_node.attribute("spacing").as_uint();
 			tileset.margin = tileset_node.attribute("margin").as_uint();
-			tileset.image_path = tileset.path.parent_path();
-			tileset.image_path /= tileset_node.child("image").attribute("source").as_string();
-			tileset.image_path = tileset.image_path.lexically_normal();
-			tileset.image = textures::load_cached_texture(tileset.image_path);
+			{
+				std::filesystem::path image_path = tileset.path;
+				image_path = image_path.parent_path();
+				image_path /= tileset_node.child("image").attribute("source").as_string();
+				image_path = image_path.lexically_normal();
+				tileset.image_path = image_path.string();
+			}
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t id = 0; id < tileset.tile_count; ++id) {
@@ -225,8 +227,8 @@ namespace tiled
 		
 		for (Object& template_ : _templates) {
 			pugi::xml_document doc;
-			if (!doc.load_file(template_.path.string().c_str())) {
-				console::log_error("Failed to load template: " + template_.path.string());
+			if (!doc.load_file(template_.path.c_str())) {
+				console::log_error("Failed to load template: " + template_.path);
 				continue;
 			}
 			pugi::xml_node template_node = doc.child("template");
@@ -235,10 +237,11 @@ namespace tiled
 			if (pugi::xml_node tileset_node = template_node.child("tileset")) {
 				pugi::xml_attribute source_attribute = tileset_node.attribute("source");
 				if (!source_attribute) {
-					console::log_error("Embedded tilesets are not supported: " + template_.path.string());
+					console::log_error("Embedded tilesets are not supported: " + template_.path);
 					continue;
 				}
-				std::filesystem::path tileset_path = template_.path.parent_path();
+				std::filesystem::path tileset_path = template_.path;
+				tileset_path = tileset_path.parent_path();
 				tileset_path /= source_attribute.as_string();
 				tileset_path = tileset_path.lexically_normal();
 				uint32_t gid_with_flip_flags = object_node.attribute("gid").as_uint();
@@ -265,12 +268,12 @@ namespace tiled
 
 		for (Map& map : _maps) {
 			pugi::xml_document doc;
-			if (!doc.load_file(map.path.string().c_str())) {
-				console::log_error("Failed to load map: " + map.path.string());
+			if (!doc.load_file(map.path.c_str())) {
+				console::log_error("Failed to load map: " + map.path);
 				continue;
 			}
 			pugi::xml_node map_node = doc.child("map");
-			map.name = map.path.stem().string();
+			map.name = std::filesystem::path(map.path).stem().string();
 			map.class_ = map_node.attribute("class").as_string();
 			map.width = map_node.attribute("width").as_uint();
 			map.height = map_node.attribute("height").as_uint();
@@ -286,10 +289,11 @@ namespace tiled
 			for (pugi::xml_node tileset_node : map_node.children("tileset")) {
 				pugi::xml_attribute source_attribute = tileset_node.attribute("source");
 				if (!source_attribute) {
-					console::log_error("Embedded tilesets are not supported: " + map.path.string());
+					console::log_error("Embedded tilesets are not supported: " + map.path);
 					continue;
 				}
-				std::filesystem::path tileset_path = map.path.parent_path();
+				std::filesystem::path tileset_path = map.path;
+				tileset_path = tileset_path.parent_path();
 				tileset_path /= source_attribute.as_string();
 				tileset_path = tileset_path.lexically_normal();
 				bool found = false;
@@ -320,7 +324,7 @@ namespace tiled
 				if (_is_tile_layer(layer_node.name())) {
 					pugi::xml_node data_node = layer_node.child("data");
 					if (strcmp(data_node.attribute("encoding").as_string(), "csv") != 0) {
-						console::log_error("Only CSV encoding is supported: " + map.path.string());
+						console::log_error("Only CSV encoding is supported: " + map.path);
 						layer.width = 0;
 						layer.height = 0;
 						continue;
@@ -356,7 +360,8 @@ namespace tiled
 					for (pugi::xml_node object_node : layer_node.children("object")) {
 						Object& object = layer.objects.emplace_back();
 						if (pugi::xml_attribute template_attribute = object_node.attribute("template")) {
-							std::filesystem::path template_path = map.path.parent_path();
+							std::filesystem::path template_path = map.path;
+							template_path = template_path.parent_path();
 							template_path /= template_attribute.as_string();
 							template_path = template_path.lexically_normal();
 							bool found = false;

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ecs_vfx.h"
-#include "textures.h"
+#include "graphics.h"
 #include "sprites.h"
 #include "console.h"
 
@@ -23,7 +23,7 @@ namespace ecs
     {
         sprites::Sprite sprite{};
         for (auto [entity, vfx] : _registry.view<const Vfx>().each()) {
-            if (!vfx.texture) continue;
+            if (vfx.texture_id == -1) continue;
             if (!vfx.frame_rows) continue;
             if (!vfx.frame_cols) continue;
             if (vfx.time < 0.f) continue;
@@ -31,7 +31,8 @@ namespace ecs
             uint32_t frame = (uint32_t)(vfx.time / vfx.frame_duration);
             uint32_t frame_row = frame / vfx.frame_cols;
             uint32_t frame_col = frame % vfx.frame_cols;
-            sf::Vector2u texture_size = vfx.texture->getSize();
+            sf::Vector2u texture_size;
+            graphics::get_texture_size(vfx.texture_id, texture_size.x, texture_size.y);
             sprite.tex_min = {
                 (float)texture_size.x * frame_col / vfx.frame_cols,
                 (float)texture_size.y * frame_row / vfx.frame_rows };
@@ -43,7 +44,7 @@ namespace ecs
             if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
             sprite.max = vfx.position + tex_half_size;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-            sprite.texture = vfx.texture.get();
+            sprite.texture_id = vfx.texture_id;
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = sprites::SL_VFX;
 			sprites::draw(sprite);
@@ -59,7 +60,7 @@ namespace ecs
         vfx.position = position;
         switch (type) {
         case VfxType::Explosion: {
-            vfx.texture = textures::load_cached_texture("assets/textures/vfx/EXPLOSION.png");
+            vfx.texture_id = graphics::load_texture("assets/textures/vfx/EXPLOSION.png");
             vfx.frame_rows = 1;
             vfx.frame_cols = 12;
             vfx.frame_duration = 0.05f;

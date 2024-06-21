@@ -419,11 +419,11 @@ namespace ecs
 			if (ImGui::Button("Give 5 Rupees"))
 				player.rupees += 5;
 
-			if (ImGui::Button("Randomize Appearance")) {
-				Character character{};
-				character.randomize();
-				tile.texture = character.bake_texture();
-			}
+			//if (ImGui::Button("Randomize Appearance")) {
+			//	Character character{};
+			//	character.randomize();
+			//	tile.texture = character.bake_texture();
+			//}
 
 			ImGui::Spacing(); //did this even do anything??
 			ImGui::TreePop();

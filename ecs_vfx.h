@@ -12,7 +12,7 @@ namespace ecs
 	struct Vfx
 	{
 		VfxType type = VfxType::None;
-		std::shared_ptr<sf::Texture> texture;
+		int texture_id = -1;
 		sf::Vector2f position;
 		uint32_t frame_rows = 0;
 		uint32_t frame_cols = 0;

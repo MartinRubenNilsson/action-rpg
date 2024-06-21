@@ -12,8 +12,8 @@ namespace sprites
 			return left.sorting_pos.y < right.sorting_pos.y;
 		if (left.sorting_pos.x != right.sorting_pos.x)
 			return left.sorting_pos.x < right.sorting_pos.x;
-		if (left.texture != right.texture)
-			return left.texture < right.texture;
+		if (left.texture_id != right.texture_id)
+			return left.texture_id < right.texture_id;
 		if (left.shader_id != right.shader_id)
 			return left.shader_id < right.shader_id;
 		return false;
@@ -44,11 +44,14 @@ namespace sprites
 	unsigned int _batches_drawn = 0;
 	unsigned int _vertices_in_largest_batch = 0;
 
-	void _render_batch(sf::RenderTarget& target, const sf::Texture* texture, int shader_id)
+	void _render_batch(int texture_id, int shader_id)
 	{
 		graphics::bind_shader(shader_id);
-		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, { texture });
-		graphics::bind_shader();
+		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
+		graphics::bind_texture(0, texture_id);
+		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
+		graphics::bind_texture(0, -1);
+		graphics::bind_shader(-1);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;
@@ -64,6 +67,13 @@ namespace sprites
 
 	void render(sf::RenderTarget& target)
 	{
+		target.setActive();
+
+		graphics::set_modelview_matrix_to_identity();
+		graphics::set_projection_matrix(target.getView().getTransform().getMatrix());
+		graphics::set_texture_matrix_to_identity();
+		graphics::set_viewport(0, 0, target.getSize().x, target.getSize().y);
+
 		_sprites_drawn = _sprites;
 		_batches_drawn = 0;
 		_vertices_in_largest_batch = 0;
@@ -79,7 +89,7 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
-		sf::Texture* texture = nullptr;
+		int texture_id = -1;
 		int shader_id = -1;
 
 		for (unsigned int i = 0; i < _sprites; ++i) {
@@ -107,7 +117,7 @@ namespace sprites
 				// Can we add the new sprite to the batch?
 				if (enable_batching &&
 					_batch_vertices != MAX_VERTICES_PER_BATCH &&
-					sprite.texture == texture &&
+					sprite.texture_id == texture_id &&
 					sprite.shader_id == shader_id &&
 					!sprite.pre_render_callback)
 				{
@@ -117,7 +127,7 @@ namespace sprites
 					_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
 					// Draw the current batch and start a new one
-					_render_batch(target, texture, shader_id);
+					_render_batch(texture_id, shader_id);
 				}
 			}
 
@@ -133,16 +143,18 @@ namespace sprites
 			}
 
 			// Update the render states
-			texture = sprite.texture;
+			texture_id = sprite.texture_id;
 			shader_id = sprite.shader_id;
 		}
 
 		// Draw the last batch if there is one
 		if (_batch_vertices > 0) {
-			_render_batch(target, texture, shader_id);
+			_render_batch(texture_id, shader_id);
 		}
 
 		_sprites = 0;
+
+		target.resetGLStates();
 	}
 
 	unsigned int get_sprites_drawn() {

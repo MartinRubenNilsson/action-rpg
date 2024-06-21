@@ -27,7 +27,7 @@ namespace ecs
 		Tile();
 		Tile(const tiled::Tile* tile);
 
-		std::shared_ptr<sf::Texture> texture; // optional; if not set, the tileset texture is used
+		int texture_id = -1; // optional; if not set, the tileset texture is used
 		int shader_id = 0; // optional; if set, the shader with this ID is used
 		sf::Vector2f position; // in pixels
 		sf::Vector2f pivot; // in pixels, relative to the top-left corner
@@ -42,7 +42,6 @@ namespace ecs
 		bool set_tile(uint32_t id, const std::string& tileset_name);
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
-		const std::shared_ptr<sf::Texture>& get_texture() const;
 		sf::IntRect get_texture_rect(bool account_for_animation = true) const;
 		const std::string& get_class(bool account_for_animation = true) const;
 		const std::string& get_tileset_name() const;

@@ -2,7 +2,6 @@
 #include "ecs_tile.h"
 #include "physics_helpers.h"
 #include "tiled.h"
-#include "textures.h"
 #include "graphics.h"
 #include "sprites.h"
 
@@ -20,6 +19,7 @@ namespace ecs
 	{
 		assert(tile);
 		_set_tile(tile);
+		texture_id = graphics::load_texture(tile->tileset->image_path);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
 			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
@@ -101,7 +101,6 @@ namespace ecs
 	// is cheaper than having to construct and return an empty object.
 	const std::string _DUMMY_EMPTY_STRING;
 	const Properties _DUMMY_EMPTY_PROPERTIES;
-	const std::shared_ptr<sf::Texture> _DUMMY_EMPTY_TEXTURE;
 
 	const std::string& Tile::get_class(bool account_for_animation) const
 	{
@@ -119,16 +118,6 @@ namespace ecs
 		if (const tiled::Tile* tile = _get_tile(account_for_animation))
 			return tile->properties;
 		return _DUMMY_EMPTY_PROPERTIES;
-	}
-
-	const std::shared_ptr<sf::Texture>& Tile::get_texture() const
-	{
-		if (texture) {
-			return texture;
-		} else if (const tiled::Tile* tile = _get_tile(false)) {
-			return tile->tileset->image;
-		}
-		return _DUMMY_EMPTY_TEXTURE;
 	}
 
 	sf::IntRect Tile::get_texture_rect(bool account_for_animation) const
@@ -221,8 +210,10 @@ namespace ecs
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
-			sprite.texture = tile.get_texture().get();
-			if (!sprite.texture) continue;
+			sprite.texture_id = tile.texture_id;
+			if (sprite.texture_id == -1) continue;
+			sf::Vector2u texture_size;
+			graphics::get_texture_size(sprite.texture_id, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
 			sf::IntRect texture_rect = tile.get_texture_rect();
@@ -231,6 +222,8 @@ namespace ecs
 				(float)texture_rect.left + texture_rect.width,
 				(float)texture_rect.top + texture_rect.height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			sprite.tex_min /= sf::Vector2f(texture_size);
+			sprite.tex_max /= sf::Vector2f(texture_size);
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader_id = tile.shader_id;
 			sprite.color = tile.color;

@@ -28,12 +28,12 @@ namespace sprites
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
 		void* userdata = nullptr; // optional; can be used to store additional data
-		sf::Texture* texture = nullptr; // required
+		int texture_id = -1;
 		int shader_id = 0; // optional; if set, the shader with this ID is used to render the sprite
 		sf::Vector2f min; // top-left corner world position in pixels
 		sf::Vector2f max; // bottom-right corner world position in pixels
-		sf::Vector2f tex_min; // top-left corner texture coordinates in pixels
-		sf::Vector2f tex_max; // bottom-right corner texture coordinates in pixels
+		sf::Vector2f tex_min; // top-left corner normalized texture coordinates
+		sf::Vector2f tex_max; // bottom-right corner normalized texture coordinates
 		sf::Vector2f sorting_pos;
 		sf::Color color = sf::Color::White;
 		uint8_t sorting_layer = 0;
@@ -45,10 +45,10 @@ namespace sprites
 	// 1. sorting_layer
 	// 2. sorting_pos.y
 	// 3. sorting_pos.x
-	// 4. texture
+	// 4. texture_id
 	// 5. shader_id
 	// 
-	// In all cases, a less-than comparison is used. (In 4-5, the pointers are compared.)
+	// In all cases, a less-than comparison is used.
 	// If one case yields a tie, then the next case is considered, and so on.
 	// 
 	// If batching is enabled, then sprites that compare equal are merged into the same batch,
@@ -56,8 +56,8 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
-	extern const uint32_t MAX_SPRITES;
-	extern const uint32_t MAX_SPRITES_PER_BATCH;
+	extern const unsigned int MAX_SPRITES;
+	extern const unsigned int MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
 
 	// Submits a sprite for rendering. The sprite is not rendered immediately, but

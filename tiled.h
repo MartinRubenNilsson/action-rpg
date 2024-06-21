@@ -26,7 +26,7 @@ namespace tiled
 
 	struct Object
 	{
-		std::filesystem::path path; // nonempty if object is a template
+		std::string path; // nonempty if object is a template
 		std::string name;
 		std::string class_;
 		Properties properties;
@@ -106,9 +106,8 @@ namespace tiled
 
 	struct Tileset
 	{
-		std::filesystem::path path;
-		std::filesystem::path image_path;
-		std::shared_ptr<sf::Texture> image;
+		std::string path;
+		std::string image_path;
 		std::string name;
 		std::string class_;
 		Properties properties;
@@ -136,7 +135,7 @@ namespace tiled
 
 	struct Map
 	{
-		std::filesystem::path path;
+		std::string path;
 		std::string name; // filename without extension
 		std::string class_;
 		Properties properties;

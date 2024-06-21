@@ -68,7 +68,7 @@ namespace textures
 		render_texture.clear(sf::Color::Transparent);
 		render_texture.draw(sf::Sprite());
 		render_texture.display();
-		graphics::bind_shader();
+		graphics::bind_shader(-1);
 		return std::make_shared<sf::Texture>(render_texture.getTexture());
 	}
 

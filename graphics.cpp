@@ -20,11 +20,11 @@ void main()
 )";
 
 	constexpr char _DEFAULT_FRAGMENT_SHADER_BYTECODE[] = R"(
-uniform sampler2D texture;
+uniform sampler2D tex;
 
 void main()
 {
-    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+    vec4 pixel = texture(tex, gl_TexCoord[0].xy);
     gl_FragColor = gl_Color * pixel;
 }
 )";
@@ -33,8 +33,8 @@ void main()
 	{
 		std::string vertex_shader_path;
 		std::string fragment_shader_path;
-		unsigned int program_object = 0;
 		std::unordered_map<std::string, int> uniform_locations;
+		unsigned int program_object = 0;
 	};
 
 	struct Texture
@@ -251,8 +251,8 @@ void main()
 		Shader& shader = _shaders.emplace_back();
 		shader.vertex_shader_path = vertex_shader_path;
 		shader.fragment_shader_path = fragment_shader_path;
-		shader.program_object = program_object;
 		shader.uniform_locations = std::move(uniform_locations);
+		shader.program_object = program_object;
 		_shader_handle_to_id[shader_handle] = shader_id;
 
 		return shader_id;
@@ -379,7 +379,7 @@ void main()
 		return texture_id;
 	}
 
-	void bind_texture(int texture_slot, int texture_id)
+	void bind_texture(unsigned int texture_slot, int texture_id)
 	{
 		unsigned int texture_object = 0;
 		if (const Texture* texture = _get_texture(texture_id)) {
@@ -425,6 +425,12 @@ void main()
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
+	}
+
+	void set_projection_matrix(const float matrix[16])
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadMatrixf(matrix);
 	}
 
 	void set_texture_matrix_to_identity()

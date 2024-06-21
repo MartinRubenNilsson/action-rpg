@@ -263,9 +263,9 @@ namespace map
 					}
 					ecs::emplace_character(entity, character);
 
-					if (tile) {
-						tile->texture = character.bake_texture();
-					}
+					//if (tile) {
+					//	tile->texture = character.bake_texture();
+					//}
 
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
