@@ -8,6 +8,26 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
+	Character& emplace_character(entt::entity entity, const Character& ch) {
+		return _registry.emplace<Character>(entity, ch);
+	}
+
+	Character& get_character(entt::entity entity) {
+		return _registry.get<Character>(entity);
+	}
+
+	Character* try_get_character(entt::entity entity) {
+		return _registry.try_get<Character>(entity);
+	}
+
+	bool remove_character(entt::entity entity) {
+		return _registry.remove<Character>(entity);
+	}
+
+	bool has_character(entt::entity entity) {
+		return _registry.all_of<Character>(entity);
+	}
+
 	void randomize_character(Character& ch)
 	{
 		ch.body = (Character::Body)(random::range_i(1, (int)Character::Body::Count - 1));
@@ -414,25 +434,5 @@ namespace ecs
 		textures::give_render_texture_to_pool(std::move(render_texture));
 
 		return texture_id;
-	}
-
-	Character& emplace_character(entt::entity entity, const Character& ch) {
-		return _registry.emplace<Character>(entity, ch);
-	}
-
-	Character& get_character(entt::entity entity) {
-		return _registry.get<Character>(entity);
-	}
-
-	Character* try_get_character(entt::entity entity) {
-		return _registry.try_get<Character>(entity);
-	}
-
-	bool remove_character(entt::entity entity) {
-		return _registry.remove<Character>(entity);
-	}
-
-	bool has_character(entt::entity entity) {
-		return _registry.all_of<Character>(entity);
 	}
 }
