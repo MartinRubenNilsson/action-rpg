@@ -467,14 +467,14 @@ void main()
 		glLoadIdentity();
 	}
 
-	void draw_triangle_strip(const sf::Vertex* vertices, unsigned int vertex_count)
+	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, sizeof(sf::Vertex), (unsigned char*)vertices + 0);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(sf::Vertex), (unsigned char*)vertices + 8);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(sf::Vertex), (unsigned char*)vertices + 12);
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 }

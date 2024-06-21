@@ -2,6 +2,13 @@
 
 namespace graphics
 {
+	struct Vertex
+	{
+		sf::Vector2f position;
+		sf::Color color;
+		sf::Vector2f tex_coords;
+	};
+
 	void initialize();
 	void shutdown();
 
@@ -40,5 +47,5 @@ namespace graphics
 
 	// DRAWING
 
-	void draw_triangle_strip(const sf::Vertex* vertices, unsigned int vertex_count);
+	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 }

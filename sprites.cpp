@@ -37,7 +37,7 @@ namespace sprites
 	unsigned int _sprites_by_draw_order[MAX_SPRITES]; // indices into _sprite_buffer
 	unsigned int _sprites = 0;
 
-	sf::Vertex _batch_vertex_buffer[MAX_VERTICES_PER_BATCH];
+	graphics::Vertex _batch_vertex_buffer[MAX_VERTICES_PER_BATCH];
 	unsigned int _batch_vertices = 0;
 
 	unsigned int _sprites_drawn = 0;

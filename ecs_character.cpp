@@ -431,15 +431,15 @@ namespace ecs
 			graphics::bind_texture(1, lut1_texture_id);
 			graphics::bind_texture(2, lut2_texture_id);
 
-			sf::Vertex vertices[4];
+			graphics::Vertex vertices[4];
 			vertices[0].position = { -1.f, -1.f };
 			vertices[1].position = { -1.f, 1.f };
 			vertices[2].position = { 1.f, -1.f };
 			vertices[3].position = { 1.f, 1.f };
-			vertices[0].texCoords = { 0.f, 1.f };
-			vertices[1].texCoords = { 0.f, 0.f };
-			vertices[2].texCoords = { 1.f, 1.f };
-			vertices[3].texCoords = { 1.f, 0.f };
+			vertices[0].tex_coords = { 0.f, 1.f };
+			vertices[1].tex_coords = { 0.f, 0.f };
+			vertices[2].tex_coords = { 1.f, 1.f };
+			vertices[3].tex_coords = { 1.f, 0.f };
 
 			graphics::draw_triangle_strip(vertices, 4);
 		}
