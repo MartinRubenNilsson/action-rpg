@@ -399,14 +399,13 @@ namespace ecs
 			vertices[1].position = { -1.f, 1.f };
 			vertices[2].position = { 1.f, -1.f };
 			vertices[3].position = { 1.f, 1.f };
-			vertices[0].texCoords = { 0.f, 0.f };
-			vertices[1].texCoords = { 0.f, 1.f };
-			vertices[2].texCoords = { 1.f, 0.f };
-			vertices[3].texCoords = { 1.f, 1.f };
+			vertices[0].texCoords = { 0.f, 1.f };
+			vertices[1].texCoords = { 0.f, 0.f };
+			vertices[2].texCoords = { 1.f, 1.f };
+			vertices[3].texCoords = { 1.f, 0.f };
 
 			graphics::draw_triangle_strip(vertices, 4);
 		}
-		graphics::bind_shader();
 
 		render_texture->display();
 		render_texture->resetGLStates();

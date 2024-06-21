@@ -339,9 +339,7 @@ void main()
 		// LOAD TEXTURE DATA
 
 		int width, height, channels;
-		stbi_set_flip_vertically_on_load(true); // OpenGL expects the origin to be at the bottom-left
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		stbi_set_flip_vertically_on_load(false);
 		if (!data) {
 			console::log_error("Failed to load texture: " + path);
 			return -1;
