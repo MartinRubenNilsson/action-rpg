@@ -1,8 +1,8 @@
-uniform sampler2D texture;
+uniform sampler2D tex;
 uniform sampler2D lut1;
+uniform sampler2D lut2;
 uniform int lut1_type;
 uniform int lut1_y;
-uniform sampler2D lut2;
 uniform int lut2_type;
 uniform int lut2_y;
 
@@ -78,9 +78,7 @@ bool lookup_color(sampler2D lut, int lut_type, int lut_y, inout vec3 color)
 
 void main()
 {
-	ivec2 texture_size = textureSize(texture, 0);
-    ivec2 texture_pos = ivec2(gl_FragCoord.x, texture_size.y - gl_FragCoord.y);
-    gl_FragColor = texelFetch(texture, texture_pos, 0);
+    gl_FragColor = texture(tex, gl_TexCoord[0].xy);
     if (lookup_color(lut1, lut1_type, lut1_y, gl_FragColor.xyz)) return;
     if (lookup_color(lut2, lut2_type, lut2_y, gl_FragColor.xyz)) return;
 }

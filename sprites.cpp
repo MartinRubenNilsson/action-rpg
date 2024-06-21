@@ -19,30 +19,30 @@ namespace sprites
 		return false;
 	}
 
-	constexpr uint32_t _calc_vertices_in_batch(uint32_t sprite_count) {
+	constexpr unsigned int _calc_vertices_in_batch(unsigned int sprite_count) {
 		return 6 * sprite_count - 2;
 	}
 
-	constexpr uint32_t _calc_sprites_in_batch(uint32_t vertex_count) {
+	constexpr unsigned int _calc_sprites_in_batch(unsigned int vertex_count) {
 		return (vertex_count + 2) / 6;
 	}
 
-	const uint32_t MAX_SPRITES = 1024;
-	const uint32_t MAX_SPRITES_PER_BATCH = 512;
-	const uint32_t MAX_VERTICES_PER_BATCH = _calc_vertices_in_batch(MAX_SPRITES_PER_BATCH);
+	const unsigned int MAX_SPRITES = 1024;
+	const unsigned int MAX_SPRITES_PER_BATCH = 512;
+	const unsigned int MAX_VERTICES_PER_BATCH = _calc_vertices_in_batch(MAX_SPRITES_PER_BATCH);
 
 	bool enable_batching = true;
 
 	Sprite _sprite_buffer[MAX_SPRITES];
-	uint32_t _sprites_by_draw_order[MAX_SPRITES]; // indices into _sprite_buffer
-	uint32_t _sprites = 0;
+	unsigned int _sprites_by_draw_order[MAX_SPRITES]; // indices into _sprite_buffer
+	unsigned int _sprites = 0;
 
 	sf::Vertex _batch_vertex_buffer[MAX_VERTICES_PER_BATCH];
-	uint32_t _batch_vertices = 0;
+	unsigned int _batch_vertices = 0;
 
-	uint32_t _sprites_drawn = 0;
-	uint32_t _batches_drawn = 0;
-	uint32_t _vertices_in_largest_batch = 0;
+	unsigned int _sprites_drawn = 0;
+	unsigned int _batches_drawn = 0;
+	unsigned int _vertices_in_largest_batch = 0;
 
 	void _render_batch(sf::RenderTarget& target, const sf::Texture* texture, int shader_id)
 	{
@@ -50,7 +50,7 @@ namespace sprites
 		target.draw(_batch_vertex_buffer, _batch_vertices, sf::TriangleStrip, { texture });
 		graphics::bind_shader();
 		_batches_drawn++;
-		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (uint32_t)_batch_vertices);
+		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;
 	}
 
@@ -69,7 +69,7 @@ namespace sprites
 		_vertices_in_largest_batch = 0;
 
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
-		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](uint32_t left, uint32_t right) {
+		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](unsigned int left, unsigned int right) {
 			return _sprite_buffer[left] < _sprite_buffer[right];
 		});
 
@@ -82,7 +82,7 @@ namespace sprites
 		sf::Texture* texture = nullptr;
 		int shader_id = -1;
 
-		for (uint32_t i = 0; i < _sprites; ++i) {
+		for (unsigned int i = 0; i < _sprites; ++i) {
 			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
 
 			sf::Vector2f tl = sprite.min; // top-left corner
@@ -112,7 +112,7 @@ namespace sprites
 					!sprite.pre_render_callback)
 				{
 					// Add degenerate triangles to separate the sprites
-					uint32_t previous_vertex_index = _batch_vertices - 1; // so we don't get undefined behavior in the next line
+					unsigned int previous_vertex_index = _batch_vertices - 1; // so we don't get undefined behavior in the next line
 					_batch_vertex_buffer[_batch_vertices++] = _batch_vertex_buffer[previous_vertex_index]; // D
 					_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
@@ -145,19 +145,19 @@ namespace sprites
 		_sprites = 0;
 	}
 
-	uint32_t get_sprites_drawn() {
+	unsigned int get_sprites_drawn() {
 		return _sprites_drawn;
 	}
 
-	uint32_t get_batches_drawn() {
+	unsigned int get_batches_drawn() {
 		return _batches_drawn;
 	}
 
-	uint32_t get_vertices_in_largest_batch() {
+	unsigned int get_vertices_in_largest_batch() {
 		return _vertices_in_largest_batch;
 	}
 
-	uint32_t get_sprites_in_largest_batch() {
+	unsigned int get_sprites_in_largest_batch() {
 		return _calc_sprites_in_batch(_vertices_in_largest_batch);
 	}
 }

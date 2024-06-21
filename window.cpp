@@ -35,11 +35,11 @@ namespace window
 			sf::Uint32 style = state.fullscreen ? 
 				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
 			sf::ContextSettings settings{};
-			settings.majorVersion = 3;
+			settings.majorVersion = 4;
 			settings.minorVersion = 3;
-//#ifdef _DEBUG
-//			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
-//#endif
+#ifdef _DEBUG
+			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
+#endif
 			_window->create(mode, state.title, style, settings);
 			_window->setKeyRepeatEnabled(false);
 			// Spoof a resize event to ensure that other systems are aware of the new window size.

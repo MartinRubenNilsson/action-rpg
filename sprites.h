@@ -46,7 +46,7 @@ namespace sprites
 	// 2. sorting_pos.y
 	// 3. sorting_pos.x
 	// 4. texture
-	// 5. shader
+	// 5. shader_id
 	// 
 	// In all cases, a less-than comparison is used. (In 4-5, the pointers are compared.)
 	// If one case yields a tie, then the next case is considered, and so on.
@@ -67,8 +67,8 @@ namespace sprites
 
 	// STATISTICS FOR LAST RENDER CALL
 
-	uint32_t get_sprites_drawn(); 
-	uint32_t get_batches_drawn();
-	uint32_t get_vertices_in_largest_batch();
-	uint32_t get_sprites_in_largest_batch();
+	unsigned int get_sprites_drawn(); 
+	unsigned int get_batches_drawn();
+	unsigned int get_vertices_in_largest_batch();
+	unsigned int get_sprites_in_largest_batch();
 }

@@ -76,7 +76,7 @@ namespace ecs
 		sf::Vector2f position = get_world_center(get_body(entity));
 		audio::play("event:/snd_cut_grass");
 		if (random::chance(0.2f)) {
-			PickupType pickup_type = (PickupType)random::range_int(0, (int)PickupType::Count - 1);
+			PickupType pickup_type = (PickupType)random::range_i(0, (int)PickupType::Count - 1);
 			create_pickup(pickup_type, position + sf::Vector2f(2.f, 2.f));
 		}
 		destroy_at_end_of_frame(entity);

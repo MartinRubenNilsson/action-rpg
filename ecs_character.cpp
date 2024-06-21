@@ -10,30 +10,30 @@ namespace ecs
 
 	void Character::randomize()
 	{
-		body = (Body)(random::range_int(1, (int)Body::Count - 1));
-		skin_color = random::range_int(0, SKIN_COLORS - 1);
-		sock = (Sock)(random::range_int(0, (int)Sock::Count - 1));
-		sock_color = random::range_int(0, SOCK_COLORS - 1);
-		shoe = (Shoe)(random::range_int(0, (int)Shoe::Count - 1));
-		shoe_color = random::range_int(0, SHOE_COLORS - 1);
-		lowerwear = (Lowerwear)(random::range_int(0, (int)Lowerwear::Count - 1));
-		lowerwear_color = random::range_int(0, LOWERWEAR_COLORS - 1);
-		shirt = (Shirt)(random::range_int(0, (int)Shirt::Count - 1));
-		shirt_color = random::range_int(0, SHIRT_COLORS - 1);
-		gloves = (Gloves)(random::range_int(0, (int)Gloves::Count - 1));
-		gloves_color = random::range_int(0, GLOVES_COLORS - 1);
-		outerwear = (Outerwear)(random::range_int(0, (int)Outerwear::Count - 1));
-		outerwear_color = random::range_int(0, OUTERWEAR_COLORS - 1);
-		neckwear = (Neckwear)(random::range_int(0, (int)Neckwear::Count - 1));
-		neckwear_color_1 = random::range_int(0, NECKWEAR_COLORS_1 - 1);
-		neckwear_color_2 = random::range_int(0, NECKWEAR_COLORS_2 - 1);
-		glasses = (Glasses)(random::range_int(0, (int)Glasses::Count - 1));
-		glasses_color = random::range_int(0, GLASSES_COLORS - 1);
-		hair = (Hair)(random::range_int(0, (int)Hair::Count - 1));
-		hair_color = random::range_int(0, HAIR_COLORS - 1);
-		hat = (Hat)(random::range_int(0, (int)Hat::Count - 1));
-		hat_color_1 = random::range_int(0, HAT_COLORS_1 - 1);
-		hat_color_2 = random::range_int(0, HAT_COLORS_2 - 1);
+		body = (Body)(random::range_i(1, (int)Body::Count - 1));
+		skin_color = random::range_i(0, SKIN_COLORS - 1);
+		sock = (Sock)(random::range_i(0, (int)Sock::Count - 1));
+		sock_color = random::range_i(0, SOCK_COLORS - 1);
+		shoe = (Shoe)(random::range_i(0, (int)Shoe::Count - 1));
+		shoe_color = random::range_i(0, SHOE_COLORS - 1);
+		lowerwear = (Lowerwear)(random::range_i(0, (int)Lowerwear::Count - 1));
+		lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
+		shirt = (Shirt)(random::range_i(0, (int)Shirt::Count - 1));
+		shirt_color = random::range_i(0, SHIRT_COLORS - 1);
+		gloves = (Gloves)(random::range_i(0, (int)Gloves::Count - 1));
+		gloves_color = random::range_i(0, GLOVES_COLORS - 1);
+		outerwear = (Outerwear)(random::range_i(0, (int)Outerwear::Count - 1));
+		outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
+		neckwear = (Neckwear)(random::range_i(0, (int)Neckwear::Count - 1));
+		neckwear_color_1 = random::range_i(0, NECKWEAR_COLORS_1 - 1);
+		neckwear_color_2 = random::range_i(0, NECKWEAR_COLORS_2 - 1);
+		glasses = (Glasses)(random::range_i(0, (int)Glasses::Count - 1));
+		glasses_color = random::range_i(0, GLASSES_COLORS - 1);
+		hair = (Hair)(random::range_i(0, (int)Hair::Count - 1));
+		hair_color = random::range_i(0, HAIR_COLORS - 1);
+		hat = (Hat)(random::range_i(0, (int)Hat::Count - 1));
+		hat_color_1 = random::range_i(0, HAT_COLORS_1 - 1);
+		hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 	}
 
 	std::shared_ptr<sf::Texture> Character::bake_texture() const
@@ -48,7 +48,7 @@ namespace ecs
 
 		struct Layer
 		{
-			std::filesystem::path texture_path;
+			std::string texture_path;
 			int lut1_type = -1;
 			int lut1_y = -1;
 			int lut2_type = -1;
@@ -325,69 +325,91 @@ namespace ecs
 		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
 		if (shader_id == -1) return nullptr;
 
-		const std::filesystem::path base_dir = "assets/textures/character";
+		const std::string base_dir = "assets/textures/character/";
 
 		std::unique_ptr<sf::RenderTexture> render_texture = textures::take_render_texture_from_pool({ 1024, 1024 });
 		render_texture->clear(sf::Color::Transparent);
+		render_texture->resetGLStates();
+		render_texture->setActive();
+
+		graphics::set_modelview_matrix_to_identity();
+		graphics::set_projection_matrix_to_identity();
+		graphics::set_texture_matrix_to_identity();
+		graphics::set_viewport(0, 0, 1024, 1024);
 
 		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
+		graphics::set_shader_uniform_1i(shader_id, "lut1", 1);
+		graphics::set_shader_uniform_1i(shader_id, "lut2", 2);
 
 		for (const Layer& layer : layers) {
-			std::shared_ptr<sf::Texture> texture = textures::load_cached_texture(base_dir / layer.texture_path);
-			if (!texture) continue;
-			{
-				std::shared_ptr<sf::Texture> lut1;
-				switch (layer.lut1_type) {
-				case LUT_SKIN:
-					lut1 = textures::load_cached_texture(base_dir / "palettes/mana seed skin ramps.png");
-					break;
-				case LUT_HAIR:
-					lut1 = textures::load_cached_texture(base_dir / "palettes/mana seed hair ramps.png");
-					break;
-				case LUT_C3:
-					lut1 = textures::load_cached_texture(base_dir / "palettes/mana seed 3-color ramps.png");
-					break;
-				case LUT_C4:
-					lut1 = textures::load_cached_texture(base_dir / "palettes/mana seed 4-color ramps.png");
-					break;
-				}
-				if (lut1) {
-					graphics::set_shader_uniform_1i(shader_id, "lut1", 0);
-					graphics::set_shader_uniform_1i(shader_id, "lut1_type", layer.lut1_type);
-					graphics::set_shader_uniform_1i(shader_id, "lut1_y", layer.lut1_y);
-				} else {
-					graphics::set_shader_uniform_1i(shader_id, "lut1_type", -1);
-				}
+			const int texture_id = graphics::load_texture(base_dir + layer.texture_path);
+			if (texture_id == -1) continue;
+
+			int lut1_texture_id = -1;
+			switch (layer.lut1_type) {
+			case LUT_SKIN:
+				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
+				break;
+			case LUT_HAIR:
+				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
+				break;
+			case LUT_C3:
+				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
+				break;
+			case LUT_C4:
+				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
+				break;
 			}
-			{
-				std::shared_ptr<sf::Texture> lut2;
-				switch (layer.lut2_type) {
-				case LUT_SKIN:
-					lut2 = textures::load_cached_texture(base_dir / "palettes/mana seed skin ramps.png");
-					break;
-				case LUT_HAIR:
-					lut2 = textures::load_cached_texture(base_dir / "palettes/mana seed hair ramps.png");
-					break;
-				case LUT_C3:
-					lut2 = textures::load_cached_texture(base_dir / "palettes/mana seed 3-color ramps.png");
-					break;
-				case LUT_C4:
-					lut2 = textures::load_cached_texture(base_dir / "palettes/mana seed 4-color ramps.png");
-					break;
-				}
-				if (lut2) {
-					graphics::set_shader_uniform_1i(shader_id, "lut2", 1);
-					graphics::set_shader_uniform_1i(shader_id, "lut2_type", layer.lut2_type);
-					graphics::set_shader_uniform_1i(shader_id, "lut2_y", layer.lut2_y);
-				} else {
-					graphics::set_shader_uniform_1i(shader_id, "lut2_type", -1);
-				}
+			if (lut1_texture_id != -1) {
+				graphics::set_shader_uniform_1i(shader_id, "lut1_type", layer.lut1_type);
+				graphics::set_shader_uniform_1i(shader_id, "lut1_y", layer.lut1_y);
+			} else {
+				graphics::set_shader_uniform_1i(shader_id, "lut1_type", -1);
 			}
-			//TODO: broken because ->draw only binds at most one texture
-			render_texture->draw(sf::Sprite(*texture));
+
+			int lut2_texture_id = -1;
+			switch (layer.lut2_type) {
+			case LUT_SKIN:
+				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
+				break;
+			case LUT_HAIR:
+				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
+				break;
+			case LUT_C3:
+				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
+				break;
+			case LUT_C4:
+				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
+				break;
+			}
+			if (lut2_texture_id != -1) {
+				graphics::set_shader_uniform_1i(shader_id, "lut2_type", layer.lut2_type);
+				graphics::set_shader_uniform_1i(shader_id, "lut2_y", layer.lut2_y);
+			} else {
+				graphics::set_shader_uniform_1i(shader_id, "lut2_type", -1);
+			}
+
+			graphics::bind_texture(0, texture_id);
+			graphics::bind_texture(1, lut1_texture_id);
+			graphics::bind_texture(2, lut2_texture_id);
+
+			sf::Vertex vertices[4];
+			vertices[0].position = { -1.f, -1.f };
+			vertices[1].position = { -1.f, 1.f };
+			vertices[2].position = { 1.f, -1.f };
+			vertices[3].position = { 1.f, 1.f };
+			vertices[0].texCoords = { 0.f, 0.f };
+			vertices[1].texCoords = { 0.f, 1.f };
+			vertices[2].texCoords = { 1.f, 0.f };
+			vertices[3].texCoords = { 1.f, 1.f };
+
+			graphics::draw_triangle_strip(vertices, 4);
 		}
-		render_texture->display();
 		graphics::bind_shader();
+
+		render_texture->display();
+		render_texture->resetGLStates();
 
 		auto result = std::make_shared<sf::Texture>(render_texture->getTexture());
 		textures::give_render_texture_to_pool(std::move(render_texture));

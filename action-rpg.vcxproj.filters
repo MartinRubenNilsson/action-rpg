@@ -209,9 +209,6 @@
     <ClCompile Include="ui_rmlui_interfaces.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="shaders.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="postprocessing.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -544,9 +541,6 @@
     </ClInclude>
     <ClInclude Include="ui_rmlui_interfaces.h">
       <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="shaders.h">
-      <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="postprocessing.h">
       <Filter>graphics</Filter>

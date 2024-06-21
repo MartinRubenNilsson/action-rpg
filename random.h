@@ -3,8 +3,8 @@
 namespace random
 {
 	bool chance(float probability_of_true = 0.5f);
-	float range_float(float min = 0.f, float max = 1.f);
-	int range_int(int min, int max);
+	float range_f(float min = 0.f, float max = 1.f);
+	int range_i(int min, int max);
 	sf::Color color();
 	sf::Color color(uint32_t seed);
 	sf::Vector2f on_circle(float radius = 1.f);

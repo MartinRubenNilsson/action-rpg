@@ -5,7 +5,7 @@
 #include "audio.h"
 #include "map.h"
 #include "ui.h"
-#include "shaders.h"
+//#include "shaders.h"
 #include "ecs_player.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"
@@ -98,13 +98,13 @@ namespace console
 			};
 		}
 
-		// SHADERS
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "reload_shaders";
-			cmd.desc = "Reloads all shaders";
-			cmd.callback = [](const Params& params) { shaders::reload_assets(); };
-		}
+		//// SHADERS
+		//{
+		//	Command& cmd = commands.emplace_back();
+		//	cmd.name = "reload_shaders";
+		//	cmd.desc = "Reloads all shaders";
+		//	cmd.callback = [](const Params& params) { shaders::reload_assets(); };
+		//}
 
 		// AUDIO
 		{

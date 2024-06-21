@@ -5,7 +5,6 @@
 #include "window.h"
 #include "audio.h"
 #include "fonts.h"
-#include "shaders.h"
 #include "ui.h"
 #include "ui_menus.h"
 #include "map.h"
@@ -58,11 +57,10 @@ int main(int argc, char* argv[])
     }
     ui::add_event_listeners(); // Must come after loading RML documents.
     ImGui::SFML::Init(window, false); // Window must be created first.
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 24);
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
     ImGui::SFML::UpdateFontTexture();
     console::initialize(); // Must come after ImGui::SFML::Init.
     graphics::initialize();
-    shaders::load_assets("assets/shaders");
 
     // PREPARE FOR GAME LOOP
 
@@ -261,9 +259,9 @@ int main(int argc, char* argv[])
     audio::shutdown();
     ImGui::SFML::Shutdown();
     tiled::unload_assets();
-    shaders::unload_assets();
     fonts::unload_assets();
     textures::shutdown();
+    graphics::shutdown();
     steam::shutdown();
 
     return EXIT_SUCCESS;
