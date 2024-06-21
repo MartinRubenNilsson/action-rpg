@@ -4,23 +4,6 @@ namespace ecs
 {
 	struct Character
 	{
-		static constexpr int C3_LUT_COLORS = 48;
-		static constexpr int C4_LUT_COLORS = 58;
-
-		static constexpr int SKIN_COLORS = 18;
-		static constexpr int HAIR_COLORS = 58;
-		static constexpr int SOCK_COLORS = C3_LUT_COLORS;
-		static constexpr int SHOE_COLORS = C3_LUT_COLORS;
-		static constexpr int LOWERWEAR_COLORS = C3_LUT_COLORS;
-		static constexpr int SHIRT_COLORS = C3_LUT_COLORS;
-		static constexpr int GLOVES_COLORS = C3_LUT_COLORS;
-		static constexpr int OUTERWEAR_COLORS = C3_LUT_COLORS;
-		static constexpr int NECKWEAR_COLORS_1 = C3_LUT_COLORS;
-		static constexpr int NECKWEAR_COLORS_2 = C4_LUT_COLORS;
-		static constexpr int GLASSES_COLORS = C3_LUT_COLORS;
-		static constexpr int HAT_COLORS_1 = C3_LUT_COLORS;
-		static constexpr int HAT_COLORS_2 = C4_LUT_COLORS;
-
 		enum class Body
 		{
 			None,

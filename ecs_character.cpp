@@ -6,6 +6,23 @@
 
 namespace ecs
 {
+	const int C3_LUT_COLORS = 48;
+	const int C4_LUT_COLORS = 58;
+
+	const int SKIN_COLORS = 18;
+	const int HAIR_COLORS = 58;
+	const int SOCK_COLORS = C3_LUT_COLORS;
+	const int SHOE_COLORS = C3_LUT_COLORS;
+	const int LOWERWEAR_COLORS = C3_LUT_COLORS;
+	const int SHIRT_COLORS = C3_LUT_COLORS;
+	const int GLOVES_COLORS = C3_LUT_COLORS;
+	const int OUTERWEAR_COLORS = C3_LUT_COLORS;
+	const int NECKWEAR_COLORS_1 = C3_LUT_COLORS;
+	const int NECKWEAR_COLORS_2 = C4_LUT_COLORS;
+	const int GLASSES_COLORS = C3_LUT_COLORS;
+	const int HAT_COLORS_1 = C3_LUT_COLORS;
+	const int HAT_COLORS_2 = C4_LUT_COLORS;
+
 	extern entt::registry _registry;
 
 	Character& emplace_character(entt::entity entity, const Character& ch) {
@@ -31,29 +48,29 @@ namespace ecs
 	void randomize_character(Character& ch)
 	{
 		ch.body = (Character::Body)(random::range_i(1, (int)Character::Body::Count - 1));
-		ch.skin_color = random::range_i(0, Character::SKIN_COLORS - 1);
+		ch.skin_color = random::range_i(0, SKIN_COLORS - 1);
 		ch.sock = (Character::Sock)(random::range_i(0, (int)Character::Sock::Count - 1));
-		ch.sock_color = random::range_i(0, Character::SOCK_COLORS - 1);
+		ch.sock_color = random::range_i(0, SOCK_COLORS - 1);
 		ch.shoe = (Character::Shoe)(random::range_i(0, (int)Character::Shoe::Count - 1));
-		ch.shoe_color = random::range_i(0, Character::SHOE_COLORS - 1);
+		ch.shoe_color = random::range_i(0, SHOE_COLORS - 1);
 		ch.lowerwear = (Character::Lowerwear)(random::range_i(0, (int)Character::Lowerwear::Count - 1));
-		ch.lowerwear_color = random::range_i(0, Character::LOWERWEAR_COLORS - 1);
+		ch.lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
 		ch.shirt = (Character::Shirt)(random::range_i(0, (int)Character::Shirt::Count - 1));
-		ch.shirt_color = random::range_i(0, Character::SHIRT_COLORS - 1);
+		ch.shirt_color = random::range_i(0, SHIRT_COLORS - 1);
 		ch.gloves = (Character::Gloves)(random::range_i(0, (int)Character::Gloves::Count - 1));
-		ch.gloves_color = random::range_i(0, Character::GLOVES_COLORS - 1);
+		ch.gloves_color = random::range_i(0, GLOVES_COLORS - 1);
 		ch.outerwear = (Character::Outerwear)(random::range_i(0, (int)Character::Outerwear::Count - 1));
-		ch.outerwear_color = random::range_i(0, Character::OUTERWEAR_COLORS - 1);
+		ch.outerwear_color = random::range_i(0, OUTERWEAR_COLORS - 1);
 		ch.neckwear = (Character::Neckwear)(random::range_i(0, (int)Character::Neckwear::Count - 1));
-		ch.neckwear_color_1 = random::range_i(0, Character::NECKWEAR_COLORS_1 - 1);
-		ch.neckwear_color_2 = random::range_i(0, Character::NECKWEAR_COLORS_2 - 1);
+		ch.neckwear_color_1 = random::range_i(0, NECKWEAR_COLORS_1 - 1);
+		ch.neckwear_color_2 = random::range_i(0, NECKWEAR_COLORS_2 - 1);
 		ch.glasses = (Character::Glasses)(random::range_i(0, (int)Character::Glasses::Count - 1));
-		ch.glasses_color = random::range_i(0, Character::GLASSES_COLORS - 1);
+		ch.glasses_color = random::range_i(0, GLASSES_COLORS - 1);
 		ch.hair = (Character::Hair)(random::range_i(0, (int)Character::Hair::Count - 1));
-		ch.hair_color = random::range_i(0, Character::HAIR_COLORS - 1);
+		ch.hair_color = random::range_i(0, HAIR_COLORS - 1);
 		ch.hat = (Character::Hat)(random::range_i(0, (int)Character::Hat::Count - 1));
-		ch.hat_color_1 = random::range_i(0, Character::HAT_COLORS_1 - 1);
-		ch.hat_color_2 = random::range_i(0, Character::HAT_COLORS_2 - 1);
+		ch.hat_color_1 = random::range_i(0, HAT_COLORS_1 - 1);
+		ch.hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 	}
 
 	int create_character_texture(const Character& ch)
