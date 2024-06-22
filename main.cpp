@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 					break;
 				case ui::Event::GoToMainMenu:
                     background::set_type(background::Type::MountainDusk);
-					map::close();
+					map::close(0.f);
 					break;
 				case ui::Event::QuitApp:
 					window.close();
@@ -148,12 +148,12 @@ int main(int argc, char* argv[])
 
         audio::update();
 
-        float app_dt = dt.asSeconds();
-        console::update(app_dt); // Must come after ImGui::SFML::Update.
-        background::update(app_dt);
-        ui::update(app_dt);
+        float main_dt = dt.asSeconds();
+        console::update(main_dt); // Must come after ImGui::SFML::Update.
+        background::update(main_dt);
+        ui::update(main_dt);
 
-        float game_dt = app_dt;
+        float game_dt = main_dt;
         if (steam::is_overlay_active())
             game_dt = 0.f;
 		if (ui::is_menu_or_textbox_visible())
@@ -192,11 +192,11 @@ int main(int argc, char* argv[])
             static float dt_buffer[256] = { 0.f };
             static float fps_buffer[256] = { 0.f };
             static int buffer_offset = 0;
-            dt_buffer[buffer_offset] = app_dt;
-            fps_buffer[buffer_offset] = 1.f / app_dt;
+            dt_buffer[buffer_offset] = main_dt;
+            fps_buffer[buffer_offset] = 1.f / main_dt;
             buffer_offset = (buffer_offset + 1) % 256;
-            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * app_dt;
-            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / app_dt;
+            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
+            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];

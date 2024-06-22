@@ -9,12 +9,13 @@
 
 namespace map
 {
-	constexpr float _TRANSITION_SPEED = 1.5f;
+	const float DEFAULT_TRANSITION_DURATION = 0.6f; // seconds
 
 	bool debug = false;
 	std::string _current_map_name;
-	float _transition_progress = 0.f;
-	std::optional<TransitionOptions> _transition;
+	std::string _next_map_name;
+	float _transition_duration = -1.f; // negative when not transitioning; zero when transitioning instantly; otherwise positive
+	float _transition_progress = 1.f; // -1 to 1
 
 	void _debug(float dt)
 	{
@@ -38,39 +39,40 @@ namespace map
 	void update(float dt)
 	{
 		if (debug) _debug(dt);
+		if (_transition_duration < 0.f) return; // not transitioning
 
-		// Transition in
+		const float delta_progress = _transition_duration ? (dt / _transition_duration) : 1.f;
+		bool shall_change_map = false;
+
 		if (_transition_progress < 0.f) {
-			_transition_progress += _TRANSITION_SPEED * dt;
-			if (_transition_progress > 0.f)
+			// transitioning in (progress goes from -1 to 0)
+			_transition_progress += delta_progress;
+			if (_transition_progress >= 0.f) {
+				// finished transitioning in
 				_transition_progress = 0.f;
+				_transition_duration = -1.f; // stop transitioning
+			}
+		} else {
+			// transitioning out (progress goes from 0 to 1)
+			_transition_progress += delta_progress;
+			if (_transition_progress >= 1.f) {
+				// finished transitioning out
+				if (_next_map_name.empty()) {
+					_transition_progress = 1.f;
+					_transition_duration = -1.f; // stop transitioning
+				} else {
+					_transition_progress = -1.f;
+				}
+				shall_change_map = true;
+			}
 		}
 
-		if (!_transition) return;
-
-		// Transition out
-		if (!_current_map_name.empty()) {
-			_transition_progress += _TRANSITION_SPEED * dt;
-			if (_transition_progress < 1.f) return;
-		}
+		if (!shall_change_map) return;
 
 		const tiled::Map* current_map = tiled::find_map_by_name(_current_map_name);
-		const tiled::Map* next_map = nullptr;
-
-		switch (_transition->type) {
-		case TransitionType::Open:
-			next_map = tiled::find_map_by_name(_transition->next_map_name);
-			break;
-		case TransitionType::Close:
-			break; // Intentionally let next_map be nullptr.
-		case TransitionType::Reset:
-			next_map = current_map;
-			break;
-		}
-
-		_transition.reset();
-		_current_map_name = next_map ? next_map->name : "";
-		_transition_progress = next_map ? -1.f : 0.f;
+		const tiled::Map* next_map = tiled::find_map_by_name(_next_map_name);
+		_current_map_name = _next_map_name;
+		_next_map_name.clear();
 
 		// CLOSE CURRENT MAP
 
@@ -103,38 +105,54 @@ namespace map
 
 	bool transition(const TransitionOptions& options)
 	{
-		if (_transition) return false;
+		if (_transition_duration >= 0.f) return false; // already transitioning
 		switch (options.type) {
-		case TransitionType::Open:
-			if (options.next_map_name.empty()) return false;
-			if (_current_map_name == options.next_map_name) return false;
-			if (!tiled::find_map_by_name(options.next_map_name)) {
-				console::log_error("Map not found: " + options.next_map_name);
+		case TransitionType::Open: {
+			if (options.name_of_map_to_open.empty()) return false;
+			if (_current_map_name == options.name_of_map_to_open) return false;
+			if (!tiled::find_map_by_name(options.name_of_map_to_open)) {
+				console::log_error("Map not found: " + options.name_of_map_to_open);
 				return false;
 			}
-			_transition = options;
-			return true;
-		case TransitionType::Close:
-			[[fallthrough]];
-		case TransitionType::Reset:
+			_next_map_name = options.name_of_map_to_open;
+		} break;
+		case TransitionType::Close: {
 			if (_current_map_name.empty()) return false;
-			_transition = options;
-			return true;
+		} break;
+		case TransitionType::Reset: {
+			if (_current_map_name.empty()) return false;
+			_next_map_name = _current_map_name;
+		} break;
 		default:
 			return false;
 		}
+		_transition_duration = std::max(options.duration, 0.f);
+		return true;
 	}
 
-	bool open(const std::string& next_map_name) {
-		return transition({ TransitionType::Open, next_map_name });
+	bool open(const std::string& map_name, float transition_duration)
+	{
+		TransitionOptions options{};
+		options.type = TransitionType::Open;
+		options.name_of_map_to_open = map_name;
+		options.duration = transition_duration;
+		return transition(options);
 	}
 
-	bool close() {
-		return transition({ TransitionType::Close });
+	bool close(float transition_duration)
+	{
+		TransitionOptions options{};
+		options.type = TransitionType::Close;
+		options.duration = transition_duration;
+		return transition(options);
 	}
 
-	bool reset() {
-		return transition({ TransitionType::Reset });
+	bool reset(float transition_duration)
+	{
+		TransitionOptions options{};
+		options.type = TransitionType::Reset;
+		options.duration = transition_duration;
+		return transition(options);
 	}
 
 	float get_transition_progress() {
