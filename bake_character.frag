@@ -78,7 +78,7 @@ bool lookup_color(sampler2D lut, int lut_type, int lut_y, inout vec3 color)
 
 void main()
 {
-    gl_FragColor = texture(tex, gl_TexCoord[0].xy);
+    gl_FragColor = texture(tex, gl_TexCoord[0].xy * vec2(1, -1));
     if (lookup_color(lut1, lut1_type, lut1_y, gl_FragColor.xyz)) return;
     if (lookup_color(lut2, lut2_type, lut2_y, gl_FragColor.xyz)) return;
 }

@@ -2,6 +2,9 @@
 
 namespace graphics
 {
+	// Functions that return an integer ID return -1 on failure.
+	// Functions start with "bind_" unbind the current object if the ID is -1.
+
 	struct Vertex
 	{
 		sf::Vector2f position;
@@ -14,9 +17,11 @@ namespace graphics
 
 	// SHADERS
 
-	//Returns -1 on failure.
+	int create_shader(
+		const std::string& vertex_shader_bytecode,
+		const std::string& fragment_shader_bytecode,
+		const std::string& name_hint = "shader");
 	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path);
-	//Pass shader_id = -1 to unbind the current shader.
 	void bind_shader(int shader_id);
 	//You need to bind the shader before calling these functions!
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x);
@@ -28,11 +33,14 @@ namespace graphics
 
 	// TEXTURES
 
-	//Returns -1 on failure.
+	int create_texture(
+		unsigned int width,
+		unsigned int height,
+		unsigned int channels,
+		const unsigned char* data,
+		std::string name_hint = "texture");
 	int load_texture(const std::string& path);
-	//Returns -1 on failure.
 	int copy_texture(unsigned int texture_object);
-	//Pass texture_id = -1 to unbind the current texture.
 	void bind_texture(unsigned int texture_slot, int texture_id);
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);
 

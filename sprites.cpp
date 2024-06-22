@@ -60,6 +60,7 @@ namespace sprites
 	void draw(const Sprite& sprite)
 	{
 		if (_sprites == MAX_SPRITES) return;
+		static_assert(std::is_trivially_copyable<Sprite>::value, "Sprite must be trivially copyable.");
 		memcpy(&_sprite_buffer[_sprites], &sprite, sizeof(Sprite));
 		_sprites_by_draw_order[_sprites] = _sprites;
 		_sprites++;

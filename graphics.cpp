@@ -31,15 +31,14 @@ void main()
 
 	struct Shader
 	{
-		std::string vertex_shader_path;
-		std::string fragment_shader_path;
+		std::string name; // unique name
 		std::unordered_map<std::string, int> uniform_locations;
 		unsigned int program_object = 0;
 	};
 
 	struct Texture
 	{
-		std::string path;
+		std::string name; // unique name
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int texture_object = 0;
@@ -49,6 +48,15 @@ void main()
 	std::unordered_map<std::string, int> _shader_name_to_id;
 	std::vector<Texture> _textures;
 	std::unordered_map<std::string, int> _texture_name_to_id;
+
+	std::string _generate_unique_name(std::unordered_map<std::string, int> name_container, const std::string& name_hint)
+	{
+		std::string name = name_hint;
+		for (int i = 1; name_container.contains(name); i++) {
+			name = name_hint + std::to_string(i);
+		}
+		return name;
+	}
 
 	Shader* _get_shader(int shader_id)
 	{
@@ -117,39 +125,14 @@ void main()
 		_texture_name_to_id.clear();
 	}
 
-	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
+	int create_shader(
+		const std::string& vertex_shader_bytecode,
+		const std::string& fragment_shader_bytecode,
+		const std::string& name_hint)
 	{
-		// CHECK CACHE FOR EXISTING SHADER
-		
-		const std::string shader_name = vertex_shader_path + ":" + fragment_shader_path;
-		{
-			const auto it = _shader_name_to_id.find(shader_name);
-			if (it != _shader_name_to_id.end()) {
-				return it->second;
-			}
-		}
-
 		const int program_object = glCreateProgram();
 
-		// LOAD, COMPILE, ATTACH VERTEX SHADER
 		{
-			// LOAD VERTEX SHADER BYTECODE
-
-			std::string vertex_shader_bytecode;
-			if (vertex_shader_path.empty()) {
-				vertex_shader_bytecode = _DEFAULT_VERTEX_SHADER_BYTECODE;
-			} else {
-				std::ifstream vertex_shader_file{ vertex_shader_path };
-				if (!vertex_shader_file) {
-					console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
-					glDeleteProgram(program_object);
-					return -1;
-				}
-				vertex_shader_bytecode = {
-					std::istreambuf_iterator<char>(vertex_shader_file),
-					std::istreambuf_iterator<char>() };
-			}
-
 			// COMPILE VERTEX SHADER
 
 			const unsigned int vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
@@ -161,7 +144,8 @@ void main()
 			if (!success) {
 				char info_log[512];
 				glGetShaderInfoLog(vertex_shader_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile vertex shader: " + vertex_shader_path + "\n" + info_log);
+				console::log_error("Failed to compile vertex shader: " + name_hint);
+				console::log_error(info_log);
 				glDeleteShader(vertex_shader_object);
 				glDeleteProgram(program_object);
 				return -1;
@@ -173,25 +157,7 @@ void main()
 			glDeleteShader(vertex_shader_object);
 		}
 
-		// LOAD, COMPILE, ATTACH FRAGMENT SHADER
 		{
-			// LOAD FRAGMENT SHADER BYTECODE
-
-			std::string fragment_shader_bytecode;
-			if (fragment_shader_path.empty()) {
-				fragment_shader_bytecode = _DEFAULT_FRAGMENT_SHADER_BYTECODE;
-			} else {
-				std::ifstream fragment_shader_file{ fragment_shader_path };
-				if (!fragment_shader_file) {
-					console::log_error("Failed to open fragment shader file: " + fragment_shader_path);
-					glDeleteProgram(program_object);
-					return -1;
-				}
-				fragment_shader_bytecode = {
-					std::istreambuf_iterator<char>(fragment_shader_file),
-					std::istreambuf_iterator<char>() };
-			}
-
 			// COMPILE FRAGMENT SHADER
 
 			const unsigned int fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
@@ -203,7 +169,8 @@ void main()
 			if (!success) {
 				char info_log[512];
 				glGetShaderInfoLog(fragment_shader_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile fragment shader: " + fragment_shader_path + "\n" + info_log);
+				console::log_error("Failed to compile fragment shader: " + name_hint);
+				console::log_error(info_log);
 				glDeleteShader(fragment_shader_object);
 				glDeleteProgram(program_object);
 				return -1;
@@ -223,8 +190,8 @@ void main()
 			if (!success) {
 				char info_log[512];
 				glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to link program object: " + vertex_shader_path + ", " +
-					fragment_shader_path + "\n" + info_log);
+				console::log_error("Failed to link program object: " + name_hint);
+				console::log_error(info_log);
 				glDeleteProgram(program_object);
 				return -1;
 			}
@@ -240,22 +207,72 @@ void main()
 				char uniform_name[256];
 				int uniform_size;
 				unsigned int uniform_type;
-				glGetActiveUniform(program_object, i, sizeof(uniform_name), nullptr, &uniform_size, &uniform_type, uniform_name);
+				glGetActiveUniform(program_object, i, sizeof(uniform_name),
+					nullptr, &uniform_size, &uniform_type, uniform_name);
 				uniform_locations[uniform_name] = glGetUniformLocation(program_object, uniform_name);
 			}
 		}
 
-		// STORE SHADER IN CACHE
+		// STORE SHADER
 
 		const int shader_id = (int)_shaders.size();
 		Shader& shader = _shaders.emplace_back();
-		shader.vertex_shader_path = vertex_shader_path;
-		shader.fragment_shader_path = fragment_shader_path;
+		shader.name = _generate_unique_name(_shader_name_to_id, name_hint);
 		shader.uniform_locations = std::move(uniform_locations);
 		shader.program_object = program_object;
-		_shader_name_to_id[shader_name] = shader_id;
+
+		_shader_name_to_id[shader.name] = shader_id;
 
 		return shader_id;
+	}
+
+	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
+	{
+		// CHECK CACHE FOR EXISTING SHADER
+		
+		const std::string name = vertex_shader_path + ":" + fragment_shader_path;
+		{
+			const auto it = _shader_name_to_id.find(name);
+			if (it != _shader_name_to_id.end()) {
+				return it->second;
+			}
+		}
+
+		// LOAD VERTEX SHADER BYTECODE
+
+		std::string vertex_shader_bytecode;
+		if (vertex_shader_path.empty()) {
+			vertex_shader_bytecode = _DEFAULT_VERTEX_SHADER_BYTECODE;
+		} else {
+			std::ifstream vertex_shader_file{ vertex_shader_path };
+			if (!vertex_shader_file) {
+				console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
+				return -1;
+			}
+			vertex_shader_bytecode = {
+				std::istreambuf_iterator<char>(vertex_shader_file),
+				std::istreambuf_iterator<char>() };
+		}
+
+		// LOAD FRAGMENT SHADER BYTECODE
+
+		std::string fragment_shader_bytecode;
+		if (fragment_shader_path.empty()) {
+			fragment_shader_bytecode = _DEFAULT_FRAGMENT_SHADER_BYTECODE;
+		} else {
+			std::ifstream fragment_shader_file{ fragment_shader_path };
+			if (!fragment_shader_file) {
+				console::log_error("Failed to open fragment shader file: " + fragment_shader_path);
+				return -1;
+			}
+			fragment_shader_bytecode = {
+				std::istreambuf_iterator<char>(fragment_shader_file),
+				std::istreambuf_iterator<char>() };
+		}
+
+		// CREATE SHADER
+
+		return create_shader(vertex_shader_bytecode, fragment_shader_bytecode, name);
 	}
 
 	void bind_shader(int shader_id)
@@ -327,26 +344,14 @@ void main()
 		}
 	}
 
-	int load_texture(const std::string& path)
+	int create_texture(
+		unsigned int width,
+		unsigned int height,
+		unsigned int channels,
+		const unsigned char* data,
+		std::string name_hint)
 	{
-		// CHECK IF ALREADY LOADED
-
-		const auto it = _texture_name_to_id.find(path);
-		if (it != _texture_name_to_id.end()) {
-			return it->second;
-		}
-
-		// LOAD TEXTURE DATA
-
-		int width, height, channels;
-		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		if (!data) {
-			console::log_error("Failed to load texture: " + path);
-			console::log_error(std::format("STBI failure reason: {}", stbi_failure_reason()));
-			return -1;
-		}
-
-		// CREATE TEXTURE OBJECT
+		// DETERMINE FORMAT
 
 		GLenum format = GL_RGBA;
 		if (channels == 1) {
@@ -359,25 +364,53 @@ void main()
 			format = GL_RGBA;
 		}
 
+		// CREATE TEXTURE OBJECT
+
 		unsigned int texture_object;
 		glGenTextures(1, &texture_object);
 		glBindTexture(GL_TEXTURE_2D, texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		stbi_image_free(data);
 
 		// STORE TEXTURE
 
 		const int texture_id = (int)_textures.size();
 		Texture& texture = _textures.emplace_back();
-		texture.path = path;
+		texture.name = _generate_unique_name(_texture_name_to_id, name_hint);
 		texture.width = width;
 		texture.height = height;
 		texture.texture_object = texture_object;
-		_texture_name_to_id[path] = texture_id;
+
+		_texture_name_to_id[texture.name] = texture_id;
 
 		return texture_id;
+	}
+
+	int load_texture(const std::string& path)
+	{
+		// CHECK IF ALREADY LOADED
+
+		const auto it = _texture_name_to_id.find(path);
+		if (it != _texture_name_to_id.end()) {
+			return it->second;
+		}
+
+		// LOAD TEXTURE DATA
+
+		int width, height, channels;
+		//stbi_set_flip_vertically_on_load(true);
+		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		//stbi_set_flip_vertically_on_load(false);
+		if (!data) {
+			console::log_error("Failed to load texture: " + path);
+			console::log_error(stbi_failure_reason());
+			return -1;
+		}
+
+		// CREATE TEXTURE
+
+		return create_texture(width, height, channels, data, path);
 	}
 
 	int copy_texture(unsigned int texture_object)
