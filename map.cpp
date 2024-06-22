@@ -156,7 +156,7 @@ namespace map
 	}
 
 	float get_transition_progress() {
-		return _transition_progress;
+		return (_transition_duration >= 0.f) ? _transition_progress : 0.f;
 	}
 
 	bool is_dark() {
