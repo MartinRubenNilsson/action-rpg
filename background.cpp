@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "background.h"
-#include "textures.h"
+#include "graphics.h"
+#include "sprites.h"
 #include "console.h"
 
 namespace background
 {
-	const std::filesystem::path _MOUNTAIN_DUSK_TEXTURE_PATHS[] = {
+	const std::string _MOUNTAIN_DUSK_TEXTURE_PATHS[] = {
 		"assets/textures/backgrounds/mountain_dusk/sky.png",
 		"assets/textures/backgrounds/mountain_dusk/far-clouds.png",
 		"assets/textures/backgrounds/mountain_dusk/near-clouds.png",
@@ -16,7 +17,9 @@ namespace background
 
 	struct Layer
 	{
-		std::shared_ptr<sf::Texture> texture;
+		int texture_id = -1;
+		unsigned int texture_width = 0;
+		unsigned int texture_height = 0;
 		float offset = 0.f;
 	};
 
@@ -32,11 +35,12 @@ namespace background
 			break;
 		case Type::MountainDusk:
 			_layers.clear();
-			for (const std::filesystem::path& path : _MOUNTAIN_DUSK_TEXTURE_PATHS) {
-				std::shared_ptr<sf::Texture> texture = textures::load_cached_texture(path);
-				if (texture) {
-					_layers.emplace_back(texture);
-				}
+			for (const std::string& path : _MOUNTAIN_DUSK_TEXTURE_PATHS) {
+				const int texture_id = graphics::load_texture(path);
+				if (texture_id == -1) continue;
+				Layer& layer = _layers.emplace_back();
+				layer.texture_id = texture_id;
+				graphics::get_texture_size(texture_id, layer.texture_width, layer.texture_height);
 			}
 			break;
 		}
@@ -46,10 +50,9 @@ namespace background
 	{
 		for (size_t i = 0; i < _layers.size(); ++i) {
 			Layer& layer = _layers[i];
-			const unsigned int texture_width = layer.texture->getSize().x;
 			layer.offset += i * i * i * dt;
-			if (layer.offset >= texture_width)
-				layer.offset -= texture_width;
+			if (layer.offset >= layer.texture_width)
+				layer.offset -= layer.texture_width;
 		}
 	}
 
@@ -58,13 +61,18 @@ namespace background
 		sf::View view = target.getView();
 		sf::FloatRect view_rect = sf::FloatRect(view.getCenter() - view.getSize() / 2.f, view.getSize());
 
+		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
-			const unsigned int texture_width = layer.texture->getSize().x;
-			sf::Sprite sprite(*layer.texture);
-			for (float x = -layer.offset; x < view_rect.width; x += texture_width) {
-				sprite.setPosition(view_rect.left + x, view_rect.top);
-				target.draw(sprite);
+			sprite.texture_id = layer.texture_id;
+			for (float x = -layer.offset; x < view_rect.width; x += layer.texture_width) {
+				sprite.min = { view_rect.left + x, view_rect.top };
+				sprite.max = { view_rect.left + x + layer.texture_width, view_rect.top + layer.texture_height };
+				sprite.tex_min = { 0.f, 0.f };
+				sprite.tex_max = { 1.f, 1.f };
+				sprites::draw(sprite);
 			}
 		}
+
+		sprites::render(target);
 	}
 }

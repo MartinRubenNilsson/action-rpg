@@ -27,13 +27,12 @@ namespace sprites
 	struct Sprite
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
-		void* userdata = nullptr; // optional; can be used to store additional data
 		int texture_id = -1;
 		int shader_id = 0; // optional; if set, the shader with this ID is used to render the sprite
 		sf::Vector2f min; // top-left corner world position in pixels
 		sf::Vector2f max; // bottom-right corner world position in pixels
-		sf::Vector2f tex_min; // top-left corner normalized texture coordinates
-		sf::Vector2f tex_max; // bottom-right corner normalized texture coordinates
+		sf::Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates
+		sf::Vector2f tex_max = { 1.f, 1.f }; // bottom-right corner normalized texture coordinates
 		sf::Vector2f sorting_pos;
 		sf::Color color = sf::Color::White;
 		uint8_t sorting_layer = 0;
