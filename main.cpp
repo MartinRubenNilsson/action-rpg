@@ -185,32 +185,6 @@ int main(int argc, char* argv[])
 			break;
         }
 
-        if (debug_stats) {
-            constexpr float smoothing_factor = 0.99f;
-            static float smoothed_dt = 0.f;
-            static float smoothed_fps = 0.f;
-            static float dt_buffer[256] = { 0.f };
-            static float fps_buffer[256] = { 0.f };
-            static int buffer_offset = 0;
-            dt_buffer[buffer_offset] = main_dt;
-            fps_buffer[buffer_offset] = 1.f / main_dt;
-            buffer_offset = (buffer_offset + 1) % 256;
-            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
-            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
-            char overlay_text[64];
-            sprintf(overlay_text, "%.f us", smoothed_dt * 1'000'000.f);
-            ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
-            sprintf(overlay_text, "%.f FPS", smoothed_fps);
-            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
-            ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
-            ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
-            ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
-            ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
-            ImGui::End();
-        }
-
         // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
         {
             std::unique_ptr<sf::RenderTexture> texture =
@@ -225,6 +199,7 @@ int main(int argc, char* argv[])
             sf::View view = texture->getView();
             sf::Vector2f view_center = view.getCenter();
             sf::Vector2f view_half_size = view.getSize() / 2.f;
+            sprites::new_render_frame();
             background::add_sprites_to_render_queue(view_center - view_half_size, view_center + view_half_size);
             ecs::draw(*texture);
             ecs::debug_draw();
@@ -256,6 +231,34 @@ int main(int argc, char* argv[])
         graphics::set_viewport(0, 0, window.getSize().x, window.getSize().y);
         cursor::render_cursor();
         window.resetGLStates();
+
+        // RENDER DEBUG STATS
+
+        if (debug_stats) {
+            constexpr float smoothing_factor = 0.99f;
+            static float smoothed_dt = 0.f;
+            static float smoothed_fps = 0.f;
+            static float dt_buffer[256] = { 0.f };
+            static float fps_buffer[256] = { 0.f };
+            static int buffer_offset = 0;
+            dt_buffer[buffer_offset] = main_dt;
+            fps_buffer[buffer_offset] = 1.f / main_dt;
+            buffer_offset = (buffer_offset + 1) % 256;
+            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
+            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
+            ImGui::SetNextWindowPos(ImVec2(0, 0));
+            ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
+            char overlay_text[64];
+            sprintf(overlay_text, "%.f us", smoothed_dt * 1'000'000.f);
+            ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
+            sprintf(overlay_text, "%.f FPS", smoothed_fps);
+            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
+            ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
+            ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
+            ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
+            ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
+            ImGui::End();
+        }
 
         // RENDER IMGUI
 

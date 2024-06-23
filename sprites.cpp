@@ -57,6 +57,14 @@ namespace sprites
 		_batch_vertices = 0;
 	}
 
+	void new_render_frame()
+	{
+		_sprites = 0;
+		_sprites_drawn = 0;
+		_batches_drawn = 0;
+		_vertices_in_largest_batch = 0;
+	}
+
 	void add_sprite_to_render_queue(const Sprite& sprite)
 	{
 		if (_sprites == MAX_SPRITES) return;
@@ -68,10 +76,6 @@ namespace sprites
 
 	void render_sprites_in_render_queue()
 	{
-		_sprites_drawn = _sprites;
-		_batches_drawn = 0;
-		_vertices_in_largest_batch = 0;
-
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](unsigned int left, unsigned int right) {
 			return _sprite_buffer[left] < _sprite_buffer[right];
@@ -146,6 +150,7 @@ namespace sprites
 			_render_batch(texture_id, shader_id);
 		}
 
+		_sprites_drawn += _sprites;
 		_sprites = 0;
 	}
 
