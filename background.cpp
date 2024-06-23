@@ -20,7 +20,7 @@ namespace background
 		int texture_id = -1;
 		unsigned int texture_width = 0;
 		unsigned int texture_height = 0;
-		float offset = 0.f;
+		float offset_x = 0.f;
 	};
 
 	Type _type = Type::None;
@@ -50,20 +50,23 @@ namespace background
 	{
 		for (size_t i = 0; i < _layers.size(); ++i) {
 			Layer& layer = _layers[i];
-			layer.offset += i * i * i * dt;
-			if (layer.offset >= layer.texture_width)
-				layer.offset -= layer.texture_width;
+			layer.offset_x += i * i * i * dt; // different layers scroll at different speeds
+			if (layer.offset_x >= layer.texture_width) {
+				layer.offset_x -= layer.texture_width; // wrap around
+			}
 		}
 	}
 
-	void render_sprites(const sf::Vector2f& view_min, const sf::Vector2f& view_max)
+	void render_sprites(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
+			if (layer.texture_id == -1) continue;
+			if (!layer.texture_width) continue;
 			sprite.texture_id = layer.texture_id;
-			for (float x = -layer.offset; x < view_max.x; x += layer.texture_width) {
-				sprite.min = { view_min.x + x, view_min.y };
-				sprite.max = { view_min.x + x + layer.texture_width, view_min.y + layer.texture_height };
+			for (float x = camera_min.x - layer.offset_x; x < camera_max.x; x += layer.texture_width) {
+				sprite.min = { x, camera_min.y };
+				sprite.max = { x + layer.texture_width, camera_min.y + layer.texture_height };
 				sprite.tex_min = { 0.f, 0.f };
 				sprite.tex_max = { 1.f, 1.f };
 				sprites::add_sprite_to_render_queue(sprite);
