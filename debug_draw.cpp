@@ -166,10 +166,10 @@ namespace debug
 		}
 	}
 
-	void _render_polygons(sf::RenderTarget& target)
+	void _render_polygons()
 	{
 		if (_polygons.empty()) return;
-		sf::Vertex vertices[MAX_POLYGON_VERTICES + 1];
+		graphics::Vertex vertices[MAX_POLYGON_VERTICES + 1];
 		for (const Polygon& polygon : _polygons) {
 			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count))
 				continue;
@@ -179,7 +179,7 @@ namespace debug
 			}
 			vertices[polygon.count].position = polygon.points[0];
 			vertices[polygon.count].color = polygon.color;
-			target.draw(vertices, polygon.count + 1, sf::LineStrip);
+			graphics::draw_line_strip(vertices, polygon.count + 1);
 		}
 	}
 
@@ -230,7 +230,7 @@ namespace debug
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
 		_render_lines();
 		_render_boxes();
-		_render_polygons(target);
+		_render_polygons();
 		_render_circles(target);
 		_render_texts(target);
 		target.resetGLStates();
