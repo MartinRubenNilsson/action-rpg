@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
             sf::Vector2f view_center = view.getCenter();
             sf::Vector2f view_half_size = view.getSize() / 2.f;
             sprites::new_render_frame();
-            background::add_sprites_to_render_queue(view_center - view_half_size, view_center + view_half_size);
+            background::render_sprites(view_center - view_half_size, view_center + view_half_size);
             ecs::draw(*texture);
             ecs::debug_draw();
             sprites::render_sprites_in_render_queue();
@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
         graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
         graphics::set_texture_matrix_to_identity();
         graphics::set_viewport(0, 0, window.getSize().x, window.getSize().y);
-        cursor::render_cursor_sprite();
+        cursor::render_sprite();
         window.resetGLStates();
 
         // RENDER DEBUG STATS

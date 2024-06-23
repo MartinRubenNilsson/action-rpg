@@ -56,7 +56,7 @@ namespace background
 		}
 	}
 
-	void add_sprites_to_render_queue(const sf::Vector2f& view_min, const sf::Vector2f& view_max)
+	void render_sprites(const sf::Vector2f& view_min, const sf::Vector2f& view_max)
 	{
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
@@ -69,5 +69,6 @@ namespace background
 				sprites::add_sprite_to_render_queue(sprite);
 			}
 		}
+		sprites::render_sprites_in_render_queue();
 	}
 }

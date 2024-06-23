@@ -183,19 +183,21 @@ namespace debug
 		}
 	}
 
-	void _render_circles(sf::RenderTarget& target)
+	void _render_circles()
 	{
 		if (_circles.empty()) return;
-		sf::CircleShape shape;
-		shape.setFillColor(sf::Color::Transparent);
-		shape.setOutlineThickness(0.25f);
+		constexpr unsigned int VERTEX_COUNT = 32;
+		constexpr float ANGLE_STEP = 6.283185307f / VERTEX_COUNT;
+		graphics::Vertex vertices[VERTEX_COUNT];
 		for (const Circle& circle : _circles) {
 			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius))
 				continue;
-			shape.setRadius(circle.radius);
-			shape.setPosition(circle.center - sf::Vector2f{ circle.radius, circle.radius });
-			shape.setOutlineColor(circle.color);
-			target.draw(shape);
+			for (unsigned int i = 0; i < VERTEX_COUNT; ++i) {
+				const float angle = i * ANGLE_STEP;
+				vertices[i].position = circle.center + circle.radius * sf::Vector2f{ std::cos(angle), std::sin(angle) };
+				vertices[i].color = circle.color;
+			}
+			graphics::draw_line_loop(vertices, VERTEX_COUNT);
 		}
 	}
 
@@ -231,7 +233,7 @@ namespace debug
 		_render_lines();
 		_render_boxes();
 		_render_polygons();
-		_render_circles(target);
+		_render_circles();
 		_render_texts(target);
 		target.resetGLStates();
 	}
