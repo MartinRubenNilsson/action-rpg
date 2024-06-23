@@ -10,6 +10,6 @@ namespace background
 
 	void set_type(Type type);
 	void update(float dt);
-	void render(sf::RenderTarget& target);
+	void add_sprites_to_render_queue(const sf::Vector2f& view_min, const sf::Vector2f& view_max);
 }
 

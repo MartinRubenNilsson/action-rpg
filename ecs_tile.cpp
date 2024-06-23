@@ -245,7 +245,7 @@ namespace ecs
 					graphics::set_shader_uniform_2f(sprite.shader_id, "position", sprite.min.x, sprite.min.y);
 				};
 			}
-			sprites::draw(sprite);
+			sprites::add_sprite_to_render_queue(sprite);
 		}
 	}
 

@@ -217,10 +217,18 @@ int main(int argc, char* argv[])
                 textures::take_render_texture_from_pool(window.getSize());
             texture->clear();
             texture->setView(window::BASE_VIEW);
-            background::render(*texture);
+            texture->setActive();
+            graphics::set_modelview_matrix_to_identity();
+            graphics::set_projection_matrix(texture->getView().getTransform().getMatrix());
+            graphics::set_texture_matrix_to_identity();
+            graphics::set_viewport(0, 0, texture->getSize().x, texture->getSize().y);
+            sf::View view = texture->getView();
+            sf::Vector2f view_center = view.getCenter();
+            sf::Vector2f view_half_size = view.getSize() / 2.f;
+            background::add_sprites_to_render_queue(view_center - view_half_size, view_center + view_half_size);
             ecs::draw(*texture);
             ecs::debug_draw();
-            sprites::render(*texture);
+            sprites::render_sprites_in_render_queue();
             debug::render(*texture);
             texture->display();
             postprocessing::set_pixel_scale((float)window::get_state().scale);
@@ -240,7 +248,14 @@ int main(int argc, char* argv[])
         cursor::set_visible(!show_built_in_cursor);
         cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
         cursor::set_scale((float)window::get_state().scale);
-        cursor::render(window);
+
+        window.setActive();
+        graphics::set_modelview_matrix_to_identity();
+        graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
+        graphics::set_texture_matrix_to_identity();
+        graphics::set_viewport(0, 0, window.getSize().x, window.getSize().y);
+        cursor::render_cursor();
+        window.resetGLStates();
 
         // RENDER IMGUI
 

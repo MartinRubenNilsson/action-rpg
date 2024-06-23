@@ -59,10 +59,8 @@ namespace sprites
 	extern const unsigned int MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
 
-	// Submits a sprite for rendering. The sprite is not rendered immediately, but
-	// instead copied to a buffer of sprites to be rendered when render() is called.
-	void draw(const Sprite& sprite);
-	void render(sf::RenderTarget& target);
+	void add_sprite_to_render_queue(const Sprite& sprite);
+	void render_sprites_in_render_queue();
 
 	// STATISTICS FOR LAST RENDER CALL
 

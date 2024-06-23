@@ -56,23 +56,18 @@ namespace background
 		}
 	}
 
-	void render(sf::RenderTarget& target)
+	void add_sprites_to_render_queue(const sf::Vector2f& view_min, const sf::Vector2f& view_max)
 	{
-		sf::View view = target.getView();
-		sf::FloatRect view_rect = sf::FloatRect(view.getCenter() - view.getSize() / 2.f, view.getSize());
-
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
 			sprite.texture_id = layer.texture_id;
-			for (float x = -layer.offset; x < view_rect.width; x += layer.texture_width) {
-				sprite.min = { view_rect.left + x, view_rect.top };
-				sprite.max = { view_rect.left + x + layer.texture_width, view_rect.top + layer.texture_height };
+			for (float x = -layer.offset; x < view_max.x; x += layer.texture_width) {
+				sprite.min = { view_min.x + x, view_min.y };
+				sprite.max = { view_min.x + x + layer.texture_width, view_min.y + layer.texture_height };
 				sprite.tex_min = { 0.f, 0.f };
 				sprite.tex_max = { 1.f, 1.f };
-				sprites::draw(sprite);
+				sprites::add_sprite_to_render_queue(sprite);
 			}
 		}
-
-		sprites::render(target);
 	}
 }

@@ -2,7 +2,7 @@
 
 namespace cursor
 {
-	void render(sf::RenderTarget& target);
+	void render_cursor();
 
 	void set_visible(bool visible);
 	void set_position(const sf::Vector2f& position);

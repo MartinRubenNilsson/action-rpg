@@ -78,7 +78,7 @@ namespace postprocessing
 			textures::give_render_texture_to_pool(std::move(texture));
 			texture = std::move(target_texture);
 		}
-		graphics::bind_shader(-1);
+		graphics::unbind_shader();
 		texture->setView(view);
 	}
 
@@ -98,7 +98,7 @@ namespace postprocessing
 		target_texture->setView(target_texture->getDefaultView());
 		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
-		graphics::bind_shader(-1);
+		graphics::unbind_shader();
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 		texture->setView(view); // Restore view
@@ -117,7 +117,7 @@ namespace postprocessing
 		target_texture->setView(target_texture->getDefaultView());
 		target_texture->draw(sf::Sprite(texture->getTexture()));
 		target_texture->display();
-		graphics::bind_shader(-1);
+		graphics::unbind_shader();
 		textures::give_render_texture_to_pool(std::move(texture));
 		texture = std::move(target_texture);
 	}
@@ -153,7 +153,7 @@ namespace postprocessing
 			texture->display();
 		}
 		// Cleanup
-		graphics::bind_shader(-1);
+		graphics::unbind_shader();
 		texture->setSmooth(texture_was_smooth);
 		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
 		textures::give_render_texture_to_pool(std::move(intermediate_texture));

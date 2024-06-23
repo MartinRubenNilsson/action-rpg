@@ -47,7 +47,7 @@ namespace ecs
             sprite.texture_id = vfx.texture_id;
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = sprites::SL_VFX;
-			sprites::draw(sprite);
+			sprites::add_sprite_to_render_queue(sprite);
 		}
     }
 

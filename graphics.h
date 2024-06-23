@@ -23,6 +23,7 @@ namespace graphics
 		const std::string& name_hint = "shader");
 	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path);
 	void bind_shader(int shader_id);
+	void unbind_shader();
 	//You need to bind the shader before calling these functions!
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x);
 	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y);
@@ -40,8 +41,9 @@ namespace graphics
 		const unsigned char* data,
 		std::string name_hint = "texture");
 	int load_texture(const std::string& path);
-	int copy_texture(unsigned int texture_object);
-	void bind_texture(unsigned int texture_slot, int texture_id);
+	int copy_texture(unsigned int texture_object); //TODO: don't expose OpenGL objects like this
+	void bind_texture(unsigned int texture_unit, int texture_id);
+	void unbind_texture(unsigned int texture_unit);
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);
 
 	// FIXED-FUNCTION PIPELINE
@@ -55,5 +57,6 @@ namespace graphics
 
 	// DRAWING
 
+	void draw_triangle_loop(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 }

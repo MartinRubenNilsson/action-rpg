@@ -50,14 +50,14 @@ namespace sprites
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
 		graphics::bind_texture(0, texture_id);
 		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
-		graphics::bind_texture(0, -1);
-		graphics::bind_shader(-1);
+		graphics::unbind_texture(0);
+		graphics::unbind_shader();
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;
 	}
 
-	void draw(const Sprite& sprite)
+	void add_sprite_to_render_queue(const Sprite& sprite)
 	{
 		if (_sprites == MAX_SPRITES) return;
 		static_assert(std::is_trivially_copyable<Sprite>::value, "Sprite must be trivially copyable.");
@@ -66,15 +66,8 @@ namespace sprites
 		_sprites++;
 	}
 
-	void render(sf::RenderTarget& target)
+	void render_sprites_in_render_queue()
 	{
-		target.setActive();
-
-		graphics::set_modelview_matrix_to_identity();
-		graphics::set_projection_matrix(target.getView().getTransform().getMatrix());
-		graphics::set_texture_matrix_to_identity();
-		graphics::set_viewport(0, 0, target.getSize().x, target.getSize().y);
-
 		_sprites_drawn = _sprites;
 		_batches_drawn = 0;
 		_vertices_in_largest_batch = 0;
@@ -154,8 +147,6 @@ namespace sprites
 		}
 
 		_sprites = 0;
-
-		target.resetGLStates();
 	}
 
 	unsigned int get_sprites_drawn() {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "debug_draw.h"
+#include "graphics.h"
 #include "fonts.h"
 
 namespace debug
@@ -60,7 +61,6 @@ namespace debug
 	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
 	std::vector<Text> _texts;
-
 
 	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
 	{
@@ -144,10 +144,10 @@ namespace debug
 		}
 	}
 
-	void _render_boxes(sf::RenderTarget& target)
+	void _render_boxes()
 	{
 		if (_boxes.empty()) return;
-		sf::Vertex vertices[5];
+		graphics::Vertex vertices[4];
 		for (const Box& box : _boxes) {
 			if (_cull_box(_last_calculated_view_bounds, box.min, box.max))
 				continue;
@@ -155,10 +155,11 @@ namespace debug
 			vertices[1].position = { box.max.x, box.min.y };
 			vertices[2].position = { box.max.x, box.max.y };
 			vertices[3].position = { box.min.x, box.max.y };
-			vertices[4].position = { box.min.x, box.min.y };
-			for (size_t i = 0; i < 5; ++i)
-				vertices[i].color = box.color;
-			target.draw(vertices, 5, sf::LineStrip);
+			vertices[0].color = box.color;
+			vertices[1].color = box.color;
+			vertices[2].color = box.color;
+			vertices[3].color = box.color;
+			graphics::draw_triangle_loop(vertices, 4);
 		}
 	}
 
@@ -224,12 +225,12 @@ namespace debug
 		_last_calculated_view_bounds.min_y = view_center.y - view_size.y / 2.f;
 		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
-
 		_render_lines(target);
-		_render_boxes(target);
+		_render_boxes();
 		_render_polygons(target);
 		_render_circles(target);
 		_render_texts(target);
+		target.resetGLStates();
 	}
 
 	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
@@ -268,7 +269,7 @@ namespace debug
 	}
 #else
 	void update(float) {}
-	void render(sf::RenderTarget&) {}
+	void render_sprites_in_render_queue(sf::RenderTarget&) {}
 	void draw_line(const Line&) {}
 	void draw_box(const Box&) {}
 	void draw_polygon(const Polygon&) {}

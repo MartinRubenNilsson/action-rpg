@@ -13,6 +13,7 @@
 #include "console.h"
 #include "sprites.h"
 #include "debug_draw.h"
+#include "graphics.h"
 
 namespace ecs
 {
@@ -54,6 +55,9 @@ namespace ecs
 		const sf::Vector2f camera_min = view.center - view.size / 2.f; // assumes no rotation
 		const sf::Vector2f camera_max = view.center + view.size / 2.f; // assumes no rotation
 		target.setView(sf::View(view.center, view.size));
+		graphics::set_modelview_matrix_to_identity();
+		graphics::set_projection_matrix(target.getView().getTransform().getMatrix());
+		graphics::set_texture_matrix_to_identity();
 		draw_tiles(camera_min, camera_max);
 		draw_vfx(camera_min, camera_max);
 	}

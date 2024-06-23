@@ -10,7 +10,7 @@ namespace cursor
 	sf::Vector2f _position;
 	float _scale = 1.f;
 
-	void render(sf::RenderTarget& target)
+	void render_cursor()
 	{
 		if (!_visible) return;
 
@@ -27,8 +27,8 @@ namespace cursor
 		sprite.tex_max = { (float)_texture_rect.left + _texture_rect.width, (float)_texture_rect.top + _texture_rect.height };
 		sprite.tex_min /= sf::Vector2f{ (float)texture_width, (float)texture_height };
 		sprite.tex_max /= sf::Vector2f{ (float)texture_width, (float)texture_height };
-		sprites::draw(sprite);
-		sprites::render(target);
+		sprites::add_sprite_to_render_queue(sprite);
+		sprites::render_sprites_in_render_queue();
 	}
 
 	void set_visible(bool visible) {

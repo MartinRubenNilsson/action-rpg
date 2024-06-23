@@ -103,7 +103,13 @@ void main()
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
-		load_shader({}, {}); // Load default shader
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		create_shader( // Create default shader
+			_DEFAULT_VERTEX_SHADER_BYTECODE,
+			_DEFAULT_FRAGMENT_SHADER_BYTECODE,
+			"Default Shader");
 	}
 
 	void shutdown()
@@ -277,11 +283,14 @@ void main()
 
 	void bind_shader(int shader_id)
 	{
-		unsigned int program_object = 0;
 		if (const Shader* shader = _get_shader(shader_id)) {
-			program_object = shader->program_object;
+			glUseProgram(shader->program_object);
 		}
-		glUseProgram(program_object);
+	}
+
+	void unbind_shader()
+	{
+		glUseProgram(0);
 	}
 
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x)
@@ -440,14 +449,18 @@ void main()
 		return texture_id;
 	}
 
-	void bind_texture(unsigned int texture_slot, int texture_id)
+	void bind_texture(unsigned int texture_unit, int texture_id)
 	{
-		unsigned int texture_object = 0;
 		if (const Texture* texture = _get_texture(texture_id)) {
-			texture_object = texture->texture_object;
+			glActiveTexture(GL_TEXTURE0 + texture_unit);
+			glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		}
-		glActiveTexture(GL_TEXTURE0 + texture_slot);
-		glBindTexture(GL_TEXTURE_2D, texture_object);
+	}
+
+	void unbind_texture(unsigned int texture_unit)
+	{
+		glActiveTexture(GL_TEXTURE0 + texture_unit);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height)
@@ -500,11 +513,16 @@ void main()
 		glLoadIdentity();
 	}
 
+	void draw_triangle_loop(const Vertex* vertices, unsigned int vertex_count)
+	{
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
+	}
+
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
