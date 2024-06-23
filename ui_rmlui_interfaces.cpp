@@ -3,6 +3,7 @@
 #include <RmlUi/Core/Core.h>
 #include <RmlUi/Core/Platform.h>
 #include "window.h"
+#include "graphics.h"
 
 #if defined RMLUI_PLATFORM_WIN32
 	#ifndef RMLUI_DISABLE_INCLUDE_WINDOWS
@@ -128,10 +129,13 @@ namespace ui
 		} else if (!_has_transform) {
 			glEnable(GL_SCISSOR_TEST);
 			glDisable(GL_STENCIL_TEST);
-		} else {
+		}
+#if 0
+		else {
 			glDisable(GL_SCISSOR_TEST);
 			glEnable(GL_STENCIL_TEST);
 		}
+#endif
 	}
 
 	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
@@ -141,6 +145,7 @@ namespace ui
 			return;
 		}
 
+#if 0
 		// clear the stencil buffer
 		glStencilMask(GLuint(-1));
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -169,6 +174,7 @@ namespace ui
 		glDepthMask(GL_TRUE);
 		glStencilMask(0);
 		glStencilFunc(GL_EQUAL, 1, GLuint(-1));
+#endif
 	}
 
 	bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source)
