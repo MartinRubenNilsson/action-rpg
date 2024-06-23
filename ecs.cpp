@@ -48,18 +48,19 @@ namespace ecs
 		update_vfx(dt);
 		update_cameras(dt);
 	}
-	 
-	void draw(sf::RenderTarget& target)
+
+	void get_camera_bounds(sf::Vector2f& min, sf::Vector2f& max)
 	{
 		const CameraView view = ecs::get_blended_camera_view();
-		const sf::Vector2f camera_min = view.center - view.size / 2.f; // assumes no rotation
-		const sf::Vector2f camera_max = view.center + view.size / 2.f; // assumes no rotation
-		target.setView(sf::View(view.center, view.size));
-		graphics::set_modelview_matrix_to_identity();
-		graphics::set_projection_matrix(target.getView().getTransform().getMatrix());
-		graphics::set_texture_matrix_to_identity();
-		draw_tiles(camera_min, camera_max);
-		draw_vfx(camera_min, camera_max);
+		min = view.center - view.size / 2.f;
+		max = view.center + view.size / 2.f;
+	}
+	 
+	void add_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	{
+		add_tile_sprites_to_render_queue(camera_min, camera_max);
+		add_vfx_sprites_to_render_queue(camera_min, camera_max);
+		sprites::render_sprites_in_render_queue();
 	}
 
 	void _debug_draw_entities()

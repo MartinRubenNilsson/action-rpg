@@ -21,7 +21,7 @@ namespace ecs
 	};
 
 	void update_vfx(float dt);
-	void draw_vfx(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
+	void add_vfx_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
 
 	entt::entity create_vfx(VfxType type, const sf::Vector2f& position);
 }

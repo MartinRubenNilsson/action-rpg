@@ -192,16 +192,17 @@ int main(int argc, char* argv[])
             texture->clear();
             texture->setView(window::BASE_VIEW);
             texture->setActive();
+            sf::Vector2f camera_min;
+            sf::Vector2f camera_max;
+            ecs::get_camera_bounds(camera_min, camera_max);
+            texture->setView(sf::View((camera_min + camera_max) / 2.f, camera_max - camera_min));
             graphics::set_modelview_matrix_to_identity();
             graphics::set_projection_matrix(texture->getView().getTransform().getMatrix());
             graphics::set_texture_matrix_to_identity();
             graphics::set_viewport(0, 0, texture->getSize().x, texture->getSize().y);
-            sf::View view = texture->getView();
-            sf::Vector2f view_center = view.getCenter();
-            sf::Vector2f view_half_size = view.getSize() / 2.f;
             sprites::new_render_frame();
-            background::render_sprites(view_center - view_half_size, view_center + view_half_size);
-            ecs::draw(*texture);
+            background::render_sprites(camera_min, camera_max);
+            ecs::add_sprites_to_render_queue(camera_min, camera_max);
             ecs::debug_draw();
             sprites::render_sprites_in_render_queue();
             debug::render(*texture);
@@ -271,7 +272,6 @@ int main(int argc, char* argv[])
 
     // SHUTDOWN
 
-    background::set_type(background::Type::None);
     ecs::shutdown();
     ui::shutdown();
     audio::shutdown();

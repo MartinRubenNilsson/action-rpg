@@ -17,7 +17,8 @@ namespace ecs
 	void shutdown();
 	void process_event(const sf::Event& event);
 	void update(float dt);
-	void draw(sf::RenderTarget& target);
+	void get_camera_bounds(sf::Vector2f& min, sf::Vector2f& max);
+	void add_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
 	void debug_draw();
 }
 
