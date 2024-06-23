@@ -515,33 +515,37 @@ void main()
 
 	void draw_lines(const Vertex* vertices, unsigned int vertex_count)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		if (!vertices || !vertex_count) return;
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
 		glDrawArrays(GL_LINES, 0, vertex_count);
 	}
 
 	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		if (!vertices || !vertex_count) return;
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
 		glDrawArrays(GL_LINE_STRIP, 0, vertex_count);
 	}
 
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		if (!vertices || !vertex_count) return;
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
 		glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
 	}
 
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		if (!vertices || !vertex_count) return;
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 }
