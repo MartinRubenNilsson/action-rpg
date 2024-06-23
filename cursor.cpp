@@ -10,7 +10,7 @@ namespace cursor
 	sf::Vector2f _position;
 	float _scale = 1.f;
 
-	void render_cursor()
+	void render_cursor_sprite()
 	{
 		if (!_visible) return;
 

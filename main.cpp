@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
         graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
         graphics::set_texture_matrix_to_identity();
         graphics::set_viewport(0, 0, window.getSize().x, window.getSize().y);
-        cursor::render_cursor();
+        cursor::render_cursor_sprite();
         window.resetGLStates();
 
         // RENDER DEBUG STATS
