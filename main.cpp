@@ -202,9 +202,8 @@ int main(int argc, char* argv[])
             graphics::set_viewport(0, 0, texture->getSize().x, texture->getSize().y);
             sprites::new_render_frame();
             background::render_sprites(camera_min, camera_max);
-            ecs::add_sprites_to_render_queue(camera_min, camera_max);
+            ecs::render_sprites(camera_min, camera_max);
             ecs::debug_draw();
-            sprites::render_sprites_in_render_queue();
             debug::render(*texture);
             texture->display();
             postprocessing::set_pixel_scale((float)window::get_state().scale);

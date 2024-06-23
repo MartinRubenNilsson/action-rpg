@@ -56,7 +56,7 @@ namespace ecs
 		max = view.center + view.size / 2.f;
 	}
 	 
-	void add_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void render_sprites(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
 		add_tile_sprites_to_render_queue(camera_min, camera_max);
 		add_vfx_sprites_to_render_queue(camera_min, camera_max);
