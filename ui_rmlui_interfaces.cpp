@@ -82,7 +82,7 @@ namespace ui
 	void RmlUiRenderInterface::BeginFrame()
 	{
 		RMLUI_ASSERT(_viewport_width >= 0 && _viewport_height >= 0);
-		glViewport(0, 0, _viewport_width, _viewport_height);
+		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
@@ -92,12 +92,9 @@ namespace ui
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(projection.data());
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		graphics::set_projection_matrix(projection.data());
+		graphics::set_texture_matrix_to_identity();
+		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
 
 		_has_transform = false;
 	}
