@@ -33,7 +33,7 @@ namespace debug
 	struct Polygon
 	{
 		sf::Vector2f points[MAX_POLYGON_VERTICES];
-		size_t count = 0;
+		unsigned int count = 0;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
 	};
@@ -248,7 +248,7 @@ namespace debug
 		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
-	void draw_polygon(const sf::Vector2f* points, size_t count, const sf::Color& color, float lifetime)
+	void draw_polygon(const sf::Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
 	{
 		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
