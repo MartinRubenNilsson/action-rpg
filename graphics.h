@@ -3,7 +3,6 @@
 namespace graphics
 {
 	// Functions that return an integer ID return -1 on failure.
-	// Functions start with "bind_" unbind the current object if the ID is -1.
 
 	struct Vertex
 	{
@@ -57,6 +56,8 @@ namespace graphics
 
 	// DRAWING
 
-	void draw_triangle_loop(const Vertex* vertices, unsigned int vertex_count);
+	void draw_lines(const Vertex* vertices, unsigned int vertex_count);
+	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count);
+	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 }

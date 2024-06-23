@@ -61,6 +61,7 @@ namespace debug
 	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
 	std::vector<Text> _texts;
+	std::vector<graphics::Vertex> _vertices;
 
 	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
 	{
@@ -113,7 +114,7 @@ namespace debug
 			--size;
 			if (i == size) continue;
 			if constexpr (std::is_trivially_copyable_v<T>)
-				std::memcpy(&vec[i], &vec[size], sizeof(T));
+				memcpy(&vec[i], &vec[size], sizeof(T));
 			else
 				vec[i] = std::move(vec[size]);
 		}
@@ -129,19 +130,21 @@ namespace debug
 		_update(_texts, dt);
 	}
 
-	void _render_lines(sf::RenderTarget& target)
+	void _render_lines()
 	{
-		if (_lines.empty()) return;
-		sf::Vertex vertices[2];
-		for (const Line& line : _lines) {
+		const size_t line_count = _lines.size();
+		if (line_count == 0) return;
+		_vertices.resize(line_count * 2);
+		for (size_t l = 0; l < line_count; ++l) {
+			const Line& line = _lines[l];
 			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
 				continue;
-			vertices[0].position = line.p1;
-			vertices[1].position = line.p2;
-			vertices[0].color = line.color;
-			vertices[1].color = line.color;
-			target.draw(vertices, 2, sf::Lines);
+			_vertices[2 * l + 0].position = line.p1;
+			_vertices[2 * l + 0].color = line.color;
+			_vertices[2 * l + 1].position = line.p2;
+			_vertices[2 * l + 1].color = line.color;
 		}
+		graphics::draw_lines(_vertices.data(), (unsigned int)_vertices.size());
 	}
 
 	void _render_boxes()
@@ -159,7 +162,7 @@ namespace debug
 			vertices[1].color = box.color;
 			vertices[2].color = box.color;
 			vertices[3].color = box.color;
-			graphics::draw_triangle_loop(vertices, 4);
+			graphics::draw_line_loop(vertices, 4);
 		}
 	}
 
@@ -225,7 +228,7 @@ namespace debug
 		_last_calculated_view_bounds.min_y = view_center.y - view_size.y / 2.f;
 		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
 		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
-		_render_lines(target);
+		_render_lines();
 		_render_boxes();
 		_render_polygons(target);
 		_render_circles(target);
@@ -251,7 +254,7 @@ namespace debug
 		if (count < 3) return;
 		if (lifetime <= 0.f && _cull_polygon(_last_calculated_view_bounds, points, count)) return;
 		Polygon& polygon = _polygons.emplace_back();
-		std::memcpy(polygon.points, points, count * sizeof(sf::Vector2f));
+		memcpy(polygon.points, points, count * sizeof(sf::Vector2f));
 		polygon.count = count;
 		polygon.color = color;
 		polygon.lifetime = lifetime;

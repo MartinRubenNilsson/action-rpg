@@ -513,12 +513,28 @@ void main()
 		glLoadIdentity();
 	}
 
-	void draw_triangle_loop(const Vertex* vertices, unsigned int vertex_count)
+	void draw_lines(const Vertex* vertices, unsigned int vertex_count)
 	{
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
 		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, vertex_count);
+		glDrawArrays(GL_LINES, 0, vertex_count);
+	}
+
+	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count)
+	{
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		glDrawArrays(GL_LINE_STRIP, 0, vertex_count);
+	}
+
+	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count)
+	{
+		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 0);
+		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), (unsigned char*)vertices + 8);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (unsigned char*)vertices + 12);
+		glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
 	}
 
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
