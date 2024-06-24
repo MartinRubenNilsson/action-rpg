@@ -61,7 +61,7 @@ namespace sprites
 
 	void new_render_frame();
 	void add_sprite_to_render_queue(const Sprite& sprite);
-	void render_sprites_in_render_queue();
+	void render(); // renders all sprites in the render queue and clears the queue
 
 	// STATISTICS FOR LAST RENDER FRAME
 

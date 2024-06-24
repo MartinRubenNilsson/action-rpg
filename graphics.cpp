@@ -602,7 +602,8 @@ void main()
 			_pooled_render_target_ids.pop_back();
 			return render_target_id;
 		}
-		return create_render_target(width, height, "pooled render target");
+		std::string name_hint = "pooled render target " + std::to_string(width) + "x" + std::to_string(height);
+		return create_render_target(width, height, name_hint);
 	}
 
 	void release_pooled_render_target(int render_target_id)

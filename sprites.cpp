@@ -72,7 +72,7 @@ namespace sprites
 		_sprites++;
 	}
 
-	void render_sprites_in_render_queue()
+	void render()
 	{
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](unsigned int left, unsigned int right) {

@@ -60,7 +60,7 @@ namespace ecs
 	{
 		add_tile_sprites_to_render_queue(camera_min, camera_max);
 		add_vfx_sprites_to_render_queue(camera_min, camera_max);
-		sprites::render_sprites_in_render_queue();
+		sprites::render();
 	}
 
 	void _debug_draw_entities()

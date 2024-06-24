@@ -272,7 +272,7 @@ namespace debug
 	}
 #else
 	void update(float) {}
-	void render_sprites_in_render_queue(sf::RenderTarget&) {}
+	void render(sf::RenderTarget&) {}
 	void draw_line(const Line&) {}
 	void draw_box(const Box&) {}
 	void draw_polygon(const Polygon&) {}

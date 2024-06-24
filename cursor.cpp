@@ -28,7 +28,7 @@ namespace cursor
 		sprite.tex_min /= sf::Vector2f{ (float)texture_width, (float)texture_height };
 		sprite.tex_max /= sf::Vector2f{ (float)texture_width, (float)texture_height };
 		sprites::add_sprite_to_render_queue(sprite);
-		sprites::render_sprites_in_render_queue();
+		sprites::render();
 	}
 
 	void set_visible(bool visible) {
