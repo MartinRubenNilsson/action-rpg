@@ -222,9 +222,6 @@
     <ClCompile Include="ecs_vfx.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="textures.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_physics_contacts.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
@@ -554,9 +551,6 @@
     </ClInclude>
     <ClInclude Include="ecs_vfx.h">
       <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="textures.h">
-      <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_physics_contacts.h">
       <Filter>ecs\physics</Filter>

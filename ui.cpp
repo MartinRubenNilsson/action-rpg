@@ -313,13 +313,11 @@ namespace ui
 		_debugger_context->Update();
 	}
 
-	void render(sf::RenderTarget& target)
+	void render()
 	{
-		target.setActive();
 		_render_interface.BeginFrame();
 		_context->Render();
 		_debugger_context->Render();
-		target.resetGLStates();
 	}
 
 	void reload_styles()

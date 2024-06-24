@@ -14,7 +14,6 @@
 #include "background.h"
 #include "postprocessing.h"
 #include "settings.h"
-#include "textures.h"
 #include "cursor.h"
 #include "sprites.h"
 #include "graphics.h"
@@ -76,6 +75,7 @@ int main(int argc, char* argv[])
 
     // GAME LOOP
 
+    window.resetGLStates();
     while (window.isOpen()) {
 
         steam::run_message_loop();
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
                 if (ev.type == sf::Event::Closed) {
                     window.close();
                 } if (ev.type == sf::Event::Resized) {
-                    textures::clear_render_texture_pool();
+                    //textures::clear_render_texture_pool();
                 } else if (ev.type == sf::Event::KeyPressed) {
 #ifdef _DEBUG
                     if (ev.key.code == sf::Keyboard::Backslash)
@@ -166,13 +166,12 @@ int main(int argc, char* argv[])
         ecs::update(game_world_dt);
         debug::update(game_world_dt);
 
+        // UPDATE POSTPROCESSING
+
         postprocessing::update(game_world_dt);
-        if (map::is_dark()) {
-			postprocessing::set_darkness_intensity(0.95f);
-        } else {
-            postprocessing::set_darkness_intensity(0.f);
-        }
+		postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
+        postprocessing::set_pixel_scale((float)window::get_state().scale);
 
         switch (ui::get_top_menu()) {
         case ui::MenuType::Pause:
@@ -185,51 +184,61 @@ int main(int argc, char* argv[])
 			break;
         }
 
+        sprites::new_render_frame();
+
         // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
-        {
-            std::unique_ptr<sf::RenderTexture> texture =
-                textures::take_render_texture_from_pool(window.getSize());
-            texture->clear();
-            texture->setView(window::BASE_VIEW);
-            texture->setActive();
-            sf::Vector2f camera_min;
-            sf::Vector2f camera_max;
-            ecs::get_camera_bounds(camera_min, camera_max);
-            texture->setView(sf::View((camera_min + camera_max) / 2.f, camera_max - camera_min));
-            graphics::set_modelview_matrix_to_identity();
-            graphics::set_projection_matrix(texture->getView().getTransform().getMatrix());
-            graphics::set_texture_matrix_to_identity();
-            graphics::set_viewport(0, 0, texture->getSize().x, texture->getSize().y);
-            sprites::new_render_frame();
-            background::render_sprites(camera_min, camera_max);
-            ecs::render_sprites(camera_min, camera_max);
-            ecs::debug_draw();
-            debug::render(*texture);
-            texture->display();
-            postprocessing::set_pixel_scale((float)window::get_state().scale);
-            postprocessing::render(texture);
-            window.draw(sf::Sprite(texture->getTexture())); // Copy to window.
-            textures::give_render_texture_to_pool(std::move(texture));
-        }
+
+        const sf::Vector2u window_size = window.getSize();
+#if 1
+        int render_target_id = graphics::acquire_pooled_render_target(window_size.x, window_size.y);
+        graphics::bind_render_target(render_target_id);
+        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
+        sf::Vector2f camera_min;
+        sf::Vector2f camera_max;
+        ecs::get_camera_bounds(camera_min, camera_max);
+        sf::View view{ (camera_min + camera_max) / 2.f, camera_max - camera_min };
+        graphics::set_modelview_matrix_to_identity();
+        graphics::set_projection_matrix(view.getTransform().getMatrix());
+        graphics::set_texture_matrix_to_identity();
+        graphics::set_viewport(0, 0, window_size.x, window_size.y);
+        background::render_sprites(camera_min, camera_max);
+        ecs::render_sprites(camera_min, camera_max);
+        ecs::debug_draw();
+        debug::render(camera_min, camera_max);
+#endif
 
         // RENDER UI
 
-        ui::render(window);
+        window.resetGLStates();
+        ui::render();
 
         // RENDER CURSOR
+
+
+        window.setActive();
+        window.clear(sf::Color::Black);
+        window.resetGLStates();
+
+#if 0
+        graphics::set_modelview_matrix_to_identity();
+        graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
+        graphics::set_texture_matrix_to_identity();
+        graphics::set_viewport(0, 0, window_size.x, window_size.y);
 
         bool show_built_in_cursor = ImGui::GetIO().WantCaptureMouse;
         window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
         cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
         cursor::set_scale((float)window::get_state().scale);
-
-        window.setActive();
-        graphics::set_modelview_matrix_to_identity();
-        graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
-        graphics::set_texture_matrix_to_identity();
-        graphics::set_viewport(0, 0, window.getSize().x, window.getSize().y);
         cursor::render_sprite();
+        window.resetGLStates();
+#endif
+
+        graphics::bind_shader(graphics::fullscreen_shader_id);
+        graphics::set_shader_uniform_1i(graphics::fullscreen_shader_id, "tex", 0);
+        graphics::bind_texture(0, graphics::get_render_target_texture(render_target_id));
+        graphics::draw_triangle_strip(4);
+        graphics::release_pooled_render_target(render_target_id);
         window.resetGLStates();
 
         // RENDER DEBUG STATS
@@ -277,7 +286,6 @@ int main(int argc, char* argv[])
     ImGui::SFML::Shutdown();
     tiled::unload_assets();
     fonts::unload_assets();
-    textures::shutdown();
     graphics::shutdown();
     steam::shutdown();
 

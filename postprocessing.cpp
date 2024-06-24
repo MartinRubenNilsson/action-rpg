@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "postprocessing.h"
-#include "textures.h"
 #include "graphics.h"
 
 namespace postprocessing
 {
 	struct Shockwave
 	{
-		sf::Vector2f position_ws; // in world space
+		sf::Vector2f position_ws; // ws = world space
 		float force = 0.f;
 		float size = 0.f;
 		float thickness = 0.f;
@@ -18,7 +17,7 @@ namespace postprocessing
 	float _pixel_scale = 1.f;
 	std::vector<Shockwave> _shockwaves;
 	float _darkness_intensity = 0.f;
-	sf::Vector2f _darkness_center_ws; // in world space
+	sf::Vector2f _darkness_center_ws; // ws = world space
 	float _screen_transition_progress = 0.f;
 	size_t _gaussian_blur_iterations = 0;
 
@@ -55,7 +54,8 @@ namespace postprocessing
 		return p;
 	}
 
-	void _render_shockwaves(std::unique_ptr<sf::RenderTexture>& texture)
+#if 0
+	int _render_shockwaves(int render_target_id)
 	{
 		if (_shockwaves.empty()) return;
 		const int shader_id = graphics::load_shader({}, "assets/shaders/shockwave.frag");
@@ -81,8 +81,10 @@ namespace postprocessing
 		graphics::unbind_shader();
 		texture->setView(view);
 	}
+#endif
 
-	void _render_darkness(std::unique_ptr<sf::RenderTexture>& texture)
+#if 0
+	int _render_darkness(int render_target_id)
 	{
 		if (_darkness_intensity == 0.f) return;
 		const int shader_id = graphics::load_shader({}, "assets/shaders/darkness.frag");
@@ -103,26 +105,29 @@ namespace postprocessing
 		texture = std::move(target_texture);
 		texture->setView(view); // Restore view
 	}
+#endif
 
-	void _render_screen_transition(std::unique_ptr<sf::RenderTexture>& texture)
+	int _render_screen_transition(int render_target_id)
 	{
-		if (_screen_transition_progress == 0.f) return;
+		if (_screen_transition_progress == 0.f) return render_target_id;
 		const int shader_id = graphics::load_shader({}, "assets/shaders/screen_transition.frag");
-		if (shader_id == -1) return;
+		if (shader_id == -1) return render_target_id;
+		const int texture_id = graphics::get_render_target_texture(render_target_id);
+		unsigned int width, height;
+		graphics::get_texture_size(texture_id, width, height);
+		const int new_render_target_id = graphics::acquire_pooled_render_target(width, height);
 		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
 		graphics::set_shader_uniform_1f(shader_id, "pixel_scale", _pixel_scale);
 		graphics::set_shader_uniform_1f(shader_id, "progress", _screen_transition_progress);
-		std::unique_ptr<sf::RenderTexture> target_texture =
-			textures::take_render_texture_from_pool(texture->getSize());
-		target_texture->setView(target_texture->getDefaultView());
-		target_texture->draw(sf::Sprite(texture->getTexture()));
-		target_texture->display();
-		graphics::unbind_shader();
-		textures::give_render_texture_to_pool(std::move(texture));
-		texture = std::move(target_texture);
+		graphics::bind_texture(0, texture_id);
+		graphics::bind_render_target(new_render_target_id);
+		graphics::draw_triangle_strip(graphics::FULLSCREEN_QUAD_VERTICES, 4);
+		return new_render_target_id;
 	}
 
-	void _render_gaussian_blur(std::unique_ptr<sf::RenderTexture>& texture)
+#if 0
+	int _render_gaussian_blur(int render_target_id)
 	{
 		if (_gaussian_blur_iterations == 0) return;
 		const int shader_hor_id = graphics::load_shader({}, "assets/shaders/gaussian_blur_hor.frag");
@@ -158,23 +163,25 @@ namespace postprocessing
 		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
 		textures::give_render_texture_to_pool(std::move(intermediate_texture));
 	}
+#endif
 
-	void render(std::unique_ptr<sf::RenderTexture>& texture)
+	int render(int render_target_id)
 	{
-		_render_shockwaves(texture);
-		_render_darkness(texture);
-		_render_screen_transition(texture);
-		_render_gaussian_blur(texture);
+		//render_target_id = _render_shockwaves(render_target_id);
+		//render_target_id = _render_darkness(render_target_id);
+		//render_target_id = _render_screen_transition(render_target_id);
+		//render_target_id = _render_gaussian_blur(render_target_id);
+		return render_target_id;
 	}
 
 	void set_pixel_scale(float scale) {
 		_pixel_scale = std::max(scale, 0.1f);
 	}
 
-	void create_shockwave(const sf::Vector2f& world_position)
+	void create_shockwave(const sf::Vector2f& position_ws)
 	{
 		Shockwave shockwave{};
-		shockwave.position_ws = world_position;
+		shockwave.position_ws = position_ws; // ws = world space
 		shockwave.force = 0.2f;
 		shockwave.size = 0.f;
 		shockwave.thickness = 0.f;

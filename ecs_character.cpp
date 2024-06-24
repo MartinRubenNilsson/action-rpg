@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ecs_character.h"
-#include "textures.h"
 #include "graphics.h"
 #include "random.h"
 
@@ -359,15 +358,14 @@ namespace ecs
 			break;
 		}
 
-		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
-		if (shader_id == -1) return -1;
-
 		const std::string base_dir = "assets/textures/character/";
 
-		std::unique_ptr<sf::RenderTexture> render_texture = textures::take_render_texture_from_pool({ 1024, 1024 });
-		render_texture->clear(sf::Color::Transparent);
-		render_texture->resetGLStates();
-		render_texture->setActive();
+		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
+		if (shader_id == -1) return -1;
+		const int render_target_id = graphics::acquire_pooled_render_target(1024, 1024);
+		if (render_target_id == -1) return -1;
+		graphics::bind_render_target(render_target_id);
+		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
 
 		graphics::set_modelview_matrix_to_identity();
 		graphics::set_projection_matrix_to_identity();
@@ -431,24 +429,11 @@ namespace ecs
 			graphics::bind_texture(1, lut1_texture_id);
 			graphics::bind_texture(2, lut2_texture_id);
 
-			graphics::Vertex vertices[4];
-			vertices[0].position = { -1.f, -1.f };
-			vertices[1].position = { -1.f, 1.f };
-			vertices[2].position = { 1.f, -1.f };
-			vertices[3].position = { 1.f, 1.f };
-			vertices[0].tex_coords = { 0.f, 1.f };
-			vertices[1].tex_coords = { 0.f, 0.f };
-			vertices[2].tex_coords = { 1.f, 1.f };
-			vertices[3].tex_coords = { 1.f, 0.f };
-
-			graphics::draw_triangle_strip(vertices, 4);
+			graphics::draw_triangle_strip(graphics::FULLSCREEN_QUAD_VERTICES, 4);
 		}
 
-		render_texture->display();
-		render_texture->resetGLStates();
-
-		int texture_id = graphics::copy_texture(render_texture->getTexture().getNativeHandle());
-		textures::give_render_texture_to_pool(std::move(render_texture));
+		const int texture_id = graphics::copy_texture(graphics::get_render_target_texture(render_target_id));
+		graphics::release_pooled_render_target(render_target_id);
 
 		return texture_id;
 	}

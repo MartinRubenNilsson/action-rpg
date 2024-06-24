@@ -50,8 +50,6 @@ namespace sprites
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
 		graphics::bind_texture(0, texture_id);
 		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
-		graphics::unbind_texture(0);
-		graphics::unbind_shader();
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;

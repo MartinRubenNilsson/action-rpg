@@ -5,7 +5,7 @@ namespace debug
 	const unsigned int MAX_POLYGON_VERTICES = 8;
 
 	void update(float dt);
-	void render(sf::RenderTarget& target);
+	void render(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
 
 	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color = sf::Color::White, float lifetime = 0.f);
 	void draw_box(const sf::Vector2f& min, const sf::Vector2f& max, const sf::Color& color = sf::Color::White, float lifetime = 0.f);

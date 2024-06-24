@@ -34,7 +34,7 @@ namespace ui
 	void add_event_listeners();
 	void process_window_event(const sf::Event& ev);
 	void update(float dt);
-	void render(sf::RenderTarget& target);
+	void render();
 
 	// Reloads all documents' style sheets from <style> tags
 	// and external style sheets, but not inline "style" attributes.

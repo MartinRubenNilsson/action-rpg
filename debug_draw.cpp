@@ -222,20 +222,18 @@ namespace debug
 		}
 	}
 
-	void render(sf::RenderTarget& target)
+	void render(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
-		const sf::Vector2f view_center = target.getView().getCenter();
-		const sf::Vector2f view_size = target.getView().getSize();
-		_last_calculated_view_bounds.min_x = view_center.x - view_size.x / 2.f;
-		_last_calculated_view_bounds.min_y = view_center.y - view_size.y / 2.f;
-		_last_calculated_view_bounds.max_x = view_center.x + view_size.x / 2.f;
-		_last_calculated_view_bounds.max_y = view_center.y + view_size.y / 2.f;
+		_last_calculated_view_bounds.min_x = camera_min.x;
+		_last_calculated_view_bounds.min_y = camera_min.y;
+		_last_calculated_view_bounds.max_x = camera_max.x;
+		_last_calculated_view_bounds.max_y = camera_max.y;
 		_render_lines();
 		_render_boxes();
 		_render_polygons();
 		_render_circles();
-		_render_texts(target);
-		target.resetGLStates();
+		//_render_texts(target);
+		//target.resetGLStates();
 	}
 
 	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)

@@ -29,6 +29,44 @@ void main()
 }
 )";
 
+	constexpr char _FULLSCREEN_VERTEX_SHADER_BYTECODE[] = R"(
+void main()
+{
+	const vec2 vertices[4] = vec2[4](
+		vec2(-1.0, -1.0),  // bottom-left
+		vec2( 1.0, -1.0),  // bottom-right
+		vec2(-1.0,  1.0),  // top-left
+		vec2( 1.0,  1.0)); // top-right
+	const vec2 tex_coords[4] = vec2[4](
+		vec2(0.0, 0.0),  // bottom-left
+		vec2(1.0, 0.0),  // bottom-right
+		vec2(0.0, 1.0),  // top-left
+		vec2(1.0, 1.0)); // top-right
+	gl_Position = vec4(vertices[gl_VertexID], 0.0, 1.0);
+	gl_TexCoord[0].xy = tex_coords[gl_VertexID];
+}
+)";
+
+	constexpr char _FULLSCREEN_FRAGMENT_SHADER_BYTECODE[] = R"(
+uniform sampler2D tex;
+
+void main()
+{
+	gl_FragColor = texture(tex, gl_TexCoord[0].xy);
+}
+)";
+
+	const Vertex FULLSCREEN_QUAD_VERTICES[4] =
+	{
+		{ { -1.f, -1.f }, sf::Color::White, { 0.f, 1.f } },
+		{ { -1.f,  1.f }, sf::Color::White, { 0.f, 0.f } },
+		{ {  1.f, -1.f }, sf::Color::White, { 1.f, 1.f } },
+		{ {  1.f,  1.f }, sf::Color::White, { 1.f, 0.f } },
+	};
+
+	int default_shader_id = -1;
+	int fullscreen_shader_id = -1;
+
 	struct Shader
 	{
 		std::string name; // unique name
@@ -41,19 +79,30 @@ void main()
 		std::string name; // unique name
 		unsigned int width = 0;
 		unsigned int height = 0;
+		unsigned int channels = 0;
 		unsigned int texture_object = 0;
+	};
+
+	struct RenderTarget
+	{
+		std::string name; // unique name
+		int texture_id = -1;
+		unsigned int framebuffer_object = 0;
 	};
 
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, int> _shader_name_to_id;
 	std::vector<Texture> _textures;
 	std::unordered_map<std::string, int> _texture_name_to_id;
+	std::vector<RenderTarget> _render_targets;
+	std::unordered_map<std::string, int> _render_target_name_to_id;
+	std::vector<int> _pooled_render_target_ids;
 
 	std::string _generate_unique_name(std::unordered_map<std::string, int> name_container, const std::string& name_hint)
 	{
 		std::string name = name_hint;
 		for (int i = 1; name_container.contains(name); i++) {
-			name = name_hint + std::to_string(i);
+			name = name_hint + " (" + std::to_string(i) + ")";
 		}
 		return name;
 	}
@@ -70,6 +119,13 @@ void main()
 		if (texture_id < 0 || texture_id >= (int)_textures.size())
 			return nullptr;
 		return &_textures[texture_id];
+	}
+
+	RenderTarget* _get_render_target(int render_texture_id)
+	{
+		if (render_texture_id < 0 || render_texture_id >= (int)_render_targets.size())
+			return nullptr;
+		return &_render_targets[render_texture_id];
 	}
 
 #ifdef _DEBUG
@@ -106,10 +162,14 @@ void main()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		create_shader( // Create default shader
+		default_shader_id = create_shader(
 			_DEFAULT_VERTEX_SHADER_BYTECODE,
 			_DEFAULT_FRAGMENT_SHADER_BYTECODE,
-			"Default Shader");
+			"default shader");
+		fullscreen_shader_id = create_shader(
+			_FULLSCREEN_VERTEX_SHADER_BYTECODE,
+			_FULLSCREEN_FRAGMENT_SHADER_BYTECODE,
+			"fullscreen shader");
 	}
 
 	void shutdown()
@@ -129,6 +189,14 @@ void main()
 		}
 		_textures.clear();
 		_texture_name_to_id.clear();
+
+		// DELETE RENDER TEXTURES
+
+		for (RenderTarget& render_texture : _render_targets) {
+			glDeleteFramebuffers(1, &render_texture.framebuffer_object);
+		}
+		_render_targets.clear();
+		_render_target_name_to_id.clear();
 	}
 
 	int create_shader(
@@ -389,6 +457,7 @@ void main()
 		texture.name = _generate_unique_name(_texture_name_to_id, name_hint);
 		texture.width = width;
 		texture.height = height;
+		texture.channels = channels;
 		texture.texture_object = texture_object;
 
 		_texture_name_to_id[texture.name] = texture_id;
@@ -422,31 +491,26 @@ void main()
 		return create_texture(width, height, channels, data, path);
 	}
 
-	int copy_texture(unsigned int texture_object)
+	int copy_texture(unsigned int texture_id)
 	{
-		glBindTexture(GL_TEXTURE_2D, texture_object);
-		int internal_format, width, height;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-		unsigned int copy_texture_object;
-		glGenTextures(1, &copy_texture_object);
-		glBindTexture(GL_TEXTURE_2D, copy_texture_object);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		const Texture* texture = _get_texture(texture_id);
+		if (!texture) return -1;
+
+		const int texture_copy_id = create_texture(
+			texture->width,
+			texture->height,
+			texture->channels,
+			nullptr,
+			texture->name + " (copy)");
+		const Texture* texture_copy = _get_texture(texture_copy_id);
+		if (!texture_copy) return -1;
+
 		glCopyImageSubData(
-			texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			copy_texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			width, height, 1);
+			texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			texture_copy->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			texture->width, texture->height, 1);
 
-		const int texture_id = (int)_textures.size();
-		Texture& texture = _textures.emplace_back();
-		texture.width = width;
-		texture.height = height;
-		texture.texture_object = copy_texture_object;
-
-		return texture_id;
+		return texture_copy_id;
 	}
 
 	void bind_texture(unsigned int texture_unit, int texture_id)
@@ -472,6 +536,99 @@ void main()
 			width = 0;
 			height = 0;
 		}
+	}
+
+	int create_render_target(unsigned int width, unsigned int height, std::string name_hint)
+	{
+		// CREATE TEXTURE
+
+		const int texture_id = create_texture(width, height, 4, nullptr, name_hint);
+		const Texture* texture = _get_texture(texture_id);
+		if (!texture) {
+			console::log_error("Failed to create render target: " + name_hint);
+			return -1;
+		}
+
+		// SAVE CURRENT FRAMEBUFFER OBJECT
+
+		int previously_bound_framebuffer_object;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previously_bound_framebuffer_object);
+
+		// CREATE FRAMEBUFFER OBJECT
+
+		unsigned int framebuffer_object;
+		glGenFramebuffers(1, &framebuffer_object);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->texture_object, 0);
+		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+		// RESTORE PREVIOUS FRAMEBUFFER OBJECT
+
+		glBindFramebuffer(GL_FRAMEBUFFER, previously_bound_framebuffer_object);
+
+		// CHECK COMPLETENESS
+
+		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE) {
+			console::log_error("Failed to create render target: " + name_hint);
+			glDeleteFramebuffers(1, &framebuffer_object);
+			//TODO: delete texture
+			return -1;
+		}
+
+		// STORE RENDER TARGET
+
+		const int render_target_id = (int)_render_targets.size();
+		RenderTarget& render_target = _render_targets.emplace_back();
+		render_target.name = _generate_unique_name(_render_target_name_to_id, name_hint);
+		render_target.texture_id = texture_id;
+		render_target.framebuffer_object = framebuffer_object;
+
+		_render_target_name_to_id[render_target.name] = render_target_id;
+
+		return render_target_id;
+	}
+
+	int acquire_pooled_render_target(unsigned int width, unsigned int height)
+	{
+		for (size_t i = 0; i < _pooled_render_target_ids.size(); ++i) {
+			const int render_target_id = _pooled_render_target_ids[i];
+			const RenderTarget* render_target = _get_render_target(render_target_id);
+			if (!render_target) continue;
+			const Texture* texture = _get_texture(render_target->texture_id);
+			if (!texture) continue;
+			if (texture->width != width) continue;
+			if (texture->height != height) continue;
+			std::swap(_pooled_render_target_ids[i], _pooled_render_target_ids.back());
+			_pooled_render_target_ids.pop_back();
+			return render_target_id;
+		}
+		return create_render_target(width, height, "pooled render target");
+	}
+
+	void release_pooled_render_target(int render_target_id)
+	{
+		_pooled_render_target_ids.push_back(render_target_id);
+	}
+
+	void bind_render_target(int render_target_id)
+	{
+		if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
+			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
+		}
+	}
+
+	void clear_render_target(float r, float g, float b, float a)
+	{
+		glClearColor(r, g, b, a);
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
+	int get_render_target_texture(int render_target_id)
+	{
+		if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
+			return render_target->texture_id;
+		}
+		return -1;
 	}
 
 	void set_viewport(int x, int y, int width, int height)
@@ -516,36 +673,57 @@ void main()
 	void draw_lines(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
 		glDrawArrays(GL_LINES, 0, vertex_count);
 	}
 
 	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
 		glDrawArrays(GL_LINE_STRIP, 0, vertex_count);
 	}
 
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
 		glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
+	}
+
+	void draw_triangle_strip(unsigned int vertex_count)
+	{
+		if (!vertex_count) return;
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coords);
+		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 }

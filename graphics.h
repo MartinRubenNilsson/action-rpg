@@ -8,8 +8,12 @@ namespace graphics
 	{
 		sf::Vector2f position;
 		sf::Color color;
-		sf::Vector2f tex_coords;
+		sf::Vector2f tex_coord;
 	};
+
+	extern const Vertex FULLSCREEN_QUAD_VERTICES[4];
+	extern int default_shader_id;
+	extern int fullscreen_shader_id;
 
 	void initialize();
 	void shutdown();
@@ -23,7 +27,7 @@ namespace graphics
 	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path);
 	void bind_shader(int shader_id);
 	void unbind_shader();
-	//You need to bind the shader before calling these functions!
+	// You need to bind the shader before set_shader_uniform_*().
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x);
 	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y);
 	void set_shader_uniform_3f(int shader_id, const std::string& name, float x, float y, float z);
@@ -36,14 +40,27 @@ namespace graphics
 	int create_texture(
 		unsigned int width,
 		unsigned int height,
-		unsigned int channels,
-		const unsigned char* data,
+		unsigned int channels = 4,
+		const unsigned char* data = nullptr, //pass nullptr to create an empty texture
 		std::string name_hint = "texture");
 	int load_texture(const std::string& path);
-	int copy_texture(unsigned int texture_object); //TODO: don't expose OpenGL objects like this
+	int copy_texture(unsigned int texture_id);
 	void bind_texture(unsigned int texture_unit, int texture_id);
 	void unbind_texture(unsigned int texture_unit);
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);
+
+	// RENDER TARGETS
+
+	int create_render_target(
+		unsigned int width,
+		unsigned int height,
+		std::string name_hint = "render target");
+	int acquire_pooled_render_target(unsigned int width, unsigned int height);
+	void release_pooled_render_target(int render_target_id);
+	void bind_render_target(int render_target_id);
+	// You need to bind the render target before calling clear_render_target().
+	void clear_render_target(float r, float g, float b, float a);
+	int get_render_target_texture(int render_target_id);
 
 	// FIXED-FUNCTION PIPELINE
 
@@ -59,5 +76,6 @@ namespace graphics
 	void draw_lines(const Vertex* vertices, unsigned int vertex_count);
 	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count);
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
+	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 }

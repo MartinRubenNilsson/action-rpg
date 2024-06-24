@@ -366,7 +366,6 @@
     <ClCompile Include="steam.cpp" />
     <ClCompile Include="steam_client.cpp" />
     <ClCompile Include="steam_server.cpp" />
-    <ClCompile Include="textures.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="easings.cpp" />
@@ -547,7 +546,6 @@
     <ClInclude Include="steam.h" />
     <ClInclude Include="steam_client.h" />
     <ClInclude Include="steam_server.h" />
-    <ClInclude Include="textures.h" />
     <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="easings.h" />
