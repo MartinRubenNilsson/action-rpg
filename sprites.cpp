@@ -55,7 +55,7 @@ namespace sprites
 		_batch_vertices = 0;
 	}
 
-	void new_render_frame()
+	void new_frame()
 	{
 		_sprites = 0;
 		_sprites_drawn = 0;

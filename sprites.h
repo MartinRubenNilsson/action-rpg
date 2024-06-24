@@ -59,11 +59,11 @@ namespace sprites
 	extern const unsigned int MAX_SPRITES_PER_BATCH;
 	extern bool enable_batching;
 
-	void new_render_frame();
+	void new_frame(); // resets statistics for the next frame
 	void add_sprite_to_render_queue(const Sprite& sprite);
 	void render(); // renders all sprites in the render queue and clears the queue
 
-	// STATISTICS FOR LAST RENDER FRAME
+	// FRAME STATISTICS
 
 	unsigned int get_sprites_drawn(); 
 	unsigned int get_batches_drawn();

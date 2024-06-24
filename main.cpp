@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 			break;
         }
 
-        sprites::new_render_frame();
+        sprites::new_frame();
 
         // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
 
