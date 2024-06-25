@@ -74,6 +74,7 @@ namespace graphics
 	void set_viewport(int x, int y, int width, int height);
 	void get_viewport(int& x, int& y, int& width, int& height);
 	void set_modelview_matrix_to_identity();
+	void set_modelview_matrix(const float matrix[16]);
 	void set_projection_matrix_to_identity();
 	void set_projection_matrix(const float matrix[16]);
 	void set_texture_matrix_to_identity();

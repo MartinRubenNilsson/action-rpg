@@ -667,6 +667,12 @@ void main()
 		glLoadIdentity();
 	}
 
+	void set_modelview_matrix(const float matrix[16])
+	{
+		glMatrixMode(GL_MODELVIEW);
+		glLoadMatrixf(matrix);
+	}
+
 	void set_projection_matrix_to_identity()
 	{
 		glMatrixMode(GL_PROJECTION);

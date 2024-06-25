@@ -206,11 +206,11 @@ namespace ui
 	{
 		_has_transform = transform;
 		if (!transform) {
-			glLoadIdentity();
-		} else if (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
-			glLoadMatrixf(transform->data());
-		} else if (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
-			glLoadMatrixf(transform->Transpose().data());
+			graphics::set_modelview_matrix_to_identity();
+		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
+			graphics::set_modelview_matrix(transform->data());
+		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
+			graphics::set_modelview_matrix(transform->Transpose().data());
 		}
 	}
 }
