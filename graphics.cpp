@@ -56,14 +56,6 @@ void main()
 }
 )";
 
-	const Vertex FULLSCREEN_QUAD_VERTICES[4] =
-	{
-		{ { -1.f, -1.f }, sf::Color::White, { 0.f, 1.f } },
-		{ { -1.f,  1.f }, sf::Color::White, { 0.f, 0.f } },
-		{ {  1.f, -1.f }, sf::Color::White, { 1.f, 1.f } },
-		{ {  1.f,  1.f }, sf::Color::White, { 1.f, 0.f } },
-	};
-
 	int default_shader_id = -1;
 	int fullscreen_shader_id = -1;
 

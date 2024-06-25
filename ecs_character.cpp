@@ -360,17 +360,21 @@ namespace ecs
 
 		const std::string base_dir = "assets/textures/character/";
 
-		const int shader_id = graphics::load_shader({}, "assets/shaders/bake_character.frag");
+		// Load shader
+		const int shader_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/bake_character.frag");
 		if (shader_id == -1) return -1;
+
+		// Aquire render target
 		const int render_target_id = graphics::acquire_pooled_render_target(1024, 1024);
 		if (render_target_id == -1) return -1;
+
+		int viewport[4];
+		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		graphics::set_viewport(0, 0, 1024, 1024);
+
 		graphics::bind_render_target(render_target_id);
 		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
-
-		graphics::set_modelview_matrix_to_identity();
-		graphics::set_projection_matrix_to_identity();
-		graphics::set_texture_matrix_to_identity();
-		graphics::set_viewport(0, 0, 1024, 1024);
 
 		graphics::bind_shader(shader_id);
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
@@ -429,11 +433,12 @@ namespace ecs
 			graphics::bind_texture(1, lut1_texture_id);
 			graphics::bind_texture(2, lut2_texture_id);
 
-			graphics::draw_triangle_strip(graphics::FULLSCREEN_QUAD_VERTICES, 4);
+			graphics::draw_triangle_strip(4);
 		}
 
 		const int texture_id = graphics::copy_texture(graphics::get_render_target_texture(render_target_id));
 		graphics::release_pooled_render_target(render_target_id);
+		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 		return texture_id;
 	}

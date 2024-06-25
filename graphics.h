@@ -17,7 +17,6 @@ namespace graphics
 		sf::Vector2f tex_coord;
 	};
 
-	extern const Vertex FULLSCREEN_QUAD_VERTICES[4];
 	extern int default_shader_id;
 	extern int fullscreen_shader_id;
 
