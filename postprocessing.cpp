@@ -40,18 +40,16 @@ namespace postprocessing
 		_update_shockwaves(dt);
 	}
 
-	sf::Vector2f _map_world_to_target(const sf::View& view, const sf::Vector2u& size, const sf::Vector2f& pos)
+	sf::Vector2f _map_world_to_screen(
+		const sf::Vector2f& pos_ws,
+		const sf::Vector2f& camera_min_ws,
+		const sf::Vector2f& camera_max_ws,
+		unsigned int screen_width,
+		unsigned int screen_height)
 	{
-		// Convert to normalized device coordinates
-		sf::Vector2f p = view.getTransform().transformPoint(pos);
-		// Convert to viewport coordinates
-		p.x = (p.x + 1.f) * 0.5f;
-		p.y = (1.f - p.y) * 0.5f;
-		// Convert to target coordinates
-		const sf::FloatRect& viewport = view.getViewport();
-		p.x = (viewport.left + p.x * viewport.width) * size.x;
-		p.y = (viewport.top + p.y * viewport.height) * size.y;
-		return p;
+		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * screen_width;
+		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * screen_height;
+		return sf::Vector2f(x, screen_height - y);
 	}
 
 #if 0
@@ -64,7 +62,7 @@ namespace postprocessing
 		const sf::Vector2u size = texture->getSize();
 		graphics::bind_shader(shader_id);
 		for (const Shockwave& shockwave : _shockwaves) {
-			const sf::Vector2f position_ts = _map_world_to_target(view, size, shockwave.position_ws);
+			const sf::Vector2f position_ts = _map_world_to_screen(view, size, shockwave.position_ws);
 			graphics::set_shader_uniform_2f(shader_id, "resolution", (float)size.x, (float)size.y);
 			graphics::set_shader_uniform_2f(shader_id, "center", position_ts.x, position_ts.y);
 			graphics::set_shader_uniform_1f(shader_id, "force", shockwave.force);
@@ -83,29 +81,38 @@ namespace postprocessing
 	}
 #endif
 
-#if 0
-	int _render_darkness(int render_target_id)
+	void _render_darkness(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
-		const int shader_id = graphics::load_shader({}, "assets/shaders/darkness.frag");
-		const sf::View view = texture->getView();
-		const sf::Vector2u size = texture->getSize();
-		const sf::Vector2f center_ts = _map_world_to_target(view, size, _darkness_center_ws);
+
+		// Load shader
+		const int shader_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/darkness.frag");
+		if (shader_id == -1) return;
+
+		// Get texture
+		const int texture_id = graphics::get_render_target_texture(render_target_id);
+		unsigned int width, height;
+		graphics::get_texture_size(texture_id, width, height);
+
+		// Aquire intermediate render target
+		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+
+		const sf::Vector2f center_ts = _map_world_to_screen(
+			_darkness_center_ws, camera_min, camera_max, width, height);
 		graphics::bind_shader(shader_id);
-		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)size.x, (float)size.y);
+		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
+		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)width, (float)height);
 		graphics::set_shader_uniform_2f(shader_id, "center", center_ts.x, center_ts.y);
 		graphics::set_shader_uniform_1f(shader_id, "intensity", _darkness_intensity);
-		std::unique_ptr<sf::RenderTexture> target_texture =
-			textures::take_render_texture_from_pool(size);
-		target_texture->setView(target_texture->getDefaultView());
-		target_texture->draw(sf::Sprite(texture->getTexture()));
-		target_texture->display();
-		graphics::unbind_shader();
-		textures::give_render_texture_to_pool(std::move(texture));
-		texture = std::move(target_texture);
-		texture->setView(view); // Restore view
+		graphics::bind_texture(0, texture_id);
+		graphics::bind_render_target(intermediate_render_target_id);
+		graphics::draw_triangle_strip(4);
+
+		// Cleanup
+		graphics::release_pooled_render_target(render_target_id);
+		render_target_id = intermediate_render_target_id;
 	}
-#endif
 
 	void _render_screen_transition(int& render_target_id)
 	{
@@ -189,10 +196,10 @@ namespace postprocessing
 		graphics::release_pooled_render_target(intermediate_render_target_id);
 	}
 
-	void render(int& render_target_id)
+	void render(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
 		//_render_shockwaves(render_target_id);
-		//_render_darkness(render_target_id);
+		_render_darkness(render_target_id, camera_min, camera_max);
 		_render_screen_transition(render_target_id);
 		_render_gaussian_blur(render_target_id);
 	}
