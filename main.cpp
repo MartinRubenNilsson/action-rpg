@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
         ecs::debug_draw();
-        render_target_id = postprocessing::render(render_target_id);
+        postprocessing::render(render_target_id);
         debug::render(camera_min, camera_max);
 
         // RENDER UI

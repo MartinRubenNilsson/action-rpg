@@ -107,36 +107,48 @@ namespace postprocessing
 	}
 #endif
 
-	int _render_screen_transition(int render_target_id)
+	void _render_screen_transition(int& render_target_id)
 	{
-		if (_screen_transition_progress == 0.f) return render_target_id;
-		const int shader_id = graphics::load_shader({}, "assets/shaders/screen_transition.frag");
-		if (shader_id == -1) return render_target_id;
+		if (_screen_transition_progress == 0.f) return;
+
+		// Load shader
+		const int shader_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/screen_transition.frag");
+		if (shader_id == -1) return;
+
+		// Get texture
 		const int texture_id = graphics::get_render_target_texture(render_target_id);
 		unsigned int width, height;
 		graphics::get_texture_size(texture_id, width, height);
-		const int new_render_target_id = graphics::acquire_pooled_render_target(width, height);
+
+		// Aquire intermediate render target
+		const int intermediate_render_target = graphics::acquire_pooled_render_target(width, height);
+
+		// Render screen transition
 		graphics::bind_shader(shader_id);
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
 		graphics::set_shader_uniform_1f(shader_id, "pixel_scale", _pixel_scale);
 		graphics::set_shader_uniform_1f(shader_id, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture_id);
-		graphics::bind_render_target(new_render_target_id);
-		graphics::draw_triangle_strip(graphics::FULLSCREEN_QUAD_VERTICES, 4);
-		return new_render_target_id;
+		graphics::bind_render_target(intermediate_render_target);
+		graphics::draw_triangle_strip(4);
+
+		// Cleanup
+		graphics::release_pooled_render_target(render_target_id);
+		render_target_id = intermediate_render_target;
 	}
 
-	int _render_gaussian_blur(int render_target_id)
+	void _render_gaussian_blur(int& render_target_id)
 	{
-		if (_gaussian_blur_iterations == 0) return render_target_id;
+		if (_gaussian_blur_iterations == 0) return;
 
 		// Load shaders
 		const int shader_hor_id = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_hor.frag");
-		if (shader_hor_id == -1) return render_target_id;
+		if (shader_hor_id == -1) return;
 		const int shader_ver_id = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_ver.frag");
-		if (shader_ver_id == -1) return render_target_id;
+		if (shader_ver_id == -1) return;
 
 		// Get texture
 		const int texture_id = graphics::get_render_target_texture(render_target_id);
@@ -175,17 +187,14 @@ namespace postprocessing
 		graphics::set_texture_filter(texture_id, graphics::TextureFilter::Nearest);
 		graphics::set_texture_filter(intermediate_texture_id, graphics::TextureFilter::Nearest);
 		graphics::release_pooled_render_target(intermediate_render_target_id);
-
-		return render_target_id;
 	}
 
-	int render(int render_target_id)
+	void render(int& render_target_id)
 	{
-		//render_target_id = _render_shockwaves(render_target_id);
-		//render_target_id = _render_darkness(render_target_id);
-		//render_target_id = _render_screen_transition(render_target_id);
-		render_target_id = _render_gaussian_blur(render_target_id);
-		return render_target_id;
+		//_render_shockwaves(render_target_id);
+		//_render_darkness(render_target_id);
+		_render_screen_transition(render_target_id);
+		_render_gaussian_blur(render_target_id);
 	}
 
 	void set_pixel_scale(float scale) {

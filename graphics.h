@@ -6,8 +6,8 @@ namespace graphics
 
 	enum class TextureFilter
 	{
-		Nearest,
-		Linear,
+		Nearest, // Sample nearest texel
+		Linear, // Linear interpolation between texels
 	};
 
 	struct Vertex

@@ -16,9 +16,7 @@ namespace postprocessing
 	extern const size_t MAX_GAUSSIAN_BLUR_ITERATIONS;
 
 	void update(float dt);
-	// Returns the ID of the render target that the final image was rendered to,
-	// which may or may not be equal to render_target_id.
-	int render(int render_target_id);
+	void render(int& render_target_id); // render_target_id may change
 
 	void set_pixel_scale(float scale);
 	void create_shockwave(const sf::Vector2f& position_ws); // ws = world space
