@@ -40,46 +40,59 @@ namespace postprocessing
 		_update_shockwaves(dt);
 	}
 
-	sf::Vector2f _map_world_to_screen(
+	sf::Vector2f _map_world_to_target(
 		const sf::Vector2f& pos_ws,
 		const sf::Vector2f& camera_min_ws,
 		const sf::Vector2f& camera_max_ws,
-		unsigned int screen_width,
-		unsigned int screen_height)
+		unsigned int target_width,
+		unsigned int target_height)
 	{
-		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * screen_width;
-		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * screen_height;
-		return sf::Vector2f(x, screen_height - y);
+		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * target_width;
+		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * target_height;
+		return sf::Vector2f(x, target_height - y);
 	}
 
-#if 0
-	int _render_shockwaves(int render_target_id)
+	void _render_shockwaves(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
-		const int shader_id = graphics::load_shader({}, "assets/shaders/shockwave.frag");
+
+		// Load shader
+		const int shader_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/shockwave.frag");
 		if (shader_id == -1) return;
-		const sf::View view = texture->getView();
-		const sf::Vector2u size = texture->getSize();
+
+		// Get texture
+		int texture_id = graphics::get_render_target_texture(render_target_id);
+		unsigned int width, height;
+		graphics::get_texture_size(texture_id, width, height);
+
+		// Bind some shader uniforms
 		graphics::bind_shader(shader_id);
+		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
+		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)width, (float)height);
+
 		for (const Shockwave& shockwave : _shockwaves) {
-			const sf::Vector2f position_ts = _map_world_to_screen(view, size, shockwave.position_ws);
-			graphics::set_shader_uniform_2f(shader_id, "resolution", (float)size.x, (float)size.y);
+
+			// Aquire intermediate render target
+			const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+
+			// Render shockwave
+			const sf::Vector2f position_ts = _map_world_to_target(
+				shockwave.position_ws, camera_min, camera_max, width, height);
 			graphics::set_shader_uniform_2f(shader_id, "center", position_ts.x, position_ts.y);
 			graphics::set_shader_uniform_1f(shader_id, "force", shockwave.force);
 			graphics::set_shader_uniform_1f(shader_id, "size", shockwave.size);
 			graphics::set_shader_uniform_1f(shader_id, "thickness", shockwave.thickness);
-			std::unique_ptr<sf::RenderTexture> target_texture =
-				textures::take_render_texture_from_pool(size);
-			target_texture->setView(target_texture->getDefaultView());
-			target_texture->draw(sf::Sprite(texture->getTexture()));
-			target_texture->display();
-			textures::give_render_texture_to_pool(std::move(texture));
-			texture = std::move(target_texture);
+			graphics::bind_texture(0, texture_id);
+			graphics::bind_render_target(intermediate_render_target_id);
+			graphics::draw_triangle_strip(4);
+
+			// Interchange render targets
+			graphics::release_pooled_render_target(render_target_id);
+			render_target_id = intermediate_render_target_id;
+			texture_id = graphics::get_render_target_texture(render_target_id);
 		}
-		graphics::unbind_shader();
-		texture->setView(view);
 	}
-#endif
 
 	void _render_darkness(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
@@ -98,7 +111,7 @@ namespace postprocessing
 		// Aquire intermediate render target
 		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
 
-		const sf::Vector2f center_ts = _map_world_to_screen(
+		const sf::Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
 		graphics::bind_shader(shader_id);
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
@@ -198,7 +211,7 @@ namespace postprocessing
 
 	void render(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
-		//_render_shockwaves(render_target_id);
+		_render_shockwaves(render_target_id, camera_min, camera_max);
 		_render_darkness(render_target_id, camera_min, camera_max);
 		_render_screen_transition(render_target_id);
 		_render_gaussian_blur(render_target_id);

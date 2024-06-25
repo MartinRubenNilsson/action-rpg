@@ -6,7 +6,7 @@ uniform float size;
 uniform float thickness;
 
 vec2 map_target_to_texture(vec2 pos) {
-    return vec2(pos.x / resolution.x, 1.0 - pos.y / resolution.y);
+    return vec2(pos.x / resolution.x, pos.y / resolution.y);
 }
 
 void main() {
