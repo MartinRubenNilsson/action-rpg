@@ -1,43 +1,8 @@
 #include "stdafx.h"
 #include "ui_rmlui_interfaces.h"
-#include <RmlUi/Core/Core.h>
-#include <RmlUi/Core/Platform.h>
+#include <glad/glad.h>
 #include "window.h"
 #include "graphics.h"
-
-#if defined RMLUI_PLATFORM_WIN32
-	#ifndef RMLUI_DISABLE_INCLUDE_WINDOWS
-		#if !defined _WIN32_WINNT || _WIN32_WINNT < 0x0601
-			#undef _WIN32_WINNT
-			// Target Windows 7
-			#define _WIN32_WINNT 0x0601
-		#endif
-		#ifndef UNICODE
-			#define UNICODE
-		#endif
-		#ifndef _UNICODE
-			#define _UNICODE
-		#endif
-		#define WIN32_LEAN_AND_MEAN
-		#ifndef NOMINMAX
-			#define NOMINMAX
-		#endif
-		#include <windows.h>
-	#endif
-	#include <gl/Gl.h>
-	#include <gl/Glu.h>
-#elif defined RMLUI_PLATFORM_MACOSX
-	#include <AGL/agl.h>
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glext.h>
-	#include <OpenGL/glu.h>
-#elif defined RMLUI_PLATFORM_UNIX
-	#include "RmlUi_Include_Xlib.h"
-	#include <GL/gl.h>
-	#include <GL/glext.h>
-	#include <GL/glu.h>
-	#include <GL/glx.h>
-#endif
 
 namespace ui
 {
