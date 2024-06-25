@@ -201,6 +201,7 @@ int main(int argc, char* argv[])
         graphics::set_projection_matrix(view.getTransform().getMatrix());
         graphics::set_texture_matrix_to_identity();
         graphics::set_viewport(0, 0, window_size.x, window_size.y);
+
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
         ecs::debug_draw();
@@ -211,18 +212,9 @@ int main(int argc, char* argv[])
 
         window.resetGLStates();
         ui::render();
-
-        // RENDER CURSOR
-
-        window.setActive();
-        window.clear(sf::Color::Black);
         window.resetGLStates();
 
-#if 0
-        graphics::set_modelview_matrix_to_identity();
-        graphics::set_projection_matrix(window.getView().getTransform().getMatrix());
-        graphics::set_texture_matrix_to_identity();
-        graphics::set_viewport(0, 0, window_size.x, window_size.y);
+        // RENDER CURSOR
 
         bool show_built_in_cursor = ImGui::GetIO().WantCaptureMouse;
         window.setMouseCursorVisible(show_built_in_cursor);
@@ -230,8 +222,12 @@ int main(int argc, char* argv[])
         cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
         cursor::set_scale((float)window::get_state().scale);
         cursor::render_sprite();
+
+        // RENDER TO WINDOW
+
+        window.setActive();
+        window.clear(sf::Color::Black);
         window.resetGLStates();
-#endif
 
         graphics::bind_shader(graphics::fullscreen_shader_id);
         graphics::set_shader_uniform_1i(graphics::fullscreen_shader_id, "tex", 0);
