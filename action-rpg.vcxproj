@@ -390,6 +390,7 @@
     <None Include="bake_character.frag" />
     <None Include="checkerboard.frag" />
     <None Include="darkness.frag" />
+    <None Include="fullscreen.vert" />
     <None Include="gaussian_blur_hor.frag" />
     <None Include="gaussian_blur_ver.frag" />
     <None Include="grass.frag" />

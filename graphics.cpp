@@ -81,6 +81,7 @@ void main()
 		unsigned int height = 0;
 		unsigned int channels = 0;
 		unsigned int texture_object = 0;
+		TextureFilter filter = TextureFilter::Nearest;
 	};
 
 	struct RenderTarget
@@ -149,6 +150,7 @@ void main()
 		// but then it doesn't run when only debugging and not recompiling,
 		// which is annoying when you've changed a shader but not the code,
 		// because then the new shader doesn't get copied.
+		system("copy /Y ..\\*.vert .\\assets\\shaders\\");
 		system("copy /Y ..\\*.frag .\\assets\\shaders\\");
 #endif
 		if (!gladLoadGL()) {
@@ -459,6 +461,7 @@ void main()
 		texture.height = height;
 		texture.channels = channels;
 		texture.texture_object = texture_object;
+		texture.filter = TextureFilter::Nearest;
 
 		_texture_name_to_id[texture.name] = texture_id;
 
@@ -536,6 +539,25 @@ void main()
 			width = 0;
 			height = 0;
 		}
+	}
+
+	void set_texture_filter(int texture_id, TextureFilter filter)
+	{
+		Texture* texture = _get_texture(texture_id);
+		if (!texture) return;
+		if (texture->filter == filter) return;
+		texture->filter = filter;
+		const GLint gl_filter = (filter == TextureFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
+		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
+	}
+
+	TextureFilter get_texture_filter(int texture_id)
+	{
+		const Texture* texture = _get_texture(texture_id);
+		if (!texture) return TextureFilter::Nearest;
+		return texture->filter;
 	}
 
 	int create_render_target(unsigned int width, unsigned int height, std::string name_hint)

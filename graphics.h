@@ -4,6 +4,12 @@ namespace graphics
 {
 	// Functions that return an integer ID return -1 on failure.
 
+	enum class TextureFilter
+	{
+		Nearest,
+		Linear,
+	};
+
 	struct Vertex
 	{
 		sf::Vector2f position;
@@ -48,6 +54,8 @@ namespace graphics
 	void bind_texture(unsigned int texture_unit, int texture_id);
 	void unbind_texture(unsigned int texture_unit);
 	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);
+	void set_texture_filter(int texture_id, TextureFilter filter);
+	TextureFilter get_texture_filter(int texture_id);
 
 	// RENDER TARGETS
 

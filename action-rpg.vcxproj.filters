@@ -318,6 +318,9 @@
     <None Include="screen_transition.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="fullscreen.vert">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />

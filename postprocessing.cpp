@@ -126,51 +126,65 @@ namespace postprocessing
 		return new_render_target_id;
 	}
 
-#if 0
 	int _render_gaussian_blur(int render_target_id)
 	{
-		if (_gaussian_blur_iterations == 0) return;
-		const int shader_hor_id = graphics::load_shader({}, "assets/shaders/gaussian_blur_hor.frag");
-		if (shader_hor_id == -1) return;
-		const int shader_ver_id = graphics::load_shader({}, "assets/shaders/gaussian_blur_ver.frag");
-		if (shader_ver_id == -1) return;
-		const sf::Vector2 size = texture->getSize();
-		std::unique_ptr<sf::RenderTexture> intermediate_texture =
-			textures::take_render_texture_from_pool(size);
+		if (_gaussian_blur_iterations == 0) return render_target_id;
+
+		// Load shaders
+		const int shader_hor_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_hor.frag");
+		if (shader_hor_id == -1) return render_target_id;
+		const int shader_ver_id = graphics::load_shader(
+			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_ver.frag");
+		if (shader_ver_id == -1) return render_target_id;
+
+		// Get texture
+		const int texture_id = graphics::get_render_target_texture(render_target_id);
+		unsigned int width, height;
+		graphics::get_texture_size(texture_id, width, height);
+
+		// Aquire intermediate render target
+		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+		const int intermediate_texture_id = graphics::get_render_target_texture(intermediate_render_target_id);
+
 		// Set linear filtering
-		const bool texture_was_smooth = texture->getTexture().isSmooth();
-		const bool intermediate_texture_was_smooth = intermediate_texture->getTexture().isSmooth();
-		texture->setSmooth(true);
-		intermediate_texture->setSmooth(true);
+		graphics::set_texture_filter(texture_id, graphics::TextureFilter::Linear);
+		graphics::set_texture_filter(intermediate_texture_id, graphics::TextureFilter::Linear);
+
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
+
 			// Horizontal pass
 			graphics::bind_shader(shader_hor_id);
-			graphics::set_shader_uniform_2f(shader_hor_id, "tex_size", (float)size.x, (float)size.y);
-			intermediate_texture->setView(intermediate_texture->getDefaultView());
-			intermediate_texture->draw(sf::Sprite(texture->getTexture()));
-			intermediate_texture->display();
+			graphics::set_shader_uniform_1i(shader_hor_id, "tex", 0);
+			graphics::set_shader_uniform_2f(shader_hor_id, "tex_size", (float)width, (float)height);
+			graphics::bind_texture(0, texture_id);
+			graphics::bind_render_target(intermediate_render_target_id);
+			graphics::draw_triangle_strip(4);
+
 			// Vertical pass
 			graphics::bind_shader(shader_ver_id);
-			graphics::set_shader_uniform_2f(shader_ver_id, "tex_size", (float)size.x, (float)size.y);
-			texture->setView(texture->getDefaultView());
-			texture->draw(sf::Sprite(intermediate_texture->getTexture()));
-			texture->display();
+			graphics::set_shader_uniform_1i(shader_ver_id, "tex", 0);
+			graphics::set_shader_uniform_2f(shader_ver_id, "tex_size", (float)width, (float)height);
+			graphics::bind_texture(0, intermediate_texture_id);
+			graphics::bind_render_target(render_target_id);
+			graphics::draw_triangle_strip(4);
 		}
+
 		// Cleanup
-		graphics::unbind_shader();
-		texture->setSmooth(texture_was_smooth);
-		intermediate_texture->setSmooth(intermediate_texture_was_smooth);
-		textures::give_render_texture_to_pool(std::move(intermediate_texture));
+		graphics::set_texture_filter(texture_id, graphics::TextureFilter::Nearest);
+		graphics::set_texture_filter(intermediate_texture_id, graphics::TextureFilter::Nearest);
+		graphics::release_pooled_render_target(intermediate_render_target_id);
+
+		return render_target_id;
 	}
-#endif
 
 	int render(int render_target_id)
 	{
 		//render_target_id = _render_shockwaves(render_target_id);
 		//render_target_id = _render_darkness(render_target_id);
 		//render_target_id = _render_screen_transition(render_target_id);
-		//render_target_id = _render_gaussian_blur(render_target_id);
+		render_target_id = _render_gaussian_blur(render_target_id);
 		return render_target_id;
 	}
 

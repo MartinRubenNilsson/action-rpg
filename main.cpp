@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
         // RENDER BACKGROUND, ECS, DEBUG DRAW, POSTPROCESS
 
         const sf::Vector2u window_size = window.getSize();
-#if 1
+
         int render_target_id = graphics::acquire_pooled_render_target(window_size.x, window_size.y);
         graphics::bind_render_target(render_target_id);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
@@ -204,8 +204,8 @@ int main(int argc, char* argv[])
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
         ecs::debug_draw();
+        render_target_id = postprocessing::render(render_target_id);
         debug::render(camera_min, camera_max);
-#endif
 
         // RENDER UI
 
@@ -213,7 +213,6 @@ int main(int argc, char* argv[])
         ui::render();
 
         // RENDER CURSOR
-
 
         window.setActive();
         window.clear(sf::Color::Black);
