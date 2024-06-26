@@ -72,7 +72,7 @@ namespace ui
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
 			glEnable(GL_TEXTURE_2D);
-			sf::Texture::bind((sf::Texture*)texture);
+			graphics::bind_texture(0, (int)texture - 1);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
@@ -141,30 +141,28 @@ namespace ui
 
 	bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source)
 	{
-		sf::Texture* texture = new sf::Texture();
-		if (!texture->loadFromFile(source)) {
-			delete texture;
-			return false;
-		}
-		texture_handle = (Rml::TextureHandle)texture;
-		texture_dimensions = Rml::Vector2i(texture->getSize().x, texture->getSize().y);
+		const int texture_id = graphics::load_texture(source);
+		if (texture_id == -1) return false;
+		unsigned int width, height;
+		graphics::get_texture_size(texture_id, width, height);
+		texture_handle = (Rml::TextureHandle)(texture_id + 1);
+		texture_dimensions.x = width;
+		texture_dimensions.y = height;
 		return true;
 	}
 
 	bool RmlUiRenderInterface::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions)
 	{
-		sf::Texture* texture = new sf::Texture();
-		if (!texture->create(source_dimensions.x, source_dimensions.y)) {
-			delete texture;
-			return false;
-		}
-		texture->update(source, source_dimensions.x, source_dimensions.y, 0, 0);
-		texture_handle = (Rml::TextureHandle)texture;
+		const int texture_id = graphics::create_texture(
+			source_dimensions.x, source_dimensions.y, 4, source, "rmlui texture");
+		if (texture_id == -1) return false;
+		texture_handle = (Rml::TextureHandle)(texture_id + 1);
 		return true;
 	}
 
 	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle) {
-		delete (sf::Texture*)texture_handle;
+		//TODO: implement
+		//LEAK!!!!!!
 	}
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)

@@ -16,7 +16,6 @@
 #include "ui_textbox.h"
 #include "random.h"
 #include "ecs_character.h"
-#include "debug_draw.h"
 #include "map_tilegrid.h"
 #include "postprocessing.h"
 
@@ -419,11 +418,11 @@ namespace ecs
 			if (ImGui::Button("Give 5 Rupees"))
 				player.rupees += 5;
 
-			//if (ImGui::Button("Randomize Appearance")) {
-			//	Character character{};
-			//	character.randomize();
-			//	tile.texture = character.bake_texture();
-			//}
+			if (ImGui::Button("Randomize Appearance")) {
+				Character character{};
+				randomize_character(character);
+				tile.texture_id = create_character_texture(character); // LEAK
+			}
 
 			ImGui::Spacing(); //did this even do anything??
 			ImGui::TreePop();

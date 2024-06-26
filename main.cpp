@@ -30,34 +30,30 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     steam::initialize(); // Fails silently if Steam is not running.
 
-    // INITIALIZATION PASS 1
-
     sf::RenderWindow window;
     window::initialize(window); // Does not call sf::RenderWindow::create().
     audio::initialize();
     ui::initialize();
     ecs::initialize();
 
-    // LOAD ASSETS
-
     audio::load_bank_files("assets/audio/banks");
-    tiled::load_assets("assets/tiled");
-    ui::load_ttf_fonts("assets/fonts");
-    ui::load_rml_documents("assets/ui");
 
-    // INITIALIZATION PASS 2
     {
         // Settings::set() affects window and audio, so these must be initialized first.
         Settings settings{};
         if (settings.load()) settings.set();
         else window::set_state(window::State());
     }
-    ui::add_event_listeners(); // Must come after loading RML documents.
     ImGui::SFML::Init(window, false); // Window must be created first.
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
     ImGui::SFML::UpdateFontTexture();
     console::initialize(); // Must come after ImGui::SFML::Init.
     graphics::initialize();
+
+    tiled::load_assets("assets/tiled");
+    ui::load_ttf_fonts("assets/fonts");
+    ui::load_rml_documents("assets/ui");
+    ui::add_event_listeners(); // Must come after loading RML documents.
 
     // PREPARE FOR GAME LOOP
 
