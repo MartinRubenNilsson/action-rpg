@@ -19,7 +19,6 @@ namespace ecs
 	{
 		assert(tile);
 		_set_tile(tile);
-		texture_id = graphics::load_texture(tile->tileset->image_path);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
 			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
@@ -37,10 +36,14 @@ namespace ecs
 		_animation_frame = 0;
 		set_flag(TF_FRAME_CHANGED, false);
 		set_flag(TF_LOOPED, false);
-		for (const tiled::Frame& frame : _tile->animation)
+		for (const tiled::Frame& frame : _tile->animation) {
 			_animation_duration_ms += frame.duration;
+		}
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
+		if (texture_id == -1) {
+			texture_id = graphics::load_texture(tile->tileset->image_path);
+		}
 		return true;
 	}
 
