@@ -148,7 +148,7 @@ namespace console
 		if (!_visible) return;
 
 		ImVec2 size = ImGui::GetIO().DisplaySize;
-		size.x *= 0.5f;
+		size.x *= 0.75f;
 		size.y *= 0.5f;
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::SetNextWindowSize(size);
