@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include <imgui-SFML.h>
 #include "steam.h"
-#include "debug_draw.h"
 #include "window.h"
 #include "audio.h"
-#include "fonts.h"
 #include "ui.h"
 #include "ui_menus.h"
 #include "map.h"
@@ -15,8 +13,9 @@
 #include "postprocessing.h"
 #include "settings.h"
 #include "cursor.h"
-#include "sprites.h"
 #include "graphics.h"
+#include "shapes.h"
+#include "sprites.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -41,7 +40,6 @@ int main(int argc, char* argv[])
 
     // LOAD ASSETS
 
-    fonts::load_assets("assets/fonts");
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
@@ -164,7 +162,7 @@ int main(int argc, char* argv[])
 		if (map::get_transition_progress() != 0.f)
 			game_world_dt = 0.f;
         ecs::update(game_world_dt);
-        debug::update(game_world_dt);
+        shapes::update_lifetimes(game_world_dt);
 
         // UPDATE POSTPROCESSING
 
@@ -204,9 +202,9 @@ int main(int argc, char* argv[])
 
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
-        ecs::debug_draw();
+        ecs::add_debug_shapes_to_render_queue();
         postprocessing::render(render_target_id, camera_min, camera_max);
-        debug::render(camera_min, camera_max);
+        shapes::render(camera_min, camera_max);
 
         // RENDER UI
 
@@ -280,7 +278,6 @@ int main(int argc, char* argv[])
     audio::shutdown();
     ImGui::SFML::Shutdown();
     tiled::unload_assets();
-    fonts::unload_assets();
     graphics::shutdown();
     steam::shutdown();
 

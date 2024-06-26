@@ -216,9 +216,6 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="settings.cpp" />
-    <ClCompile Include="fonts.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_vfx.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -249,7 +246,7 @@
     <ClCompile Include="console_commands_misc.cpp">
       <Filter>console</Filter>
     </ClCompile>
-    <ClCompile Include="debug_draw.cpp">
+    <ClCompile Include="shapes.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="steam_server.cpp">
@@ -549,9 +546,6 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="settings.h" />
-    <ClInclude Include="fonts.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ecs_vfx.h">
       <Filter>ecs</Filter>
     </ClInclude>
@@ -748,7 +742,7 @@
     <ClInclude Include="console_commands.h">
       <Filter>console</Filter>
     </ClInclude>
-    <ClInclude Include="debug_draw.h">
+    <ClInclude Include="shapes.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="steam_server.h">

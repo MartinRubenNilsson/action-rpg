@@ -12,7 +12,7 @@
 #include "ecs_portal.h"
 #include "console.h"
 #include "sprites.h"
-#include "debug_draw.h"
+#include "shapes.h"
 #include "graphics.h"
 
 namespace ecs
@@ -70,11 +70,11 @@ namespace ecs
 			std::string entity_string = std::to_string((entt::id_type)entity);
 			sf::Vector2f position = vector_cast<sf::Vector2f>(body->GetWorldCenter());
 			position.y -= 16.f;
-			debug::draw_text(entity_string, position);
+			//shapes::draw_text(entity_string, position);
 		}
 	}
 
-	void debug_draw()
+	void add_debug_shapes_to_render_queue()
 	{
 		if (debug_flags & DEBUG_ENTITIES)
 			_debug_draw_entities();

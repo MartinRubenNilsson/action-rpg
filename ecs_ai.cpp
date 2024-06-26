@@ -6,7 +6,7 @@
 #include "physics_helpers.h"
 #include "map_tilegrid.h"
 #include "random.h"
-#include "debug_draw.h"
+#include "shapes.h"
 
 namespace ecs
 {
@@ -80,7 +80,7 @@ namespace ecs
             {
                 std::string text_string = to_string(action.type);
                 sf::Vector2f text_position = knowledge.me.position + sf::Vector2f(0.f, -10.f);
-                debug::draw_text(text_string, text_position);
+                //shapes::draw_text(text_string, text_position);
             }
 
             // DRAW ACTION PATH
@@ -93,7 +93,7 @@ namespace ecs
                     p1.y += paths_drawn * 2.f;
                     p2.x += paths_drawn * 2.f;
                     p2.y += paths_drawn * 2.f;
-                    debug::draw_line(p1, p2, color);
+                    shapes::add_line_to_render_queue(p1, p2, color);
                 }
                 ++paths_drawn;
             }

@@ -1,9 +1,8 @@
 #include "stdafx.h"
-#include "debug_draw.h"
+#include "shapes.h"
 #include "graphics.h"
-#include "fonts.h"
 
-namespace debug
+namespace shapes
 {
 #ifdef _DEBUG
 	struct ViewBounds
@@ -105,7 +104,7 @@ namespace debug
 	}
 
 	template <typename T>
-	void _update(std::vector<T>& vec, float dt)
+	void _update_lifetimes(std::vector<T>& vec, float dt)
 	{
 		size_t size = vec.size();
 		for (size_t i = size; i--;) {
@@ -121,13 +120,13 @@ namespace debug
 		vec.resize(size);
 	}
 
-	void update(float dt)
+	void update_lifetimes(float dt)
 	{
-		_update(_lines, dt);
-		_update(_boxes, dt);
-		_update(_polygons, dt);
-		_update(_circles, dt);
-		_update(_texts, dt);
+		_update_lifetimes(_lines, dt);
+		_update_lifetimes(_boxes, dt);
+		_update_lifetimes(_polygons, dt);
+		_update_lifetimes(_circles, dt);
+		_update_lifetimes(_texts, dt);
 	}
 
 	void _render_lines()
@@ -235,23 +234,21 @@ namespace debug
 		_render_boxes();
 		_render_polygons();
 		_render_circles();
-		//_render_texts(target);
-		//target.resetGLStates();
 	}
 
-	void draw_line(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
+	void add_line_to_render_queue(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, p1, p2)) return;
 		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void draw_box(const sf::Vector2f& min, const sf::Vector2f& max, const sf::Color& color, float lifetime)
+	void add_box_to_render_queue(const sf::Vector2f& min, const sf::Vector2f& max, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_box(_last_calculated_view_bounds, min, max)) return;
 		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
-	void draw_polygon(const sf::Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
+	void add_polygon_to_render_queue(const sf::Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
 	{
 		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
@@ -263,7 +260,7 @@ namespace debug
 		polygon.lifetime = lifetime;
 	}
 
-	void draw_circle(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
+	void add_circle_to_render_queue(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
 		_circles.emplace_back(center, radius, color, lifetime);

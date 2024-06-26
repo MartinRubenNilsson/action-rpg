@@ -3,7 +3,7 @@
 #include "ecs_physics_contacts.h"
 #include "ecs_physics_filters.h"
 #include "physics_helpers.h"
-#include "debug_draw.h"
+#include "shapes.h"
 
 namespace ecs
 {
@@ -37,19 +37,19 @@ namespace ecs
 	struct PhysicsDebugDrawer : b2Draw
 	{
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
+			shapes::add_polygon_to_render_queue((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			debug::draw_polygon((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
+			shapes::add_polygon_to_render_queue((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {
-			debug::draw_circle(_to_sf(center), radius, _to_sf(color));
+			shapes::add_circle_to_render_queue(_to_sf(center), radius, _to_sf(color));
 		}
 		void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override {
-			debug::draw_circle(_to_sf(center), radius, _to_sf(color));
+			shapes::add_circle_to_render_queue(_to_sf(center), radius, _to_sf(color));
 		}
 		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {
-			debug::draw_line(_to_sf(p1), _to_sf(p2), _to_sf(color));
+			shapes::add_line_to_render_queue(_to_sf(p1), _to_sf(p2), _to_sf(color));
 		}
 		void DrawTransform(const b2Transform& xf) override {}
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
