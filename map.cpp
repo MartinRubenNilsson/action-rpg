@@ -19,6 +19,7 @@ namespace map
 
 	void _debug(float dt)
 	{
+#ifdef BUILD_IMGUI
 		ImGui::Begin("Maps");
 		if (ImGui::BeginCombo("Map", _current_map_name.c_str())) {
 			for (const tiled::Map& map : tiled::get_maps()) {
@@ -34,6 +35,7 @@ namespace map
 		if (ImGui::Button("Reset")) reset();
 		ImGui::Value("Transition Progress", _transition_progress);
 		ImGui::End();
+#endif
 	}
 
 	void update(float dt)

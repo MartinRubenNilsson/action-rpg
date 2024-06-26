@@ -386,8 +386,9 @@ namespace ecs
 		_input_flags_to_disable = 0;
 	}
 
-	void debug_draw_players()
+	void debug_players()
 	{
+#ifdef BUILD_IMGUI
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
@@ -429,6 +430,7 @@ namespace ecs
 		}
 
 		ImGui::End();
+#endif
 	}
 
 	entt::entity find_player_entity() {

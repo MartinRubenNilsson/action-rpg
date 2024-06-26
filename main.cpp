@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <imgui-SFML.h>
 #include "steam.h"
 #include "window.h"
 #include "audio.h"
@@ -44,9 +43,13 @@ int main(int argc, char* argv[])
         if (settings.load()) settings.set();
         else window::set_state(window::State());
     }
+
+#ifdef BUILD_IMGUI
     ImGui::SFML::Init(window, false); // Window must be created first.
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
     ImGui::SFML::UpdateFontTexture();
+#endif
+
     console::initialize(); // Must come after ImGui::SFML::Init.
     graphics::initialize();
 
@@ -102,9 +105,11 @@ int main(int argc, char* argv[])
                         map::debug = !map::debug;
 #endif
                 }
+#ifdef BUILD_IMGUI
                 ImGui::SFML::ProcessEvent(window, ev);
                 if (ev.type == sf::Event::KeyPressed && ImGui::GetIO().WantCaptureKeyboard)
                     continue;
+#endif
                 console::process_event(ev);
                 ui::process_window_event(ev);
                 if (!ui::is_menu_or_textbox_visible())
@@ -138,7 +143,9 @@ int main(int argc, char* argv[])
         // UPDATE
 
         sf::Time dt = clock.restart();
+#ifdef BUILD_IMGUI
         ImGui::SFML::Update(window, dt); // Always call this first!
+#endif
 
         audio::update();
 
@@ -210,7 +217,10 @@ int main(int argc, char* argv[])
 
         // RENDER CURSOR
 
-        bool show_built_in_cursor = ImGui::GetIO().WantCaptureMouse;
+        bool show_built_in_cursor = false;
+#ifdef BUILD_IMGUI
+        ImGui::GetIO().WantCaptureMouse;
+#endif
         window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
         cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
@@ -244,6 +254,7 @@ int main(int argc, char* argv[])
             buffer_offset = (buffer_offset + 1) % 256;
             smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
             smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
+#ifdef BUILD_IMGUI
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];
@@ -256,13 +267,12 @@ int main(int argc, char* argv[])
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
+#endif
         }
 
-        // RENDER IMGUI
-
+#ifdef BUILD_IMGUI
         ImGui::SFML::Render(window);
-
-        // DISPLAY
+#endif
 
         window.display();
     }
@@ -272,7 +282,9 @@ int main(int argc, char* argv[])
     ecs::shutdown();
     ui::shutdown();
     audio::shutdown();
+#ifdef BUILD_IMGUI
     ImGui::SFML::Shutdown();
+#endif
     tiled::unload_assets();
     graphics::shutdown();
     steam::shutdown();

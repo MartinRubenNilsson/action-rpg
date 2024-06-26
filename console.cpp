@@ -4,9 +4,9 @@
 
 namespace console
 {
-	const ImColor _COLOR_COMMAND = IM_COL32(230, 230, 230, 255);
-	const ImColor _COLOR_LOG = IM_COL32(252, 191, 73, 255);
-	const ImColor _COLOR_LOG_ERROR = IM_COL32(220, 50, 47, 255);
+	const sf::Color _COLOR_COMMAND = sf::Color(230, 230, 230, 255);
+	const sf::Color _COLOR_LOG = sf::Color(252, 191, 73, 255);
+	const sf::Color _COLOR_LOG_ERROR = sf::Color(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
 
 	bool _visible = false;
@@ -19,9 +19,10 @@ namespace console
 	std::deque<std::string> _command_queue;
 	std::deque<std::string> _command_history;
 	std::deque<std::string>::iterator _command_history_it = _command_history.end();
-	std::deque<std::pair<std::string, ImColor>> _history;
+	std::deque<std::pair<std::string, sf::Color>> _history;
 	std::unordered_map<sf::Keyboard::Key, std::string> _key_bindings;
 
+#ifdef BUILD_IMGUI
 	int _input_text_callback(ImGuiInputTextCallbackData* data)
 	{
 		// COMPLETE COMMANDS
@@ -61,6 +62,7 @@ namespace console
 
 		return 0;
 	}
+#endif
 
 	void initialize()
 	{
@@ -73,6 +75,7 @@ namespace console
 
 		register_commands();
 
+#ifdef BUILD_IMGUI
 		// SETUP IMGUI STYLE
 		{
 			// https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
@@ -115,6 +118,7 @@ namespace console
 			style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
 			style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 		}
+#endif
 	}
 
 	void update(float dt)
@@ -147,6 +151,7 @@ namespace console
 
 		if (!_visible) return;
 
+#ifdef BUILD_IMGUI
 		ImVec2 size = ImGui::GetIO().DisplaySize;
 		size.x *= 0.75f;
 		size.y *= 0.5f;
@@ -173,7 +178,7 @@ namespace console
 					ImGuiWindowFlags_HorizontalScrollbar)) {
 					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
 					for (const auto& [line, color] : _history)
-						ImGui::TextColored(color, line.c_str());
+						ImGui::TextColored(ImColor(color.r, color.g, color.b, color.a), line.c_str());
 					ImGui::PopStyleVar();
 					if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
 						ImGui::SetScrollHereY(1.0f); // Scroll to bottom
@@ -210,6 +215,7 @@ namespace console
 			_has_focus = ImGui::IsWindowFocused();
 		}
 		ImGui::End();
+#endif
 	}
 
 	void process_event(const sf::Event& event)

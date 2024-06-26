@@ -83,6 +83,6 @@ namespace ecs
 		if (debug_flags & DEBUG_AI)
 			debug_draw_ai();
 		if (debug_flags & DEBUG_PLAYER)
-			debug_draw_players();
+			debug_players();
 	}
 }

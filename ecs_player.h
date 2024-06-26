@@ -47,7 +47,7 @@ namespace ecs
 
 	void process_event_players(const sf::Event& ev);
 	void update_players(float dt);
-	void debug_draw_players();
+	void debug_players();
 
 	// Returns the first entity with a Player component, or entt::null if none exists.
 	// Try to avoid using this function, as it can lead to spaghetti code.

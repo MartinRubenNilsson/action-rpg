@@ -778,6 +778,7 @@
     <ClInclude Include="dependencies\glad\khrplatform.h">
       <Filter>graphics\glad</Filter>
     </ClInclude>
+    <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

@@ -1,6 +1,5 @@
 #pragma once
-#define SFML_STATIC
-#define _CRT_SECURE_NO_WARNINGS
+#include "config.h"
 
 #include <deque>
 #include <filesystem>
@@ -23,8 +22,11 @@ using namespace std::literals::string_literals;
 #include <entt/entity/registry.hpp>
 #include <box2d/box2d.h>
 #include <RmlUi/Core.h>
+#ifdef BUILD_IMGUI
 #include <imgui.h>
 #include <imgui_stdlib.h>
+#include <imgui-SFML.h>
+#endif
 #include <magic_enum.hpp>
 
 #include "math.h"
