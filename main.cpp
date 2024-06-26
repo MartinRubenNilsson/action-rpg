@@ -205,8 +205,8 @@ int main(int argc, char* argv[])
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
         ecs::debug_draw();
-        //postprocessing::render(render_target_id, camera_min, camera_max);
-        debug::render(camera_min, camera_max); // BROKEN!!!
+        postprocessing::render(render_target_id, camera_min, camera_max);
+        debug::render(camera_min, camera_max);
 
         // RENDER UI
 
