@@ -201,6 +201,7 @@ namespace debug
 		}
 	}
 
+#if 0
 	void _render_texts(sf::RenderTarget& target)
 	{
 		if (_texts.empty()) return;
@@ -221,6 +222,7 @@ namespace debug
 			target.draw(text);
 		}
 	}
+#endif
 
 	void render(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
 	{
@@ -228,6 +230,7 @@ namespace debug
 		_last_calculated_view_bounds.min_y = camera_min.y;
 		_last_calculated_view_bounds.max_x = camera_max.x;
 		_last_calculated_view_bounds.max_y = camera_max.y;
+		graphics::bind_shader(graphics::color_only_shader_id);
 		_render_lines();
 		_render_boxes();
 		_render_polygons();

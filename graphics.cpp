@@ -56,8 +56,24 @@ void main()
 }
 )";
 
+	constexpr char _COLOR_ONLY_VERTEX_SHADER_BYTECODE[] = R"(
+void main()
+{
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+    gl_FrontColor = gl_Color;
+}
+)";
+
+	constexpr char _COLOR_ONLY_PIXEL_SHADER_BYTECODE[] = R"(
+void main()
+{
+    gl_FragColor = gl_Color;
+}
+)";
+
 	int default_shader_id = -1;
 	int fullscreen_shader_id = -1;
+	int color_only_shader_id = -1;
 
 	struct Shader
 	{
@@ -156,6 +172,7 @@ void main()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 		default_shader_id = create_shader(
 			_DEFAULT_VERTEX_SHADER_BYTECODE,
 			_DEFAULT_FRAGMENT_SHADER_BYTECODE,
@@ -164,6 +181,10 @@ void main()
 			_FULLSCREEN_VERTEX_SHADER_BYTECODE,
 			_FULLSCREEN_FRAGMENT_SHADER_BYTECODE,
 			"fullscreen shader");
+		color_only_shader_id = create_shader(
+		_COLOR_ONLY_VERTEX_SHADER_BYTECODE,
+			_COLOR_ONLY_PIXEL_SHADER_BYTECODE,
+			"color only shader");
 	}
 
 	void shutdown()
