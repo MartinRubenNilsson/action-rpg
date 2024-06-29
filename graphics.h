@@ -46,12 +46,14 @@ namespace graphics
 
 	// TEXTURES
 
+	// TODO: load compressed textures :)
+
 	TextureHandle create_texture(
 		unsigned int width,
 		unsigned int height,
 		unsigned int channels = 4,
 		const unsigned char* data = nullptr, //pass nullptr to create an empty texture
-		std::string name_hint = "texture");
+		const std::string& name_hint = "texture");
 	TextureHandle load_texture(const std::string& path);
 	TextureHandle copy_texture(TextureHandle handle);
 
@@ -67,7 +69,7 @@ namespace graphics
 	RenderTargetHandle create_render_target(
 		unsigned int width,
 		unsigned int height,
-		std::string name_hint = "render target");
+		const std::string& name_hint = "render target");
 	RenderTargetHandle acquire_pooled_render_target(unsigned int width, unsigned int height);
 	void release_pooled_render_target(RenderTargetHandle handle);
 

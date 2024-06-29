@@ -466,7 +466,7 @@ void main()
 		unsigned int height,
 		unsigned int channels,
 		const unsigned char* data,
-		std::string name_hint)
+		const std::string& name_hint)
 	{
 		// DETERMINE FORMAT
 
@@ -602,7 +602,10 @@ void main()
 		return texture->filter;
 	}
 
-	RenderTargetHandle create_render_target(unsigned int width, unsigned int height, std::string name_hint)
+	RenderTargetHandle create_render_target(
+		unsigned int width,
+		unsigned int height,
+		const std::string& name_hint)
 	{
 		// CREATE TEXTURE
 
