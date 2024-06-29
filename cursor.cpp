@@ -15,13 +15,13 @@ namespace cursor
 	{
 		if (!_visible) return;
 
-		const int texture_id = graphics::load_texture("assets/textures/cursors/cursor.png");
-		if (texture_id == -1) return;
+		const graphics::TextureHandle texture = graphics::load_texture("assets/textures/cursors/cursor.png");
+		if (texture == graphics::TextureHandle::Invalid) return;
 		Vector2u texture_size;
-		graphics::get_texture_size(texture_id, texture_size.x, texture_size.y);
+		graphics::get_texture_size(texture, texture_size.x, texture_size.y);
 
 		sprites::Sprite sprite{};
-		sprite.texture_id = texture_id;
+		sprite.texture = texture;
 		sprite.min = _position;
 		sprite.max = _position + _scale * Vector2f{ 16.f, 16.f };
 		sprite.tex_min = _tex_min;

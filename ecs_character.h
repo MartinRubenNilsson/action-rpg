@@ -161,5 +161,5 @@ namespace ecs
 	bool has_character(entt::entity entity);
 
 	void randomize_character(Character& ch);
-	int create_character_texture(const Character& ch);
+	graphics::TextureHandle create_character_texture(const Character& ch);
 }

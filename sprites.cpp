@@ -12,8 +12,8 @@ namespace sprites
 			return left.sorting_pos.y < right.sorting_pos.y;
 		if (left.sorting_pos.x != right.sorting_pos.x)
 			return left.sorting_pos.x < right.sorting_pos.x;
-		if (left.texture_id != right.texture_id)
-			return left.texture_id < right.texture_id;
+		if (left.texture != right.texture)
+			return left.texture < right.texture;
 		if (left.shader != right.shader)
 			return left.shader < right.shader;
 		return false;
@@ -44,11 +44,11 @@ namespace sprites
 	unsigned int _batches_drawn = 0;
 	unsigned int _vertices_in_largest_batch = 0;
 
-	void _render_batch(int texture_id, graphics::ShaderHandle shader)
+	void _render_batch(graphics::ShaderHandle shader, graphics::TextureHandle texture)
 	{
 		graphics::bind_shader(shader);
 		graphics::set_shader_uniform_1i(shader, "tex", 0);
-		graphics::bind_texture(0, texture_id);
+		graphics::bind_texture(0, texture);
 		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
@@ -86,7 +86,7 @@ namespace sprites
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
 		graphics::ShaderHandle last_shader = graphics::ShaderHandle::Invalid;
-		int texture_id = -1;
+		graphics::TextureHandle last_texture = graphics::TextureHandle::Invalid;
 
 		for (unsigned int i = 0; i < _sprites; ++i) {
 			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
@@ -113,7 +113,7 @@ namespace sprites
 				// Can we add the new sprite to the batch?
 				if (enable_batching &&
 					_batch_vertices != MAX_VERTICES_PER_BATCH &&
-					sprite.texture_id == texture_id &&
+					sprite.texture == last_texture &&
 					sprite.shader == last_shader &&
 					!sprite.pre_render_callback)
 				{
@@ -123,7 +123,7 @@ namespace sprites
 					_batch_vertex_buffer[_batch_vertices++] = { tl, sprite.color, sprite.tex_min }; // E
 				} else {
 					// Draw the current batch and start a new one
-					_render_batch(texture_id, last_shader);
+					_render_batch(last_shader, last_texture);
 				}
 			}
 
@@ -139,13 +139,13 @@ namespace sprites
 			}
 
 			// Update the render states
-			texture_id = sprite.texture_id;
+			last_texture = sprite.texture;
 			last_shader = sprite.shader;
 		}
 
 		// Draw the last batch if there is one
 		if (_batch_vertices > 0) {
-			_render_batch(texture_id, last_shader);
+			_render_batch(last_shader, last_texture);
 		}
 
 		_sprites_drawn += _sprites;

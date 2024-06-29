@@ -12,7 +12,7 @@ namespace ecs
 	struct Vfx
 	{
 		VfxType type = VfxType::None;
-		int texture_id = -1;
+		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		Vector2f position;
 		uint32_t frame_rows = 0;
 		uint32_t frame_cols = 0;

@@ -11,6 +11,18 @@ namespace ui
 	bool _previous_scissor_test_enabled = false;
 	int _previous_scissor_box[4] = { 0 };
 
+	Rml::TextureHandle _to_rml_handle(graphics::TextureHandle handle)
+	{
+		// Our texture handles start from 0, but Rml::TextureHandle uses 0 as an invalid value.
+		return (Rml::TextureHandle)((int)handle + 1);
+	}
+
+	graphics::TextureHandle _from_rml_handle(Rml::TextureHandle handle)
+	{
+		// Our texture handles start from 0, but Rml::TextureHandle uses 0 as an invalid value.
+		return (graphics::TextureHandle)((int)handle - 1);
+	}
+
 	void set_viewport(int viewport_width, int viewport_height)
 	{
 		_viewport_width = viewport_width;
@@ -65,7 +77,7 @@ namespace ui
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
 			glEnable(GL_TEXTURE_2D);
-			graphics::bind_texture(0, (int)texture - 1);
+			graphics::bind_texture(0, _from_rml_handle(texture));
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
@@ -88,11 +100,11 @@ namespace ui
 
 	bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source)
 	{
-		const int texture_id = graphics::load_texture(source);
-		if (texture_id == -1) return false;
+		const graphics::TextureHandle texture = graphics::load_texture(source);
+		if (texture == graphics::TextureHandle::Invalid) return false;
 		unsigned int width, height;
-		graphics::get_texture_size(texture_id, width, height);
-		texture_handle = (Rml::TextureHandle)(texture_id + 1);
+		graphics::get_texture_size(texture, width, height);
+		texture_handle = _to_rml_handle(texture);
 		texture_dimensions.x = width;
 		texture_dimensions.y = height;
 		return true;
@@ -100,10 +112,10 @@ namespace ui
 
 	bool RmlUiRenderInterface::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions)
 	{
-		const int texture_id = graphics::create_texture(
+		const graphics::TextureHandle texture = graphics::create_texture(
 			source_dimensions.x, source_dimensions.y, 4, source, "rmlui texture");
-		if (texture_id == -1) return false;
-		texture_handle = (Rml::TextureHandle)(texture_id + 1);
+		if (texture == graphics::TextureHandle::Invalid) return false;
+		texture_handle = _to_rml_handle(texture);
 		return true;
 	}
 

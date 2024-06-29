@@ -23,7 +23,7 @@ namespace ecs
     {
         sprites::Sprite sprite{};
         for (auto [entity, vfx] : _registry.view<const Vfx>().each()) {
-            if (vfx.texture_id == -1) continue;
+            if (vfx.texture == graphics::TextureHandle::Invalid) continue;
             if (!vfx.frame_rows) continue;
             if (!vfx.frame_cols) continue;
             if (vfx.time < 0.f) continue;
@@ -32,7 +32,7 @@ namespace ecs
             uint32_t frame_row = frame / vfx.frame_cols;
             uint32_t frame_col = frame % vfx.frame_cols;
             Vector2u texture_size;
-            graphics::get_texture_size(vfx.texture_id, texture_size.x, texture_size.y);
+            graphics::get_texture_size(vfx.texture, texture_size.x, texture_size.y);
             sprite.tex_min = {
                 (float)texture_size.x * frame_col / vfx.frame_cols,
                 (float)texture_size.y * frame_row / vfx.frame_rows };
@@ -46,7 +46,7 @@ namespace ecs
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
             sprite.tex_min /= Vector2f(texture_size);
             sprite.tex_max /= Vector2f(texture_size);
-            sprite.texture_id = vfx.texture_id;
+            sprite.texture = vfx.texture;
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = sprites::SL_VFX;
 			sprites::add_sprite_to_render_queue(sprite);
@@ -62,7 +62,7 @@ namespace ecs
         vfx.position = position;
         switch (type) {
         case VfxType::Explosion: {
-            vfx.texture_id = graphics::load_texture("assets/textures/vfx/EXPLOSION.png");
+            vfx.texture = graphics::load_texture("assets/textures/vfx/EXPLOSION.png");
             vfx.frame_rows = 1;
             vfx.frame_cols = 12;
             vfx.frame_duration = 0.05f;

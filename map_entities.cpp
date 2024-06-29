@@ -264,7 +264,7 @@ namespace map
 					ecs::emplace_character(entity, character);
 
 					if (tile) {
-						tile->texture_id = ecs::create_character_texture(character);
+						tile->texture = ecs::create_character_texture(character);
 					}
 
 				} else if (object.class_ == "slime") {

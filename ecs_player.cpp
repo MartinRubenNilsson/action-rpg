@@ -424,7 +424,7 @@ namespace ecs
 			if (ImGui::Button("Randomize Appearance")) {
 				Character character{};
 				randomize_character(character);
-				tile.texture_id = create_character_texture(character); // LEAK
+				tile.texture = create_character_texture(character); // LEAK
 			}
 
 			ImGui::Spacing(); //did this even do anything??

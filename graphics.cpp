@@ -94,14 +94,14 @@ void main()
 	struct RenderTarget
 	{
 		std::string name; // unique name
-		int texture_id = -1;
+		TextureHandle texture_handle = TextureHandle::Invalid;
 		GLuint framebuffer_object = 0;
 	};
 
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
 	std::vector<Texture> _textures;
-	std::unordered_map<std::string, int> _texture_name_to_id;
+	std::unordered_map<std::string, TextureHandle> _texture_name_to_handle;
 	std::vector<RenderTarget> _render_targets;
 	std::unordered_map<std::string, int> _render_target_name_to_id;
 	std::vector<int> _pooled_render_target_ids;
@@ -124,18 +124,18 @@ void main()
 		return &_shaders[index];
 	}
 
-	Texture* _get_texture(int texture_id)
+	Texture* _get_texture(TextureHandle handle)
 	{
-		if (texture_id < 0 || texture_id >= (int)_textures.size())
-			return nullptr;
-		return &_textures[texture_id];
+		const int index = (int)handle;
+		if (index < 0 || index >= (int)_textures.size()) return nullptr;
+		return &_textures[index];
 	}
 
-	RenderTarget* _get_render_target(int render_texture_id)
+	RenderTarget* _get_render_target(int render_handle)
 	{
-		if (render_texture_id < 0 || render_texture_id >= (int)_render_targets.size())
+		if (render_handle < 0 || render_handle >= (int)_render_targets.size())
 			return nullptr;
-		return &_render_targets[render_texture_id];
+		return &_render_targets[render_handle];
 	}
 
 #ifdef _DEBUG
@@ -205,7 +205,7 @@ void main()
 			glDeleteTextures(1, &texture.texture_object);
 		}
 		_textures.clear();
-		_texture_name_to_id.clear();
+		_texture_name_to_handle.clear();
 
 		// DELETE RENDER TEXTURES
 
@@ -447,7 +447,7 @@ void main()
 		}
 	}
 
-	int create_texture(
+	TextureHandle create_texture(
 		unsigned int width,
 		unsigned int height,
 		unsigned int channels,
@@ -478,26 +478,26 @@ void main()
 
 		// STORE TEXTURE
 
-		const int texture_id = (int)_textures.size();
+		const TextureHandle handle = (TextureHandle)_textures.size();
 		Texture& texture = _textures.emplace_back();
-		texture.name = _generate_unique_name(_texture_name_to_id, name_hint);
+		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
 		texture.width = width;
 		texture.height = height;
 		texture.channels = channels;
 		texture.texture_object = texture_object;
 		texture.filter = TextureFilter::Nearest;
 
-		_texture_name_to_id[texture.name] = texture_id;
+		_texture_name_to_handle[texture.name] = handle;
 
-		return texture_id;
+		return handle;
 	}
 
-	int load_texture(const std::string& path)
+	TextureHandle load_texture(const std::string& path)
 	{
 		// CHECK IF ALREADY LOADED
 
-		const auto it = _texture_name_to_id.find(path);
-		if (it != _texture_name_to_id.end()) {
+		const auto it = _texture_name_to_handle.find(path);
+		if (it != _texture_name_to_handle.end()) {
 			return it->second;
 		}
 
@@ -510,7 +510,7 @@ void main()
 		if (!data) {
 			console::log_error("Failed to load texture: " + path);
 			console::log_error(stbi_failure_reason());
-			return -1;
+			return TextureHandle::Invalid;
 		}
 
 		// CREATE TEXTURE
@@ -518,35 +518,35 @@ void main()
 		return create_texture(width, height, channels, data, path);
 	}
 
-	int copy_texture(unsigned int texture_id)
+	TextureHandle copy_texture(TextureHandle handle)
 	{
 		// This fixes a bug where texture would become a dangling pointer
 		// if create_texture() causes _textures to reallocate.
 		_textures.reserve(_textures.size() + 1);
 
-		const Texture* texture = _get_texture(texture_id);
-		if (!texture) return -1;
+		const Texture* texture = _get_texture(handle);
+		if (!texture) return TextureHandle::Invalid;
 
-		const int texture_copy_id = create_texture(
+		const TextureHandle copy_handle = create_texture(
 			texture->width,
 			texture->height,
 			texture->channels,
 			nullptr,
 			texture->name + " (copy)");
-		const Texture* texture_copy = _get_texture(texture_copy_id);
-		if (!texture_copy) return -1;
+		const Texture* copy_texture = _get_texture(copy_handle);
+		if (!copy_texture) return TextureHandle::Invalid;
 
 		glCopyImageSubData(
 			texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			texture_copy->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			copy_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
 			texture->width, texture->height, 1);
 
-		return texture_copy_id;
+		return copy_handle;
 	}
 
-	void bind_texture(unsigned int texture_unit, int texture_id)
+	void bind_texture(unsigned int texture_unit, TextureHandle handle)
 	{
-		if (const Texture* texture = _get_texture(texture_id)) {
+		if (const Texture* texture = _get_texture(handle)) {
 			glActiveTexture(GL_TEXTURE0 + texture_unit);
 			glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		}
@@ -558,9 +558,9 @@ void main()
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height)
+	void get_texture_size(TextureHandle handle, unsigned int& width, unsigned int& height)
 	{
-		if (const Texture* texture = _get_texture(texture_id)) {
+		if (const Texture* texture = _get_texture(handle)) {
 			width = texture->width;
 			height = texture->height;
 		} else {
@@ -569,9 +569,9 @@ void main()
 		}
 	}
 
-	void set_texture_filter(int texture_id, TextureFilter filter)
+	void set_texture_filter(TextureHandle handle, TextureFilter filter)
 	{
-		Texture* texture = _get_texture(texture_id);
+		Texture* texture = _get_texture(handle);
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
@@ -581,9 +581,9 @@ void main()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
 	}
 
-	TextureFilter get_texture_filter(int texture_id)
+	TextureFilter get_texture_filter(TextureHandle handle)
 	{
-		const Texture* texture = _get_texture(texture_id);
+		const Texture* texture = _get_texture(handle);
 		if (!texture) return TextureFilter::Nearest;
 		return texture->filter;
 	}
@@ -592,8 +592,8 @@ void main()
 	{
 		// CREATE TEXTURE
 
-		const int texture_id = create_texture(width, height, 4, nullptr, name_hint);
-		const Texture* texture = _get_texture(texture_id);
+		const TextureHandle texture_handle = create_texture(width, height, 4, nullptr, name_hint);
+		const Texture* texture = _get_texture(texture_handle);
 		if (!texture) {
 			console::log_error("Failed to create render target: " + name_hint);
 			return -1;
@@ -630,7 +630,7 @@ void main()
 		const int render_target_id = (int)_render_targets.size();
 		RenderTarget& render_target = _render_targets.emplace_back();
 		render_target.name = _generate_unique_name(_render_target_name_to_id, name_hint);
-		render_target.texture_id = texture_id;
+		render_target.texture_handle = texture_handle;
 		render_target.framebuffer_object = framebuffer_object;
 
 		_render_target_name_to_id[render_target.name] = render_target_id;
@@ -644,7 +644,7 @@ void main()
 			const int render_target_id = _pooled_render_target_ids[i];
 			const RenderTarget* render_target = _get_render_target(render_target_id);
 			if (!render_target) continue;
-			const Texture* texture = _get_texture(render_target->texture_id);
+			const Texture* texture = _get_texture(render_target->texture_handle);
 			if (!texture) continue;
 			if (texture->width != width) continue;
 			if (texture->height != height) continue;
@@ -676,12 +676,12 @@ void main()
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	int get_render_target_texture(int render_target_id)
+	TextureHandle get_render_target_texture(int render_target_id)
 	{
 		if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
-			return render_target->texture_id;
+			return render_target->texture_handle;
 		}
-		return -1;
+		return TextureHandle::Invalid;
 	}
 
 	void set_viewport(int x, int y, int width, int height)

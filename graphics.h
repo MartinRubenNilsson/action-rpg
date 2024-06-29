@@ -51,19 +51,24 @@ namespace graphics
 
 	// TEXTURES
 
-	int create_texture(
+	// Returns TextureHandle::Invalid on failure.
+	TextureHandle create_texture(
 		unsigned int width,
 		unsigned int height,
 		unsigned int channels = 4,
 		const unsigned char* data = nullptr, //pass nullptr to create an empty texture
 		std::string name_hint = "texture");
-	int load_texture(const std::string& path);
-	int copy_texture(unsigned int texture_id);
-	void bind_texture(unsigned int texture_unit, int texture_id);
+	// Returns TextureHandle::Invalid on failure.
+	TextureHandle load_texture(const std::string& path);
+	// Returns TextureHandle::Invalid on failure.
+	TextureHandle copy_texture(TextureHandle handle);
+
+	void bind_texture(unsigned int texture_unit, TextureHandle handle);
 	void unbind_texture(unsigned int texture_unit);
-	void get_texture_size(int texture_id, unsigned int& width, unsigned int& height);
-	void set_texture_filter(int texture_id, TextureFilter filter);
-	TextureFilter get_texture_filter(int texture_id);
+
+	void get_texture_size(TextureHandle handle, unsigned int& width, unsigned int& height);
+	void set_texture_filter(TextureHandle handle, TextureFilter filter);
+	TextureFilter get_texture_filter(TextureHandle handle);
 
 	// RENDER TARGETS
 
@@ -76,7 +81,7 @@ namespace graphics
 	void bind_render_target(int render_target_id);
 	// You need to bind the render target before calling clear_render_target().
 	void clear_render_target(float r, float g, float b, float a);
-	int get_render_target_texture(int render_target_id);
+	TextureHandle get_render_target_texture(int render_target_id);
 
 	// FIXED-FUNCTION PIPELINE
 

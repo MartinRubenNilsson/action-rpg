@@ -72,7 +72,7 @@ namespace ecs
 		ch.hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 	}
 
-	int create_character_texture(const Character& ch)
+	graphics::TextureHandle create_character_texture(const Character& ch)
 	{
 		enum LookupTextureType
 		{
@@ -363,11 +363,11 @@ namespace ecs
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/bake_character.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return -1;
+		if (shader == graphics::ShaderHandle::Invalid) return graphics::TextureHandle::Invalid;
 
 		// Aquire render target
 		const int render_target_id = graphics::acquire_pooled_render_target(1024, 1024);
-		if (render_target_id == -1) return -1;
+		if (render_target_id == -1) return graphics::TextureHandle::Invalid;
 
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -382,64 +382,64 @@ namespace ecs
 		graphics::set_shader_uniform_1i(shader, "lut2", 2);
 
 		for (const Layer& layer : layers) {
-			const int texture_id = graphics::load_texture(base_dir + layer.texture_path);
-			if (texture_id == -1) continue;
+			const graphics::TextureHandle texture = graphics::load_texture(base_dir + layer.texture_path);
+			if (texture == graphics::TextureHandle::Invalid) continue;
 
-			int lut1_texture_id = -1;
+			graphics::TextureHandle lut1_texture = graphics::TextureHandle::Invalid;
 			switch (layer.lut1_type) {
 			case LUT_SKIN:
-				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
+				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
 				break;
 			case LUT_HAIR:
-				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
+				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
 				break;
 			case LUT_C3:
-				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
+				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
 				break;
 			case LUT_C4:
-				lut1_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
+				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut1_texture_id != -1) {
+			if (lut1_texture != graphics::TextureHandle::Invalid) {
 				graphics::set_shader_uniform_1i(shader, "lut1_type", layer.lut1_type);
 				graphics::set_shader_uniform_1i(shader, "lut1_y", layer.lut1_y);
 			} else {
 				graphics::set_shader_uniform_1i(shader, "lut1_type", -1);
 			}
 
-			int lut2_texture_id = -1;
+			graphics::TextureHandle lut2_texture = graphics::TextureHandle::Invalid;
 			switch (layer.lut2_type) {
 			case LUT_SKIN:
-				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
+				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
 				break;
 			case LUT_HAIR:
-				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
+				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed hair ramps.png");
 				break;
 			case LUT_C3:
-				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
+				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed 3-color ramps.png");
 				break;
 			case LUT_C4:
-				lut2_texture_id = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
+				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut2_texture_id != -1) {
+			if (lut2_texture != graphics::TextureHandle::Invalid) {
 				graphics::set_shader_uniform_1i(shader, "lut2_type", layer.lut2_type);
 				graphics::set_shader_uniform_1i(shader, "lut2_y", layer.lut2_y);
 			} else {
 				graphics::set_shader_uniform_1i(shader, "lut2_type", -1);
 			}
 
-			graphics::bind_texture(0, texture_id);
-			graphics::bind_texture(1, lut1_texture_id);
-			graphics::bind_texture(2, lut2_texture_id);
+			graphics::bind_texture(0, texture);
+			graphics::bind_texture(1, lut1_texture);
+			graphics::bind_texture(2, lut2_texture);
 
 			graphics::draw_triangle_strip(4);
 		}
 
-		const int texture_id = graphics::copy_texture(graphics::get_render_target_texture(render_target_id));
+		const graphics::TextureHandle texture = graphics::copy_texture(graphics::get_render_target_texture(render_target_id));
 		graphics::release_pooled_render_target(render_target_id);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
-		return texture_id;
+		return texture;
 	}
 }

@@ -43,8 +43,8 @@ namespace ecs
 		}
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
-		if (texture_id == -1) {
-			texture_id = graphics::load_texture(tile->tileset->image_path);
+		if (texture == graphics::TextureHandle::Invalid) {
+			texture = graphics::load_texture(tile->tileset->image_path);
 		}
 		return true;
 	}
@@ -223,10 +223,10 @@ namespace ecs
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
-			sprite.texture_id = tile.texture_id;
-			if (sprite.texture_id == -1) continue;
+			sprite.texture = tile.texture;
+			if (sprite.texture == graphics::TextureHandle::Invalid) continue;
 			Vector2u texture_size;
-			graphics::get_texture_size(sprite.texture_id, texture_size.x, texture_size.y);
+			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
 			uint32_t left, top, width, height;
