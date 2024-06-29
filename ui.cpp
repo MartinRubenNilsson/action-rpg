@@ -265,11 +265,11 @@ namespace ui
 			// Don't set density independent pixel ratio for the debugger context!
 			// It should always be 1.0, so that it remains the same size.
 		} break;
+		case window::EventType::MouseMove: {
+			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
+			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
+		} break;
 #if 0
-		case sf::Event::MouseMoved:
-			_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
-			_debugger_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
-			break;
 		case sf::Event::MouseButtonPressed:
 			_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
 			_debugger_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);

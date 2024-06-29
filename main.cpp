@@ -19,7 +19,8 @@
 #include "clock.h"
 #include "imgui_backends.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     if (steam::restart_app_if_necessary()) {
         return EXIT_FAILURE;
     }
@@ -60,11 +61,11 @@ int main(int argc, char* argv[]) {
     while (!window::should_close()) {
 
         steam::run_message_loop();
+        window::poll_events();
 
 #ifdef BUILD_IMGUI
         imgui_backends::new_frame();
 #endif
-        window::poll_events();
 
         // PROCESS WINDOW EVENTS
         {

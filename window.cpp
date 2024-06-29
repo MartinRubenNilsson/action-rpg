@@ -62,6 +62,15 @@ namespace window
 		_event_queue.push(ev);
 	}
 
+	void _cursor_pos_callback(GLFWwindow* window, double x, double y)
+	{
+		Event ev{};
+		ev.type = EventType::MouseMove;
+		ev.mouse_move.x = x;
+		ev.mouse_move.y = y;
+		_event_queue.push(ev);
+	}
+
 	bool initialize()
 	{
 		glfwSetErrorCallback(_error_callback);
@@ -88,6 +97,7 @@ namespace window
 		glfwSetKeyCallback(_glfw_window, _key_callback);
 		glfwSetWindowSizeCallback(_glfw_window, _window_size_callback);
 		glfwSetFramebufferSizeCallback(_glfw_window, _framebuffer_size_callback);
+		glfwSetCursorPosCallback(_glfw_window, _cursor_pos_callback);
 
 		glfwSwapInterval(0); // Disable vsync
 		set_icon_from_file("assets/window/swordsman.png");

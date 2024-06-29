@@ -8,6 +8,7 @@ namespace ui
 	int _viewport_width = 0;
 	int _viewport_height = 0;
 	int _previous_viewport[4] = { 0 };
+	bool _previous_scissor_test_enabled = false;
 	int _previous_scissor_box[4] = { 0 };
 
 	void set_viewport(int viewport_width, int viewport_height)
@@ -23,6 +24,7 @@ namespace ui
 			_previous_viewport[1],
 			_previous_viewport[2],
 			_previous_viewport[3]);
+		_previous_scissor_test_enabled = graphics::get_scissor_test_enabled();
 		graphics::get_scissor_box(
 			_previous_scissor_box[0],
 			_previous_scissor_box[1],
@@ -45,6 +47,7 @@ namespace ui
 			_previous_viewport[1],
 			_previous_viewport[2],
 			_previous_viewport[3]);
+		graphics::set_scissor_test_enabled(_previous_scissor_test_enabled);
 		graphics::set_scissor_box(
 			_previous_scissor_box[0],
 			_previous_scissor_box[1],

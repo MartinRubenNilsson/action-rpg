@@ -5,7 +5,7 @@
 
 namespace settings
 {
-	const std::string DEFAULT_SETTINGS_FILE_PATH = "settings.txt";
+	const std::string SETTINGS_FILE_DEFAULT_PATH = "settings.txt";
 
 	bool fullscreen = false;
 	uint32_t window_scale = 5;

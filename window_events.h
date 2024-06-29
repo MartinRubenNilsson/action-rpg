@@ -137,6 +137,7 @@ namespace window
 		KeyPress,
 		KeyRepeat,
 		KeyRelease,
+		MouseMove,
 	};
 
 	struct SizeEvent
@@ -151,6 +152,12 @@ namespace window
 		int scancode;
 	};
 
+	struct MouseMoveEvent
+	{
+		double x;
+		double y;
+	};
+
 	struct Event
 	{
 		EventType type;
@@ -158,6 +165,7 @@ namespace window
 		{
 			SizeEvent size;
 			KeyEvent key;
+			MouseMoveEvent mouse_move;
 		};
 	};
 }
