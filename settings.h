@@ -2,6 +2,8 @@
 
 namespace settings
 {
+	extern const std::string DEFAULT_SETTINGS_FILE_PATH;
+
 	extern bool fullscreen;
 	extern unsigned int window_scale;
 	extern bool vsync;
@@ -16,6 +18,6 @@ namespace settings
 	void apply();
 	void save_to_stream(std::ostream& os);
 	void load_from_stream(std::istream& is);
-	bool save_to_file(const std::string& filename = "settings.txt");
-	bool load_from_file(const std::string& filename = "settings.txt");
+	bool save_to_file(const std::string& path = DEFAULT_SETTINGS_FILE_PATH);
+	bool load_from_file(const std::string& path = DEFAULT_SETTINGS_FILE_PATH);
 }

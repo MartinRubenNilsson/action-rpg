@@ -5,6 +5,8 @@
 
 namespace settings
 {
+	const std::string DEFAULT_SETTINGS_FILE_PATH = "settings.txt";
+
 	bool fullscreen = false;
 	uint32_t window_scale = 5;
 	bool vsync = false;
@@ -58,17 +60,17 @@ namespace settings
 		}
 	}
 
-	bool save_to_file(const std::string& filename)
+	bool save_to_file(const std::string& path)
 	{
-		std::ofstream ofs(filename);
+		std::ofstream ofs(path);
 		if (!ofs) return false;
 		save_to_stream(ofs);
 		return true;
 	}
 
-	bool load_from_file(const std::string& filename)
+	bool load_from_file(const std::string& path)
 	{
-		std::ifstream ifs(filename);
+		std::ifstream ifs(path);
 		if (!ifs) return false;
 		load_from_stream(ifs);
 		return true;

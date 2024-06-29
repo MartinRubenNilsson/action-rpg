@@ -37,6 +37,7 @@ namespace ui
 				settings::volume_sound = ev.GetParameter("volume-sound", 1.f);
 				settings::volume_music = ev.GetParameter("volume-music", 1.f);
 				settings::apply();
+				settings::save_to_file();
 			} break;
 		}
 		}
