@@ -105,6 +105,7 @@ void main()
 	std::vector<RenderTarget> _render_targets;
 	std::unordered_map<std::string, int> _render_target_name_to_id;
 	std::vector<int> _pooled_render_target_ids;
+	GLuint _last_bound_program_object = 0;
 
 	std::string _generate_unique_name(std::unordered_map<std::string, int> name_container, const std::string& name_hint)
 	{
@@ -362,16 +363,25 @@ void main()
 		return create_shader(vertex_shader_bytecode, fragment_shader_bytecode, name);
 	}
 
+	void _bind_program_object(GLuint program_object)
+	{
+		// OpenGL does not guard agains redundant state changes,
+		// so if we do it ourselves we get a performance boost.
+		if (_last_bound_program_object == program_object) return;
+		glUseProgram(program_object);
+		_last_bound_program_object = program_object;
+	}
+
 	void bind_shader(int shader_id)
 	{
 		if (const Shader* shader = _get_shader(shader_id)) {
-			glUseProgram(shader->program_object);
+			_bind_program_object(shader->program_object);
 		}
 	}
 
 	void unbind_shader()
 	{
-		glUseProgram(0);
+		_bind_program_object(0);
 	}
 
 	void set_shader_uniform_1f(int shader_id, const std::string& name, float x)
