@@ -312,8 +312,9 @@ namespace ui
 	{
 		update_textbox(dt);
 		dirty_all_variables();
-		if (debug != Rml::Debugger::IsVisible())
+		if (debug != Rml::Debugger::IsVisible()) {
 			Rml::Debugger::SetVisible(debug);
+		}
 		_context->Update();
 		_debugger_context->Update();
 	}

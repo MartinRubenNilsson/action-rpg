@@ -131,6 +131,7 @@ namespace window
 
 	enum class EventType
 	{
+		WindowClose, // User attemped to close the window by clicking the close widget or using a key chord like Alt + F4.
 		KeyPress,
 		KeyRepeat,
 		KeyRelease,

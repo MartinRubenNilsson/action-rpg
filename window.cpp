@@ -18,6 +18,14 @@ namespace window
 		console::log_error(std::format("GLFW error {}: {}", error, description));
 	}
 
+	void _window_close_callback(GLFWwindow* window)
+	{
+		// GLFW sets the close flag before invoking this callback,
+		// so we need to unset it so the window doesn't immediately close.
+		glfwSetWindowShouldClose(window, GLFW_FALSE);
+		_event_queue.emplace(EventType::WindowClose);
+	}
+
 	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		Event ev{};
@@ -52,6 +60,7 @@ namespace window
 		if (!_glfw_window) return false;
 		glfwMakeContextCurrent(_glfw_window);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
+		glfwSetWindowCloseCallback(_glfw_window, _window_close_callback);
 		glfwSetKeyCallback(_glfw_window, _key_callback);
 		glfwSwapInterval(0); // Disable vsync
 		set_icon_from_file("assets/window/swordsman.png");
@@ -77,6 +86,11 @@ namespace window
 	bool should_close()
 	{
 		return glfwWindowShouldClose(_glfw_window);
+	}
+
+	void set_should_close(bool should_close)
+	{
+		glfwSetWindowShouldClose(_glfw_window, should_close);
 	}
 
 	void poll_events()
@@ -165,7 +179,7 @@ namespace window
 				sf::VideoMode::getFullscreenModes().at(0) :
 				sf::VideoMode(size.x, size.y);
 			sf::Uint32 style = state.fullscreen ? 
-				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::Close);
+				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::WindowClose);
 			sf::ContextSettings settings{};
 			settings.majorVersion = 4;
 			settings.minorVersion = 3;

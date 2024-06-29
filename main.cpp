@@ -131,12 +131,11 @@ int main(int argc, char* argv[])
         {
             window::Event ev;
             while (window::get_next_event(ev)) {
-                //if (ev.type == sf::Event::Closed) {
-                //    //window.close();
+                if (ev.type == window::EventType::WindowClose) {
+                    window::set_should_close(true);
                 //} if (ev.type == sf::Event::Resized) {
                 //    //textures::clear_render_texture_pool();
-                //} else
-                if (ev.type == window::EventType::KeyPress) {
+                }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
                     if (ev.key.code == window::Key::Backslash) {
                         console::toggle_visible();
