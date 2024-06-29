@@ -276,6 +276,12 @@ namespace ui
 			_debugger_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
 		} break;
 		case window::EventType::MouseMove: {
+			// CRITICAL: We get big frame drops when calling ProcessMouseMove() a lot,
+			// since it invokes a heavy update hover chain call. This happens when for example
+			// when we move the mouse around a lot. I dropped from 350 FPS to 230 FPS!
+			// Hence, let's only call ProcessMouseMove() when we're in a menu,
+			// since it's only then that we're using the mouse position (to press buttons).
+			if (get_top_menu() == MenuType::Count) break;
 			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
 			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
 		} break;
