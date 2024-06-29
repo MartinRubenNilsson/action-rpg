@@ -21,17 +21,21 @@ namespace ui
 		{
 			switch (ev.GetId()) {
 			case Rml::EventId::Mouseover: {
-				if (ev.GetTargetElement()->IsClassSet("menu-button"))
+				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
 					audio::play("event:/ui/snd_button_hover");
+				}
 			} break;
 			case Rml::EventId::Click: {
-				if (ev.GetTargetElement()->IsClassSet("menu-button"))
+				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
 					audio::play("event:/ui/snd_button_click");
+				}
 			} break;
 			}
 		}
 	};
 
+	constexpr float _DT_ACCUMULATOR_MIN = 1.0f / 60.0f;
+	float _dt_accumulator = 0.f; 
 	bool debug = false;
 	RmlUiSystemInterface _system_interface;
 	RmlUiRenderInterface _render_interface;
@@ -317,13 +321,19 @@ namespace ui
 
 	void update(float dt)
 	{
-		update_textbox(dt);
+		// As an optimization, update the UI at a lower FPS than the game.
+		_dt_accumulator += dt;
+		if (_dt_accumulator < _DT_ACCUMULATOR_MIN) return;
+
+		update_textbox(_dt_accumulator);
 		dirty_all_variables();
 		if (debug != Rml::Debugger::IsVisible()) {
 			Rml::Debugger::SetVisible(debug);
 		}
 		_context->Update();
 		_debugger_context->Update();
+
+		_dt_accumulator = 0.0f;
 	}
 
 	void render()

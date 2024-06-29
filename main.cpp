@@ -290,7 +290,7 @@ int main(int argc, char* argv[])
             sprintf(overlay_text, "%.f us", smoothed_dt * 1'000'000.f);
             ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
             sprintf(overlay_text, "%.f FPS", smoothed_fps);
-            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 400.f, ImVec2(0, 80));
+            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 500.f, ImVec2(0, 80));
             ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
             ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
