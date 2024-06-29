@@ -232,8 +232,8 @@ namespace ecs
 			sprite.tex_min = { (float)left, (float)top };
 			sprite.tex_max = { (float)left + width, (float)top + height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
-			sprite.tex_min /= Vector2f(texture_size);
-			sprite.tex_max /= Vector2f(texture_size);
+			sprite.tex_min /= texture_size;
+			sprite.tex_max /= texture_size;
 			//std::swap(sprite.tex_min.y, sprite.tex_max.y); // flip Y
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader_id = tile.shader_id;
@@ -241,12 +241,16 @@ namespace ecs
 			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
 			sprite.flags = 0;
-			if (tile.get_flag(TF_FLIP_X))
+			if (tile.get_flag(TF_FLIP_X)) {
 				sprite.flags |= sprites::SF_FLIP_X;
-			if (tile.get_flag(TF_FLIP_Y))
+			}
+			if (tile.get_flag(TF_FLIP_Y)) {
 				sprite.flags |= sprites::SF_FLIP_Y;
-			if (tile.get_flag(TF_FLIP_DIAGONAL))
+			}
+			if (tile.get_flag(TF_FLIP_DIAGONAL)) {
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
+			}
+			sprite.pre_render_callback = nullptr;
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
 					if (sprite.shader_id <= 0) return;

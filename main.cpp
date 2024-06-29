@@ -162,17 +162,17 @@ int main(int argc, char* argv[])
 
         // RENDER
 
-        int render_width = 0;
-        int render_height = 0;
-        window::get_framebuffer_size(render_width, render_height);
-        if (render_width <= 0 || render_height <= 0) {
+        int window_framebuffer_width = 0;
+        int window_framebuffer_height = 0;
+        window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
+        if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
 #ifdef BUILD_IMGUI
             imgui_backends::render(); // Otherwise ImGui will crash/assert.
 #endif
 			continue; // Skip rendering if the window is minimized.
 		}
 
-        const float pixel_scale = (float)render_width / WINDOW_MIN_WIDTH;
+        const float pixel_scale = (float)window_framebuffer_width / WINDOW_MIN_WIDTH;
 		
         sprites::reset_rendering_statistics();
 
@@ -180,7 +180,8 @@ int main(int argc, char* argv[])
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
 
-        int render_target_id = graphics::acquire_pooled_render_target(render_width, render_height);
+        int render_target_id = graphics::acquire_pooled_render_target(
+            window_framebuffer_width, window_framebuffer_height);
         graphics::bind_render_target(render_target_id);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
 
@@ -214,7 +215,7 @@ int main(int argc, char* argv[])
             graphics::set_texture_matrix_to_identity();
         }
 
-        graphics::set_viewport(0, 0, render_width, render_height);
+        graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
 
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
