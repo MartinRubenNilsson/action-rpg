@@ -682,6 +682,35 @@ void main()
 		height = viewport[3];
 	}
 
+	void set_scissor_test_enabled(bool enable)
+	{
+		if (enable) {
+			glEnable(GL_SCISSOR_TEST);
+		} else {
+			glDisable(GL_SCISSOR_TEST);
+		}
+	}
+
+	bool get_scissor_test_enabled()
+	{
+		return glIsEnabled(GL_SCISSOR_TEST);
+	}
+
+	void set_scissor_box(int x, int y, int width, int height)
+	{
+		glScissor(x, y, width, height);
+	}
+
+	void get_scissor_box(int& x, int& y, int& width, int& height)
+	{
+		GLint scissor_box[4];
+		glGetIntegerv(GL_SCISSOR_BOX, scissor_box);
+		x = scissor_box[0];
+		y = scissor_box[1];
+		width = scissor_box[2];
+		height = scissor_box[3];
+	}
+
 	void set_modelview_matrix_to_identity()
 	{
 		glMatrixMode(GL_MODELVIEW);

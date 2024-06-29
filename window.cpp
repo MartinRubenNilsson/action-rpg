@@ -26,6 +26,24 @@ namespace window
 		_event_queue.emplace(EventType::WindowClose);
 	}
 
+	void _window_size_callback(GLFWwindow* window, int width, int height)
+	{
+		Event ev{};
+		ev.type = EventType::WindowSize;
+		ev.size.width = width;
+		ev.size.height = height;
+		_event_queue.push(ev);
+	}
+
+	void _framebuffer_size_callback(GLFWwindow* window, int width, int height)
+	{
+		Event ev{};
+		ev.type = EventType::FramebufferSize;
+		ev.size.width = width;
+		ev.size.height = height;
+		_event_queue.push(ev);
+	}
+
 	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		Event ev{};
@@ -48,6 +66,7 @@ namespace window
 	{
 		glfwSetErrorCallback(_error_callback);
 		if (!glfwInit()) return false;
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 #ifdef OPENGL_PROFILE_COMPATIBILITY
@@ -58,12 +77,24 @@ namespace window
 		const unsigned int scale = 4;
 		_glfw_window = glfwCreateWindow(BASE_SIZE.x * scale, BASE_SIZE.y * scale, "Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
+
 		glfwMakeContextCurrent(_glfw_window);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
+
 		glfwSetWindowCloseCallback(_glfw_window, _window_close_callback);
 		glfwSetKeyCallback(_glfw_window, _key_callback);
+		glfwSetWindowSizeCallback(_glfw_window, _window_size_callback);
+		glfwSetFramebufferSizeCallback(_glfw_window, _framebuffer_size_callback);
+
 		glfwSwapInterval(0); // Disable vsync
 		set_icon_from_file("assets/window/swordsman.png");
+
+		// Spoof resize events to ensure that other systems are aware of the window/framebuufer size.
+		int width, height;
+		glfwGetWindowSize(_glfw_window, &width, &height);
+		_window_size_callback(_glfw_window, width, height);
+		_framebuffer_size_callback(_glfw_window, width, height);
+
 		return true;
 	}
 

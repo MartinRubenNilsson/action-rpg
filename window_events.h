@@ -132,9 +132,17 @@ namespace window
 	enum class EventType
 	{
 		WindowClose, // User attemped to close the window by clicking the close widget or using a key chord like Alt + F4.
+		WindowSize, // Window was resized.
+		FramebufferSize, // Framebuffer was resized.
 		KeyPress,
 		KeyRepeat,
 		KeyRelease,
+	};
+
+	struct SizeEvent
+	{
+		int width;
+		int height;
 	};
 
 	struct KeyEvent
@@ -148,6 +156,7 @@ namespace window
 		EventType type;
 		union
 		{
+			SizeEvent size;
 			KeyEvent key;
 		};
 	};

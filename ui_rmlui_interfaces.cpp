@@ -6,6 +6,52 @@
 
 namespace ui
 {
+	int _viewport_width = 0;
+	int _viewport_height = 0;
+	int _previous_viewport[4] = { 0 };
+	int _previous_scissor_box[4] = { 0 };
+
+	void set_viewport(int viewport_width, int viewport_height)
+	{
+		_viewport_width = viewport_width;
+		_viewport_height = viewport_height;
+	}
+
+	void prepare_render_state()
+	{
+		graphics::get_viewport(
+			_previous_viewport[0],
+			_previous_viewport[1],
+			_previous_viewport[2],
+			_previous_viewport[3]);
+		graphics::get_scissor_box(
+			_previous_scissor_box[0],
+			_previous_scissor_box[1],
+			_previous_scissor_box[2],
+			_previous_scissor_box[3]);
+		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(
+			0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
+		graphics::set_projection_matrix(projection.data());
+		graphics::set_texture_matrix_to_identity();
+		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
+		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
+		graphics::bind_shader(graphics::default_shader_id);
+	}
+
+	void restore_render_state()
+	{
+		graphics::set_viewport(
+			_previous_viewport[0],
+			_previous_viewport[1],
+			_previous_viewport[2],
+			_previous_viewport[3]);
+		graphics::set_scissor_box(
+			_previous_scissor_box[0],
+			_previous_scissor_box[1],
+			_previous_scissor_box[2],
+			_previous_scissor_box[3]);
+	}
+
 	double RmlUiSystemInterface::GetElapsedTime() {
 		return window::get_elapsed_time();
 	}
@@ -32,35 +78,12 @@ namespace ui
 #endif
 	}
 
-	void RmlUiSystemInterface::SetClipboardText(const Rml::String& text_utf8) {
-		window::set_clipboard_string(text_utf8);
+	void RmlUiSystemInterface::SetClipboardText(const Rml::String& text) {
+		window::set_clipboard_string(text);
 	}
 
 	void RmlUiSystemInterface::GetClipboardText(Rml::String& text) {
 		text = window::get_clipboard_string();
-	}
-
-	void RmlUiRenderInterface::SetViewport(int in_viewport_width, int in_viewport_height)
-	{
-		_viewport_width = in_viewport_width;
-		_viewport_height = in_viewport_height;
-	}
-
-	void RmlUiRenderInterface::BeginFrame()
-	{
-		RMLUI_ASSERT(_viewport_width >= 0 && _viewport_height >= 0);
-		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
-		graphics::set_projection_matrix(projection.data());
-		graphics::set_texture_matrix_to_identity();
-		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
-
-		_has_transform = false;
 	}
 
 	void RmlUiRenderInterface::RenderGeometry(Rml::Vertex* vertices, int /*num_vertices*/, int* indices, int num_indices, const Rml::TextureHandle texture, const Rml::Vector2f& translation)
@@ -70,8 +93,8 @@ namespace ui
 		glVertexPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
-			glEnable(GL_TEXTURE_2D);
 			graphics::bind_texture(0, (int)texture - 1);
+			glEnable(GL_TEXTURE_2D);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
@@ -84,58 +107,12 @@ namespace ui
 
 	void RmlUiRenderInterface::EnableScissorRegion(bool enable)
 	{
-		if (!enable) {
-			glDisable(GL_SCISSOR_TEST);
-			glDisable(GL_STENCIL_TEST);
-		} else if (!_has_transform) {
-			glEnable(GL_SCISSOR_TEST);
-			glDisable(GL_STENCIL_TEST);
-		}
-#if 0
-		else {
-			glDisable(GL_SCISSOR_TEST);
-			glEnable(GL_STENCIL_TEST);
-		}
-#endif
+		graphics::set_scissor_test_enabled(enable);
 	}
 
 	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
 	{
-		if (!_has_transform) {
-			glScissor(x, _viewport_height - (y + height), width, height);
-			return;
-		}
-
-#if 0
-		// clear the stencil buffer
-		glStencilMask(GLuint(-1));
-		glClear(GL_STENCIL_BUFFER_BIT);
-
-		// fill the stencil buffer
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-		glDepthMask(GL_FALSE);
-		glStencilFunc(GL_NEVER, 1, GLuint(-1));
-		glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
-
-		float fx = (float)x;
-		float fy = (float)y;
-		float fwidth = (float)width;
-		float fheight = (float)height;
-
-		// draw transformed quad
-		GLfloat vertices[] = { fx, fy, 0, fx, fy + fheight, 0, fx + fwidth, fy + fheight, 0, fx + fwidth, fy, 0 };
-		glDisableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, vertices);
-		GLushort indices[] = { 1, 2, 0, 3 };
-		glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, indices);
-		glEnableClientState(GL_COLOR_ARRAY);
-
-		// prepare for drawing the real thing
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		glDepthMask(GL_TRUE);
-		glStencilMask(0);
-		glStencilFunc(GL_EQUAL, 1, GLuint(-1));
-#endif
+		graphics::set_scissor_box(x, _viewport_height - (y + height), width, height);
 	}
 
 	bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source)
@@ -166,7 +143,6 @@ namespace ui
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
 	{
-		_has_transform = transform;
 		if (!transform) {
 			graphics::set_modelview_matrix_to_identity();
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {

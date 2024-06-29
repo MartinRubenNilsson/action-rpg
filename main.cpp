@@ -78,8 +78,6 @@ int main(int argc, char* argv[]) {
             while (window::get_next_event(ev)) {
                 if (ev.type == window::EventType::WindowClose) {
                     window::set_should_close(true);
-                //} if (ev.type == sf::Event::Resized) {
-                //    //textures::clear_render_texture_pool();
                 }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
                     if (ev.key.code == window::Key::Backslash) {
@@ -187,12 +185,13 @@ int main(int argc, char* argv[]) {
         int render_height = 0;
         window::get_framebuffer_size(render_width, render_height);
 
-        int render_target_id = graphics::acquire_pooled_render_target(render_width, render_height);
-        graphics::bind_render_target(render_target_id);
-        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
         Vector2f camera_min;
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
+
+        int render_target_id = graphics::acquire_pooled_render_target(render_width, render_height);
+        graphics::bind_render_target(render_target_id);
+        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
 
         {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
@@ -231,8 +230,7 @@ int main(int argc, char* argv[]) {
         ecs::add_debug_shapes_to_render_queue();
         postprocessing::render(render_target_id, camera_min, camera_max);
         shapes::render(camera_min, camera_max);
-        
-        //ui::render(); //BROKEN rn
+        ui::render();
 
         bool show_built_in_cursor = false;
 #ifdef BUILD_IMGUI

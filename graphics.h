@@ -76,6 +76,10 @@ namespace graphics
 
 	void set_viewport(int x, int y, int width, int height);
 	void get_viewport(int& x, int& y, int& width, int& height);
+	void set_scissor_test_enabled(bool enable);
+	bool get_scissor_test_enabled();
+	void set_scissor_box(int x, int y, int width, int height);
+	void get_scissor_box(int& x, int& y, int& width, int& height);
 	void set_modelview_matrix_to_identity();
 	void set_modelview_matrix(const float matrix[16]);
 	void set_projection_matrix_to_identity();

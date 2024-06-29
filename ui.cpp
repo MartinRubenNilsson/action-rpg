@@ -252,9 +252,8 @@ namespace ui
 #endif
 
 		switch (ev.type) {
-#if 0
-		case sf::Event::Resized: {
-			_render_interface.SetViewport(ev.size.width, ev.size.height);
+		case window::EventType::FramebufferSize: {
+			set_viewport(ev.size.width, ev.size.height);
 			_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
 			_debugger_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
 			Vector2u base_window_size = window::BASE_SIZE;
@@ -265,6 +264,7 @@ namespace ui
 			// Don't set density independent pixel ratio for the debugger context!
 			// It should always be 1.0, so that it remains the same size.
 		} break;
+#if 0
 		case sf::Event::MouseMoved:
 			_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
 			_debugger_context->ProcessMouseMove(ev.mouseMove.x, ev.mouseMove.y, key_modifier_state);
@@ -296,8 +296,9 @@ namespace ui
 		} break;
 #endif
 		case window::EventType::KeyPress:
-			if (ev.key.code == window::Key::Escape)
+			if (ev.key.code == window::Key::Escape) {
 				_on_escape_key_pressed();
+			}
 			_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
 			_debugger_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
 			break;
@@ -321,9 +322,10 @@ namespace ui
 
 	void render()
 	{
-		_render_interface.BeginFrame();
+		prepare_render_state();
 		_context->Render();
 		_debugger_context->Render();
+		restore_render_state();
 	}
 
 	void reload_styles()
