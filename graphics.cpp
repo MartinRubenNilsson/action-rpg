@@ -69,8 +69,7 @@ void main()
 }
 )";
 
-	RenderTargetHandle window_render_target = (RenderTargetHandle)(-2); // HACK: magic value -2
-
+	RenderTargetHandle window_render_target = RenderTargetHandle::Invalid;
 	ShaderHandle default_shader = ShaderHandle::Invalid;
 	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
 	ShaderHandle color_only_shader = ShaderHandle::Invalid;
@@ -108,8 +107,8 @@ void main()
 	std::vector<RenderTargetHandle> _pooled_render_targets;
 	GLuint _last_bound_program_object = 0;
 
-	template <class Container>
-	std::string _generate_unique_name(const Container& name_container, const std::string& name_hint)
+	template <class NameContainer>
+	std::string _generate_unique_name(const NameContainer& name_container, const std::string& name_hint)
 	{
 		std::string name = name_hint;
 		for (int i = 1; name_container.contains(name); i++) {
@@ -173,6 +172,20 @@ void main()
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// SETUP WINDOW RENDER TARGET
+		{
+			window_render_target = (RenderTargetHandle)_render_targets.size();
+			RenderTarget& render_target = _render_targets.emplace_back();
+			render_target.name = "window render target";
+			// The window has both a front and back buffer, so there's no point
+			// in setting a single texture for its render target.
+			render_target.texture = TextureHandle::Invalid;
+			render_target.framebuffer_object = 0;
+			_render_target_name_to_handle[render_target.name] = window_render_target;
+		}
+
+		// CREATE DEFAULT SHADERS
 
 		default_shader = create_shader(
 			_DEFAULT_VERTEX_SHADER_BYTECODE,
@@ -664,9 +677,7 @@ void main()
 
 	void bind_render_target(RenderTargetHandle handle)
 	{
-		if (handle == window_render_target) { ///FIXME: hacky
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		} else if (const RenderTarget* render_target = _get_render_target(handle)) {
+		if (const RenderTarget* render_target = _get_render_target(handle)) {
 			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
 		}
 	}

@@ -2,8 +2,6 @@
 
 namespace graphics
 {
-	// Functions that return an integer ID return -1 on failure.
-
 	enum class TextureFilter
 	{
 		Nearest, // Sample nearest texel
@@ -18,7 +16,6 @@ namespace graphics
 	};
 
 	extern RenderTargetHandle window_render_target;
-
 	extern ShaderHandle default_shader;
 	extern ShaderHandle fullscreen_shader;
 	extern ShaderHandle color_only_shader;
