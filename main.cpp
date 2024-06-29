@@ -165,6 +165,13 @@ int main(int argc, char* argv[])
         int render_width = 0;
         int render_height = 0;
         window::get_framebuffer_size(render_width, render_height);
+        if (render_width <= 0 || render_height <= 0) {
+#ifdef BUILD_IMGUI
+            imgui_backends::render(); // Otherwise ImGui will crash/assert.
+#endif
+			continue; // Skip rendering if the window is minimized.
+		}
+
         const float pixel_scale = (float)render_width / WINDOW_MIN_WIDTH;
 		
         sprites::reset_rendering_statistics();
