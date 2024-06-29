@@ -1,5 +1,10 @@
 #pragma once
 
+namespace graphics
+{
+	extern ShaderHandle default_shader;
+}
+
 namespace sprites
 {
 	enum SortingLayer : uint8_t
@@ -28,7 +33,7 @@ namespace sprites
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
 		int texture_id = -1;
-		int shader_id = 0; // optional; if set, the shader with this ID is used to render the sprite
+		graphics::ShaderHandle shader = graphics::default_shader;
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
 		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates

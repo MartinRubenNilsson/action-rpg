@@ -19,29 +19,35 @@ namespace graphics
 
 	extern int window_render_target_id;
 
-	extern int default_shader_id;
-	extern int fullscreen_shader_id;
-	extern int color_only_shader_id;
+	extern ShaderHandle default_shader;
+	extern ShaderHandle fullscreen_shader;
+	extern ShaderHandle color_only_shader;
 
 	void initialize();
 	void shutdown();
 
 	// SHADERS
 
-	int create_shader(
+	// Returns ShaderHandle::Invalid on failure.
+	ShaderHandle create_shader(
 		const std::string& vertex_shader_bytecode,
 		const std::string& fragment_shader_bytecode,
 		const std::string& name_hint = "shader");
-	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path);
-	void bind_shader(int shader_id);
+	// Returns ShaderHandle::Invalid on failure.
+	ShaderHandle load_shader(
+		const std::string& vertex_shader_path,
+		const std::string& fragment_shader_path);
+
+	void bind_shader(ShaderHandle handle);
 	void unbind_shader();
+
 	// You need to bind the shader before set_shader_uniform_*().
-	void set_shader_uniform_1f(int shader_id, const std::string& name, float x);
-	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y);
-	void set_shader_uniform_3f(int shader_id, const std::string& name, float x, float y, float z);
-	void set_shader_uniform_4f(int shader_id, const std::string& name, float x, float y, float z, float w);
-	void set_shader_uniform_1i(int shader_id, const std::string& name, int x);
-	void set_shader_uniform_2i(int shader_id, const std::string& name, int x, int y);
+	void set_shader_uniform_1f(ShaderHandle handle, const std::string& name, float x);
+	void set_shader_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y);
+	void set_shader_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z);
+	void set_shader_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w);
+	void set_shader_uniform_1i(ShaderHandle handle, const std::string& name, int x);
+	void set_shader_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y);
 
 	// TEXTURES
 

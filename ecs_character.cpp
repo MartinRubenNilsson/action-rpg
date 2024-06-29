@@ -361,9 +361,9 @@ namespace ecs
 		const std::string base_dir = "assets/textures/character/";
 
 		// Load shader
-		const int shader_id = graphics::load_shader(
+		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/bake_character.frag");
-		if (shader_id == -1) return -1;
+		if (shader == graphics::ShaderHandle::Invalid) return -1;
 
 		// Aquire render target
 		const int render_target_id = graphics::acquire_pooled_render_target(1024, 1024);
@@ -376,10 +376,10 @@ namespace ecs
 		graphics::bind_render_target(render_target_id);
 		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
 
-		graphics::bind_shader(shader_id);
-		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
-		graphics::set_shader_uniform_1i(shader_id, "lut1", 1);
-		graphics::set_shader_uniform_1i(shader_id, "lut2", 2);
+		graphics::bind_shader(shader);
+		graphics::set_shader_uniform_1i(shader, "tex", 0);
+		graphics::set_shader_uniform_1i(shader, "lut1", 1);
+		graphics::set_shader_uniform_1i(shader, "lut2", 2);
 
 		for (const Layer& layer : layers) {
 			const int texture_id = graphics::load_texture(base_dir + layer.texture_path);
@@ -401,10 +401,10 @@ namespace ecs
 				break;
 			}
 			if (lut1_texture_id != -1) {
-				graphics::set_shader_uniform_1i(shader_id, "lut1_type", layer.lut1_type);
-				graphics::set_shader_uniform_1i(shader_id, "lut1_y", layer.lut1_y);
+				graphics::set_shader_uniform_1i(shader, "lut1_type", layer.lut1_type);
+				graphics::set_shader_uniform_1i(shader, "lut1_y", layer.lut1_y);
 			} else {
-				graphics::set_shader_uniform_1i(shader_id, "lut1_type", -1);
+				graphics::set_shader_uniform_1i(shader, "lut1_type", -1);
 			}
 
 			int lut2_texture_id = -1;
@@ -423,10 +423,10 @@ namespace ecs
 				break;
 			}
 			if (lut2_texture_id != -1) {
-				graphics::set_shader_uniform_1i(shader_id, "lut2_type", layer.lut2_type);
-				graphics::set_shader_uniform_1i(shader_id, "lut2_y", layer.lut2_y);
+				graphics::set_shader_uniform_1i(shader, "lut2_type", layer.lut2_type);
+				graphics::set_shader_uniform_1i(shader, "lut2_y", layer.lut2_y);
 			} else {
-				graphics::set_shader_uniform_1i(shader_id, "lut2_type", -1);
+				graphics::set_shader_uniform_1i(shader, "lut2_type", -1);
 			}
 
 			graphics::bind_texture(0, texture_id);

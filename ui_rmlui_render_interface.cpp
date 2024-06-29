@@ -36,8 +36,8 @@ namespace ui
 		graphics::set_texture_matrix_to_identity();
 		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
 		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
-		graphics::bind_shader(graphics::default_shader_id);
-		graphics::set_shader_uniform_1i(graphics::default_shader_id, "tex", 0);
+		graphics::bind_shader(graphics::default_shader);
+		graphics::set_shader_uniform_1i(graphics::default_shader, "tex", 0);
 	}
 
 	void restore_render_state()

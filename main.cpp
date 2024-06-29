@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
                     window::set_should_close(true);
                 }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
-                    if (ev.key.code == window::Key::Backslash) {
+                    if (ev.key.code == window::Key::GraveAccent) {
                         console::toggle_visible();
                     } else if (ev.key.code == window::Key::F1) {
                         debug_stats = !debug_stats;
@@ -263,8 +263,8 @@ int main(int argc, char* argv[])
 
         graphics::bind_render_target(graphics::window_render_target_id);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
-        graphics::bind_shader(graphics::fullscreen_shader_id);
-        graphics::set_shader_uniform_1i(graphics::fullscreen_shader_id, "tex", 0);
+        graphics::bind_shader(graphics::fullscreen_shader);
+        graphics::set_shader_uniform_1i(graphics::fullscreen_shader, "tex", 0);
         graphics::bind_texture(0, graphics::get_render_target_texture(render_target_id));
         graphics::draw_triangle_strip(4);
         graphics::release_pooled_render_target(render_target_id);

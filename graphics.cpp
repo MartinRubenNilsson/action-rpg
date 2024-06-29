@@ -70,9 +70,9 @@ void main()
 )";
 
 	int window_render_target_id = -2; // HACK: magic value -2
-	int default_shader_id = -1;
-	int fullscreen_shader_id = -1;
-	int color_only_shader_id = -1;
+	ShaderHandle default_shader = ShaderHandle::Invalid;
+	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
+	ShaderHandle color_only_shader = ShaderHandle::Invalid;
 
 	struct Shader
 	{
@@ -99,7 +99,7 @@ void main()
 	};
 
 	std::vector<Shader> _shaders;
-	std::unordered_map<std::string, int> _shader_name_to_id;
+	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
 	std::vector<Texture> _textures;
 	std::unordered_map<std::string, int> _texture_name_to_id;
 	std::vector<RenderTarget> _render_targets;
@@ -107,7 +107,8 @@ void main()
 	std::vector<int> _pooled_render_target_ids;
 	GLuint _last_bound_program_object = 0;
 
-	std::string _generate_unique_name(std::unordered_map<std::string, int> name_container, const std::string& name_hint)
+	template <class Container>
+	std::string _generate_unique_name(const Container& name_container, const std::string& name_hint)
 	{
 		std::string name = name_hint;
 		for (int i = 1; name_container.contains(name); i++) {
@@ -116,11 +117,11 @@ void main()
 		return name;
 	}
 
-	Shader* _get_shader(int shader_id)
+	Shader* _get_shader(ShaderHandle handle)
 	{
-		if (shader_id < 0 || shader_id >= (int)_shaders.size())
-			return nullptr;
-		return &_shaders[shader_id];
+		const int index = (int)handle;
+		if (index < 0 || index >= (int)_shaders.size()) return nullptr;
+		return &_shaders[index];
 	}
 
 	Texture* _get_texture(int texture_id)
@@ -172,16 +173,18 @@ void main()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		default_shader_id = create_shader(
+		default_shader = create_shader(
 			_DEFAULT_VERTEX_SHADER_BYTECODE,
 			_DEFAULT_FRAGMENT_SHADER_BYTECODE,
 			"default shader");
-		fullscreen_shader_id = create_shader(
+
+		fullscreen_shader = create_shader(
 			_FULLSCREEN_VERTEX_SHADER_BYTECODE,
 			_FULLSCREEN_FRAGMENT_SHADER_BYTECODE,
 			"fullscreen shader");
-		color_only_shader_id = create_shader(
-		_COLOR_ONLY_VERTEX_SHADER_BYTECODE,
+
+		color_only_shader = create_shader(
+			_COLOR_ONLY_VERTEX_SHADER_BYTECODE,
 			_COLOR_ONLY_PIXEL_SHADER_BYTECODE,
 			"color only shader");
 	}
@@ -194,7 +197,7 @@ void main()
 			glDeleteProgram(shader.program_object);
 		}
 		_shaders.clear();
-		_shader_name_to_id.clear();
+		_shader_name_to_handle.clear();
 
 		// DELETE TEXTURES
 
@@ -213,7 +216,7 @@ void main()
 		_render_target_name_to_id.clear();
 	}
 
-	int create_shader(
+	ShaderHandle create_shader(
 		const std::string& vertex_shader_bytecode,
 		const std::string& fragment_shader_bytecode,
 		const std::string& name_hint)
@@ -236,7 +239,7 @@ void main()
 				console::log_error(info_log);
 				glDeleteShader(vertex_shader_object);
 				glDeleteProgram(program_object);
-				return -1;
+				return ShaderHandle::Invalid;
 			}
 
 			// ATTACH VERTEX SHADER
@@ -261,7 +264,7 @@ void main()
 				console::log_error(info_log);
 				glDeleteShader(fragment_shader_object);
 				glDeleteProgram(program_object);
-				return -1;
+				return ShaderHandle::Invalid;
 			}
 
 			// ATTACH FRAGMENT SHADER
@@ -281,7 +284,7 @@ void main()
 				console::log_error("Failed to link program object: " + name_hint);
 				console::log_error(info_log);
 				glDeleteProgram(program_object);
-				return -1;
+				return ShaderHandle::Invalid;
 			}
 		}
 
@@ -303,25 +306,25 @@ void main()
 
 		// STORE SHADER
 
-		const int shader_id = (int)_shaders.size();
+		const ShaderHandle handle = (ShaderHandle)_shaders.size();
 		Shader& shader = _shaders.emplace_back();
-		shader.name = _generate_unique_name(_shader_name_to_id, name_hint);
+		shader.name = _generate_unique_name(_shader_name_to_handle, name_hint);
 		shader.uniform_locations = std::move(uniform_locations);
 		shader.program_object = program_object;
 
-		_shader_name_to_id[shader.name] = shader_id;
+		_shader_name_to_handle[shader.name] = handle;
 
-		return shader_id;
+		return handle;
 	}
 
-	int load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
+	ShaderHandle load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
 	{
 		// CHECK CACHE FOR EXISTING SHADER
 		
 		const std::string name = vertex_shader_path + ":" + fragment_shader_path;
 		{
-			const auto it = _shader_name_to_id.find(name);
-			if (it != _shader_name_to_id.end()) {
+			const auto it = _shader_name_to_handle.find(name);
+			if (it != _shader_name_to_handle.end()) {
 				return it->second;
 			}
 		}
@@ -335,7 +338,7 @@ void main()
 			std::ifstream vertex_shader_file{ vertex_shader_path };
 			if (!vertex_shader_file) {
 				console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
-				return -1;
+				return ShaderHandle::Invalid;
 			}
 			vertex_shader_bytecode = {
 				std::istreambuf_iterator<char>(vertex_shader_file),
@@ -351,7 +354,7 @@ void main()
 			std::ifstream fragment_shader_file{ fragment_shader_path };
 			if (!fragment_shader_file) {
 				console::log_error("Failed to open fragment shader file: " + fragment_shader_path);
-				return -1;
+				return ShaderHandle::Invalid;
 			}
 			fragment_shader_bytecode = {
 				std::istreambuf_iterator<char>(fragment_shader_file),
@@ -372,9 +375,9 @@ void main()
 		_last_bound_program_object = program_object;
 	}
 
-	void bind_shader(int shader_id)
+	void bind_shader(ShaderHandle handle)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			_bind_program_object(shader->program_object);
 		}
 	}
@@ -384,9 +387,9 @@ void main()
 		_bind_program_object(0);
 	}
 
-	void set_shader_uniform_1f(int shader_id, const std::string& name, float x)
+	void set_shader_uniform_1f(ShaderHandle handle, const std::string& name, float x)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform1f(it->second, x);
@@ -394,9 +397,9 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_2f(int shader_id, const std::string& name, float x, float y)
+	void set_shader_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform2f(it->second, x, y);
@@ -404,9 +407,9 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_3f(int shader_id, const std::string& name, float x, float y, float z)
+	void set_shader_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform3f(it->second, x, y, z);
@@ -414,9 +417,9 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_4f(int shader_id, const std::string& name, float x, float y, float z, float w)
+	void set_shader_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform4f(it->second, x, y, z, w);
@@ -424,9 +427,9 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_1i(int shader_id, const std::string& name, int x)
+	void set_shader_uniform_1i(ShaderHandle handle, const std::string& name, int x)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform1i(it->second, x);
@@ -434,9 +437,9 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_2i(int shader_id, const std::string& name, int x, int y)
+	void set_shader_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y)
 	{
-		if (const Shader* shader = _get_shader(shader_id)) {
+		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform2i(it->second, x, y);

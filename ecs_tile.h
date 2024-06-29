@@ -28,7 +28,7 @@ namespace ecs
 		Tile(const tiled::Tile* tile);
 
 		int texture_id = -1; // optional; if not set, the tileset texture is used
-		int shader_id = 0; // optional; if set, the shader with this ID is used
+		graphics::ShaderHandle shader = graphics::ShaderHandle::Invalid;
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner

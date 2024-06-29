@@ -57,9 +57,9 @@ namespace postprocessing
 		if (_shockwaves.empty()) return;
 
 		// Load shader
-		const int shader_id = graphics::load_shader(
+		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/shockwave.frag");
-		if (shader_id == -1) return;
+		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
 		int texture_id = graphics::get_render_target_texture(render_target_id);
@@ -67,9 +67,9 @@ namespace postprocessing
 		graphics::get_texture_size(texture_id, width, height);
 
 		// Bind some shader uniforms
-		graphics::bind_shader(shader_id);
-		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
-		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)width, (float)height);
+		graphics::bind_shader(shader);
+		graphics::set_shader_uniform_1i(shader, "tex", 0);
+		graphics::set_shader_uniform_2f(shader, "resolution", (float)width, (float)height);
 
 		for (const Shockwave& shockwave : _shockwaves) {
 
@@ -79,10 +79,10 @@ namespace postprocessing
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
 				shockwave.position_ws, camera_min, camera_max, width, height);
-			graphics::set_shader_uniform_2f(shader_id, "center", position_ts.x, position_ts.y);
-			graphics::set_shader_uniform_1f(shader_id, "force", shockwave.force);
-			graphics::set_shader_uniform_1f(shader_id, "size", shockwave.size);
-			graphics::set_shader_uniform_1f(shader_id, "thickness", shockwave.thickness);
+			graphics::set_shader_uniform_2f(shader, "center", position_ts.x, position_ts.y);
+			graphics::set_shader_uniform_1f(shader, "force", shockwave.force);
+			graphics::set_shader_uniform_1f(shader, "size", shockwave.size);
+			graphics::set_shader_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture_id);
 			graphics::bind_render_target(intermediate_render_target_id);
 			graphics::draw_triangle_strip(4);
@@ -99,9 +99,9 @@ namespace postprocessing
 		if (_darkness_intensity == 0.f) return;
 
 		// Load shader
-		const int shader_id = graphics::load_shader(
+		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/darkness.frag");
-		if (shader_id == -1) return;
+		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
 		const int texture_id = graphics::get_render_target_texture(render_target_id);
@@ -113,11 +113,11 @@ namespace postprocessing
 
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
-		graphics::bind_shader(shader_id);
-		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
-		graphics::set_shader_uniform_2f(shader_id, "resolution", (float)width, (float)height);
-		graphics::set_shader_uniform_2f(shader_id, "center", center_ts.x, center_ts.y);
-		graphics::set_shader_uniform_1f(shader_id, "intensity", _darkness_intensity);
+		graphics::bind_shader(shader);
+		graphics::set_shader_uniform_1i(shader, "tex", 0);
+		graphics::set_shader_uniform_2f(shader, "resolution", (float)width, (float)height);
+		graphics::set_shader_uniform_2f(shader, "center", center_ts.x, center_ts.y);
+		graphics::set_shader_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture_id);
 		graphics::bind_render_target(intermediate_render_target_id);
 		graphics::draw_triangle_strip(4);
@@ -132,9 +132,9 @@ namespace postprocessing
 		if (_screen_transition_progress == 0.f) return;
 
 		// Load shader
-		const int shader_id = graphics::load_shader(
+		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/screen_transition.frag");
-		if (shader_id == -1) return;
+		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
 		const int texture_id = graphics::get_render_target_texture(render_target_id);
@@ -145,10 +145,10 @@ namespace postprocessing
 		const int intermediate_render_target = graphics::acquire_pooled_render_target(width, height);
 
 		// Render screen transition
-		graphics::bind_shader(shader_id);
-		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
-		graphics::set_shader_uniform_1f(shader_id, "pixel_scale", _pixel_scale);
-		graphics::set_shader_uniform_1f(shader_id, "progress", _screen_transition_progress);
+		graphics::bind_shader(shader);
+		graphics::set_shader_uniform_1i(shader, "tex", 0);
+		graphics::set_shader_uniform_1f(shader, "pixel_scale", _pixel_scale);
+		graphics::set_shader_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture_id);
 		graphics::bind_render_target(intermediate_render_target);
 		graphics::draw_triangle_strip(4);
@@ -163,12 +163,12 @@ namespace postprocessing
 		if (_gaussian_blur_iterations == 0) return;
 
 		// Load shaders
-		const int shader_hor_id = graphics::load_shader(
+		const graphics::ShaderHandle shader_hor = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_hor.frag");
-		if (shader_hor_id == -1) return;
-		const int shader_ver_id = graphics::load_shader(
+		if (shader_hor == graphics::ShaderHandle::Invalid) return;
+		const graphics::ShaderHandle shader_ver = graphics::load_shader(
 			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_ver.frag");
-		if (shader_ver_id == -1) return;
+		if (shader_ver == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
 		const int texture_id = graphics::get_render_target_texture(render_target_id);
@@ -187,17 +187,17 @@ namespace postprocessing
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 
 			// Horizontal pass
-			graphics::bind_shader(shader_hor_id);
-			graphics::set_shader_uniform_1i(shader_hor_id, "tex", 0);
-			graphics::set_shader_uniform_2f(shader_hor_id, "tex_size", (float)width, (float)height);
+			graphics::bind_shader(shader_hor);
+			graphics::set_shader_uniform_1i(shader_hor, "tex", 0);
+			graphics::set_shader_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture_id);
 			graphics::bind_render_target(intermediate_render_target_id);
 			graphics::draw_triangle_strip(4);
 
 			// Vertical pass
-			graphics::bind_shader(shader_ver_id);
-			graphics::set_shader_uniform_1i(shader_ver_id, "tex", 0);
-			graphics::set_shader_uniform_2f(shader_ver_id, "tex_size", (float)width, (float)height);
+			graphics::bind_shader(shader_ver);
+			graphics::set_shader_uniform_1i(shader_ver, "tex", 0);
+			graphics::set_shader_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture_id);
 			graphics::bind_render_target(render_target_id);
 			graphics::draw_triangle_strip(4);

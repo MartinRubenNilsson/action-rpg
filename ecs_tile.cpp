@@ -21,9 +21,11 @@ namespace ecs
 		_set_tile(tile);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
-			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
+			shader = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
 		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
-			shader_id = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
+			shader = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
+		} else {
+			shader = graphics::default_shader;
 		}
 	}
 
@@ -236,7 +238,7 @@ namespace ecs
 			sprite.tex_max /= texture_size;
 			//std::swap(sprite.tex_min.y, sprite.tex_max.y); // flip Y
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-			sprite.shader_id = tile.shader_id;
+			sprite.shader = tile.shader;
 			sprite.color = tile.color;
 			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
@@ -253,10 +255,10 @@ namespace ecs
 			sprite.pre_render_callback = nullptr;
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
-					if (sprite.shader_id <= 0) return;
-					graphics::bind_shader(sprite.shader_id);
-					graphics::set_shader_uniform_1f(sprite.shader_id, "time", _tile_time_accumulator);
-					graphics::set_shader_uniform_2f(sprite.shader_id, "position", sprite.min.x, sprite.min.y);
+					if (sprite.shader == graphics::ShaderHandle::Invalid) return;
+					graphics::bind_shader(sprite.shader);
+					graphics::set_shader_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
+					graphics::set_shader_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
 				};
 			}
 			sprites::add_sprite_to_render_queue(sprite);

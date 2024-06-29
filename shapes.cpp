@@ -229,7 +229,7 @@ namespace shapes
 		_last_calculated_view_bounds.min_y = camera_min.y;
 		_last_calculated_view_bounds.max_x = camera_max.x;
 		_last_calculated_view_bounds.max_y = camera_max.y;
-		graphics::bind_shader(graphics::color_only_shader_id);
+		graphics::bind_shader(graphics::color_only_shader);
 		_render_lines();
 		_render_boxes();
 		_render_polygons();

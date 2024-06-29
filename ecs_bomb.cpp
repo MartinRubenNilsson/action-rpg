@@ -25,7 +25,7 @@ namespace ecs
         create_vfx(VfxType::Explosion, bomb.explosion_center);
         destroy_at_end_of_frame(entity);
         audio::play("event:/snd_bomb_explosion");
-        audio::stop(bomb.fuse_sound_event);
+        audio::stop(bomb.fuse_sound);
         postprocessing::create_shockwave(bomb.explosion_center);
     }
 
@@ -69,7 +69,7 @@ namespace ecs
             bomb.explosion_timer.start();
             audio::EventOptions options{};
             options.position = position;
-            bomb.fuse_sound_event = audio::play("event:/snd_bomb_fuse", options);
+            bomb.fuse_sound = audio::play("event:/snd_bomb_fuse", options);
             bomb.explosion_center = position;
         }
         {
