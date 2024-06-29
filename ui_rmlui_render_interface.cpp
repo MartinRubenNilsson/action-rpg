@@ -56,6 +56,8 @@ namespace ui
 	{
 		glPushMatrix();
 		glTranslatef(translation.x, translation.y, 0);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
