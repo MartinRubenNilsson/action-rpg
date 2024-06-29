@@ -3,7 +3,7 @@
 #include "console.h"
 #include <glad/glad.h>
 #pragma comment(lib, "opengl32")
-//#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 namespace graphics

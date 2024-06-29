@@ -386,6 +386,7 @@
     <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="ui_textbox_presets.cpp" />
     <ClCompile Include="window.cpp" />
+    <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bake_character.frag" />

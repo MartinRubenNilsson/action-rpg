@@ -1,7 +1,6 @@
 {
   "dependencies": [
     "glfw3",
-    "sfml",
     {
       "name": "imgui",
       "features": [ "glfw-binding", "opengl3-binding" ]

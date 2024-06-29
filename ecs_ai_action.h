@@ -29,7 +29,7 @@ namespace ecs
 		AiActionType type = AiActionType::None;
 		AiActionStatus status = AiActionStatus::Running;
 		float running_time = 0.f;
-		std::vector<sf::Vector2i> path; // path of tile positions
+		std::vector<Vector2i> path; // path of tile positions
 
 		// ACTION-SPECIFIC PARAMETERS
 

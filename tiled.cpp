@@ -202,7 +202,11 @@ namespace tiled
 						std::string color_str = wangcolor_node.attribute("color").as_string();
 						color_str.erase(color_str.begin()); // remove leading '#'
 						color_str += "ff"; // add alpha channel
-						wangcolor.color = Color(std::stoul(color_str, nullptr, 16));
+						const unsigned long color = std::stoul(color_str, nullptr, 16);
+						wangcolor.color.r = (color >> 24) & 0xFF;
+						wangcolor.color.g = (color >> 16) & 0xFF;
+						wangcolor.color.b = (color >> 8) & 0xFF;
+						wangcolor.color.a = color & 0xFF;
 					}
 				}
 				for (pugi::xml_node wangtile_node : wangset_node.children("wangtile")) {

@@ -1,14 +1,14 @@
 #pragma once
-#include <SFML/System/Vector2.hpp>
+#include "vector2.h"
 
 // CONSTANTS
 
-constexpr float M_PI      = 3.141592654f;
-constexpr float M_2PI     = 6.283185307f;
-constexpr float M_1DIVPI  = 0.318309886f;
-constexpr float M_1DIV2PI = 0.159154943f;
-constexpr float M_PIDIV2  = 1.570796327f;
-constexpr float M_PIDIV4  = 0.785398163f;
+inline constexpr float M_PI      = 3.141592654f;
+inline constexpr float M_2PI     = 6.283185307f;
+inline constexpr float M_1DIVPI  = 0.318309886f;
+inline constexpr float M_1DIV2PI = 0.159154943f;
+inline constexpr float M_PIDIV2  = 1.570796327f;
+inline constexpr float M_PIDIV4  = 0.785398163f;
 
 // SCALARS
 

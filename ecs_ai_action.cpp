@@ -109,16 +109,16 @@ namespace ecs
 					action.path.clear();
 					break;
 				}
-				sf::Vector2i my_tile = map::world_to_tile(my_pos);
-				sf::Vector2i target_tile = map::world_to_tile(target_pos);
+				Vector2i my_tile = map::world_to_tile(my_pos);
+				Vector2i target_tile = map::world_to_tile(target_pos);
 				if (my_tile == target_tile)
 					break;
 				if (!map::pathfind(my_tile, target_tile, action.path)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				sf::Vector2i next_tile = action.path[1];
-				sf::Vector2i to_next_tile = next_tile - my_tile;
+				Vector2i next_tile = action.path[1];
+				Vector2i to_next_tile = next_tile - my_tile;
 				Vector2f magnetic_field_origin =
 					(map::get_tile_center(my_tile) + map::get_tile_center(next_tile)) * 0.5f;
 				Vector2f magnetic_field_to_me = my_pos - magnetic_field_origin;

@@ -19,15 +19,7 @@
 #include "clock.h"
 #include "imgui_backends.h"
 
-#pragma comment(lib, "winmm") // SFML requires this
-#ifdef _DEBUG
-#pragma comment(lib, "sfml-main-d")
-#else
-#pragma comment(lib, "sfml-main")
-#endif
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     if (steam::restart_app_if_necessary()) {
         return EXIT_FAILURE;
     }

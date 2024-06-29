@@ -299,6 +299,9 @@
     <ClCompile Include="imgui_backends.cpp">
       <Filter>application</Filter>
     </ClCompile>
+    <ClCompile Include="winmain.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
