@@ -5,7 +5,7 @@ namespace settings
 	extern const std::string SETTINGS_FILE_DEFAULT_PATH;
 
 	extern bool fullscreen;
-	extern unsigned int window_scale;
+	extern unsigned int window_scale; // Determines window size relative to WINDOW_MIN_WIDTH/HEIGHT
 	extern bool vsync;
 	extern float volume_master;
 	extern float volume_music;

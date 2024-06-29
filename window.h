@@ -5,19 +5,6 @@ struct GLFWwindow;
 namespace window
 {
 	struct Event;
-	extern const Vector2u BASE_SIZE;
-
-#if 0
-	struct State
-	{
-		std::string title = "Action RPG";
-		std::string icon = "assets/window/swordsman.png"; // Path to icon file.
-		uint32_t scale = 5; // Only used if fullscreen is false.
-		bool fullscreen = false;
-		bool vsync = false;
-		bool cursor_visible = true;
-	};
-#endif
 
 	bool initialize();
 	void shutdown();
@@ -36,6 +23,8 @@ namespace window
 	void swap_buffers(); 
 
 	bool has_focus();
+	void set_visible(bool visible);
+	bool get_visible();
 	void set_size(int width, int height);
 	void get_size(int& width, int& height);
 	void get_framebuffer_size(int& width, int& height);

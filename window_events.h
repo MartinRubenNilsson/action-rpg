@@ -167,12 +167,13 @@ namespace window
 	{
 		Key code;
 		int scancode;
+		//int mods;
 	};
 
 	struct MouseButtonEvent
 	{
 		MouseButton button;
-		int mods;
+		//int mods;
 	};
 
 	struct MouseMoveEvent

@@ -14,17 +14,15 @@ namespace settings
 	float volume_music = 1.f;
 	float volume_sound = 1.f;
 
-	void apply() {
-#if 0
-		window::State window_desc = window::get_state();
-		window_desc.fullscreen = fullscreen;
-		window_desc.scale = window_scale;
-		window_desc.vsync = vsync;
-		window::set_state(window_desc);
+	void apply()
+	{
+		//window_desc.fullscreen = fullscreen;
+		//window_desc.scale = window_scale;
+		//window_desc.vsync = vsync;
+		window::set_size(WINDOW_MIN_WIDTH * window_scale, WINDOW_MIN_HEIGHT * window_scale);
 		audio::set_bus_volume(audio::BUS_MASTER, volume_master);
 		audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
 		audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
-#endif
 	}
 
 	void save_to_stream(std::ostream& os)

@@ -11,3 +11,6 @@
 #ifdef _DEBUG
 #define BUILD_IMGUI
 #endif
+
+#define WINDOW_MIN_WIDTH 320
+#define WINDOW_MIN_HEIGHT 180

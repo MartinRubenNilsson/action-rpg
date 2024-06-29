@@ -35,14 +35,16 @@ int main(int argc, char* argv[])
     ui::initialize();
     ecs::initialize();
 
-    settings::load_from_file();
-    settings::apply(); // This must only happen after all systems are initialized.
-
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");
     ui::load_ttf_fonts("assets/fonts");
     ui::load_rml_documents("assets/ui");
     ui::add_event_listeners(); // Must come after loading RML documents.
+
+    settings::load_from_file();
+    settings::apply();
+
+    window::set_visible(true);
 
     // PREPARE FOR GAME LOOP
 

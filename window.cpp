@@ -8,8 +8,6 @@
 
 namespace window
 {
-	const Vector2u BASE_SIZE(320, 180); //TODO: remove dependency on sfml
-
 	GLFWwindow* _glfw_window = nullptr;
 	std::queue<Event> _event_queue;
 	
@@ -101,8 +99,8 @@ namespace window
 #ifdef _DEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
-		const unsigned int scale = 4;
-		_glfw_window = glfwCreateWindow(BASE_SIZE.x * scale, BASE_SIZE.y * scale, "Action RPG", nullptr, nullptr);
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until we're ready to show it.
+		_glfw_window = glfwCreateWindow(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, "Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
 
 		glfwMakeContextCurrent(_glfw_window);
@@ -174,6 +172,20 @@ namespace window
 	bool has_focus()
 	{
 		return glfwGetWindowAttrib(_glfw_window, GLFW_FOCUSED);
+	}
+
+	void set_visible(bool visible)
+	{
+		if (visible) {
+			glfwShowWindow(_glfw_window);
+		} else {
+			glfwHideWindow(_glfw_window);
+		}
+	}
+
+	bool get_visible()
+	{
+		return glfwGetWindowAttrib(_glfw_window, GLFW_VISIBLE);
 	}
 
 	void set_size(int width, int height)
