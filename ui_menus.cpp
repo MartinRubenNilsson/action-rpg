@@ -83,8 +83,9 @@ namespace ui
 
 	void push_menu(MenuType type)
 	{
-		if (!_menu_stack.empty())
+		if (!_menu_stack.empty()) {
 			_set_menu_visible(_menu_stack.back(), false);
+		}
 		_menu_stack.push_back(type);
 		_set_menu_visible(type, true);
 	}
@@ -101,7 +102,8 @@ namespace ui
 	void pop_all_menus()
 	{
 		_menu_stack.clear();
-		for (int i = 0; i < (int)MenuType::Count; ++i)
+		for (int i = 0; i < (int)MenuType::Count; ++i) {
 			_set_menu_visible((MenuType)i, false);
+		}
 	}
 }

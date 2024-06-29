@@ -62,6 +62,21 @@ namespace window
 		_event_queue.push(ev);
 	}
 
+	void _mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+	{
+		Event ev{};
+		if (action == GLFW_PRESS) {
+			ev.type = EventType::MouseButtonPress;
+		} else if (action == GLFW_RELEASE) {
+			ev.type = EventType::MouseButtonRelease;
+		} else {
+			return;
+		}
+		ev.mouse_button.button = (MouseButton)button;
+		//ev.mouse_button.mods = mods;
+		_event_queue.push(ev);
+	}
+
 	void _cursor_pos_callback(GLFWwindow* window, double x, double y)
 	{
 		Event ev{};
@@ -97,6 +112,7 @@ namespace window
 		glfwSetKeyCallback(_glfw_window, _key_callback);
 		glfwSetWindowSizeCallback(_glfw_window, _window_size_callback);
 		glfwSetFramebufferSizeCallback(_glfw_window, _framebuffer_size_callback);
+		glfwSetMouseButtonCallback(_glfw_window, _mouse_button_callback);
 		glfwSetCursorPosCallback(_glfw_window, _cursor_pos_callback);
 
 		glfwSwapInterval(0); // Disable vsync

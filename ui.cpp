@@ -265,19 +265,30 @@ namespace ui
 			// Don't set density independent pixel ratio for the debugger context!
 			// It should always be 1.0, so that it remains the same size.
 		} break;
+		case window::EventType::KeyPress: {
+			if (ev.key.code == window::Key::Escape) {
+				_on_escape_key_pressed();
+			}
+			_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+		} break;
+		case window::EventType::KeyRelease: {
+			_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+		} break;
 		case window::EventType::MouseMove: {
 			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
 			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
 		} break;
+		case window::EventType::MouseButtonPress:
+			_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_state);
+			_debugger_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_state);
+			break;
+		case window::EventType::MouseButtonRelease:
+			_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_state);
+			_debugger_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_state);
+			break;
 #if 0
-		case sf::Event::MouseButtonPressed:
-			_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
-			_debugger_context->ProcessMouseButtonDown(ev.mouseButton.button, key_modifier_state);
-			break;
-		case sf::Event::MouseButtonReleased:
-			_context->ProcessMouseButtonUp(ev.mouseButton.button, key_modifier_state);
-			_debugger_context->ProcessMouseButtonUp(ev.mouseButton.button, key_modifier_state);
-			break;
 		case sf::Event::MouseWheelMoved:
 			_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
 			_debugger_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
@@ -296,17 +307,6 @@ namespace ui
 			}
 		} break;
 #endif
-		case window::EventType::KeyPress:
-			if (ev.key.code == window::Key::Escape) {
-				_on_escape_key_pressed();
-			}
-			_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			break;
-		case window::EventType::KeyRelease:
-			_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			break;
 		}
 	}
 

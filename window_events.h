@@ -129,6 +129,21 @@ namespace window
 		Menu = 348,
 	};
 
+	enum class MouseButton
+	{
+		Button1,
+		Button2,
+		Button3,
+		Button4,
+		Button5,
+		Button6,
+		Button7,
+		Button8,
+		Left = Button1,
+		Right = Button2,
+		Middle = Button3,
+	};
+
 	enum class EventType
 	{
 		WindowClose, // User attemped to close the window by clicking the close widget or using a key chord like Alt + F4.
@@ -137,6 +152,8 @@ namespace window
 		KeyPress,
 		KeyRepeat,
 		KeyRelease,
+		MouseButtonPress,
+		MouseButtonRelease,
 		MouseMove,
 	};
 
@@ -152,6 +169,12 @@ namespace window
 		int scancode;
 	};
 
+	struct MouseButtonEvent
+	{
+		MouseButton button;
+		int mods;
+	};
+
 	struct MouseMoveEvent
 	{
 		double x;
@@ -165,6 +188,7 @@ namespace window
 		{
 			SizeEvent size;
 			KeyEvent key;
+			MouseButtonEvent mouse_button;
 			MouseMoveEvent mouse_move;
 		};
 	};
