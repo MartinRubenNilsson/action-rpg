@@ -507,6 +507,10 @@ void main()
 
 	int copy_texture(unsigned int texture_id)
 	{
+		// This fixes a bug where texture would become a dangling pointer
+		// if create_texture() causes _textures to reallocate.
+		_textures.reserve(_textures.size() + 1);
+
 		const Texture* texture = _get_texture(texture_id);
 		if (!texture) return -1;
 

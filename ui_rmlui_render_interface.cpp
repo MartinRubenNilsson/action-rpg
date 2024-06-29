@@ -59,8 +59,8 @@ namespace ui
 		glVertexPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
-			graphics::bind_texture(0, (int)texture - 1);
 			glEnable(GL_TEXTURE_2D);
+			graphics::bind_texture(0, (int)texture - 1);
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
