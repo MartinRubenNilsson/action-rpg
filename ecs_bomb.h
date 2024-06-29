@@ -8,7 +8,7 @@ namespace ecs
         Timer explosion_timer = { 3.f };
         Vector2f explosion_center;
         float explosion_radius = 20.f;
-        int fuse_sounds_event_id = -1;
+        audio::EventHandle fuse_sound_event = audio::EventHandle::Invalid;
     };
 
     void update_bombs(float dt);

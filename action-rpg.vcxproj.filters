@@ -825,6 +825,7 @@
     <ClInclude Include="ui_rmlui_system_interface.h">
       <Filter>ui\rmlui_interfaces</Filter>
     </ClInclude>
+    <ClInclude Include="handles.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

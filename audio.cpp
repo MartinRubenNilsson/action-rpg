@@ -13,7 +13,6 @@
 
 namespace audio
 {
-	const int INVALID_EVENT_ID = -1;
 	const std::string BUS_MASTER = "bus:/";
 	const std::string BUS_SOUND = "bus:/sound";
 	const std::string BUS_MUSIC = "bus:/music";
@@ -28,8 +27,8 @@ namespace audio
 
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
-	int _next_event_id = 0;
-	std::unordered_map<int, FMOD::Studio::EventInstance*> _event_id_to_instance;
+	int _next_handle_numerical_value = 0;
+	std::unordered_map<EventHandle, FMOD::Studio::EventInstance*> _event_handle_to_instance;
 	std::unordered_set<std::string> _events_played_this_frame;
 
 	FMOD_RESULT F_CALLBACK _on_event_destroyed(
@@ -37,9 +36,9 @@ namespace audio
 		FMOD_STUDIO_EVENTINSTANCE* event,
 		void* parameters)
 	{
-		void* event_id = nullptr;
-		((FMOD::Studio::EventInstance*)event)->getUserData((void**)&event_id);
-		_event_id_to_instance.erase((int)(uintptr_t)event_id);
+		void* handle = nullptr;
+		((FMOD::Studio::EventInstance*)event)->getUserData((void**)&handle);
+		_event_handle_to_instance.erase((EventHandle)(uintptr_t)handle);
 		return FMOD_OK;
 	}
 
@@ -75,10 +74,10 @@ namespace audio
 		return std::span(_event_buffer, count);
 	}
 
-	FMOD::Studio::EventInstance* _find_event_instance(int event_id)
+	FMOD::Studio::EventInstance* _get_event_instance(EventHandle handle)
 	{
-		auto it = _event_id_to_instance.find(event_id);
-		return it == _event_id_to_instance.end() ? nullptr : it->second;
+		auto it = _event_handle_to_instance.find(handle);
+		return it == _event_handle_to_instance.end() ? nullptr : it->second;
 	}
 
 	void initialize()
@@ -215,18 +214,18 @@ namespace audio
 		return false;
 	}
 
-	int play(const std::string& event_path, const EventOptions& options)
+	EventHandle play(const std::string& event_path, const EventOptions& options)
 	{
-		if (_events_played_this_frame.contains(event_path)) return INVALID_EVENT_ID;
+		if (_events_played_this_frame.contains(event_path)) return EventHandle::Invalid;
 		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return INVALID_EVENT_ID;
+		if (!desc) return EventHandle::Invalid;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
-		if (!instance) return INVALID_EVENT_ID;
-		int event_id = _next_event_id++;
-		_event_id_to_instance[event_id] = instance;
+		if (!instance) return EventHandle::Invalid;
+		const EventHandle handle = (EventHandle)_next_handle_numerical_value++;
+		_event_handle_to_instance[handle] = instance;
 		_events_played_this_frame.insert(event_path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
-		instance->setUserData((void*)(uintptr_t)event_id);
+		instance->setUserData((void*)(uintptr_t)handle);
 		instance->setVolume(options.volume);
 		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(options.position);
 		instance->set3DAttributes(&attributes);
@@ -234,51 +233,51 @@ namespace audio
 			instance->start();
 		if (options.release)
 			instance->release();
-		return event_id;
+		return handle;
 	}
 
-	bool is_valid(int event_id)
+	bool is_valid(EventHandle handle)
 	{
-		if (event_id == INVALID_EVENT_ID) return false;
-		return _event_id_to_instance.contains(event_id);
+		if (handle == EventHandle::Invalid) return false;
+		return _event_handle_to_instance.contains(handle);
 	}
 
-	bool stop(int event_id)
+	bool stop(EventHandle handle)
 	{
-		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
 		instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 		return true;
 	}
 
-	bool set_volume(int event_id, float volume)
+	bool set_volume(EventHandle handle, float volume)
 	{
-		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
 		instance->setVolume(volume);
 		return true;
 	}
 
-	bool get_volume(int event_id, float& volume)
+	bool get_volume(EventHandle handle, float& volume)
 	{
-		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
 		instance->getVolume(&volume);
 		return true;
 	}
 
-	bool set_position(int event_id, const Vector2f& position)
+	bool set_position(EventHandle handle, const Vector2f& position)
 	{
-		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
 		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(position);
 		instance->set3DAttributes(&attributes);
 		return true;
 	}
 
-	bool get_position(int event_id, Vector2f& position)
+	bool get_position(EventHandle handle, Vector2f& position)
 	{
-		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
+		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
 		FMOD_3D_ATTRIBUTES attributes{};
 		instance->get3DAttributes(&attributes);
