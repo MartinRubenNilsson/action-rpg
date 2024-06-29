@@ -89,7 +89,7 @@ namespace window
 		glfwSwapInterval(0); // Disable vsync
 		set_icon_from_file("assets/window/swordsman.png");
 
-		// Spoof resize events to ensure that other systems are aware of the window/framebuufer size.
+		// Spoof resize events to ensure that other systems are aware of the window/framebuffer size.
 		int width, height;
 		glfwGetWindowSize(_glfw_window, &width, &height);
 		_window_size_callback(_glfw_window, width, height);
@@ -186,6 +186,27 @@ namespace window
 		}
 		set_icon_from_memory(width, height, pixels);
 		stbi_image_free(pixels);
+	}
+
+	void set_cursor_visible(bool visible)
+	{
+		if (get_cursor_visible() == visible) return;
+		glfwSetInputMode(_glfw_window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+	}
+
+	bool get_cursor_visible()
+	{
+		return glfwGetInputMode(_glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
+	}
+
+	void set_cursor_pos(double x, double y)
+	{
+		glfwSetCursorPos(_glfw_window, x, y);
+	}
+
+	void get_cursor_pos(double& x, double& y)
+	{
+		glfwGetCursorPos(_glfw_window, &x, &y);
 	}
 
 	void set_clipboard_string(const std::string& string)

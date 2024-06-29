@@ -42,6 +42,12 @@ namespace window
 	void set_title(const std::string& title);
 	void set_icon_from_memory(int width, int height, unsigned char* pixels);
 	void set_icon_from_file(const std::string& path); // uses stb_image internally
+
+	void set_cursor_visible(bool visible);
+	bool get_cursor_visible();
+	void set_cursor_pos(double x, double y);
+	void get_cursor_pos(double& x, double& y);
+
 	void set_clipboard_string(const std::string& string);
 	std::string get_clipboard_string();
 }

@@ -232,13 +232,17 @@ int main(int argc, char* argv[]) {
         shapes::render(camera_min, camera_max);
         ui::render();
 
-        bool show_built_in_cursor = false;
+        bool show_custom_cursor = true;
 #ifdef BUILD_IMGUI
-        ImGui::GetIO().WantCaptureMouse;
+        if (ImGui::GetIO().WantCaptureMouse) {
+            show_custom_cursor = false;
+        }
 #endif
-        //window.setMouseCursorVisible(show_built_in_cursor);
-        cursor::set_visible(!show_built_in_cursor);
-        //cursor::set_position(Vector2f(sf::Mouse::getPosition(window)));
+        double cursor_x, cursor_y;
+        window::get_cursor_pos(cursor_x, cursor_y);
+        //window::set_cursor_visible(false); //Does not work :(
+        cursor::set_visible(show_custom_cursor);
+        cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
         //cursor::set_scale((float)window::get_state().scale);
         cursor::render_sprite();
 
