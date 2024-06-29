@@ -34,14 +34,8 @@ int main(int argc, char* argv[]) {
     ui::initialize();
     ecs::initialize();
 
-#if 0
-    {
-        // Settings::set() affects window and audio, so these must be initialized first.
-        Settings settings{};
-        if (settings.load()) settings.set();
-        else window::set_state(window::State());
-    }
-#endif
+    settings::load_from_file();
+    settings::apply(); // This must only happen after all systems are initialized.
 
     audio::load_bank_files("assets/audio/banks");
     tiled::load_assets("assets/tiled");

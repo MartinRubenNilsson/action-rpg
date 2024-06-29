@@ -13,35 +13,30 @@ namespace ui
 			switch (ev.GetId())
 			{
 			case Rml::EventId::Show: {
-				Settings settings{};
-				settings.get();
 				if (Rml::ElementDocument* doc = _get_menu_document(MenuType::Settings)) {
 					if (Rml::Element* el = doc->GetElementById("checkbox-fullscreen"))
-						settings.fullscreen ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
+						settings::fullscreen ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
 					if (Rml::Element* el = doc->GetElementById("select-window-scale"))
-						el->SetAttribute("value", std::to_string(settings.window_scale));
+						el->SetAttribute("value", std::to_string(settings::window_scale));
 					if (Rml::Element* el = doc->GetElementById("checkbox-vsync"))
-						settings.vsync ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
+						settings::vsync ? el->SetAttribute("checked", "true") : el->RemoveAttribute("checked");
 					if (Rml::Element* el = doc->GetElementById("range-volume-master"))
-						el->SetAttribute("value", std::to_string(settings.volume_master));
+						el->SetAttribute("value", std::to_string(settings::volume_master));
 					if (Rml::Element* el = doc->GetElementById("range-volume-sound"))
-						el->SetAttribute("value", std::to_string(settings.volume_sound));
+						el->SetAttribute("value", std::to_string(settings::volume_sound));
 					if (Rml::Element* el = doc->GetElementById("range-volume-music"))
-						el->SetAttribute("value", std::to_string(settings.volume_music));
+						el->SetAttribute("value", std::to_string(settings::volume_music));
 				}
 			} break;
 			case Rml::EventId::Submit: {
 				std::string type = ev.GetType();
-				Settings settings{};
-				settings.get();
-				settings.fullscreen = (ev.GetParameter("fullscreen", Rml::String("off")) == "on");
-				settings.window_scale = ev.GetParameter("window-scale", 5);
-				settings.vsync = (ev.GetParameter("vsync", Rml::String("off")) == "on");
-				settings.volume_master = ev.GetParameter("volume-master", 1.f);
-				settings.volume_sound = ev.GetParameter("volume-sound", 1.f);
-				settings.volume_music = ev.GetParameter("volume-music", 1.f);
-				settings.set();
-				settings.save();
+				settings::fullscreen = (ev.GetParameter("fullscreen", Rml::String("off")) == "on");
+				settings::window_scale = ev.GetParameter("window-scale", 5);
+				settings::vsync = (ev.GetParameter("vsync", Rml::String("off")) == "on");
+				settings::volume_master = ev.GetParameter("volume-master", 1.f);
+				settings::volume_sound = ev.GetParameter("volume-sound", 1.f);
+				settings::volume_music = ev.GetParameter("volume-music", 1.f);
+				settings::apply();
 			} break;
 		}
 		}

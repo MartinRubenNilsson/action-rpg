@@ -1,19 +1,21 @@
 #pragma once
 
-struct Settings
+namespace settings
 {
-	bool fullscreen = false;
-	uint32_t window_scale = 5;
-	bool vsync = false;
-	float volume_master = 1.f;
-	float volume_music = 1.f;
-	float volume_sound = 1.f;
+	extern bool fullscreen;
+	extern unsigned int window_scale;
+	extern bool vsync;
+	extern float volume_master;
+	extern float volume_music;
+	extern float volume_sound;
 
-	void set() const;
-	void get();
-	void write(std::ostream& os) const;
-	void read(std::istream& is);
-	bool save(const std::filesystem::path& filename = "settings.txt") const;
-	bool load(const std::filesystem::path& filename = "settings.txt");
-};
+	// Call apply() to make any changes take effect.
+	// Also, the load functions doesn't call apply() automatically,
+	// rather they only update the above variables.
 
+	void apply();
+	void save_to_stream(std::ostream& os);
+	void load_from_stream(std::istream& is);
+	bool save_to_file(const std::string& filename = "settings.txt");
+	bool load_from_file(const std::string& filename = "settings.txt");
+}
