@@ -4,7 +4,8 @@
 
 namespace ui
 {
-	Rml::Input::KeyIdentifier _get_key_identifier(const Rml::Event& ev) {
+	Rml::Input::KeyIdentifier _get_key_identifier(const Rml::Event& ev)
+	{
 		return (Rml::Input::KeyIdentifier)ev.GetParameter<int>("key_identifier", Rml::Input::KI_UNKNOWN);
 	}
 
@@ -151,18 +152,14 @@ namespace ui
 
 	void _set_textbox_document_visible(bool visible)
 	{
-		if (Rml::ElementDocument* doc = _get_textbox_document())
+		if (Rml::ElementDocument* doc = _get_textbox_document()) {
 			visible ? doc->Show() : doc->Hide();
+		}
 	}
 
 	void update_textbox(float dt)
 	{
-		if (_textbox) {
-			_set_textbox_document_visible(true);
-		} else {
-			_set_textbox_document_visible(false);
-			return;
-		}
+		if (!_textbox) return;
 
 		size_t plain_count = _get_plain_count(_textbox->text);
 		if (_textbox_typing_counter < plain_count && _textbox->typing_speed > 0.f) {
@@ -201,7 +198,8 @@ namespace ui
 		}
 	}
 
-	bool is_textbox_open() {
+	bool is_textbox_open()
+	{
 		return _textbox.has_value();
 	}
 
@@ -222,11 +220,14 @@ namespace ui
 		_textbox = textbox;
 		_textbox_typing_time = 0.f;
 		_textbox_typing_counter = 0;
-		if (!_textbox->opening_sound.empty())
+		if (!_textbox->opening_sound.empty()) {
 			audio::play("event:/" + _textbox->opening_sound);
+		}
+		_set_textbox_document_visible(true);
 	}
 
-	void enqueue_textbox(const Textbox& textbox) {
+	void enqueue_textbox(const Textbox& textbox)
+	{
 		_textbox_queue.push_back(textbox);
 	}
 
@@ -254,6 +255,7 @@ namespace ui
 	{
 		_textbox.reset();
 		bindings::_clear_textbox_bindings();
+		_set_textbox_document_visible(false);
 	}
 
 	void close_textbox_and_clear_queue()
@@ -264,7 +266,8 @@ namespace ui
 
 	void open_or_enqueue_textbox_presets(const std::string& id)
 	{
-		for (const Textbox& textbox : find_textbox_presets(id))
+		for (const Textbox& textbox : find_textbox_presets(id)) {
 			open_or_enqueue_textbox(textbox);
+		}
 	}
 }
