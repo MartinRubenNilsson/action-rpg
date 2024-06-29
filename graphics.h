@@ -17,7 +17,7 @@ namespace graphics
 		Vector2f tex_coord;
 	};
 
-	extern int window_render_target_id;
+	extern RenderTargetHandle window_render_target;
 
 	extern ShaderHandle default_shader;
 	extern ShaderHandle fullscreen_shader;
@@ -28,12 +28,10 @@ namespace graphics
 
 	// SHADERS
 
-	// Returns ShaderHandle::Invalid on failure.
 	ShaderHandle create_shader(
 		const std::string& vertex_shader_bytecode,
 		const std::string& fragment_shader_bytecode,
 		const std::string& name_hint = "shader");
-	// Returns ShaderHandle::Invalid on failure.
 	ShaderHandle load_shader(
 		const std::string& vertex_shader_path,
 		const std::string& fragment_shader_path);
@@ -51,16 +49,13 @@ namespace graphics
 
 	// TEXTURES
 
-	// Returns TextureHandle::Invalid on failure.
 	TextureHandle create_texture(
 		unsigned int width,
 		unsigned int height,
 		unsigned int channels = 4,
 		const unsigned char* data = nullptr, //pass nullptr to create an empty texture
 		std::string name_hint = "texture");
-	// Returns TextureHandle::Invalid on failure.
 	TextureHandle load_texture(const std::string& path);
-	// Returns TextureHandle::Invalid on failure.
 	TextureHandle copy_texture(TextureHandle handle);
 
 	void bind_texture(unsigned int texture_unit, TextureHandle handle);
@@ -72,16 +67,18 @@ namespace graphics
 
 	// RENDER TARGETS
 
-	int create_render_target(
+	RenderTargetHandle create_render_target(
 		unsigned int width,
 		unsigned int height,
 		std::string name_hint = "render target");
-	int acquire_pooled_render_target(unsigned int width, unsigned int height);
-	void release_pooled_render_target(int render_target_id);
-	void bind_render_target(int render_target_id);
+	RenderTargetHandle acquire_pooled_render_target(unsigned int width, unsigned int height);
+	void release_pooled_render_target(RenderTargetHandle handle);
+
+	void bind_render_target(RenderTargetHandle handle);
+
 	// You need to bind the render target before calling clear_render_target().
 	void clear_render_target(float r, float g, float b, float a);
-	TextureHandle get_render_target_texture(int render_target_id);
+	TextureHandle get_render_target_texture(RenderTargetHandle handle);
 
 	// FIXED-FUNCTION PIPELINE
 

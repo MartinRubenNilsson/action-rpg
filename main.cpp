@@ -180,9 +180,9 @@ int main(int argc, char* argv[])
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
 
-        int render_target_id = graphics::acquire_pooled_render_target(
+        graphics::RenderTargetHandle render_target = graphics::acquire_pooled_render_target(
             window_framebuffer_width, window_framebuffer_height);
-        graphics::bind_render_target(render_target_id);
+        graphics::bind_render_target(render_target);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
 
         {
@@ -234,7 +234,7 @@ int main(int argc, char* argv[])
         postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
         postprocessing::set_pixel_scale(pixel_scale);
-        postprocessing::render(render_target_id, camera_min, camera_max);
+        postprocessing::render(render_target, camera_min, camera_max);
 
         shapes::render(camera_min, camera_max);
         ui::render();
@@ -261,13 +261,13 @@ int main(int argc, char* argv[])
 
         // RENDER TO WINDOW
 
-        graphics::bind_render_target(graphics::window_render_target_id);
+        graphics::bind_render_target(graphics::window_render_target);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
         graphics::bind_shader(graphics::fullscreen_shader);
         graphics::set_shader_uniform_1i(graphics::fullscreen_shader, "tex", 0);
-        graphics::bind_texture(0, graphics::get_render_target_texture(render_target_id));
+        graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
         graphics::draw_triangle_strip(4);
-        graphics::release_pooled_render_target(render_target_id);
+        graphics::release_pooled_render_target(render_target);
 
         // RENDER DEBUG STATS
 

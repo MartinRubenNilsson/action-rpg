@@ -69,7 +69,8 @@ void main()
 }
 )";
 
-	int window_render_target_id = -2; // HACK: magic value -2
+	RenderTargetHandle window_render_target = (RenderTargetHandle)(-2); // HACK: magic value -2
+
 	ShaderHandle default_shader = ShaderHandle::Invalid;
 	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
 	ShaderHandle color_only_shader = ShaderHandle::Invalid;
@@ -94,7 +95,7 @@ void main()
 	struct RenderTarget
 	{
 		std::string name; // unique name
-		TextureHandle texture_handle = TextureHandle::Invalid;
+		TextureHandle texture = TextureHandle::Invalid;
 		GLuint framebuffer_object = 0;
 	};
 
@@ -103,8 +104,8 @@ void main()
 	std::vector<Texture> _textures;
 	std::unordered_map<std::string, TextureHandle> _texture_name_to_handle;
 	std::vector<RenderTarget> _render_targets;
-	std::unordered_map<std::string, int> _render_target_name_to_id;
-	std::vector<int> _pooled_render_target_ids;
+	std::unordered_map<std::string, RenderTargetHandle> _render_target_name_to_handle;
+	std::vector<RenderTargetHandle> _pooled_render_targets;
 	GLuint _last_bound_program_object = 0;
 
 	template <class Container>
@@ -131,11 +132,11 @@ void main()
 		return &_textures[index];
 	}
 
-	RenderTarget* _get_render_target(int render_handle)
+	RenderTarget* _get_render_target(RenderTargetHandle handle)
 	{
-		if (render_handle < 0 || render_handle >= (int)_render_targets.size())
-			return nullptr;
-		return &_render_targets[render_handle];
+		const int index = (int)handle;
+		if (index < 0 || index >= (int)_textures.size()) return nullptr;
+		return &_render_targets[index];
 	}
 
 #ifdef _DEBUG
@@ -213,7 +214,7 @@ void main()
 			glDeleteFramebuffers(1, &render_texture.framebuffer_object);
 		}
 		_render_targets.clear();
-		_render_target_name_to_id.clear();
+		_render_target_name_to_handle.clear();
 	}
 
 	ShaderHandle create_shader(
@@ -588,7 +589,7 @@ void main()
 		return texture->filter;
 	}
 
-	int create_render_target(unsigned int width, unsigned int height, std::string name_hint)
+	RenderTargetHandle create_render_target(unsigned int width, unsigned int height, std::string name_hint)
 	{
 		// CREATE TEXTURE
 
@@ -596,7 +597,7 @@ void main()
 		const Texture* texture = _get_texture(texture_handle);
 		if (!texture) {
 			console::log_error("Failed to create render target: " + name_hint);
-			return -1;
+			return RenderTargetHandle::Invalid;
 		}
 
 		// SAVE CURRENT FRAMEBUFFER OBJECT
@@ -622,50 +623,50 @@ void main()
 			console::log_error("Failed to create render target: " + name_hint);
 			glDeleteFramebuffers(1, &framebuffer_object);
 			//TODO: delete texture
-			return -1;
+			return RenderTargetHandle::Invalid;
 		}
 
 		// STORE RENDER TARGET
 
-		const int render_target_id = (int)_render_targets.size();
+		const RenderTargetHandle handle = (RenderTargetHandle)_render_targets.size();
 		RenderTarget& render_target = _render_targets.emplace_back();
-		render_target.name = _generate_unique_name(_render_target_name_to_id, name_hint);
-		render_target.texture_handle = texture_handle;
+		render_target.name = _generate_unique_name(_render_target_name_to_handle, name_hint);
+		render_target.texture = texture_handle;
 		render_target.framebuffer_object = framebuffer_object;
 
-		_render_target_name_to_id[render_target.name] = render_target_id;
+		_render_target_name_to_handle[render_target.name] = handle;
 
-		return render_target_id;
+		return handle;
 	}
 
-	int acquire_pooled_render_target(unsigned int width, unsigned int height)
+	RenderTargetHandle acquire_pooled_render_target(unsigned int width, unsigned int height)
 	{
-		for (size_t i = 0; i < _pooled_render_target_ids.size(); ++i) {
-			const int render_target_id = _pooled_render_target_ids[i];
-			const RenderTarget* render_target = _get_render_target(render_target_id);
+		for (size_t i = 0; i < _pooled_render_targets.size(); ++i) {
+			const RenderTargetHandle handle = _pooled_render_targets[i];
+			const RenderTarget* render_target = _get_render_target(handle);
 			if (!render_target) continue;
-			const Texture* texture = _get_texture(render_target->texture_handle);
+			const Texture* texture = _get_texture(render_target->texture);
 			if (!texture) continue;
 			if (texture->width != width) continue;
 			if (texture->height != height) continue;
-			std::swap(_pooled_render_target_ids[i], _pooled_render_target_ids.back());
-			_pooled_render_target_ids.pop_back();
-			return render_target_id;
+			std::swap(_pooled_render_targets[i], _pooled_render_targets.back());
+			_pooled_render_targets.pop_back();
+			return handle;
 		}
 		std::string name_hint = "pooled render target " + std::to_string(width) + "x" + std::to_string(height);
 		return create_render_target(width, height, name_hint);
 	}
 
-	void release_pooled_render_target(int render_target_id)
+	void release_pooled_render_target(RenderTargetHandle handle)
 	{
-		_pooled_render_target_ids.push_back(render_target_id);
+		_pooled_render_targets.push_back(handle);
 	}
 
-	void bind_render_target(int render_target_id)
+	void bind_render_target(RenderTargetHandle handle)
 	{
-		if (render_target_id == window_render_target_id) {
+		if (handle == window_render_target) { ///FIXME: hacky
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		} else if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
+		} else if (const RenderTarget* render_target = _get_render_target(handle)) {
 			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
 		}
 	}
@@ -676,10 +677,10 @@ void main()
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	TextureHandle get_render_target_texture(int render_target_id)
+	TextureHandle get_render_target_texture(RenderTargetHandle handle)
 	{
-		if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
-			return render_target->texture_handle;
+		if (const RenderTarget* render_target = _get_render_target(handle)) {
+			return render_target->texture;
 		}
 		return TextureHandle::Invalid;
 	}

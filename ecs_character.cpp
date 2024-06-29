@@ -366,14 +366,14 @@ namespace ecs
 		if (shader == graphics::ShaderHandle::Invalid) return graphics::TextureHandle::Invalid;
 
 		// Aquire render target
-		const int render_target_id = graphics::acquire_pooled_render_target(1024, 1024);
-		if (render_target_id == -1) return graphics::TextureHandle::Invalid;
+		const graphics::RenderTargetHandle render_target = graphics::acquire_pooled_render_target(1024, 1024);
+		if (render_target == graphics::RenderTargetHandle::Invalid) return graphics::TextureHandle::Invalid;
 
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		graphics::set_viewport(0, 0, 1024, 1024);
 
-		graphics::bind_render_target(render_target_id);
+		graphics::bind_render_target(render_target);
 		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
 
 		graphics::bind_shader(shader);
@@ -436,8 +436,9 @@ namespace ecs
 			graphics::draw_triangle_strip(4);
 		}
 
-		const graphics::TextureHandle texture = graphics::copy_texture(graphics::get_render_target_texture(render_target_id));
-		graphics::release_pooled_render_target(render_target_id);
+		const graphics::TextureHandle texture =
+			graphics::copy_texture(graphics::get_render_target_texture(render_target));
+		graphics::release_pooled_render_target(render_target);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
 		return texture;

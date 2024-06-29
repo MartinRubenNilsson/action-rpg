@@ -52,7 +52,7 @@ namespace postprocessing
 		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_shockwaves(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
 
@@ -62,7 +62,7 @@ namespace postprocessing
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
-		graphics::TextureHandle texture = graphics::get_render_target_texture(render_target_id);
+		graphics::TextureHandle texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
@@ -74,7 +74,8 @@ namespace postprocessing
 		for (const Shockwave& shockwave : _shockwaves) {
 
 			// Aquire intermediate render target
-			const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+			const graphics::RenderTargetHandle intermediate_target =
+				graphics::acquire_pooled_render_target(width, height);
 
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
@@ -84,17 +85,17 @@ namespace postprocessing
 			graphics::set_shader_uniform_1f(shader, "size", shockwave.size);
 			graphics::set_shader_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
-			graphics::bind_render_target(intermediate_render_target_id);
+			graphics::bind_render_target(intermediate_target);
 			graphics::draw_triangle_strip(4);
 
 			// Interchange render targets
-			graphics::release_pooled_render_target(render_target_id);
-			render_target_id = intermediate_render_target_id;
-			texture = graphics::get_render_target_texture(render_target_id);
+			graphics::release_pooled_render_target(target);
+			target = intermediate_target;
+			texture = graphics::get_render_target_texture(target);
 		}
 	}
 
-	void _render_darkness(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_darkness(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
 
@@ -104,12 +105,13 @@ namespace postprocessing
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(render_target_id);
+		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+		const graphics::RenderTargetHandle intermediate_target =
+			graphics::acquire_pooled_render_target(width, height);
 
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
@@ -119,15 +121,15 @@ namespace postprocessing
 		graphics::set_shader_uniform_2f(shader, "center", center_ts.x, center_ts.y);
 		graphics::set_shader_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
-		graphics::bind_render_target(intermediate_render_target_id);
+		graphics::bind_render_target(intermediate_target);
 		graphics::draw_triangle_strip(4);
 
 		// Cleanup
-		graphics::release_pooled_render_target(render_target_id);
-		render_target_id = intermediate_render_target_id;
+		graphics::release_pooled_render_target(target);
+		target = intermediate_target;
 	}
 
-	void _render_screen_transition(int& render_target_id)
+	void _render_screen_transition(graphics::RenderTargetHandle& target)
 	{
 		if (_screen_transition_progress == 0.f) return;
 
@@ -137,12 +139,13 @@ namespace postprocessing
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(render_target_id);
+		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const int intermediate_render_target = graphics::acquire_pooled_render_target(width, height);
+		const graphics::RenderTargetHandle intermediate_target =
+			graphics::acquire_pooled_render_target(width, height);
 
 		// Render screen transition
 		graphics::bind_shader(shader);
@@ -150,15 +153,15 @@ namespace postprocessing
 		graphics::set_shader_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_shader_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
-		graphics::bind_render_target(intermediate_render_target);
+		graphics::bind_render_target(intermediate_target);
 		graphics::draw_triangle_strip(4);
 
 		// Cleanup
-		graphics::release_pooled_render_target(render_target_id);
-		render_target_id = intermediate_render_target;
+		graphics::release_pooled_render_target(target);
+		target = intermediate_target;
 	}
 
-	void _render_gaussian_blur(int& render_target_id)
+	void _render_gaussian_blur(graphics::RenderTargetHandle& target)
 	{
 		if (_gaussian_blur_iterations == 0) return;
 
@@ -171,14 +174,15 @@ namespace postprocessing
 		if (shader_ver == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(render_target_id);
+		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
+		const graphics::RenderTargetHandle intermediate_target =
+			graphics::acquire_pooled_render_target(width, height);
 		const graphics::TextureHandle intermediate_texture =
-			graphics::get_render_target_texture(intermediate_render_target_id);
+			graphics::get_render_target_texture(intermediate_target);
 
 		// Set linear filtering
 		graphics::set_texture_filter(texture, graphics::TextureFilter::Linear);
@@ -192,7 +196,7 @@ namespace postprocessing
 			graphics::set_shader_uniform_1i(shader_hor, "tex", 0);
 			graphics::set_shader_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
-			graphics::bind_render_target(intermediate_render_target_id);
+			graphics::bind_render_target(intermediate_target);
 			graphics::draw_triangle_strip(4);
 
 			// Vertical pass
@@ -200,22 +204,22 @@ namespace postprocessing
 			graphics::set_shader_uniform_1i(shader_ver, "tex", 0);
 			graphics::set_shader_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
-			graphics::bind_render_target(render_target_id);
+			graphics::bind_render_target(target);
 			graphics::draw_triangle_strip(4);
 		}
 
 		// Cleanup
 		graphics::set_texture_filter(texture, graphics::TextureFilter::Nearest);
 		graphics::set_texture_filter(intermediate_texture, graphics::TextureFilter::Nearest);
-		graphics::release_pooled_render_target(intermediate_render_target_id);
+		graphics::release_pooled_render_target(intermediate_target);
 	}
 
-	void render(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
+	void render(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
-		_render_shockwaves(render_target_id, camera_min, camera_max);
-		_render_darkness(render_target_id, camera_min, camera_max);
-		_render_screen_transition(render_target_id);
-		_render_gaussian_blur(render_target_id);
+		_render_shockwaves(target, camera_min, camera_max);
+		_render_darkness(target, camera_min, camera_max);
+		_render_screen_transition(target);
+		_render_gaussian_blur(target);
 	}
 
 	void set_pixel_scale(float scale) {
