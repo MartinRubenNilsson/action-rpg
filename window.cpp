@@ -74,6 +74,9 @@ namespace window
 #else
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
+#ifdef _DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 		const unsigned int scale = 4;
 		_glfw_window = glfwCreateWindow(BASE_SIZE.x * scale, BASE_SIZE.y * scale, "Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
