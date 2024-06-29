@@ -159,28 +159,15 @@ int main(int argc, char* argv[])
         shapes::update_lifetimes(game_world_dt); // why is this here??
 
         postprocessing::update(game_world_dt);
-		postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
-        postprocessing::set_screen_transition_progress(map::get_transition_progress());
-        //postprocessing::set_pixel_scale((float)window::get_state().scale);
-
-        switch (ui::get_top_menu()) {
-        case ui::MenuType::Pause:
-        case ui::MenuType::Settings:
-        case ui::MenuType::Credits:
-            postprocessing::set_gaussian_blur_iterations(3);
-            break;
-        default:
-            postprocessing::set_gaussian_blur_iterations(0);
-			break;
-        }
-
-        sprites::reset_rendering_statistics();
 
         // RENDER
 
         int render_width = 0;
         int render_height = 0;
         window::get_framebuffer_size(render_width, render_height);
+        const float pixel_scale = (float)render_width / WINDOW_MIN_WIDTH;
+		
+        sprites::reset_rendering_statistics();
 
         Vector2f camera_min;
         Vector2f camera_max;
@@ -225,7 +212,22 @@ int main(int argc, char* argv[])
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
         ecs::add_debug_shapes_to_render_queue();
+
+        switch (ui::get_top_menu()) {
+        case ui::MenuType::Pause:
+        case ui::MenuType::Settings:
+        case ui::MenuType::Credits: {
+            postprocessing::set_gaussian_blur_iterations(3);
+        } break;
+        default: {
+            postprocessing::set_gaussian_blur_iterations(0);
+        } break;
+        }
+        postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
+        postprocessing::set_screen_transition_progress(map::get_transition_progress());
+        postprocessing::set_pixel_scale(pixel_scale);
         postprocessing::render(render_target_id, camera_min, camera_max);
+
         shapes::render(camera_min, camera_max);
         ui::render();
 
@@ -246,7 +248,7 @@ int main(int argc, char* argv[])
         window::set_cursor_visible(!show_custom_cursor);
         cursor::set_visible(show_custom_cursor);
         cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
-        //cursor::set_scale((float)window::get_state().scale);
+        cursor::set_scale(pixel_scale);
         cursor::render_sprite();
 
         // RENDER TO WINDOW
