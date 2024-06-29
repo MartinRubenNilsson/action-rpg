@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 #include "ui.h"
 #include <RmlUi/Debugger.h>
-#include "ui_rmlui_interfaces.h"
+#include "ui_rmlui_system_interface.h"
+#include "ui_rmlui_render_interface.h"
 #include "ui_bindings.h"
 #include "ui_menus.h"
 #include "ui_hud.h"

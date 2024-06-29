@@ -373,7 +373,7 @@
     <ClCompile Include="ui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
-    <ClCompile Include="ui_rmlui_interfaces.cpp" />
+    <ClCompile Include="ui_rmlui_render_interface.cpp" />
     <ClCompile Include="ui_bindings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -382,6 +382,7 @@
     <ClCompile Include="ecs_tile.cpp" />
     <ClCompile Include="ui_hud.cpp" />
     <ClCompile Include="ui_menus.cpp" />
+    <ClCompile Include="ui_rmlui_system_interface.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="ui_textbox_presets.cpp" />
@@ -415,6 +416,7 @@
     <ClInclude Include="console_commands.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="window_events.h" />
     <ClInclude Include="shapes.h" />
@@ -559,7 +561,7 @@
     <ClInclude Include="easings.h" />
     <ClInclude Include="ui.h" />
     <ClInclude Include="map.h" />
-    <ClInclude Include="ui_rmlui_interfaces.h" />
+    <ClInclude Include="ui_rmlui_render_interface.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ecs_tile.h" />

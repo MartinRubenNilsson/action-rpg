@@ -202,9 +202,6 @@
     <ClCompile Include="ecs_physics_filters.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
-    <ClCompile Include="ui_rmlui_interfaces.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="postprocessing.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -301,6 +298,12 @@
     </ClCompile>
     <ClCompile Include="winmain.cpp">
       <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_rmlui_system_interface.cpp">
+      <Filter>ui\rmlui_interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_rmlui_render_interface.cpp">
+      <Filter>ui\rmlui_interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -549,9 +552,6 @@
     </ClInclude>
     <ClInclude Include="ecs_physics_filters.h">
       <Filter>ecs\physics</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_rmlui_interfaces.h">
-      <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="postprocessing.h">
       <Filter>graphics</Filter>
@@ -819,6 +819,12 @@
     <ClInclude Include="color.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="ui_rmlui_render_interface.h">
+      <Filter>ui\rmlui_interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_rmlui_system_interface.h">
+      <Filter>ui\rmlui_interfaces</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -883,6 +889,9 @@
     </Filter>
     <Filter Include="utilities">
       <UniqueIdentifier>{fda23f39-2e34-4c02-b91d-10ef539bed08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\rmlui_interfaces">
+      <UniqueIdentifier>{cb12366d-8c11-48b4-a752-e5b39ec96b0e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

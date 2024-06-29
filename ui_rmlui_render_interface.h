@@ -1,5 +1,4 @@
 #pragma once
-#include <RmlUi/Core/SystemInterface.h>
 #include <RmlUi/Core/RenderInterface.h>
 
 namespace ui
@@ -7,14 +6,6 @@ namespace ui
 	void set_viewport(int viewport_width, int viewport_height);
 	void prepare_render_state();
 	void restore_render_state();
-
-	struct RmlUiSystemInterface : Rml::SystemInterface
-	{
-		double GetElapsedTime() override;
-		void SetMouseCursor(const Rml::String& cursor_name) override;
-		void SetClipboardText(const Rml::String& text) override;
-		void GetClipboardText(Rml::String& text) override;
-	};
 
 	struct RmlUiRenderInterface : public Rml::RenderInterface
 	{
