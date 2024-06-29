@@ -190,7 +190,6 @@ namespace window
 
 	void set_cursor_visible(bool visible)
 	{
-		if (get_cursor_visible() == visible) return;
 		glfwSetInputMode(_glfw_window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 	}
 

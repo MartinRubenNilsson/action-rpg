@@ -66,11 +66,11 @@ int main(int argc, char* argv[]) {
     while (!window::should_close()) {
 
         steam::run_message_loop();
-        window::poll_events();
 
 #ifdef BUILD_IMGUI
         imgui_backends::new_frame();
 #endif
+        window::poll_events();
 
         // PROCESS WINDOW EVENTS
         {
@@ -234,13 +234,19 @@ int main(int argc, char* argv[]) {
 
         bool show_custom_cursor = true;
 #ifdef BUILD_IMGUI
+        // PITFALL: ImGui keeps overriding the cursor visibility state,
+        // so I'm calling SetMouseCursor() as a hack to stop this. Better
+        // solution is needed.
         if (ImGui::GetIO().WantCaptureMouse) {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
             show_custom_cursor = false;
-        }
+        } else {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+		}
 #endif
         double cursor_x, cursor_y;
         window::get_cursor_pos(cursor_x, cursor_y);
-        //window::set_cursor_visible(false); //Does not work :(
+        window::set_cursor_visible(!show_custom_cursor);
         cursor::set_visible(show_custom_cursor);
         cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
         //cursor::set_scale((float)window::get_state().scale);
