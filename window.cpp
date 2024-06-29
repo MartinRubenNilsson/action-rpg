@@ -100,6 +100,7 @@ namespace window
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until we're ready to show it.
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 		_glfw_window = glfwCreateWindow(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, "Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
 
