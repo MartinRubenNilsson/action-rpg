@@ -7,8 +7,8 @@ namespace ecs
 		b2Fixture* fixture = nullptr;
 		b2Body* body = nullptr;
 		entt::entity entity = entt::null;
-		sf::Vector2f point;
-		sf::Vector2f normal;
+		Vector2f point;
+		Vector2f normal;
 		float fraction = 0.f; // 0 = start of ray, 1 = end of ray
 	};
 
@@ -33,9 +33,9 @@ namespace ecs
 	b2Body* try_get_body(entt::entity entity);
 	bool remove_body(entt::entity entity);
 
-	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RaycastHit* hit = nullptr);
-	std::vector<RaycastHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
-	std::vector<OverlapHit> overlap_box(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits = 0xFFFF);
-	std::vector<OverlapHit> overlap_circle(const sf::Vector2f& center, float radius, uint16 mask_bits = 0xFFFF);
+	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RaycastHit* hit = nullptr);
+	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits = 0xFFFF);
+	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint16 mask_bits = 0xFFFF);
+	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint16 mask_bits = 0xFFFF);
 }
 

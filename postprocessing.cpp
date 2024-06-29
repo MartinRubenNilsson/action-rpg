@@ -6,7 +6,7 @@ namespace postprocessing
 {
 	struct Shockwave
 	{
-		sf::Vector2f position_ws; // ws = world space
+		Vector2f position_ws; // ws = world space
 		float force = 0.f;
 		float size = 0.f;
 		float thickness = 0.f;
@@ -17,7 +17,7 @@ namespace postprocessing
 	float _pixel_scale = 1.f;
 	std::vector<Shockwave> _shockwaves;
 	float _darkness_intensity = 0.f;
-	sf::Vector2f _darkness_center_ws; // ws = world space
+	Vector2f _darkness_center_ws; // ws = world space
 	float _screen_transition_progress = 0.f;
 	size_t _gaussian_blur_iterations = 0;
 
@@ -40,19 +40,19 @@ namespace postprocessing
 		_update_shockwaves(dt);
 	}
 
-	sf::Vector2f _map_world_to_target(
-		const sf::Vector2f& pos_ws,
-		const sf::Vector2f& camera_min_ws,
-		const sf::Vector2f& camera_max_ws,
+	Vector2f _map_world_to_target(
+		const Vector2f& pos_ws,
+		const Vector2f& camera_min_ws,
+		const Vector2f& camera_max_ws,
 		unsigned int target_width,
 		unsigned int target_height)
 	{
 		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * target_width;
 		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * target_height;
-		return sf::Vector2f(x, target_height - y);
+		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void _render_shockwaves(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
 
@@ -77,7 +77,7 @@ namespace postprocessing
 			const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
 
 			// Render shockwave
-			const sf::Vector2f position_ts = _map_world_to_target(
+			const Vector2f position_ts = _map_world_to_target(
 				shockwave.position_ws, camera_min, camera_max, width, height);
 			graphics::set_shader_uniform_2f(shader_id, "center", position_ts.x, position_ts.y);
 			graphics::set_shader_uniform_1f(shader_id, "force", shockwave.force);
@@ -94,7 +94,7 @@ namespace postprocessing
 		}
 	}
 
-	void _render_darkness(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void _render_darkness(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
 
@@ -111,7 +111,7 @@ namespace postprocessing
 		// Aquire intermediate render target
 		const int intermediate_render_target_id = graphics::acquire_pooled_render_target(width, height);
 
-		const sf::Vector2f center_ts = _map_world_to_target(
+		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
 		graphics::bind_shader(shader_id);
 		graphics::set_shader_uniform_1i(shader_id, "tex", 0);
@@ -209,7 +209,7 @@ namespace postprocessing
 		graphics::release_pooled_render_target(intermediate_render_target_id);
 	}
 
-	void render(int& render_target_id, const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void render(int& render_target_id, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		_render_shockwaves(render_target_id, camera_min, camera_max);
 		_render_darkness(render_target_id, camera_min, camera_max);
@@ -221,7 +221,7 @@ namespace postprocessing
 		_pixel_scale = std::max(scale, 0.1f);
 	}
 
-	void create_shockwave(const sf::Vector2f& position_ws)
+	void create_shockwave(const Vector2f& position_ws)
 	{
 		Shockwave shockwave{};
 		shockwave.position_ws = position_ws; // ws = world space
@@ -235,7 +235,7 @@ namespace postprocessing
 		_darkness_intensity = std::clamp(intensity, 0.f, 1.f);
 	}
 
-	void set_darkness_center(const sf::Vector2f& position_in_world_space) {
+	void set_darkness_center(const Vector2f& position_in_world_space) {
 		_darkness_center_ws = position_in_world_space;
 	}
 

@@ -5,7 +5,7 @@ struct GLFWwindow;
 namespace window
 {
 	struct Event;
-	extern const sf::Vector2u BASE_SIZE;
+	extern const Vector2u BASE_SIZE;
 
 #if 0
 	struct State

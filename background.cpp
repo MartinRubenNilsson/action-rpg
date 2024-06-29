@@ -57,7 +57,7 @@ namespace background
 		}
 	}
 
-	void render_sprites(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {

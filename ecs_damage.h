@@ -25,9 +25,9 @@ namespace ecs
 	// AREA-BASED DAMAGE FUNCTIONS
 
 	// Applies damage to all entities that intersect the given box. Returns true if any entity was damaged.
-	bool apply_damage_in_box(const Damage& damage, const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16_t mask_bits = 0xFFFF);
+	bool apply_damage_in_box(const Damage& damage, const Vector2f& box_min, const Vector2f& box_max, uint16_t mask_bits = 0xFFFF);
 	// Applies damage to all entities that intersect the given circle. Returns true if any entity was damaged.
-	bool apply_damage_in_circle(const Damage& damage, const sf::Vector2f& center, float radius, uint16_t mask_bits = 0xFFFF);
+	bool apply_damage_in_circle(const Damage& damage, const Vector2f& center, float radius, uint16_t mask_bits = 0xFFFF);
 
 	// "UNIVERSAL" DAMAGE FUNCTION
 

@@ -10,7 +10,7 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	entt::entity create_arrow(const sf::Vector2f& position, const sf::Vector2f& velocity)
+	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
 	{
 		entt::entity entity = _registry.create();
 		set_class(entity, "arrow");
@@ -44,7 +44,7 @@ namespace ecs
 		{
 			Tile& tile = emplace_tile(entity);
 			tile.set_tile("arrow", "items1");
-			tile.pivot = sf::Vector2f(6.f, 6.f);
+			tile.pivot = Vector2f(6.f, 6.f);
 		}
 
 		// AUDIO

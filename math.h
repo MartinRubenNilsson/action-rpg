@@ -24,35 +24,35 @@ U vector_cast(const V& v) {
 	return U(v.x, v.y);
 }
 
-sf::Vector2f operator*(const sf::Vector2f& left, const sf::Vector2f& right);
-sf::Vector2f operator/(const sf::Vector2f& left, const sf::Vector2f& right);
-sf::Vector2f& operator*=(sf::Vector2f& left, const sf::Vector2f& right);
-sf::Vector2f& operator/=(sf::Vector2f& left, const sf::Vector2f& right);
+Vector2f operator*(const Vector2f& left, const Vector2f& right);
+Vector2f operator/(const Vector2f& left, const Vector2f& right);
+Vector2f& operator*=(Vector2f& left, const Vector2f& right);
+Vector2f& operator/=(Vector2f& left, const Vector2f& right);
 
 // All functions are safe to call on zero vectors, and all angles are in radians.
 
-bool is_zero(const sf::Vector2f& v);
-float length_squared(const sf::Vector2f& v);
-float length(const sf::Vector2f& v);
-sf::Vector2f unit_vector(float angle);
-sf::Vector2f normalize(const sf::Vector2f& v);
-sf::Vector2f abs(const sf::Vector2f& v);
-sf::Vector2f rotate_90deg(const sf::Vector2f& v);
-float dot(const sf::Vector2f& a, const sf::Vector2f& b); // Dot product
-float det(const sf::Vector2f& a, const sf::Vector2f& b); // Determinant, aka 2D cross product
-float angle_unsigned(const sf::Vector2f& a, const sf::Vector2f& b);
-float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b);
-bool is_clockwise(const sf::Vector2f& a, const sf::Vector2f& b); // True if b is clockwise of a
-sf::Vector2f rotate(const sf::Vector2f& v, float angle);
-sf::Vector2f min(const sf::Vector2f& a, const sf::Vector2f& b);
-sf::Vector2f max(const sf::Vector2f& a, const sf::Vector2f& b);
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t);
-sf::Vector2f lerp_polar(const sf::Vector2f& a, const sf::Vector2f& b, float t);
-sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt);
-sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max);
-char get_direction(const sf::Vector2f& v); // Returns the direction ('r', 'l', 'u', 'd') in which v points.
+bool is_zero(const Vector2f& v);
+float length_squared(const Vector2f& v);
+float length(const Vector2f& v);
+Vector2f unit_vector(float angle);
+Vector2f normalize(const Vector2f& v);
+Vector2f abs(const Vector2f& v);
+Vector2f rotate_90deg(const Vector2f& v);
+float dot(const Vector2f& a, const Vector2f& b); // Dot product
+float det(const Vector2f& a, const Vector2f& b); // Determinant, aka 2D cross product
+float angle_unsigned(const Vector2f& a, const Vector2f& b);
+float angle_signed(const Vector2f& a, const Vector2f& b);
+bool is_clockwise(const Vector2f& a, const Vector2f& b); // True if b is clockwise of a
+Vector2f rotate(const Vector2f& v, float angle);
+Vector2f min(const Vector2f& a, const Vector2f& b);
+Vector2f max(const Vector2f& a, const Vector2f& b);
+Vector2f lerp(const Vector2f& a, const Vector2f& b, float t);
+Vector2f lerp_polar(const Vector2f& a, const Vector2f& b, float t);
+Vector2f damp(const Vector2f& a, const Vector2f& b, float damping, float dt);
+Vector2f clamp(const Vector2f& v, const Vector2f& min, const Vector2f& max);
+char get_direction(const Vector2f& v); // Returns the direction ('r', 'l', 'u', 'd') in which v points.
 
 // COMPUTATIONAL GEOMETRY
 
-bool is_convex(const std::vector<sf::Vector2f>& polygon);
-std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vector2f>& polygon);
+bool is_convex(const std::vector<Vector2f>& polygon);
+std::vector<std::array<Vector2f, 3>> triangulate(const std::vector<Vector2f>& polygon);

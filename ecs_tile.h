@@ -29,9 +29,9 @@ namespace ecs
 
 		int texture_id = -1; // optional; if not set, the tileset texture is used
 		int shader_id = 0; // optional; if set, the shader with this ID is used
-		sf::Vector2f position; // in pixels
-		sf::Vector2f pivot; // in pixels, relative to the top-left corner
-		sf::Vector2f sorting_pivot; // in pixels, relative to the top-left corner
+		Vector2f position; // in pixels
+		Vector2f pivot; // in pixels, relative to the top-left corner
+		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		uint8_t sorting_layer = 0;
 		sf::Color color = sf::Color::White;
 		Timer animation_timer;
@@ -65,7 +65,7 @@ namespace ecs
 	};
 
 	void update_tiles(float dt);
-	void add_tile_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
+	void add_tile_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);

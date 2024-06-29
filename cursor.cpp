@@ -6,9 +6,9 @@
 namespace cursor
 {
 	bool _visible = true;
-	sf::Vector2f _tex_min{ 0.f, 0.f }; // in pixels
-	sf::Vector2f _tex_max{ 16.f, 16.f }; // in pixels
-	sf::Vector2f _position;
+	Vector2f _tex_min{ 0.f, 0.f }; // in pixels
+	Vector2f _tex_max{ 16.f, 16.f }; // in pixels
+	Vector2f _position;
 	float _scale = 1.f;
 
 	void render_sprite()
@@ -17,17 +17,17 @@ namespace cursor
 
 		const int texture_id = graphics::load_texture("assets/textures/cursors/cursor.png");
 		if (texture_id == -1) return;
-		sf::Vector2u texture_size;
+		Vector2u texture_size;
 		graphics::get_texture_size(texture_id, texture_size.x, texture_size.y);
 
 		sprites::Sprite sprite{};
 		sprite.texture_id = texture_id;
 		sprite.min = _position;
-		sprite.max = _position + _scale * sf::Vector2f{ 16.f, 16.f };
+		sprite.max = _position + _scale * Vector2f{ 16.f, 16.f };
 		sprite.tex_min = _tex_min;
 		sprite.tex_max = _tex_max;
-		sprite.tex_min /= sf::Vector2f{ texture_size };
-		sprite.tex_max /= sf::Vector2f{ texture_size };
+		sprite.tex_min /= texture_size;
+		sprite.tex_max /= texture_size;
 		sprites::add_sprite_to_render_queue(sprite);
 		sprites::render();
 	}
@@ -36,7 +36,7 @@ namespace cursor
 		_visible = visible;
 	}
 
-	void set_position(const sf::Vector2f& position) {
+	void set_position(const Vector2f& position) {
 		_position = position;
 	}
 

@@ -57,8 +57,8 @@ namespace map
 		// in ecs_[your component here].cpp and call that instead!
 		//
 
-		const sf::Vector2f map_bounds_min = { 0.f, 0.f };
-		const sf::Vector2f map_bounds_max = {
+		const Vector2f map_bounds_min = { 0.f, 0.f };
+		const Vector2f map_bounds_max = {
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
 
@@ -101,7 +101,7 @@ namespace map
 				if (!object.properties.empty())
 					ecs::set_properties(entity, object.properties);
 
-				sf::Vector2f position = object.position;
+				Vector2f position = object.position;
 
 				// Objects are positioned by their top-left corner, except for tiles,
 				// which are positioned by their bottom-left corner. This is confusing,
@@ -112,7 +112,7 @@ namespace map
 				if (object.type == tiled::ObjectType::Tile) {
 					assert(object.tile && "Tile not found.");
 
-					sf::Vector2f sorting_pivot = object.size / 2.f;
+					Vector2f sorting_pivot = object.size / 2.f;
 
 					// LOAD COLLIDERS
 
@@ -372,7 +372,7 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
-									for (const std::array<sf::Vector2f, 3>& triangle : triangulate(collider.points)) {
+									for (const std::array<Vector2f, 3>& triangle : triangulate(collider.points)) {
 										b2Vec2 points[3];
 										for (size_t i = 0; i < 3; ++i) {
 											points[i].x = collider_cx + triangle[i].x;
@@ -398,10 +398,10 @@ namespace map
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
-					ecs_tile.position = sf::Vector2f(position_x, position_y);
-					ecs_tile.pivot = sf::Vector2f(pivot_x, pivot_y);
+					ecs_tile.position = Vector2f(position_x, position_y);
+					ecs_tile.pivot = Vector2f(pivot_x, pivot_y);
 					ecs_tile.sorting_layer = sorting_layer;
-					ecs_tile.sorting_pivot = sf::Vector2f(sorting_pivot_x, sorting_pivot_y);
+					ecs_tile.sorting_pivot = Vector2f(sorting_pivot_x, sorting_pivot_y);
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TF_FLIP_X, flip_flags & tiled::FLIP_HORIZONTAL);
 					ecs_tile.set_flag(ecs::TF_FLIP_Y, flip_flags & tiled::FLIP_VERTICAL);

@@ -91,11 +91,11 @@ namespace ecs
 	}
 
 	// TODO: Put in a separate unit
-	void _player_interact(const sf::Vector2f& position)
+	void _player_interact(const Vector2f& position)
 	{
-		sf::Vector2f box_center = position;
-		sf::Vector2f box_min = box_center - sf::Vector2f(6.f, 6.f);
-		sf::Vector2f box_max = box_center + sf::Vector2f(6.f, 6.f);
+		Vector2f box_center = position;
+		Vector2f box_min = box_center - Vector2f(6.f, 6.f);
+		Vector2f box_max = box_center + Vector2f(6.f, 6.f);
 		//debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
@@ -109,10 +109,10 @@ namespace ecs
 		}
 	}
 
-	void _player_attack(entt::entity entity, const sf::Vector2f& position)
+	void _player_attack(entt::entity entity, const Vector2f& position)
 	{
-		sf::Vector2f box_min = position - sf::Vector2f(6.f, 6.f);
-		sf::Vector2f box_max = position + sf::Vector2f(6.f, 6.f);
+		Vector2f box_min = position - Vector2f(6.f, 6.f);
+		Vector2f box_max = position + Vector2f(6.f, 6.f);
 		apply_damage_in_box({ DamageType::Melee, 1, entity }, box_min, box_max, ~CC_Player);
 	}
 
@@ -135,9 +135,9 @@ namespace ecs
 
 			// GET PHYSICS STATE
 
-			const sf::Vector2f position = get_world_center(body);
-			const sf::Vector2f velocity = get_linear_velocity(body);
-			sf::Vector2f new_velocity; // will be modified differently depending on the state
+			const Vector2f position = get_world_center(body);
+			const Vector2f velocity = get_linear_velocity(body);
+			Vector2f new_velocity; // will be modified differently depending on the state
 
 			enum class HeldItemType
 			{
@@ -181,7 +181,7 @@ namespace ecs
 			switch (player.state) {
 			case PlayerState::Normal: {
 
-				sf::Vector2f new_move_dir;
+				Vector2f new_move_dir;
 				float new_move_speed = 0.f;
 
 				if (player.input_flags & INPUT_LEFT)  new_move_dir.x--;
@@ -274,7 +274,7 @@ namespace ecs
 
 			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
-				sf::Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
+				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
 					uint32_t frame = tile.get_animation_frame();
@@ -401,7 +401,7 @@ namespace ecs
 			ImGui::SetNextItemOpen(player_count == 1, ImGuiCond_Appearing);
 			if (!ImGui::TreeNode(tree_node_label.c_str())) continue;
 
-			sf::Vector2f position = get_world_center(body);
+			Vector2f position = get_world_center(body);
 			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
 			ImGui::Text("Terrain: %s", map::to_string(map::get_terrain_type_at(position)).c_str());
 			ImGui::Text("State: %s", magic_enum::enum_name(player.state).data());

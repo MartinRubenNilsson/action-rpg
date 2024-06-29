@@ -16,11 +16,11 @@ namespace ecs
 	float _camera_shake_time = 0.f;
 	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
-	CameraView _confine_camera_view(const CameraView& view, const sf::Vector2f& confines_min, const sf::Vector2f& confines_max)
+	CameraView _confine_camera_view(const CameraView& view, const Vector2f& confines_min, const Vector2f& confines_max)
 	{
-		const sf::Vector2f center_min = confines_min + view.size / 2.f;
-		const sf::Vector2f center_max = confines_max - view.size / 2.f;
-		sf::Vector2f new_center = view.center;
+		const Vector2f center_min = confines_min + view.size / 2.f;
+		const Vector2f center_max = confines_max - view.size / 2.f;
+		Vector2f new_center = view.center;
 		if (center_min.x < center_max.x) {
 			new_center.x = std::clamp(new_center.x, center_min.x, center_max.x);
 		} else {

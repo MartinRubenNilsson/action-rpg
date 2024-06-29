@@ -30,7 +30,7 @@ namespace ecs
 		}
 	}
 
-	entt::entity create_pickup(PickupType type, const sf::Vector2f& position)
+	entt::entity create_pickup(PickupType type, const Vector2f& position)
 	{
 		entt::entity entity = _registry.create();
 		set_class(entity, "pickup");
@@ -68,8 +68,8 @@ namespace ecs
 				break;
 			}
 			tile.position = position;
-			tile.pivot = sf::Vector2f(8.f, 8.f);
-			tile.sorting_pivot = sf::Vector2f(8.f, 16.f);
+			tile.pivot = Vector2f(8.f, 8.f);
+			tile.sorting_pivot = Vector2f(8.f, 16.f);
 		}
 		return entity;
 	}

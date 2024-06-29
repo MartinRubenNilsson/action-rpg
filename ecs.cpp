@@ -49,14 +49,14 @@ namespace ecs
 		update_cameras(dt);
 	}
 
-	void get_camera_bounds(sf::Vector2f& min, sf::Vector2f& max)
+	void get_camera_bounds(Vector2f& min, Vector2f& max)
 	{
 		const CameraView view = ecs::get_blended_camera_view();
 		min = view.center - view.size / 2.f;
 		max = view.center + view.size / 2.f;
 	}
 	 
-	void render_sprites(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		add_tile_sprites_to_render_queue(camera_min, camera_max);
 		add_vfx_sprites_to_render_queue(camera_min, camera_max);
@@ -68,7 +68,7 @@ namespace ecs
 		for (auto [entity, body] : _registry.view<b2Body*>().each()) {
 			if (!_registry.any_of<Player, AiType>(entity)) continue;
 			std::string entity_string = std::to_string((entt::id_type)entity);
-			sf::Vector2f position = vector_cast<sf::Vector2f>(body->GetWorldCenter());
+			Vector2f position = vector_cast<Vector2f>(body->GetWorldCenter());
 			position.y -= 16.f;
 			//shapes::draw_text(entity_string, position);
 		}

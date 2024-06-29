@@ -7,8 +7,8 @@ namespace ecs
 		entt::entity entity = entt::null;
 		std::string name;
 		std::string class_;
-		sf::Vector2f position;
-		sf::Vector2f velocity;
+		Vector2f position;
+		Vector2f velocity;
 
 		// PROPERTIES
 		float p_speed = 0.f;
@@ -23,8 +23,8 @@ namespace ecs
 	struct AiKnowledge
 	{
 		AiEntityInfo me;
-		sf::Vector2f initial_position;
-		sf::Vector2f initial_velocity;
+		Vector2f initial_position;
+		Vector2f initial_velocity;
 	};
 
 	void update_ai_knowledge_and_world(float dt);

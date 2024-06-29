@@ -198,13 +198,40 @@ int main(int argc, char* argv[])
         int render_target_id = graphics::acquire_pooled_render_target(render_width, render_height);
         graphics::bind_render_target(render_target_id);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
-        sf::Vector2f camera_min;
-        sf::Vector2f camera_max;
+        Vector2f camera_min;
+        Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
-        sf::View view{ (camera_min + camera_max) / 2.f, camera_max - camera_min };
-        graphics::set_modelview_matrix_to_identity();
-        graphics::set_projection_matrix(view.getTransform().getMatrix());
-        graphics::set_texture_matrix_to_identity();
+
+        {
+            const Vector2f camera_center = (camera_min + camera_max) / 2.f;
+            const Vector2f camera_size = camera_max - camera_min;
+
+            // Rotation components
+            const float angle = 0.f;
+            const float cosine = std::cos(angle);
+            const float sine = std::sin(angle);
+            const float tx = -camera_center.x * cosine - camera_center.y * sine + camera_center.x;
+            const float ty = camera_center.x * sine - camera_center.y * cosine + camera_center.y;
+
+            // Projection components
+            const float a = 2.f / camera_size.x;
+            const float b = -2.f / camera_size.y;
+            const float c = -a * camera_center.x;
+            const float d = -b * camera_center.y;
+
+            // Create the projection matrix
+            const float projection_matrix[16] = {
+				a * cosine, -b * sine, 0.f, 0.f,
+				a * sine, b * cosine, 0.f, 0.f,
+				0.f, 0.f, 1.f, 0.f,
+				a * tx + c, b * ty + d, 0.f, 1.f
+			};
+
+            graphics::set_modelview_matrix_to_identity();
+            graphics::set_projection_matrix(projection_matrix);
+            graphics::set_texture_matrix_to_identity();
+        }
+
         graphics::set_viewport(0, 0, render_width, render_height);
 
         background::render_sprites(camera_min, camera_max);
@@ -221,7 +248,7 @@ int main(int argc, char* argv[])
 #endif // BUILD_IMGUI
         //window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
-        //cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
+        //cursor::set_position(Vector2f(sf::Mouse::getPosition(window)));
         //cursor::set_scale((float)window::get_state().scale);
         cursor::render_sprite();
 

@@ -13,7 +13,7 @@ namespace ecs
 	{
 		VfxType type = VfxType::None;
 		int texture_id = -1;
-		sf::Vector2f position;
+		Vector2f position;
 		uint32_t frame_rows = 0;
 		uint32_t frame_cols = 0;
 		float frame_duration = 0.f;
@@ -21,7 +21,7 @@ namespace ecs
 	};
 
 	void update_vfx(float dt);
-	void add_vfx_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);
+	void add_vfx_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max);
 
-	entt::entity create_vfx(VfxType type, const sf::Vector2f& position);
+	entt::entity create_vfx(VfxType type, const Vector2f& position);
 }

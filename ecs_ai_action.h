@@ -34,7 +34,7 @@ namespace ecs
 		// ACTION-SPECIFIC PARAMETERS
 
 		entt::entity entity = entt::null;
-		sf::Vector2f position;
+		Vector2f position;
 		float speed = 0.f;
 		float radius = 0.f;
 		float duration = 0.f;
@@ -47,9 +47,9 @@ namespace ecs
 
 	void ai_none(entt::entity entity);
 	void ai_wait(entt::entity entity, float duration);
-	void ai_move_to(entt::entity entity, const sf::Vector2f& target_position, float speed, float acceptance_radius, bool pathfind = false);
+	void ai_move_to(entt::entity entity, const Vector2f& target_position, float speed, float acceptance_radius, bool pathfind = false);
 	void ai_pursue(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius, bool pathfind = false);
 	void ai_flee(entt::entity entity, entt::entity target_entity, float speed, float acceptance_radius);
-	void ai_wander(entt::entity entity, const sf::Vector2f& wander_center, float speed, float wander_radius, float duration = 0.f);
+	void ai_wander(entt::entity entity, const Vector2f& wander_center, float speed, float wander_radius, float duration = 0.f);
 	//void ai_play_animation(entt::entity entity, const std::string& animation_name);
 }

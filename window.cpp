@@ -8,7 +8,7 @@
 
 namespace window
 {
-	const sf::Vector2u BASE_SIZE(320, 180); //TODO: remove dependency on sfml
+	const Vector2u BASE_SIZE(320, 180); //TODO: remove dependency on sfml
 
 	GLFWwindow* _glfw_window = nullptr;
 	std::queue<Event> _event_queue;
@@ -174,7 +174,7 @@ namespace window
 		// We need to recreate the window to change the fullscreen mode.
 		bool recreate = (!_window->isOpen() || state.fullscreen != _state.fullscreen);
 		if (recreate) {
-			sf::Vector2u size = state.scale * BASE_SIZE;
+			Vector2u size = state.scale * BASE_SIZE;
 			sf::VideoMode mode = state.fullscreen ?
 				sf::VideoMode::getFullscreenModes().at(0) :
 				sf::VideoMode(size.x, size.y);
@@ -208,7 +208,7 @@ namespace window
 		if (!recreate && state.scale != _state.scale) {
 			sf::Vector2 size = state.scale * BASE_SIZE;
 			_window->setSize(size);
-			_window->setView(sf::View(sf::Vector2f(size) / 2.f, sf::Vector2f(size)));
+			_window->setView(sf::View(Vector2f(size) / 2.f, Vector2f(size)));
 		}
 		if (recreate || state.vsync != _state.vsync)
 			_window->setVerticalSyncEnabled(state.vsync);

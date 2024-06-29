@@ -174,7 +174,7 @@ namespace map
 		return _grid.tile_size;
 	}
 
-	sf::Vector2i world_to_tile(const sf::Vector2f& world_pos)
+	sf::Vector2i world_to_tile(const Vector2f& world_pos)
 	{
 		if (!_grid.tile_size.x || !_grid.tile_size.y)
 			return sf::Vector2i(-1, -1); // Invalid tile size (grid not initialized?)
@@ -183,14 +183,14 @@ namespace map
 			(int)floor(world_pos.y / _grid.tile_size.y));
 	}
 
-	sf::Vector2f get_tile_center(const sf::Vector2i& tile)
+	Vector2f get_tile_center(const sf::Vector2i& tile)
 	{
-		return sf::Vector2f(
+		return Vector2f(
 			(tile.x + 0.5f) * _grid.tile_size.x,
 			(tile.y + 0.5f) * _grid.tile_size.y);
 	}
 
-	TerrainType get_terrain_type_at(const sf::Vector2f& world_pos)
+	TerrainType get_terrain_type_at(const Vector2f& world_pos)
 	{
 		sf::Vector2i tile_pos = world_to_tile(world_pos);
 		Tile* tile = _try_get_tile(tile_pos);

@@ -16,8 +16,8 @@ public:
 	bool get_bool(const std::string& name, bool& value) const { return get(name, value); }
 	void set_entity(const std::string& name, entt::entity value) { set(name, value); }
 	bool get_entity(const std::string& name, entt::entity& value) const { return get(name, value); }
-	void set_vector2f(const std::string& name, const sf::Vector2f& value) { set(name, value); }
-	bool get_vector2f(const std::string& name, sf::Vector2f& value) const { return get(name, value); }
+	void set_vector2f(const std::string& name, const Vector2f& value) { set(name, value); }
+	bool get_vector2f(const std::string& name, Vector2f& value) const { return get(name, value); }
 
 private:
 	using Value = std::variant<
@@ -26,7 +26,7 @@ private:
 		float,
 		bool,
 		entt::entity,
-		sf::Vector2f
+		Vector2f
 	>;
 
 	using Property = std::pair<std::string, Value>;

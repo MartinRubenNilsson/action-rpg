@@ -21,107 +21,107 @@ float lerp_angle(float a, float b, float t)
 	return a + angle * t;
 }
 
-sf::Vector2f operator*(const sf::Vector2f& left, const sf::Vector2f& right) {
-	return sf::Vector2f(left.x * right.x, left.y * right.y);
+Vector2f operator*(const Vector2f& left, const Vector2f& right) {
+	return Vector2f(left.x * right.x, left.y * right.y);
 }
 
-sf::Vector2f operator/(const sf::Vector2f& left, const sf::Vector2f& right) {
-	return sf::Vector2f(left.x / right.x, left.y / right.y);
+Vector2f operator/(const Vector2f& left, const Vector2f& right) {
+	return Vector2f(left.x / right.x, left.y / right.y);
 }
 
-sf::Vector2f& operator*=(sf::Vector2f& left, const sf::Vector2f& right)
+Vector2f& operator*=(Vector2f& left, const Vector2f& right)
 {
 	left.x *= right.x;
 	left.y *= right.y;
 	return left;
 }
 
-sf::Vector2f& operator/=(sf::Vector2f& left, const sf::Vector2f& right)
+Vector2f& operator/=(Vector2f& left, const Vector2f& right)
 {
 	left.x /= right.x;
 	left.y /= right.y;
 	return left;
 }
 
-bool is_zero(const sf::Vector2f& v) {
+bool is_zero(const Vector2f& v) {
 	return v.x == 0 && v.y == 0;
 }
 
-float length_squared(const sf::Vector2f& v) {
+float length_squared(const Vector2f& v) {
 	return v.x * v.x + v.y * v.y;
 }
 
-float length(const sf::Vector2f& v) {
+float length(const Vector2f& v) {
 	return std::sqrt(length_squared(v));
 }
 
-sf::Vector2f unit_vector(float angle) {
-	return sf::Vector2f(std::cos(angle), std::sin(angle));
+Vector2f unit_vector(float angle) {
+	return Vector2f(std::cos(angle), std::sin(angle));
 }
 
-sf::Vector2f normalize(const sf::Vector2f& v) {
+Vector2f normalize(const Vector2f& v) {
 	if (float len = length(v))
 		return v / len;
-	return sf::Vector2f(0.f, 0.f);
+	return Vector2f(0.f, 0.f);
 }
 
-sf::Vector2f abs(const sf::Vector2f& v) {
-	return sf::Vector2f(std::abs(v.x), std::abs(v.y));
+Vector2f abs(const Vector2f& v) {
+	return Vector2f(std::abs(v.x), std::abs(v.y));
 }
 
-sf::Vector2f rotate_90deg(const sf::Vector2f& v) {
-	return sf::Vector2f(-v.y, v.x);
+Vector2f rotate_90deg(const Vector2f& v) {
+	return Vector2f(-v.y, v.x);
 }
 
-float dot(const sf::Vector2f& a, const sf::Vector2f& b) {
+float dot(const Vector2f& a, const Vector2f& b) {
 	return a.x * b.x + a.y * b.y;
 }
 
-float det(const sf::Vector2f& a, const sf::Vector2f& b) {
+float det(const Vector2f& a, const Vector2f& b) {
 	return a.x * b.y - a.y * b.x;
 }
 
-float angle_unsigned(const sf::Vector2f& a, const sf::Vector2f& b) {
+float angle_unsigned(const Vector2f& a, const Vector2f& b) {
 	if (float len2 = length_squared(a))
 		return std::acos(dot(a, b) / len2);
 	return 0.f;
 }
 
-float angle_signed(const sf::Vector2f& a, const sf::Vector2f& b) {
+float angle_signed(const Vector2f& a, const Vector2f& b) {
 	return std::atan2(det(a, b), dot(a, b));
 }
 
-bool is_clockwise(const sf::Vector2f& a, const sf::Vector2f& b) {
+bool is_clockwise(const Vector2f& a, const Vector2f& b) {
 	return det(a, b) > 0; // Since y-axis is down, this is the opposite of the usual definition.
 }
 
-sf::Vector2f rotate(const sf::Vector2f& v, float angle)
+Vector2f rotate(const Vector2f& v, float angle)
 {
 	float c = std::cos(angle);
 	float s = std::sin(angle);
-	return sf::Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
+	return Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
 }
 
-sf::Vector2f min(const sf::Vector2f& a, const sf::Vector2f& b) {
-	return sf::Vector2f(std::min(a.x, b.x), std::min(a.y, b.y));
+Vector2f min(const Vector2f& a, const Vector2f& b) {
+	return Vector2f(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
-sf::Vector2f max(const sf::Vector2f& a, const sf::Vector2f& b) {
-	return sf::Vector2f(std::max(a.x, b.x), std::max(a.y, b.y));
+Vector2f max(const Vector2f& a, const Vector2f& b) {
+	return Vector2f(std::max(a.x, b.x), std::max(a.y, b.y));
 }
 
-sf::Vector2f lerp(const sf::Vector2f& a, const sf::Vector2f& b, float t) {
+Vector2f lerp(const Vector2f& a, const Vector2f& b, float t) {
 	return a + (b - a) * t;
 }
 
-sf::Vector2f lerp_polar(const sf::Vector2f& a, const sf::Vector2f& b, float t)
+Vector2f lerp_polar(const Vector2f& a, const Vector2f& b, float t)
 {
 	float len = lerp(length(a), length(b), t);
 	float angle = lerp_angle(std::atan2(a.y, a.x), std::atan2(b.y, b.x), t);
 	return unit_vector(angle) * len;
 }
 
-sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, float dt)
+Vector2f damp(const Vector2f& a, const Vector2f& b, float damping, float dt)
 {
 	damping = std::clamp(damping, 0.f, 1.f);
 	dt = std::max(dt, 0.f);
@@ -129,15 +129,15 @@ sf::Vector2f damp(const sf::Vector2f& a, const sf::Vector2f& b, float damping, f
 	return lerp(a, b, 1.f - std::pow(damping, dt));
 }
 
-sf::Vector2f clamp(const sf::Vector2f& v, const sf::Vector2f& min, const sf::Vector2f& max)
+Vector2f clamp(const Vector2f& v, const Vector2f& min, const Vector2f& max)
 {
-	return sf::Vector2f(
+	return Vector2f(
 		std::clamp(v.x, min.x, max.x),
 		std::clamp(v.y, min.y, max.y)
 	);
 }
 
-char get_direction(const sf::Vector2f& v)
+char get_direction(const Vector2f& v)
 {
 	if (v.x >= +abs(v.y)) return 'r';
 	if (v.x <= -abs(v.y)) return 'l';
@@ -146,7 +146,7 @@ char get_direction(const sf::Vector2f& v)
 	return ' '; // This should never happen.
 }
 
-bool is_convex(const std::vector<sf::Vector2f>& polygon)
+bool is_convex(const std::vector<Vector2f>& polygon)
 {
 	float first_nonzero_det = 0;
 	const size_t vertex_count = polygon.size();
@@ -165,7 +165,7 @@ bool is_convex(const std::vector<sf::Vector2f>& polygon)
 	return true;
 }
 
-std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vector2f>& polygon)
+std::vector<std::array<Vector2f, 3>> triangulate(const std::vector<Vector2f>& polygon)
 {
 	//Ear clipping algorithm: https://www.youtube.com/watch?v=d9tytAQbpXM
 	size_t vertex_count = polygon.size();
@@ -175,11 +175,11 @@ std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vecto
 	}
 	bool is_polygon_clockwise = false;
 	{
-		size_t i1 = std::ranges::max_element(polygon, std::less{}, &sf::Vector2f::x) - polygon.begin();
+		size_t i1 = std::ranges::max_element(polygon, std::less{}, &Vector2f::x) - polygon.begin();
 		size_t i0 = (i1 + vertex_count - 1) % vertex_count;
 		size_t i2 = (i1 + 1) % vertex_count;
-		sf::Vector2f v10 = polygon[i0] - polygon[i1];
-		sf::Vector2f v12 = polygon[i2] - polygon[i1];
+		Vector2f v10 = polygon[i0] - polygon[i1];
+		Vector2f v12 = polygon[i2] - polygon[i1];
 		is_polygon_clockwise = is_clockwise(v10, v12);
 	}
 	std::vector<float> angles(vertex_count);
@@ -187,15 +187,15 @@ std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vecto
 		size_t i0 = (i + vertex_count - 1) % vertex_count;
 		size_t i1 = i;
 		size_t i2 = (i + 1) % vertex_count;
-		sf::Vector2f v10 = polygon[i0] - polygon[i1];
-		sf::Vector2f v12 = polygon[i2] - polygon[i1];
+		Vector2f v10 = polygon[i0] - polygon[i1];
+		Vector2f v12 = polygon[i2] - polygon[i1];
 		float angle = angle_unsigned(v10, v12);
 		if (is_clockwise(v10, v12) != is_polygon_clockwise)
 			angle = M_2PI - angle;
 		angles[i1] = angle;
 	}
-	std::vector<sf::Vector2f> polygon_copy = polygon;
-	std::vector<std::array<sf::Vector2f, 3>> triangles;
+	std::vector<Vector2f> polygon_copy = polygon;
+	std::vector<std::array<Vector2f, 3>> triangles;
 	while (vertex_count > 3) {
 		size_t i2 = std::ranges::min_element(angles) - angles.begin();
 		size_t i0 = (i2 + vertex_count - 2) % vertex_count;
@@ -204,16 +204,16 @@ std::vector<std::array<sf::Vector2f, 3>> triangulate(const std::vector<sf::Vecto
 		size_t i4 = (i2 + 2) % vertex_count;
 		triangles.push_back({ polygon_copy[i1], polygon_copy[i2], polygon_copy[i3] });
 		{
-			sf::Vector2f v10 = polygon_copy[i0] - polygon_copy[i1];
-			sf::Vector2f v13 = polygon_copy[i3] - polygon_copy[i1];
+			Vector2f v10 = polygon_copy[i0] - polygon_copy[i1];
+			Vector2f v13 = polygon_copy[i3] - polygon_copy[i1];
 			float angle = angle_unsigned(v10, v13);
 			if (is_clockwise(v10, v13) != is_polygon_clockwise)
 				angle = M_2PI - angle;
 			angles[i1] = angle;
 		}
 		{
-			sf::Vector2f v31 = polygon_copy[i1] - polygon_copy[i3];
-			sf::Vector2f v34 = polygon_copy[i4] - polygon_copy[i3];
+			Vector2f v31 = polygon_copy[i1] - polygon_copy[i3];
+			Vector2f v34 = polygon_copy[i4] - polygon_copy[i3];
 			float angle = angle_unsigned(v31, v34);
 			if (is_clockwise(v31, v34) != is_polygon_clockwise)
 				angle = M_2PI - angle;

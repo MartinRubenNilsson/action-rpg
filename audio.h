@@ -16,8 +16,8 @@ namespace audio
 
 	// LISTENERS
 
-	void set_listener_position(const sf::Vector2f& position);
-	sf::Vector2f get_listener_position();
+	void set_listener_position(const Vector2f& position);
+	Vector2f get_listener_position();
 
 	// GLOBAL PARAMETERS
 
@@ -34,7 +34,7 @@ namespace audio
 	struct EventOptions
 	{
 		float volume = 1.f;
-		sf::Vector2f position;
+		Vector2f position;
 		bool start = true;
 		bool release = true;
 	};
@@ -45,8 +45,8 @@ namespace audio
 	bool stop(int event_id);
 	bool set_volume(int event_id, float volume);
 	bool get_volume(int event_id, float& volume);
-	bool set_position(int event_id, const sf::Vector2f& position);
-	bool get_position(int event_id, sf::Vector2f& position);
+	bool set_position(int event_id, const Vector2f& position);
+	bool get_position(int event_id, Vector2f& position);
 
 	// BUSES
 

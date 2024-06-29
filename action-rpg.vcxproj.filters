@@ -810,6 +810,9 @@
     <ClInclude Include="imgui_backends.h">
       <Filter>application</Filter>
     </ClInclude>
+    <ClInclude Include="vector2.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

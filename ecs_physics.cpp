@@ -22,8 +22,8 @@ namespace ecs
 		}
 	};
 
-	sf::Vector2f _to_sf(const b2Vec2& vec) {
-		return sf::Vector2f(vec.x, vec.y);
+	Vector2f _to_sf(const b2Vec2& vec) {
+		return Vector2f(vec.x, vec.y);
 	}
 
 	sf::Color _to_sf(const b2Color& color) {
@@ -37,10 +37,10 @@ namespace ecs
 	struct PhysicsDebugDrawer : b2Draw
 	{
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			shapes::add_polygon_to_render_queue((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
+			shapes::add_polygon_to_render_queue((const Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			shapes::add_polygon_to_render_queue((const sf::Vector2f*)vertices, vertexCount, _to_sf(color));
+			shapes::add_polygon_to_render_queue((const Vector2f*)vertices, vertexCount, _to_sf(color));
 		}
 		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {
 			shapes::add_circle_to_render_queue(_to_sf(center), radius, _to_sf(color));
@@ -151,7 +151,7 @@ namespace ecs
 		return _registry.remove<b2Body*>(entity);
 	}
 
-	bool raycast(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits, RaycastHit* hit)
+	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits, RaycastHit* hit)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
@@ -170,8 +170,8 @@ namespace ecs
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
 				hit.entity = get_entity(hit.body);
-				hit.point = sf::Vector2f(point.x, point.y);
-				hit.normal = sf::Vector2f(normal.x, normal.y);
+				hit.point = Vector2f(point.x, point.y);
+				hit.normal = Vector2f(normal.x, normal.y);
 				hit.fraction = fraction;
 				hit_something = true;
 				return 0.f;
@@ -187,7 +187,7 @@ namespace ecs
 		return callback.hit_something;
 	}
 
-	std::vector<RaycastHit> raycast_all(const sf::Vector2f& ray_start, const sf::Vector2f& ray_end, uint16 mask_bits)
+	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
@@ -206,8 +206,8 @@ namespace ecs
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
 				hit.entity = get_entity(hit.body);
-				hit.point = sf::Vector2f(point.x, point.y);
-				hit.normal = sf::Vector2f(normal.x, normal.y);
+				hit.point = Vector2f(point.x, point.y);
+				hit.normal = Vector2f(normal.x, normal.y);
 				hit.fraction = fraction;
 				hits.push_back(hit);
 				return 1.f;
@@ -223,7 +223,7 @@ namespace ecs
 		return callback.hits;
 	}
 
-	std::vector<OverlapHit> overlap_box(const sf::Vector2f& box_min, const sf::Vector2f& box_max, uint16 mask_bits)
+	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint16 mask_bits)
 	{
 		struct QueryCallback : public b2QueryCallback
 		{
@@ -252,11 +252,11 @@ namespace ecs
 		return callback.hits;
 	}
 
-	std::vector<OverlapHit> overlap_circle(const sf::Vector2f& center, float radius, uint16 mask_bits)
+	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint16 mask_bits)
 	{
 		// First, do a broad-phase query to get the potential hits.
-		sf::Vector2f box_min = center - sf::Vector2f(radius, radius);
-		sf::Vector2f box_max = center + sf::Vector2f(radius, radius);
+		Vector2f box_min = center - Vector2f(radius, radius);
+		Vector2f box_max = center + Vector2f(radius, radius);
 		std::vector<OverlapHit> hits = overlap_box(box_min, box_max, mask_bits);
 
 		// Then, do a narrow-phase query to filter out the actual hits.

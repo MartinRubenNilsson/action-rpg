@@ -192,10 +192,10 @@ namespace console
 			cmd.name = "create_vfx";
 			cmd.desc = "Spawns a VFX in the game world";
 			cmd.params[0] = { "", "type", "The type of VFX" };
-			cmd.params[1] = { sf::Vector2f(), "position", "The position to spawn the VFX at" };
+			cmd.params[1] = { Vector2f(), "position", "The position to spawn the VFX at" };
 			cmd.callback = [](const Params& params) {
 				const std::string& type_str = std::get<std::string>(params[0].arg);
-				const sf::Vector2f& position = std::get<sf::Vector2f>(params[1].arg);
+				const Vector2f& position = std::get<Vector2f>(params[1].arg);
 				auto type = magic_enum::enum_cast<ecs::VfxType>(type_str, magic_enum::case_insensitive);
 				if (type.has_value()) {
 					create_vfx(type.value(), position);

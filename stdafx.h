@@ -18,8 +18,6 @@
 
 using namespace std::literals::string_literals;
 
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Graphics/View.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <entt/entity/registry.hpp>
 
@@ -37,4 +35,5 @@ using namespace std::literals::string_literals;
 
 #include <magic_enum.hpp>
 
+#include "vector2.h"
 #include "math.h"

@@ -413,6 +413,7 @@
     <ClInclude Include="console_commands.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="vector2.h" />
     <ClInclude Include="window_events.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="dependencies\box2d\include\box2d\b2_api.h" />

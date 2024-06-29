@@ -60,7 +60,7 @@ namespace ecs
             _registry.view<Tile, const AiType, b2Body*>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
-                sf::Vector2f velocity = get_linear_velocity(body);
+                Vector2f velocity = get_linear_velocity(body);
                 if (!is_zero(velocity))
                     tile.set_tile(std::string() + get_direction(velocity));
                 tile.animation_speed = length(velocity) / 32.f;
@@ -79,15 +79,15 @@ namespace ecs
             // DRAW ACTION TYPE
             {
                 std::string text_string = to_string(action.type);
-                sf::Vector2f text_position = knowledge.me.position + sf::Vector2f(0.f, -10.f);
+                Vector2f text_position = knowledge.me.position + Vector2f(0.f, -10.f);
                 //shapes::draw_text(text_string, text_position);
             }
 
             // DRAW ACTION PATH
             if (action.path.size() >= 2) {
                 for (size_t i = 0; i + 1 < action.path.size(); ++i) {
-                    sf::Vector2f p1 = map::get_tile_center(action.path[i]);
-                    sf::Vector2f p2 = map::get_tile_center(action.path[i + 1]);
+                    Vector2f p1 = map::get_tile_center(action.path[i]);
+                    Vector2f p2 = map::get_tile_center(action.path[i + 1]);
                     sf::Color color = random::color((uint32_t)entity * 2);
                     p1.x += paths_drawn * 2.f;
                     p1.y += paths_drawn * 2.f;

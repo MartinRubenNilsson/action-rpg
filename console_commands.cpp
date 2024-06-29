@@ -11,7 +11,7 @@ namespace console
 		std::string operator()(int) const { return "INT"; }
 		std::string operator()(float) const { return "FLOAT"; }
 		std::string operator()(const std::string&) const { return "STRING"; }
-		std::string operator()(const sf::Vector2f&) const { return "VEC2F"; }
+		std::string operator()(const Vector2f&) const { return "VEC2F"; }
 	};
 
 	struct ArgParserVisitor
@@ -31,7 +31,7 @@ namespace console
 				is >> value;
 			}
 		}
-		void operator()(sf::Vector2f& value) { is >> value.x >> value.y; }
+		void operator()(Vector2f& value) { is >> value.x >> value.y; }
 	};
 
 	std::vector<Command> _commands; // Sorted by name

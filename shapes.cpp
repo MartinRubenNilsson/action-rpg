@@ -15,23 +15,23 @@ namespace shapes
 
 	struct Line
 	{
-		sf::Vector2f p1;
-		sf::Vector2f p2;
+		Vector2f p1;
+		Vector2f p2;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
 	};
 
 	struct Box
 	{
-		sf::Vector2f min;
-		sf::Vector2f max;
+		Vector2f min;
+		Vector2f max;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
 	};
 
 	struct Polygon
 	{
-		sf::Vector2f points[MAX_POLYGON_VERTICES];
+		Vector2f points[MAX_POLYGON_VERTICES];
 		unsigned int count = 0;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
@@ -39,7 +39,7 @@ namespace shapes
 
 	struct Circle
 	{
-		sf::Vector2f center;
+		Vector2f center;
 		float radius = 0.f;
 		sf::Color color = sf::Color::White;
 		float lifetime = 0.f;
@@ -48,7 +48,7 @@ namespace shapes
 	struct Text
 	{
 		std::string string;
-		sf::Vector2f position;
+		Vector2f position;
 		float lifetime = 0.f;
 	};
 
@@ -62,7 +62,7 @@ namespace shapes
 	std::vector<Text> _texts;
 	std::vector<graphics::Vertex> _vertices;
 
-	bool _cull_line(const ViewBounds& bounds, const sf::Vector2f& p1, const sf::Vector2f& p2)
+	bool _cull_line(const ViewBounds& bounds, const Vector2f& p1, const Vector2f& p2)
 	{
 		if (p1.x < bounds.min_x && p2.x < bounds.min_x) return true;
 		if (p1.x > bounds.max_x && p2.x > bounds.max_x) return true;
@@ -71,7 +71,7 @@ namespace shapes
 		return false;
 	}
 
-	bool _cull_box(const ViewBounds& bounds, const sf::Vector2f& min, const sf::Vector2f& max)
+	bool _cull_box(const ViewBounds& bounds, const Vector2f& min, const Vector2f& max)
 	{
 		if (max.x < bounds.min_x) return true;
 		if (min.x > bounds.max_x) return true;
@@ -80,11 +80,11 @@ namespace shapes
 		return false;
 	}
 
-	bool _cull_polygon(const ViewBounds& bounds, const sf::Vector2f* points, size_t count)
+	bool _cull_polygon(const ViewBounds& bounds, const Vector2f* points, size_t count)
 	{
 		if (count < 3) return true;
-		sf::Vector2f min = points[0];
-		sf::Vector2f max = points[0];
+		Vector2f min = points[0];
+		Vector2f max = points[0];
 		for (size_t i = 1; i < count; ++i) {
 			min.x = std::min(min.x, points[i].x);
 			min.y = std::min(min.y, points[i].y);
@@ -94,7 +94,7 @@ namespace shapes
 		return _cull_box(bounds, min, max);
 	}
 
-	bool _cull_circle(const ViewBounds& bounds, const sf::Vector2f& center, float radius)
+	bool _cull_circle(const ViewBounds& bounds, const Vector2f& center, float radius)
 	{
 		if (center.x + radius < bounds.min_x) return true;
 		if (center.x - radius > bounds.max_x) return true;
@@ -193,7 +193,7 @@ namespace shapes
 				continue;
 			for (unsigned int i = 0; i < VERTEX_COUNT; ++i) {
 				const float angle = i * ANGLE_STEP;
-				vertices[i].position = circle.center + circle.radius * sf::Vector2f{ std::cos(angle), std::sin(angle) };
+				vertices[i].position = circle.center + circle.radius * Vector2f{ std::cos(angle), std::sin(angle) };
 				vertices[i].color = circle.color;
 			}
 			graphics::draw_line_loop(vertices, VERTEX_COUNT);
@@ -223,7 +223,7 @@ namespace shapes
 	}
 #endif
 
-	void render(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void render(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		_last_calculated_view_bounds.min_x = camera_min.x;
 		_last_calculated_view_bounds.min_y = camera_min.y;
@@ -236,37 +236,37 @@ namespace shapes
 		_render_circles();
 	}
 
-	void add_line_to_render_queue(const sf::Vector2f& p1, const sf::Vector2f& p2, const sf::Color& color, float lifetime)
+	void add_line_to_render_queue(const Vector2f& p1, const Vector2f& p2, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, p1, p2)) return;
 		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void add_box_to_render_queue(const sf::Vector2f& min, const sf::Vector2f& max, const sf::Color& color, float lifetime)
+	void add_box_to_render_queue(const Vector2f& min, const Vector2f& max, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_box(_last_calculated_view_bounds, min, max)) return;
 		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
-	void add_polygon_to_render_queue(const sf::Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
+	void add_polygon_to_render_queue(const Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
 	{
 		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
 		if (lifetime <= 0.f && _cull_polygon(_last_calculated_view_bounds, points, count)) return;
 		Polygon& polygon = _polygons.emplace_back();
-		memcpy(polygon.points, points, count * sizeof(sf::Vector2f));
+		memcpy(polygon.points, points, count * sizeof(Vector2f));
 		polygon.count = count;
 		polygon.color = color;
 		polygon.lifetime = lifetime;
 	}
 
-	void add_circle_to_render_queue(const sf::Vector2f& center, float radius, const sf::Color& color, float lifetime)
+	void add_circle_to_render_queue(const Vector2f& center, float radius, const sf::Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
 		_circles.emplace_back(center, radius, color, lifetime);
 	}
 
-	void draw_text(const std::string& string, const sf::Vector2f& position, float lifetime) {
+	void draw_text(const std::string& string, const Vector2f& position, float lifetime) {
 		//TODO: culling
 		_texts.emplace_back(string, position, lifetime);
 	}

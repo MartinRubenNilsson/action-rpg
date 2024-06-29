@@ -91,10 +91,10 @@ namespace sprites
 		for (unsigned int i = 0; i < _sprites; ++i) {
 			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];
 
-			sf::Vector2f tl = sprite.min; // top-left corner
-			sf::Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
-			sf::Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
-			sf::Vector2f br = sprite.max; // bottom-right corner
+			Vector2f tl = sprite.min; // top-left corner
+			Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
+			Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
+			Vector2f br = sprite.max; // bottom-right corner
 
 			if (sprite.flags & SF_FLIP_X) {
 				std::swap(tl, tr);

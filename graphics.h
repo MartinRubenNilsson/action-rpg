@@ -12,9 +12,9 @@ namespace graphics
 
 	struct Vertex
 	{
-		sf::Vector2f position;
+		Vector2f position;
 		sf::Color color;
-		sf::Vector2f tex_coord;
+		Vector2f tex_coord;
 	};
 
 	extern int window_render_target_id;

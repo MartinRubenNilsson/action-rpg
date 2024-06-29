@@ -43,13 +43,13 @@ namespace random
 		return sf::Color(dist(_seeded_engine), dist(_seeded_engine), dist(_seeded_engine));
 	}
 
-	sf::Vector2f on_circle(float radius)
+	Vector2f on_circle(float radius)
 	{
 		float angle = range_f(0, PI_2);
-		return sf::Vector2f(cos(angle) * radius, sin(angle) * radius);
+		return Vector2f(cos(angle) * radius, sin(angle) * radius);
 	}
 
-	sf::Vector2f in_circle(float radius)
+	Vector2f in_circle(float radius)
 	{
 		// http://mathworld.wolfram.com/DiskPointPicking.html
 		float r = sqrt(range_f(0.0f, radius));

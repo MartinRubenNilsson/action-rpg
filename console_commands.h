@@ -2,7 +2,7 @@
 
 namespace console
 {
-	using Arg = std::variant<std::monostate, bool, int, float, std::string, sf::Vector2f>;
+	using Arg = std::variant<std::monostate, bool, int, float, std::string, Vector2f>;
 
 	struct Param
 	{

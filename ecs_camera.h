@@ -19,16 +19,16 @@ namespace ecs
 
 	struct CameraView
 	{
-		sf::Vector2f size = { 320, 180 };
-		sf::Vector2f center;
+		Vector2f size = { 320, 180 };
+		Vector2f center;
 	};
 
 	struct Camera
 	{
 		CameraView view;
-		sf::Vector2f confines_min;
-		sf::Vector2f confines_max;
-		sf::Vector2f shake_offset;
+		Vector2f confines_min;
+		Vector2f confines_max;
+		Vector2f shake_offset;
 		float shake_amplitude = 6.f;
 		float shake_frequency = 10.f;
 		float trauma = 0.f;

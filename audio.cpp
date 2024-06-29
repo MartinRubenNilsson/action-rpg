@@ -123,7 +123,7 @@ namespace audio
 		_events_played_this_frame.clear();
 	}
 
-	FMOD_3D_ATTRIBUTES _pos_to_3d_attributes(const sf::Vector2f& position)
+	FMOD_3D_ATTRIBUTES _pos_to_3d_attributes(const Vector2f& position)
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
 		attributes.position = { position.x / _PIXELS_PER_FMOD_UNIT, -position.y / _PIXELS_PER_FMOD_UNIT, 0.f };
@@ -132,17 +132,17 @@ namespace audio
 		return attributes;
 	}
 
-	sf::Vector2f _3d_attributes_to_pos(const FMOD_3D_ATTRIBUTES& attributes) {
+	Vector2f _3d_attributes_to_pos(const FMOD_3D_ATTRIBUTES& attributes) {
 		return { attributes.position.x * _PIXELS_PER_FMOD_UNIT, -attributes.position.y * _PIXELS_PER_FMOD_UNIT };
 	}
 
-	void set_listener_position(const sf::Vector2f& position)
+	void set_listener_position(const Vector2f& position)
 	{
 		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(position);
 		_system->setListenerAttributes(0, &attributes);
 	}
 
-	sf::Vector2f get_listener_position()
+	Vector2f get_listener_position()
 	{
 		FMOD_3D_ATTRIBUTES attributes{};
 		_system->getListenerAttributes(0, &attributes);
@@ -267,7 +267,7 @@ namespace audio
 		return true;
 	}
 
-	bool set_position(int event_id, const sf::Vector2f& position)
+	bool set_position(int event_id, const Vector2f& position)
 	{
 		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
 		if (!instance) return false;
@@ -276,7 +276,7 @@ namespace audio
 		return true;
 	}
 
-	bool get_position(int event_id, sf::Vector2f& position)
+	bool get_position(int event_id, Vector2f& position)
 	{
 		FMOD::Studio::EventInstance* instance = _find_event_instance(event_id);
 		if (!instance) return false;

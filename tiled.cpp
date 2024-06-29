@@ -59,10 +59,10 @@ namespace tiled
 		}
 	}
 
-	std::vector<sf::Vector2f> _load_points(const pugi::xml_node& node)
+	std::vector<Vector2f> _load_points(const pugi::xml_node& node)
 	{
 		// Example: <polygon points="0,0 0,16 16,16"/>
-		std::vector<sf::Vector2f> points;
+		std::vector<Vector2f> points;
 		std::istringstream ss(node.attribute("points").as_string());
 		std::string token;
 		while (std::getline(ss, token, ' ')) {

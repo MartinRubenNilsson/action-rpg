@@ -215,7 +215,7 @@ namespace ecs
 		}
 	}
 
-	void add_tile_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+	void add_tile_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
@@ -223,7 +223,7 @@ namespace ecs
 			if (!tile.get_flag(TF_VISIBLE)) continue;
 			sprite.texture_id = tile.texture_id;
 			if (sprite.texture_id == -1) continue;
-			sf::Vector2u texture_size;
+			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture_id, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
@@ -232,8 +232,8 @@ namespace ecs
 			sprite.tex_min = { (float)left, (float)top };
 			sprite.tex_max = { (float)left + width, (float)top + height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
-			sprite.tex_min /= sf::Vector2f(texture_size);
-			sprite.tex_max /= sf::Vector2f(texture_size);
+			sprite.tex_min /= Vector2f(texture_size);
+			sprite.tex_max /= Vector2f(texture_size);
 			//std::swap(sprite.tex_min.y, sprite.tex_max.y); // flip Y
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader_id = tile.shader_id;

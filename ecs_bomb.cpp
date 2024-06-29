@@ -60,7 +60,7 @@ namespace ecs
         return true;
     }
 
-    entt::entity create_bomb(const sf::Vector2f& position)
+    entt::entity create_bomb(const Vector2f& position)
     {
         entt::entity entity = _registry.create();
         set_class(entity, "bomb");
@@ -86,8 +86,8 @@ namespace ecs
             Tile& tile = emplace_tile(entity);
             tile.set_tile("bomb", "items1");
             tile.position = position;
-            tile.pivot = sf::Vector2f(8.f, 16.f);
-            tile.sorting_pivot = sf::Vector2f(8.f, 16.f);
+            tile.pivot = Vector2f(8.f, 16.f);
+            tile.sorting_pivot = Vector2f(8.f, 16.f);
         }
         return entity;
     }

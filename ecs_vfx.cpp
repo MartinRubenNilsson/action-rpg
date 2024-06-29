@@ -19,7 +19,7 @@ namespace ecs
 		}
     }
 
-    void add_vfx_sprites_to_render_queue(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max)
+    void add_vfx_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max)
     {
         sprites::Sprite sprite{};
         for (auto [entity, vfx] : _registry.view<const Vfx>().each()) {
@@ -31,7 +31,7 @@ namespace ecs
             uint32_t frame = (uint32_t)(vfx.time / vfx.frame_duration);
             uint32_t frame_row = frame / vfx.frame_cols;
             uint32_t frame_col = frame % vfx.frame_cols;
-            sf::Vector2u texture_size;
+            Vector2u texture_size;
             graphics::get_texture_size(vfx.texture_id, texture_size.x, texture_size.y);
             sprite.tex_min = {
                 (float)texture_size.x * frame_col / vfx.frame_cols,
@@ -39,13 +39,13 @@ namespace ecs
             sprite.tex_max = {
 				(float)texture_size.x * (frame_col + 1) / vfx.frame_cols,
 				(float)texture_size.y * (frame_row + 1) / vfx.frame_rows };
-            sf::Vector2f tex_half_size = (sprite.tex_max - sprite.tex_min) / 2.f;
+            Vector2f tex_half_size = (sprite.tex_max - sprite.tex_min) / 2.f;
             sprite.min = vfx.position - tex_half_size;
             if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
             sprite.max = vfx.position + tex_half_size;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-            sprite.tex_min /= sf::Vector2f(texture_size);
-            sprite.tex_max /= sf::Vector2f(texture_size);
+            sprite.tex_min /= Vector2f(texture_size);
+            sprite.tex_max /= Vector2f(texture_size);
             sprite.texture_id = vfx.texture_id;
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = sprites::SL_VFX;
@@ -53,7 +53,7 @@ namespace ecs
 		}
     }
 
-    entt::entity create_vfx(VfxType type, const sf::Vector2f& position)
+    entt::entity create_vfx(VfxType type, const Vector2f& position)
     {
         if (type == VfxType::None) return entt::null;
         entt::entity entity = _registry.create();

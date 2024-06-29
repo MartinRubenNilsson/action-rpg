@@ -30,10 +30,10 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		std::vector<sf::Vector2f> points; // in pixels; relative to position
+		std::vector<Vector2f> points; // in pixels; relative to position
 		const Tile* tile = nullptr; // nonnull if object is a tile
-		sf::Vector2f position; // in pixels
-		sf::Vector2f size; // in pixels
+		Vector2f position; // in pixels
+		Vector2f size; // in pixels
 		entt::entity entity = entt::null;
 		ObjectType type = ObjectType::Rectangle;
 		uint8_t flip_flags = 0; // only for tile objects
