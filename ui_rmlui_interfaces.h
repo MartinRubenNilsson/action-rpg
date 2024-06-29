@@ -6,8 +6,6 @@ namespace ui
 {
 	struct RmlUiSystemInterface : Rml::SystemInterface
 	{
-		sf::Clock clock;
-
 		double GetElapsedTime() override;
 		void SetMouseCursor(const Rml::String& cursor_name) override;
 		void SetClipboardText(const Rml::String& text_utf8) override;
@@ -18,7 +16,7 @@ namespace ui
 	{
 	public:
 		void SetViewport(int viewport_width, int viewport_height);
-		void BeginFrame();
+		void BeginFrame(); //TODO: remove
 
 		void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation) override;
 

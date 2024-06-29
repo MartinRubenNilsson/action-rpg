@@ -1,5 +1,10 @@
 #pragma once
 
+namespace window
+{
+	struct Event;
+}
+
 namespace ecs
 {
 	enum DebugFlags
@@ -15,7 +20,7 @@ namespace ecs
 
 	void initialize();
 	void shutdown();
-	void process_event(const sf::Event& event);
+	void process_window_event(const window::Event& ev);
 	void update(float dt);
 	void get_camera_bounds(sf::Vector2f& min, sf::Vector2f& max);
 	void render_sprites(const sf::Vector2f& camera_min, const sf::Vector2f& camera_max);

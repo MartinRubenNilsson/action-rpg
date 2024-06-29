@@ -123,11 +123,19 @@ namespace ecs
 		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
-	sf::IntRect Tile::get_texture_rect(bool account_for_animation) const
+	void Tile::get_texture_rect(uint32_t& left, uint32_t& top, uint32_t& width, uint32_t& height, bool account_for_animation) const
 	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation))
-			return tile->image_rect;
-		return sf::IntRect();
+		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
+			left = tile->left;
+			top = tile->top;
+			width = tile->width;
+			height = tile->height;
+		} else {
+			left = 0;
+			top = 0;
+			width = 0;
+			height = 0;
+		}
 	}
 
 	bool Tile::has_animation() const {
@@ -219,11 +227,10 @@ namespace ecs
 			graphics::get_texture_size(sprite.texture_id, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			sf::IntRect texture_rect = tile.get_texture_rect();
-			sprite.tex_min = { (float)texture_rect.left, (float)texture_rect.top };
-			sprite.tex_max = {
-				(float)texture_rect.left + texture_rect.width,
-				(float)texture_rect.top + texture_rect.height };
+			uint32_t left, top, width, height;
+			tile.get_texture_rect(left, top, width, height, true);
+			sprite.tex_min = { (float)left, (float)top };
+			sprite.tex_max = { (float)left + width, (float)top + height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
 			sprite.tex_min /= sf::Vector2f(texture_size);
 			sprite.tex_max /= sf::Vector2f(texture_size);

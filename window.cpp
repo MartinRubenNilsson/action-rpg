@@ -1,28 +1,160 @@
 #include "stdafx.h"
 #include "window.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb_image.h>
+#include "window_events.h"
+#include "console.h"
 
 namespace window
 {
-	const sf::Vector2u BASE_SIZE(320, 180);
-	const sf::View BASE_VIEW(sf::FloatRect(0.f, 0.f, (float)BASE_SIZE.x, (float)BASE_SIZE.y));
-	const size_t _SYSTEM_CURSOR_COUNT = (size_t)sf::Cursor::Type::NotAllowed;
+	const sf::Vector2u BASE_SIZE(320, 180); //TODO: remove dependency on sfml
 
-	sf::RenderWindow* _window = nullptr;
-	std::array<sf::Cursor, _SYSTEM_CURSOR_COUNT> _system_cursors;
-	State _state;
-	std::vector<sf::Event> _custom_event_queue;
-
-	const State& get_state() {
-		return _state;
-	}
-
-	void initialize(sf::RenderWindow& window)
+	GLFWwindow* _glfw_window = nullptr;
+	std::queue<Event> _event_queue;
+	
+	void _error_callback(int error, const char* description)
 	{
-		_window = &window;
-		for (size_t i = 0; i < _SYSTEM_CURSOR_COUNT; ++i)
-			_system_cursors[i].loadFromSystem((sf::Cursor::Type)i);
+		console::log_error(std::format("GLFW error {}: {}", error, description));
 	}
 
+	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		Event ev{};
+		if (action == GLFW_PRESS) {
+			ev.type = EventType::KeyPress;
+		} else if (action == GLFW_RELEASE) {
+			ev.type = EventType::KeyRelease;
+		} else if (action == GLFW_REPEAT) {
+			ev.type = EventType::KeyRepeat;
+		} else {
+			return;
+		}
+		ev.key.code = (Key)key;
+		ev.key.scancode = scancode;
+		//ev.key.mods = mods;
+		_event_queue.push(ev);
+	}
+
+	bool initialize()
+	{
+		glfwSetErrorCallback(_error_callback);
+		if (!glfwInit()) return false;
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
+#ifdef OPENGL_PROFILE_COMPATIBILITY
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+#else
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
+		const unsigned int scale = 4;
+		_glfw_window = glfwCreateWindow(BASE_SIZE.x * scale, BASE_SIZE.y * scale, "Action RPG", nullptr, nullptr);
+		if (!_glfw_window) return false;
+		glfwMakeContextCurrent(_glfw_window);
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
+		glfwSetKeyCallback(_glfw_window, _key_callback);
+		glfwSwapInterval(0); // Disable vsync
+		set_icon_from_file("assets/window/swordsman.png");
+		return true;
+	}
+
+	void shutdown()
+	{
+		glfwDestroyWindow(_glfw_window);
+		glfwTerminate();
+	}
+
+	GLFWwindow* get_glfw_window()
+	{
+		return _glfw_window;
+	}
+
+	double get_elapsed_time()
+	{
+		return glfwGetTime();
+	}
+
+	bool should_close()
+	{
+		return glfwWindowShouldClose(_glfw_window);
+	}
+
+	void poll_events()
+	{
+		glfwPollEvents();
+	}
+
+	bool get_next_event(Event& ev)
+	{
+		if (_event_queue.empty()) return false;
+		ev = _event_queue.front();
+		_event_queue.pop();
+		return true;
+	}
+
+	void swap_buffers()
+	{
+		glfwSwapBuffers(_glfw_window);
+	}
+
+	bool has_focus()
+	{
+		return glfwGetWindowAttrib(_glfw_window, GLFW_FOCUSED);
+	}
+
+	void set_size(int width, int height)
+	{
+		glfwSetWindowSize(_glfw_window, width, height);
+	}
+
+	void get_size(int& width, int& height)
+	{
+		glfwGetWindowSize(_glfw_window, &width, &height);
+	}
+
+	void get_framebuffer_size(int& width, int& height)
+	{
+		glfwGetFramebufferSize(_glfw_window, &width, &height);
+	}
+
+	void set_title(const std::string& title)
+	{
+		glfwSetWindowTitle(_glfw_window, title.c_str());
+	}
+
+	void set_icon_from_memory(int width, int height, unsigned char* pixels)
+	{
+		GLFWimage image{};
+		image.width = width;
+		image.height = height;
+		image.pixels = pixels;
+		glfwSetWindowIcon(_glfw_window, 1, &image);
+	}
+
+	void set_icon_from_file(const std::string& path)
+	{
+		int width, height, channels;
+		unsigned char* pixels = stbi_load(path.c_str(), &width, &height, &channels, 4);
+		if (!pixels) {
+			console::log_error("Failed to load icon: " + path);
+			return;
+		}
+		set_icon_from_memory(width, height, pixels);
+		stbi_image_free(pixels);
+	}
+
+	void set_clipboard_string(const std::string& string)
+	{
+		glfwSetClipboardString(_glfw_window, string.c_str());
+	}
+
+	std::string get_clipboard_string()
+	{
+		const char* string = glfwGetClipboardString(_glfw_window);
+		return string ? string : "";
+	}
+
+#if 0
 	void set_state(const State& state)
 	{
 		// We need to recreate the window to change the fullscreen mode.
@@ -70,22 +202,6 @@ namespace window
 			_window->setMouseCursorVisible(state.cursor_visible);
 		_state = state;
 	}
-
-	bool poll_event(sf::Event& ev)
-	{
-		if (_custom_event_queue.empty())
-			return _window->pollEvent(ev);
-		ev = _custom_event_queue.back();
-		_custom_event_queue.pop_back();
-		return true;
-	}
-
-	void set_cursor(sf::Cursor::Type type) {
-		_window->setMouseCursor(_system_cursors[(size_t)type]);
-	}
-
-	bool has_focus() {
-		return _window->hasFocus();
-	}
+#endif
 }
 

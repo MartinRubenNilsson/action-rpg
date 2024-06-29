@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="ui.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -30,7 +28,6 @@
     <ClCompile Include="ecs_common.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="window.cpp" />
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -52,7 +49,6 @@
     <ClCompile Include="ui_textbox_presets.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="timer.cpp" />
     <ClCompile Include="ecs_ai_action.cpp">
       <Filter>ecs\ai</Filter>
     </ClCompile>
@@ -215,7 +211,6 @@
     <ClCompile Include="ui_menus.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="settings.cpp" />
     <ClCompile Include="ecs_vfx.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -285,9 +280,24 @@
     <ClCompile Include="dependencies\glad\glad.c">
       <Filter>graphics\glad</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="settings.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="clock.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vcpkg.json" />
     <None Include="shockwave.frag">
       <Filter>graphics\shaders</Filter>
     </None>
@@ -318,9 +328,9 @@
     <None Include="fullscreen.vert">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -345,7 +355,6 @@
     <ClInclude Include="ecs_common.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="window.h" />
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -364,7 +373,6 @@
     <ClInclude Include="ui_hud.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="timer.h" />
     <ClInclude Include="ecs_ai_knowledge.h">
       <Filter>ecs\ai</Filter>
     </ClInclude>
@@ -545,7 +553,6 @@
     <ClInclude Include="ui_menus.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="settings.h" />
     <ClInclude Include="ecs_vfx.h">
       <Filter>ecs</Filter>
     </ClInclude>
@@ -558,7 +565,6 @@
     <ClInclude Include="ecs_bomb.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="properties.h" />
     <ClInclude Include="ecs_player.h">
       <Filter>ecs\player</Filter>
     </ClInclude>
@@ -778,6 +784,25 @@
     <ClInclude Include="dependencies\glad\khrplatform.h">
       <Filter>graphics\glad</Filter>
     </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="settings.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="properties.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="clock.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="window_events.h">
+      <Filter>application</Filter>
+    </ClInclude>
     <ClInclude Include="config.h" />
   </ItemGroup>
   <ItemGroup>
@@ -837,6 +862,12 @@
     </Filter>
     <Filter Include="graphics\glad">
       <UniqueIdentifier>{cd7f8e4f-c12d-4cba-a8fe-9d0810bc25d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application">
+      <UniqueIdentifier>{11af7b6c-13f6-4f3d-9d96-435780a3cff7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utilities">
+      <UniqueIdentifier>{fda23f39-2e34-4c02-b91d-10ef539bed08}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

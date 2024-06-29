@@ -8,8 +8,6 @@
 
 namespace graphics
 {
-	constexpr char _GLSL_VERSION_STRING[] = "#version 430 compatibility\n";
-
 	constexpr char _DEFAULT_VERTEX_SHADER_BYTECODE[] = R"(
 void main()
 {
@@ -71,6 +69,7 @@ void main()
 }
 )";
 
+	int window_render_target_id = -2; // HACK: magic value -2
 	int default_shader_id = -1;
 	int fullscreen_shader_id = -1;
 	int color_only_shader_id = -1;
@@ -79,7 +78,7 @@ void main()
 	{
 		std::string name; // unique name
 		std::unordered_map<std::string, int> uniform_locations;
-		unsigned int program_object = 0;
+		GLuint program_object = 0;
 	};
 
 	struct Texture
@@ -88,7 +87,7 @@ void main()
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 0;
-		unsigned int texture_object = 0;
+		GLuint texture_object = 0;
 		TextureFilter filter = TextureFilter::Nearest;
 	};
 
@@ -96,7 +95,7 @@ void main()
 	{
 		std::string name; // unique name
 		int texture_id = -1;
-		unsigned int framebuffer_object = 0;
+		GLuint framebuffer_object = 0;
 	};
 
 	std::vector<Shader> _shaders;
@@ -160,18 +159,17 @@ void main()
 		// because then the new shader doesn't get copied.
 		system("copy /Y ..\\*.vert .\\assets\\shaders\\");
 		system("copy /Y ..\\*.frag .\\assets\\shaders\\");
-#endif
-		if (!gladLoadGL()) {
-			console::log_error("Failed to load OpenGL functions.");
-			return;
-		}
-#ifdef _DEBUG
+
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
+
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		default_shader_id = create_shader(
 			_DEFAULT_VERTEX_SHADER_BYTECODE,
@@ -219,13 +217,13 @@ void main()
 		const std::string& fragment_shader_bytecode,
 		const std::string& name_hint)
 	{
-		const int program_object = glCreateProgram();
+		const GLuint program_object = glCreateProgram();
 
 		{
 			// COMPILE VERTEX SHADER
 
-			const unsigned int vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
-			const char* vertex_shader_strings[] = { _GLSL_VERSION_STRING, vertex_shader_bytecode.c_str() };
+			const GLuint vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
+			const char* vertex_shader_strings[] = { GLSL_VERSION_STRING, vertex_shader_bytecode.c_str() };
 			glShaderSource(vertex_shader_object, 2, vertex_shader_strings, nullptr);
 			glCompileShader(vertex_shader_object);
 			int success;
@@ -249,8 +247,8 @@ void main()
 		{
 			// COMPILE FRAGMENT SHADER
 
-			const unsigned int fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
-			const char* fragment_shader_strings[] = { _GLSL_VERSION_STRING, fragment_shader_bytecode.c_str() };
+			const GLuint fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
+			const char* fragment_shader_strings[] = { GLSL_VERSION_STRING, fragment_shader_bytecode.c_str() };
 			glShaderSource(fragment_shader_object, 2, fragment_shader_strings, nullptr);
 			glCompileShader(fragment_shader_object);
 			int success;
@@ -458,7 +456,7 @@ void main()
 
 		// CREATE TEXTURE OBJECT
 
-		unsigned int texture_object;
+		GLuint texture_object;
 		glGenTextures(1, &texture_object);
 		glBindTexture(GL_TEXTURE_2D, texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -591,7 +589,7 @@ void main()
 
 		// CREATE FRAMEBUFFER OBJECT
 
-		unsigned int framebuffer_object;
+		GLuint framebuffer_object;
 		glGenFramebuffers(1, &framebuffer_object);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->texture_object, 0);
@@ -648,7 +646,9 @@ void main()
 
 	void bind_render_target(int render_target_id)
 	{
-		if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
+		if (render_target_id == window_render_target_id) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		} else if (const RenderTarget* render_target = _get_render_target(render_target_id)) {
 			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
 		}
 	}

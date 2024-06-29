@@ -1,10 +1,13 @@
 #pragma once
 
+struct GLFWwindow;
+
 namespace window
 {
+	struct Event;
 	extern const sf::Vector2u BASE_SIZE;
-	extern const sf::View BASE_VIEW;
 
+#if 0
 	struct State
 	{
 		std::string title = "Action RPG";
@@ -14,14 +17,29 @@ namespace window
 		bool vsync = false;
 		bool cursor_visible = true;
 	};
+#endif
 
-	// Does not call sf::RenderWindow::create()
-	void initialize(sf::RenderWindow& window);
-	void set_state(const State& state);
-	const State& get_state();
+	bool initialize();
+	void shutdown();
 
-	// Having our own function like this allows us to inject custom events.
-	bool poll_event(sf::Event& ev);
-	void set_cursor(sf::Cursor::Type type);
+	GLFWwindow* get_glfw_window();
+	double get_elapsed_time(); // Time since the window was created, in seconds.
+
+	bool should_close();
+	// Processes all pending events and populates the event queue. Call at the start of each frame.
+	void poll_events(); 
+	// Get the next event in the event queue. Returns false if there are no more events.
+	bool get_next_event(Event& ev);
+	// Swaps the front and back buffers. Call at the end of each frame.
+	void swap_buffers(); 
+
 	bool has_focus();
+	void set_size(int width, int height);
+	void get_size(int& width, int& height);
+	void get_framebuffer_size(int& width, int& height);
+	void set_title(const std::string& title);
+	void set_icon_from_memory(int width, int height, unsigned char* pixels);
+	void set_icon_from_file(const std::string& path); // uses stb_image internally
+	void set_clipboard_string(const std::string& string);
+	std::string get_clipboard_string();
 }

@@ -7,11 +7,12 @@
 namespace ui
 {
 	double RmlUiSystemInterface::GetElapsedTime() {
-		return (double)clock.getElapsedTime().asMicroseconds() / 1'000'000.0;
+		return window::get_elapsed_time();
 	}
 
 	void RmlUiSystemInterface::SetMouseCursor(const Rml::String& cursor_name)
 	{
+#if 0
 		if (cursor_name.empty() || cursor_name == "arrow")
 			window::set_cursor(sf::Cursor::Arrow);
 		else if (cursor_name == "move")
@@ -28,14 +29,15 @@ namespace ui
 			window::set_cursor(sf::Cursor::NotAllowed);
 		else if (cursor_name.starts_with("rmlui-scroll"))
 			window::set_cursor(sf::Cursor::SizeAll);
+#endif
 	}
 
 	void RmlUiSystemInterface::SetClipboardText(const Rml::String& text_utf8) {
-		sf::Clipboard::setString(text_utf8);
+		window::set_clipboard_string(text_utf8);
 	}
 
 	void RmlUiSystemInterface::GetClipboardText(Rml::String& text) {
-		text = sf::Clipboard::getString();
+		text = window::get_clipboard_string();
 	}
 
 	void RmlUiRenderInterface::SetViewport(int in_viewport_width, int in_viewport_height)
@@ -52,9 +54,6 @@ namespace ui
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
 		graphics::set_projection_matrix(projection.data());

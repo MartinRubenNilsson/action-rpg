@@ -1,7 +1,11 @@
 {
   "dependencies": [
+    "glfw3",
     "sfml",
-    "imgui-sfml",
+    {
+      "name": "imgui",
+      "features": [ "glfw-binding", "opengl3-binding" ]
+    },
     "stb",
     "rmlui",
     "entt",

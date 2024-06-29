@@ -17,6 +17,8 @@ namespace graphics
 		sf::Vector2f tex_coord;
 	};
 
+	extern int window_render_target_id;
+
 	extern int default_shader_id;
 	extern int fullscreen_shader_id;
 	extern int color_only_shader_id;

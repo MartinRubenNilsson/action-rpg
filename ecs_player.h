@@ -1,6 +1,11 @@
 #pragma once
 #include "timer.h"
 
+namespace window
+{
+	struct Event;
+}
+
 namespace ecs
 {
 	enum InputFlags : uint32_t
@@ -45,9 +50,9 @@ namespace ecs
 		entt::entity held_item = entt::null;
 	};
 
-	void process_event_players(const sf::Event& ev);
+	void process_window_event_for_players(const window::Event& ev);
 	void update_players(float dt);
-	void debug_players();
+	void show_player_debug_window();
 
 	// Returns the first entity with a Player component, or entt::null if none exists.
 	// Try to avoid using this function, as it can lead to spaghetti code.

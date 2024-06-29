@@ -1,10 +1,16 @@
 #pragma once
 
+namespace window
+{
+	enum class Key;
+	struct Event;
+}
+
 namespace console
 {
 	void initialize();
 	void update(float dt); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
-	void process_event(const sf::Event& event);
+	void process_window_event(const window::Event& ev);
 
 	bool is_visible();
 	void set_visible(bool visible);
@@ -19,8 +25,8 @@ namespace console
 	// Scripts are kept in the assets/scripts folder.
 	// The script name should not include the .script extension.
 	void execute_script(const std::string& script_name);
-	void bind(sf::Keyboard::Key key, const std::string& command_line);
+	void bind(window::Key key, const std::string& command_line);
 	void bind(const std::string& key_string, const std::string& command_line);
-	void unbind(sf::Keyboard::Key key);
+	void unbind(window::Key key);
 	void unbind(const std::string& key_string);
 }

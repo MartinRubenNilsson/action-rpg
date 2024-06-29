@@ -115,8 +115,6 @@ namespace tiled
 
 	void load_assets(const std::filesystem::path& dir)
 	{
-		unload_assets();
-
 		// FIND AND ALLOCATE ROOM FOR TILESETS, TEMPLATES, AND MAPS
 		
 		for (const std::filesystem::directory_entry& entry :
@@ -162,10 +160,10 @@ namespace tiled
 				Tile& tile = tileset.tiles[id];
 				tile.tileset = &tileset;
 				tile.id = id;
-				tile.image_rect.left = (id % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
-				tile.image_rect.top = (id / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
-				tile.image_rect.width = tileset.tile_width;
-				tile.image_rect.height = tileset.tile_height;
+				tile.left = (id % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
+				tile.top = (id / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
+				tile.width = tileset.tile_width;
+				tile.height = tileset.tile_height;
 			}
 			for (pugi::xml_node tile_node : tileset_node.children("tile")) {
 				Tile& tile = tileset.tiles.at(tile_node.attribute("id").as_uint());
@@ -406,13 +404,6 @@ namespace tiled
 				}
 			}
 		}
-	}
-
-	void unload_assets()
-	{
-		_maps.clear();
-		_templates.clear();
-		_tilesets.clear();
 	}
 
 	std::span<const Map> get_maps() {

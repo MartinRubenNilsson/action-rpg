@@ -1,16 +1,23 @@
 #pragma once
 
+namespace window
+{
+	struct Event;
+}
+
 namespace ui
 {
+	enum class EventType
+	{
+		PlayGame,
+		RestartMap,
+		QuitApp,
+		GoToMainMenu,
+	};
+
 	struct Event
 	{
-		enum Type
-		{
-			PlayGame,
-			RestartMap,
-			QuitApp,
-			GoToMainMenu,
-		} type;
+		EventType type;
 	};
 
 	namespace bindings
@@ -32,7 +39,7 @@ namespace ui
 	void load_ttf_fonts(const std::filesystem::path& dir);
 	void load_rml_documents(const std::filesystem::path& dir);
 	void add_event_listeners();
-	void process_window_event(const sf::Event& ev);
+	void process_window_event(const window::Event& ev);
 	void update(float dt);
 	void render();
 
@@ -41,6 +48,6 @@ namespace ui
 	void reload_styles();
 	void show_document(const std::string& name);
 
-	bool poll_event(Event& ev);
+	bool get_next_event(Event& ev);
 	bool is_menu_or_textbox_visible();
 }

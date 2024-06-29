@@ -6,7 +6,8 @@
 namespace cursor
 {
 	bool _visible = true;
-	sf::IntRect _texture_rect{ 0, 0, 16, 16 };
+	sf::Vector2f _tex_min{ 0.f, 0.f }; // in pixels
+	sf::Vector2f _tex_max{ 16.f, 16.f }; // in pixels
 	sf::Vector2f _position;
 	float _scale = 1.f;
 
@@ -23,8 +24,8 @@ namespace cursor
 		sprite.texture_id = texture_id;
 		sprite.min = _position;
 		sprite.max = _position + _scale * sf::Vector2f{ 16.f, 16.f };
-		sprite.tex_min = { (float)_texture_rect.left, (float)_texture_rect.top };
-		sprite.tex_max = { (float)_texture_rect.left + _texture_rect.width, (float)_texture_rect.top + _texture_rect.height };
+		sprite.tex_min = _tex_min;
+		sprite.tex_max = _tex_max;
 		sprite.tex_min /= sf::Vector2f{ texture_size };
 		sprite.tex_max /= sf::Vector2f{ texture_size };
 		sprites::add_sprite_to_render_queue(sprite);

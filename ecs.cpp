@@ -30,8 +30,8 @@ namespace ecs
 		shutdown_physics();
 	}
 
-	void process_event(const sf::Event& event) {
-		process_event_players(event);
+	void process_window_event(const window::Event& event) {
+		process_window_event_for_players(event);
 	}
 
 	void update(float dt)
@@ -83,6 +83,6 @@ namespace ecs
 		if (debug_flags & DEBUG_AI)
 			debug_draw_ai();
 		if (debug_flags & DEBUG_PLAYER)
-			debug_players();
+			show_player_debug_window();
 	}
 }

@@ -9,6 +9,7 @@
 #include "console.h"
 #include "audio.h"
 #include "window.h"
+#include "window_events.h"
 
 namespace ui
 {
@@ -53,7 +54,7 @@ namespace ui
 		{
 			pop_all_menus();
 			set_hud_visible(true);
-			_events.push_back({ Event::PlayGame });
+			_events.push_back({ EventType::PlayGame });
 		}
 
 		void on_click_settings() {
@@ -65,7 +66,7 @@ namespace ui
 		}
 
 		void on_click_quit() {
-			_events.push_back({ Event::QuitApp });
+			_events.push_back({ EventType::QuitApp });
 		}
 
 		void on_click_back() {
@@ -79,7 +80,7 @@ namespace ui
 		void on_click_restart()
 		{
 			pop_menu();
-			_events.push_back({ Event::RestartMap });
+			_events.push_back({ EventType::RestartMap });
 		}
 
 		void on_click_main_menu()
@@ -87,7 +88,7 @@ namespace ui
 			set_hud_visible(false);
 			pop_all_menus();
 			push_menu(MenuType::Main);
-			_events.push_back({ Event::GoToMainMenu });
+			_events.push_back({ EventType::GoToMainMenu });
 		}
 	}
 
@@ -145,110 +146,113 @@ namespace ui
 		add_textbox_event_listeners();
 	}
 
-	Rml::Input::KeyIdentifier _sfml_key_to_rml_key(sf::Keyboard::Key key)
+	Rml::Input::KeyIdentifier _window_key_to_rml_key(window::Key key)
 	{
 		switch (key) {
-		case sf::Keyboard::A:         return Rml::Input::KI_A;
-		case sf::Keyboard::B:         return Rml::Input::KI_B;
-		case sf::Keyboard::C:         return Rml::Input::KI_C;
-		case sf::Keyboard::D:         return Rml::Input::KI_D;
-		case sf::Keyboard::E:         return Rml::Input::KI_E;
-		case sf::Keyboard::F:         return Rml::Input::KI_F;
-		case sf::Keyboard::G:         return Rml::Input::KI_G;
-		case sf::Keyboard::H:         return Rml::Input::KI_H;
-		case sf::Keyboard::I:         return Rml::Input::KI_I;
-		case sf::Keyboard::J:         return Rml::Input::KI_J;
-		case sf::Keyboard::K:         return Rml::Input::KI_K;
-		case sf::Keyboard::L:         return Rml::Input::KI_L;
-		case sf::Keyboard::M:         return Rml::Input::KI_M;
-		case sf::Keyboard::N:         return Rml::Input::KI_N;
-		case sf::Keyboard::O:         return Rml::Input::KI_O;
-		case sf::Keyboard::P:         return Rml::Input::KI_P;
-		case sf::Keyboard::Q:         return Rml::Input::KI_Q;
-		case sf::Keyboard::R:         return Rml::Input::KI_R;
-		case sf::Keyboard::S:         return Rml::Input::KI_S;
-		case sf::Keyboard::T:         return Rml::Input::KI_T;
-		case sf::Keyboard::U:         return Rml::Input::KI_U;
-		case sf::Keyboard::V:         return Rml::Input::KI_V;
-		case sf::Keyboard::W:         return Rml::Input::KI_W;
-		case sf::Keyboard::X:         return Rml::Input::KI_X;
-		case sf::Keyboard::Y:         return Rml::Input::KI_Y;
-		case sf::Keyboard::Z:         return Rml::Input::KI_Z;
-		case sf::Keyboard::Num0:      return Rml::Input::KI_0;
-		case sf::Keyboard::Num1:      return Rml::Input::KI_1;
-		case sf::Keyboard::Num2:      return Rml::Input::KI_2;
-		case sf::Keyboard::Num3:      return Rml::Input::KI_3;
-		case sf::Keyboard::Num4:      return Rml::Input::KI_4;
-		case sf::Keyboard::Num5:      return Rml::Input::KI_5;
-		case sf::Keyboard::Num6:      return Rml::Input::KI_6;
-		case sf::Keyboard::Num7:      return Rml::Input::KI_7;
-		case sf::Keyboard::Num8:      return Rml::Input::KI_8;
-		case sf::Keyboard::Num9:      return Rml::Input::KI_9;
-		case sf::Keyboard::Numpad0:   return Rml::Input::KI_NUMPAD0;
-		case sf::Keyboard::Numpad1:   return Rml::Input::KI_NUMPAD1;
-		case sf::Keyboard::Numpad2:   return Rml::Input::KI_NUMPAD2;
-		case sf::Keyboard::Numpad3:   return Rml::Input::KI_NUMPAD3;
-		case sf::Keyboard::Numpad4:   return Rml::Input::KI_NUMPAD4;
-		case sf::Keyboard::Numpad5:   return Rml::Input::KI_NUMPAD5;
-		case sf::Keyboard::Numpad6:   return Rml::Input::KI_NUMPAD6;
-		case sf::Keyboard::Numpad7:   return Rml::Input::KI_NUMPAD7;
-		case sf::Keyboard::Numpad8:   return Rml::Input::KI_NUMPAD8;
-		case sf::Keyboard::Numpad9:   return Rml::Input::KI_NUMPAD9;
-		case sf::Keyboard::Left:      return Rml::Input::KI_LEFT;
-		case sf::Keyboard::Right:     return Rml::Input::KI_RIGHT;
-		case sf::Keyboard::Up:        return Rml::Input::KI_UP;
-		case sf::Keyboard::Down:      return Rml::Input::KI_DOWN;
-		case sf::Keyboard::Add:       return Rml::Input::KI_ADD;
-		case sf::Keyboard::BackSpace: return Rml::Input::KI_BACK;
-		case sf::Keyboard::Delete:    return Rml::Input::KI_DELETE;
-		case sf::Keyboard::Divide:    return Rml::Input::KI_DIVIDE;
-		case sf::Keyboard::End:       return Rml::Input::KI_END;
-		case sf::Keyboard::Escape:    return Rml::Input::KI_ESCAPE;
-		case sf::Keyboard::F1:        return Rml::Input::KI_F1;
-		case sf::Keyboard::F2:        return Rml::Input::KI_F2;
-		case sf::Keyboard::F3:        return Rml::Input::KI_F3;
-		case sf::Keyboard::F4:        return Rml::Input::KI_F4;
-		case sf::Keyboard::F5:        return Rml::Input::KI_F5;
-		case sf::Keyboard::F6:        return Rml::Input::KI_F6;
-		case sf::Keyboard::F7:        return Rml::Input::KI_F7;
-		case sf::Keyboard::F8:        return Rml::Input::KI_F8;
-		case sf::Keyboard::F9:        return Rml::Input::KI_F9;
-		case sf::Keyboard::F10:       return Rml::Input::KI_F10;
-		case sf::Keyboard::F11:       return Rml::Input::KI_F11;
-		case sf::Keyboard::F12:       return Rml::Input::KI_F12;
-		case sf::Keyboard::F13:       return Rml::Input::KI_F13;
-		case sf::Keyboard::F14:       return Rml::Input::KI_F14;
-		case sf::Keyboard::F15:       return Rml::Input::KI_F15;
-		case sf::Keyboard::Home:      return Rml::Input::KI_HOME;
-		case sf::Keyboard::Insert:    return Rml::Input::KI_INSERT;
-		case sf::Keyboard::LControl:  return Rml::Input::KI_LCONTROL;
-		case sf::Keyboard::LShift:    return Rml::Input::KI_LSHIFT;
-		case sf::Keyboard::Multiply:  return Rml::Input::KI_MULTIPLY;
-		case sf::Keyboard::Pause:     return Rml::Input::KI_PAUSE;
-		case sf::Keyboard::RControl:  return Rml::Input::KI_RCONTROL;
-		case sf::Keyboard::Return:    return Rml::Input::KI_RETURN;
-		case sf::Keyboard::RShift:    return Rml::Input::KI_RSHIFT;
-		case sf::Keyboard::Space:     return Rml::Input::KI_SPACE;
-		case sf::Keyboard::Subtract:  return Rml::Input::KI_SUBTRACT;
-		case sf::Keyboard::Tab:       return Rml::Input::KI_TAB;
+		case window::Key::A:         return Rml::Input::KI_A;
+		case window::Key::B:         return Rml::Input::KI_B;
+		case window::Key::C:         return Rml::Input::KI_C;
+		case window::Key::D:         return Rml::Input::KI_D;
+		case window::Key::E:         return Rml::Input::KI_E;
+		case window::Key::F:         return Rml::Input::KI_F;
+		case window::Key::G:         return Rml::Input::KI_G;
+		case window::Key::H:         return Rml::Input::KI_H;
+		case window::Key::I:         return Rml::Input::KI_I;
+		case window::Key::J:         return Rml::Input::KI_J;
+		case window::Key::K:         return Rml::Input::KI_K;
+		case window::Key::L:         return Rml::Input::KI_L;
+		case window::Key::M:         return Rml::Input::KI_M;
+		case window::Key::N:         return Rml::Input::KI_N;
+		case window::Key::O:         return Rml::Input::KI_O;
+		case window::Key::P:         return Rml::Input::KI_P;
+		case window::Key::Q:         return Rml::Input::KI_Q;
+		case window::Key::R:         return Rml::Input::KI_R;
+		case window::Key::S:         return Rml::Input::KI_S;
+		case window::Key::T:         return Rml::Input::KI_T;
+		case window::Key::U:         return Rml::Input::KI_U;
+		case window::Key::V:         return Rml::Input::KI_V;
+		case window::Key::W:         return Rml::Input::KI_W;
+		case window::Key::X:         return Rml::Input::KI_X;
+		case window::Key::Y:         return Rml::Input::KI_Y;
+		case window::Key::Z:         return Rml::Input::KI_Z;
+		case window::Key::Num0:      return Rml::Input::KI_0;
+		case window::Key::Num1:      return Rml::Input::KI_1;
+		case window::Key::Num2:      return Rml::Input::KI_2;
+		case window::Key::Num3:      return Rml::Input::KI_3;
+		case window::Key::Num4:      return Rml::Input::KI_4;
+		case window::Key::Num5:      return Rml::Input::KI_5;
+		case window::Key::Num6:      return Rml::Input::KI_6;
+		case window::Key::Num7:      return Rml::Input::KI_7;
+		case window::Key::Num8:      return Rml::Input::KI_8;
+		case window::Key::Num9:      return Rml::Input::KI_9;
+		case window::Key::Numpad0:   return Rml::Input::KI_NUMPAD0;
+		case window::Key::Numpad1:   return Rml::Input::KI_NUMPAD1;
+		case window::Key::Numpad2:   return Rml::Input::KI_NUMPAD2;
+		case window::Key::Numpad3:   return Rml::Input::KI_NUMPAD3;
+		case window::Key::Numpad4:   return Rml::Input::KI_NUMPAD4;
+		case window::Key::Numpad5:   return Rml::Input::KI_NUMPAD5;
+		case window::Key::Numpad6:   return Rml::Input::KI_NUMPAD6;
+		case window::Key::Numpad7:   return Rml::Input::KI_NUMPAD7;
+		case window::Key::Numpad8:   return Rml::Input::KI_NUMPAD8;
+		case window::Key::Numpad9:   return Rml::Input::KI_NUMPAD9;
+		case window::Key::Left:      return Rml::Input::KI_LEFT;
+		case window::Key::Right:     return Rml::Input::KI_RIGHT;
+		case window::Key::Up:        return Rml::Input::KI_UP;
+		case window::Key::Down:      return Rml::Input::KI_DOWN;
+		//case window::Key::Add:       return Rml::Input::KI_ADD;
+		case window::Key::Backspace: return Rml::Input::KI_BACK;
+		case window::Key::Delete:    return Rml::Input::KI_DELETE;
+		//case window::Key::Divide:    return Rml::Input::KI_DIVIDE;
+		case window::Key::End:       return Rml::Input::KI_END;
+		case window::Key::Escape:    return Rml::Input::KI_ESCAPE;
+		case window::Key::F1:        return Rml::Input::KI_F1;
+		case window::Key::F2:        return Rml::Input::KI_F2;
+		case window::Key::F3:        return Rml::Input::KI_F3;
+		case window::Key::F4:        return Rml::Input::KI_F4;
+		case window::Key::F5:        return Rml::Input::KI_F5;
+		case window::Key::F6:        return Rml::Input::KI_F6;
+		case window::Key::F7:        return Rml::Input::KI_F7;
+		case window::Key::F8:        return Rml::Input::KI_F8;
+		case window::Key::F9:        return Rml::Input::KI_F9;
+		case window::Key::F10:       return Rml::Input::KI_F10;
+		case window::Key::F11:       return Rml::Input::KI_F11;
+		case window::Key::F12:       return Rml::Input::KI_F12;
+		case window::Key::F13:       return Rml::Input::KI_F13;
+		case window::Key::F14:       return Rml::Input::KI_F14;
+		case window::Key::F15:       return Rml::Input::KI_F15;
+		case window::Key::Home:      return Rml::Input::KI_HOME;
+		case window::Key::Insert:    return Rml::Input::KI_INSERT;
+		case window::Key::LControl:  return Rml::Input::KI_LCONTROL;
+		case window::Key::LShift:    return Rml::Input::KI_LSHIFT;
+		//case window::Key::Multiply:  return Rml::Input::KI_MULTIPLY;
+		case window::Key::Pause:     return Rml::Input::KI_PAUSE;
+		case window::Key::RControl:  return Rml::Input::KI_RCONTROL;
+		//case window::Key::Return:    return Rml::Input::KI_RETURN;
+		case window::Key::RShift:    return Rml::Input::KI_RSHIFT;
+		case window::Key::Space:     return Rml::Input::KI_SPACE;
+		//case window::Key::Subtract:  return Rml::Input::KI_SUBTRACT;
+		case window::Key::Tab:       return Rml::Input::KI_TAB;
 		default:                      return Rml::Input::KI_UNKNOWN;
 		}
 	}
 
-	void process_window_event(const sf::Event& ev)
+	void process_window_event(const window::Event& ev)
 	{
 		int key_modifier_state = 0;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ||
-			sf::Keyboard::isKeyPressed(sf::Keyboard::RShift))
+#if 0
+		if (window::Key::isKeyPressed(window::Key::LShift) ||
+			window::Key::isKeyPressed(window::Key::RShift))
 			key_modifier_state |= Rml::Input::KM_SHIFT;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl) ||
-			sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
+		if (window::Key::isKeyPressed(window::Key::LControl) ||
+			window::Key::isKeyPressed(window::Key::RControl))
 			key_modifier_state |= Rml::Input::KM_CTRL;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt) ||
-			sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt))
+		if (window::Key::isKeyPressed(window::Key::LAlt) ||
+			window::Key::isKeyPressed(window::Key::RAlt))
 			key_modifier_state |= Rml::Input::KM_ALT;
+#endif
 
 		switch (ev.type) {
+#if 0
 		case sf::Event::Resized: {
 			_render_interface.SetViewport(ev.size.width, ev.size.height);
 			_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
@@ -290,15 +294,16 @@ namespace ui
 				_debugger_context->ProcessTextInput(c);
 			}
 		} break;
-		case sf::Event::KeyPressed:
-			if (ev.key.code == sf::Keyboard::Escape)
+#endif
+		case window::EventType::KeyPress:
+			if (ev.key.code == window::Key::Escape)
 				_on_escape_key_pressed();
-			_context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyDown(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+			_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
 			break;
-		case sf::Event::KeyReleased:
-			_context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyUp(_sfml_key_to_rml_key(ev.key.code), key_modifier_state);
+		case window::EventType::KeyRelease:
+			_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			_debugger_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
 			break;
 		}
 	}
@@ -322,17 +327,19 @@ namespace ui
 
 	void reload_styles()
 	{
-		for (int i = 0; i < _context->GetNumDocuments(); ++i)
+		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
 			_context->GetDocument(i)->ReloadStyleSheet();
+		}
 	}
 
 	void show_document(const std::string& name)
 	{
-		if (Rml::ElementDocument* doc = _context->GetDocument(name))
+		if (Rml::ElementDocument* doc = _context->GetDocument(name)) {
 			doc->Show();
+		}
 	}
 
-	bool poll_event(Event& ev)
+	bool get_next_event(Event& ev)
 	{
 		if (_events.empty()) return false;
 		ev = _events.back();
@@ -340,7 +347,8 @@ namespace ui
 		return true;
 	}
 
-	bool is_menu_or_textbox_visible() {
+	bool is_menu_or_textbox_visible()
+	{
 		return (get_top_menu() != MenuType::Count) || is_textbox_open();
 	}
 }

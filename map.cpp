@@ -17,7 +17,7 @@ namespace map
 	float _transition_duration = -1.f; // negative when not transitioning; zero when transitioning instantly; otherwise positive
 	float _transition_progress = 1.f; // -1 to 1
 
-	void _debug(float dt)
+	void _show_debug_window(float dt)
 	{
 #ifdef BUILD_IMGUI
 		ImGui::Begin("Maps");
@@ -40,7 +40,10 @@ namespace map
 
 	void update(float dt)
 	{
-		if (debug) _debug(dt);
+		if (debug) {
+			_show_debug_window(dt);
+		}
+
 		if (_transition_duration < 0.f) return; // not transitioning
 
 		const float delta_progress = _transition_duration ? (dt / _transition_duration) : 1.f;

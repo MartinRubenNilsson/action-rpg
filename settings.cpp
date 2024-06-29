@@ -5,6 +5,7 @@
 
 void Settings::set() const
 {
+#if 0
 	window::State window_desc = window::get_state();
 	window_desc.fullscreen = fullscreen;
 	window_desc.scale = window_scale;
@@ -13,16 +14,19 @@ void Settings::set() const
 	audio::set_bus_volume(audio::BUS_MASTER, volume_master);
 	audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
 	audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
+#endif
 }
 
 void Settings::get()
 {
+#if 0
 	fullscreen = window::get_state().fullscreen;
 	vsync = window::get_state().vsync;
 	window_scale = window::get_state().scale;
 	audio::get_bus_volume(audio::BUS_MASTER, volume_master);
 	audio::get_bus_volume(audio::BUS_MUSIC, volume_music);
 	audio::get_bus_volume(audio::BUS_SOUND, volume_sound);
+#endif
 }
 
 void Settings::write(std::ostream& os) const

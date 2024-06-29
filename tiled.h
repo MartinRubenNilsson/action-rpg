@@ -70,7 +70,10 @@ namespace tiled
 	struct Tile
 	{
 		uint32_t id = 0; // index into Tileset::tiles
-		sf::IntRect image_rect; // in pixels
+		uint32_t left = 0; // in pixels
+		uint32_t top = 0; // in pixels
+		uint32_t width = 0; // in pixels
+		uint32_t height = 0; // in pixels
 		std::string class_;
 		Properties properties;
 		std::vector<Object>	objects;
@@ -148,7 +151,6 @@ namespace tiled
 
 	// Loads all tilesets (.tsx), then all templates (.tx), then all maps (.tmx).
 	void load_assets(const std::filesystem::path& dir);
-	void unload_assets();
 
 	std::span<const Map> get_maps();
 	std::span<const Tileset> get_tilesets();

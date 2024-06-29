@@ -12,6 +12,7 @@
 #include "console.h"
 #include "audio.h"
 #include "window.h"
+#include "window_events.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "random.h"
@@ -30,59 +31,59 @@ namespace ecs
 	uint32_t _input_flags_to_enable = 0;
 	uint32_t _input_flags_to_disable = 0;
 
-	void process_event_players(const sf::Event& ev)
+	void process_window_event_for_players(const window::Event& ev)
 	{
-		if (ev.type == sf::Event::KeyPressed) {
+		if (ev.type == window::EventType::KeyPress) {
 			switch (ev.key.code) {
-			case sf::Keyboard::Left:
+			case window::Key::Left:
 				_input_flags_to_enable |= INPUT_LEFT;
 				break;
-			case sf::Keyboard::Right:
+			case window::Key::Right:
 				_input_flags_to_enable |= INPUT_RIGHT;
 				break;
-			case sf::Keyboard::Up:
+			case window::Key::Up:
 				_input_flags_to_enable |= INPUT_UP;
 				break;
-			case sf::Keyboard::Down:
+			case window::Key::Down:
 				_input_flags_to_enable |= INPUT_DOWN;
 				break;
-			case sf::Keyboard::LShift:
+			case window::Key::LShift:
 				_input_flags_to_enable |= INPUT_RUN;
 				break;
-			case sf::Keyboard::LControl:
+			case window::Key::LControl:
 				_input_flags_to_enable |= INPUT_STEALTH;
 				break;
-			case sf::Keyboard::C:
+			case window::Key::C:
 				_input_flags_to_enable |= INPUT_INTERACT;
 				break;
-			case sf::Keyboard::X:
+			case window::Key::X:
 				_input_flags_to_enable |= INPUT_SHOOT_BOW;
 				break;
-			case sf::Keyboard::Z:
+			case window::Key::Z:
 				_input_flags_to_enable |= INPUT_DROP_BOMB;
 				break;
-			case sf::Keyboard::Space:
+			case window::Key::Space:
 				_input_flags_to_enable |= INPUT_SWING_SWORD;
 				break;
 			}
-		} else if (ev.type == sf::Event::KeyReleased) {
+		} else if (ev.type == window::EventType::KeyRelease) {
 			switch (ev.key.code) {
-			case sf::Keyboard::Left:
+			case window::Key::Left:
 				_input_flags_to_disable |= INPUT_LEFT;
 				break;
-			case sf::Keyboard::Right:
+			case window::Key::Right:
 				_input_flags_to_disable |= INPUT_RIGHT;
 				break;
-			case sf::Keyboard::Up:
+			case window::Key::Up:
 				_input_flags_to_disable |= INPUT_UP;
 				break;
-			case sf::Keyboard::Down:
+			case window::Key::Down:
 				_input_flags_to_disable |= INPUT_DOWN;
 				break;
-			case sf::Keyboard::LShift:
+			case window::Key::LShift:
 				_input_flags_to_disable |= INPUT_RUN;
 				break;
-			case sf::Keyboard::LControl:
+			case window::Key::LControl:
 				_input_flags_to_disable |= INPUT_STEALTH;
 				break;
 			}
@@ -102,8 +103,9 @@ namespace ecs
 			if (get_string(hit.entity, "textbox", string)) {
 				ui::open_or_enqueue_textbox_presets(string);
 			}
-			if (get_string(hit.entity, "sound", string))
+			if (get_string(hit.entity, "sound", string)) {
 				audio::play(string);
+			}
 		}
 	}
 
@@ -386,7 +388,7 @@ namespace ecs
 		_input_flags_to_disable = 0;
 	}
 
-	void debug_players()
+	void show_player_debug_window()
 	{
 #ifdef BUILD_IMGUI
 		const size_t player_count = _registry.view<Player>().size();
