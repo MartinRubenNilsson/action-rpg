@@ -813,6 +813,9 @@
     <ClInclude Include="vector2.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

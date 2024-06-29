@@ -96,7 +96,7 @@ namespace ecs
 		Vector2f box_center = position;
 		Vector2f box_min = box_center - Vector2f(6.f, 6.f);
 		Vector2f box_max = box_center + Vector2f(6.f, 6.f);
-		//debug::draw_box(box_min, box_max, sf::Color::Cyan, 0.2f);
+		//debug::draw_box(box_min, box_max, Color::Cyan, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			std::string class_ = get_class(hit.entity);
 			std::string string;
@@ -364,7 +364,7 @@ namespace ecs
 			if (player.hurt_timer.running()) {
 				constexpr float BLINK_PERIOD = 0.15f;
 				float fraction = fmod(player.hurt_timer.get_time(), BLINK_PERIOD) / BLINK_PERIOD;
-				tile.color.a = (sf::Uint8)(255 * fraction);
+				tile.color.a = (unsigned char)(255 * fraction);
 			} else {
 				tile.color.a = 255;
 			}

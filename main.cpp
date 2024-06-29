@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     window::initialize();
 #ifdef BUILD_IMGUI
     imgui_backends::initialize(window::get_glfw_window());
-#endif // BUILD_IMGUI
+#endif
     graphics::initialize();
     console::initialize();
     audio::initialize();
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
 #ifdef BUILD_IMGUI
         imgui_backends::new_frame();
-#endif // BUILD_IMGUI
+#endif
 
         // PROCESS WINDOW EVENTS
         {
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
                 if (ev.type == window::EventType::KeyPress && ImGui::GetIO().WantCaptureKeyboard) {
                     continue;
                 }
-#endif // BUILD_IMGUI
+#endif
                 console::process_window_event(ev);
                 ui::process_window_event(ev);
                 if (!ui::is_menu_or_textbox_visible()) {
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 					map::close(0.f);
                 } break;
                 case ui::EventType::QuitApp: {
-                    //window.close();
+                    window::set_should_close(true);
                 } break;
 				}
 			}
@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
         bool show_built_in_cursor = false;
 #ifdef BUILD_IMGUI
         ImGui::GetIO().WantCaptureMouse;
-#endif // BUILD_IMGUI
+#endif
         //window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
         //cursor::set_position(Vector2f(sf::Mouse::getPosition(window)));
@@ -294,7 +294,7 @@ int main(int argc, char* argv[])
 
 #ifdef BUILD_IMGUI
         imgui_backends::render();
-#endif // BUILD_IMGUI
+#endif
 
         window::swap_buffers();
     }
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
     graphics::shutdown();
 #ifdef BUILD_IMGUI
     imgui_backends::shutdown();
-#endif // BUILD_IMGUI
+#endif
     window::shutdown();
     steam::shutdown();
 

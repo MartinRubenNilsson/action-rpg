@@ -14,7 +14,7 @@ namespace ecs
 
 	bool apply_damage_in_box(const Damage& damage, const Vector2f& box_min, const Vector2f& box_max, uint16_t mask_bits)
 	{
-		//debug::draw_box(box_min, box_max, sf::Color::Red, 0.2f);
+		//debug::draw_box(box_min, box_max, Color::Red, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, mask_bits)) {
 			if (hit.entity == damage.source) continue;
 			if (_entities_that_took_damage.contains(hit.entity)) continue;
@@ -28,7 +28,7 @@ namespace ecs
 
 	bool apply_damage_in_circle(const Damage& damage, const Vector2f& center, float radius, uint16_t mask_bits)
 	{
-		//debug::draw_circle(center, radius, sf::Color::Red, 0.2f);
+		//debug::draw_circle(center, radius, Color::Red, 0.2f);
 		for (const OverlapHit& hit : overlap_circle(center, radius, mask_bits)) {
 			if (hit.entity == damage.source) continue;
 			if (_entities_that_took_damage.contains(hit.entity)) continue;

@@ -34,7 +34,7 @@ namespace sprites
 		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates
 		Vector2f tex_max = { 1.f, 1.f }; // bottom-right corner normalized texture coordinates
 		Vector2f sorting_pos;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		uint8_t sorting_layer = 0;
 		uint8_t flags = 0;
 	};

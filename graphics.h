@@ -13,7 +13,7 @@ namespace graphics
 	struct Vertex
 	{
 		Vector2f position;
-		sf::Color color;
+		Color color;
 		Vector2f tex_coord;
 	};
 

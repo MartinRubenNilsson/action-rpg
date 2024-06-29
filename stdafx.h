@@ -18,7 +18,6 @@
 
 using namespace std::literals::string_literals;
 
-#include <SFML/Graphics/Color.hpp>
 #include <entt/entity/registry.hpp>
 
 #pragma warning(push)
@@ -36,4 +35,5 @@ using namespace std::literals::string_literals;
 #include <magic_enum.hpp>
 
 #include "vector2.h"
+#include "color.h"
 #include "math.h"

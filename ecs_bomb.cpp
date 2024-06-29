@@ -45,7 +45,7 @@ namespace ecs
             if (bomb.explosion_timer.get_progress() < 0.5f) continue;  
             constexpr float BLINK_SPEED = 20.f;
             float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
-            tile.color.a = (sf::Uint8)(255 * blink_fraction);
+            tile.color.a = (unsigned char)(255 * blink_fraction);
         }
     }
 

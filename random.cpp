@@ -30,17 +30,17 @@ namespace random
 		return dist(_engine);
 	}
 
-	sf::Color color()
+	Color color()
 	{
 		std::uniform_int_distribution <int> dist(0, 255);
-		return sf::Color(dist(_engine), dist(_engine), dist(_engine));
+		return Color(dist(_engine), dist(_engine), dist(_engine));
 	}
 
-	sf::Color color(uint32_t seed)
+	Color color(uint32_t seed)
 	{
 		_seeded_engine.seed(seed);
 		std::uniform_int_distribution <int> dist(0, 255);
-		return sf::Color(dist(_seeded_engine), dist(_seeded_engine), dist(_seeded_engine));
+		return Color(dist(_seeded_engine), dist(_seeded_engine), dist(_seeded_engine));
 	}
 
 	Vector2f on_circle(float radius)

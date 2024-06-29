@@ -95,7 +95,7 @@ namespace tiled
 		Properties properties;
 		const Tile* tile = nullptr; // the tile representing this color; can be null
 		float probability = 0.f;
-		sf::Color color;
+		Color color;
 	};
 
 	struct WangSet

@@ -408,6 +408,7 @@
     <ClInclude Include="audio.h" />
     <ClInclude Include="background.h" />
     <ClInclude Include="clock.h" />
+    <ClInclude Include="color.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />

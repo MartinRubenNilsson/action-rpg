@@ -5,9 +5,9 @@
 
 namespace console
 {
-	const sf::Color _COLOR_COMMAND = sf::Color(230, 230, 230, 255);
-	const sf::Color _COLOR_LOG = sf::Color(252, 191, 73, 255);
-	const sf::Color _COLOR_LOG_ERROR = sf::Color(220, 50, 47, 255);
+	const Color _COLOR_COMMAND = Color(230, 230, 230, 255);
+	const Color _COLOR_LOG = Color(252, 191, 73, 255);
+	const Color _COLOR_LOG_ERROR = Color(220, 50, 47, 255);
 	const size_t _MAX_HISTORY = 512;
 
 	bool _visible = false;
@@ -20,7 +20,7 @@ namespace console
 	std::deque<std::string> _command_queue;
 	std::deque<std::string> _command_history;
 	std::deque<std::string>::iterator _command_history_it = _command_history.end();
-	std::deque<std::pair<std::string, sf::Color>> _history;
+	std::deque<std::pair<std::string, Color>> _history;
 	std::unordered_map<window::Key, std::string> _key_bindings;
 
 #ifdef BUILD_IMGUI

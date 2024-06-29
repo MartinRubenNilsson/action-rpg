@@ -33,7 +33,7 @@ namespace ecs
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		uint8_t sorting_layer = 0;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		Timer animation_timer;
 		float animation_speed = 1.f;
 

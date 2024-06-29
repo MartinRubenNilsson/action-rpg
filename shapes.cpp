@@ -17,7 +17,7 @@ namespace shapes
 	{
 		Vector2f p1;
 		Vector2f p2;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		float lifetime = 0.f;
 	};
 
@@ -25,7 +25,7 @@ namespace shapes
 	{
 		Vector2f min;
 		Vector2f max;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		float lifetime = 0.f;
 	};
 
@@ -33,7 +33,7 @@ namespace shapes
 	{
 		Vector2f points[MAX_POLYGON_VERTICES];
 		unsigned int count = 0;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		float lifetime = 0.f;
 	};
 
@@ -41,7 +41,7 @@ namespace shapes
 	{
 		Vector2f center;
 		float radius = 0.f;
-		sf::Color color = sf::Color::White;
+		Color color = colors::WHITE;
 		float lifetime = 0.f;
 	};
 
@@ -210,8 +210,8 @@ namespace shapes
 		text.setFont(*font);
 		text.setCharacterSize(48);
 		text.setScale(0.1f, 0.1f);
-		text.setFillColor(sf::Color::White);
-		text.setOutlineColor(sf::Color::Black);
+		text.setFillColor(colors::WHITE);
+		text.setOutlineColor(Color::Black);
 		text.setOutlineThickness(2.f);
 		for (const Text& t : _texts) {
 			//TODO: culling
@@ -236,19 +236,19 @@ namespace shapes
 		_render_circles();
 	}
 
-	void add_line_to_render_queue(const Vector2f& p1, const Vector2f& p2, const sf::Color& color, float lifetime)
+	void add_line_to_render_queue(const Vector2f& p1, const Vector2f& p2, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, p1, p2)) return;
 		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void add_box_to_render_queue(const Vector2f& min, const Vector2f& max, const sf::Color& color, float lifetime)
+	void add_box_to_render_queue(const Vector2f& min, const Vector2f& max, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_box(_last_calculated_view_bounds, min, max)) return;
 		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
-	void add_polygon_to_render_queue(const Vector2f* points, unsigned int count, const sf::Color& color, float lifetime)
+	void add_polygon_to_render_queue(const Vector2f* points, unsigned int count, const Color& color, float lifetime)
 	{
 		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
@@ -260,7 +260,7 @@ namespace shapes
 		polygon.lifetime = lifetime;
 	}
 
-	void add_circle_to_render_queue(const Vector2f& center, float radius, const sf::Color& color, float lifetime)
+	void add_circle_to_render_queue(const Vector2f& center, float radius, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
 		_circles.emplace_back(center, radius, color, lifetime);
