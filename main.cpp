@@ -17,6 +17,7 @@
 #include "shapes.h"
 #include "sprites.h"
 #include "clock.h"
+#include "imgui_backends.h"
 
 #pragma comment(lib, "winmm") // SFML requires this
 #ifdef _DEBUG
@@ -31,12 +32,15 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     steam::initialize(); // Fails silently if Steam is not running.
-    audio::initialize();
     window::initialize();
-    ui::initialize();
-    ecs::initialize();
+#ifdef BUILD_IMGUI
+    imgui_backends::initialize(window::get_glfw_window());
+#endif // BUILD_IMGUI
     graphics::initialize();
     console::initialize();
+    audio::initialize();
+    ui::initialize();
+    ecs::initialize();
 
 #if 0
     {
@@ -44,55 +48,6 @@ int main(int argc, char* argv[])
         Settings settings{};
         if (settings.load()) settings.set();
         else window::set_state(window::State());
-    }
-#endif
-
-#ifdef BUILD_IMGUI
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window::get_glfw_window(), true);
-    ImGui_ImplOpenGL3_Init();
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
-    {
-        // https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
-
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
-        style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-        style.Colors[ImGuiCol_WindowBg] = ImVec4(0.09f, 0.09f, 0.15f, 1.00f);
-        style.Colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_PopupBg] = ImVec4(0.05f, 0.05f, 0.10f, 0.85f);
-        style.Colors[ImGuiCol_Border] = ImVec4(0.70f, 0.70f, 0.70f, 0.65f);
-        style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-        style.Colors[ImGuiCol_FrameBg] = ImVec4(0.00f, 0.00f, 0.01f, 1.00f);
-        style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.90f, 0.80f, 0.80f, 0.40f);
-        style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.90f, 0.65f, 0.65f, 0.45f);
-        style.Colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.83f);
-        style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.40f, 0.40f, 0.80f, 0.20f);
-        style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.00f, 0.00f, 0.00f, 0.87f);
-        style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.01f, 0.01f, 0.02f, 0.80f);
-        style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.20f, 0.25f, 0.30f, 0.60f);
-        style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.55f, 0.53f, 0.55f, 0.51f);
-        style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.56f, 1.00f);
-        style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.56f, 0.56f, 0.56f, 0.91f);
-        style.Colors[ImGuiCol_CheckMark] = ImVec4(0.90f, 0.90f, 0.90f, 0.83f);
-        style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.70f, 0.70f, 0.70f, 0.62f);
-        style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.30f, 0.30f, 0.30f, 0.84f);
-        style.Colors[ImGuiCol_Button] = ImVec4(0.48f, 0.72f, 0.89f, 0.49f);
-        style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.50f, 0.69f, 0.99f, 0.68f);
-        style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.80f, 0.50f, 0.50f, 1.00f);
-        style.Colors[ImGuiCol_Header] = ImVec4(0.30f, 0.69f, 1.00f, 0.53f);
-        style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.44f, 0.61f, 0.86f, 1.00f);
-        style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.38f, 0.62f, 0.83f, 1.00f);
-        style.Colors[ImGuiCol_ResizeGrip] = ImVec4(1.00f, 1.00f, 1.00f, 0.85f);
-        style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(1.00f, 1.00f, 1.00f, 0.60f);
-        style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(1.00f, 1.00f, 1.00f, 0.90f);
-        style.Colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-        style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-        style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
-        style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
-        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.00f, 0.00f, 1.00f, 0.35f);
-        style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
     }
 #endif
 
@@ -122,10 +77,8 @@ int main(int argc, char* argv[])
         window::poll_events();
 
 #ifdef BUILD_IMGUI
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-#endif
+        imgui_backends::new_frame();
+#endif // BUILD_IMGUI
 
         // PROCESS WINDOW EVENTS
         {
@@ -154,14 +107,14 @@ int main(int argc, char* argv[])
                     } else if (ev.key.code == window::Key::F7) {
                         map::debug = !map::debug;
                     }
-#endif
+#endif // _DEBUG
                 }
 
 #ifdef BUILD_IMGUI
                 if (ev.type == window::EventType::KeyPress && ImGui::GetIO().WantCaptureKeyboard) {
                     continue;
                 }
-#endif
+#endif // BUILD_IMGUI
                 console::process_window_event(ev);
                 ui::process_window_event(ev);
                 if (!ui::is_menu_or_textbox_visible()) {
@@ -265,7 +218,7 @@ int main(int argc, char* argv[])
         bool show_built_in_cursor = false;
 #ifdef BUILD_IMGUI
         ImGui::GetIO().WantCaptureMouse;
-#endif
+#endif // BUILD_IMGUI
         //window.setMouseCursorVisible(show_built_in_cursor);
         cursor::set_visible(!show_built_in_cursor);
         //cursor::set_position(sf::Vector2f(sf::Mouse::getPosition(window)));
@@ -309,13 +262,12 @@ int main(int argc, char* argv[])
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
-#endif
+#endif // BUILD_IMGUI
         }
 
 #ifdef BUILD_IMGUI
-        ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
+        imgui_backends::render();
+#endif // BUILD_IMGUI
 
         window::swap_buffers();
     }
@@ -324,13 +276,11 @@ int main(int argc, char* argv[])
 
     ecs::shutdown();
     ui::shutdown();
-#ifdef BUILD_IMGUI
-    ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-#endif
     audio::shutdown();
     graphics::shutdown();
+#ifdef BUILD_IMGUI
+    imgui_backends::shutdown();
+#endif // BUILD_IMGUI
     window::shutdown();
     steam::shutdown();
 

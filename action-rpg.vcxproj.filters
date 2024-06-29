@@ -296,6 +296,9 @@
     <ClCompile Include="timer.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_backends.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -804,6 +807,9 @@
       <Filter>application</Filter>
     </ClInclude>
     <ClInclude Include="config.h" />
+    <ClInclude Include="imgui_backends.h">
+      <Filter>application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
