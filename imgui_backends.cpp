@@ -15,6 +15,9 @@ namespace imgui_backends
         ImGui_ImplOpenGL3_Init();
         ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
 
+        // So Dear ImGui doesn't interfere with the mouse cursor.
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+
         // https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
         ImGuiStyle& style = ImGui::GetStyle();
         style.Colors[ImGuiCol_Text] = ImVec4(0.90f, 0.90f, 0.90f, 0.90f);
