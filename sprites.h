@@ -32,8 +32,8 @@ namespace sprites
 	struct Sprite
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
-		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		graphics::ShaderHandle shader = graphics::default_shader;
+		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
 		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates
@@ -49,8 +49,8 @@ namespace sprites
 	// 1. sorting_layer
 	// 2. sorting_pos.y
 	// 3. sorting_pos.x
-	// 4. texture_id
-	// 5. shader_id
+	// 4. shader
+	// 5. texture
 	// 
 	// In all cases, a less-than comparison is used.
 	// If one case yields a tie, then the next case is considered, and so on.

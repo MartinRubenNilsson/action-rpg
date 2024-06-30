@@ -12,10 +12,10 @@ namespace sprites
 			return left.sorting_pos.y < right.sorting_pos.y;
 		if (left.sorting_pos.x != right.sorting_pos.x)
 			return left.sorting_pos.x < right.sorting_pos.x;
-		if (left.texture != right.texture)
-			return left.texture < right.texture;
 		if (left.shader != right.shader)
 			return left.shader < right.shader;
+		if (left.texture != right.texture)
+			return left.texture < right.texture;
 		return false;
 	}
 
@@ -115,8 +115,8 @@ namespace sprites
 				// Can we add the new sprite to the batch?
 				if (enable_batching &&
 					_batch_vertices != MAX_VERTICES_PER_BATCH &&
-					sprite.texture == last_texture &&
 					sprite.shader == last_shader &&
+					sprite.texture == last_texture &&
 					!sprite.pre_render_callback)
 				{
 					// Add degenerate triangles to separate the sprites
@@ -141,8 +141,8 @@ namespace sprites
 			}
 
 			// Update the render states
-			last_texture = sprite.texture;
 			last_shader = sprite.shader;
+			last_texture = sprite.texture;
 		}
 
 		// Draw the last batch if there is one
