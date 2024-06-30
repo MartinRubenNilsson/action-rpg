@@ -132,7 +132,7 @@ namespace window
 		_glfw_cursors[(int)CursorShape::HResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
 		_glfw_cursors[(int)CursorShape::VResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
 
-		// CREATE CUSTOM CURSORS
+		// LOAD AND CREATE CUSTOM CURSORS
 
 		int width, height, channels;
 		unsigned char* pixels = stbi_load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
@@ -225,6 +225,34 @@ namespace window
 	bool get_visible()
 	{
 		return glfwGetWindowAttrib(_glfw_window, GLFW_VISIBLE);
+	}
+
+	void set_fullscreen(bool fullscreen)
+	{
+		if (fullscreen == get_fullscreen()) return;
+		static int last_windowed_xpos = 0;
+		static int last_windowed_ypos = 0;
+		static int last_windowed_width = 0;
+		static int last_windowed_height = 0;
+		if (fullscreen) {
+			GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
+			if (!primary_monitor) return;
+			const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
+			if (!video_mode) return;
+			glfwGetWindowPos(_glfw_window, &last_windowed_xpos, &last_windowed_ypos);
+			glfwGetWindowSize(_glfw_window, &last_windowed_width, &last_windowed_height);
+			glfwSetWindowMonitor(_glfw_window, primary_monitor,
+				0, 0, video_mode->width, video_mode->height, video_mode->refreshRate);
+		} else {
+			glfwSetWindowMonitor(_glfw_window, nullptr,
+				last_windowed_xpos, last_windowed_ypos,
+				last_windowed_width, last_windowed_height, GLFW_DONT_CARE);
+		}
+	}
+
+	bool get_fullscreen()
+	{
+		return glfwGetWindowMonitor(_glfw_window) != nullptr;
 	}
 
 	void set_size(int width, int height)
