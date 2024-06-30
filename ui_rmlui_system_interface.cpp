@@ -10,24 +10,24 @@ namespace ui
 
 	void RmlUiSystemInterface::SetMouseCursor(const Rml::String& cursor_name)
 	{
-#if 0
-		if (cursor_name.empty() || cursor_name == "arrow")
-			window::set_cursor(sf::Cursor::Arrow);
-		else if (cursor_name == "move")
-			window::set_cursor(sf::Cursor::SizeAll);
-		else if (cursor_name == "pointer")
-			window::set_cursor(sf::Cursor::Hand);
-		else if (cursor_name == "resize")
-			window::set_cursor(sf::Cursor::SizeTopLeftBottomRight);
-		else if (cursor_name == "cross")
-			window::set_cursor(sf::Cursor::Cross);
-		else if (cursor_name == "text")
-			window::set_cursor(sf::Cursor::Text);
-		else if (cursor_name == "unavailable")
-			window::set_cursor(sf::Cursor::NotAllowed);
-		else if (cursor_name.starts_with("rmlui-scroll"))
-			window::set_cursor(sf::Cursor::SizeAll);
-#endif
+		if (cursor_name.empty() || cursor_name == "arrow") {
+			window::set_cursor_shape(window::CursorShape::StandardArrow);
+		} else if (cursor_name == "move") {
+			//window::set_cursor_shape(sf::Cursor::SizeAll);
+		} else if (cursor_name == "pointer") {
+			window::set_cursor_shape(window::CursorShape::StandardHand);
+		} else if (cursor_name == "resize") {
+			//window::set_cursor_shape(sf::Cursor::SizeTopLeftBottomRight);
+		} else if (cursor_name == "cross") {
+			window::set_cursor_shape(window::CursorShape::StandardCrosshair);
+		} else if (cursor_name == "text") {
+			window::set_cursor_shape(window::CursorShape::StandardIBeam);
+			//window::set_cursor_shape(sf::Cursor::Text);
+		} else if (cursor_name == "unavailable") {
+			//window::set_cursor_shape(sf::Cursor::NotAllowed);
+		} else if (cursor_name.starts_with("rmlui-scroll")) {
+			//window::set_cursor_shape(sf::Cursor::SizeAll);
+		}
 	}
 
 	void RmlUiSystemInterface::SetClipboardText(const Rml::String& text) {

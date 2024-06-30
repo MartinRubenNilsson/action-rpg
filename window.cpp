@@ -9,6 +9,7 @@
 namespace window
 {
 	GLFWwindow* _glfw_window = nullptr;
+	GLFWcursor* _glfw_cursors[(int)CursorShape::Count] = { nullptr };
 	std::queue<Event> _event_queue;
 	
 	void _error_callback(int error, const char* description)
@@ -119,11 +120,24 @@ namespace window
 		_window_size_callback(_glfw_window, width, height);
 		_framebuffer_size_callback(_glfw_window, width, height);
 
+		// CREATE STANDARD CURSORS
+
+		_glfw_cursors[(int)CursorShape::StandardArrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+		_glfw_cursors[(int)CursorShape::StandardIBeam] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+		_glfw_cursors[(int)CursorShape::StandardCrosshair] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+		_glfw_cursors[(int)CursorShape::StandardHand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+		_glfw_cursors[(int)CursorShape::StandardHResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+		_glfw_cursors[(int)CursorShape::StandardVResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+
 		return true;
 	}
 
 	void shutdown()
 	{
+		for (GLFWcursor* cursor : _glfw_cursors) {
+			glfwDestroyCursor(cursor);
+		}
+		memset(_glfw_cursors, 0, sizeof(_glfw_cursors));
 		glfwDestroyWindow(_glfw_window);
 		glfwTerminate();
 	}
@@ -249,6 +263,11 @@ namespace window
 	void get_cursor_pos(double& x, double& y)
 	{
 		glfwGetCursorPos(_glfw_window, &x, &y);
+	}
+
+	void set_cursor_shape(CursorShape shape)
+	{
+		glfwSetCursor(_glfw_window, _glfw_cursors[(int)shape]);
 	}
 
 	void set_clipboard_string(const std::string& string)

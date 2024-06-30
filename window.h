@@ -6,6 +6,20 @@ namespace window
 {
 	struct Event;
 
+	enum class CursorShape
+	{
+		// STANDARD CURSORS
+
+		StandardArrow, // The regular arrow cursor shape.
+		StandardIBeam, // The text input I-beam cursor shape.
+		StandardCrosshair, // The crosshair shape.
+		StandardHand, // The hand shape.
+		StandardHResize, // The horizontal resize arrow shape.
+		StandardVResize, // The vertical resize arrow shape.
+
+		Count, // Keep last -- the total number of cursor shapes.
+	};
+
 	bool initialize();
 	void shutdown();
 
@@ -37,6 +51,7 @@ namespace window
 	bool get_cursor_visible();
 	void set_cursor_pos(double x, double y);
 	void get_cursor_pos(double& x, double& y);
+	void set_cursor_shape(CursorShape shape);
 
 	void set_clipboard_string(const std::string& string);
 	std::string get_clipboard_string();
