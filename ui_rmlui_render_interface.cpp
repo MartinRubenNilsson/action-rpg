@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ui_rmlui_render_interface.h"
-#include <glad/glad.h> // TODO: remove dependency on glad, only use graphics.h
 #include "graphics.h"
 
 namespace ui
@@ -31,6 +30,7 @@ namespace ui
 
 	void prepare_render_state()
 	{
+		graphics::push_debug_group("UI");
 		graphics::get_viewport(
 			_previous_viewport[0],
 			_previous_viewport[1],
@@ -42,16 +42,11 @@ namespace ui
 			_previous_scissor_box[1],
 			_previous_scissor_box[2],
 			_previous_scissor_box[3]);
-		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(
-			0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
-#if 0
-		graphics::set_projection_matrix(projection.data());
-		graphics::set_texture_matrix_to_identity();
-		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
-#endif
 		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
-		graphics::bind_shader(graphics::default_shader);
-		graphics::set_uniform_1i(graphics::default_shader, "tex", 0);
+		graphics::bind_shader(graphics::ui_shader);
+		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
+		graphics::set_uniform_2f(graphics::ui_shader, "viewport_size", (float)_viewport_width, (float)_viewport_height);
+		graphics::set_uniform_1i(graphics::ui_shader, "tex", 0);
 	}
 
 	void restore_render_state()
@@ -67,25 +62,24 @@ namespace ui
 			_previous_scissor_box[1],
 			_previous_scissor_box[2],
 			_previous_scissor_box[3]);
+		graphics::pop_debug_group();
 	}
 
-	void RmlUiRenderInterface::RenderGeometry(Rml::Vertex* vertices, int /*num_vertices*/, int* indices, int num_indices, const Rml::TextureHandle texture, const Rml::Vector2f& translation)
+	void RmlUiRenderInterface::RenderGeometry(
+		Rml::Vertex* vertices, int num_vertices,
+		int* indices, int num_indices,
+		const Rml::TextureHandle texture,
+		const Rml::Vector2f& translation)
 	{
-#if 0
-		glPushMatrix();
-		glTranslatef(translation.x, translation.y, 0);
-		glVertexPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].position);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
-			glEnable(GL_TEXTURE_2D);
 			graphics::bind_texture(0, _from_rml_handle(texture));
-			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
-			glDisable(GL_TEXTURE_2D);
+			graphics::unbind_texture(0);
 		}
-		glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, indices);
-		glPopMatrix();
-#endif
+		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
+		graphics::draw_triangles(
+			(graphics::Vertex*)vertices, (unsigned int)num_vertices,
+			(unsigned int*)indices, (unsigned int)num_indices);
 	}
 
 	void RmlUiRenderInterface::EnableScissorRegion(bool enable)
@@ -98,7 +92,10 @@ namespace ui
 		graphics::set_scissor_box(x, _viewport_height - (y + height), width, height);
 	}
 
-	bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source)
+	bool RmlUiRenderInterface::LoadTexture(
+		Rml::TextureHandle& texture_handle,
+		Rml::Vector2i& texture_dimensions,
+		const Rml::String& source)
 	{
 		const graphics::TextureHandle texture = graphics::load_texture(source);
 		if (texture == graphics::TextureHandle::Invalid) return false;
@@ -110,7 +107,10 @@ namespace ui
 		return true;
 	}
 
-	bool RmlUiRenderInterface::GenerateTexture(Rml::TextureHandle& texture_handle, const Rml::byte* source, const Rml::Vector2i& source_dimensions)
+	bool RmlUiRenderInterface::GenerateTexture(
+		Rml::TextureHandle& texture_handle,
+		const Rml::byte* source,
+		const Rml::Vector2i& source_dimensions)
 	{
 		const graphics::TextureHandle texture = graphics::create_texture(
 			source_dimensions.x, source_dimensions.y, 4, source, "rmlui texture");
@@ -119,21 +119,20 @@ namespace ui
 		return true;
 	}
 
-	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle) {
+	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle)
+	{
 		//TODO: implement
 		//LEAK!!!!!!
 	}
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
 	{
-#if 0
 		if (!transform) {
-			graphics::set_modelview_matrix_to_identity();
+			graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
-			graphics::set_modelview_matrix(transform->data());
+			graphics::set_uniform_mat4(graphics::ui_shader, "transform", transform->data());
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
-			graphics::set_modelview_matrix(transform->Transpose().data());
+			graphics::set_uniform_mat4(graphics::ui_shader, "transform", transform->Transpose().data());
 		}
-#endif
 	}
 }

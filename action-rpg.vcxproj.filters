@@ -335,6 +335,12 @@
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="vcpkg.json" />
+    <None Include="ui.vert">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="ui.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui.h">

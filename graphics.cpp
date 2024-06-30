@@ -11,7 +11,7 @@ namespace graphics
 	constexpr char _DEFAULT_VERTEX_SHADER_BYTECODE[] = R"(
 uniform mat4 view_proj_matrix;
 
-layout (location = 0) in vec3 vertex_position;
+layout (location = 0) in vec2 vertex_position;
 layout (location = 1) in vec4 vertex_color;
 layout (location = 2) in vec2 vertex_tex_coord;
 
@@ -20,7 +20,7 @@ out vec2 tex_coord;
 
 void main()
 {
-	gl_Position = view_proj_matrix * vec4(vertex_position, 1.0);
+	gl_Position = view_proj_matrix * vec4(vertex_position, 0.0, 1.0);
 	color = vertex_color;
 	tex_coord = vertex_tex_coord;
 }
@@ -76,14 +76,14 @@ void main()
 	constexpr char _COLOR_ONLY_VERTEX_SHADER_BYTECODE[] = R"(
 uniform mat4 view_proj_matrix;
 
-layout (location = 0) in vec3 vertex_position;
+layout (location = 0) in vec2 vertex_position;
 layout (location = 1) in vec4 vertex_color;
 
 out vec4 color;
 
 void main()
 {
-    gl_Position = view_proj_matrix * vec4(vertex_position, 1.0);
+    gl_Position = view_proj_matrix * vec4(vertex_position, 0.0, 1.0);
 	color = vertex_color;
 }
 )";
@@ -99,10 +99,18 @@ void main()
 }
 )";
 
+	extern const float IDENTITY_MATRIX[16] = {
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+
 	RenderTargetHandle window_render_target = RenderTargetHandle::Invalid;
 	ShaderHandle default_shader = ShaderHandle::Invalid;
 	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
 	ShaderHandle color_only_shader = ShaderHandle::Invalid;
+	ShaderHandle ui_shader = ShaderHandle::Invalid;
 
 	struct Shader
 	{
@@ -129,8 +137,10 @@ void main()
 	};
 
 	constexpr unsigned int _MAX_VERTEX_COUNT = 65536;
+	constexpr unsigned int _MAX_INDEX_COUNT = 65536;
 	GLuint _vertex_array_object = 0;
 	GLuint _vertex_buffer_object = 0;
+	GLuint _element_buffer_object = 0;
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
 	std::vector<Texture> _textures;
@@ -224,6 +234,12 @@ void main()
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coord));	
 
+		// CREATE AND BIND ELEMENT BUFFER OBJECT
+
+		glGenBuffers(1, &_element_buffer_object);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _element_buffer_object);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _MAX_INDEX_COUNT * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
+
 		// SETUP BLENDING
 
 		glEnable(GL_BLEND);
@@ -259,6 +275,8 @@ void main()
 			_COLOR_ONLY_VERTEX_SHADER_BYTECODE,
 			_COLOR_ONLY_PIXEL_SHADER_BYTECODE,
 			"color only shader");
+
+		ui_shader = load_shader("assets/shaders/ui.vert", "assets/shaders/ui.frag");
 	}
 
 	void shutdown()
@@ -275,6 +293,13 @@ void main()
 		if (_vertex_buffer_object) {
 			glDeleteBuffers(1, &_vertex_buffer_object);
 			_vertex_buffer_object = 0;
+		}
+
+		// DELETE ELEMENT BUFFER OBJECT
+
+		if (_element_buffer_object) {
+			glDeleteBuffers(1, &_element_buffer_object);
+			_element_buffer_object = 0;
 		}
 
 		// DELETE SHADERS
@@ -887,6 +912,18 @@ void main()
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
+	}
+
+	void draw_triangles(
+		const Vertex* vertices, unsigned int vertex_count,
+		unsigned int* indices, unsigned int index_count)
+	{
+		if (!vertices || !vertex_count || !indices || !index_count) return;
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		index_count = std::min(index_count, _MAX_INDEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_count * sizeof(unsigned int), indices);
+		glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void push_debug_group(const std::string& name)

@@ -214,6 +214,7 @@ int main(int argc, char* argv[])
             graphics::set_uniform_mat4(graphics::default_shader, "view_proj_matrix", projection_matrix);
             graphics::bind_shader(graphics::color_only_shader);
             graphics::set_uniform_mat4(graphics::color_only_shader, "view_proj_matrix", projection_matrix);
+            graphics::bind_shader(graphics::default_shader);
         }
 
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
@@ -253,6 +254,7 @@ int main(int argc, char* argv[])
 		}
 #endif
         double cursor_x, cursor_y;
+        graphics::bind_shader(graphics::default_shader);
         window::get_cursor_pos(cursor_x, cursor_y);
         window::set_cursor_visible(!show_custom_cursor);
         cursor::set_visible(show_custom_cursor);

@@ -15,10 +15,13 @@ namespace graphics
 		Vector2f tex_coord;
 	};
 
+	extern const float IDENTITY_MATRIX[16];
+
 	extern RenderTargetHandle window_render_target;
 	extern ShaderHandle default_shader;
 	extern ShaderHandle fullscreen_shader;
 	extern ShaderHandle color_only_shader;
+	extern ShaderHandle ui_shader;
 
 	void initialize();
 	void shutdown();
@@ -98,6 +101,9 @@ namespace graphics
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
+	void draw_triangles(
+		const Vertex* vertices, unsigned int vertex_count,
+		unsigned int* indices, unsigned int index_count);
 
 	// DEBUGGING
 

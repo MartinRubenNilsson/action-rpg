@@ -32,15 +32,18 @@ namespace cursor
 		sprites::render("Cursor");
 	}
 
-	void set_visible(bool visible) {
+	void set_visible(bool visible)
+	{
 		_visible = visible;
 	}
 
-	void set_position(const Vector2f& position) {
+	void set_position(const Vector2f& position)
+	{
 		_position = position;
 	}
 
-	void set_scale(float scale) {
+	void set_scale(float scale)
+	{
 		_scale = scale;
 	}
 }
