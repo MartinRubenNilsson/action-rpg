@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
 #include "imgui_backends.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -76,4 +76,4 @@ namespace imgui_backends
 	}
 }
 
-#endif // BUILD_IMGUI
+#endif // DEBUG_IMGUI

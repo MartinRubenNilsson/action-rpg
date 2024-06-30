@@ -202,7 +202,7 @@ void main()
 		return &_render_targets[index];
 	}
 
-#ifdef _DEBUG
+#ifdef DEBUG_GRAPHICS
 	void GLAPIENTRY _debug_message_callback(
 		GLenum source,
 		GLenum type,
@@ -220,14 +220,14 @@ void main()
 
 	void _set_debug_label(GLenum identifier, GLuint name, const std::string& label)
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_GRAPHICS
 		glObjectLabel(identifier, name, (GLsizei)label.size(), label.c_str());
 #endif
 	}
 
 	void initialize()
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_GRAPHICS
 		// HACK: We should be using a post-build event to copy the shaders,
 		// but then it doesn't run when only debugging and not recompiling,
 		// which is annoying when you've changed a shader but not the code,
@@ -923,14 +923,14 @@ void main()
 
 	void push_debug_group(std::string_view name)
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_GRAPHICS
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
 #endif
 	}
 
 	void pop_debug_group()
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_GRAPHICS
 		glPopDebugGroup();
 #endif
 	}

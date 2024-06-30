@@ -1,5 +1,5 @@
 #pragma once
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
 
 struct GLFWwindow;
 
@@ -11,4 +11,4 @@ namespace imgui_backends
 	void render();
 }
 
-#endif // BUILD_IMGUI
+#endif // DEBUG_IMGUI

@@ -390,7 +390,7 @@ namespace ecs
 
 	void show_player_debug_window()
 	{
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 

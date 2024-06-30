@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     }
     steam::initialize(); // Fails silently if Steam is not running.
     window::initialize();
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
     imgui_backends::initialize(window::get_glfw_window());
 #endif
     graphics::initialize();
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
         steam::run_message_loop();
         window::poll_events();
 
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
         imgui_backends::new_frame();
 #endif
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
 #endif // _DEBUG
                 }
 
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
                 if (ev.type == window::EventType::KeyPress && ImGui::GetIO().WantCaptureKeyboard) {
                     continue;
                 }
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
         int window_framebuffer_height = 0;
         window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
         if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
             imgui_backends::render(); // Otherwise ImGui will crash/assert.
 #endif
 			continue; // Skip rendering if the window is minimized.
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 
 #if 0
         bool show_custom_cursor = true;
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
         // PITFALL: ImGui keeps overriding the cursor visibility state,
         // so I'm calling SetMouseCursor() as a hack to stop this. Better
         // solution is needed.
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
             buffer_offset = (buffer_offset + 1) % 256;
             smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
             smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];
@@ -291,10 +291,10 @@ int main(int argc, char* argv[])
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
-#endif // BUILD_IMGUI
+#endif // DEBUG_IMGUI
         }
 
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
         // RENDER IMGUI
         {
             graphics::ScopedDebugGroup debug_group("ImGui");
@@ -302,11 +302,10 @@ int main(int argc, char* argv[])
         }
 #endif
 
-        // RENDER WINDOW
+        // RENDER TO WINDOW
         {
             graphics::ScopedDebugGroup debug_group("Window");
             graphics::bind_render_target(graphics::window_render_target);
-            graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
             graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
@@ -323,7 +322,7 @@ int main(int argc, char* argv[])
     ui::shutdown();
     audio::shutdown();
     graphics::shutdown();
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
     imgui_backends::shutdown();
 #endif
     window::shutdown();

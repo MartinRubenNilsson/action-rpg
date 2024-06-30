@@ -27,7 +27,7 @@ using namespace std::literals::string_literals;
 
 #include <RmlUi/Core.h>
 
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #endif

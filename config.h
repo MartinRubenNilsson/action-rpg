@@ -8,7 +8,8 @@
 #define GLSL_VERSION_STRING "#version 430 core\n"
 
 #ifdef _DEBUG
-#define BUILD_IMGUI
+#define DEBUG_IMGUI
+#define DEBUG_GRAPHICS
 #endif
 
 #define WINDOW_MIN_WIDTH 320

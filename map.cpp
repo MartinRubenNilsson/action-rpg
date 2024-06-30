@@ -19,7 +19,7 @@ namespace map
 
 	void _show_debug_window(float dt)
 	{
-#ifdef BUILD_IMGUI
+#ifdef DEBUG_IMGUI
 		ImGui::Begin("Maps");
 		if (ImGui::BeginCombo("Map", _current_map_name.c_str())) {
 			for (const tiled::Map& map : tiled::get_maps()) {
