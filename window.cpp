@@ -111,9 +111,6 @@ namespace window
 		glfwSetMouseButtonCallback(_glfw_window, _mouse_button_callback);
 		glfwSetCursorPosCallback(_glfw_window, _cursor_pos_callback);
 
-		glfwSwapInterval(0); // Disable vsync
-		set_icon_from_file("assets/window/swordsman.png");
-
 		// Spoof resize events to ensure that other systems are aware of the window/framebuffer size.
 		{
 			int width, height;
@@ -153,9 +150,11 @@ namespace window
 		}
 		stbi_image_free(pixels);
 
-		// SET CURSOR
+		// FINAL SETUP
 
+		set_swap_interval(0); // Disable vsync
 		set_cursor_shape(CursorShape::HandPoint);
+		set_icon_from_file("assets/window/swordsman.png");
 
 		return true;
 	}
@@ -272,6 +271,9 @@ namespace window
 
 	void set_swap_interval(int interval)
 	{
+		static int last_interval = 0;
+		if (interval == last_interval) return;
+		last_interval = interval;
 		glfwSwapInterval(interval);
 	}
 
