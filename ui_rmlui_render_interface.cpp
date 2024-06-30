@@ -73,8 +73,9 @@ namespace ui
 	{
 		if (texture) {
 			graphics::bind_texture(0, _from_rml_handle(texture));
+			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 1);
 		} else {
-			graphics::unbind_texture(0);
+			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
 		}
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
 		graphics::draw_triangles(
