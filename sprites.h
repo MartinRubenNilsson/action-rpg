@@ -66,7 +66,7 @@ namespace sprites
 
 	void reset_rendering_statistics();
 	void add_sprite_to_render_queue(const Sprite& sprite);
-	void render(const std::string& debug_group_name);
+	void render(std::string_view debug_group_name);
 
 	// RENDERING STATISTICS
 

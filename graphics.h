@@ -107,12 +107,12 @@ namespace graphics
 
 	// DEBUGGING
 
-	void push_debug_group(const std::string& name);
+	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
 	struct ScopedDebugGroup
 	{
-		ScopedDebugGroup(const std::string& name) { push_debug_group(name); }
+		ScopedDebugGroup(std::string_view name) { push_debug_group(name); }
 		~ScopedDebugGroup() { pop_debug_group(); }
 	};
 }

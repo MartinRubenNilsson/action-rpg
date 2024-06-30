@@ -5,7 +5,7 @@ namespace shapes
 	const unsigned int MAX_POLYGON_VERTICES = 8;
 
 	void update_lifetimes(float dt);
-	void render(const std::string& debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max);
+	void render(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max);
 
 	void add_line_to_render_queue(const Vector2f& p1, const Vector2f& p2, const Color& color = colors::WHITE, float lifetime = 0.f);
 	void add_box_to_render_queue(const Vector2f& min, const Vector2f& max, const Color& color = colors::WHITE, float lifetime = 0.f);

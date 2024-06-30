@@ -926,10 +926,10 @@ void main()
 		glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void push_debug_group(const std::string& name)
+	void push_debug_group(std::string_view name)
 	{
 #ifdef _DEBUG
-		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.c_str());
+		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
 #endif
 	}
 

@@ -72,7 +72,7 @@ namespace sprites
 		_sprites++;
 	}
 
-	void render(const std::string& debug_group_name)
+	void render(std::string_view debug_group_name)
 	{
 		graphics::ScopedDebugGroup debug_group(debug_group_name);
 
