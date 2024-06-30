@@ -8,7 +8,7 @@
 #define GLSL_VERSION_STRING "#version 430 core\n"
 
 #ifdef _DEBUG
-#define DEBUG_RENDERDOC
+//#define DEBUG_RENDERDOC
 #define DEBUG_IMGUI
 #define DEBUG_GRAPHICS
 #endif
