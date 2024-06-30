@@ -112,10 +112,16 @@ void main()
 	ShaderHandle color_only_shader = ShaderHandle::Invalid;
 	ShaderHandle ui_shader = ShaderHandle::Invalid;
 
+	struct ShaderUniform
+	{
+		std::string name;
+		GLint location = -1;
+	};
+
 	struct Shader
 	{
 		std::string name; // unique name
-		std::unordered_map<std::string, int> uniform_locations;
+		std::vector<ShaderUniform> uniforms;
 		GLuint program_object = 0;
 	};
 
@@ -165,6 +171,18 @@ void main()
 		const int index = (int)handle;
 		if (index < 0 || index >= (int)_shaders.size()) return nullptr;
 		return &_shaders[index];
+	}
+
+	ShaderUniform* _get_shader_uniform(ShaderHandle handle, std::string_view name)
+	{
+		if (Shader* shader = _get_shader(handle)) {
+			for (ShaderUniform& uniform : shader->uniforms) {
+				if (uniform.name == name) {
+					return &uniform;
+				}
+			}
+		}
+		return nullptr;
 	}
 
 	Texture* _get_texture(TextureHandle handle)
@@ -401,17 +419,19 @@ void main()
 
 		// GET UNIFORM LOCATIONS
 
-		std::unordered_map<std::string, int> uniform_locations;
+		std::vector<ShaderUniform> uniform_locations;
 		{
 			int uniform_count;
 			glGetProgramiv(program_object, GL_ACTIVE_UNIFORMS, &uniform_count);
+			uniform_locations.resize(uniform_count);
 			for (int i = 0; i < uniform_count; i++) {
 				char uniform_name[256];
 				int uniform_size;
 				unsigned int uniform_type;
 				glGetActiveUniform(program_object, i, sizeof(uniform_name),
 					nullptr, &uniform_size, &uniform_type, uniform_name);
-				uniform_locations[uniform_name] = glGetUniformLocation(program_object, uniform_name);
+				const GLint location = glGetUniformLocation(program_object, uniform_name);
+				uniform_locations[i] = { uniform_name, location };
 			}
 		}
 
@@ -421,7 +441,7 @@ void main()
 
 		Shader& shader = _shaders.emplace_back();
 		shader.name = _generate_unique_name(_shader_name_to_handle, name_hint);
-		shader.uniform_locations = std::move(uniform_locations);
+		shader.uniforms = std::move(uniform_locations);
 		shader.program_object = program_object;
 		_set_debug_label(GL_PROGRAM, program_object, shader.name);
 
@@ -500,93 +520,66 @@ void main()
 		_bind_program_object(0);
 	}
 
-	void set_uniform_1f(ShaderHandle handle, const std::string& name, float x)
+	void set_uniform_1f(ShaderHandle handle, std::string_view name, float x)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform1f(it->second, x);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform1f(uniform->location, x);
 		}
 	}
 
-	void set_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y)
+	void set_uniform_2f(ShaderHandle handle, std::string_view name, float x, float y)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform2f(it->second, x, y);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform2f(uniform->location, x, y);
 		}
 	}
 
-	void set_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z)
+	void set_uniform_3f(ShaderHandle handle, std::string_view name, float x, float y, float z)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform3f(it->second, x, y, z);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform3f(uniform->location, x, y, z);
 		}
 	}
 
-	void set_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w)
+	void set_uniform_4f(ShaderHandle handle, std::string_view name, float x, float y, float z, float w)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform4f(it->second, x, y, z, w);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform4f(uniform->location, x, y, z, w);
 		}
 	}
 
-	void set_uniform_1i(ShaderHandle handle, const std::string& name, int x)
+	void set_uniform_1i(ShaderHandle handle, std::string_view name, int x)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform1i(it->second, x);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform1i(uniform->location, x);
 		}
 	}
 
-	void set_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y)
+	void set_uniform_2i(ShaderHandle handle, std::string_view name, int x, int y)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform2i(it->second, x, y);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform2i(uniform->location, x, y);
 		}
 	}
 
-	void set_uniform_3i(ShaderHandle handle, const std::string& name, int x, int y, int z)
+	void set_uniform_3i(ShaderHandle handle, std::string_view name, int x, int y, int z)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform3i(it->second, x, y, z);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform3i(uniform->location, x, y, z);
 		}
 	}
 
-	void set_uniform_4i(ShaderHandle handle, const std::string& name, int x, int y, int z, int w)
+	void set_uniform_4i(ShaderHandle handle, std::string_view name, int x, int y, int z, int w)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniform4i(it->second, x, y, z, w);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniform4i(uniform->location, x, y, z, w);
 		}
 	}
 
-	void set_uniform_mat4(ShaderHandle handle, const std::string& name, const float matrix[16])
+	void set_uniform_mat4(ShaderHandle handle, std::string_view name, const float matrix[16])
 	{
-		if (const Shader* shader = _get_shader(handle)) {
-			const auto it = shader->uniform_locations.find(name);
-			if (it != shader->uniform_locations.end()) {
-				glUniformMatrix4fv(it->second, 1, GL_FALSE, matrix);
-			}
+		if (ShaderUniform* uniform = _get_shader_uniform(handle, name)) {
+			glUniformMatrix4fv(uniform->location, 1, GL_FALSE, matrix);
 		}
 	}
 

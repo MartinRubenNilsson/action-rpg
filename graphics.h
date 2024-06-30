@@ -40,15 +40,15 @@ namespace graphics
 	void unbind_shader();
 
 	// IMPORTANT: You need to bind the shader before calling any of the set_uniform_*() variants!
-	void set_uniform_1f(ShaderHandle handle, const std::string& name, float x);
-	void set_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y);
-	void set_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z);
-	void set_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w);
-	void set_uniform_1i(ShaderHandle handle, const std::string& name, int x);
-	void set_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y);
-	void set_uniform_3i(ShaderHandle handle, const std::string& name, int x, int y, int z);
-	void set_uniform_4i(ShaderHandle handle, const std::string& name, int x, int y, int z, int w);
-	void set_uniform_mat4(ShaderHandle handle, const std::string& name, const float matrix[16]);
+	void set_uniform_1f(ShaderHandle handle, std::string_view name, float x);
+	void set_uniform_2f(ShaderHandle handle, std::string_view name, float x, float y);
+	void set_uniform_3f(ShaderHandle handle, std::string_view name, float x, float y, float z);
+	void set_uniform_4f(ShaderHandle handle, std::string_view name, float x, float y, float z, float w);
+	void set_uniform_1i(ShaderHandle handle, std::string_view name, int x);
+	void set_uniform_2i(ShaderHandle handle, std::string_view name, int x, int y);
+	void set_uniform_3i(ShaderHandle handle, std::string_view name, int x, int y, int z);
+	void set_uniform_4i(ShaderHandle handle, std::string_view name, int x, int y, int z, int w);
+	void set_uniform_mat4(ShaderHandle handle, std::string_view name, const float matrix[16]);
 
 	// TEXTURES
 
