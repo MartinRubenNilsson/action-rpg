@@ -1,6 +1,5 @@
 #pragma once
 
-#define SFML_STATIC
 #define _CRT_SECURE_NO_WARNINGS
 
 #define OPENGL_VERSION_MAJOR 4
