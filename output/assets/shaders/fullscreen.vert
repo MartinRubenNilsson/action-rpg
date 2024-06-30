@@ -1,3 +1,5 @@
+out vec2 tex_coord;
+
 void main()
 {
 	const vec2 vertices[4] = vec2[4](
@@ -11,5 +13,5 @@ void main()
 		vec2(0.0, 1.0),  // top-left
 		vec2(1.0, 1.0)); // top-right
 	gl_Position = vec4(vertices[gl_VertexID], 0.0, 1.0);
-	gl_TexCoord[0].xy = tex_coords[gl_VertexID];
+	tex_coord = tex_coords[gl_VertexID];
 }

@@ -1,15 +1,20 @@
 uniform sampler2D tex;
 uniform float time;
 uniform vec2 position; // world position (not screen position) of the tile in pixels
-const float frequency = 5.0;
-const float speed = 4.0;
-const float amplitude = 0.015; // Adjust for a stronger effect if needed
-const float amplitude_modulation_frequency = 1.2; // Frequency of amplitude change
-const float amplitude_modulation_intensity = 0.75; // Degree of change to amplitude
+
+in vec4 color;
+in vec2 tex_coord;
+out vec4 frag_color;
 
 void main()
 {
-    vec2 uv = gl_TexCoord[0].xy;
+    const float frequency = 5.0;
+    const float speed = 4.0;
+    const float amplitude = 0.015; // Adjust for a stronger effect if needed
+    const float amplitude_modulation_frequency = 1.2; // Frequency of amplitude change
+    const float amplitude_modulation_intensity = 0.75; // Degree of change to amplitude
+
+    vec2 uv = tex_coord;
 
     // Linearly map uv.y from 0 (bottom) to 1 (top) to get a scaling factor
     float height_factor = pow(1 - uv.y, 2.0);  // Example using a power function
@@ -29,5 +34,5 @@ void main()
     uv.x += sin(uv.y * adjusted_frequency + offsetted_time * speed) * dynamic_amplitude;
 
     vec4 pixel = texture(tex, uv);
-    gl_FragColor = gl_Color * pixel;
+    frag_color = color * pixel;
 }

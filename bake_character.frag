@@ -6,6 +6,9 @@ uniform int lut1_y;
 uniform int lut2_type;
 uniform int lut2_y;
 
+in vec2 tex_coord;
+out vec4 frag_color;
+
 #define LUT_SKIN 0
 #define LUT_HAIR 1
 #define LUT_C3 2
@@ -78,7 +81,7 @@ bool lookup_color(sampler2D lut, int lut_type, int lut_y, inout vec3 color)
 
 void main()
 {
-    gl_FragColor = texture(tex, gl_TexCoord[0].xy);
-    if (lookup_color(lut1, lut1_type, lut1_y, gl_FragColor.xyz)) return;
-    if (lookup_color(lut2, lut2_type, lut2_y, gl_FragColor.xyz)) return;
+    frag_color = texture(tex, tex_coord);
+    if (lookup_color(lut1, lut1_type, lut1_y, frag_color.xyz)) return;
+    if (lookup_color(lut2, lut2_type, lut2_y, frag_color.xyz)) return;
 }
