@@ -17,7 +17,7 @@ void main()
     mask *= smoothstep(INNER_EDGE + 0.1, INNER_EDGE, dist);
     mask = clamp(mask, 0.0, 1.0);
 
-    gl_FragColor.rgb = texture2D(tex, uv).rgb;
+    gl_FragColor.rgb = texture(tex, uv).rgb;
     gl_FragColor.rgb *= mix(1.0 - intensity, 1.0, mask);
     gl_FragColor.a = 1.0;
 }

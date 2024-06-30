@@ -5,8 +5,7 @@
 
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 3
-#define OPENGL_PROFILE_COMPATIBILITY
-#define GLSL_VERSION_STRING "#version 430 compatibility\n"
+#define GLSL_VERSION_STRING "#version 430 core\n"
 
 #ifdef _DEBUG
 #define BUILD_IMGUI

@@ -257,8 +257,8 @@ namespace ecs
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
 					if (sprite.shader == graphics::ShaderHandle::Invalid) return;
 					graphics::bind_shader(sprite.shader);
-					graphics::set_shader_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
-					graphics::set_shader_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
+					graphics::set_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
+					graphics::set_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
 				};
 			}
 			sprites::add_sprite_to_render_queue(sprite);

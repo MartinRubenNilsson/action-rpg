@@ -377,9 +377,9 @@ namespace ecs
 		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
 
 		graphics::bind_shader(shader);
-		graphics::set_shader_uniform_1i(shader, "tex", 0);
-		graphics::set_shader_uniform_1i(shader, "lut1", 1);
-		graphics::set_shader_uniform_1i(shader, "lut2", 2);
+		graphics::set_uniform_1i(shader, "tex", 0);
+		graphics::set_uniform_1i(shader, "lut1", 1);
+		graphics::set_uniform_1i(shader, "lut2", 2);
 
 		for (const Layer& layer : layers) {
 			const graphics::TextureHandle texture = graphics::load_texture(base_dir + layer.texture_path);
@@ -401,10 +401,10 @@ namespace ecs
 				break;
 			}
 			if (lut1_texture != graphics::TextureHandle::Invalid) {
-				graphics::set_shader_uniform_1i(shader, "lut1_type", layer.lut1_type);
-				graphics::set_shader_uniform_1i(shader, "lut1_y", layer.lut1_y);
+				graphics::set_uniform_1i(shader, "lut1_type", layer.lut1_type);
+				graphics::set_uniform_1i(shader, "lut1_y", layer.lut1_y);
 			} else {
-				graphics::set_shader_uniform_1i(shader, "lut1_type", -1);
+				graphics::set_uniform_1i(shader, "lut1_type", -1);
 			}
 
 			graphics::TextureHandle lut2_texture = graphics::TextureHandle::Invalid;
@@ -423,10 +423,10 @@ namespace ecs
 				break;
 			}
 			if (lut2_texture != graphics::TextureHandle::Invalid) {
-				graphics::set_shader_uniform_1i(shader, "lut2_type", layer.lut2_type);
-				graphics::set_shader_uniform_1i(shader, "lut2_y", layer.lut2_y);
+				graphics::set_uniform_1i(shader, "lut2_type", layer.lut2_type);
+				graphics::set_uniform_1i(shader, "lut2_y", layer.lut2_y);
 			} else {
-				graphics::set_shader_uniform_1i(shader, "lut2_type", -1);
+				graphics::set_uniform_1i(shader, "lut2_type", -1);
 			}
 
 			graphics::bind_texture(0, texture);

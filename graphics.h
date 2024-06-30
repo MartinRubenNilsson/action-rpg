@@ -36,13 +36,16 @@ namespace graphics
 	void bind_shader(ShaderHandle handle);
 	void unbind_shader();
 
-	// You need to bind the shader before set_shader_uniform_*().
-	void set_shader_uniform_1f(ShaderHandle handle, const std::string& name, float x);
-	void set_shader_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y);
-	void set_shader_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z);
-	void set_shader_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w);
-	void set_shader_uniform_1i(ShaderHandle handle, const std::string& name, int x);
-	void set_shader_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y);
+	// IMPORTANT: You need to bind the shader before calling any of the set_uniform_*() variants!
+	void set_uniform_1f(ShaderHandle handle, const std::string& name, float x);
+	void set_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y);
+	void set_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z);
+	void set_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w);
+	void set_uniform_1i(ShaderHandle handle, const std::string& name, int x);
+	void set_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y);
+	void set_uniform_3i(ShaderHandle handle, const std::string& name, int x, int y, int z);
+	void set_uniform_4i(ShaderHandle handle, const std::string& name, int x, int y, int z, int w);
+	void set_uniform_mat4(ShaderHandle handle, const std::string& name, const float matrix[16]);
 
 	// TEXTURES
 
@@ -75,7 +78,7 @@ namespace graphics
 
 	void bind_render_target(RenderTargetHandle handle);
 
-	// You need to bind the render target before calling clear_render_target().
+	// IMPORTANT: You need to bind the render target before calling clear_render_target()!
 	void clear_render_target(float r, float g, float b, float a);
 	TextureHandle get_render_target_texture(RenderTargetHandle handle);
 
@@ -87,11 +90,6 @@ namespace graphics
 	bool get_scissor_test_enabled();
 	void set_scissor_box(int x, int y, int width, int height);
 	void get_scissor_box(int& x, int& y, int& width, int& height);
-	void set_modelview_matrix_to_identity();
-	void set_modelview_matrix(const float matrix[16]);
-	void set_projection_matrix_to_identity();
-	void set_projection_matrix(const float matrix[16]);
-	void set_texture_matrix_to_identity();
 
 	// DRAWING
 
@@ -100,4 +98,15 @@ namespace graphics
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
+
+	// DEBUGGING
+
+	void push_debug_group(const std::string& name);
+	void pop_debug_group();
+
+	struct ScopedDebugGroup
+	{
+		ScopedDebugGroup(const std::string& name) { push_debug_group(name); }
+		~ScopedDebugGroup() { pop_debug_group(); }
+	};
 }

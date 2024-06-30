@@ -44,12 +44,14 @@ namespace ui
 			_previous_scissor_box[3]);
 		Rml::Matrix4f projection = Rml::Matrix4f::ProjectOrtho(
 			0, (float)_viewport_width, (float)_viewport_height, 0, -10000, 10000);
+#if 0
 		graphics::set_projection_matrix(projection.data());
 		graphics::set_texture_matrix_to_identity();
 		graphics::set_modelview_matrix_to_identity(); //IMPORTANT: must come last!
+#endif
 		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
 		graphics::bind_shader(graphics::default_shader);
-		graphics::set_shader_uniform_1i(graphics::default_shader, "tex", 0);
+		graphics::set_uniform_1i(graphics::default_shader, "tex", 0);
 	}
 
 	void restore_render_state()
@@ -69,23 +71,21 @@ namespace ui
 
 	void RmlUiRenderInterface::RenderGeometry(Rml::Vertex* vertices, int /*num_vertices*/, int* indices, int num_indices, const Rml::TextureHandle texture, const Rml::Vector2f& translation)
 	{
+#if 0
 		glPushMatrix();
 		glTranslatef(translation.x, translation.y, 0);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
 		glVertexPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].position);
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Rml::Vertex), &vertices[0].colour);
 		if (texture) {
 			glEnable(GL_TEXTURE_2D);
 			graphics::bind_texture(0, _from_rml_handle(texture));
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			glTexCoordPointer(2, GL_FLOAT, sizeof(Rml::Vertex), &vertices[0].tex_coord);
 		} else {
 			glDisable(GL_TEXTURE_2D);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 		glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, indices);
 		glPopMatrix();
+#endif
 	}
 
 	void RmlUiRenderInterface::EnableScissorRegion(bool enable)
@@ -126,6 +126,7 @@ namespace ui
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
 	{
+#if 0
 		if (!transform) {
 			graphics::set_modelview_matrix_to_identity();
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
@@ -133,5 +134,6 @@ namespace ui
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
 			graphics::set_modelview_matrix(transform->Transpose().data());
 		}
+#endif
 	}
 }

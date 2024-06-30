@@ -31,10 +31,10 @@ void main() {
     vec2 disp = normalize(scaledUV - correctedCenter) * force * mask;
     
     // Sample the texture with original UVs
-    vec4 originalPixel = texture2D(texture, uv);
+    vec4 originalPixel = texture(texture, uv);
 
     // Sample the texture with displaced UVs for the shockwave effect
-    vec4 displacedPixel = texture2D(texture, uv - disp);
+    vec4 displacedPixel = texture(texture, uv - disp);
     
     // Blend between the original pixel and the displaced pixel using the mask
     vec4 finalPixel = mix(originalPixel, displacedPixel, mask);

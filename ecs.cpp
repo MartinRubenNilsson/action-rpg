@@ -60,7 +60,7 @@ namespace ecs
 	{
 		add_tile_sprites_to_render_queue(camera_min, camera_max);
 		add_vfx_sprites_to_render_queue(camera_min, camera_max);
-		sprites::render();
+		sprites::render("ECS");
 	}
 
 	void _debug_draw_entities()
@@ -76,13 +76,17 @@ namespace ecs
 
 	void add_debug_shapes_to_render_queue()
 	{
-		if (debug_flags & DEBUG_ENTITIES)
+		if (debug_flags & DEBUG_ENTITIES) {
 			_debug_draw_entities();
-		if (debug_flags & DEBUG_PHYSICS)
+		}
+		if (debug_flags & DEBUG_PHYSICS) {
 			debug_draw_physics();
-		if (debug_flags & DEBUG_AI)
+		}
+		if (debug_flags & DEBUG_AI) {
 			debug_draw_ai();
-		if (debug_flags & DEBUG_PLAYER)
+		}
+		if (debug_flags & DEBUG_PLAYER) {
 			show_player_debug_window();
+		}
 	}
 }

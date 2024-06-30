@@ -17,7 +17,7 @@ namespace background
 
 	struct Layer
 	{
-		graphics::TextureHandle texture_id = graphics::TextureHandle::Invalid;
+		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		unsigned int texture_width = 0;
 		unsigned int texture_height = 0;
 		float offset_x = 0.f;
@@ -28,26 +28,28 @@ namespace background
 
 	void set_type(Type type)
 	{
+		if (_type == type) return;
 		_type = type;
 		switch (type) {
-		case Type::None:
+		case Type::None: {
 			_layers.clear();
-			break;
-		case Type::MountainDusk:
+		} break;
+		case Type::MountainDusk: {
 			_layers.clear();
 			for (const std::string& path : _MOUNTAIN_DUSK_TEXTURE_PATHS) {
-				const graphics::TextureHandle texture_id = graphics::load_texture(path);
-				if (texture_id == graphics::TextureHandle::Invalid) continue;
+				const graphics::TextureHandle texture = graphics::load_texture(path);
+				if (texture == graphics::TextureHandle::Invalid) continue;
 				Layer& layer = _layers.emplace_back();
-				layer.texture_id = texture_id;
-				graphics::get_texture_size(texture_id, layer.texture_width, layer.texture_height);
+				layer.texture = texture;
+				graphics::get_texture_size(texture, layer.texture_width, layer.texture_height);
 			}
-			break;
+		} break;
 		}
 	}
 
 	void update(float dt)
 	{
+		if (_type == Type::None) return;
 		for (size_t i = 0; i < _layers.size(); ++i) {
 			Layer& layer = _layers[i];
 			layer.offset_x += i * i * i * dt; // different layers scroll at different speeds
@@ -59,11 +61,12 @@ namespace background
 
 	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		if (_type == Type::None) return;
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
-			if (layer.texture_id == graphics::TextureHandle::Invalid) continue;
+			if (layer.texture == graphics::TextureHandle::Invalid) continue;
 			if (!layer.texture_width) continue;
-			sprite.texture = layer.texture_id;
+			sprite.texture = layer.texture;
 			for (float x = camera_min.x - layer.offset_x; x < camera_max.x; x += layer.texture_width) {
 				sprite.min = { x, camera_min.y };
 				sprite.max = { x + layer.texture_width, camera_min.y + layer.texture_height };
@@ -72,6 +75,6 @@ namespace background
 				sprites::add_sprite_to_render_queue(sprite);
 			}
 		}
-		sprites::render();
+		sprites::render("Background");
 	}
 }

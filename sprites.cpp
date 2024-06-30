@@ -47,7 +47,7 @@ namespace sprites
 	void _render_batch(graphics::ShaderHandle shader, graphics::TextureHandle texture)
 	{
 		graphics::bind_shader(shader);
-		graphics::set_shader_uniform_1i(shader, "tex", 0);
+		graphics::set_uniform_1i(shader, "tex", 0);
 		graphics::bind_texture(0, texture);
 		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
 		_batches_drawn++;
@@ -72,8 +72,10 @@ namespace sprites
 		_sprites++;
 	}
 
-	void render()
+	void render(const std::string& debug_group_name)
 	{
+		graphics::ScopedDebugGroup debug_group(debug_group_name);
+
 		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
 		std::sort(_sprites_by_draw_order, _sprites_by_draw_order + _sprites, [](unsigned int left, unsigned int right) {
 			return _sprite_buffer[left] < _sprite_buffer[right];

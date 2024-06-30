@@ -9,25 +9,40 @@
 namespace graphics
 {
 	constexpr char _DEFAULT_VERTEX_SHADER_BYTECODE[] = R"(
+uniform mat4 view_proj_matrix;
+
+layout (location = 0) in vec3 vertex_position;
+layout (location = 1) in vec4 vertex_color;
+layout (location = 2) in vec2 vertex_tex_coord;
+
+out vec4 color;
+out vec2 tex_coord;
+
 void main()
 {
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-    gl_FrontColor = gl_Color;
+	gl_Position = view_proj_matrix * vec4(vertex_position, 1.0);
+	color = vertex_color;
+	tex_coord = vertex_tex_coord;
 }
 )";
 
 	constexpr char _DEFAULT_FRAGMENT_SHADER_BYTECODE[] = R"(
 uniform sampler2D tex;
 
+in vec4 color;
+in vec2 tex_coord;
+
+out vec4 frag_color;
+
 void main()
 {
-    vec4 pixel = texture(tex, gl_TexCoord[0].xy);
-    gl_FragColor = gl_Color * pixel;
+	frag_color = color * texture(tex, tex_coord);
 }
 )";
 
 	constexpr char _FULLSCREEN_VERTEX_SHADER_BYTECODE[] = R"(
+out vec2 tex_coord;
+
 void main()
 {
 	const vec2 vertices[4] = vec2[4](
@@ -41,31 +56,46 @@ void main()
 		vec2(0.0, 1.0),  // top-left
 		vec2(1.0, 1.0)); // top-right
 	gl_Position = vec4(vertices[gl_VertexID], 0.0, 1.0);
-	gl_TexCoord[0].xy = tex_coords[gl_VertexID];
+	tex_coord = tex_coords[gl_VertexID];
 }
 )";
 
 	constexpr char _FULLSCREEN_FRAGMENT_SHADER_BYTECODE[] = R"(
 uniform sampler2D tex;
 
+in vec2 tex_coord;
+
+out vec4 frag_color;
+
 void main()
 {
-	gl_FragColor = texture(tex, gl_TexCoord[0].xy);
+	frag_color = texture(tex, tex_coord);
 }
 )";
 
 	constexpr char _COLOR_ONLY_VERTEX_SHADER_BYTECODE[] = R"(
+uniform mat4 view_proj_matrix;
+
+layout (location = 0) in vec3 vertex_position;
+layout (location = 1) in vec4 vertex_color;
+
+out vec4 color;
+
 void main()
 {
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_FrontColor = gl_Color;
+    gl_Position = view_proj_matrix * vec4(vertex_position, 1.0);
+	color = vertex_color;
 }
 )";
 
 	constexpr char _COLOR_ONLY_PIXEL_SHADER_BYTECODE[] = R"(
+in vec4 color;
+
+out vec4 frag_color;
+
 void main()
 {
-    gl_FragColor = gl_Color;
+    frag_color = color;
 }
 )";
 
@@ -98,6 +128,9 @@ void main()
 		GLuint framebuffer_object = 0;
 	};
 
+	constexpr unsigned int _MAX_VERTEX_COUNT = 65536;
+	GLuint _vertex_array_object = 0;
+	GLuint _vertex_buffer_object = 0;
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
 	std::vector<Texture> _textures;
@@ -148,9 +181,18 @@ void main()
 		const GLchar* message,
 		const void* userParam)
 	{
+		if (type == GL_DEBUG_TYPE_PUSH_GROUP) return;
+		if (type == GL_DEBUG_TYPE_POP_GROUP) return;
 		console::log_error(std::format("OpenGL: {}", message));
 	}
 #endif
+
+	void _set_debug_label(GLenum identifier, GLuint name, const std::string& label)
+	{
+#ifdef _DEBUG
+		glObjectLabel(identifier, name, (GLsizei)label.size(), label.c_str());
+#endif
+	}
 
 	void initialize()
 	{
@@ -165,23 +207,39 @@ void main()
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
+		// CREATE AND BIND VERTEX ARRAY OBJECT
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glGenVertexArrays(1, &_vertex_array_object);
+		glBindVertexArray(_vertex_array_object);
+
+		// CREATE AND BIND VERTEX BUFFER OBJECT
+
+		glGenBuffers(1, &_vertex_buffer_object);
+		glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_object);
+		glBufferData(GL_ARRAY_BUFFER, _MAX_VERTEX_COUNT * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coord));	
+
+		// SETUP BLENDING
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		// SETUP WINDOW RENDER TARGET
+		// CREATE WINDOW RENDER TARGET
 		{
 			window_render_target = (RenderTargetHandle)_render_targets.size();
+
 			RenderTarget& render_target = _render_targets.emplace_back();
 			render_target.name = "window render target";
 			// The window has both a front and back buffer, so there's no point
 			// in setting a single texture for its render target.
 			render_target.texture = TextureHandle::Invalid;
 			render_target.framebuffer_object = 0;
+
 			_render_target_name_to_handle[render_target.name] = window_render_target;
 		}
 
@@ -205,6 +263,20 @@ void main()
 
 	void shutdown()
 	{
+		// DELETE VERTEX ARRAY OBJECT
+
+		if (_vertex_array_object) {
+			glDeleteVertexArrays(1, &_vertex_array_object);
+			_vertex_array_object = 0;
+		}
+
+		// DELETE VERTEX BUFFER OBJECT
+
+		if (_vertex_buffer_object) {
+			glDeleteBuffers(1, &_vertex_buffer_object);
+			_vertex_buffer_object = 0;
+		}
+
 		// DELETE SHADERS
 
 		for (Shader& shader : _shaders) {
@@ -321,10 +393,12 @@ void main()
 		// STORE SHADER
 
 		const ShaderHandle handle = (ShaderHandle)_shaders.size();
+
 		Shader& shader = _shaders.emplace_back();
 		shader.name = _generate_unique_name(_shader_name_to_handle, name_hint);
 		shader.uniform_locations = std::move(uniform_locations);
 		shader.program_object = program_object;
+		_set_debug_label(GL_PROGRAM, program_object, shader.name);
 
 		_shader_name_to_handle[shader.name] = handle;
 
@@ -401,7 +475,7 @@ void main()
 		_bind_program_object(0);
 	}
 
-	void set_shader_uniform_1f(ShaderHandle handle, const std::string& name, float x)
+	void set_uniform_1f(ShaderHandle handle, const std::string& name, float x)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -411,7 +485,7 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y)
+	void set_uniform_2f(ShaderHandle handle, const std::string& name, float x, float y)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -421,7 +495,7 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z)
+	void set_uniform_3f(ShaderHandle handle, const std::string& name, float x, float y, float z)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -431,7 +505,7 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w)
+	void set_uniform_4f(ShaderHandle handle, const std::string& name, float x, float y, float z, float w)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -441,7 +515,7 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_1i(ShaderHandle handle, const std::string& name, int x)
+	void set_uniform_1i(ShaderHandle handle, const std::string& name, int x)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
@@ -451,12 +525,42 @@ void main()
 		}
 	}
 
-	void set_shader_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y)
+	void set_uniform_2i(ShaderHandle handle, const std::string& name, int x, int y)
 	{
 		if (const Shader* shader = _get_shader(handle)) {
 			const auto it = shader->uniform_locations.find(name);
 			if (it != shader->uniform_locations.end()) {
 				glUniform2i(it->second, x, y);
+			}
+		}
+	}
+
+	void set_uniform_3i(ShaderHandle handle, const std::string& name, int x, int y, int z)
+	{
+		if (const Shader* shader = _get_shader(handle)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform3i(it->second, x, y, z);
+			}
+		}
+	}
+
+	void set_uniform_4i(ShaderHandle handle, const std::string& name, int x, int y, int z, int w)
+	{
+		if (const Shader* shader = _get_shader(handle)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniform4i(it->second, x, y, z, w);
+			}
+		}
+	}
+
+	void set_uniform_mat4(ShaderHandle handle, const std::string& name, const float matrix[16])
+	{
+		if (const Shader* shader = _get_shader(handle)) {
+			const auto it = shader->uniform_locations.find(name);
+			if (it != shader->uniform_locations.end()) {
+				glUniformMatrix4fv(it->second, 1, GL_FALSE, matrix);
 			}
 		}
 	}
@@ -493,12 +597,14 @@ void main()
 		// STORE TEXTURE
 
 		const TextureHandle handle = (TextureHandle)_textures.size();
+
 		Texture& texture = _textures.emplace_back();
 		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
 		texture.width = width;
 		texture.height = height;
 		texture.channels = channels;
 		texture.texture_object = texture_object;
+		_set_debug_label(GL_TEXTURE, texture_object, texture.name);
 		texture.filter = TextureFilter::Nearest;
 
 		_texture_name_to_handle[texture.name] = handle;
@@ -649,6 +755,7 @@ void main()
 		render_target.name = _generate_unique_name(_render_target_name_to_handle, name_hint);
 		render_target.texture = texture_handle;
 		render_target.framebuffer_object = framebuffer_object;
+		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, render_target.name);
 
 		_render_target_name_to_handle[render_target.name] = handle;
 
@@ -743,90 +850,56 @@ void main()
 		height = scissor_box[3];
 	}
 
-	void set_modelview_matrix_to_identity()
-	{
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-
-	void set_modelview_matrix(const float matrix[16])
-	{
-		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(matrix);
-	}
-
-	void set_projection_matrix_to_identity()
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-	}
-
-	void set_projection_matrix(const float matrix[16])
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(matrix);
-	}
-
-	void set_texture_matrix_to_identity()
-	{
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-	}
-
 	void draw_lines(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_LINES, 0, vertex_count);
 	}
 
 	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_LINE_STRIP, 0, vertex_count);
 	}
 
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
 	}
 
 	void draw_triangle_strip(unsigned int vertex_count)
 	{
 		if (!vertex_count) return;
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].position);
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertices[0].color);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &vertices[0].tex_coord);
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
+	}
+
+	void push_debug_group(const std::string& name)
+	{
+#ifdef _DEBUG
+		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.c_str());
+#endif
+	}
+
+	void pop_debug_group()
+	{
+#ifdef _DEBUG
+		glPopDebugGroup();
+#endif
 	}
 }

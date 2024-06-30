@@ -91,11 +91,7 @@ namespace window
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
-#ifdef OPENGL_PROFILE_COMPATIBILITY
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
-#else
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
 #ifdef _DEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
@@ -260,55 +256,5 @@ namespace window
 		const char* string = glfwGetClipboardString(_glfw_window);
 		return string ? string : "";
 	}
-
-#if 0
-	void set_state(const State& state)
-	{
-		// We need to recreate the window to change the fullscreen mode.
-		bool recreate = (!_window->isOpen() || state.fullscreen != _state.fullscreen);
-		if (recreate) {
-			Vector2u size = state.scale * BASE_SIZE;
-			sf::VideoMode mode = state.fullscreen ?
-				sf::VideoMode::getFullscreenModes().at(0) :
-				sf::VideoMode(size.x, size.y);
-			sf::Uint32 style = state.fullscreen ? 
-				sf::Style::Fullscreen : (sf::Style::Titlebar | sf::Style::WindowClose);
-			sf::ContextSettings settings{};
-			settings.majorVersion = 4;
-			settings.minorVersion = 3;
-#ifdef _DEBUG
-			settings.attributeFlags |= sf::ContextSettings::Attribute::Debug;
-#endif
-			_window->create(mode, state.title, style, settings);
-			_window->setKeyRepeatEnabled(false);
-			// Spoof a resize event to ensure that other systems are aware of the new window size.
-			sf::Event ev{};
-			ev.type = sf::Event::Resized;
-			ev.size.width = mode.width;
-			ev.size.height = mode.height;
-			_custom_event_queue.push_back(ev);
-		}
-		if (state.title != _state.title)
-			_window->setTitle(state.title);
-		if (recreate || state.icon != _state.icon) {
-			sf::Image icon;
-			if (icon.loadFromFile(state.icon))
-				_window->setIcon(
-					icon.getSize().x,
-					icon.getSize().y,
-					icon.getPixelsPtr());
-		}
-		if (!recreate && state.scale != _state.scale) {
-			sf::Vector2 size = state.scale * BASE_SIZE;
-			_window->setSize(size);
-			_window->setView(sf::View(Vector2f(size) / 2.f, Vector2f(size)));
-		}
-		if (recreate || state.vsync != _state.vsync)
-			_window->setVerticalSyncEnabled(state.vsync);
-		if (recreate || state.cursor_visible != _state.cursor_visible)
-			_window->setMouseCursorVisible(state.cursor_visible);
-		_state = state;
-	}
-#endif
 }
 

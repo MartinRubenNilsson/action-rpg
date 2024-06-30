@@ -49,10 +49,10 @@ int main(int argc, char* argv[])
     // PREPARE FOR GAME LOOP
 
 #ifdef _DEBUG
-    console::execute(argc, argv);
+    //console::execute(argc, argv);
+    console::execute("execute_script martin_debug");
 #else
-    background::type = background::Type::MountainDusk;
-    ui::push_menu(ui::MenuType::Main);
+    console::execute("execute_script martin_debug");
 #endif
 
     Clock clock;
@@ -210,9 +210,10 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::set_modelview_matrix_to_identity();
-            graphics::set_projection_matrix(projection_matrix);
-            graphics::set_texture_matrix_to_identity();
+            graphics::bind_shader(graphics::default_shader);
+            graphics::set_uniform_mat4(graphics::default_shader, "view_proj_matrix", projection_matrix);
+            graphics::bind_shader(graphics::color_only_shader);
+            graphics::set_uniform_mat4(graphics::color_only_shader, "view_proj_matrix", projection_matrix);
         }
 
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
@@ -264,7 +265,7 @@ int main(int argc, char* argv[])
         graphics::bind_render_target(graphics::window_render_target);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
         graphics::bind_shader(graphics::fullscreen_shader);
-        graphics::set_shader_uniform_1i(graphics::fullscreen_shader, "tex", 0);
+        graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
         graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
         graphics::draw_triangle_strip(4);
         graphics::release_pooled_render_target(render_target);

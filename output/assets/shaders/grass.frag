@@ -1,4 +1,4 @@
-uniform sampler2D texture;
+uniform sampler2D tex;
 uniform float time;
 uniform vec2 position; // world position (not screen position) of the tile in pixels
 const float frequency = 5.0;
@@ -28,6 +28,6 @@ void main()
     // Updated calculation
     uv.x += sin(uv.y * adjusted_frequency + offsetted_time * speed) * dynamic_amplitude;
 
-    vec4 pixel = texture2D(texture, uv);
+    vec4 pixel = texture(tex, uv);
     gl_FragColor = gl_Color * pixel;
 }

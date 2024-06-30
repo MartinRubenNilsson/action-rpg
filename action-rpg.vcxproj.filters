@@ -310,9 +310,6 @@
     <None Include="shockwave.frag">
       <Filter>graphics\shaders</Filter>
     </None>
-    <None Include="player.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
     <None Include="grass.frag">
       <Filter>graphics\shaders</Filter>
     </None>

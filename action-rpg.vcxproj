@@ -397,11 +397,6 @@
     <None Include="gaussian_blur_hor.frag" />
     <None Include="gaussian_blur_ver.frag" />
     <None Include="grass.frag" />
-    <None Include="player.frag">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /Y %(FullPath) $(OutputDir)\assets\shaders</Command>
-    </None>
     <None Include="screen_transition.frag" />
     <None Include="shockwave.frag" />
     <None Include="vcpkg.json" />

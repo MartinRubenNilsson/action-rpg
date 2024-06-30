@@ -225,6 +225,7 @@ namespace shapes
 
 	void render(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		graphics::ScopedDebugGroup debug_group("Shapes");
 		_last_calculated_view_bounds.min_x = camera_min.x;
 		_last_calculated_view_bounds.min_y = camera_min.y;
 		_last_calculated_view_bounds.max_x = camera_max.x;

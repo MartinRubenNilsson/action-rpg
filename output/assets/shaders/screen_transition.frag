@@ -27,6 +27,6 @@ void main()
     } else if (progress > 0.0 && total_progress < progress) {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
-        gl_FragColor = texture2D(tex, gl_FragCoord.xy / tex_size);
+        gl_FragColor = texture(tex, gl_FragCoord.xy / tex_size);
 	}
 }

@@ -29,7 +29,7 @@ namespace cursor
 		sprite.tex_min /= texture_size;
 		sprite.tex_max /= texture_size;
 		sprites::add_sprite_to_render_queue(sprite);
-		sprites::render();
+		sprites::render("Cursor");
 	}
 
 	void set_visible(bool visible) {

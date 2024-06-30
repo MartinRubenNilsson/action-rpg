@@ -55,6 +55,7 @@ namespace postprocessing
 	void _render_shockwaves(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
+		graphics::ScopedDebugGroup debug_group("Shockwaves");
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
@@ -68,8 +69,8 @@ namespace postprocessing
 
 		// Bind some shader uniforms
 		graphics::bind_shader(shader);
-		graphics::set_shader_uniform_1i(shader, "tex", 0);
-		graphics::set_shader_uniform_2f(shader, "resolution", (float)width, (float)height);
+		graphics::set_uniform_1i(shader, "tex", 0);
+		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
 
 		for (const Shockwave& shockwave : _shockwaves) {
 
@@ -80,10 +81,10 @@ namespace postprocessing
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
 				shockwave.position_ws, camera_min, camera_max, width, height);
-			graphics::set_shader_uniform_2f(shader, "center", position_ts.x, position_ts.y);
-			graphics::set_shader_uniform_1f(shader, "force", shockwave.force);
-			graphics::set_shader_uniform_1f(shader, "size", shockwave.size);
-			graphics::set_shader_uniform_1f(shader, "thickness", shockwave.thickness);
+			graphics::set_uniform_2f(shader, "center", position_ts.x, position_ts.y);
+			graphics::set_uniform_1f(shader, "force", shockwave.force);
+			graphics::set_uniform_1f(shader, "size", shockwave.size);
+			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
 			graphics::bind_render_target(intermediate_target);
 			graphics::draw_triangle_strip(4);
@@ -98,6 +99,7 @@ namespace postprocessing
 	void _render_darkness(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
+		graphics::ScopedDebugGroup debug_group("Darkness");
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
@@ -116,10 +118,10 @@ namespace postprocessing
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
 		graphics::bind_shader(shader);
-		graphics::set_shader_uniform_1i(shader, "tex", 0);
-		graphics::set_shader_uniform_2f(shader, "resolution", (float)width, (float)height);
-		graphics::set_shader_uniform_2f(shader, "center", center_ts.x, center_ts.y);
-		graphics::set_shader_uniform_1f(shader, "intensity", _darkness_intensity);
+		graphics::set_uniform_1i(shader, "tex", 0);
+		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
+		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
+		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
 		graphics::bind_render_target(intermediate_target);
 		graphics::draw_triangle_strip(4);
@@ -132,6 +134,7 @@ namespace postprocessing
 	void _render_screen_transition(graphics::RenderTargetHandle& target)
 	{
 		if (_screen_transition_progress == 0.f) return;
+		graphics::ScopedDebugGroup debug_group("Screen transition");
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
@@ -149,9 +152,9 @@ namespace postprocessing
 
 		// Render screen transition
 		graphics::bind_shader(shader);
-		graphics::set_shader_uniform_1i(shader, "tex", 0);
-		graphics::set_shader_uniform_1f(shader, "pixel_scale", _pixel_scale);
-		graphics::set_shader_uniform_1f(shader, "progress", _screen_transition_progress);
+		graphics::set_uniform_1i(shader, "tex", 0);
+		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
+		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
 		graphics::bind_render_target(intermediate_target);
 		graphics::draw_triangle_strip(4);
@@ -164,6 +167,7 @@ namespace postprocessing
 	void _render_gaussian_blur(graphics::RenderTargetHandle& target)
 	{
 		if (_gaussian_blur_iterations == 0) return;
+		graphics::ScopedDebugGroup debug_group("Gaussian blur");
 
 		// Load shaders
 		const graphics::ShaderHandle shader_hor = graphics::load_shader(
@@ -193,16 +197,16 @@ namespace postprocessing
 
 			// Horizontal pass
 			graphics::bind_shader(shader_hor);
-			graphics::set_shader_uniform_1i(shader_hor, "tex", 0);
-			graphics::set_shader_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
+			graphics::set_uniform_1i(shader_hor, "tex", 0);
+			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
 			graphics::bind_render_target(intermediate_target);
 			graphics::draw_triangle_strip(4);
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
-			graphics::set_shader_uniform_1i(shader_ver, "tex", 0);
-			graphics::set_shader_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
+			graphics::set_uniform_1i(shader_ver, "tex", 0);
+			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
 			graphics::bind_render_target(target);
 			graphics::draw_triangle_strip(4);
@@ -216,6 +220,7 @@ namespace postprocessing
 
 	void render(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		graphics::ScopedDebugGroup debug_group("Postprocessing");
 		_render_shockwaves(target, camera_min, camera_max);
 		_render_darkness(target, camera_min, camera_max);
 		_render_screen_transition(target);
