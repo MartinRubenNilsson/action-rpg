@@ -220,7 +220,6 @@ int main(int argc, char* argv[])
 
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
-        ecs::add_debug_shapes_to_render_queue();
 
         switch (ui::get_top_menu()) {
         case ui::MenuType::Pause:
@@ -237,7 +236,8 @@ int main(int argc, char* argv[])
         postprocessing::set_pixel_scale(pixel_scale);
         postprocessing::render(render_target, camera_min, camera_max);
 
-        shapes::render(camera_min, camera_max);
+        ecs::add_debug_shapes_to_render_queue();
+        shapes::render("Game World Debug", camera_min, camera_max);
         ui::render();
 
         bool show_custom_cursor = true;
@@ -259,16 +259,6 @@ int main(int argc, char* argv[])
         cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
         cursor::set_scale(pixel_scale);
         cursor::render_sprite();
-
-        // RENDER TO WINDOW
-
-        graphics::bind_render_target(graphics::window_render_target);
-        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
-        graphics::bind_shader(graphics::fullscreen_shader);
-        graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
-        graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
-        graphics::draw_triangle_strip(4);
-        graphics::release_pooled_render_target(render_target);
 
         // RENDER DEBUG STATS
 
@@ -301,8 +291,24 @@ int main(int argc, char* argv[])
         }
 
 #ifdef BUILD_IMGUI
-        imgui_backends::render();
+        // RENDER IMGUI
+        {
+            graphics::ScopedDebugGroup debug_group("ImGui");
+            imgui_backends::render();
+        }
 #endif
+
+        // RENDER WINDOW
+        {
+            graphics::ScopedDebugGroup debug_group("Window");
+            graphics::bind_render_target(graphics::window_render_target);
+            graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
+            graphics::bind_shader(graphics::fullscreen_shader);
+            graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
+            graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
+            graphics::draw_triangle_strip(4);
+            graphics::release_pooled_render_target(render_target);
+        }
 
         window::swap_buffers();
     }
