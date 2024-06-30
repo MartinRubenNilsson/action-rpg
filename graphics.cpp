@@ -112,9 +112,12 @@ void main()
 	ShaderHandle color_only_shader = ShaderHandle::Invalid;
 	ShaderHandle ui_shader = ShaderHandle::Invalid;
 
+	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
+
 	struct ShaderUniform
 	{
-		std::string name;
+		char name[_UNIFORM_NAME_MAX_SIZE] = { 0 };
+		GLsizei name_size = 0;
 		GLint location = -1;
 	};
 
@@ -177,9 +180,9 @@ void main()
 	{
 		if (Shader* shader = _get_shader(handle)) {
 			for (ShaderUniform& uniform : shader->uniforms) {
-				if (uniform.name == name) {
-					return &uniform;
-				}
+				if (name.size() != uniform.name_size) continue;
+				if (memcmp(name.data(), uniform.name, uniform.name_size)) continue;
+				return &uniform;
 			}
 		}
 		return nullptr;
@@ -421,17 +424,16 @@ void main()
 
 		std::vector<ShaderUniform> uniform_locations;
 		{
-			int uniform_count;
+			GLint uniform_count;
 			glGetProgramiv(program_object, GL_ACTIVE_UNIFORMS, &uniform_count);
 			uniform_locations.resize(uniform_count);
-			for (int i = 0; i < uniform_count; i++) {
-				char uniform_name[256];
+			for (GLint i = 0; i < uniform_count; i++) {
 				int uniform_size;
 				unsigned int uniform_type;
-				glGetActiveUniform(program_object, i, sizeof(uniform_name),
-					nullptr, &uniform_size, &uniform_type, uniform_name);
-				const GLint location = glGetUniformLocation(program_object, uniform_name);
-				uniform_locations[i] = { uniform_name, location };
+				ShaderUniform& uniform = uniform_locations[i];
+				glGetActiveUniform(program_object, i, _UNIFORM_NAME_MAX_SIZE,
+					&uniform.name_size, &uniform_size, &uniform_type, uniform.name);
+				uniform.location = glGetUniformLocation(program_object, uniform.name);
 			}
 		}
 
