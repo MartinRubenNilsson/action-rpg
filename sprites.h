@@ -36,8 +36,8 @@ namespace sprites
 		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
-		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates
-		Vector2f tex_max = { 1.f, 1.f }; // bottom-right corner normalized texture coordinates
+		Vector2f tex_min = { 0.f, 1.f }; // top-left corner normalized texture coordinates
+		Vector2f tex_max = { 1.f, 0.f }; // bottom-right corner normalized texture coordinates
 		Vector2f sorting_pos;
 		Color color = colors::WHITE;
 		uint8_t sorting_layer = 0;

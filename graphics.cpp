@@ -632,7 +632,7 @@ void main()
 		return handle;
 	}
 
-	TextureHandle load_texture(const std::string& path)
+	TextureHandle load_texture(const std::string& path, bool flip_y)
 	{
 		// CHECK IF ALREADY LOADED
 
@@ -643,10 +643,11 @@ void main()
 
 		// LOAD TEXTURE DATA
 
+		const int was_flip_on_load = stbi__vertically_flip_on_load_global;
+		stbi__vertically_flip_on_load_global = flip_y;
 		int width, height, channels;
-		//stbi_set_flip_vertically_on_load(true);
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-		//stbi_set_flip_vertically_on_load(false);
+		stbi__vertically_flip_on_load_global = was_flip_on_load;
 		if (!data) {
 			console::log_error("Failed to load texture: " + path);
 			console::log_error(stbi_failure_reason());

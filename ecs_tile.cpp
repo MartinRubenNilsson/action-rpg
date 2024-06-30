@@ -236,7 +236,8 @@ namespace ecs
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
 			sprite.tex_min /= texture_size;
 			sprite.tex_max /= texture_size;
-			//std::swap(sprite.tex_min.y, sprite.tex_max.y); // flip Y
+			sprite.tex_min.y = 1.f - sprite.tex_min.y; // flip Y
+			sprite.tex_max.y = 1.f - sprite.tex_max.y; // flip Y
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader = tile.shader;
 			sprite.color = tile.color;

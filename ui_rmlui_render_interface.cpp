@@ -98,7 +98,7 @@ namespace ui
 		Rml::Vector2i& texture_dimensions,
 		const Rml::String& source)
 	{
-		const graphics::TextureHandle texture = graphics::load_texture(source);
+		const graphics::TextureHandle texture = graphics::load_texture(source, false);
 		if (texture == graphics::TextureHandle::Invalid) return false;
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);

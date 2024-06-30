@@ -75,7 +75,8 @@ bool lookup_color(sampler2D lut, int lut_type, int lut_y, inout vec3 color)
     }
     if (lut_x == -1) return false;
     // The lookup textures has 2x2 pixels for some reason, hence the * 2
-    color = texelFetch(lut, ivec2(lut_x, lut_y) * 2, 0).xyz;
+    ivec2 tex_size = textureSize(lut, 0);
+    color = texelFetch(lut, ivec2(lut_x, tex_size.y / 2 - lut_y - 1) * 2, 0).xyz;
     return true;
 }
 

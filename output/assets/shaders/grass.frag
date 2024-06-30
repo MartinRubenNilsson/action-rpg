@@ -8,7 +8,6 @@ out vec4 frag_color;
 
 void main()
 {
-rggr
     const float frequency = 5.0;
     const float speed = 4.0;
     const float amplitude = 0.015; // Adjust for a stronger effect if needed

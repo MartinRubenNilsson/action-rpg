@@ -70,8 +70,6 @@ namespace background
 			for (float x = camera_min.x - layer.offset_x; x < camera_max.x; x += layer.texture_width) {
 				sprite.min = { x, camera_min.y };
 				sprite.max = { x + layer.texture_width, camera_min.y + layer.texture_height };
-				sprite.tex_min = { 0.f, 0.f };
-				sprite.tex_max = { 1.f, 1.f };
 				sprites::add_sprite_to_render_queue(sprite);
 			}
 		}
