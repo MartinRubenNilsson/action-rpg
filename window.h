@@ -28,6 +28,7 @@ namespace window
 	void set_size(int width, int height);
 	void get_size(int& width, int& height);
 	void get_framebuffer_size(int& width, int& height);
+	void set_swap_interval(int interval);
 	void set_title(const std::string& title);
 	void set_icon_from_memory(int width, int height, unsigned char* pixels);
 	void set_icon_from_file(const std::string& path); // uses stb_image internally

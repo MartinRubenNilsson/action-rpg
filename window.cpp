@@ -200,6 +200,11 @@ namespace window
 		glfwGetFramebufferSize(_glfw_window, &width, &height);
 	}
 
+	void set_swap_interval(int interval)
+	{
+		glfwSwapInterval(interval);
+	}
+
 	void set_title(const std::string& title)
 	{
 		glfwSetWindowTitle(_glfw_window, title.c_str());
