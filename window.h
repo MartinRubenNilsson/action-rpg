@@ -19,7 +19,10 @@ namespace window
 
 		// CUSTOM CURSORS
 
-		HandPoint, // A hand with a pointing index finger.
+		HandPoint,
+		HandPointUp, 
+		HandGrab,
+		Quill,
 
 		Count, // Keep last -- the total number of cursor shapes.
 	};

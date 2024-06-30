@@ -136,13 +136,20 @@ namespace window
 
 		int width, height, channels;
 		unsigned char* pixels = stbi_load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
-		if (width && height && pixels) {
-			const int size = std::min(width, height);
+		constexpr int CURSOR_SIZE = 32;
+		constexpr int CURSOR_SIZE_BYTES = CURSOR_SIZE * CURSOR_SIZE * 4;
+		if (width == CURSOR_SIZE && height == CURSOR_SIZE * 10 && pixels) {
 			GLFWimage image{};
-			image.width = size;
-			image.height = size;
+			image.height = CURSOR_SIZE;
+			image.width = CURSOR_SIZE;
 			image.pixels = pixels;
 			_glfw_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
+			image.pixels += CURSOR_SIZE_BYTES;
+			_glfw_cursors[(int)CursorShape::HandPointUp] = glfwCreateCursor(&image, 0, 0);
+			image.pixels += CURSOR_SIZE_BYTES;
+			_glfw_cursors[(int)CursorShape::HandGrab] = glfwCreateCursor(&image, 0, 0);
+			image.pixels += CURSOR_SIZE_BYTES;
+			_glfw_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
 		}
 		stbi_image_free(pixels);
 

@@ -16,14 +16,13 @@ namespace ui
 		} else if (cursor_name == "move") {
 			//window::set_cursor_shape(sf::Cursor::SizeAll);
 		} else if (cursor_name == "pointer") {
-			window::set_cursor_shape(window::CursorShape::Hand);
+			window::set_cursor_shape(window::CursorShape::HandPointUp);
 		} else if (cursor_name == "resize") {
 			//window::set_cursor_shape(sf::Cursor::SizeTopLeftBottomRight);
 		} else if (cursor_name == "cross") {
 			window::set_cursor_shape(window::CursorShape::Crosshair);
 		} else if (cursor_name == "text") {
-			window::set_cursor_shape(window::CursorShape::IBeam);
-			//window::set_cursor_shape(sf::Cursor::Text);
+			window::set_cursor_shape(window::CursorShape::Quill);
 		} else if (cursor_name == "unavailable") {
 			//window::set_cursor_shape(sf::Cursor::NotAllowed);
 		} else if (cursor_name.starts_with("rmlui-scroll")) {
