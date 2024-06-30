@@ -11,17 +11,18 @@ namespace ui
 	void RmlUiSystemInterface::SetMouseCursor(const Rml::String& cursor_name)
 	{
 		if (cursor_name.empty() || cursor_name == "arrow") {
-			window::set_cursor_shape(window::CursorShape::StandardArrow);
+			//window::set_cursor_shape(window::CursorShape::Arrow);
+			window::set_cursor_shape(window::CursorShape::HandPoint);
 		} else if (cursor_name == "move") {
 			//window::set_cursor_shape(sf::Cursor::SizeAll);
 		} else if (cursor_name == "pointer") {
-			window::set_cursor_shape(window::CursorShape::StandardHand);
+			window::set_cursor_shape(window::CursorShape::Hand);
 		} else if (cursor_name == "resize") {
 			//window::set_cursor_shape(sf::Cursor::SizeTopLeftBottomRight);
 		} else if (cursor_name == "cross") {
-			window::set_cursor_shape(window::CursorShape::StandardCrosshair);
+			window::set_cursor_shape(window::CursorShape::Crosshair);
 		} else if (cursor_name == "text") {
-			window::set_cursor_shape(window::CursorShape::StandardIBeam);
+			window::set_cursor_shape(window::CursorShape::IBeam);
 			//window::set_cursor_shape(sf::Cursor::Text);
 		} else if (cursor_name == "unavailable") {
 			//window::set_cursor_shape(sf::Cursor::NotAllowed);

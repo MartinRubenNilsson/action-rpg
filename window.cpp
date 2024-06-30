@@ -115,19 +115,40 @@ namespace window
 		set_icon_from_file("assets/window/swordsman.png");
 
 		// Spoof resize events to ensure that other systems are aware of the window/framebuffer size.
-		int width, height;
-		glfwGetWindowSize(_glfw_window, &width, &height);
-		_window_size_callback(_glfw_window, width, height);
-		_framebuffer_size_callback(_glfw_window, width, height);
+		{
+			int width, height;
+			glfwGetWindowSize(_glfw_window, &width, &height);
+			_window_size_callback(_glfw_window, width, height);
+			glfwGetFramebufferSize(_glfw_window, &width, &height);
+			_framebuffer_size_callback(_glfw_window, width, height);
+		}
 
 		// CREATE STANDARD CURSORS
 
-		_glfw_cursors[(int)CursorShape::StandardArrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-		_glfw_cursors[(int)CursorShape::StandardIBeam] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-		_glfw_cursors[(int)CursorShape::StandardCrosshair] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
-		_glfw_cursors[(int)CursorShape::StandardHand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-		_glfw_cursors[(int)CursorShape::StandardHResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-		_glfw_cursors[(int)CursorShape::StandardVResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+		_glfw_cursors[(int)CursorShape::Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+		_glfw_cursors[(int)CursorShape::IBeam] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+		_glfw_cursors[(int)CursorShape::Crosshair] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+		_glfw_cursors[(int)CursorShape::Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+		_glfw_cursors[(int)CursorShape::HResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+		_glfw_cursors[(int)CursorShape::VResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+
+		// CREATE CUSTOM CURSORS
+
+		int width, height, channels;
+		unsigned char* pixels = stbi_load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
+		if (width && height && pixels) {
+			const int size = std::min(width, height);
+			GLFWimage image{};
+			image.width = size;
+			image.height = size;
+			image.pixels = pixels;
+			_glfw_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
+		}
+		stbi_image_free(pixels);
+
+		// SET CURSOR
+
+		set_cursor_shape(CursorShape::HandPoint);
 
 		return true;
 	}

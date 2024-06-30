@@ -12,7 +12,6 @@
 #include "background.h"
 #include "postprocessing.h"
 #include "settings.h"
-#include "cursor.h"
 #include "graphics.h"
 #include "shapes.h"
 #include "sprites.h"
@@ -241,30 +240,8 @@ int main(int argc, char* argv[])
         shapes::render("Game World Debug", camera_min, camera_max);
         ui::render();
 
-#if 0
-        bool show_custom_cursor = true;
 #ifdef DEBUG_IMGUI
-        // PITFALL: ImGui keeps overriding the cursor visibility state,
-        // so I'm calling SetMouseCursor() as a hack to stop this. Better
-        // solution is needed.
-        if (ImGui::GetIO().WantCaptureMouse) {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
-            show_custom_cursor = false;
-        } else {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
-		}
-#endif
-        double cursor_x, cursor_y;
-        graphics::bind_shader(graphics::fullscreen_shader);
-        window::get_cursor_pos(cursor_x, cursor_y);
-        window::set_cursor_visible(!show_custom_cursor);
-        cursor::set_visible(show_custom_cursor);
-        cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
-        cursor::set_scale(pixel_scale);
-        cursor::render_sprite();
-#endif
-
-        // RENDER DEBUG STATS
+        // CREATE DEBUG STATS WINDOW
 
         if (debug_stats) {
             constexpr float smoothing_factor = 0.99f;
@@ -278,7 +255,6 @@ int main(int argc, char* argv[])
             buffer_offset = (buffer_offset + 1) % 256;
             smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
             smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
-#ifdef DEBUG_IMGUI
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];
@@ -291,8 +267,8 @@ int main(int argc, char* argv[])
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
-#endif // DEBUG_IMGUI
         }
+#endif // DEBUG_IMGUI
 
 #ifdef DEBUG_IMGUI
         // RENDER IMGUI

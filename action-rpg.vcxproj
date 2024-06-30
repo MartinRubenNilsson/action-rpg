@@ -152,7 +152,6 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
-    <ClCompile Include="cursor.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp">
@@ -411,7 +410,6 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
-    <ClInclude Include="cursor.h" />
     <ClInclude Include="handles.h" />
     <ClInclude Include="imgui_backends.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />

@@ -10,12 +10,16 @@ namespace window
 	{
 		// STANDARD CURSORS
 
-		StandardArrow, // The regular arrow cursor shape.
-		StandardIBeam, // The text input I-beam cursor shape.
-		StandardCrosshair, // The crosshair shape.
-		StandardHand, // The hand shape.
-		StandardHResize, // The horizontal resize arrow shape.
-		StandardVResize, // The vertical resize arrow shape.
+		Arrow, // The regular arrow cursor shape.
+		IBeam, // The text input I-beam cursor shape.
+		Crosshair, // The crosshair shape.
+		Hand, // The hand shape.
+		HResize, // The horizontal resize arrow shape.
+		VResize, // The vertical resize arrow shape.
+
+		// CUSTOM CURSORS
+
+		HandPoint, // A hand with a pointing index finger.
 
 		Count, // Keep last -- the total number of cursor shapes.
 	};

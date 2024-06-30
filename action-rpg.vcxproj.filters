@@ -226,9 +226,6 @@
     <ClCompile Include="background.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="cursor.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="map_tilegrid.cpp">
       <Filter>map</Filter>
     </ClCompile>
@@ -578,9 +575,6 @@
       <Filter>ecs\player</Filter>
     </ClInclude>
     <ClInclude Include="background.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="cursor.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="map_tilegrid.h">
