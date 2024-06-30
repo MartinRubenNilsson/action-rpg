@@ -241,6 +241,7 @@ int main(int argc, char* argv[])
         shapes::render("Game World Debug", camera_min, camera_max);
         ui::render();
 
+#if 0
         bool show_custom_cursor = true;
 #ifdef BUILD_IMGUI
         // PITFALL: ImGui keeps overriding the cursor visibility state,
@@ -254,13 +255,14 @@ int main(int argc, char* argv[])
 		}
 #endif
         double cursor_x, cursor_y;
-        graphics::bind_shader(graphics::default_shader);
+        graphics::bind_shader(graphics::fullscreen_shader);
         window::get_cursor_pos(cursor_x, cursor_y);
         window::set_cursor_visible(!show_custom_cursor);
         cursor::set_visible(show_custom_cursor);
         cursor::set_position(Vector2f((float)cursor_x, (float)cursor_y));
         cursor::set_scale(pixel_scale);
         cursor::render_sprite();
+#endif
 
         // RENDER DEBUG STATS
 
