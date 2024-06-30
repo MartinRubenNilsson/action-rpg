@@ -1,12 +1,14 @@
 #pragma once
 
 #define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
 
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 3
 #define GLSL_VERSION_STRING "#version 430 core\n"
 
 #ifdef _DEBUG
+#define DEBUG_RENDERDOC
 #define DEBUG_IMGUI
 #define DEBUG_GRAPHICS
 #endif

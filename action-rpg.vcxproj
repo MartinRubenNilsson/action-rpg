@@ -153,6 +153,7 @@
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
+    <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -410,8 +411,10 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
+    <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
     <ClInclude Include="handles.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="renderdoc.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="window_events.h" />

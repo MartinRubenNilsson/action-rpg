@@ -16,6 +16,7 @@
 #include "shapes.h"
 #include "sprites.h"
 #include "clock.h"
+#include "renderdoc.h"
 #include "imgui_backends.h"
 
 int main(int argc, char* argv[])
@@ -24,6 +25,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     steam::initialize(); // Fails silently if Steam is not running.
+#ifdef DEBUG_RENDERDOC
+    renderdoc::initialize();
+#endif
     window::initialize();
 #ifdef DEBUG_IMGUI
     imgui_backends::initialize(window::get_glfw_window());
@@ -290,6 +294,10 @@ int main(int argc, char* argv[])
         }
 
         window::swap_buffers();
+
+#ifdef DEBUG_RENDERDOC
+        renderdoc::open_capture_folder_if_capturing();
+#endif
     }
 
     // SHUTDOWN

@@ -302,6 +302,9 @@
     <ClCompile Include="ui_rmlui_render_interface.cpp">
       <Filter>ui\rmlui_interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="renderdoc.cpp">
+      <Filter>graphics\renderdoc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -823,6 +826,12 @@
       <Filter>ui\rmlui_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="handles.h" />
+    <ClInclude Include="dependencies\renderdoc\renderdoc_app.h">
+      <Filter>graphics\renderdoc</Filter>
+    </ClInclude>
+    <ClInclude Include="renderdoc.h">
+      <Filter>graphics\renderdoc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -890,6 +899,9 @@
     </Filter>
     <Filter Include="ui\rmlui_interfaces">
       <UniqueIdentifier>{cb12366d-8c11-48b4-a752-e5b39ec96b0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\renderdoc">
+      <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
