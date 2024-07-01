@@ -1,3 +1,5 @@
+#version 430
+
 uniform sampler2D tex;
 uniform vec2 resolution;
 uniform vec2 center;

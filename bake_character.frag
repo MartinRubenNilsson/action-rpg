@@ -1,3 +1,5 @@
+#version 430
+
 uniform sampler2D tex;
 uniform sampler2D lut1;
 uniform sampler2D lut2;

@@ -1,9 +1,10 @@
+#version 430
+
 uniform sampler2D tex;
 uniform bool has_tex;
 
 in vec4 color;
 in vec2 tex_coord;
-
 out vec4 frag_color;
 
 void main()

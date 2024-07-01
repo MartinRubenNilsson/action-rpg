@@ -1,3 +1,5 @@
+#version 430
+
 uniform sampler2D tex;
 uniform float time;
 uniform vec2 position; // world position (not screen position) of the tile in pixels

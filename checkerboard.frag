@@ -1,3 +1,5 @@
+#version 430
+
 uniform ivec2 tile_size;
 uniform vec4 color1;
 uniform vec4 color2;

@@ -1,3 +1,5 @@
+#version 430
+
 uniform mat4 transform;
 uniform vec2 translation;
 uniform vec2 viewport_size;
@@ -5,7 +7,6 @@ uniform vec2 viewport_size;
 layout (location = 0) in vec2 vertex_position;
 layout (location = 1) in vec4 vertex_color;
 layout (location = 2) in vec2 vertex_tex_coord;
-
 out vec4 color;
 out vec2 tex_coord;
 

@@ -1,3 +1,5 @@
+#version 430
+
 uniform sampler2D tex;
 uniform float pixel_scale;
 uniform float progress;

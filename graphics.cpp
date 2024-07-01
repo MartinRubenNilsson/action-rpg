@@ -262,8 +262,8 @@ namespace graphics
 			// COMPILE VERTEX SHADER
 
 			const GLuint vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
-			const char* vertex_shader_strings[] = { GLSL_VERSION_STRING, vertex_shader_bytecode.c_str() };
-			glShaderSource(vertex_shader_object, 2, vertex_shader_strings, nullptr);
+			const char* vertex_shader_string = vertex_shader_bytecode.c_str();
+			glShaderSource(vertex_shader_object, 1, &vertex_shader_string, nullptr);
 			glCompileShader(vertex_shader_object);
 			int success;
 			glGetShaderiv(vertex_shader_object, GL_COMPILE_STATUS, &success);
@@ -287,8 +287,8 @@ namespace graphics
 			// COMPILE FRAGMENT SHADER
 
 			const GLuint fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
-			const char* fragment_shader_strings[] = { GLSL_VERSION_STRING, fragment_shader_bytecode.c_str() };
-			glShaderSource(fragment_shader_object, 2, fragment_shader_strings, nullptr);
+			const char* fragment_shader_string = fragment_shader_bytecode.c_str();
+			glShaderSource(fragment_shader_object, 1, &fragment_shader_string, nullptr);
 			glCompileShader(fragment_shader_object);
 			int success;
 			glGetShaderiv(fragment_shader_object, GL_COMPILE_STATUS, &success);
