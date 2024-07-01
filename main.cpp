@@ -213,11 +213,12 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::bind_shader(graphics::sprite_shader);
             graphics::set_uniform_mat4(graphics::sprite_shader, "view_proj_matrix", projection_matrix);
-            graphics::bind_shader(graphics::shape_shader);
             graphics::set_uniform_mat4(graphics::shape_shader, "view_proj_matrix", projection_matrix);
-            graphics::bind_shader(graphics::sprite_shader);
+            graphics::set_uniform_mat4(graphics::load_shader( //HACK: i just wanna see the grass
+                "assets/shaders/sprite.vert",
+                "assets/shaders/grass.frag"),
+                "view_proj_matrix", projection_matrix);
         }
 
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);

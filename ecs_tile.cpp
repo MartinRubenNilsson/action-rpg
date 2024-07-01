@@ -261,7 +261,7 @@ namespace ecs
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
 					if (sprite.shader == graphics::ShaderHandle::Invalid) return;
-					graphics::bind_shader(sprite.shader);
+					graphics::set_uniform_1i(sprite.shader, "tex", 0);
 					graphics::set_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
 					graphics::set_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
 				};

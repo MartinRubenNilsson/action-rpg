@@ -17,7 +17,7 @@ void main()
     vec2 uv = tex_coord;
 
     // Linearly map uv.y from 0 (bottom) to 1 (top) to get a scaling factor
-    float height_factor = pow(1 - uv.y, 2.0);  // Example using a power function
+    float height_factor = pow(uv.y, 2.0);  // Example using a power function
 
     // Time offset for asynchronous swaying
     float time_offset = position.x * 0.03 + position.y * 0.01; 
