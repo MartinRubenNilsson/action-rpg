@@ -39,7 +39,6 @@ namespace graphics
 	void bind_shader(ShaderHandle handle);
 	void unbind_shader();
 
-	// IMPORTANT: You need to bind the shader before calling any of the set_uniform_*() variants!
 	void set_uniform_1f(ShaderHandle handle, std::string_view name, float x);
 	void set_uniform_2f(ShaderHandle handle, std::string_view name, float x, float y);
 	void set_uniform_3f(ShaderHandle handle, std::string_view name, float x, float y, float z);
