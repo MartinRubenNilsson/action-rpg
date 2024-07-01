@@ -341,6 +341,21 @@
     <None Include="ui.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="sprite.vert">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="sprite.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="fullscreen.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="shape.vert">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="shape.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui.h">

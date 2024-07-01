@@ -21,11 +21,15 @@ namespace ecs
 		_set_tile(tile);
 		std::string shader_name;
 		if (tile->properties.get_string("shader", shader_name)) {
-			shader = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
+			shader = graphics::load_shader(
+				"assets/shaders/sprite.vert",
+				"assets/shaders/" + shader_name + ".frag");
 		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
-			shader = graphics::load_shader({}, "assets/shaders/" + shader_name + ".frag");
+			shader = graphics::load_shader(
+				"assets/shaders/sprite.vert",
+				"assets/shaders/" + shader_name + ".frag");
 		} else {
-			shader = graphics::default_shader;
+			shader = graphics::sprite_shader;
 		}
 	}
 

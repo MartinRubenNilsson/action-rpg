@@ -59,7 +59,8 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/shockwave.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/shockwave.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
@@ -103,7 +104,8 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/darkness.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/darkness.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
@@ -138,7 +140,8 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/screen_transition.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/screen_transition.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture
@@ -171,10 +174,12 @@ namespace postprocessing
 
 		// Load shaders
 		const graphics::ShaderHandle shader_hor = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_hor.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/gaussian_blur_hor.frag");
 		if (shader_hor == graphics::ShaderHandle::Invalid) return;
 		const graphics::ShaderHandle shader_ver = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/gaussian_blur_ver.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/gaussian_blur_ver.frag");
 		if (shader_ver == graphics::ShaderHandle::Invalid) return;
 
 		// Get texture

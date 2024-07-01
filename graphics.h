@@ -18,9 +18,9 @@ namespace graphics
 	extern const float IDENTITY_MATRIX[16];
 
 	extern RenderTargetHandle window_render_target;
-	extern ShaderHandle default_shader;
+	extern ShaderHandle sprite_shader;
 	extern ShaderHandle fullscreen_shader;
-	extern ShaderHandle color_only_shader;
+	extern ShaderHandle shape_shader;
 	extern ShaderHandle ui_shader;
 
 	void initialize();

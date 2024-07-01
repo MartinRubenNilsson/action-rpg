@@ -362,7 +362,8 @@ namespace ecs
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert", "assets/shaders/bake_character.frag");
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/bake_character.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return graphics::TextureHandle::Invalid;
 
 		// Aquire render target

@@ -8,97 +8,6 @@
 
 namespace graphics
 {
-	constexpr char _DEFAULT_VERTEX_SHADER_BYTECODE[] = R"(
-uniform mat4 view_proj_matrix;
-
-layout (location = 0) in vec2 vertex_position;
-layout (location = 1) in vec4 vertex_color;
-layout (location = 2) in vec2 vertex_tex_coord;
-
-out vec4 color;
-out vec2 tex_coord;
-
-void main()
-{
-	gl_Position = view_proj_matrix * vec4(vertex_position, 0.0, 1.0);
-	color = vertex_color;
-	tex_coord = vertex_tex_coord;
-}
-)";
-
-	constexpr char _DEFAULT_FRAGMENT_SHADER_BYTECODE[] = R"(
-uniform sampler2D tex;
-
-in vec4 color;
-in vec2 tex_coord;
-
-out vec4 frag_color;
-
-void main()
-{
-	frag_color = color * texture(tex, tex_coord);
-}
-)";
-
-	constexpr char _FULLSCREEN_VERTEX_SHADER_BYTECODE[] = R"(
-out vec2 tex_coord;
-
-void main()
-{
-	const vec2 vertices[4] = vec2[4](
-		vec2(-1.0, -1.0),  // bottom-left
-		vec2( 1.0, -1.0),  // bottom-right
-		vec2(-1.0,  1.0),  // top-left
-		vec2( 1.0,  1.0)); // top-right
-	const vec2 tex_coords[4] = vec2[4](
-		vec2(0.0, 0.0),  // bottom-left
-		vec2(1.0, 0.0),  // bottom-right
-		vec2(0.0, 1.0),  // top-left
-		vec2(1.0, 1.0)); // top-right
-	gl_Position = vec4(vertices[gl_VertexID], 0.0, 1.0);
-	tex_coord = tex_coords[gl_VertexID];
-}
-)";
-
-	constexpr char _FULLSCREEN_FRAGMENT_SHADER_BYTECODE[] = R"(
-uniform sampler2D tex;
-
-in vec2 tex_coord;
-
-out vec4 frag_color;
-
-void main()
-{
-	frag_color = texture(tex, tex_coord);
-}
-)";
-
-	constexpr char _COLOR_ONLY_VERTEX_SHADER_BYTECODE[] = R"(
-uniform mat4 view_proj_matrix;
-
-layout (location = 0) in vec2 vertex_position;
-layout (location = 1) in vec4 vertex_color;
-
-out vec4 color;
-
-void main()
-{
-    gl_Position = view_proj_matrix * vec4(vertex_position, 0.0, 1.0);
-	color = vertex_color;
-}
-)";
-
-	constexpr char _COLOR_ONLY_PIXEL_SHADER_BYTECODE[] = R"(
-in vec4 color;
-
-out vec4 frag_color;
-
-void main()
-{
-    frag_color = color;
-}
-)";
-
 	extern const float IDENTITY_MATRIX[16] = {
 		1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,
@@ -107,9 +16,9 @@ void main()
 	};
 
 	RenderTargetHandle window_render_target = RenderTargetHandle::Invalid;
-	ShaderHandle default_shader = ShaderHandle::Invalid;
+	ShaderHandle sprite_shader = ShaderHandle::Invalid;
 	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
-	ShaderHandle color_only_shader = ShaderHandle::Invalid;
+	ShaderHandle shape_shader = ShaderHandle::Invalid;
 	ShaderHandle ui_shader = ShaderHandle::Invalid;
 
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
@@ -278,24 +187,20 @@ void main()
 			_render_target_name_to_handle[render_target.name] = window_render_target;
 		}
 
-		// CREATE DEFAULT SHADERS
+		// LOAD DEFAULT SHADERS
 
-		default_shader = create_shader(
-			_DEFAULT_VERTEX_SHADER_BYTECODE,
-			_DEFAULT_FRAGMENT_SHADER_BYTECODE,
-			"default shader");
-
-		fullscreen_shader = create_shader(
-			_FULLSCREEN_VERTEX_SHADER_BYTECODE,
-			_FULLSCREEN_FRAGMENT_SHADER_BYTECODE,
-			"fullscreen shader");
-
-		color_only_shader = create_shader(
-			_COLOR_ONLY_VERTEX_SHADER_BYTECODE,
-			_COLOR_ONLY_PIXEL_SHADER_BYTECODE,
-			"color only shader");
-
-		ui_shader = load_shader("assets/shaders/ui.vert", "assets/shaders/ui.frag");
+		sprite_shader = load_shader(
+			"assets/shaders/sprite.vert",
+			"assets/shaders/sprite.frag");
+		fullscreen_shader = load_shader(
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen.frag");
+		shape_shader = load_shader(
+			"assets/shaders/shape.vert",
+			"assets/shaders/shape.frag");
+		ui_shader = load_shader(
+			"assets/shaders/ui.vert",
+			"assets/shaders/ui.frag");
 	}
 
 	void shutdown()
@@ -465,9 +370,7 @@ void main()
 		// LOAD VERTEX SHADER BYTECODE
 
 		std::string vertex_shader_bytecode;
-		if (vertex_shader_path.empty()) {
-			vertex_shader_bytecode = _DEFAULT_VERTEX_SHADER_BYTECODE;
-		} else {
+		{
 			std::ifstream vertex_shader_file{ vertex_shader_path };
 			if (!vertex_shader_file) {
 				console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
@@ -481,9 +384,7 @@ void main()
 		// LOAD FRAGMENT SHADER BYTECODE
 
 		std::string fragment_shader_bytecode;
-		if (fragment_shader_path.empty()) {
-			fragment_shader_bytecode = _DEFAULT_FRAGMENT_SHADER_BYTECODE;
-		} else {
+		{
 			std::ifstream fragment_shader_file{ fragment_shader_path };
 			if (!fragment_shader_file) {
 				console::log_error("Failed to open fragment shader file: " + fragment_shader_path);

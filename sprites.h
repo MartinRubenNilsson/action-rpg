@@ -2,7 +2,7 @@
 
 namespace graphics
 {
-	extern ShaderHandle default_shader;
+	extern ShaderHandle sprite_shader;
 }
 
 namespace sprites
@@ -32,7 +32,7 @@ namespace sprites
 	struct Sprite
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
-		graphics::ShaderHandle shader = graphics::default_shader;
+		graphics::ShaderHandle shader = graphics::sprite_shader;
 		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
