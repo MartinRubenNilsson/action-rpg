@@ -152,6 +152,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
+    <ClCompile Include="fonts.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
@@ -417,6 +418,7 @@
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
+    <ClInclude Include="fonts.h" />
     <ClInclude Include="handles.h" />
     <ClInclude Include="imgui_backends.h" />
     <ClInclude Include="renderdoc.h" />

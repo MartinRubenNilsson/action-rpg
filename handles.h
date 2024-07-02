@@ -11,3 +11,8 @@ namespace graphics
 	enum class TextureHandle { Invalid = -1 };
 	enum class RenderTargetHandle { Invalid = -1 };
 }
+
+namespace fonts
+{
+	enum class FontHandle { Invalid = -1 };
+}

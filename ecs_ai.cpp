@@ -8,6 +8,8 @@
 #include "random.h"
 #include "shapes.h"
 
+#include "fonts.h"
+
 namespace ecs
 {
     extern entt::registry _registry;
@@ -71,6 +73,8 @@ namespace ecs
 
     void debug_draw_ai()
     {
+        fonts::FontHandle font = fonts::load_font("assets/fonts/Helvetica.ttf");
+
         uint32_t paths_drawn = 0;
 
         for (auto [entity, knowledge, action] :
