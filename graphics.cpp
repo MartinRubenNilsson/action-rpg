@@ -554,7 +554,8 @@ namespace graphics
 	{
 		// CHECK IF ALREADY LOADED
 
-		const auto it = _texture_name_to_handle.find(path);
+		const std::string normalized_path = std::filesystem::path(path).lexically_normal().string();
+		const auto it = _texture_name_to_handle.find(normalized_path);
 		if (it != _texture_name_to_handle.end()) {
 			return it->second;
 		}
@@ -564,17 +565,17 @@ namespace graphics
 		const int was_flip_on_load = stbi__vertically_flip_on_load_global;
 		stbi__vertically_flip_on_load_global = flip_y;
 		int width, height, channels;
-		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		unsigned char* data = stbi_load(normalized_path.c_str(), &width, &height, &channels, 0);
 		stbi__vertically_flip_on_load_global = was_flip_on_load;
 		if (!data) {
-			console::log_error("Failed to load texture: " + path);
+			console::log_error("Failed to load texture: " + normalized_path);
 			console::log_error(stbi_failure_reason());
 			return TextureHandle::Invalid;
 		}
 
 		// CREATE TEXTURE
 
-		return create_texture(width, height, channels, data, path);
+		return create_texture(width, height, channels, data, normalized_path);
 	}
 
 	TextureHandle copy_texture(TextureHandle handle)
