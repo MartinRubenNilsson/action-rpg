@@ -50,6 +50,7 @@ namespace fonts
 		font.data = std::move(buffer);
 		font.info = info;
 		_font_path_to_handle[path] = handle;
+
 		return handle;
 	}
 }

@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
 
     Clock clock;
     bool debug_stats = false;
+    bool debug_textures = false;
 
     // GAME LOOP
 
@@ -96,6 +97,8 @@ int main(int argc, char* argv[])
                         ui::debug = !ui::debug;
                     } else if (ev.key.code == window::Key::F7) {
                         map::debug = !map::debug;
+                    } else if (ev.key.code == window::Key::F8) {
+                        debug_textures = !debug_textures;
                     }
 #endif // _DEBUG
                 }
@@ -272,6 +275,10 @@ int main(int argc, char* argv[])
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
             ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
+        }
+
+        if (debug_textures) {
+            graphics::show_texture_debug_window();
         }
 #endif // DEBUG_IMGUI
 

@@ -28,6 +28,8 @@ namespace graphics
 
 	// SHADERS
 
+	//TODO: split shaders into vertex and fragment shaders
+
 	ShaderHandle create_shader(
 		const std::string& vertex_shader_bytecode,
 		const std::string& fragment_shader_bytecode,
@@ -114,4 +116,6 @@ namespace graphics
 		ScopedDebugGroup(std::string_view name) { push_debug_group(name); }
 		~ScopedDebugGroup() { pop_debug_group(); }
 	};
+
+	void show_texture_debug_window();
 }

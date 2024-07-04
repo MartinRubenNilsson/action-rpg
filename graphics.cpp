@@ -853,4 +853,22 @@ namespace graphics
 		glPopDebugGroup();
 #endif
 	}
+
+	void show_texture_debug_window()
+	{
+#ifdef DEBUG_IMGUI
+		ImGui::Begin("Textures");
+		for (const Texture& texture : _textures) {
+			if (ImGui::TreeNode(texture.name.c_str())) {
+				ImGui::Text("Size: %dx%d", texture.width, texture.height);
+				ImGui::Text("Channels: %d", texture.channels);
+				ImGui::Image((ImTextureID)(uintptr_t)texture.texture_object,
+					ImVec2((float)texture.width, (float)texture.height),
+					ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+				ImGui::TreePop();
+			}
+		}
+		ImGui::End();
+#endif
+	}
 }
