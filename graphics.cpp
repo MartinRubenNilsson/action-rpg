@@ -33,6 +33,7 @@ namespace graphics
 
 	struct Shader
 	{
+		ShaderHandle handle = ShaderHandle::Invalid;
 		std::string name; // unique name
 		std::vector<ShaderUniform> uniforms;
 		GLuint program_object = 0;
@@ -40,6 +41,7 @@ namespace graphics
 
 	struct Texture
 	{
+		TextureHandle handle = TextureHandle::Invalid;
 		std::string name; // unique name
 		unsigned int width = 0;
 		unsigned int height = 0;
@@ -50,6 +52,7 @@ namespace graphics
 
 	struct RenderTarget
 	{
+		RenderTargetHandle handle = RenderTargetHandle::Invalid;
 		std::string name; // unique name
 		TextureHandle texture = TextureHandle::Invalid;
 		GLuint framebuffer_object = 0;
@@ -79,13 +82,6 @@ namespace graphics
 		return name;
 	}
 
-	Shader* _get_shader(ShaderHandle handle)
-	{
-		const unsigned int index = get_handle_index(handle);
-		if (index >= (unsigned int)_shaders.size()) return nullptr;
-		return &_shaders[index];
-	}
-
 	const ShaderUniform* _get_shader_uniform(const std::vector<ShaderUniform> &uniforms, std::string_view name)
 	{
 		for (const ShaderUniform& uniform : uniforms) {
@@ -96,10 +92,19 @@ namespace graphics
 		return nullptr;
 	}
 
+	Shader* _get_shader(ShaderHandle handle)
+	{
+		const unsigned int index = get_handle_index(handle);
+		if (index >= (unsigned int)_shaders.size()) return nullptr;
+		if (_shaders[index].handle != handle) return nullptr;
+		return &_shaders[index];
+	}
+
 	Texture* _get_texture(TextureHandle handle)
 	{
 		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_textures.size()) return nullptr;
+		if (_textures[index].handle != handle) return nullptr;
 		return &_textures[index];
 	}
 
@@ -107,6 +112,7 @@ namespace graphics
 	{
 		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_textures.size()) return nullptr;
+		if (_render_targets[index].handle != handle) return nullptr;
 		return &_render_targets[index];
 	}
 
@@ -179,6 +185,7 @@ namespace graphics
 			window_render_target = (RenderTargetHandle)_render_targets.size();
 
 			RenderTarget& render_target = _render_targets.emplace_back();
+			render_target.handle = window_render_target;
 			render_target.name = "window render target";
 			// The window has both a front and back buffer, so there's no point
 			// in setting a single texture for its render target.
@@ -346,6 +353,7 @@ namespace graphics
 		const ShaderHandle handle = (ShaderHandle)_shaders.size();
 
 		Shader& shader = _shaders.emplace_back();
+		shader.handle = handle;
 		shader.name = _generate_unique_name(_shader_name_to_handle, name_hint);
 		shader.uniforms = std::move(uniform_locations);
 		shader.program_object = program_object;
@@ -538,6 +546,7 @@ namespace graphics
 		const TextureHandle handle = (TextureHandle)_textures.size();
 
 		Texture& texture = _textures.emplace_back();
+		texture.handle = handle;
 		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
 		texture.width = width;
 		texture.height = height;
@@ -696,16 +705,18 @@ namespace graphics
 
 		// STORE RENDER TARGET
 
-		const RenderTargetHandle handle = (RenderTargetHandle)_render_targets.size();
+		const RenderTargetHandle target_handle = (RenderTargetHandle)_render_targets.size();
+
 		RenderTarget& render_target = _render_targets.emplace_back();
+		render_target.handle = target_handle;
 		render_target.name = _generate_unique_name(_render_target_name_to_handle, name_hint);
 		render_target.texture = texture_handle;
 		render_target.framebuffer_object = framebuffer_object;
 		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, render_target.name);
 
-		_render_target_name_to_handle[render_target.name] = handle;
+		_render_target_name_to_handle[render_target.name] = target_handle;
 
-		return handle;
+		return target_handle;
 	}
 
 	RenderTargetHandle acquire_pooled_render_target(unsigned int width, unsigned int height)
