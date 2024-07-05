@@ -362,7 +362,7 @@ namespace ecs
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/bake_character.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return graphics::TextureHandle::Invalid;
 
@@ -434,7 +434,7 @@ namespace ecs
 			graphics::bind_texture(1, lut1_texture);
 			graphics::bind_texture(2, lut2_texture);
 
-			graphics::draw_triangle_strip(4);
+			graphics::draw_triangles(3);
 		}
 
 		const graphics::TextureHandle texture =

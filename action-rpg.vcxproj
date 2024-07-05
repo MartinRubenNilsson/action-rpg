@@ -395,7 +395,7 @@
     <None Include="checkerboard.frag" />
     <None Include="darkness.frag" />
     <None Include="fullscreen.frag" />
-    <None Include="fullscreen.vert" />
+    <None Include="fullscreen_triangle.vert" />
     <None Include="gaussian_blur_hor.frag" />
     <None Include="gaussian_blur_ver.frag" />
     <None Include="grass.frag" />

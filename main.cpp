@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
             graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
-            graphics::draw_triangle_strip(4);
+            graphics::draw_triangles(3);
             graphics::release_pooled_render_target(render_target);
         }
 

@@ -102,6 +102,7 @@ namespace graphics
 	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
+	void draw_triangles(unsigned int vertex_count);
 	void draw_triangles(
 		const Vertex* vertices, unsigned int vertex_count,
 		unsigned int* indices, unsigned int index_count);

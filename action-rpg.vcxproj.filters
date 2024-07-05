@@ -334,7 +334,7 @@
     <None Include="screen_transition.frag">
       <Filter>graphics\shaders</Filter>
     </None>
-    <None Include="fullscreen.vert">
+    <None Include="fullscreen_triangle.vert">
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="vcpkg.json" />

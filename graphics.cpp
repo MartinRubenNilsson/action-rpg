@@ -193,7 +193,7 @@ namespace graphics
 			"assets/shaders/sprite.vert",
 			"assets/shaders/sprite.frag");
 		fullscreen_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/fullscreen.frag");
 		shape_shader = load_shader(
 			"assets/shaders/shape.vert",
@@ -827,6 +827,13 @@ namespace graphics
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
+	}
+
+	void draw_triangles(unsigned int vertex_count)
+	{
+		if (!vertex_count) return;
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 	}
 
 	void draw_triangles(

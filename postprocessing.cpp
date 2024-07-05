@@ -59,7 +59,7 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/shockwave.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
@@ -88,7 +88,7 @@ namespace postprocessing
 			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
 			graphics::bind_render_target(intermediate_target);
-			graphics::draw_triangle_strip(4);
+			graphics::draw_triangles(3);
 
 			// Interchange render targets
 			graphics::release_pooled_render_target(target);
@@ -104,7 +104,7 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/darkness.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
@@ -126,7 +126,7 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
 		graphics::bind_render_target(intermediate_target);
-		graphics::draw_triangle_strip(4);
+		graphics::draw_triangles(3);
 
 		// Cleanup
 		graphics::release_pooled_render_target(target);
@@ -140,7 +140,7 @@ namespace postprocessing
 
 		// Load shader
 		const graphics::ShaderHandle shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/screen_transition.frag");
 		if (shader == graphics::ShaderHandle::Invalid) return;
 
@@ -160,7 +160,7 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
 		graphics::bind_render_target(intermediate_target);
-		graphics::draw_triangle_strip(4);
+		graphics::draw_triangles(3);
 
 		// Cleanup
 		graphics::release_pooled_render_target(target);
@@ -174,11 +174,11 @@ namespace postprocessing
 
 		// Load shaders
 		const graphics::ShaderHandle shader_hor = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/gaussian_blur_hor.frag");
 		if (shader_hor == graphics::ShaderHandle::Invalid) return;
 		const graphics::ShaderHandle shader_ver = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
+			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/gaussian_blur_ver.frag");
 		if (shader_ver == graphics::ShaderHandle::Invalid) return;
 
@@ -206,7 +206,7 @@ namespace postprocessing
 			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
 			graphics::bind_render_target(intermediate_target);
-			graphics::draw_triangle_strip(4);
+			graphics::draw_triangles(3);
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
@@ -214,7 +214,7 @@ namespace postprocessing
 			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
 			graphics::bind_render_target(target);
-			graphics::draw_triangle_strip(4);
+			graphics::draw_triangles(3);
 		}
 
 		// Cleanup
