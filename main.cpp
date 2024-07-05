@@ -172,10 +172,9 @@ int main(int argc, char* argv[])
         int window_framebuffer_height = 0;
         window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
         if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
-#ifdef DEBUG_IMGUI
-            imgui_backends::render(); // Otherwise ImGui will crash/assert.
-#endif
-			continue; // Skip rendering if the window is minimized.
+            // HACK: So we don't get spammed with errors when the window is minimized.
+            window_framebuffer_width = 1;
+            window_framebuffer_height = 1;
 		}
 
         const float pixel_scale = (float)window_framebuffer_width / WINDOW_MIN_WIDTH;
