@@ -27,8 +27,8 @@ namespace audio
 
 	FMOD::Studio::System* _system = nullptr;
 	FMOD::Studio::EventInstance* _event_buffer[1024] = {};
-	int _next_handle_numerical_value = 0;
-	std::unordered_map<EventHandle, FMOD::Studio::EventInstance*> _event_handle_to_instance;
+	std::vector<std::pair<EventHandle, FMOD::Studio::EventInstance*>> _events;
+	std::vector<EventHandle> _free_event_handles;
 	std::unordered_set<std::string> _events_played_this_frame;
 
 	FMOD_RESULT F_CALLBACK _on_event_destroyed(
@@ -36,9 +36,17 @@ namespace audio
 		FMOD_STUDIO_EVENTINSTANCE* event,
 		void* parameters)
 	{
-		void* handle = nullptr;
-		((FMOD::Studio::EventInstance*)event)->getUserData((void**)&handle);
-		_event_handle_to_instance.erase((EventHandle)(uintptr_t)handle);
+		void* user_data = nullptr;
+		((FMOD::Studio::EventInstance*)event)->getUserData((void**)&user_data);
+		if (!user_data) return FMOD_OK;
+		EventHandle handle = (EventHandle)(uintptr_t)user_data;
+		const unsigned int index = get_handle_index(handle);
+		if (index >= (unsigned int)_events.size()) return FMOD_OK;
+		if (_events[index].first != handle) return FMOD_OK;
+		handle = increment_handle_generation(handle);
+		_events[index].first = handle;
+		_events[index].second = nullptr;
+		_free_event_handles.push_back(handle);
 		return FMOD_OK;
 	}
 
@@ -76,8 +84,10 @@ namespace audio
 
 	FMOD::Studio::EventInstance* _get_event_instance(EventHandle handle)
 	{
-		auto it = _event_handle_to_instance.find(handle);
-		return it == _event_handle_to_instance.end() ? nullptr : it->second;
+		const unsigned int index = get_handle_index(handle);
+		if (index >= (unsigned int)_events.size()) return nullptr;
+		if (_events[index].first != handle) return nullptr;
+		return _events[index].second;
 	}
 
 	void initialize()
@@ -221,25 +231,28 @@ namespace audio
 		if (!desc) return EventHandle::Invalid;
 		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
 		if (!instance) return EventHandle::Invalid;
-		const EventHandle handle = (EventHandle)_next_handle_numerical_value++;
-		_event_handle_to_instance[handle] = instance;
+		EventHandle handle = EventHandle::Invalid;
+		if (_free_event_handles.empty()) {
+			handle = (EventHandle)_events.size();
+			_events.push_back({ handle, instance });
+		} else {
+			handle = _free_event_handles.back();
+			_free_event_handles.pop_back();
+			_events[get_handle_index(handle)] = { handle, instance };
+		}
 		_events_played_this_frame.insert(event_path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
 		instance->setUserData((void*)(uintptr_t)handle);
 		instance->setVolume(options.volume);
 		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(options.position);
 		instance->set3DAttributes(&attributes);
-		if (options.start)
+		if (options.start) {
 			instance->start();
-		if (options.release)
+		}
+		if (options.release) {
 			instance->release();
+		}
 		return handle;
-	}
-
-	bool is_valid(EventHandle handle)
-	{
-		if (handle == EventHandle::Invalid) return false;
-		return _event_handle_to_instance.contains(handle);
 	}
 
 	bool stop(EventHandle handle)

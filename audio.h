@@ -40,7 +40,6 @@ namespace audio
 
 	// Returns EventHandle::Invalid on failure.
 	EventHandle play(const std::string& event_path, const EventOptions& options = EventOptions());
-	bool is_valid(EventHandle handle);
 	bool stop(EventHandle handle);
 	bool set_volume(EventHandle handle, float volume);
 	bool get_volume(EventHandle handle, float& volume);

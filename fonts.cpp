@@ -45,10 +45,12 @@ namespace fonts
 			return FontHandle::Invalid;
 		}
 
-		FontHandle handle = (FontHandle)_fonts.size();
+		const FontHandle handle = (FontHandle)_fonts.size();
+
 		Font& font = _fonts.emplace_back();
 		font.data = std::move(buffer);
 		font.info = info;
+
 		_font_path_to_handle[path] = handle;
 
 		return handle;

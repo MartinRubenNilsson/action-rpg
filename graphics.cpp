@@ -81,7 +81,7 @@ namespace graphics
 
 	Shader* _get_shader(ShaderHandle handle)
 	{
-		const unsigned int index = (unsigned int)handle;
+		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_shaders.size()) return nullptr;
 		return &_shaders[index];
 	}
@@ -98,14 +98,14 @@ namespace graphics
 
 	Texture* _get_texture(TextureHandle handle)
 	{
-		const unsigned int index = (unsigned int)handle;
+		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_textures.size()) return nullptr;
 		return &_textures[index];
 	}
 
 	RenderTarget* _get_render_target(RenderTargetHandle handle)
 	{
-		const unsigned int index = (unsigned int)handle;
+		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_textures.size()) return nullptr;
 		return &_render_targets[index];
 	}
