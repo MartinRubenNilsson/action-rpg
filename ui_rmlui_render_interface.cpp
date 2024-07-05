@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ui_rmlui_render_interface.h"
 #include "graphics.h"
+#include "console.h"
 
 namespace ui
 {
@@ -122,8 +123,7 @@ namespace ui
 
 	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle)
 	{
-		//TODO: implement
-		//LEAK!!!!!!
+		graphics::destroy_texture(_from_rml_handle(texture_handle));
 	}
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
