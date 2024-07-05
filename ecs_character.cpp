@@ -72,7 +72,7 @@ namespace ecs
 		ch.hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 	}
 
-	graphics::TextureHandle create_character_texture(const Character& ch)
+	void regenerate_character_texture(Character& ch)
 	{
 		enum LookupTextureType
 		{
@@ -364,11 +364,11 @@ namespace ecs
 		const graphics::ShaderHandle shader = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/bake_character.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return graphics::TextureHandle::Invalid;
+		if (shader == graphics::ShaderHandle::Invalid) return;
 
 		// Aquire render target
 		const graphics::RenderTargetHandle render_target = graphics::acquire_pooled_render_target(1024, 1024);
-		if (render_target == graphics::RenderTargetHandle::Invalid) return graphics::TextureHandle::Invalid;
+		if (render_target == graphics::RenderTargetHandle::Invalid) return;
 
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -437,11 +437,9 @@ namespace ecs
 			graphics::draw_triangles(3);
 		}
 
-		const graphics::TextureHandle texture =
-			graphics::copy_texture(graphics::get_render_target_texture(render_target));
+		graphics::destroy_texture(ch.texture);
+		ch.texture = graphics::copy_texture(graphics::get_render_target_texture(render_target));
 		graphics::release_pooled_render_target(render_target);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
-		return texture;
 	}
 }

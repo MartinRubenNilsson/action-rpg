@@ -542,29 +542,30 @@ namespace graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
-		// CREATE HANDLE
+		// STORE TEXTURE
 
 		TextureHandle handle = TextureHandle::Invalid;
+		Texture* texture = nullptr;
+
 		if (_free_texture_handles.empty()) {
 			handle = (TextureHandle)_textures.size();
+			texture = &_textures.emplace_back();
 		} else {
 			handle = _free_texture_handles.back();
 			_free_texture_handles.pop_back();
+			texture = &_textures[get_handle_index(handle)];
 		}
 
-		// STORE TEXTURE
+		texture->handle = handle;
+		texture->name = _generate_unique_name(_texture_name_to_handle, name_hint);
+		texture->width = width;
+		texture->height = height;
+		texture->channels = channels;
+		texture->texture_object = texture_object;
+		_set_debug_label(GL_TEXTURE, texture_object, texture->name);
+		texture->filter = TextureFilter::Nearest;
 
-		Texture& texture = _textures.emplace_back();
-		texture.handle = handle;
-		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
-		texture.width = width;
-		texture.height = height;
-		texture.channels = channels;
-		texture.texture_object = texture_object;
-		_set_debug_label(GL_TEXTURE, texture_object, texture.name);
-		texture.filter = TextureFilter::Nearest;
-
-		_texture_name_to_handle[texture.name] = handle;
+		_texture_name_to_handle[texture->name] = handle;
 
 		return handle;
 	}
@@ -898,6 +899,7 @@ namespace graphics
 #ifdef DEBUG_IMGUI
 		ImGui::Begin("Textures");
 		for (const Texture& texture : _textures) {
+			if (texture.handle == TextureHandle::Invalid) continue;
 			if (ImGui::TreeNode(texture.name.c_str())) {
 				ImGui::Text("Size: %dx%d", texture.width, texture.height);
 				ImGui::Text("Channels: %d", texture.channels);

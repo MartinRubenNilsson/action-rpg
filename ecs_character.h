@@ -152,6 +152,8 @@ namespace ecs
 		Hat hat = Hat::None;
 		int hat_color_1 = 0;
 		int hat_color_2 = 0;
+
+		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
 	};
 
 	Character& emplace_character(entt::entity entity, const Character& ch = {});
@@ -161,5 +163,5 @@ namespace ecs
 	bool has_character(entt::entity entity);
 
 	void randomize_character(Character& ch);
-	graphics::TextureHandle create_character_texture(const Character& ch);
+	void regenerate_character_texture(Character& ch);
 }

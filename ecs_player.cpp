@@ -394,7 +394,7 @@ namespace ecs
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
-		for (auto [entity, player, body, tile] : _registry.view<Player, b2Body*, Tile>().each()) {
+		for (auto [entity, player, body, tile, character] : _registry.view<Player, b2Body*, Tile, Character>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
 			// For convenience, if there's just one player, open debug menu immediately. 
@@ -422,9 +422,9 @@ namespace ecs
 				player.rupees += 5;
 
 			if (ImGui::Button("Randomize Appearance")) {
-				Character character{};
 				randomize_character(character);
-				tile.texture = create_character_texture(character); // LEAK
+				regenerate_character_texture(character);
+				tile.texture = character.texture;
 			}
 
 			ImGui::Spacing(); //did this even do anything??

@@ -262,9 +262,10 @@ namespace map
 						ecs::randomize_character(character);
 					}
 					ecs::emplace_character(entity, character);
+					ecs::regenerate_character_texture(character);
 
 					if (tile) {
-						tile->texture = ecs::create_character_texture(character);
+						tile->texture = character.texture;
 					}
 
 				} else if (object.class_ == "slime") {
