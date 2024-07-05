@@ -3,6 +3,7 @@
 #include "console.h"
 #include <glad/glad.h>
 #pragma comment(lib, "opengl32")
+#include <ktx.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -80,8 +81,8 @@ namespace graphics
 
 	Shader* _get_shader(ShaderHandle handle)
 	{
-		const int index = (int)handle;
-		if (index < 0 || index >= (int)_shaders.size()) return nullptr;
+		const unsigned int index = (unsigned int)handle;
+		if (index >= (unsigned int)_shaders.size()) return nullptr;
 		return &_shaders[index];
 	}
 
@@ -97,15 +98,15 @@ namespace graphics
 
 	Texture* _get_texture(TextureHandle handle)
 	{
-		const int index = (int)handle;
-		if (index < 0 || index >= (int)_textures.size()) return nullptr;
+		const unsigned int index = (unsigned int)handle;
+		if (index >= (unsigned int)_textures.size()) return nullptr;
 		return &_textures[index];
 	}
 
 	RenderTarget* _get_render_target(RenderTargetHandle handle)
 	{
-		const int index = (int)handle;
-		if (index < 0 || index >= (int)_textures.size()) return nullptr;
+		const unsigned int index = (unsigned int)handle;
+		if (index >= (unsigned int)_textures.size()) return nullptr;
 		return &_render_targets[index];
 	}
 
@@ -602,6 +603,11 @@ namespace graphics
 			texture->width, texture->height, 1);
 
 		return copy_handle;
+	}
+
+	void destroy_texture(TextureHandle handle)
+	{
+		//TODO: implement
 	}
 
 	void bind_texture(unsigned int texture_unit, TextureHandle handle)

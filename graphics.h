@@ -63,6 +63,7 @@ namespace graphics
 		const std::string& name_hint = "texture");
 	TextureHandle load_texture(const std::string& path, bool flip_y = true);
 	TextureHandle copy_texture(TextureHandle handle);
+	void destroy_texture(TextureHandle handle);
 
 	void bind_texture(unsigned int texture_unit, TextureHandle handle);
 	void unbind_texture(unsigned int texture_unit);
