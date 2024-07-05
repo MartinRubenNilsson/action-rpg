@@ -8,6 +8,7 @@ namespace fonts
 {
 	struct Font
 	{
+		FontHandle handle = FontHandle::Invalid;
 		std::vector<unsigned char> data;
 		stbtt_fontinfo info{};
 	};
@@ -48,6 +49,7 @@ namespace fonts
 		const FontHandle handle = (FontHandle)_fonts.size();
 
 		Font& font = _fonts.emplace_back();
+		font.handle = handle;
 		font.data = std::move(buffer);
 		font.info = info;
 
