@@ -66,6 +66,7 @@ namespace graphics
 	std::vector<Shader> _shaders;
 	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
 	std::vector<Texture> _textures;
+	std::vector<TextureHandle> _free_texture_handles;
 	std::unordered_map<std::string, TextureHandle> _texture_name_to_handle;
 	std::vector<RenderTarget> _render_targets;
 	std::unordered_map<std::string, RenderTargetHandle> _render_target_name_to_handle;
@@ -541,9 +542,17 @@ namespace graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
-		// STORE TEXTURE
+		// CREATE HANDLE
 
-		const TextureHandle handle = (TextureHandle)_textures.size();
+		TextureHandle handle = TextureHandle::Invalid;
+		if (_free_texture_handles.empty()) {
+			handle = (TextureHandle)_textures.size();
+		} else {
+			handle = _free_texture_handles.back();
+			_free_texture_handles.pop_back();
+		}
+
+		// STORE TEXTURE
 
 		Texture& texture = _textures.emplace_back();
 		texture.handle = handle;
@@ -616,7 +625,12 @@ namespace graphics
 
 	void destroy_texture(TextureHandle handle)
 	{
-		//TODO: implement
+		Texture* texture = _get_texture(handle);
+		if (!texture) return;
+		_texture_name_to_handle.erase(texture->name);
+		glDeleteTextures(1, &texture->texture_object);
+		*texture = Texture();
+		_free_texture_handles.push_back(increment_handle_generation(handle));
 	}
 
 	void bind_texture(unsigned int texture_unit, TextureHandle handle)

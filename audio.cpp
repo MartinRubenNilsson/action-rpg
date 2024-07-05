@@ -43,10 +43,8 @@ namespace audio
 		const unsigned int index = get_handle_index(handle);
 		if (index >= (unsigned int)_events.size()) return FMOD_OK;
 		if (_events[index].first != handle) return FMOD_OK;
-		handle = increment_handle_generation(handle);
-		_events[index].first = handle;
-		_events[index].second = nullptr;
-		_free_event_handles.push_back(handle);
+		_events[index] = {};
+		_free_event_handles.push_back(increment_handle_generation(handle));
 		return FMOD_OK;
 	}
 
