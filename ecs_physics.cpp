@@ -22,11 +22,13 @@ namespace ecs
 		}
 	};
 
-	Vector2f _from_b2(const b2Vec2& vec) {
+	Vector2f _from_b2(const b2Vec2& vec)
+	{
 		return Vector2f(vec.x, vec.y);
 	}
 
-	Color _from_b2(const b2Color& color) {
+	Color _from_b2(const b2Color& color)
+	{
 		return Color(
 			(unsigned char)(color.r * 255),
 			(unsigned char)(color.g * 255),
@@ -65,16 +67,17 @@ namespace ecs
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
 	PhysicsContactListener _physics_contact_listener;
-	std::unique_ptr<b2World> _physics_world;
+	b2World* _physics_world = nullptr;
 	float _physics_time_accumulator = 0.f;
 
-	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity) {
+	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity)
+	{
 		_physics_world->DestroyBody(registry.get<b2Body*>(entity));
 	}
 
 	void initialize_physics()
 	{
-		_physics_world = std::make_unique<b2World>(b2Vec2(0.f, 0.f));
+		_physics_world = new b2World(b2Vec2(0.f, 0.f));
 		_physics_world->SetContactListener(&_physics_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 #ifdef _DEBUG
@@ -86,7 +89,8 @@ namespace ecs
 	void shutdown_physics()
 	{
 		_registry.on_destroy<b2Body*>().disconnect<_on_destroy_b2Body_ptr>();
-		_physics_world.reset();
+		delete _physics_world;
+		_physics_world = nullptr;
 	}
 
 	void update_physics(float dt)
@@ -109,11 +113,15 @@ namespace ecs
 		_physics_contact_listener.contacts.clear();
 	}
 
-	void debug_draw_physics() {
+	void debug_draw_physics()
+	{
+#ifdef _DEBUG
 		_physics_world->DebugDraw();
+#endif
 	}
 
-	bool has_body(entt::entity entity) {
+	bool has_body(entt::entity entity)
+	{
 		return _registry.all_of<b2Body*>(entity);
 	}
 
@@ -142,7 +150,8 @@ namespace ecs
 		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
 	}
 
-	b2Body* get_body(entt::entity entity) {
+	b2Body* get_body(entt::entity entity)
+	{
 		return _registry.get<b2Body*>(entity);
 	}
 
@@ -152,7 +161,8 @@ namespace ecs
 		return body_ptr ? *body_ptr : nullptr;
 	}
 
-	bool remove_body(entt::entity entity) {
+	bool remove_body(entt::entity entity)
+	{
 		return _registry.remove<b2Body*>(entity);
 	}
 
