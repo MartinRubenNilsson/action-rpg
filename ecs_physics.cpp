@@ -34,9 +34,9 @@ namespace ecs
 			(unsigned char)(color.a * 255));
 	}
 
+#ifdef _DEBUG
 	struct PhysicsDebugDrawer : b2Draw
 	{
-#ifdef _DEBUG
 		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
 			shapes::add_polygon_to_render_queue((const Vector2f*)vertices, vertexCount, _from_b2(color));
 		}
@@ -52,16 +52,12 @@ namespace ecs
 		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {
 			shapes::add_line_to_render_queue(_from_b2(p1), _from_b2(p2), _from_b2(color));
 		}
-#else // _DEBUG
-		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {}
-		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {}
-		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {}
-		void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override {}
-		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {}
-#endif // _DEBUG
 		void DrawTransform(const b2Transform& xf) override {}
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
 	};
+
+	PhysicsDebugDrawer _physics_debug_drawer;
+#endif // _DEBUG
 
 	extern entt::registry _registry;
 
@@ -69,7 +65,6 @@ namespace ecs
 	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
 	const int _PHYSICS_POSITION_ITERATIONS = 3;
 	PhysicsContactListener _physics_contact_listener;
-	PhysicsDebugDrawer _physics_debug_drawer;
 	std::unique_ptr<b2World> _physics_world;
 	float _physics_time_accumulator = 0.f;
 
@@ -79,11 +74,13 @@ namespace ecs
 
 	void initialize_physics()
 	{
-		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
 		_physics_world = std::make_unique<b2World>(b2Vec2(0.f, 0.f));
 		_physics_world->SetContactListener(&_physics_contact_listener);
-		_physics_world->SetDebugDraw(&_physics_debug_drawer);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
+#ifdef _DEBUG
+		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
+		_physics_world->SetDebugDraw(&_physics_debug_drawer);
+#endif
 	}
 
 	void shutdown_physics()
