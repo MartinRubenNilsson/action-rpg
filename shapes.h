@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _DEBUG
 
 namespace shapes
 {
@@ -13,3 +14,4 @@ namespace shapes
 	void add_circle_to_render_queue(const Vector2f& center, float radius, const Color& color = colors::WHITE, float lifetime = 0.f);
 }
 
+#endif // _DEBUG

@@ -46,6 +46,7 @@ namespace graphics
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 0;
+		unsigned int bytes = 0; // for debugging
 		GLuint texture_object = 0;
 		TextureFilter filter = TextureFilter::Nearest;
 	};
@@ -72,6 +73,7 @@ namespace graphics
 	std::unordered_map<std::string, RenderTargetHandle> _render_target_name_to_handle;
 	std::vector<RenderTargetHandle> _pooled_render_targets;
 	GLuint _last_bound_program_object = 0;
+	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
 	template <class NameContainer>
 	std::string _generate_unique_name(const NameContainer& name_container, const std::string& name_hint)
@@ -561,11 +563,13 @@ namespace graphics
 		texture->width = width;
 		texture->height = height;
 		texture->channels = channels;
+		texture->bytes = width * height * channels;
 		texture->texture_object = texture_object;
 		_set_debug_label(GL_TEXTURE, texture_object, texture->name);
 		texture->filter = TextureFilter::Nearest;
 
 		_texture_name_to_handle[texture->name] = handle;
+		_total_texture_memory_usage_in_bytes += texture->bytes;
 
 		return handle;
 	}
@@ -632,6 +636,7 @@ namespace graphics
 		glDeleteTextures(1, &texture->texture_object);
 		*texture = Texture();
 		_free_texture_handles.push_back(increment_handle_generation(handle));
+		_total_texture_memory_usage_in_bytes -= texture->bytes;
 	}
 
 	void bind_texture(unsigned int texture_unit, TextureHandle handle)
@@ -714,7 +719,7 @@ namespace graphics
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE) {
 			console::log_error("Failed to create render target: " + name_hint);
 			glDeleteFramebuffers(1, &framebuffer_object);
-			//TODO: delete texture
+			destroy_texture(texture_handle);
 			return RenderTargetHandle::Invalid;
 		}
 
@@ -898,11 +903,18 @@ namespace graphics
 	{
 #ifdef DEBUG_IMGUI
 		ImGui::Begin("Textures");
+		ImGui::Text("Total memory usage: %d MB", _total_texture_memory_usage_in_bytes / 1024 / 1024);
 		for (const Texture& texture : _textures) {
 			if (texture.handle == TextureHandle::Invalid) continue;
 			if (ImGui::TreeNode(texture.name.c_str())) {
-				ImGui::Text("Size: %dx%d", texture.width, texture.height);
-				ImGui::Text("Channels: %d", texture.channels);
+				ImGui::Text("Dimensions: %dx%dx%d", texture.width, texture.height, texture.channels);
+				unsigned int kb = texture.bytes / 1024;
+				unsigned int mb = kb / 1024;
+				if (mb) {
+					ImGui::Text("Memory: %d MB", mb);
+				} else {
+					ImGui::Text("Memory: %d KB", kb);
+				}
 				ImGui::Image((ImTextureID)(uintptr_t)texture.texture_object,
 					ImVec2((float)texture.width, (float)texture.height),
 					ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));

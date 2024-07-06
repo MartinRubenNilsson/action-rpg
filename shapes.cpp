@@ -1,10 +1,10 @@
 #include "stdafx.h"
+#ifdef _DEBUG
 #include "shapes.h"
 #include "graphics.h"
 
 namespace shapes
 {
-#ifdef _DEBUG
 	struct ViewBounds
 	{
 		float min_x = 0.f;
@@ -271,14 +271,6 @@ namespace shapes
 		//TODO: culling
 		_texts.emplace_back(string, position, lifetime);
 	}
-#else
-	void update(float) {}
-	void render(sf::RenderTarget&) {}
-	void draw_line(const Line&) {}
-	void draw_box(const Box&) {}
-	void draw_polygon(const Polygon&) {}
-	void draw_circle(const Circle&) {}
-	void draw_text(const Text&) {}
-#endif
 }
 
+#endif // _DEBUG

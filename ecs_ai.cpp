@@ -73,6 +73,7 @@ namespace ecs
 
     void debug_draw_ai()
     {
+#ifdef _DEBUG
         fonts::FontHandle font = fonts::load_font("assets/fonts/Helvetica.ttf");
 
         uint32_t paths_drawn = 0;
@@ -102,6 +103,7 @@ namespace ecs
                 ++paths_drawn;
             }
 		}
+#endif
     }
 
     void emplace_ai(entt::entity entity, AiType type)

@@ -162,7 +162,9 @@ int main(int argc, char* argv[])
 			game_world_dt = 0.f; // pause game while map is transitioning
         }
         ecs::update(game_world_dt);
+#ifdef _DEBUG
         shapes::update_lifetimes(game_world_dt); // why is this here??
+#endif
 
         postprocessing::update(game_world_dt);
 
@@ -244,7 +246,9 @@ int main(int argc, char* argv[])
         postprocessing::render(render_target, camera_min, camera_max);
 
         ecs::add_debug_shapes_to_render_queue();
+#ifdef _DEBUG
         shapes::render("Game World Debug", camera_min, camera_max);
+#endif
         ui::render();
 
 #ifdef DEBUG_IMGUI
