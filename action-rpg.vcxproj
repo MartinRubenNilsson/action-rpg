@@ -368,6 +368,7 @@
     <ClCompile Include="steam.cpp" />
     <ClCompile Include="steam_client.cpp" />
     <ClCompile Include="steam_server.cpp" />
+    <ClCompile Include="text.cpp" />
     <ClCompile Include="tiled.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="easings.cpp" />
@@ -422,6 +423,7 @@
     <ClInclude Include="handles.h" />
     <ClInclude Include="imgui_backends.h" />
     <ClInclude Include="renderdoc.h" />
+    <ClInclude Include="text.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="window_events.h" />

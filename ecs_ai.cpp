@@ -7,7 +7,7 @@
 #include "map_tilegrid.h"
 #include "random.h"
 #include "shapes.h"
-
+#include "text.h"
 #include "fonts.h"
 
 namespace ecs
@@ -63,8 +63,9 @@ namespace ecs
             switch (ai_type) {
             case AiType::Slime: {
                 Vector2f velocity = get_linear_velocity(body);
-                if (!is_zero(velocity))
+                if (!is_zero(velocity)) {
                     tile.set_tile(std::string() + get_direction(velocity));
+                }
                 tile.animation_speed = length(velocity) / 32.f;
             } break;
 			}
@@ -74,6 +75,23 @@ namespace ecs
     void debug_draw_ai()
     {
 #ifdef _DEBUG
+        text::Text text{};
+        text.font = fonts::load_font("assets/fonts/Helvetica.ttf");;
+#if 0
+        text.setCharacterSize(48);
+        text.setScale(0.1f, 0.1f);
+        text.setFillColor(colors::WHITE);
+        text.setOutlineColor(Color::Black);
+        text.setOutlineThickness(2.f);
+        for (const Text& t : _texts) {
+            //TODO: culling
+            text.setString(t.string);
+            text.setPosition(t.position);
+            text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
+            target.draw(text);
+        }
+#endif
+
         fonts::FontHandle font = fonts::load_font("assets/fonts/Helvetica.ttf");
 
         uint32_t paths_drawn = 0;

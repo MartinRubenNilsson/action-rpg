@@ -308,6 +308,9 @@
     <ClCompile Include="fonts.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="text.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -851,6 +854,9 @@
       <Filter>graphics\renderdoc</Filter>
     </ClInclude>
     <ClInclude Include="fonts.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="text.h">
       <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>

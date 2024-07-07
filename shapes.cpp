@@ -112,10 +112,11 @@ namespace shapes
 			if (vec[i].lifetime > 0.f) continue;
 			--size;
 			if (i == size) continue;
-			if constexpr (std::is_trivially_copyable_v<T>)
+			if constexpr (std::is_trivially_copyable_v<T>) {
 				memcpy(&vec[i], &vec[size], sizeof(T));
-			else
+			} else {
 				vec[i] = std::move(vec[size]);
+			}
 		}
 		vec.resize(size);
 	}
@@ -136,8 +137,7 @@ namespace shapes
 		_vertices.resize(line_count * 2);
 		for (size_t l = 0; l < line_count; ++l) {
 			const Line& line = _lines[l];
-			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2))
-				continue;
+			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2)) continue;
 			_vertices[2 * l + 0].position = line.p1;
 			_vertices[2 * l + 0].color = line.color;
 			_vertices[2 * l + 1].position = line.p2;
@@ -151,8 +151,7 @@ namespace shapes
 		if (_boxes.empty()) return;
 		graphics::Vertex vertices[4];
 		for (const Box& box : _boxes) {
-			if (_cull_box(_last_calculated_view_bounds, box.min, box.max))
-				continue;
+			if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
 			vertices[0].position = { box.min.x, box.min.y };
 			vertices[1].position = { box.max.x, box.min.y };
 			vertices[2].position = { box.max.x, box.max.y };
@@ -170,8 +169,7 @@ namespace shapes
 		if (_polygons.empty()) return;
 		graphics::Vertex vertices[MAX_POLYGON_VERTICES + 1];
 		for (const Polygon& polygon : _polygons) {
-			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count))
-				continue;
+			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count)) continue;
 			for (size_t i = 0; i < polygon.count; ++i) {
 				vertices[i].position = polygon.points[i];
 				vertices[i].color = polygon.color;
@@ -189,8 +187,7 @@ namespace shapes
 		constexpr float ANGLE_STEP = 6.283185307f / VERTEX_COUNT;
 		graphics::Vertex vertices[VERTEX_COUNT];
 		for (const Circle& circle : _circles) {
-			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius))
-				continue;
+			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
 			for (unsigned int i = 0; i < VERTEX_COUNT; ++i) {
 				const float angle = i * ANGLE_STEP;
 				vertices[i].position = circle.center + circle.radius * Vector2f{ std::cos(angle), std::sin(angle) };
@@ -199,29 +196,6 @@ namespace shapes
 			graphics::draw_line_loop(vertices, VERTEX_COUNT);
 		}
 	}
-
-#if 0
-	void _render_texts(sf::RenderTarget& target)
-	{
-		if (_texts.empty()) return;
-		std::shared_ptr<sf::Font> font = fonts::get("Helvetica");
-		if (!font) return;
-		sf::Text text{};
-		text.setFont(*font);
-		text.setCharacterSize(48);
-		text.setScale(0.1f, 0.1f);
-		text.setFillColor(colors::WHITE);
-		text.setOutlineColor(Color::Black);
-		text.setOutlineThickness(2.f);
-		for (const Text& t : _texts) {
-			//TODO: culling
-			text.setString(t.string);
-			text.setPosition(t.position);
-			text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
-			target.draw(text);
-		}
-	}
-#endif
 
 	void render(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
