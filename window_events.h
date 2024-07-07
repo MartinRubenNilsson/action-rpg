@@ -143,6 +143,16 @@ namespace window
 		Right = Button2,
 		Middle = Button3,
 	};
+	
+	enum MODIFIER_KEY_FLAGS
+	{
+		MODIFIER_KEY_SHIFT     = (1 << 1), // If this bit is set one or more Shift keys were held down.
+		MODIFIER_KEY_CONTROL   = (1 << 2), // If this bit is set one or more Control keys were held down.
+		MODIFIER_KEY_ALT       = (1 << 3), // If this bit is set one or more Alt keys were held down.
+		MODIFIER_KEY_SUPER     = (1 << 4), // If this bit is set one or more Super keys were held down.
+		MODIFIER_KEY_CAPS_LOCK = (1 << 5), // If this bit is set the Caps Lock key is enabled.
+		MODIFIER_KEY_NUM_LOCK  = (1 << 6), // If this bit is set the Num Lock key is enabled.
+	};
 
 	enum class EventType
 	{
@@ -167,13 +177,13 @@ namespace window
 	{
 		Key code;
 		int scancode;
-		//int mods;
+		int modifier_key_flags;
 	};
 
 	struct MouseButtonEvent
 	{
 		MouseButton button;
-		//int mods;
+		int modifier_key_flags;
 	};
 
 	struct MouseMoveEvent

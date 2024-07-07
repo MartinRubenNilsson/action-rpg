@@ -43,6 +43,17 @@ namespace window
 		_event_queue.push(ev);
 	}
 
+	int _translate_modifier_key_flags_from_glfw(int glfw_modifier_key_flags) {
+		int modifier_key_flags = 0;
+		if (glfw_modifier_key_flags & GLFW_MOD_SHIFT)     modifier_key_flags |= MODIFIER_KEY_SHIFT;
+		if (glfw_modifier_key_flags & GLFW_MOD_CONTROL)   modifier_key_flags |= MODIFIER_KEY_CONTROL;
+		if (glfw_modifier_key_flags & GLFW_MOD_ALT)       modifier_key_flags |= MODIFIER_KEY_ALT;
+		if (glfw_modifier_key_flags & GLFW_MOD_SUPER)     modifier_key_flags |= MODIFIER_KEY_SUPER;
+		if (glfw_modifier_key_flags & GLFW_MOD_CAPS_LOCK) modifier_key_flags |= MODIFIER_KEY_CAPS_LOCK;
+		if (glfw_modifier_key_flags & GLFW_MOD_NUM_LOCK)  modifier_key_flags |= MODIFIER_KEY_NUM_LOCK;
+		return modifier_key_flags;
+	}
+
 	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		Event ev{};
@@ -57,7 +68,7 @@ namespace window
 		}
 		ev.key.code = (Key)key;
 		ev.key.scancode = scancode;
-		//ev.key.mods = mods;
+		ev.key.modifier_key_flags = _translate_modifier_key_flags_from_glfw(mods);
 		_event_queue.push(ev);
 	}
 
@@ -72,7 +83,7 @@ namespace window
 			return;
 		}
 		ev.mouse_button.button = (MouseButton)button;
-		//ev.mouse_button.mods = mods;
+		ev.mouse_button.modifier_key_flags = _translate_modifier_key_flags_from_glfw(mods);
 		_event_queue.push(ev);
 	}
 

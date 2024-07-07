@@ -151,7 +151,7 @@ namespace ui
 		add_textbox_event_listeners();
 	}
 
-	Rml::Input::KeyIdentifier _window_key_to_rml_key(window::Key key)
+	Rml::Input::KeyIdentifier _translate_key_identifier_to_rml(window::Key key)
 	{
 		switch (key) {
 		case window::Key::A:         return Rml::Input::KI_A;
@@ -237,25 +237,25 @@ namespace ui
 		case window::Key::Space:     return Rml::Input::KI_SPACE;
 		//case window::Key::Subtract:  return Rml::Input::KI_SUBTRACT;
 		case window::Key::Tab:       return Rml::Input::KI_TAB;
-		default:                      return Rml::Input::KI_UNKNOWN;
+		default:                     return Rml::Input::KI_UNKNOWN;
 		}
+	}
+
+	int _translate_key_modifier_flags_to_rml(int key_modifier_flags)
+	{
+		int rml_key_modifiers = 0;
+		if (key_modifier_flags & window::MODIFIER_KEY_CONTROL)   rml_key_modifiers |= Rml::Input::KM_CTRL;
+		if (key_modifier_flags & window::MODIFIER_KEY_SHIFT)     rml_key_modifiers |= Rml::Input::KM_SHIFT;
+		if (key_modifier_flags & window::MODIFIER_KEY_ALT)       rml_key_modifiers |= Rml::Input::KM_ALT;
+		//if (key_modifier_flags & window::MODIFIER_KEY_SUPER)    rml_key_modifiers |= Rml::Input::KM_META; // Not sure if this is correct
+		if (key_modifier_flags & window::MODIFIER_KEY_CAPS_LOCK) rml_key_modifiers |= Rml::Input::KM_CAPSLOCK;
+		if (key_modifier_flags & window::MODIFIER_KEY_NUM_LOCK)  rml_key_modifiers |= Rml::Input::KM_NUMLOCK;
+		//if (key_modifier_flags & window::MODIFIER_KEY_SCROLL_LOCK) rml_key_modifiers |= Rml::Input::KM_SCROLLLOCK; // We don't have KEY_SCROLL_LOCK
+		return rml_key_modifiers;
 	}
 
 	void process_window_event(const window::Event& ev)
 	{
-		int key_modifier_state = 0;
-#if 0
-		if (window::Key::isKeyPressed(window::Key::LShift) ||
-			window::Key::isKeyPressed(window::Key::RShift))
-			key_modifier_state |= Rml::Input::KM_SHIFT;
-		if (window::Key::isKeyPressed(window::Key::LControl) ||
-			window::Key::isKeyPressed(window::Key::RControl))
-			key_modifier_state |= Rml::Input::KM_CTRL;
-		if (window::Key::isKeyPressed(window::Key::LAlt) ||
-			window::Key::isKeyPressed(window::Key::RAlt))
-			key_modifier_state |= Rml::Input::KM_ALT;
-#endif
-
 		switch (ev.type) {
 		case window::EventType::FramebufferSize: {
 			set_viewport(ev.size.width, ev.size.height);
@@ -272,12 +272,16 @@ namespace ui
 			if (ev.key.code == window::Key::Escape) {
 				_on_escape_key_pressed();
 			}
-			_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyDown(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			Rml::Input::KeyIdentifier key_identifier = _translate_key_identifier_to_rml(ev.key.code);
+			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.key.modifier_key_flags);
+			_context->ProcessKeyDown(key_identifier, key_modifier_flags);
+			_debugger_context->ProcessKeyDown(key_identifier, key_modifier_flags);
 		} break;
 		case window::EventType::KeyRelease: {
-			_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
-			_debugger_context->ProcessKeyUp(_window_key_to_rml_key(ev.key.code), key_modifier_state);
+			Rml::Input::KeyIdentifier key_identifier = _translate_key_identifier_to_rml(ev.key.code);
+			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.key.modifier_key_flags);
+			_context->ProcessKeyUp(key_identifier, key_modifier_flags);
+			_debugger_context->ProcessKeyUp(key_identifier, key_modifier_flags);
 		} break;
 		case window::EventType::MouseMove: {
 			// CRITICAL: We get big frame drops when calling ProcessMouseMove() a lot,
@@ -286,21 +290,24 @@ namespace ui
 			// Hence, let's only call ProcessMouseMove() when we're in a menu,
 			// since it's only then that we're using the mouse position (to press buttons).
 			if (get_top_menu() == MenuType::Count) break;
-			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
-			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_state);
+			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
+			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
+			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
 		} break;
-		case window::EventType::MouseButtonPress:
-			_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_state);
-			_debugger_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_state);
-			break;
-		case window::EventType::MouseButtonRelease:
-			_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_state);
-			_debugger_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_state);
-			break;
+		case window::EventType::MouseButtonPress: {
+			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
+			_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_flags);
+			_debugger_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_flags);
+		} break;
+		case window::EventType::MouseButtonRelease: {
+			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
+			_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_flags);
+			_debugger_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_flags);
+		} break;
 #if 0
 		case sf::Event::MouseWheelMoved:
-			_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
-			_debugger_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_state);
+			_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_flags);
+			_debugger_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_flags);
 			break;
 		case sf::Event::MouseLeft:
 			_context->ProcessMouseLeave();
