@@ -36,8 +36,8 @@ namespace ui
 
 	void initialize();
 	void shutdown();
-	void load_ttf_fonts(const std::filesystem::path& dir);
-	void load_rml_documents(const std::filesystem::path& dir);
+	void load_ttf_fonts(const std::string& dir);
+	void load_rml_documents(const std::string& dir);
 	void add_event_listeners();
 	void process_window_event(const window::Event& ev);
 	void update(float dt);

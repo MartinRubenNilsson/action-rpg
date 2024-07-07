@@ -262,18 +262,17 @@ namespace console
 		execute(command_line);
 	}
 
-	void execute_script(const std::string& script_name)
+	void execute_script_from_file(const std::string& path)
 	{
-		std::filesystem::path script_path = "assets/scripts/" + script_name;
-		script_path.replace_extension(".script");
-		std::ifstream script_file(script_path);
-		if (!script_file) {
-			log_error("Failed to open script: " + script_path.generic_string());
+		std::ifstream file(path);
+		if (!file) {
+			log_error("Failed to open script: " + path);
 			return;
 		}
 		std::string command_line;
-		while (std::getline(script_file, command_line))
+		while (std::getline(file, command_line)) {
 			execute(command_line, true);
+		}
 	}
 
 	void bind(window::Key key, const std::string& command_line) {

@@ -117,7 +117,7 @@ namespace ui
 		_debugger_context = nullptr;
 	}
 
-	void load_ttf_fonts(const std::filesystem::path& dir)
+	void load_ttf_fonts(const std::string& dir)
 	{
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::directory_iterator(dir)) {
@@ -127,7 +127,7 @@ namespace ui
 		}
 	}
 
-	void load_rml_documents(const std::filesystem::path& dir)
+	void load_rml_documents(const std::string& dir)
 	{
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::directory_iterator(dir)) {

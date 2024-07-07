@@ -113,7 +113,7 @@ namespace tiled
 		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
 
-	void load_assets(const std::filesystem::path& dir)
+	void load_assets(const std::string& dir)
 	{
 		// FIND AND ALLOCATE ROOM FOR TILESETS, TEMPLATES, AND MAPS
 		

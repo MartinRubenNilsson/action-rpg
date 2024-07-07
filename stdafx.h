@@ -3,6 +3,7 @@
 
 #include <deque>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -10,6 +11,7 @@
 #include <ranges>
 #include <set>
 #include <span>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

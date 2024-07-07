@@ -150,7 +150,7 @@ namespace tiled
 	};
 
 	// Loads all tilesets (.tsx), then all templates (.tx), then all maps (.tmx).
-	void load_assets(const std::filesystem::path& dir);
+	void load_assets(const std::string& dir);
 
 	std::span<const Map> get_maps();
 	std::span<const Tileset> get_tilesets();

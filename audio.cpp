@@ -110,7 +110,7 @@ namespace audio
 		_system = nullptr;
 	}
 
-	void load_bank_files(const std::filesystem::path& dir)
+	void load_bank_files(const std::string& dir)
 	{
 		for (const std::filesystem::directory_entry& entry :
 			std::filesystem::directory_iterator(dir)) {

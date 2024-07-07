@@ -145,7 +145,6 @@
   <ItemGroup>
     <ClCompile Include="audio.cpp" />
     <ClCompile Include="background.cpp" />
-    <ClCompile Include="clock.cpp" />
     <ClCompile Include="console.cpp" />
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
@@ -413,7 +412,6 @@
   <ItemGroup>
     <ClInclude Include="audio.h" />
     <ClInclude Include="background.h" />
-    <ClInclude Include="clock.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />

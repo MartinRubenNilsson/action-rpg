@@ -15,7 +15,6 @@
 #include "graphics.h"
 #include "shapes.h"
 #include "sprites.h"
-#include "clock.h"
 #include "renderdoc.h"
 #include "imgui_backends.h"
 
@@ -52,19 +51,23 @@ int main(int argc, char* argv[])
     // PREPARE FOR GAME LOOP
 
 #ifdef _DEBUG
-    //console::execute(argc, argv);
-    console::execute("execute_script martin_debug");
+    console::execute(argc, argv);
 #else
-    console::execute("execute_script martin_debug");
+    console::execute("execute_script assets/scripts/martin_debug.script");
 #endif
 
-    Clock clock;
     bool debug_stats = false;
     bool debug_textures = false;
 
     // GAME LOOP
 
+    double last_elapsed_time = window::get_elapsed_time();
+
     while (!window::should_close()) {
+
+        const double elapsed_time = window::get_elapsed_time();
+        const float main_delta_time = (float)(elapsed_time - last_elapsed_time);
+        last_elapsed_time = elapsed_time;
 
         steam::run_message_loop();
         window::poll_events();
@@ -142,31 +145,29 @@ int main(int argc, char* argv[])
         // UPDATE
 
         audio::update();
+        console::update(main_delta_time);
+        background::update(main_delta_time);
+        ui::update(main_delta_time);
 
-        const float main_dt = (float)clock.restart();
-        console::update(main_dt);
-        background::update(main_dt);
-        ui::update(main_dt);
-
-        float game_dt = main_dt;
+        float game_delta_time = main_delta_time;
         if (steam::is_overlay_active()) {
-            game_dt = 0.f;
+            game_delta_time = 0.f;
         }
         if (ui::is_menu_or_textbox_visible()) {
-            game_dt = 0.f;
+            game_delta_time = 0.f;
         }
-        map::update(game_dt);
+        map::update(game_delta_time);
 
-        float game_world_dt = game_dt;
+        float game_world_delta_time = game_delta_time;
         if (map::get_transition_progress() != 0.f) {
-			game_world_dt = 0.f; // pause game while map is transitioning
+			game_world_delta_time = 0.f; // pause game while map is transitioning
         }
-        ecs::update(game_world_dt);
+        ecs::update(game_world_delta_time);
 #ifdef _DEBUG
-        shapes::update_lifetimes(game_world_dt); // why is this here??
+        shapes::update_lifetimes(game_world_delta_time); // why is this here??
 #endif
 
-        postprocessing::update(game_world_dt);
+        postprocessing::update(game_world_delta_time);
 
         // RENDER
 
@@ -261,11 +262,11 @@ int main(int argc, char* argv[])
             static float dt_buffer[256] = { 0.f };
             static float fps_buffer[256] = { 0.f };
             static int buffer_offset = 0;
-            dt_buffer[buffer_offset] = main_dt;
-            fps_buffer[buffer_offset] = 1.f / main_dt;
+            dt_buffer[buffer_offset] = main_delta_time;
+            fps_buffer[buffer_offset] = 1.f / main_delta_time;
             buffer_offset = (buffer_offset + 1) % 256;
-            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_dt;
-            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_dt;
+            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_delta_time;
+            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_delta_time;
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];

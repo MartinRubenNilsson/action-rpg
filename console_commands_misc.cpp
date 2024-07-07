@@ -75,7 +75,7 @@ namespace console
 			cmd.desc = "Executes a console script";
 			cmd.params[0] = { "", "script_name", "The name of the script" };
 			cmd.callback = [](const Params& params) {
-				execute_script(std::get<std::string>(params[0].arg));
+				execute_script_from_file(std::get<std::string>(params[0].arg));
 			};
 		}
 		{

@@ -22,9 +22,7 @@ namespace console
 	void log_error(const std::string& message, bool show_console = true);
 	void execute(const std::string& command_line, bool defer = false);
 	void execute(int argc, char* argv[]);
-	// Scripts are kept in the assets/scripts folder.
-	// The script name should not include the .script extension.
-	void execute_script(const std::string& script_name);
+	void execute_script_from_file(const std::string& path);
 	void bind(window::Key key, const std::string& command_line);
 	void bind(const std::string& key_string, const std::string& command_line);
 	void unbind(window::Key key);
