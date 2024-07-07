@@ -110,24 +110,19 @@ namespace audio
 		_system = nullptr;
 	}
 
-	void load_bank_files(const std::string& dir)
-	{
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator(dir)) {
-			if (!entry.is_regular_file()) continue;
-			if (entry.path().extension() != ".bank") continue;
-			FMOD::Studio::Bank* bank = nullptr;
-			FMOD_RESULT result = _system->loadBankFile(
-				entry.path().string().c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
-			if (result != FMOD_OK && log_errors)
-				console::log_error("Failed to load audio bank: " + entry.path().string());
-		}
-	}
-
 	void update()
 	{
 		_system->update();
 		_events_played_this_frame.clear();
+	}
+
+	void load_bank_from_file(const std::string& path)
+	{
+		FMOD::Studio::Bank* bank = nullptr;
+		FMOD_RESULT result = _system->loadBankFile(path.c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
+		if (result != FMOD_OK && log_errors) {
+			console::log_error("Failed to load audio bank: " + path);
+		}
 	}
 
 	FMOD_3D_ATTRIBUTES _pos_to_3d_attributes(const Vector2f& position)

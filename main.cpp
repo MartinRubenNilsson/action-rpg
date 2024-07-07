@@ -37,10 +37,23 @@ int main(int argc, char* argv[])
     ui::initialize();
     ecs::initialize();
 
-    audio::load_bank_files("assets/audio/banks");
+    for (const auto& entry : std::filesystem::directory_iterator("assets/audio/banks")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".bank") continue;
+        audio::load_bank_from_file(entry.path().string());
+    }
+    for (const auto& entry : std::filesystem::directory_iterator("assets/fonts")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".ttf") continue;
+        ui::load_font_from_file(entry.path().string());
+    }
+    for (const auto& entry : std::filesystem::directory_iterator("assets/ui")) {
+        if (!entry.is_regular_file()) continue;
+        if (entry.path().extension() != ".rml") continue;
+        ui::load_document_from_file(entry.path().string());
+    }
     tiled::load_assets("assets/tiled");
-    ui::load_ttf_fonts("assets/fonts");
-    ui::load_rml_documents("assets/ui");
+
     ui::add_event_listeners(); // Must come after loading RML documents.
 
     settings::load_from_file();

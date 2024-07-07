@@ -117,40 +117,6 @@ namespace ui
 		_debugger_context = nullptr;
 	}
 
-	void load_ttf_fonts(const std::string& dir)
-	{
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator(dir)) {
-			if (!entry.is_regular_file()) continue;
-			if (entry.path().extension() != ".ttf") continue;
-			Rml::LoadFontFace(entry.path().string());
-		}
-	}
-
-	void load_rml_documents(const std::string& dir)
-	{
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::directory_iterator(dir)) {
-			if (entry.path().extension() != ".rml") continue;
-			Rml::ElementDocument* doc = _context->LoadDocument(entry.path().string());
-			if (!doc) continue;
-			doc->SetId(entry.path().stem().string());
-		}
-	}
-
-	void add_event_listeners()
-	{
-		// Add common event listener to all documents.
-		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
-			Rml::ElementDocument* doc = _context->GetDocument(i);
-			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
-			doc->AddEventListener(Rml::EventId::Click, &_common_event_listener);
-		}
-
-		add_menu_event_listeners();
-		add_textbox_event_listeners();
-	}
-
 	Rml::Input::KeyIdentifier _translate_key_identifier_to_rml(window::Key key)
 	{
 		switch (key) {
@@ -349,6 +315,34 @@ namespace ui
 		_context->Render();
 		_debugger_context->Render();
 		restore_render_state();
+	}
+
+	void load_font_from_file(const std::string& path)
+	{
+		Rml::LoadFontFace(path);
+	}
+
+	void load_document_from_file(const std::string& path)
+	{
+		Rml::ElementDocument* doc = _context->LoadDocument(path);
+		if (!doc) {
+			console::log_error("Failed to load RmlUi document: " + path);
+			return;
+		}
+		doc->SetId(std::filesystem::path(path).stem().string());
+	}
+
+	void add_event_listeners()
+	{
+		// Add common event listener to all documents.
+		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
+			Rml::ElementDocument* doc = _context->GetDocument(i);
+			doc->AddEventListener(Rml::EventId::Mouseover, &_common_event_listener);
+			doc->AddEventListener(Rml::EventId::Click, &_common_event_listener);
+		}
+
+		add_menu_event_listeners();
+		add_textbox_event_listeners();
 	}
 
 	void reload_styles()

@@ -10,8 +10,8 @@ namespace audio
 
 	void initialize();
 	void shutdown();
-	void load_bank_files(const std::string& dir);
 	void update();
+	void load_bank_from_file(const std::string& path);
 
 	// LISTENERS
 
