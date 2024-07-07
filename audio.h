@@ -38,7 +38,6 @@ namespace audio
 		bool release = true;
 	};
 
-	// Returns EventHandle::Invalid on failure.
 	EventHandle play(const std::string& event_path, const EventOptions& options = EventOptions());
 	bool stop(EventHandle handle);
 	bool set_volume(EventHandle handle, float volume);
