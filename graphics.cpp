@@ -6,6 +6,7 @@
 #include <ktx.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include "filesystem.h"
 
 namespace graphics
 {
@@ -578,7 +579,7 @@ namespace graphics
 	{
 		// CHECK IF ALREADY LOADED
 
-		const std::string normalized_path = std::filesystem::path(path).lexically_normal().string();
+		const std::string normalized_path = filesystem::get_normalized_path(path);
 		const auto it = _texture_name_to_handle.find(normalized_path);
 		if (it != _texture_name_to_handle.end()) {
 			return it->second;

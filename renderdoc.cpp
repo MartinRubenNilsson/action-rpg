@@ -5,6 +5,7 @@
 #include <shellapi.h> // ShellExecuteW
 #include <renderdoc/renderdoc_app.h>
 #include "console.h"
+#include "filesystem.h"
 
 namespace renderdoc
 {
@@ -34,9 +35,9 @@ namespace renderdoc
 		if (!_rdoc_api->IsFrameCapturing()) return;
 		const char* path_cstr = _rdoc_api->GetCaptureFilePathTemplate();
 		if (!path_cstr) return;
-		std::filesystem::path path(path_cstr);
-		path = path.parent_path();
-		ShellExecuteW(0, L"open", path.c_str(), 0, 0, SW_SHOWNORMAL);
+		std::string parent_path = filesystem::get_parent_path(path_cstr);
+		std::wstring parent_path_wstring(parent_path.begin(), parent_path.end());
+		ShellExecuteW(0, L"open", parent_path_wstring.c_str(), 0, 0, SW_SHOWNORMAL);
 	}
 }
 

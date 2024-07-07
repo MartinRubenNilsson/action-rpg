@@ -2,6 +2,7 @@
 #include "tiled.h"
 #include <pugixml.hpp>
 #include "console.h"
+#include "filesystem.h"
 
 namespace tiled
 {
@@ -147,13 +148,10 @@ namespace tiled
 			tileset.columns = tileset_node.attribute("columns").as_uint();
 			tileset.spacing = tileset_node.attribute("spacing").as_uint();
 			tileset.margin = tileset_node.attribute("margin").as_uint();
-			{
-				std::filesystem::path image_path = tileset.path;
-				image_path = image_path.parent_path();
-				image_path /= tileset_node.child("image").attribute("source").as_string();
-				image_path = image_path.lexically_normal();
-				tileset.image_path = image_path.string();
-			}
+			tileset.image_path = filesystem::get_parent_path(tileset.path);
+			tileset.image_path += '/';
+			tileset.image_path += tileset_node.child("image").attribute("source").as_string();
+			tileset.image_path = filesystem::get_normalized_path(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
 			for (uint32_t id = 0; id < tileset.tile_count; ++id) {
@@ -242,10 +240,10 @@ namespace tiled
 					console::log_error("Embedded tilesets are not supported: " + template_.path);
 					continue;
 				}
-				std::filesystem::path tileset_path = template_.path;
-				tileset_path = tileset_path.parent_path();
-				tileset_path /= source_attribute.as_string();
-				tileset_path = tileset_path.lexically_normal();
+				std::string tileset_path = filesystem::get_parent_path(template_.path);
+				tileset_path += '/';
+				tileset_path += source_attribute.as_string();
+				tileset_path = filesystem::get_normalized_path(tileset_path);
 				uint32_t gid_with_flip_flags = object_node.attribute("gid").as_uint();
 				uint32_t gid = _get_gid(gid_with_flip_flags);
 				uint32_t id = gid - tileset_node.attribute("firstgid").as_uint();
@@ -275,7 +273,7 @@ namespace tiled
 				continue;
 			}
 			pugi::xml_node map_node = doc.child("map");
-			map.name = std::filesystem::path(map.path).stem().string();
+			map.name = filesystem::get_stem(map.path);
 			map.class_ = map_node.attribute("class").as_string();
 			map.width = map_node.attribute("width").as_uint();
 			map.height = map_node.attribute("height").as_uint();
@@ -294,10 +292,10 @@ namespace tiled
 					console::log_error("Embedded tilesets are not supported: " + map.path);
 					continue;
 				}
-				std::filesystem::path tileset_path = map.path;
-				tileset_path = tileset_path.parent_path();
-				tileset_path /= source_attribute.as_string();
-				tileset_path = tileset_path.lexically_normal();
+				std::string tileset_path = filesystem::get_parent_path(map.path);
+				tileset_path += '/';
+				tileset_path += source_attribute.as_string();
+				tileset_path = filesystem::get_normalized_path(tileset_path);
 				bool found = false;
 				for (const Tileset& tileset : _tilesets) {
 					if (tileset.path == tileset_path) {
@@ -307,7 +305,7 @@ namespace tiled
 					}
 				}
 				if (!found)
-					console::log_error("Failed to find tileset: " + tileset_path.string());
+					console::log_error("Failed to find tileset: " + tileset_path);
 			}
 			std::vector<pugi::xml_node> layer_node_stack;
 			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children()))
@@ -362,10 +360,10 @@ namespace tiled
 					for (pugi::xml_node object_node : layer_node.children("object")) {
 						Object& object = layer.objects.emplace_back();
 						if (pugi::xml_attribute template_attribute = object_node.attribute("template")) {
-							std::filesystem::path template_path = map.path;
-							template_path = template_path.parent_path();
-							template_path /= template_attribute.as_string();
-							template_path = template_path.lexically_normal();
+							std::string template_path = filesystem::get_parent_path(map.path);
+							template_path += '/';
+							template_path += template_attribute.as_string();
+							template_path = filesystem::get_normalized_path(template_path);
 							bool found = false;
 							for (const Object& template_ : _templates) {
 								if (template_.path == template_path) {
@@ -375,7 +373,7 @@ namespace tiled
 								}
 							}
 							if (!found)
-								console::log_error("Failed to find template: " + template_path.string());
+								console::log_error("Failed to find template: " + template_path);
 						}
 						_load_object(object_node, object);
 						if (pugi::xml_attribute gid_attribute = object_node.attribute("gid")) {

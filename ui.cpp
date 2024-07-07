@@ -11,6 +11,7 @@
 #include "audio.h"
 #include "window.h"
 #include "window_events.h"
+#include "filesystem.h"
 
 namespace ui
 {
@@ -329,7 +330,7 @@ namespace ui
 			console::log_error("Failed to load RmlUi document: " + path);
 			return;
 		}
-		doc->SetId(std::filesystem::path(path).stem().string());
+		doc->SetId(filesystem::get_stem(path));
 	}
 
 	void add_event_listeners()
