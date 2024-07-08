@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "steam.h"
+#include "filesystem.h"
 #include "window.h"
 #include "window_events.h"
 #include "audio.h"
@@ -24,6 +25,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     steam::initialize(); // Fails silently if Steam is not running.
+    filesystem::initialize();
 #ifdef DEBUG_RENDERDOC
     renderdoc::initialize();
 #endif
