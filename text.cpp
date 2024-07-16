@@ -7,13 +7,8 @@ namespace text
 {
 	void render(const Text& text)
 	{
-        if (text.string.empty()) return;
-
 #if 0
-        // Clear the previous geometry
-        m_vertices.clear();
-        m_outlineVertices.clear();
-        m_bounds = FloatRect();
+        if (text.string.empty()) return;
 
 #if 0
         // Compute values related to the text style
@@ -21,37 +16,45 @@ namespace text
         const bool  isUnderlined = m_style & Underlined;
         const bool  isStrikeThrough = m_style & StrikeThrough;
         const float italicShear = (m_style & Italic) ? degrees(12).asRadians() : 0.f;
-        const float underlineOffset = m_font->getUnderlinePosition(m_characterSize);
-        const float underlineThickness = m_font->getUnderlineThickness(m_characterSize);
+        const float underlineOffset = m_font->getUnderlinePosition(text.character_size);
+        const float underlineThickness = m_font->getUnderlineThickness(text.character_size);
+#else
+        const bool isBold = false;
+        const bool isUnderlined = false;
+        const bool isStrikeThrough = false;
+        const float italicShear = 0.f
 #endif
 
         // Compute the location of the strike through dynamically
         // We use the center point of the lowercase 'x' glyph as the reference
         // We reuse the underline thickness as the thickness of the strike through as well
-        const float strikeThroughOffset = m_font->getGlyph(U'x', m_characterSize, isBold).bounds.getCenter().y;
+        const float strikeThroughOffset = m_font->getGlyph(U'x', text.character_size, isBold).bounds.getCenter().y;
 
         // Precompute the variables needed by the algorithm
-        float       whitespaceWidth = m_font->getGlyph(U' ', m_characterSize, isBold).advance;
-        const float letterSpacing = (whitespaceWidth / 3.f) * (m_letterSpacingFactor - 1.f);
+        float       whitespaceWidth = m_font->getGlyph(U' ', text.character_size, isBold).advance;
+        const float letterSpacing = (whitespaceWidth / 3.f) * (text.letter_spacing_factor - 1.f);
         whitespaceWidth += letterSpacing;
-        const float lineSpacing = m_font->getLineSpacing(m_characterSize) * m_lineSpacingFactor;
+        const float lineSpacing = m_font->getLineSpacing(text.character_size) * text.line_spacing_factor;
         float       x = 0.f;
-        auto        y = static_cast<float>(m_characterSize);
+        auto        y = static_cast<float>(text.character_size);
 
         // Create one quad for each character
-        auto          minX = static_cast<float>(m_characterSize);
-        auto          minY = static_cast<float>(m_characterSize);
-        float         maxX = 0.f;
-        float         maxY = 0.f;
-        std::uint32_t prevChar = 0;
-        for (const std::uint32_t curChar : m_string) {
+        std::vector<graphics::Vertex> vertices;
+        uint32_t prevChar = 0;
+        float minX = (float)text.character_size;
+        float minY = (float)text.character_size;
+        float maxX = 0.f;
+        float maxY = 0.f;
+
+        for (const uint32_t curChar : text.string) {
             // Skip the \r char to avoid weird graphical issues
             if (curChar == U'\r')
                 continue;
 
             // Apply the kerning offset
-            x += m_font->getKerning(prevChar, curChar, m_characterSize, isBold);
+            x += m_font->getKerning(prevChar, curChar, text.character_size, isBold);
 
+#if 0
             // If we're using the underlined style and there's a new line, draw a line
             if (isUnderlined && (curChar == U'\n' && prevChar != U'\n')) {
                 addLine(m_vertices, x, y, m_fillColor, underlineOffset, underlineThickness);
@@ -67,6 +70,7 @@ namespace text
                 if (m_outlineThickness != 0)
                     addLine(m_outlineVertices, x, y, m_outlineColor, strikeThroughOffset, underlineThickness, m_outlineThickness);
             }
+#endif
 
             prevChar = curChar;
 
@@ -99,14 +103,14 @@ namespace text
 
             // Apply the outline
             if (m_outlineThickness != 0) {
-                const Glyph& glyph = m_font->getGlyph(curChar, m_characterSize, isBold, m_outlineThickness);
+                const Glyph& glyph = m_font->getGlyph(curChar, text.character_size, isBold, m_outlineThickness);
 
                 // Add the outline glyph to the vertices
                 addGlyphQuad(m_outlineVertices, Vector2f(x, y), m_outlineColor, glyph, italicShear);
             }
 
             // Extract the current glyph's description
-            const Glyph& glyph = m_font->getGlyph(curChar, m_characterSize, isBold);
+            const Glyph& glyph = m_font->getGlyph(curChar, text.character_size, isBold);
 
             // Add the glyph to the vertices
             addGlyphQuad(m_vertices, Vector2f(x, y), m_fillColor, glyph, italicShear);
@@ -124,6 +128,7 @@ namespace text
             x += glyph.advance + letterSpacing;
         }
 
+#if 0
         // If we're using outline, update the current bounds
         if (m_outlineThickness != 0) {
             const float outline = std::abs(std::ceil(m_outlineThickness));
@@ -148,10 +153,7 @@ namespace text
             if (m_outlineThickness != 0)
                 addLine(m_outlineVertices, x, y, m_outlineColor, strikeThroughOffset, underlineThickness, m_outlineThickness);
         }
-
-        // Update the bounding rectangle
-        m_bounds.position = Vector2f(minX, minY);
-        m_bounds.size = Vector2f(maxX, maxY) - Vector2f(minX, minY);
+#endif
 #endif
 	}
 }
