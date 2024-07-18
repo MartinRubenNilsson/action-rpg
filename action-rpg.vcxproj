@@ -152,6 +152,7 @@
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
+    <ClCompile Include="pool.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp">
@@ -420,8 +421,10 @@
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
-    <ClInclude Include="handles.h" />
+    <ClInclude Include="handle.h" />
+    <ClInclude Include="handles_fwd.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />

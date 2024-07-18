@@ -1,8 +1,9 @@
 #pragma once
+#include "handle.h"
 
 namespace audio
 {
-	enum class EventHandle : unsigned int { Invalid = UINT_MAX };
+	struct Event;
 }
 
 namespace graphics

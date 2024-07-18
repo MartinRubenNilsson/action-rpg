@@ -284,9 +284,6 @@
       <Filter>application</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="clock.cpp">
-      <Filter>utilities</Filter>
-    </ClCompile>
     <ClCompile Include="timer.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
@@ -310,6 +307,12 @@
     </ClCompile>
     <ClCompile Include="text.cpp">
       <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
+    <ClCompile Include="pool.cpp">
+      <Filter>utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -821,9 +824,6 @@
     <ClInclude Include="properties.h">
       <Filter>utilities</Filter>
     </ClInclude>
-    <ClInclude Include="clock.h">
-      <Filter>utilities</Filter>
-    </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>utilities</Filter>
     </ClInclude>
@@ -846,7 +846,7 @@
     <ClInclude Include="ui_rmlui_system_interface.h">
       <Filter>ui\rmlui_interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="handles.h" />
+    <ClInclude Include="handles_fwd.h" />
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h">
       <Filter>graphics\renderdoc</Filter>
     </ClInclude>
@@ -858,6 +858,15 @@
     </ClInclude>
     <ClInclude Include="text.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="filesystem.h">
+      <Filter>application</Filter>
+    </ClInclude>
+    <ClInclude Include="pool.h">
+      <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="handle.h">
+      <Filter>utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
