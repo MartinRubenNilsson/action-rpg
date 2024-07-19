@@ -11,16 +11,16 @@ namespace ui
 	bool _previous_scissor_test_enabled = false;
 	int _previous_scissor_box[4] = { 0 };
 
-	Rml::TextureHandle _to_rml_handle(graphics::TextureHandle handle)
+	Rml::TextureHandle _to_rml_handle(Handle<graphics::Texture> handle)
 	{
-		// Our texture handles start from 0, but Rml::TextureHandle uses 0 as an invalid value.
-		return (Rml::TextureHandle)((int)handle + 1);
+		// PITFALL: 0 represents an invalid Rml::TextureHandle.
+		return *(Rml::TextureHandle*)&handle;
 	}
 
-	graphics::TextureHandle _from_rml_handle(Rml::TextureHandle handle)
+	Handle<graphics::Texture> _from_rml_handle(Rml::TextureHandle handle)
 	{
-		// Our texture handles start from 0, but Rml::TextureHandle uses 0 as an invalid value.
-		return (graphics::TextureHandle)((int)handle - 1);
+		// PITFALL: 0 represents an invalid Rml::TextureHandle.
+		return *(Handle<graphics::Texture>*)&handle;
 	}
 
 	void set_viewport(int viewport_width, int viewport_height)
@@ -99,8 +99,8 @@ namespace ui
 		Rml::Vector2i& texture_dimensions,
 		const Rml::String& source)
 	{
-		const graphics::TextureHandle texture = graphics::load_texture(source, false);
-		if (texture == graphics::TextureHandle::Invalid) return false;
+		const Handle<graphics::Texture> texture = graphics::load_texture(source, false);
+		if (texture == Handle<graphics::Texture>()) return false;
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 		texture_handle = _to_rml_handle(texture);
@@ -114,9 +114,9 @@ namespace ui
 		const Rml::byte* source,
 		const Rml::Vector2i& source_dimensions)
 	{
-		const graphics::TextureHandle texture = graphics::create_texture(
+		const Handle<graphics::Texture> texture = graphics::create_texture(
 			source_dimensions.x, source_dimensions.y, 4, source, "rmlui texture");
-		if (texture == graphics::TextureHandle::Invalid) return false;
+		if (texture == Handle<graphics::Texture>()) return false;
 		texture_handle = _to_rml_handle(texture);
 		return true;
 	}

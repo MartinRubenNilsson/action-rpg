@@ -44,7 +44,7 @@ namespace sprites
 	unsigned int _batches_drawn = 0;
 	unsigned int _vertices_in_largest_batch = 0;
 
-	void _render_batch(graphics::ShaderHandle shader, graphics::TextureHandle texture)
+	void _render_batch(Handle<graphics::Shader> shader, Handle<graphics::Texture> texture)
 	{
 		graphics::bind_shader(shader);
 		graphics::set_uniform_1i(shader, "tex", 0);
@@ -87,8 +87,8 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
-		graphics::ShaderHandle last_shader = graphics::ShaderHandle::Invalid;
-		graphics::TextureHandle last_texture = graphics::TextureHandle::Invalid;
+		Handle<graphics::Shader> last_shader = Handle<graphics::Shader>();
+		Handle<graphics::Texture> last_texture;
 
 		for (unsigned int i = 0; i < _sprites; ++i) {
 			Sprite& sprite = _sprite_buffer[_sprites_by_draw_order[i]];

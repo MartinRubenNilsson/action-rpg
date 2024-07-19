@@ -153,7 +153,7 @@ namespace ecs
 		int hat_color_1 = 0;
 		int hat_color_2 = 0;
 
-		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
+		Handle<graphics::Texture> texture;
 	};
 
 	Character& emplace_character(entt::entity entity, const Character& ch = {});

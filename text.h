@@ -4,7 +4,7 @@ namespace text
 {
 	struct Text
 	{
-		fonts::FontHandle font = fonts::FontHandle::Invalid;
+		Handle<fonts::Font> font;
 		std::u32string string;
 		unsigned int character_size = 30;
 		float letter_spacing_factor = 1.f;

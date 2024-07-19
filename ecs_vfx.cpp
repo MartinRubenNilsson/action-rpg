@@ -23,7 +23,7 @@ namespace ecs
     {
         sprites::Sprite sprite{};
         for (auto [entity, vfx] : _registry.view<const Vfx>().each()) {
-            if (vfx.texture == graphics::TextureHandle::Invalid) continue;
+            if (vfx.texture == Handle<graphics::Texture>()) continue;
             if (!vfx.frame_rows) continue;
             if (!vfx.frame_cols) continue;
             if (vfx.time < 0.f) continue;

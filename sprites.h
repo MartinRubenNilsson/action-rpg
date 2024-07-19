@@ -2,7 +2,7 @@
 
 namespace graphics
 {
-	extern ShaderHandle sprite_shader;
+	extern Handle<Shader> sprite_shader;
 }
 
 namespace sprites
@@ -32,8 +32,8 @@ namespace sprites
 	struct Sprite
 	{
 		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
-		graphics::ShaderHandle shader = graphics::sprite_shader;
-		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
+		Handle<graphics::Shader> shader = graphics::sprite_shader;
+		Handle<graphics::Texture> texture;
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
 		Vector2f tex_min = { 0.f, 1.f }; // top-left corner normalized texture coordinates

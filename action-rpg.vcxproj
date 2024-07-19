@@ -422,7 +422,7 @@
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="handle.h" />
-    <ClInclude Include="handles_fwd.h" />
+    <ClInclude Include="fwd.h" />
     <ClInclude Include="imgui_backends.h" />
     <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />

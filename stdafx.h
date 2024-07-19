@@ -36,7 +36,8 @@ using namespace std::literals::string_literals;
 
 #include <magic_enum.hpp>
 
+#include "fwd.h"
+#include "handle.h"
 #include "vector2.h"
 #include "color.h"
 #include "math.h"
-#include "handles_fwd.h"

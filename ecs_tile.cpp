@@ -47,7 +47,7 @@ namespace ecs
 		}
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
-		if (texture == graphics::TextureHandle::Invalid) {
+		if (texture == Handle<graphics::Texture>()) {
 			texture = graphics::load_texture(tile->tileset->image_path);
 		}
 		return true;
@@ -228,7 +228,7 @@ namespace ecs
 			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TF_VISIBLE)) continue;
 			sprite.texture = tile.texture;
-			if (sprite.texture == graphics::TextureHandle::Invalid) continue;
+			if (sprite.texture == Handle<graphics::Texture>()) continue;
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
@@ -260,7 +260,7 @@ namespace ecs
 			sprite.pre_render_callback = nullptr;
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
-					if (sprite.shader == graphics::ShaderHandle::Invalid) return;
+					if (sprite.shader == Handle<graphics::Shader>()) return;
 					graphics::set_uniform_1i(sprite.shader, "tex", 0);
 					graphics::set_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
 					graphics::set_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);

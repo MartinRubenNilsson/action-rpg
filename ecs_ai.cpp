@@ -92,7 +92,7 @@ namespace ecs
         }
 #endif
 
-        fonts::FontHandle font = fonts::load_font("assets/fonts/Helvetica.ttf");
+        Handle<fonts::Font> font = fonts::load_font("assets/fonts/Helvetica.ttf");
 
         uint32_t paths_drawn = 0;
 

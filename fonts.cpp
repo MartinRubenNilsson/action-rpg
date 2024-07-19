@@ -2,21 +2,22 @@
 #include "fonts.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
+#include "pool.h"
 #include "console.h"
 
 namespace fonts
 {
 	struct Font
 	{
-		FontHandle handle = FontHandle::Invalid;
+		std::string path;
 		std::vector<unsigned char> data;
 		stbtt_fontinfo info{};
 	};
 
-	std::vector<Font> _fonts;
-	std::unordered_map<std::string, FontHandle> _font_path_to_handle;
+	Pool<Font> _font_pool;
+	std::unordered_map<std::string, Handle<Font>> _font_path_to_handle;
 
-	FontHandle load_font(const std::string& path)
+	Handle<Font> load_font(const std::string& path)
 	{
 		// CHECK IF FONT ALREADY LOADED
 
@@ -30,29 +31,27 @@ namespace fonts
 		std::ifstream file(path, std::ios::binary);
 		if (!file) {
 			console::log_error("Failed to open font file: " + path);
-			return FontHandle::Invalid;
+			return Handle<Font>();
 		}
 
 		file.seekg(0, std::ios::end);
 		size_t size = file.tellg();
 		file.seekg(0, std::ios::beg);
 
-		std::vector<unsigned char> buffer(size);
-		file.read(reinterpret_cast<char*>(buffer.data()), size);
+		Font font{};
+		font.path = path;
+		font.data.resize(size);
+		file.read(reinterpret_cast<char*>(font.data.data()), size);
 
 		stbtt_fontinfo info{};
-		if (!stbtt_InitFont(&info, buffer.data(), 0)) {
+		if (!stbtt_InitFont(&font.info, font.data.data(), 0)) {
 			console::log_error("Failed to load font: " + path);
-			return FontHandle::Invalid;
+			return Handle<Font>();
 		}
 
-		const FontHandle handle = (FontHandle)_fonts.size();
-
-		Font& font = _fonts.emplace_back();
-		font.handle = handle;
-		font.data = std::move(buffer);
-		font.info = info;
-
+		// IMPORTANT: We must move construct the font, otherwise
+		// font.data is reallocated and font.info invalidated.
+		const Handle<Font> handle = _font_pool.emplace(std::move(font));
 		_font_path_to_handle[path] = handle;
 
 		return handle;

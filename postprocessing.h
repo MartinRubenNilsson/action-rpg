@@ -16,7 +16,7 @@ namespace postprocessing
 	extern const size_t MAX_GAUSSIAN_BLUR_ITERATIONS;
 
 	void update(float dt);
-	void render(graphics::RenderTargetHandle& target, const Vector2f &camera_min, const Vector2f& camera_max);
+	void render(Handle<graphics::RenderTarget>& target, const Vector2f &camera_min, const Vector2f& camera_max);
 
 	void set_pixel_scale(float scale);
 	void create_shockwave(const Vector2f& position_ws); // ws = world space

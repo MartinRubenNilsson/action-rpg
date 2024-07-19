@@ -5,30 +5,60 @@ template <typename T>
 class Pool
 {
 public:
-	Handle<T> emplace(const T& t);
+	const T* data() const;
+
+	size_t size() const;
+
+	void clear();
+
+	template <typename... Args>
+	Handle<T> emplace(Args&&... args);
+
 	T* get(Handle<T> handle);
+
 	void free(Handle<T> handle);
 
 private:
 	std::vector<T> _data;
-	std::vector<uint16_t> _generations; //Same size as _data.
+	std::vector<uint16_t> _generations; // Same size as _data.
 	std::vector<uint16_t> _freelist; // Stores the indices of previously freed slots.
 };
 
 template<typename T>
-inline Handle<T> Pool<T>::emplace(const T& t)
+inline const T* Pool<T>::data() const
+{
+	return _data.data();
+}
+
+template<typename T>
+inline size_t Pool<T>::size() const
+{
+	return _data.size();
+}
+
+template<typename T>
+inline void Pool<T>::clear()
+{
+	_data.clear();
+	_generations.clear();
+	_freelist.clear();
+}
+
+template<typename T>
+template<typename ...Args>
+inline Handle<T> Pool<T>::emplace(Args&&... args)
 {
 	Handle<T> handle;
 	if (_freelist.empty()) {
 		handle.index = (uint16_t)_data.size();
 		handle.generation = 1;  // Valid generations start at 1.
 		_generations.push_back(handle.generation);
-		_data.emplace_back(t);
+		_data.emplace_back(std::forward<Args>(args)...);
 	} else {
 		handle.index = _freelist.back();
 		_freelist.pop_back();
 		handle.generation = _generations[handle.index];
-		_data[handle.index] = t;
+		_data[handle.index] = { std::forward<Args>(args)... };
 	}
 	return handle;
 }

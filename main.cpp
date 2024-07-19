@@ -203,7 +203,7 @@ int main(int argc, char* argv[])
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
 
-        graphics::RenderTargetHandle render_target = graphics::acquire_pooled_render_target(
+        Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(
             window_framebuffer_width, window_framebuffer_height);
         graphics::bind_render_target(render_target);
         graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
             graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
             graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
             graphics::draw_triangles(3);
-            graphics::release_pooled_render_target(render_target);
+            graphics::release_temporary_render_target(render_target);
         }
 
         window::swap_buffers();

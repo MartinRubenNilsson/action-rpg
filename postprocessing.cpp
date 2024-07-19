@@ -52,19 +52,19 @@ namespace postprocessing
 		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_shockwaves(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
 		graphics::ScopedDebugGroup debug_group("Shockwaves");
 
 		// Load shader
-		const graphics::ShaderHandle shader = graphics::load_shader(
+		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/shockwave.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return;
+		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		graphics::TextureHandle texture = graphics::get_render_target_texture(target);
+		Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
@@ -76,8 +76,8 @@ namespace postprocessing
 		for (const Shockwave& shockwave : _shockwaves) {
 
 			// Aquire intermediate render target
-			const graphics::RenderTargetHandle intermediate_target =
-				graphics::acquire_pooled_render_target(width, height);
+			const Handle<graphics::RenderTarget> intermediate_target =
+				graphics::aquire_temporary_render_target(width, height);
 
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
@@ -91,31 +91,31 @@ namespace postprocessing
 			graphics::draw_triangles(3);
 
 			// Interchange render targets
-			graphics::release_pooled_render_target(target);
+			graphics::release_temporary_render_target(target);
 			target = intermediate_target;
 			texture = graphics::get_render_target_texture(target);
 		}
 	}
 
-	void _render_darkness(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_darkness(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
 		graphics::ScopedDebugGroup debug_group("Darkness");
 
 		// Load shader
-		const graphics::ShaderHandle shader = graphics::load_shader(
+		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/darkness.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return;
+		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const graphics::RenderTargetHandle intermediate_target =
-			graphics::acquire_pooled_render_target(width, height);
+		const Handle<graphics::RenderTarget> intermediate_target =
+			graphics::aquire_temporary_render_target(width, height);
 
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
@@ -129,29 +129,29 @@ namespace postprocessing
 		graphics::draw_triangles(3);
 
 		// Cleanup
-		graphics::release_pooled_render_target(target);
+		graphics::release_temporary_render_target(target);
 		target = intermediate_target;
 	}
 
-	void _render_screen_transition(graphics::RenderTargetHandle& target)
+	void _render_screen_transition(Handle<graphics::RenderTarget>& target)
 	{
 		if (_screen_transition_progress == 0.f) return;
 		graphics::ScopedDebugGroup debug_group("Screen transition");
 
 		// Load shader
-		const graphics::ShaderHandle shader = graphics::load_shader(
+		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/screen_transition.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return;
+		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const graphics::RenderTargetHandle intermediate_target =
-			graphics::acquire_pooled_render_target(width, height);
+		const Handle<graphics::RenderTarget> intermediate_target =
+			graphics::aquire_temporary_render_target(width, height);
 
 		// Render screen transition
 		graphics::bind_shader(shader);
@@ -163,34 +163,34 @@ namespace postprocessing
 		graphics::draw_triangles(3);
 
 		// Cleanup
-		graphics::release_pooled_render_target(target);
+		graphics::release_temporary_render_target(target);
 		target = intermediate_target;
 	}
 
-	void _render_gaussian_blur(graphics::RenderTargetHandle& target)
+	void _render_gaussian_blur(Handle<graphics::RenderTarget>& target)
 	{
 		if (_gaussian_blur_iterations == 0) return;
 		graphics::ScopedDebugGroup debug_group("Gaussian blur");
 
 		// Load shaders
-		const graphics::ShaderHandle shader_hor = graphics::load_shader(
+		const Handle<graphics::Shader> shader_hor = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/gaussian_blur_hor.frag");
-		if (shader_hor == graphics::ShaderHandle::Invalid) return;
-		const graphics::ShaderHandle shader_ver = graphics::load_shader(
+		if (shader_hor == Handle<graphics::Shader>()) return;
+		const Handle<graphics::Shader> shader_ver = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/gaussian_blur_ver.frag");
-		if (shader_ver == graphics::ShaderHandle::Invalid) return;
+		if (shader_ver == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const graphics::TextureHandle texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
 		// Aquire intermediate render target
-		const graphics::RenderTargetHandle intermediate_target =
-			graphics::acquire_pooled_render_target(width, height);
-		const graphics::TextureHandle intermediate_texture =
+		const Handle<graphics::RenderTarget> intermediate_target =
+			graphics::aquire_temporary_render_target(width, height);
+		const Handle<graphics::Texture> intermediate_texture =
 			graphics::get_render_target_texture(intermediate_target);
 
 		// Set linear filtering
@@ -220,10 +220,10 @@ namespace postprocessing
 		// Cleanup
 		graphics::set_texture_filter(texture, graphics::TextureFilter::Nearest);
 		graphics::set_texture_filter(intermediate_texture, graphics::TextureFilter::Nearest);
-		graphics::release_pooled_render_target(intermediate_target);
+		graphics::release_temporary_render_target(intermediate_target);
 	}
 
-	void render(graphics::RenderTargetHandle& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void render(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group("Postprocessing");
 		_render_shockwaves(target, camera_min, camera_max);

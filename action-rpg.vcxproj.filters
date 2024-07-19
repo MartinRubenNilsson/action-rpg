@@ -846,7 +846,7 @@
     <ClInclude Include="ui_rmlui_system_interface.h">
       <Filter>ui\rmlui_interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="handles_fwd.h" />
+    <ClInclude Include="fwd.h" />
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h">
       <Filter>graphics\renderdoc</Filter>
     </ClInclude>

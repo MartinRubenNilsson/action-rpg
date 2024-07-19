@@ -17,7 +17,7 @@ namespace background
 
 	struct Layer
 	{
-		graphics::TextureHandle texture = graphics::TextureHandle::Invalid;
+		Handle<graphics::Texture> texture;
 		unsigned int texture_width = 0;
 		unsigned int texture_height = 0;
 		float offset_x = 0.f;
@@ -37,8 +37,8 @@ namespace background
 		case Type::MountainDusk: {
 			_layers.clear();
 			for (const std::string& path : _MOUNTAIN_DUSK_TEXTURE_PATHS) {
-				const graphics::TextureHandle texture = graphics::load_texture(path);
-				if (texture == graphics::TextureHandle::Invalid) continue;
+				const Handle<graphics::Texture> texture = graphics::load_texture(path);
+				if (texture == Handle<graphics::Texture>()) continue;
 				Layer& layer = _layers.emplace_back();
 				layer.texture = texture;
 				graphics::get_texture_size(texture, layer.texture_width, layer.texture_height);
@@ -64,7 +64,7 @@ namespace background
 		if (_type == Type::None) return;
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
-			if (layer.texture == graphics::TextureHandle::Invalid) continue;
+			if (layer.texture == Handle<graphics::Texture>()) continue;
 			if (!layer.texture_width) continue;
 			sprite.texture = layer.texture;
 			for (float x = camera_min.x - layer.offset_x; x < camera_max.x; x += layer.texture_width) {

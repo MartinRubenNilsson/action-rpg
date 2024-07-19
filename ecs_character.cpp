@@ -361,14 +361,14 @@ namespace ecs
 		const std::string base_dir = "assets/textures/character/";
 
 		// Load shader
-		const graphics::ShaderHandle shader = graphics::load_shader(
+		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen_triangle.vert",
 			"assets/shaders/bake_character.frag");
-		if (shader == graphics::ShaderHandle::Invalid) return;
+		if (shader == Handle<graphics::Shader>()) return;
 
 		// Aquire render target
-		const graphics::RenderTargetHandle render_target = graphics::acquire_pooled_render_target(1024, 1024);
-		if (render_target == graphics::RenderTargetHandle::Invalid) return;
+		const Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(1024, 1024);
+		if (render_target == Handle<graphics::RenderTarget>()) return;
 
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -383,10 +383,10 @@ namespace ecs
 		graphics::set_uniform_1i(shader, "lut2", 2);
 
 		for (const Layer& layer : layers) {
-			const graphics::TextureHandle texture = graphics::load_texture(base_dir + layer.texture_path);
-			if (texture == graphics::TextureHandle::Invalid) continue;
+			const Handle<graphics::Texture> texture = graphics::load_texture(base_dir + layer.texture_path);
+			if (texture == Handle<graphics::Texture>()) continue;
 
-			graphics::TextureHandle lut1_texture = graphics::TextureHandle::Invalid;
+			Handle<graphics::Texture> lut1_texture;
 			switch (layer.lut1_type) {
 			case LUT_SKIN:
 				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
@@ -401,14 +401,14 @@ namespace ecs
 				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut1_texture != graphics::TextureHandle::Invalid) {
+			if (lut1_texture != Handle<graphics::Texture>()) {
 				graphics::set_uniform_1i(shader, "lut1_type", layer.lut1_type);
 				graphics::set_uniform_1i(shader, "lut1_y", layer.lut1_y);
 			} else {
 				graphics::set_uniform_1i(shader, "lut1_type", -1);
 			}
 
-			graphics::TextureHandle lut2_texture = graphics::TextureHandle::Invalid;
+			Handle<graphics::Texture> lut2_texture;
 			switch (layer.lut2_type) {
 			case LUT_SKIN:
 				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed skin ramps.png");
@@ -423,7 +423,7 @@ namespace ecs
 				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut2_texture != graphics::TextureHandle::Invalid) {
+			if (lut2_texture != Handle<graphics::Texture>()) {
 				graphics::set_uniform_1i(shader, "lut2_type", layer.lut2_type);
 				graphics::set_uniform_1i(shader, "lut2_y", layer.lut2_y);
 			} else {
@@ -439,7 +439,7 @@ namespace ecs
 
 		graphics::destroy_texture(ch.texture);
 		ch.texture = graphics::copy_texture(graphics::get_render_target_texture(render_target));
-		graphics::release_pooled_render_target(render_target);
+		graphics::release_temporary_render_target(render_target);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
 }

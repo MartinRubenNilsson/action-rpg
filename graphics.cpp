@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "graphics.h"
+#include "pool.h"
 #include "console.h"
 #include <glad/glad.h>
 #pragma comment(lib, "opengl32")
@@ -17,11 +18,11 @@ namespace graphics
 		0.f, 0.f, 0.f, 1.f,
 	};
 
-	RenderTargetHandle window_render_target = RenderTargetHandle::Invalid;
-	ShaderHandle sprite_shader = ShaderHandle::Invalid;
-	ShaderHandle fullscreen_shader = ShaderHandle::Invalid;
-	ShaderHandle shape_shader = ShaderHandle::Invalid;
-	ShaderHandle ui_shader = ShaderHandle::Invalid;
+	Handle<RenderTarget> window_render_target;
+	Handle<Shader> sprite_shader;
+	Handle<Shader> fullscreen_shader;
+	Handle<Shader> shape_shader;
+	Handle<Shader> ui_shader;
 
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
 
@@ -34,7 +35,6 @@ namespace graphics
 
 	struct Shader
 	{
-		ShaderHandle handle = ShaderHandle::Invalid;
 		std::string name; // unique name
 		std::vector<ShaderUniform> uniforms;
 		GLuint program_object = 0;
@@ -42,7 +42,6 @@ namespace graphics
 
 	struct Texture
 	{
-		TextureHandle handle = TextureHandle::Invalid;
 		std::string name; // unique name
 		unsigned int width = 0;
 		unsigned int height = 0;
@@ -54,10 +53,10 @@ namespace graphics
 
 	struct RenderTarget
 	{
-		RenderTargetHandle handle = RenderTargetHandle::Invalid;
 		std::string name; // unique name
-		TextureHandle texture = TextureHandle::Invalid;
+		Handle<Texture> texture;
 		GLuint framebuffer_object = 0;
+		bool is_temporary = false;
 	};
 
 	constexpr unsigned int _MAX_VERTEX_COUNT = 65536;
@@ -65,14 +64,13 @@ namespace graphics
 	GLuint _vertex_array_object = 0;
 	GLuint _vertex_buffer_object = 0;
 	GLuint _element_buffer_object = 0;
-	std::vector<Shader> _shaders;
-	std::unordered_map<std::string, ShaderHandle> _shader_name_to_handle;
-	std::vector<Texture> _textures;
-	std::vector<TextureHandle> _free_texture_handles;
-	std::unordered_map<std::string, TextureHandle> _texture_name_to_handle;
-	std::vector<RenderTarget> _render_targets;
-	std::unordered_map<std::string, RenderTargetHandle> _render_target_name_to_handle;
-	std::vector<RenderTargetHandle> _pooled_render_targets;
+	Pool<Shader> _shader_pool;
+	std::unordered_map<std::string, Handle<Shader>> _shader_name_to_handle;
+	Pool<Texture> _texture_pool;
+	std::unordered_map<std::string, Handle<Texture>> _texture_name_to_handle;
+	Pool<RenderTarget> _render_target_pool;
+	std::unordered_map<std::string, Handle<RenderTarget>> _render_target_name_to_handle;
+	std::vector<Handle<RenderTarget>> _temporary_render_targets;
 	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
@@ -94,30 +92,6 @@ namespace graphics
 			return &uniform;
 		}
 		return nullptr;
-	}
-
-	Shader* _get_shader(ShaderHandle handle)
-	{
-		const unsigned int index = get_handle_index(handle);
-		if (index >= (unsigned int)_shaders.size()) return nullptr;
-		if (_shaders[index].handle != handle) return nullptr;
-		return &_shaders[index];
-	}
-
-	Texture* _get_texture(TextureHandle handle)
-	{
-		const unsigned int index = get_handle_index(handle);
-		if (index >= (unsigned int)_textures.size()) return nullptr;
-		if (_textures[index].handle != handle) return nullptr;
-		return &_textures[index];
-	}
-
-	RenderTarget* _get_render_target(RenderTargetHandle handle)
-	{
-		const unsigned int index = get_handle_index(handle);
-		if (index >= (unsigned int)_textures.size()) return nullptr;
-		if (_render_targets[index].handle != handle) return nullptr;
-		return &_render_targets[index];
 	}
 
 #ifdef DEBUG_GRAPHICS
@@ -186,16 +160,14 @@ namespace graphics
 
 		// CREATE WINDOW RENDER TARGET
 		{
-			window_render_target = (RenderTargetHandle)_render_targets.size();
-
-			RenderTarget& render_target = _render_targets.emplace_back();
-			render_target.handle = window_render_target;
+			RenderTarget render_target{};
 			render_target.name = "window render target";
 			// The window has both a front and back buffer, so there's no point
 			// in setting a single texture for its render target.
-			render_target.texture = TextureHandle::Invalid;
-			render_target.framebuffer_object = 0;
+			render_target.texture = Handle<Texture>();
+			render_target.framebuffer_object = 0; // default framebuffer
 
+			window_render_target = _render_target_pool.emplace(render_target);
 			_render_target_name_to_handle[render_target.name] = window_render_target;
 		}
 
@@ -240,30 +212,36 @@ namespace graphics
 
 		// DELETE SHADERS
 
-		for (Shader& shader : _shaders) {
+		for (size_t i = 0; i < _shader_pool.size(); ++i) {
+			const Shader& shader = _shader_pool.data()[i];
 			glDeleteProgram(shader.program_object);
 		}
-		_shaders.clear();
+		_shader_pool.clear();
 		_shader_name_to_handle.clear();
 
 		// DELETE TEXTURES
 
-		for (Texture& texture : _textures) {
-			glDeleteTextures(1, &texture.texture_object);
+		for (size_t i = 0; i < _texture_pool.size(); ++i) {
+			const Texture& texture = _texture_pool.data()[i];
+			if (texture.texture_object) {
+				glDeleteTextures(1, &texture.texture_object);
+			}
 		}
-		_textures.clear();
+		_texture_pool.clear();
 		_texture_name_to_handle.clear();
 
-		// DELETE RENDER TEXTURES
+		// DELETE RENDER TARGETS
 
-		for (RenderTarget& render_texture : _render_targets) {
-			glDeleteFramebuffers(1, &render_texture.framebuffer_object);
+		for (size_t i = 0; i < _texture_pool.size(); ++i) {
+			const RenderTarget& render_target = _render_target_pool.data()[i];
+			glDeleteFramebuffers(1, &render_target.framebuffer_object);
 		}
-		_render_targets.clear();
+		_render_target_pool.clear();
 		_render_target_name_to_handle.clear();
+		_temporary_render_targets.clear();
 	}
 
-	ShaderHandle create_shader(
+	Handle<Shader> create_shader(
 		const std::string& vertex_shader_bytecode,
 		const std::string& fragment_shader_bytecode,
 		const std::string& name_hint)
@@ -286,7 +264,7 @@ namespace graphics
 				console::log_error(info_log);
 				glDeleteShader(vertex_shader_object);
 				glDeleteProgram(program_object);
-				return ShaderHandle::Invalid;
+				return Handle<Shader>();
 			}
 
 			// ATTACH VERTEX SHADER
@@ -311,7 +289,7 @@ namespace graphics
 				console::log_error(info_log);
 				glDeleteShader(fragment_shader_object);
 				glDeleteProgram(program_object);
-				return ShaderHandle::Invalid;
+				return Handle<Shader>();
 			}
 
 			// ATTACH FRAGMENT SHADER
@@ -331,7 +309,7 @@ namespace graphics
 				console::log_error("Failed to link program object: " + name_hint);
 				console::log_error(info_log);
 				glDeleteProgram(program_object);
-				return ShaderHandle::Invalid;
+				return Handle<Shader>();
 			}
 		}
 
@@ -354,21 +332,21 @@ namespace graphics
 
 		// STORE SHADER
 
-		const ShaderHandle handle = (ShaderHandle)_shaders.size();
+		const std::string name = _generate_unique_name(_shader_name_to_handle, name_hint);
 
-		Shader& shader = _shaders.emplace_back();
-		shader.handle = handle;
-		shader.name = _generate_unique_name(_shader_name_to_handle, name_hint);
+		Shader shader{};
+		shader.name = name;
 		shader.uniforms = std::move(uniform_locations);
 		shader.program_object = program_object;
-		_set_debug_label(GL_PROGRAM, program_object, shader.name);
+		_set_debug_label(GL_PROGRAM, program_object, name);
 
-		_shader_name_to_handle[shader.name] = handle;
+		const Handle<Shader> handle = _shader_pool.emplace(std::move(shader));
+		_shader_name_to_handle[name] = handle;
 
 		return handle;
 	}
 
-	ShaderHandle load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
+	Handle<Shader> load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
 	{
 		// CHECK CACHE FOR EXISTING SHADER
 		
@@ -387,7 +365,7 @@ namespace graphics
 			std::ifstream vertex_shader_file{ vertex_shader_path };
 			if (!vertex_shader_file) {
 				console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
-				return ShaderHandle::Invalid;
+				return Handle<Shader>();
 			}
 			vertex_shader_bytecode = {
 				std::istreambuf_iterator<char>(vertex_shader_file),
@@ -401,7 +379,7 @@ namespace graphics
 			std::ifstream fragment_shader_file{ fragment_shader_path };
 			if (!fragment_shader_file) {
 				console::log_error("Failed to open fragment shader file: " + fragment_shader_path);
-				return ShaderHandle::Invalid;
+				return Handle<Shader>();
 			}
 			fragment_shader_bytecode = {
 				std::istreambuf_iterator<char>(fragment_shader_file),
@@ -422,9 +400,9 @@ namespace graphics
 		_last_bound_program_object = program_object;
 	}
 
-	void bind_shader(ShaderHandle handle)
+	void bind_shader(Handle<Shader> handle)
 	{
-		if (const Shader* shader = _get_shader(handle)) {
+		if (const Shader* shader = _shader_pool.get(handle)) {
 			_bind_program_if_not_already_bound(shader->program_object);
 		}
 	}
@@ -434,81 +412,81 @@ namespace graphics
 		_bind_program_if_not_already_bound(0);
 	}
 
-	void set_uniform_1f(ShaderHandle handle, std::string_view name, float x)
+	void set_uniform_1f(Handle<Shader> handle, std::string_view name, float x)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform1f(shader->program_object, uniform->location, x);
 			}
 		}
 	}
 
-	void set_uniform_2f(ShaderHandle handle, std::string_view name, float x, float y)
+	void set_uniform_2f(Handle<Shader> handle, std::string_view name, float x, float y)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform2f(shader->program_object, uniform->location, x, y);
 			}
 		}
 	}
 
-	void set_uniform_3f(ShaderHandle handle, std::string_view name, float x, float y, float z)
+	void set_uniform_3f(Handle<Shader> handle, std::string_view name, float x, float y, float z)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform3f(shader->program_object, uniform->location, x, y, z);
 			}
 		}
 	}
 
-	void set_uniform_4f(ShaderHandle handle, std::string_view name, float x, float y, float z, float w)
+	void set_uniform_4f(Handle<Shader> handle, std::string_view name, float x, float y, float z, float w)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform4f(shader->program_object, uniform->location, x, y, z, w);
 			}
 		}
 	}
 
-	void set_uniform_1i(ShaderHandle handle, std::string_view name, int x)
+	void set_uniform_1i(Handle<Shader> handle, std::string_view name, int x)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform1i(shader->program_object, uniform->location, x);
 			}
 		}
 	}
 
-	void set_uniform_2i(ShaderHandle handle, std::string_view name, int x, int y)
+	void set_uniform_2i(Handle<Shader> handle, std::string_view name, int x, int y)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform2i(shader->program_object, uniform->location, x, y);
 			}
 		}
 	}
 
-	void set_uniform_3i(ShaderHandle handle, std::string_view name, int x, int y, int z)
+	void set_uniform_3i(Handle<Shader> handle, std::string_view name, int x, int y, int z)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform3i(shader->program_object, uniform->location, x, y, z);
 			}
 		}
 	}
 
-	void set_uniform_4i(ShaderHandle handle, std::string_view name, int x, int y, int z, int w)
+	void set_uniform_4i(Handle<Shader> handle, std::string_view name, int x, int y, int z, int w)
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniform4i(shader->program_object, uniform->location, x, y, z, w);
 			}
 		}
 	}
 
-	void set_uniform_mat4(ShaderHandle handle, std::string_view name, const float matrix[16])
+	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16])
 	{
-		if (Shader* shader = _get_shader(handle)) {
+		if (Shader* shader = _shader_pool.get(handle)) {
 			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
 				glProgramUniformMatrix4fv(shader->program_object, uniform->location, 1, GL_FALSE, matrix);
 			}
@@ -516,7 +494,7 @@ namespace graphics
 	
 	}
 
-	TextureHandle create_texture(
+	Handle<Texture> create_texture(
 		unsigned int width,
 		unsigned int height,
 		unsigned int channels,
@@ -547,35 +525,24 @@ namespace graphics
 
 		// STORE TEXTURE
 
-		TextureHandle handle = TextureHandle::Invalid;
-		Texture* texture = nullptr;
+		Texture texture{};
+		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
+		texture.width = width;
+		texture.height = height;
+		texture.channels = channels;
+		texture.bytes = width * height * channels;
+		texture.texture_object = texture_object;
+		_set_debug_label(GL_TEXTURE, texture_object, texture.name);
+		texture.filter = TextureFilter::Nearest;
 
-		if (_free_texture_handles.empty()) {
-			handle = (TextureHandle)_textures.size();
-			texture = &_textures.emplace_back();
-		} else {
-			handle = _free_texture_handles.back();
-			_free_texture_handles.pop_back();
-			texture = &_textures[get_handle_index(handle)];
-		}
-
-		texture->handle = handle;
-		texture->name = _generate_unique_name(_texture_name_to_handle, name_hint);
-		texture->width = width;
-		texture->height = height;
-		texture->channels = channels;
-		texture->bytes = width * height * channels;
-		texture->texture_object = texture_object;
-		_set_debug_label(GL_TEXTURE, texture_object, texture->name);
-		texture->filter = TextureFilter::Nearest;
-
-		_texture_name_to_handle[texture->name] = handle;
-		_total_texture_memory_usage_in_bytes += texture->bytes;
+		const Handle<Texture> handle = _texture_pool.emplace(texture);
+		_texture_name_to_handle[texture.name] = handle;
+		_total_texture_memory_usage_in_bytes += texture.bytes;
 
 		return handle;
 	}
 
-	TextureHandle load_texture(const std::string& path, bool flip_y)
+	Handle<Texture> load_texture(const std::string& path, bool flip_y)
 	{
 		// CHECK IF ALREADY LOADED
 
@@ -595,7 +562,7 @@ namespace graphics
 		if (!data) {
 			console::log_error("Failed to load texture: " + normalized_path);
 			console::log_error(stbi_failure_reason());
-			return TextureHandle::Invalid;
+			return Handle<Texture>();
 		}
 
 		// CREATE TEXTURE
@@ -603,23 +570,24 @@ namespace graphics
 		return create_texture(width, height, channels, data, normalized_path);
 	}
 
-	TextureHandle copy_texture(TextureHandle handle)
+	Handle<Texture> copy_texture(Handle<Texture> handle)
 	{
-		// This fixes a bug where texture would become a dangling pointer
-		// if create_texture() causes _textures to reallocate.
-		_textures.reserve(_textures.size() + 1);
+		const Texture* texture = _texture_pool.get(handle);
+		if (!texture) return Handle<Texture>();
 
-		const Texture* texture = _get_texture(handle);
-		if (!texture) return TextureHandle::Invalid;
-
-		const TextureHandle copy_handle = create_texture(
+		const Handle<Texture> copy_handle = create_texture(
 			texture->width,
 			texture->height,
 			texture->channels,
 			nullptr,
 			texture->name + " (copy)");
-		const Texture* copy_texture = _get_texture(copy_handle);
-		if (!copy_texture) return TextureHandle::Invalid;
+
+		// PITFALL: create_texture() may have caused _texture_pool
+		// to internally reallocate, so we need to re-fetch texture.
+		texture = _texture_pool.get(handle);
+		assert(texture);
+		const Texture* copy_texture = _texture_pool.get(copy_handle);
+		assert(copy_texture);
 
 		glCopyImageSubData(
 			texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
@@ -629,20 +597,20 @@ namespace graphics
 		return copy_handle;
 	}
 
-	void destroy_texture(TextureHandle handle)
+	void destroy_texture(Handle<Texture> handle)
 	{
-		Texture* texture = _get_texture(handle);
+		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		_texture_name_to_handle.erase(texture->name);
 		glDeleteTextures(1, &texture->texture_object);
-		*texture = Texture();
-		_free_texture_handles.push_back(increment_handle_generation(handle));
 		_total_texture_memory_usage_in_bytes -= texture->bytes;
+		_texture_name_to_handle.erase(texture->name);
+		_texture_pool.free(handle);
+		*texture = Texture();
 	}
 
-	void bind_texture(unsigned int texture_unit, TextureHandle handle)
+	void bind_texture(unsigned int texture_unit, Handle<Texture> handle)
 	{
-		if (const Texture* texture = _get_texture(handle)) {
+		if (const Texture* texture = _texture_pool.get(handle)) {
 			glActiveTexture(GL_TEXTURE0 + texture_unit);
 			glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		}
@@ -654,9 +622,9 @@ namespace graphics
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void get_texture_size(TextureHandle handle, unsigned int& width, unsigned int& height)
+	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)
 	{
-		if (const Texture* texture = _get_texture(handle)) {
+		if (const Texture* texture = _texture_pool.get(handle)) {
 			width = texture->width;
 			height = texture->height;
 		} else {
@@ -665,9 +633,9 @@ namespace graphics
 		}
 	}
 
-	void set_texture_filter(TextureHandle handle, TextureFilter filter)
+	void set_texture_filter(Handle<Texture> handle, TextureFilter filter)
 	{
-		Texture* texture = _get_texture(handle);
+		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
@@ -677,25 +645,24 @@ namespace graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
 	}
 
-	TextureFilter get_texture_filter(TextureHandle handle)
+	TextureFilter get_texture_filter(Handle<Texture> handle)
 	{
-		const Texture* texture = _get_texture(handle);
-		if (!texture) return TextureFilter::Nearest;
-		return texture->filter;
+		const Texture* texture = _texture_pool.get(handle);
+		return texture ? texture->filter : TextureFilter::Nearest;
 	}
 
-	RenderTargetHandle create_render_target(
+	Handle<RenderTarget> create_render_target(
 		unsigned int width,
 		unsigned int height,
 		const std::string& name_hint)
 	{
 		// CREATE TEXTURE
 
-		const TextureHandle texture_handle = create_texture(width, height, 4, nullptr, name_hint);
-		const Texture* texture = _get_texture(texture_handle);
+		const Handle<Texture> texture_handle = create_texture(width, height, 4, nullptr, name_hint);
+		const Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) {
 			console::log_error("Failed to create render target: " + name_hint);
-			return RenderTargetHandle::Invalid;
+			return Handle<RenderTarget>();
 		}
 
 		// SAVE CURRENT FRAMEBUFFER OBJECT
@@ -721,51 +688,49 @@ namespace graphics
 			console::log_error("Failed to create render target: " + name_hint);
 			glDeleteFramebuffers(1, &framebuffer_object);
 			destroy_texture(texture_handle);
-			return RenderTargetHandle::Invalid;
+			return Handle<RenderTarget>();
 		}
 
 		// STORE RENDER TARGET
 
-		const RenderTargetHandle target_handle = (RenderTargetHandle)_render_targets.size();
-
-		RenderTarget& render_target = _render_targets.emplace_back();
-		render_target.handle = target_handle;
+		RenderTarget render_target{};
 		render_target.name = _generate_unique_name(_render_target_name_to_handle, name_hint);
 		render_target.texture = texture_handle;
 		render_target.framebuffer_object = framebuffer_object;
 		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, render_target.name);
 
+		const Handle<RenderTarget> target_handle = _render_target_pool.emplace(render_target);
 		_render_target_name_to_handle[render_target.name] = target_handle;
 
 		return target_handle;
 	}
 
-	RenderTargetHandle acquire_pooled_render_target(unsigned int width, unsigned int height)
+	Handle<RenderTarget> aquire_temporary_render_target(unsigned int width, unsigned int height)
 	{
-		for (size_t i = 0; i < _pooled_render_targets.size(); ++i) {
-			const RenderTargetHandle handle = _pooled_render_targets[i];
-			const RenderTarget* render_target = _get_render_target(handle);
+		for (size_t i = 0; i < _temporary_render_targets.size(); ++i) {
+			const Handle<RenderTarget> handle = _temporary_render_targets[i];
+			const RenderTarget* render_target = _render_target_pool.get(handle);
 			if (!render_target) continue;
-			const Texture* texture = _get_texture(render_target->texture);
+			const Texture* texture = _texture_pool.get(render_target->texture);
 			if (!texture) continue;
 			if (texture->width != width) continue;
 			if (texture->height != height) continue;
-			std::swap(_pooled_render_targets[i], _pooled_render_targets.back());
-			_pooled_render_targets.pop_back();
+			std::swap(_temporary_render_targets[i], _temporary_render_targets.back());
+			_temporary_render_targets.pop_back();
 			return handle;
 		}
 		std::string name_hint = "pooled render target " + std::to_string(width) + "x" + std::to_string(height);
 		return create_render_target(width, height, name_hint);
 	}
 
-	void release_pooled_render_target(RenderTargetHandle handle)
+	void release_temporary_render_target(Handle<RenderTarget> handle)
 	{
-		_pooled_render_targets.push_back(handle);
+		_temporary_render_targets.push_back(handle);
 	}
 
-	void bind_render_target(RenderTargetHandle handle)
+	void bind_render_target(Handle<RenderTarget> handle)
 	{
-		if (const RenderTarget* render_target = _get_render_target(handle)) {
+		if (const RenderTarget* render_target = _render_target_pool.get(handle)) {
 			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
 		}
 	}
@@ -776,12 +741,12 @@ namespace graphics
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	TextureHandle get_render_target_texture(RenderTargetHandle handle)
+	Handle<Texture> get_render_target_texture(Handle<RenderTarget> handle)
 	{
-		if (const RenderTarget* render_target = _get_render_target(handle)) {
+		if (const RenderTarget* render_target = _render_target_pool.get(handle)) {
 			return render_target->texture;
 		}
-		return TextureHandle::Invalid;
+		return Handle<Texture>();
 	}
 
 	void set_viewport(int x, int y, int width, int height)
@@ -905,8 +870,9 @@ namespace graphics
 #ifdef DEBUG_IMGUI
 		ImGui::Begin("Textures");
 		ImGui::Text("Total memory usage: %d MB", _total_texture_memory_usage_in_bytes / 1024 / 1024);
-		for (const Texture& texture : _textures) {
-			if (texture.handle == TextureHandle::Invalid) continue;
+		for (size_t i = 0; i < _texture_pool.size(); ++i) {
+			const Texture& texture = _texture_pool.data()[i];
+			if (texture.texture_object == 0) continue;
 			if (ImGui::TreeNode(texture.name.c_str())) {
 				ImGui::Text("Dimensions: %dx%dx%d", texture.width, texture.height, texture.channels);
 				unsigned int kb = texture.bytes / 1024;
