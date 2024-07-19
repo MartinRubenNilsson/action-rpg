@@ -7,8 +7,8 @@ namespace text
 {
 	void render(const Text& text)
 	{
-#if 0
-        if (text.string.empty()) return;
+#if 1
+        if (text.utf32_string.empty()) return;
 
 #if 0
         // Compute values related to the text style
@@ -22,37 +22,40 @@ namespace text
         const bool isBold = false;
         const bool isUnderlined = false;
         const bool isStrikeThrough = false;
-        const float italicShear = 0.f
+        const float italicShear = 0.f;
 #endif
 
+#if 0
         // Compute the location of the strike through dynamically
         // We use the center point of the lowercase 'x' glyph as the reference
         // We reuse the underline thickness as the thickness of the strike through as well
         const float strikeThroughOffset = m_font->getGlyph(U'x', text.character_size, isBold).bounds.getCenter().y;
+#endif
 
-        // Precompute the variables needed by the algorithm
-        float       whitespaceWidth = m_font->getGlyph(U' ', text.character_size, isBold).advance;
+        float whitespaceWidth = (float)fonts::get_glyph(text.font, U' ').advance_width;
         const float letterSpacing = (whitespaceWidth / 3.f) * (text.letter_spacing_factor - 1.f);
         whitespaceWidth += letterSpacing;
-        const float lineSpacing = m_font->getLineSpacing(text.character_size) * text.line_spacing_factor;
-        float       x = 0.f;
-        auto        y = static_cast<float>(text.character_size);
+        const float lineSpacing = fonts::get_line_spacing(text.font) * text.line_spacing_factor;
+        float x = 0.f;
+        float y = text.pixel_height;
 
         // Create one quad for each character
         std::vector<graphics::Vertex> vertices;
-        uint32_t prevChar = 0;
-        float minX = (float)text.character_size;
-        float minY = (float)text.character_size;
-        float maxX = 0.f;
-        float maxY = 0.f;
+        char32_t prevChar = 0;
+        //float minX = text.pixel_height;
+        //float minY = text.pixel_height;
+        //float maxX = 0.f;
+        //float maxY = 0.f;
 
-        for (const uint32_t curChar : text.string) {
+        for (char32_t curChar : text.utf32_string) {
             // Skip the \r char to avoid weird graphical issues
             if (curChar == U'\r')
                 continue;
 
+#if 0
             // Apply the kerning offset
             x += m_font->getKerning(prevChar, curChar, text.character_size, isBold);
+#endif
 
 #if 0
             // If we're using the underlined style and there's a new line, draw a line
@@ -75,10 +78,10 @@ namespace text
             prevChar = curChar;
 
             // Handle special characters
-            if ((curChar == U' ') || (curChar == U'\n') || (curChar == U'\t')) {
-                // Update the current bounds (min coordinates)
-                minX = std::min(minX, x);
-                minY = std::min(minY, y);
+            if (curChar == U' ' || curChar == U'\n' || curChar == U'\t') {
+                //// Update the current bounds (min coordinates)
+                //minX = std::min(minX, x);
+                //minY = std::min(minY, y);
 
                 switch (curChar) {
                 case U' ':
@@ -93,14 +96,15 @@ namespace text
                     break;
                 }
 
-                // Update the current bounds (max coordinates)
-                maxX = std::max(maxX, x);
-                maxY = std::max(maxY, y);
+                //// Update the current bounds (max coordinates)
+                //maxX = std::max(maxX, x);
+                //maxY = std::max(maxY, y);
 
                 // Next glyph, no need to create a quad for whitespace
                 continue;
             }
 
+#if 0
             // Apply the outline
             if (m_outlineThickness != 0) {
                 const Glyph& glyph = m_font->getGlyph(curChar, text.character_size, isBold, m_outlineThickness);
@@ -108,24 +112,40 @@ namespace text
                 // Add the outline glyph to the vertices
                 addGlyphQuad(m_outlineVertices, Vector2f(x, y), m_outlineColor, glyph, italicShear);
             }
+#endif
 
             // Extract the current glyph's description
-            const Glyph& glyph = m_font->getGlyph(curChar, text.character_size, isBold);
+            //const Glyph& glyph = m_font->getGlyph(curChar, text.character_size, isBold);
+            const fonts::Glyph glyph = fonts::get_glyph(text.font, curChar);
 
             // Add the glyph to the vertices
-            addGlyphQuad(m_vertices, Vector2f(x, y), m_fillColor, glyph, italicShear);
+            //addGlyphQuad(m_vertices, Vector2f(x, y), m_fillColor, glyph, italicShear);
 
-            // Update the current bounds
-            const Vector2f p1 = glyph.bounds.position;
-            const Vector2f p2 = glyph.bounds.position + glyph.bounds.size;
+#if 0
+            const Vector2f padding(1.f, 1.f);
+            const Vector2f p1 = glyph.bounds.position - padding;
+            const Vector2f p2 = glyph.bounds.position + glyph.bounds.size + padding;
+            const auto uv1 = Vector2f(glyph.textureRect.position) - padding;
+            const auto uv2 = Vector2f(glyph.textureRect.position + glyph.textureRect.size) + padding;
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv1.x, uv1.y });
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv2.x, uv2.y });
+#endif
 
-            minX = std::min(minX, x + p1.x - italicShear * p2.y);
-            maxX = std::max(maxX, x + p2.x - italicShear * p1.y);
-            minY = std::min(minY, y + p1.y);
-            maxY = std::max(maxY, y + p2.y);
+            //// Update the current bounds
+            //const Vector2f p1 = glyph.bounds.position;
+            //const Vector2f p2 = glyph.bounds.position + glyph.bounds.size;
+            //
+            //minX = std::min(minX, x + p1.x - italicShear * p2.y);
+            //maxX = std::max(maxX, x + p2.x - italicShear * p1.y);
+            //minY = std::min(minY, y + p1.y);
+            //maxY = std::max(maxY, y + p2.y);
 
             // Advance to the next character
-            x += glyph.advance + letterSpacing;
+            x += glyph.advance_width + letterSpacing;
         }
 
 #if 0
@@ -155,5 +175,11 @@ namespace text
         }
 #endif
 #endif
+
+        const float scale_for_pixel_height = fonts::get_scale_for_pixel_height(text.font, text.pixel_height);
+        for (graphics::Vertex& vertex : vertices) {
+			vertex.position *= scale_for_pixel_height;
+			vertex.position.y *= scale_for_pixel_height;
+		}
 	}
 }

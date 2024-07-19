@@ -9,9 +9,11 @@ namespace fonts
 {
 	struct Font
 	{
-		std::string path;
 		std::vector<unsigned char> data;
 		stbtt_fontinfo info{};
+		int ascent = 0; // The (unscaled) coordinate above the baseline the font extends.
+		int descent = 0; // The (unscaled) coordinate below the baseline the font extends; typically negative.
+		int line_gap = 0; // The (unscaled) spacing between one row's descent and the next row's ascent.
 	};
 
 	Pool<Font> _font_pool;
@@ -39,7 +41,6 @@ namespace fonts
 		file.seekg(0, std::ios::beg);
 
 		Font font{};
-		font.path = path;
 		font.data.resize(size);
 		file.read(reinterpret_cast<char*>(font.data.data()), size);
 
@@ -49,11 +50,36 @@ namespace fonts
 			return Handle<Font>();
 		}
 
+		stbtt_GetFontVMetrics(&font.info, &font.ascent, &font.descent, &font.line_gap);
+
 		// IMPORTANT: We must move construct the font, otherwise
-		// font.data is reallocated and font.info invalidated.
+		// font.data is reallocated and font.info is invalidated.
 		const Handle<Font> handle = _font_pool.emplace(std::move(font));
 		_font_path_to_handle[path] = handle;
 
 		return handle;
+	}
+
+	int get_line_spacing(Handle<Font> handle)
+	{
+		const Font* font = _font_pool.get(handle);
+		if (!font) return 0;
+		return font->ascent - font->descent + font->line_gap;
+	}
+
+	float get_scale_for_pixel_height(Handle<Font> handle, float pixel_height)
+	{
+		const Font* font = _font_pool.get(handle);
+		if (!font) return 0.0f;
+		return stbtt_ScaleForPixelHeight(&font->info, pixel_height);
+	}
+
+	Glyph get_glyph(Handle<Font> handle, char32_t codepoint)
+	{
+		const Font* font = _font_pool.get(handle);
+		if (!font) return Glyph();
+		Glyph glyph{};
+		stbtt_GetCodepointHMetrics(&font->info, codepoint, &glyph.advance_width, &glyph.left_side_bearing);
+		return glyph;
 	}
 }

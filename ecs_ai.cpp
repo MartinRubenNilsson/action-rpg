@@ -85,7 +85,7 @@ namespace ecs
         text.setOutlineThickness(2.f);
         for (const Text& t : _texts) {
             //TODO: culling
-            text.setString(t.string);
+            text.setString(t.utf32_string);
             text.setPosition(t.position);
             text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
             target.draw(text);

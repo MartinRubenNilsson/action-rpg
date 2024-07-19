@@ -719,7 +719,7 @@ namespace graphics
 			_temporary_render_targets.pop_back();
 			return handle;
 		}
-		std::string name_hint = "pooled render target " + std::to_string(width) + "x" + std::to_string(height);
+		std::string name_hint = "temporary render target " + std::to_string(width) + "x" + std::to_string(height);
 		return create_render_target(width, height, name_hint);
 	}
 
