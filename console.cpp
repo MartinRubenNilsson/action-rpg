@@ -67,10 +67,12 @@ namespace console
 
 	void initialize()
 	{
+#if 0
 		// REDIRECT COUT AND CERR
 
 		std::cout.rdbuf(_cout_stream.rdbuf());
 		std::cerr.rdbuf(_cerr_stream.rdbuf());
+#endif
 
 		// REGISTER COMMANDS
 
