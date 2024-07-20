@@ -110,7 +110,7 @@ namespace map
 		name.erase(remove_if(name.begin(), name.end(), isspace), name.end());
 		auto type = magic_enum::enum_cast<TerrainType>(name, magic_enum::case_insensitive);
 		if (type.has_value()) return type.value();
-		console::log_error("Unknown terrain type: " + name);
+		//console::log_error("Unknown terrain type: " + name);
 		return TerrainType::None;
 	}
 
