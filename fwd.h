@@ -18,3 +18,10 @@ namespace fonts
 {
 	struct Font;
 }
+
+namespace tiled
+{
+	struct Tileset;
+	struct Object;
+	struct Map;
+}

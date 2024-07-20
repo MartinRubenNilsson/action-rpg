@@ -93,7 +93,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		const Tile* tile = nullptr; // the tile representing this color; can be null
+		int tile_id = -1; // Index into Tileset::tiles; -1 if no tile has been chosen to represent this color
 		float probability = 0.f;
 		Color color;
 	};
@@ -103,7 +103,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		const Tile* tile = nullptr; // the tile representing this set; can be null
+		int tile_id = -1; // Index into Tileset::tiles; -1 if no tile has been chosen to represent this set
 		std::vector<WangColor> colors;
 	};
 

@@ -181,21 +181,13 @@ namespace tiled
 				wangset.name = wangset_node.attribute("name").as_string();
 				wangset.class_ = wangset_node.attribute("class").as_string();
 				_load_properties(wangset_node, wangset.properties);
-				{
-					int tile_id = wangset_node.attribute("tile").as_int(); //-1 in case of no tile
-					if (0 <= tile_id && tile_id < tileset.tiles.size())
-						wangset.tile = &tileset.tiles[tile_id];
-				}
+				wangset.tile_id = wangset_node.attribute("tile").as_int(); //-1 in case of no tile
 				for (pugi::xml_node wangcolor_node : wangset_node.children("wangcolor")) {
 					WangColor& wangcolor = wangset.colors.emplace_back();
 					wangcolor.name = wangcolor_node.attribute("name").as_string();
 					wangcolor.class_ = wangcolor_node.attribute("class").as_string();
 					_load_properties(wangcolor_node, wangcolor.properties);
-					{
-						int tile_id = wangcolor_node.attribute("tile").as_int(); //-1 in case of no tile
-						if (0 <= tile_id && tile_id < tileset.tiles.size())
-							wangcolor.tile = &tileset.tiles[tile_id];
-					}
+					wangset.tile_id = wangcolor_node.attribute("tile").as_int(); //-1 in case of no tile
 					wangcolor.probability = wangcolor_node.attribute("probability").as_float();
 					{
 						std::string color_str = wangcolor_node.attribute("color").as_string();
