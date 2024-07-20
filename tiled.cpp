@@ -3,7 +3,6 @@
 #include <pugixml.hpp>
 #include "console.h"
 #include "filesystem.h"
-#include <filesystem>
 
 namespace tiled
 {
@@ -119,17 +118,18 @@ namespace tiled
 	{
 		// FIND AND ALLOCATE ROOM FOR TILESETS, TEMPLATES, AND MAPS
 		
-		for (const std::filesystem::directory_entry& entry :
-			std::filesystem::recursive_directory_iterator(dir))
-		{
-			if (!entry.is_regular_file()) continue;
-			std::string extension = entry.path().extension().string();
-			if (extension == ".tsx")
-				_tilesets.emplace_back().path = entry.path().lexically_normal().string();
-			else if (extension == ".tx")
-				_templates.emplace_back().path = entry.path().lexically_normal().string();
-			else if (extension == ".tmx")
-				_maps.emplace_back().path = entry.path().lexically_normal().string();
+		for (const filesystem::File& file : filesystem::get_files_in_directory(dir)) {
+			switch (file.format) {
+			case filesystem::FileFormat::TiledMap: {
+				_maps.emplace_back(file.path);
+			} break;
+			case filesystem::FileFormat::TiledTileset: {
+				_tilesets.emplace_back(file.path);
+			} break;
+			case filesystem::FileFormat::TiledTemplate: {
+				_templates.emplace_back(file.path);
+			} break;
+			}
 		}
 
 		// LOAD TILESETS

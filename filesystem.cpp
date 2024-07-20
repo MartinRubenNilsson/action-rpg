@@ -30,7 +30,6 @@ namespace filesystem
 			File file{};
 			file.path = entry.path().lexically_normal().string();
 			file.format = _get_file_format_from_extension(file.path);
-			if (file.format == FileFormat::Unknown) continue;
 			_files.push_back(std::move(file));
 		}
 		std::ranges::sort(_files, {}, &File::path);
