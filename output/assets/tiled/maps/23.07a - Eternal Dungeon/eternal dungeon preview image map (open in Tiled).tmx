@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.0" orientation="orthogonal" renderorder="right-down" width="20" height="12" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="12" tilewidth="16" tileheight="16" infinite="0" nextlayerid="10" nextobjectid="1">
  <tileset firstgid="1" source="TSX files/bonus shadows.tsx"/>
  <tileset firstgid="65" source="TSX files/collision &amp; alpha.tsx"/>
  <tileset firstgid="193" source="TSX files/eternal dungeon.tsx"/>
@@ -8,23 +8,67 @@
  <tileset firstgid="458" source="TSX files/eternal obelisk 48x64.tsx"/>
  <tileset firstgid="459" source="TSX files/eternal pillars 16x96.tsx"/>
  <layer id="1" name="Layer 1" width="20" height="12">
-  <data encoding="base64" compression="zstd">
-   KLUv/WDAAg0KAEZRMDAwhU1j/MNA6D1/+UP2ahANaUAsAqgTQJ0A6oSqluQkf4agIqzFhVBcCMUuEZERMgUjAB0AJwAHg+LzcC7n9Rzr1VN5Ka4bm1fzaG7m9U5cVlyv5bHIPJP3Cu/oLR3BD9zACzyet/Oi9ayi9wP0iC7gAQ7gWy9mTyUkbyTqQSGJgIR8PI+n9JKCpl6T05N6GBfP4g09IR0CH8D0jBoCL4ND40UwvAWI9/AcJDrewTN4Gwov4SFQVVC8iQuu4AmsXlU/qBFVgQhciApqjwNgAiOzPAYRkIQuIcY5EUqhe2wG9FZh2ci1V9v9yVqc2taNO5TwGphkdqW1nwL8yyebVRxf2SNyTf6u9n6ejkVdrG30gtt7wnPgxDH+LKI5n/we9U6vN53PerLHKV20R5t7j3Ly32NZ8oN5MC/HuV7HUQ==
-  </data>
+  <data encoding="csv">
+354,340,370,370,370,370,358,359,353,359,359,355,359,360,370,370,370,370,341,354,
+354,355,372,0,0,373,374,375,353,359,359,355,375,376,372,0,0,373,353,354,
+348,349,194,0,0,197,390,378,0,0,0,0,377,392,194,0,0,197,347,348,
+364,365,210,211,212,213,406,394,0,0,0,0,393,408,210,207,208,213,363,364,
+380,381,226,227,228,229,422,410,282,282,282,282,409,424,226,223,224,229,379,380,
+396,397,300,301,301,302,438,426,282,282,282,282,425,440,300,301,301,302,395,396,
+412,413,316,317,317,319,301,302,316,317,317,318,300,301,320,317,317,318,411,412,
+428,429,316,317,317,317,317,318,332,333,333,334,316,317,317,317,317,318,427,428,
+444,445,316,252,253,254,317,318,295,296,296,297,316,317,252,253,254,318,443,444,
+296,297,316,268,269,270,317,318,311,260,261,313,316,317,268,269,270,318,295,296,
+294,313,316,284,285,286,317,318,311,276,277,313,316,317,284,285,286,318,311,292,
+310,313,316,317,317,317,317,318,311,312,312,313,316,317,317,317,317,318,311,308
+</data>
  </layer>
  <layer id="2" name="Layer 2" width="20" height="12">
-  <data encoding="base64" compression="zstd">
-   KLUv/WDAAs0CAPQCABrm6fb5AMYAAAAGAQAABwEAAAgBAAAJAdYAAAAWAQAAFwEAABgBAAAZAQoACQASoAC1/XcgA1s3dyic5yB2sN2Rg71SVDGIYDpQrDYJZcYf+FVDTIwF
-  </data>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,26,0,0,26,0,0,0,0,0,0,0,0,26,0,0,26,0,0,
+0,0,26,0,0,26,0,0,0,0,0,0,0,0,26,0,0,26,0,0,
+0,0,26,0,0,26,0,0,0,0,0,0,0,0,26,0,0,26,0,0,
+0,0,26,0,0,26,0,0,230,0,0,233,0,0,26,0,0,26,0,0,
+0,0,26,0,0,0,0,0,246,0,0,249,0,0,0,0,0,26,0,0,
+0,0,26,0,0,0,0,198,262,263,264,265,198,0,0,0,0,26,0,0,
+0,0,26,0,0,0,0,214,278,279,280,281,214,0,0,0,0,26,0,0,
+0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
  </layer>
  <layer id="4" name="Layer 3" width="20" height="12">
-  <data encoding="base64" compression="zstd">
-   KLUv/WDAAg0DAPQCAIIBgAEAgAHDAAAAxAAAAJBxAQAAcnOQAaCRAQAAkpMBsOcAAADosMD3AAAA+MAVoGDYLVwOsAIVTA/JULG53dBlyqzOu4u4B+XNdiOInQrd4uP2FCtoDgMMDRaZFg4=
-  </data>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,386,386,384,0,0,0,0,0,0,0,0,384,386,386,0,0,0,
+0,0,0,195,196,400,0,0,369,370,370,371,0,0,400,195,196,0,0,0,
+0,0,0,0,0,416,0,0,401,402,402,403,0,0,416,0,0,0,0,0,
+0,0,0,0,0,432,0,0,0,231,232,0,0,0,432,0,0,0,0,0,
+0,0,0,0,0,448,0,0,0,247,248,0,0,0,448,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
  </layer>
  <layer id="8" name="Collision Layer" width="20" height="12" visible="0">
-  <data encoding="base64" compression="zstd">
-   KLUv/WDAAuUBADAAQUFBQQAhoMA9MINa5y1A1SLUnJKZDKAbjIK3xuGyNYfDZX2qd4N4Ggje6CeO9Ts5Q2ZmuG83OlTdAQ==
-  </data>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,65,65,65,65,0,0,0,0,0,0,0,0,65,65,65,65,0,0,
+0,65,65,0,0,65,0,0,65,65,65,65,0,0,65,0,0,65,65,0,
+0,65,0,0,0,65,65,65,65,0,0,65,65,65,65,0,0,0,65,0,
+0,65,0,0,0,0,0,0,65,0,0,65,0,0,0,0,0,0,65,0,
+0,65,0,0,0,0,0,65,65,0,0,65,65,0,0,0,0,0,65,0,
+65,65,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,65,65,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
  </layer>
 </map>
