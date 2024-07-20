@@ -6,18 +6,18 @@
 
 namespace tiled
 {
-	constexpr uint32_t _FLIP_HORIZONTAL_BIT = 0x80000000;
-	constexpr uint32_t _FLIP_VERTICAL_BIT   = 0x40000000;
-	constexpr uint32_t _FLIP_DIAGONAL_BIT   = 0x20000000;
-	constexpr uint32_t _FLIP_ROTATE_120_BIT = 0x10000000;
-	constexpr uint32_t _FLIP_FLAGS_BITMASK =
+	constexpr unsigned int _FLIP_HORIZONTAL_BIT = 0x80000000;
+	constexpr unsigned int _FLIP_VERTICAL_BIT   = 0x40000000;
+	constexpr unsigned int _FLIP_DIAGONAL_BIT   = 0x20000000;
+	constexpr unsigned int _FLIP_ROTATE_120_BIT = 0x10000000;
+	constexpr unsigned int _FLIP_FLAGS_BITMASK =
 		_FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
 
-	uint32_t _get_gid(uint32_t gid_with_flip_flags) {
+	unsigned int _get_gid(unsigned int gid_with_flip_flags) {
 		return gid_with_flip_flags & ~_FLIP_FLAGS_BITMASK;
 	}
 
-	uint8_t _get_flip_flags(uint32_t gid_with_flip_flags)
+	uint8_t _get_flip_flags(unsigned int gid_with_flip_flags)
 	{
 		uint8_t flip_flags = 0;
 		if (gid_with_flip_flags & _FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
@@ -50,7 +50,7 @@ namespace tiled
 			} else if (strcmp(type, "file") == 0) {
 				// TODO
 			} else if (strcmp(type, "object") == 0) {
-				uint32_t id = value.as_uint(); // 0 when no object is referenced
+				unsigned int id = value.as_uint(); // 0 when no object is referenced
 				properties.set_entity(name, id ? (entt::entity)id : entt::null);
 			} else if (strcmp(type, "class") == 0) {
 				// TODO
@@ -155,7 +155,7 @@ namespace tiled
 			tileset.image_path = filesystem::get_normalized_path(tileset.image_path);
 			_load_properties(tileset_node, tileset.properties);
 			tileset.tiles.resize(tileset.tile_count);
-			for (uint32_t id = 0; id < tileset.tile_count; ++id) {
+			for (unsigned int id = 0; id < tileset.tile_count; ++id) {
 				Tile& tile = tileset.tiles[id];
 				tile.tileset = &tileset;
 				tile.id = id;
@@ -208,7 +208,7 @@ namespace tiled
 					size_t i = 0;
 					while (std::getline(ss, token, ',')) {
 						assert(i < WangTile::COUNT);
-						if (uint32_t wang_id = std::stoul(token)) // 0 means unset, 1 means first color, etc.
+						if (unsigned int wang_id = std::stoul(token)) // 0 means unset, 1 means first color, etc.
 							wangtile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
 						++i;
 					}
@@ -237,9 +237,9 @@ namespace tiled
 				tileset_path += '/';
 				tileset_path += source_attribute.as_string();
 				tileset_path = filesystem::get_normalized_path(tileset_path);
-				uint32_t gid_with_flip_flags = object_node.attribute("gid").as_uint();
-				uint32_t gid = _get_gid(gid_with_flip_flags);
-				uint32_t id = gid - tileset_node.attribute("firstgid").as_uint();
+				unsigned int gid_with_flip_flags = object_node.attribute("gid").as_uint();
+				unsigned int gid = _get_gid(gid_with_flip_flags);
+				unsigned int id = gid - tileset_node.attribute("firstgid").as_uint();
 				const Tile* tile = nullptr;
 				for (const Tileset& tileset : _tilesets) {
 					if (tileset.path == tileset_path) {
@@ -276,7 +276,7 @@ namespace tiled
 			struct ReferencedTileset
 			{
 				const Tileset* tileset = nullptr;
-				uint32_t first_gid = UINT32_MAX; // The global tile ID of the first tile in the tileset.
+				unsigned int first_gid = UINT32_MAX; // The global tile ID of the first tile in the tileset.
 			};
 			std::vector<ReferencedTileset> referenced_tilesets;
 			for (pugi::xml_node tileset_node : map_node.children("tileset")) {
@@ -322,7 +322,7 @@ namespace tiled
 						layer.height = 0;
 						continue;
 					}
-					std::vector<uint32_t> gids_with_flip_flags;
+					std::vector<unsigned int> gids_with_flip_flags;
 					gids_with_flip_flags.reserve(layer.width * layer.height);
 					{
 						std::istringstream ss(data_node.text().as_string());
@@ -333,9 +333,9 @@ namespace tiled
 					assert(gids_with_flip_flags.size() == layer.width * layer.height);
 					layer.tiles.resize(gids_with_flip_flags.size());
 					for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
-						uint32_t gid_with_flip_flag = gids_with_flip_flags[i];
+						unsigned int gid_with_flip_flag = gids_with_flip_flags[i];
 						if (!gid_with_flip_flag) continue; // 0 means no tile
-						uint32_t gid = _get_gid(gid_with_flip_flag);
+						unsigned int gid = _get_gid(gid_with_flip_flag);
 						const Tile* tile = nullptr;
 						for (const auto& [tileset, first_gid] : referenced_tilesets) {
 							if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
@@ -370,8 +370,8 @@ namespace tiled
 						}
 						_load_object(object_node, object);
 						if (pugi::xml_attribute gid_attribute = object_node.attribute("gid")) {
-							uint32_t gid_with_flip_flags = gid_attribute.as_uint();
-							uint32_t gid = _get_gid(gid_with_flip_flags);
+							unsigned int gid_with_flip_flags = gid_attribute.as_uint();
+							unsigned int gid = _get_gid(gid_with_flip_flags);
 							const Tile* tile = nullptr;
 							for (const auto& [tileset, first_gid] : referenced_tilesets) {
 								if (gid >= first_gid && gid < first_gid + tileset->tile_count) {

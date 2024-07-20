@@ -41,7 +41,7 @@ namespace tiled
 
 	struct Frame
 	{
-		uint32_t duration = 0; // in milliseconds
+		unsigned int duration = 0; // in milliseconds
 		const Tile* tile = nullptr;
 	};
 	
@@ -69,11 +69,11 @@ namespace tiled
 
 	struct Tile
 	{
-		uint32_t id = 0; // index into Tileset::tiles
-		uint32_t left = 0; // in pixels
-		uint32_t top = 0; // in pixels
-		uint32_t width = 0; // in pixels
-		uint32_t height = 0; // in pixels
+		unsigned int id = 0; // index into Tileset::tiles
+		unsigned int left = 0; // in pixels
+		unsigned int top = 0; // in pixels
+		unsigned int width = 0; // in pixels
+		unsigned int height = 0; // in pixels
 		std::string class_;
 		Properties properties;
 		std::vector<Object>	objects;
@@ -116,12 +116,12 @@ namespace tiled
 		Properties properties;
 		std::vector<Tile> tiles; // size = tile_count
 		std::vector<WangSet> wangsets;
-		uint32_t tile_count = 0;
-		uint32_t columns = 0;
-		uint32_t tile_width = 0; // in pixels
-		uint32_t tile_height = 0; // in pixels
-		uint32_t spacing = 0; // in pixels
-		uint32_t margin = 0; // in pixels
+		unsigned int tile_count = 0;
+		unsigned int columns = 0;
+		unsigned int tile_width = 0; // in pixels
+		unsigned int tile_height = 0; // in pixels
+		unsigned int spacing = 0; // in pixels
+		unsigned int margin = 0; // in pixels
 	};
 
 	struct Layer
@@ -131,8 +131,8 @@ namespace tiled
 		Properties properties;
 		std::vector<TileInstance> tiles; // nonempty if tile layer; size = width * height
 		std::vector<Object> objects; // nonempty if object layer 
-		uint32_t width = 0; // in tiles
-		uint32_t height = 0; // in tiles
+		unsigned int width = 0; // in tiles
+		unsigned int height = 0; // in tiles
 		bool visible = true;
 	};
 
@@ -143,10 +143,10 @@ namespace tiled
 		std::string class_;
 		Properties properties;
 		std::vector<Layer> layers;
-		uint32_t width = 0; // in tiles
-		uint32_t height = 0; // in tiles
-		uint32_t tile_width = 0; // in pixels
-		uint32_t tile_height = 0; // in pixels
+		unsigned int width = 0; // in tiles
+		unsigned int height = 0; // in tiles
+		unsigned int tile_width = 0; // in pixels
+		unsigned int tile_height = 0; // in pixels
 	};
 
 	// Loads all tilesets (.tsx), then all templates (.tx), then all maps (.tmx).
