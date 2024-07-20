@@ -106,13 +106,32 @@ namespace tiled
 		}
 	}
 
-	bool _is_tile_layer(const char* str) { return strcmp(str, "layer") == 0; }
-	bool _is_object_layer(const char* str) { return strcmp(str, "objectgroup") == 0; }
-	bool _is_image_layer(const char* str) { return strcmp(str, "imagelayer") == 0; }
-	bool _is_group_layer(const char* str) { return strcmp(str, "group") == 0; }
-	bool _is_layer(const char* str) {
+	bool _is_tile_layer(const char* str)
+	{
+		return strcmp(str, "layer") == 0;
+	
+	}
+	bool _is_object_layer(const char* str)
+	{
+		return strcmp(str, "objectgroup") == 0;
+	}
+
+	bool _is_image_layer(const char* str)
+	{
+		return strcmp(str, "imagelayer") == 0;
+	}
+
+	bool _is_group_layer(const char* str)
+	{
+		return strcmp(str, "group") == 0;
+	}
+
+	bool _is_layer(const char* str)
+	{
 		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
+
+
 
 	void load_assets(const std::string& dir)
 	{
@@ -316,38 +335,50 @@ namespace tiled
 				_load_properties(layer_node, layer.properties);
 				if (_is_tile_layer(layer_node.name())) {
 					pugi::xml_node data_node = layer_node.child("data");
-					if (strcmp(data_node.attribute("encoding").as_string(), "csv") != 0) {
-						console::log_error("Only CSV encoding is supported: " + map.path);
-						layer.width = 0;
-						layer.height = 0;
-						continue;
-					}
-					std::vector<unsigned int> gids_with_flip_flags;
-					gids_with_flip_flags.reserve(layer.width * layer.height);
-					{
-						std::istringstream ss(data_node.text().as_string());
-						std::string token;
-						while (std::getline(ss, token, ','))
-							gids_with_flip_flags.push_back(std::stoul(token));
-					}
-					assert(gids_with_flip_flags.size() == layer.width * layer.height);
-					layer.tiles.resize(gids_with_flip_flags.size());
-					for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
-						unsigned int gid_with_flip_flag = gids_with_flip_flags[i];
-						if (!gid_with_flip_flag) continue; // 0 means no tile
-						unsigned int gid = _get_gid(gid_with_flip_flag);
-						const Tile* tile = nullptr;
-						for (const auto& [tileset, first_gid] : referenced_tilesets) {
-							if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
-								tile = &tileset->tiles[gid - first_gid];
-								break;
+					const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
+					if (strcmp(encoding, "csv") == 0) {
+						std::vector<unsigned int> gids_with_flip_flags;
+						gids_with_flip_flags.reserve(layer.width * layer.height);
+						{
+							std::istringstream ss(data_node.text().as_string());
+							std::string token;
+							while (std::getline(ss, token, ',')) {
+								gids_with_flip_flags.push_back(std::stoul(token));
 							}
 						}
-						if (!tile) {
-							console::log_error("Failed to find tile with GID: " + std::to_string(gid));
-							continue;
+						assert(gids_with_flip_flags.size() == layer.width * layer.height);
+						layer.tiles.resize(gids_with_flip_flags.size());
+						for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
+							unsigned int gid_with_flip_flag = gids_with_flip_flags[i];
+							if (!gid_with_flip_flag) continue; // 0 means no tile
+							unsigned int gid = _get_gid(gid_with_flip_flag);
+							const Tile* tile = nullptr;
+							for (const auto& [tileset, first_gid] : referenced_tilesets) {
+								if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
+									tile = &tileset->tiles[gid - first_gid];
+									break;
+								}
+							}
+							if (!tile) {
+								console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+								continue;
+							}
+							layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
 						}
-						layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
+					} else if (strcmp(encoding, "base64") == 0) {
+						console::log_error(
+							"Unsupported Tiled map tile layer encoding: base64\n"
+							"  Map: " + map.path + "\n"
+							"  Layer: " + layer.name);
+						layer.width = 0;
+						layer.height = 0;
+					} else {
+						console::log_error(
+							"Unknown Tiled map tile layer encoding.\n"
+							"  Map: " + map.path + "\n"
+							"  Layer: " + layer.name);
+						layer.width = 0;
+						layer.height = 0;
 					}
 				} else if (_is_object_layer(layer_node.name())) {
 					for (pugi::xml_node object_node : layer_node.children("object")) {
