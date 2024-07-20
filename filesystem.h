@@ -6,7 +6,7 @@ namespace filesystem
 	{
 		Unknown,
 		Text, // .txt
-		PNG, // .png
+		PngImage, // .png
 		TiledMap, // .tmx
 		TiledTileset, // .tsx
 		TiledTemplate, // .tx

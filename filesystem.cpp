@@ -9,7 +9,7 @@ namespace filesystem
 	FileFormat _get_file_format_from_extension(std::string_view path)
 	{
 		if (path.ends_with(".txt"))  return FileFormat::Text;
-		if (path.ends_with(".png"))  return FileFormat::PNG;
+		if (path.ends_with(".png"))  return FileFormat::PngImage;
 		if (path.ends_with(".tmx"))  return FileFormat::TiledMap;
 		if (path.ends_with(".tsx"))  return FileFormat::TiledTileset;
 		if (path.ends_with(".tx"))   return FileFormat::TiledTemplate;
