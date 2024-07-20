@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.0" name="eternal dungeon 16x32" tilewidth="16" tileheight="32" tilecount="8" columns="4">
+<tileset version="1.10" tiledversion="1.10.2" name="eternal dungeon 16x32" tilewidth="16" tileheight="32" tilecount="8" columns="4">
  <image source="../eternal dungeon objects/eternal dungeon 16x32.png" width="64" height="64"/>
  <tile id="4">
   <animation>
