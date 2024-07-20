@@ -39,20 +39,17 @@ int main(int argc, char* argv[])
     ui::initialize();
     ecs::initialize();
 
-    for (const auto& entry : std::filesystem::directory_iterator("assets/audio/banks")) {
-        if (!entry.is_regular_file()) continue;
-        if (entry.path().extension() != ".bank") continue;
-        audio::load_bank_from_file(entry.path().string());
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/audio/banks")) {
+        if (file.format != filesystem::FileFormat::FmodStudioBank) continue;
+        audio::load_bank_from_file(file.path);
     }
-    for (const auto& entry : std::filesystem::directory_iterator("assets/fonts")) {
-        if (!entry.is_regular_file()) continue;
-        if (entry.path().extension() != ".ttf") continue;
-        ui::load_font_from_file(entry.path().string());
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/fonts")) {
+        if (file.format != filesystem::FileFormat::TrueTypeFont) continue;
+        ui::load_font_from_file(file.path);
     }
-    for (const auto& entry : std::filesystem::directory_iterator("assets/ui")) {
-        if (!entry.is_regular_file()) continue;
-        if (entry.path().extension() != ".rml") continue;
-        ui::load_document_from_file(entry.path().string());
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/ui")) {
+        if (file.format != filesystem::FileFormat::RmlUiDocument) continue;
+        ui::load_document_from_file(file.path);
     }
     tiled::load_assets("assets/tiled");
 

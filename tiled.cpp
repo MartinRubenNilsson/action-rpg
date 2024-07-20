@@ -3,6 +3,7 @@
 #include <pugixml.hpp>
 #include "console.h"
 #include "filesystem.h"
+#include <filesystem>
 
 namespace tiled
 {

@@ -4,8 +4,7 @@
 
 namespace filesystem
 {
-	std::vector<std::string> _file_paths;
-	std::vector<FileFormat> _file_formats;
+	std::vector<File> _files;
 
 	FileFormat _get_file_format_from_extension(std::string_view path)
 	{
@@ -20,34 +19,43 @@ namespace filesystem
 		if (path.ends_with(".rml"))  return FileFormat::RmlUiDocument;
 		if (path.ends_with(".rcss")) return FileFormat::RmlUiStyleSheet;
 		if (path.ends_with(".bank")) return FileFormat::FmodStudioBank;
-		if (path.ends_with(".dll"))  return FileFormat::DynamicLinkLibrary;
-		if (path.ends_with(".exe"))  return FileFormat::Executable;
 		return FileFormat::Unknown;
 	}
 
 	void initialize()
 	{
-		_file_paths.clear();
+		_files.clear();
 		for (const auto& entry : std::filesystem::recursive_directory_iterator(".")) {
-			if (entry.is_regular_file()) {
-				_file_paths.push_back(entry.path().lexically_normal().string());
-			}
+			if (!entry.is_regular_file()) continue;
+			File file{};
+			file.path = entry.path().lexically_normal().string();
+			file.format = _get_file_format_from_extension(file.path);
+			if (file.format == FileFormat::Unknown) continue;
+			_files.push_back(std::move(file));
 		}
-		std::sort(_file_paths.begin(), _file_paths.end());
-
-		_file_formats.clear();
-		_file_formats.reserve(_file_paths.size());
-		for (const std::string& path : _file_paths) {
-			_file_formats.push_back(_get_file_format_from_extension(path));
-		}
-
-		return;
+		std::ranges::sort(_files, {}, &File::path);
 	}
 
-	//std::span<const std::string> get_paths_in_directory(const std::string& directory)
-	//{
-	//
-	//}
+	size_t get_file_count()
+	{
+		return _files.size();
+	}
+
+	std::span<const File> get_files()
+	{
+		return _files;
+	}
+
+	std::span<const File> get_files_in_directory(const std::string& directory_path)
+	{
+		const std::string normalized_directory_path = get_normalized_path(directory_path);
+		const size_t prefix_size = normalized_directory_path.size();
+		auto [first, last] = std::ranges::equal_range(_files, File{ .path = normalized_directory_path },
+			[prefix_size](const File& left, const File& right) {
+			return strncmp(left.path.c_str(), right.path.c_str(), prefix_size) < 0;
+		});
+		return std::span<const File>{first, last};
+	}
 
 	std::string get_normalized_path(const std::string& path)
 	{

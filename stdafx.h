@@ -2,7 +2,6 @@
 #include "config.h"
 
 #include <deque>
-#include <filesystem>
 #include <format>
 #include <fstream>
 #include <iostream>

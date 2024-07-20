@@ -17,13 +17,23 @@ namespace filesystem
 		RmlUiDocument, // .rml
 		RmlUiStyleSheet, // .rcss
 		FmodStudioBank, // .bank
-		DynamicLinkLibrary, // .dll
-		Executable, // .exe
+	};
+
+	struct File
+	{
+		std::string path;
+		FileFormat format = FileFormat::Unknown;
 	};
 
 	void initialize();
 
-	//std::span<const std::string> get_paths_in_directory(const std::string& directory);
+	// FILES
+
+	size_t get_file_count();
+	std::span<const File> get_files();
+	std::span<const File> get_files_in_directory(const std::string& directory_path); // recursive
+
+	// PATHS
 
 	std::string get_normalized_path(const std::string& path);
 	std::string get_parent_path(const std::string& path);
