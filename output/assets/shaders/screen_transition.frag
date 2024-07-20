@@ -3,6 +3,7 @@
 uniform sampler2D tex;
 uniform float pixel_scale;
 uniform float progress;
+out vec4 frag_color;
 
 void main()
 {
@@ -25,10 +26,10 @@ void main()
     float total_progress = (pixel_progress + diamond_progress) / 2.0; // <= 1.0
 
     if (progress < 0.0 && 1.0 + progress < total_progress) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        frag_color = vec4(0.0, 0.0, 0.0, 1.0);
     } else if (progress > 0.0 && total_progress < progress) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        frag_color = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
-        gl_FragColor = texture(tex, gl_FragCoord.xy / tex_size);
+        frag_color = texture(tex, gl_FragCoord.xy / tex_size);
 	}
 }
