@@ -2,7 +2,6 @@
 
 namespace filesystem
 {
-	//These are not used for anything rn
 	enum class FileFormat
 	{
 		Unknown,
