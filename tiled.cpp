@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "tiled.h"
 #include <pugixml.hpp>
+#include <zlib.h>
 #include "console.h"
 #include "filesystem.h"
 
@@ -10,10 +11,10 @@ namespace tiled
 	constexpr unsigned int _FLIP_VERTICAL_BIT   = 0x40000000;
 	constexpr unsigned int _FLIP_DIAGONAL_BIT   = 0x20000000;
 	constexpr unsigned int _FLIP_ROTATE_120_BIT = 0x10000000;
-	constexpr unsigned int _FLIP_FLAGS_BITMASK =
-		_FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
+	constexpr unsigned int _FLIP_FLAGS_BITMASK = _FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
 
-	unsigned int _get_gid(unsigned int gid_with_flip_flags) {
+	unsigned int _get_gid(unsigned int gid_with_flip_flags)
+	{
 		return gid_with_flip_flags & ~_FLIP_FLAGS_BITMASK;
 	}
 
@@ -139,19 +140,19 @@ namespace tiled
 		/* A-Z */ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0,
 		/* a-z */ 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 
-	void _base64_decode(const unsigned char* input, size_t input_size, unsigned char* output, size_t output_size)
+	void _base64_decode(unsigned char* dest, size_t dest_len, const unsigned char* source, size_t source_len)
 	{
-		if (!input || !output) return;
+		if (!dest || !source) return;
 		size_t i = 0;
 		size_t j = 0;
-		while (i + 3 < input_size && j + 2 < output_size) {
-			unsigned char a = _BASE64_DECODING_TABLE[input[i++]];
-			unsigned char b = _BASE64_DECODING_TABLE[input[i++]];
-			unsigned char c = _BASE64_DECODING_TABLE[input[i++]];
-			unsigned char d = _BASE64_DECODING_TABLE[input[i++]];
-			output[j++] = (a << 2) | (b >> 4);
-			output[j++] = (b << 4) | (c >> 2);
-			output[j++] = (c << 6) | d;
+		while (i + 3 < source_len && j + 2 < dest_len) {
+			unsigned char a = _BASE64_DECODING_TABLE[source[i++]];
+			unsigned char b = _BASE64_DECODING_TABLE[source[i++]];
+			unsigned char c = _BASE64_DECODING_TABLE[source[i++]];
+			unsigned char d = _BASE64_DECODING_TABLE[source[i++]];
+			dest[j++] = (a << 2) | (b >> 4);
+			dest[j++] = (b << 4) | (c >> 2);
+			dest[j++] = (c << 6) | d;
 		}
 	}
 
@@ -249,8 +250,9 @@ namespace tiled
 					size_t i = 0;
 					while (std::getline(ss, token, ',')) {
 						assert(i < WangTile::COUNT);
-						if (unsigned int wang_id = std::stoul(token)) // 0 means unset, 1 means first color, etc.
+						if (unsigned int wang_id = std::stoul(token)) { // 0 means unset, 1 means first color, etc.
 							wangtile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
+						}
 						++i;
 					}
 				}
@@ -343,9 +345,11 @@ namespace tiled
 				}
 			}
 			std::vector<pugi::xml_node> layer_node_stack;
-			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children()))
-				if (_is_layer(child_node.name()))
+			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children())) {
+				if (_is_layer(child_node.name())) {
 					layer_node_stack.push_back(child_node);
+				}
+			}
 			while (!layer_node_stack.empty()) {
 				pugi::xml_node layer_node = layer_node_stack.back();
 				layer_node_stack.pop_back();
@@ -361,25 +365,56 @@ namespace tiled
 					const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
 					// Each unsigned 32-bit integer in the data array stores a global tile ID
 					// in the lower 28 bits and flip flags in the higher 4 bits.
-					std::vector<unsigned int> data; 
+					std::vector<unsigned int> data(layer.width * layer.height);
 					if (strcmp(encoding, "csv") == 0) {
 						std::istringstream ss(data_node.text().as_string());
 						std::string token;
-						data.reserve(layer.width * layer.height);
-						while (std::getline(ss, token, ',')) {
-							data.push_back(std::stoul(token));
+						size_t i = 0;
+						while (i < data.size() && std::getline(ss, token, ',')) {
+							data[i++] = std::stoul(token);
 						}
 					} else if (strcmp(encoding, "base64") == 0) {
-						data.resize(layer.width * layer.height);
-						const char* base64_string = data_node.text().as_string();
-						// Skip leading whitespace
-						while (base64_string && *base64_string && isspace(*base64_string)) {
-							++base64_string;
+
+						std::vector<unsigned char> compressed_data;
+
+						// DECODE BASE64
+						{
+							std::string_view base64_string = data_node.text().as_string();
+							// Skip leading whitespace
+							while (!base64_string.empty() && isspace(base64_string.front())) {
+								base64_string.remove_prefix(1);
+							}
+							// Skip trailing whitespace
+							while (!base64_string.empty() && isspace(base64_string.back())) {
+								base64_string.remove_suffix(1);
+							}
+							// Base64 string length must be a multiple of 4
+							assert(base64_string.size() % 4 == 0);
+							compressed_data.resize((base64_string.size() / 4) * 3);
+							_base64_decode(compressed_data.data(), compressed_data.size(),
+								(const unsigned char*)base64_string.data(), base64_string.size());
 						}
-						size_t string_size = strlen(base64_string);
-						unsigned char* buffer = (unsigned char*)data.data();
-						size_t buffer_size = data.size() * sizeof(unsigned int);
-						_base64_decode((unsigned char*)base64_string, string_size, buffer, buffer_size);
+
+						// DECOMPRESS (OPTIONAL)
+
+						const pugi::char_t* compression = data_node.attribute("compression").as_string();
+						if (strcmp(compression, "zlib") == 0) {
+
+						} else if (strcmp(compression, "") == 0) { // No compression
+							// We may have up to 3 bytes of padding at the end of compressed_data
+							// as a result of the Base64 decoding process; these can be discarded.
+							assert(compressed_data.size() >= data.size() * sizeof(unsigned int));
+							memcpy(data.data(), compressed_data.data(), data.size() * sizeof(unsigned int));
+						} else {
+							console::log_error(
+								"Unknown Tiled map tile layer compression: " + std::string(compression) + "\n"
+								"  Map: " + map.path + "\n"
+								"  Layer: " + layer.name);
+							layer.width = 0;
+							layer.height = 0;
+							continue;
+						}
+
 					} else {
 						console::log_error(
 							"Unknown Tiled map tile layer encoding.\n"
@@ -389,7 +424,6 @@ namespace tiled
 						layer.height = 0;
 						continue;
 					}
-					assert(data.size() == layer.width * layer.height);
 					layer.tiles.resize(data.size());
 					for (size_t i = 0; i < data.size(); ++i) {
 						unsigned int gid_with_flip_flag = data[i];
