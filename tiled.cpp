@@ -395,11 +395,13 @@ namespace tiled
 								(const unsigned char*)base64_string.data(), base64_string.size());
 						}
 
-						// DECOMPRESS (OPTIONAL)
+						// DECOMPRESS
 
 						const pugi::char_t* compression = data_node.attribute("compression").as_string();
 						if (strcmp(compression, "zlib") == 0) {
-
+							uLongf data_size = (uLongf)(data.size() * sizeof(unsigned int));
+							uncompress((Bytef*)data.data(), &data_size,
+								(Bytef*)compressed_data.data(), (uLongf)compressed_data.size());
 						} else if (strcmp(compression, "") == 0) { // No compression
 							// We may have up to 3 bytes of padding at the end of compressed_data
 							// as a result of the Base64 decoding process; these can be discarded.
