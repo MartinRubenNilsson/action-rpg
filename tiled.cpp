@@ -131,7 +131,29 @@ namespace tiled
 		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
 	}
 
+	// Maps each ASCII character to its corresponding 6-bit Base64 value,
+	// or 0 if the character is not part of the Base64 alphabet.
+	const unsigned char _BASE64_DECODING_TABLE[256] = {
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		/* + */ 62, 0, 0, 0, /* / */ 63, /* 0-9 */ 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, /* = */ 0, 0, 0, 0, 0,
+		/* A-Z */ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0, 0,
+		/* a-z */ 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 };
 
+	void _base64_decode(const unsigned char* input, size_t input_size, unsigned char* output, size_t output_size)
+	{
+		if (!input || !output) return;
+		size_t i = 0;
+		size_t j = 0;
+		while (i + 3 < input_size && j + 2 < output_size) {
+			unsigned char a = _BASE64_DECODING_TABLE[input[i++]];
+			unsigned char b = _BASE64_DECODING_TABLE[input[i++]];
+			unsigned char c = _BASE64_DECODING_TABLE[input[i++]];
+			unsigned char d = _BASE64_DECODING_TABLE[input[i++]];
+			output[j++] = (a << 2) | (b >> 4);
+			output[j++] = (b << 4) | (c >> 2);
+			output[j++] = (c << 6) | d;
+		}
+	}
 
 	void load_assets(const std::string& dir)
 	{
@@ -316,8 +338,9 @@ namespace tiled
 						break;
 					}
 				}
-				if (!found)
+				if (!found) {
 					console::log_error("Failed to find tileset: " + tileset_path);
+				}
 			}
 			std::vector<pugi::xml_node> layer_node_stack;
 			for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children()))
@@ -336,42 +359,27 @@ namespace tiled
 				if (_is_tile_layer(layer_node.name())) {
 					pugi::xml_node data_node = layer_node.child("data");
 					const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
+					// Each unsigned 32-bit integer in the data array stores a global tile ID
+					// in the lower 28 bits and flip flags in the higher 4 bits.
+					std::vector<unsigned int> data; 
 					if (strcmp(encoding, "csv") == 0) {
-						std::vector<unsigned int> gids_with_flip_flags;
-						gids_with_flip_flags.reserve(layer.width * layer.height);
-						{
-							std::istringstream ss(data_node.text().as_string());
-							std::string token;
-							while (std::getline(ss, token, ',')) {
-								gids_with_flip_flags.push_back(std::stoul(token));
-							}
-						}
-						assert(gids_with_flip_flags.size() == layer.width * layer.height);
-						layer.tiles.resize(gids_with_flip_flags.size());
-						for (size_t i = 0; i < gids_with_flip_flags.size(); ++i) {
-							unsigned int gid_with_flip_flag = gids_with_flip_flags[i];
-							if (!gid_with_flip_flag) continue; // 0 means no tile
-							unsigned int gid = _get_gid(gid_with_flip_flag);
-							const Tile* tile = nullptr;
-							for (const auto& [tileset, first_gid] : referenced_tilesets) {
-								if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
-									tile = &tileset->tiles[gid - first_gid];
-									break;
-								}
-							}
-							if (!tile) {
-								console::log_error("Failed to find tile with GID: " + std::to_string(gid));
-								continue;
-							}
-							layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
+						std::istringstream ss(data_node.text().as_string());
+						std::string token;
+						data.reserve(layer.width * layer.height);
+						while (std::getline(ss, token, ',')) {
+							data.push_back(std::stoul(token));
 						}
 					} else if (strcmp(encoding, "base64") == 0) {
-						console::log_error(
-							"Unsupported Tiled map tile layer encoding: base64\n"
-							"  Map: " + map.path + "\n"
-							"  Layer: " + layer.name);
-						layer.width = 0;
-						layer.height = 0;
+						data.resize(layer.width * layer.height);
+						const char* base64_string = data_node.text().as_string();
+						// Skip leading whitespace
+						while (base64_string && *base64_string && isspace(*base64_string)) {
+							++base64_string;
+						}
+						size_t string_size = strlen(base64_string);
+						unsigned char* buffer = (unsigned char*)data.data();
+						size_t buffer_size = data.size() * sizeof(unsigned int);
+						_base64_decode((unsigned char*)base64_string, string_size, buffer, buffer_size);
 					} else {
 						console::log_error(
 							"Unknown Tiled map tile layer encoding.\n"
@@ -379,6 +387,26 @@ namespace tiled
 							"  Layer: " + layer.name);
 						layer.width = 0;
 						layer.height = 0;
+						continue;
+					}
+					assert(data.size() == layer.width * layer.height);
+					layer.tiles.resize(data.size());
+					for (size_t i = 0; i < data.size(); ++i) {
+						unsigned int gid_with_flip_flag = data[i];
+						if (!gid_with_flip_flag) continue; // 0 means no tile
+						unsigned int gid = _get_gid(gid_with_flip_flag);
+						const Tile* tile = nullptr;
+						for (const auto& [tileset, first_gid] : referenced_tilesets) {
+							if (first_gid <= gid && gid < first_gid + tileset->tile_count) {
+								tile = &tileset->tiles[gid - first_gid];
+								break;
+							}
+						}
+						if (!tile) {
+							console::log_error("Failed to find tile with GID: " + std::to_string(gid));
+							continue;
+						}
+						layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
 					}
 				} else if (_is_object_layer(layer_node.name())) {
 					for (pugi::xml_node object_node : layer_node.children("object")) {
@@ -396,8 +424,9 @@ namespace tiled
 									break;
 								}
 							}
-							if (!found)
+							if (!found) {
 								console::log_error("Failed to find template: " + template_path);
+							}
 						}
 						_load_object(object_node, object);
 						if (pugi::xml_attribute gid_attribute = object_node.attribute("gid")) {
