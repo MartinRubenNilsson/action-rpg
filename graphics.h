@@ -72,6 +72,7 @@ namespace graphics
 	void bind_texture(unsigned int texture_unit, Handle<Texture> handle);
 	void unbind_texture(unsigned int texture_unit);
 
+	void update_texture(Handle<Texture> handle, const unsigned char* data);
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
 	void set_texture_filter(Handle<Texture> handle, TextureFilter filter);
 	TextureFilter get_texture_filter(Handle<Texture> handle);
@@ -108,6 +109,7 @@ namespace graphics
 	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangles(unsigned int vertex_count);
+	void draw_triangles(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangles(
 		const Vertex* vertices, unsigned int vertex_count,
 		unsigned int* indices, unsigned int index_count);

@@ -622,6 +622,14 @@ namespace graphics
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	void update_texture(Handle<Texture> handle, const unsigned char* data)
+	{
+		const Texture* texture = _texture_pool.get(handle);
+		if (!texture) return;
+		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RED, GL_UNSIGNED_BYTE, data);
+	}
+
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)
 	{
 		if (const Texture* texture = _texture_pool.get(handle)) {
@@ -836,6 +844,14 @@ namespace graphics
 	{
 		if (!vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+	}
+
+	void draw_triangles(const Vertex* vertices, unsigned int vertex_count)
+	{
+		if (!vertices || !vertex_count) return;
+		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 	}
 

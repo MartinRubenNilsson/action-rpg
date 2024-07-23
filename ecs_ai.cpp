@@ -78,21 +78,7 @@ namespace ecs
         text::Text text{};
         text.font = fonts::load_font("assets/fonts/Helvetica.ttf");;
         text.pixel_height = 48.f;
-        text.scale = { 0.1f, 0.1f };
-#if 0
-        text.setCharacterSize(48);
-        text.setScale(0.1f, 0.1f);
-        text.setFillColor(colors::WHITE);
-        text.setOutlineColor(Color::Black);
-        text.setOutlineThickness(2.f);
-        for (const Text& t : _texts) {
-            //TODO: culling
-            text.setString(t.unicode_string);
-            text.setPosition(t.position);
-            text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
-            target.draw(text);
-        }
-#endif
+        text.scale = { 0.2f, 0.2f };
 
         uint32_t paths_drawn = 0;
 

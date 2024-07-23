@@ -2,14 +2,9 @@
 #include "text.h"
 #include "fonts.h"
 #include "graphics.h"
-#include "shapes.h"
 
 namespace text
 {
-    void shape_vertices(Text& text)
-    {
-    }
-
     void render(const Text& text)
 	{
         if (text.unicode_string.empty()) return;
@@ -33,24 +28,27 @@ namespace text
                 current_point.x += whitespace_width;
             } continue; // Don't need to create a quad for whitespaces
             case U'\t': {
-                current_point.x += whitespace_width * 4;
+                current_point.x += whitespace_width * 4.f;
             } continue; // Don't need to create a quad for whitespaces
             case U'\n': {
-                current_point.x = 0;
+                current_point.x = 0.f;
                 current_point.y += line_spacing;
             } continue; // Don't need to create a quad for whitespaces
             }
 
             const fonts::Glyph glyph = fonts::get_glyph(text.font, codepoint);
 
-            const Vector2f p0 = current_point + Vector2f((float)glyph.x0, (float)glyph.y0);
-            const Vector2f p1 = current_point + Vector2f((float)glyph.x1, (float)glyph.y1);
-            vertices.emplace_back(Vector2f(p0.x, p0.y), colors::WHITE);
-            vertices.emplace_back(Vector2f(p1.x, p0.y), colors::WHITE);
-            vertices.emplace_back(Vector2f(p0.x, p1.y), colors::WHITE);
-            vertices.emplace_back(Vector2f(p0.x, p1.y), colors::WHITE);
-            vertices.emplace_back(Vector2f(p1.x, p0.y), colors::WHITE);
-            vertices.emplace_back(Vector2f(p1.x, p1.y), colors::WHITE);
+            const Vector2f pos0 = current_point + Vector2f((float)glyph.x0, (float)glyph.y0);
+            const Vector2f pos1 = current_point + Vector2f((float)glyph.x1, (float)glyph.y1);
+            Vector2f tex0 = Vector2f((float)glyph.s0, (float)glyph.t0) / (float)fonts::ATLAS_TEXTURE_SIZE;
+            Vector2f tex1 = Vector2f((float)glyph.s1, (float)glyph.t1) / (float)fonts::ATLAS_TEXTURE_SIZE;
+            std::swap(tex0.y, tex1.y); // Flip y-axis
+            vertices.emplace_back(Vector2f(pos0.x, pos0.y), colors::WHITE, Vector2f(tex0.x, tex0.y));
+            vertices.emplace_back(Vector2f(pos1.x, pos0.y), colors::WHITE, Vector2f(tex1.x, tex0.y));
+            vertices.emplace_back(Vector2f(pos0.x, pos1.y), colors::WHITE, Vector2f(tex0.x, tex1.y));
+            vertices.emplace_back(Vector2f(pos0.x, pos1.y), colors::WHITE, Vector2f(tex0.x, tex1.y));
+            vertices.emplace_back(Vector2f(pos1.x, pos0.y), colors::WHITE, Vector2f(tex1.x, tex0.y));
+            vertices.emplace_back(Vector2f(pos1.x, pos1.y), colors::WHITE, Vector2f(tex1.x, tex1.y));
 
             current_point.x += glyph.advance_width + letter_spacing;
             previous_codepoint = codepoint;
@@ -64,9 +62,7 @@ namespace text
             vertex.position += text.position;
 		}
 
-        for (size_t i = 0; i < vertices.size(); i += 3) {
-            Vector2f points[3] = { vertices[i].position, vertices[i + 1].position, vertices[i + 2].position };
-			shapes::add_polygon_to_render_queue(points, 3);
-		}
+        graphics::bind_texture(0, fonts::get_atlas_texture(text.font));
+        graphics::draw_triangles(vertices.data(), (unsigned int)vertices.size());
 	}
 }
