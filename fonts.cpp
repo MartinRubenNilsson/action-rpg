@@ -83,4 +83,11 @@ namespace fonts
 		stbtt_GetCodepointBox(&font->info, codepoint, &glyph.x0, &glyph.y0, &glyph.x1, &glyph.y1);
 		return glyph;
 	}
+
+	int get_kerning_advance(Handle<Font> handle, char32_t codepoint1, char32_t codepoint2)
+	{
+		const Font* font = _font_pool.get(handle);
+		if (!font) return 0;
+		return stbtt_GetCodepointKernAdvance(&font->info, codepoint1, codepoint2);
+	}
 }

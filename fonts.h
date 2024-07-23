@@ -6,7 +6,8 @@ namespace fonts
 
 	struct Glyph
 	{
-		// All values are in unscaled coordinates
+		// All values are in unscaled coordinates.
+		// Positive x-axis is to the right, positive y-axis is up.
 
 		int advance_width = 0;
 		int left_side_bearing = 0;
@@ -20,5 +21,6 @@ namespace fonts
 	int get_line_spacing(Handle<Font> handle); // in unscaled coordinates
 	float get_scale_for_pixel_height(Handle<Font> handle, float pixel_height);
 	Glyph get_glyph(Handle<Font> handle, char32_t codepoint);
+	int get_kerning_advance(Handle<Font> handle, char32_t codepoint1, char32_t codepoint2); // in unscaled coordinates
 }
 
