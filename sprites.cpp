@@ -87,7 +87,7 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
-		Handle<graphics::Shader> last_shader = Handle<graphics::Shader>();
+		Handle<graphics::Shader> last_shader;
 		Handle<graphics::Texture> last_texture;
 
 		for (unsigned int i = 0; i < _sprites; ++i) {

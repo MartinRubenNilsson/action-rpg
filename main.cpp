@@ -236,6 +236,10 @@ int main(int argc, char* argv[])
                 "assets/shaders/sprite.vert",
                 "assets/shaders/grass.frag"),
                 "view_proj_matrix", projection_matrix);
+            graphics::set_uniform_mat4(graphics::load_shader( //HACK: i just wanna see the text
+                "assets/shaders/sprite.vert",
+                "assets/shaders/text.frag"),
+                "view_proj_matrix", projection_matrix);
         }
 
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);

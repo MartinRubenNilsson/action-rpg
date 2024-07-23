@@ -365,6 +365,9 @@
     <None Include="shape.frag">
       <Filter>graphics\shaders</Filter>
     </None>
+    <None Include="text.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui.h">

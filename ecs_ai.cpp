@@ -78,7 +78,7 @@ namespace ecs
         text::Text text{};
         text.font = fonts::load_font("assets/fonts/Helvetica.ttf");;
         text.pixel_height = 48.f;
-        text.scale = { 0.2f, 0.2f };
+        text.scale = { 0.1f, 0.1f };
 
         uint32_t paths_drawn = 0;
 

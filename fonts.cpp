@@ -63,7 +63,7 @@ namespace fonts
 
 		font.atlas_pixels.resize(ATLAS_TEXTURE_SIZE * ATLAS_TEXTURE_SIZE);
 		stbtt_PackBegin(&font.pack_context, font.atlas_pixels.data(), ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 0, 1, nullptr);
-		font.atlas_texture = graphics::create_texture(ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 1, font.atlas_pixels.data());
+		font.atlas_texture = graphics::create_texture(ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 1, font.atlas_pixels.data(), path);
 		graphics::set_texture_filter(font.atlas_texture, graphics::TextureFilter::Linear);
 
 		// IMPORTANT: We must move construct the font, otherwise
