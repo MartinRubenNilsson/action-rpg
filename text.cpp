@@ -2,13 +2,18 @@
 #include "text.h"
 #include "fonts.h"
 #include "graphics.h"
+#include "shapes.h"
 
 namespace text
 {
-	void render(const Text& text)
+    void shape_vertices(Text& text)
+    {
+    }
+
+    void render(const Text& text)
 	{
 #if 1
-        if (text.utf32_string.empty()) return;
+        if (text.unicode_string.empty()) return;
 
 #if 0
         // Compute values related to the text style
@@ -47,7 +52,7 @@ namespace text
         //float maxX = 0.f;
         //float maxY = 0.f;
 
-        for (char32_t curChar : text.utf32_string) {
+        for (char32_t curChar : text.unicode_string) {
             // Skip the \r char to avoid weird graphical issues
             if (curChar == U'\r')
                 continue;
@@ -121,18 +126,29 @@ namespace text
             // Add the glyph to the vertices
             //addGlyphQuad(m_vertices, Vector2f(x, y), m_fillColor, glyph, italicShear);
 
-#if 0
+#if 1
+            //const Vector2f padding(1.f, 1.f);
+            //const Vector2f p1 = glyph.bounds.position - padding;
+            //const Vector2f p2 = glyph.bounds.position + glyph.bounds.size + padding;
+            //const auto uv1 = Vector2f(glyph.textureRect.position) - padding;
+            //const auto uv2 = Vector2f(glyph.textureRect.position + glyph.textureRect.size) + padding;
+            //vertices.emplace_back(Vector2f(x + p1.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv1.x, uv1.y });
+            //vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
+            //vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
+            //vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
+            //vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
+            //vertices.emplace_back(Vector2f(x + p2.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv2.x, uv2.y });
             const Vector2f padding(1.f, 1.f);
-            const Vector2f p1 = glyph.bounds.position - padding;
-            const Vector2f p2 = glyph.bounds.position + glyph.bounds.size + padding;
-            const auto uv1 = Vector2f(glyph.textureRect.position) - padding;
-            const auto uv2 = Vector2f(glyph.textureRect.position + glyph.textureRect.size) + padding;
-            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv1.x, uv1.y });
-            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
-            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
-            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv1.x, uv2.y });
-            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE, { uv2.x, uv1.y });
-            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p2.y, y + p2.y), colors::WHITE, { uv2.x, uv2.y });
+            //const Vector2f p1 = glyph.bounds.position - padding;
+            //const Vector2f p2 = glyph.bounds.position + glyph.bounds.size + padding;
+            const Vector2f p1;
+            const Vector2f p2 = { 1000.f, 1000.f };
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p1.y, y + p1.y), colors::WHITE);
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE);
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE);
+            vertices.emplace_back(Vector2f(x + p1.x - italicShear * p2.y, y + p2.y), colors::WHITE);
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p1.y, y + p1.y), colors::WHITE);
+            vertices.emplace_back(Vector2f(x + p2.x - italicShear * p2.y, y + p2.y), colors::WHITE);
 #endif
 
             //// Update the current bounds
@@ -179,7 +195,13 @@ namespace text
         const float scale_for_pixel_height = fonts::get_scale_for_pixel_height(text.font, text.pixel_height);
         for (graphics::Vertex& vertex : vertices) {
 			vertex.position *= scale_for_pixel_height;
-			vertex.position.y *= scale_for_pixel_height;
+            vertex.position *= text.scale;
+            vertex.position += text.position;
+		}
+
+        for (size_t i = 0; i < vertices.size(); i += 3) {
+            Vector2f points[3] = { vertices[i].position, vertices[i + 1].position, vertices[i + 2].position };
+			shapes::add_polygon_to_render_queue(points, 3);
 		}
 	}
 }

@@ -77,6 +77,8 @@ namespace ecs
 #ifdef _DEBUG
         text::Text text{};
         text.font = fonts::load_font("assets/fonts/Helvetica.ttf");;
+        text.pixel_height = 48.f;
+        text.scale = { 0.1f, 0.1f };
 #if 0
         text.setCharacterSize(48);
         text.setScale(0.1f, 0.1f);
@@ -85,28 +87,27 @@ namespace ecs
         text.setOutlineThickness(2.f);
         for (const Text& t : _texts) {
             //TODO: culling
-            text.setString(t.utf32_string);
+            text.setString(t.unicode_string);
             text.setPosition(t.position);
             text.setOrigin(text.getLocalBounds().width / 2.f, text.getLocalBounds().height / 2.f);
             target.draw(text);
         }
 #endif
 
-        Handle<fonts::Font> font = fonts::load_font("assets/fonts/Helvetica.ttf");
-
         uint32_t paths_drawn = 0;
 
-        for (auto [entity, knowledge, action] :
-            _registry.view<const AiKnowledge, const AiAction>().each()) {
+        for (auto [entity, knowledge, action] : _registry.view<const AiKnowledge, const AiAction>().each()) {
 
             // DRAW ACTION TYPE
             {
-                std::string text_string = to_string(action.type);
-                Vector2f text_position = knowledge.me.position + Vector2f(0.f, -10.f);
-                //shapes::draw_text(text_string, text_position);
+                const std::string action_type_string = to_string(action.type);
+                text.unicode_string.assign(action_type_string.begin(), action_type_string.end());
+                text.position = knowledge.me.position + Vector2f(0.f, 10.f);
+                text::render(text);
             }
 
             // DRAW ACTION PATH
+
             if (action.path.size() >= 2) {
                 for (size_t i = 0; i + 1 < action.path.size(); ++i) {
                     Vector2f p1 = map::get_tile_center(action.path[i]);

@@ -6,8 +6,14 @@ namespace fonts
 
 	struct Glyph
 	{
-		int advance_width = 0; // in unscaled coordinates
-		int left_side_bearing = 0; // in unscaled coordinates
+		// All values are in unscaled coordinates
+
+		int advance_width = 0;
+		int left_side_bearing = 0;
+		int x0 = 0;
+		int y0 = 0;
+		int x1 = 0;
+		int y1 = 0;
 	};
 
 	Handle<Font> load_font(const std::string& path);

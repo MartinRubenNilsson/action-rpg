@@ -258,8 +258,8 @@ int main(int argc, char* argv[])
         postprocessing::set_pixel_scale(pixel_scale);
         postprocessing::render(render_target, camera_min, camera_max);
 
-        ecs::add_debug_shapes_to_render_queue();
 #ifdef _DEBUG
+        ecs::add_debug_shapes_to_render_queue();
         shapes::render("Game World Debug", camera_min, camera_max);
 #endif
         ui::render();

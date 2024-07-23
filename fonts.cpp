@@ -80,6 +80,7 @@ namespace fonts
 		if (!font) return Glyph();
 		Glyph glyph{};
 		stbtt_GetCodepointHMetrics(&font->info, codepoint, &glyph.advance_width, &glyph.left_side_bearing);
+		stbtt_GetCodepointBox(&font->info, codepoint, &glyph.x0, &glyph.y0, &glyph.x1, &glyph.y1);
 		return glyph;
 	}
 }
