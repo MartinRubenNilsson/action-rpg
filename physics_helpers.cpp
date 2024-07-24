@@ -51,10 +51,6 @@ Vector2f get_world_center(const b2Body* body) {
 	return body->GetWorldCenter();
 }
 
-float get_linear_speed(const b2Body* body) {
-	return length(body->GetLinearVelocity());
-}
-
 void set_category_bits(b2Body* body, uint32_t category_bits)
 {
 	for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
