@@ -48,24 +48,23 @@ namespace ecs
 				Player& player = _registry.get<Player>(entity_b);
 				Pickup& pickup = _registry.get<Pickup>(entity_a);
 				switch (pickup.type) {
-				case PickupType::Arrow:
+				case PickupType::Arrow: {
 					player.arrows++;
 					audio::create_event({ .path = "event:/snd_pickup" });
-					break;
-				case PickupType::Rupee:
+				} break;
+				case PickupType::Rupee: {
 					player.rupees++;
 					audio::create_event({ .path = "event:/snd_pickup_rupee" });
-					break;
-				case PickupType::Bomb:
+				} break;
+				case PickupType::Bomb: {
 					player.bombs++;
 					audio::create_event({ .path = "event:/snd_pickup" });
-					break;
-		
-				case PickupType::Heart:
+				} break;
+				case PickupType::Heart: {
 					player.health = std::min(player.health + 1, player.max_health);
 					//TODO
 					//audio::play("event:/snd_pickup_heart");
-					break;
+				} break;
 				}
 			}
 			destroy_at_end_of_frame(entity_a);
