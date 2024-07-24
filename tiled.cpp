@@ -215,7 +215,7 @@ namespace tiled
 				for (pugi::xml_node frame_node : tile_node.child("animation").children("frame")) {
 					Frame& frame = tile.animation.emplace_back();
 					frame.duration = frame_node.attribute("duration").as_uint();
-					frame.tile = &tileset.tiles.at(frame_node.attribute("tileid").as_uint());
+					frame.tile_id = frame_node.attribute("tileid").as_uint();
 				}
 			}
 			for (pugi::xml_node wangset_node : tileset_node.child("wangsets").children("wangset")) {
@@ -223,13 +223,13 @@ namespace tiled
 				wangset.name = wangset_node.attribute("name").as_string();
 				wangset.class_ = wangset_node.attribute("class").as_string();
 				_load_properties(wangset_node, wangset.properties);
-				wangset.tile_id = wangset_node.attribute("tile").as_int(); //-1 in case of no tile
+				wangset.tile_id = (unsigned int)wangset_node.attribute("tile").as_int(); //-1 in case of no tile
 				for (pugi::xml_node wangcolor_node : wangset_node.children("wangcolor")) {
 					WangColor& wangcolor = wangset.colors.emplace_back();
 					wangcolor.name = wangcolor_node.attribute("name").as_string();
 					wangcolor.class_ = wangcolor_node.attribute("class").as_string();
 					_load_properties(wangcolor_node, wangcolor.properties);
-					wangset.tile_id = wangcolor_node.attribute("tile").as_int(); //-1 in case of no tile
+					wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); //-1 in case of no tile
 					wangcolor.probability = wangcolor_node.attribute("probability").as_float();
 					{
 						std::string color_str = wangcolor_node.attribute("color").as_string();

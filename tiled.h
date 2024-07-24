@@ -3,6 +3,10 @@
 
 namespace tiled
 {
+	struct Tile;
+	struct WangColor;
+	struct Tileset;
+
 	enum class ObjectType
 	{
 		Rectangle,
@@ -12,8 +16,6 @@ namespace tiled
 		Polyline, // Object::points is nonempty
 		Tile, // Object::tile is nonnull
 	};
-
-	struct Tile;
 
 	enum FlipFlags : uint8_t
 	{
@@ -31,7 +33,7 @@ namespace tiled
 		std::string class_;
 		Properties properties;
 		std::vector<Vector2f> points; // in pixels; relative to position
-		const Tile* tile = nullptr; // nonnull if object is a tile
+		const Tile* tile = nullptr; // nonnull if object is a tile; TODO: replace with tile_id
 		Vector2f position; // in pixels
 		Vector2f size; // in pixels
 		entt::entity entity = entt::null;
@@ -42,10 +44,8 @@ namespace tiled
 	struct Frame
 	{
 		unsigned int duration = 0; // in milliseconds
-		const Tile* tile = nullptr;
+		unsigned int tile_id = 0; // Index into Tileset::tiles
 	};
-	
-	struct WangColor;
 
 	struct WangTile
 	{
@@ -65,11 +65,9 @@ namespace tiled
 		const WangColor* wangcolors[COUNT] = {}; // null if uncolored
 	};
 
-	struct Tileset;
-
 	struct Tile
 	{
-		unsigned int id = 0; // index into Tileset::tiles
+		unsigned int id = 0; // Index into Tileset::tiles
 		unsigned int left = 0; // in pixels
 		unsigned int top = 0; // in pixels
 		unsigned int width = 0; // in pixels
@@ -79,12 +77,12 @@ namespace tiled
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
-		const Tileset* tileset = nullptr;
+		const Tileset* tileset = nullptr; //TODO: replace with Handle<Tileset>
 	};
 
 	struct TileInstance
 	{
-		const Tile* tile = nullptr;
+		const Tile* tile = nullptr; //TODO: replace with index
 		uint8_t flip_flags = 0;
 	};
 
@@ -93,7 +91,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		int tile_id = -1; // Index into Tileset::tiles; -1 if no tile has been chosen to represent this color
+		unsigned int tile_id = UINT_MAX; // Index into Tileset::tiles; UINT_MAX if no tile has been chosen to represent this color
 		float probability = 0.f;
 		Color color;
 	};
@@ -103,7 +101,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		int tile_id = -1; // Index into Tileset::tiles; -1 if no tile has been chosen to represent this set
+		unsigned int tile_id = UINT_MAX; // Index into Tileset::tiles; UINT_MAX if no tile has been chosen to represent this set
 		std::vector<WangColor> colors;
 	};
 

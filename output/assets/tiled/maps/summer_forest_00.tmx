@@ -146,7 +146,7 @@
   <object id="30" name="cave entrance" x="41.6667" y="336.333">
    <point/>
   </object>
-  <object id="31" gid="3489" x="368" y="384" width="32" height="32"/>
+  <object id="31" type="chest" gid="3489" x="368" y="384" width="32" height="32"/>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">

@@ -9,7 +9,7 @@ namespace tiled
 
 namespace ecs
 {
-	enum TileFlags : uint32_t
+	enum TileFlags : unsigned int
 	{
 		TF_VISIBLE        = (1 << 0), // if not set, the tile is not rendered
 		TF_FLIP_X         = (1 << 1), // flip the sprite horizontally
@@ -38,27 +38,27 @@ namespace ecs
 		float animation_speed = 1.f;
 
 		bool is_valid() const { return _tile; }
-		bool set_tile(uint32_t id); // uses the current tileset
-		bool set_tile(uint32_t id, const std::string& tileset_name);
+		bool set_tile(unsigned int id); // uses the current tileset
+		bool set_tile(unsigned int id, const std::string& tileset_name);
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
-		void get_texture_rect(uint32_t& left, uint32_t& top, uint32_t& width, uint32_t& height, bool account_for_animation = true) const;
+		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height, bool account_for_animation = true) const;
 		const std::string& get_class(bool account_for_animation = true) const;
 		const std::string& get_tileset_name() const;
 		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
-		uint32_t get_animation_frame() const;
+		unsigned int get_animation_frame() const;
 		void set_flag(TileFlags flag, bool value);
 		bool get_flag(TileFlags flag) const;
 		void set_rotation(int clockwise_quarter_turns);
 
 	private:
 		const tiled::Tile* _tile = nullptr;
-		uint32_t _animation_duration_ms = 0;
-		uint32_t _animation_frame = 0;
-		uint32_t _flags = TF_VISIBLE | TF_LOOP;
+		unsigned int _animation_duration_ms = 0;
+		unsigned int _animation_frame = 0;
+		unsigned int _flags = TF_VISIBLE | TF_LOOP;
 
 		bool _set_tile(const tiled::Tile* tile);
 		const tiled::Tile* _get_tile(bool account_for_animation) const;

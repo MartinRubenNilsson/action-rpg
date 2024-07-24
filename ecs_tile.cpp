@@ -56,12 +56,14 @@ namespace ecs
 	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
 		if (!_tile) return nullptr;
-		if (account_for_animation && _animation_frame < _tile->animation.size())
-			return _tile->animation[_animation_frame].tile;
+		if (account_for_animation && _animation_frame < _tile->animation.size()) {
+			unsigned int tile_id = _tile->animation[_animation_frame].tile_id;
+			return &_tile->tileset->tiles[tile_id];
+		}
 		return _tile;
 	}
 
-	bool Tile::set_tile(uint32_t id)
+	bool Tile::set_tile(unsigned int id)
 	{
 		if (!_tile) return false; // no tileset to look in
 		if (id == _tile->id) return false;
@@ -69,7 +71,7 @@ namespace ecs
 		return _set_tile(&_tile->tileset->tiles[id]);
 	}
 
-	bool Tile::set_tile(uint32_t id, const std::string& tileset_name)
+	bool Tile::set_tile(unsigned int id, const std::string& tileset_name)
 	{
 		if (tileset_name.empty()) return false;
 		const tiled::Tileset* tileset = nullptr;
@@ -129,7 +131,7 @@ namespace ecs
 		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
-	void Tile::get_texture_rect(uint32_t& left, uint32_t& top, uint32_t& width, uint32_t& height, bool account_for_animation) const
+	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height, bool account_for_animation) const
 	{
 		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
 			left = tile->left;
@@ -160,9 +162,9 @@ namespace ecs
 			if (get_flag(TF_FLIP_X_ON_LOOP))
 				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
 		}
-		uint32_t time = (uint32_t)(animation_timer.get_time() * 1000.f); // in milliseconds
-		for (uint32_t frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
-			uint32_t frame_duration = _tile->animation[frame_index].duration;
+		unsigned int time = (unsigned int)(animation_timer.get_time() * 1000.f); // in milliseconds
+		for (unsigned int frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
+			unsigned int frame_duration = _tile->animation[frame_index].duration;
 			if (time < frame_duration) {
 				set_flag(TF_FRAME_CHANGED, frame_index != _animation_frame);
 				_animation_frame = frame_index;
@@ -173,14 +175,14 @@ namespace ecs
 		}
 		// Park on the last frame. We will for example get here if
 		// animation_timer.get_time() == animation_timer.get_duration().
-		_animation_frame = (uint32_t)_tile->animation.size() - 1;
+		_animation_frame = (unsigned int)_tile->animation.size() - 1;
 	}
 
 	float Tile::get_animation_duration() const {
 		return _animation_duration_ms / 1000.f;
 	}
 
-	uint32_t Tile::get_animation_frame() const {
+	unsigned int Tile::get_animation_frame() const {
 		return _animation_frame;
 	}
 
@@ -233,7 +235,7 @@ namespace ecs
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			uint32_t left, top, width, height;
+			unsigned int left, top, width, height;
 			tile.get_texture_rect(left, top, width, height, true);
 			sprite.tex_min = { (float)left, (float)top };
 			sprite.tex_max = { (float)left + width, (float)top + height };
