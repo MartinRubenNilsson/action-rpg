@@ -18,8 +18,8 @@ namespace ecs
 		b2Fixture* fixture_b = contact.fixture_b;
 		b2Body* body_a = fixture_a->GetBody();
 		b2Body* body_b = fixture_b->GetBody();
-		entt::entity entity_a = get_entity(body_a);
-		entt::entity entity_b = get_entity(body_b);
+		entt::entity entity_a = body_a->GetUserData().entity;
+		entt::entity entity_b = body_b->GetUserData().entity;
 		std::string class_a = get_class(entity_a);
 		std::string class_b = get_class(entity_b);
 		if (class_a.empty() && class_b.empty()) return;

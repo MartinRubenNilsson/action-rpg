@@ -184,9 +184,9 @@ namespace ecs
 				if (!(category_bits & mask_bits)) return -1.f;
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = get_entity(hit.body);
-				hit.point = Vector2f(point.x, point.y);
-				hit.normal = Vector2f(normal.x, normal.y);
+				hit.entity = hit.body->GetUserData().entity;
+				hit.point = point;
+				hit.normal = normal;
 				hit.fraction = fraction;
 				hit_something = true;
 				return 0.f;
@@ -220,9 +220,9 @@ namespace ecs
 				RaycastHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = get_entity(hit.body);
-				hit.point = Vector2f(point.x, point.y);
-				hit.normal = Vector2f(normal.x, normal.y);
+				hit.entity = hit.body->GetUserData().entity;
+				hit.point = point;
+				hit.normal = normal;
 				hit.fraction = fraction;
 				hits.push_back(hit);
 				return 1.f;
@@ -252,7 +252,7 @@ namespace ecs
 				OverlapHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = get_entity(hit.body);
+				hit.entity = hit.body->GetUserData().entity;
 				hits.push_back(hit);
 				return true;
 			}

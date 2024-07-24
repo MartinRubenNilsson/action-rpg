@@ -63,22 +63,8 @@ namespace ecs
 		sprites::render("Game World");
 	}
 
-	void _debug_draw_entities()
-	{
-		for (auto [entity, body] : _registry.view<b2Body*>().each()) {
-			if (!_registry.any_of<Player, AiType>(entity)) continue;
-			std::string entity_string = std::to_string((entt::id_type)entity);
-			Vector2f position = vector_cast<Vector2f>(body->GetWorldCenter());
-			position.y -= 16.f;
-			//shapes::draw_text(entity_string, position);
-		}
-	}
-
 	void add_debug_shapes_to_render_queue()
 	{
-		if (debug_flags & DEBUG_ENTITIES) {
-			_debug_draw_entities();
-		}
 		if (debug_flags & DEBUG_PHYSICS) {
 			debug_draw_physics();
 		}

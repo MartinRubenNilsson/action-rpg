@@ -19,16 +19,6 @@ float lerp_angle(float a, float b, float t);
 
 // VECTORS
 
-template <class U, class V>
-U vector_cast(const V& v) {
-	return U(v.x, v.y);
-}
-
-Vector2f operator*(const Vector2f& left, const Vector2f& right);
-Vector2f operator/(const Vector2f& left, const Vector2f& right);
-Vector2f& operator*=(Vector2f& left, const Vector2f& right);
-Vector2f& operator/=(Vector2f& left, const Vector2f& right);
-
 // All functions are safe to call on zero vectors, and all angles are in radians.
 
 bool is_zero(const Vector2f& v);

@@ -7,7 +7,6 @@ class b2Body;
 
 b2FixtureDef get_fixture_def(const b2Fixture* fixture);
 b2BodyDef    get_body_def(const b2Body* body);
-entt::entity get_entity(b2Body* body);
 void         set_position(b2Body* body, const Vector2f& position); // Typically the top-left corner.
 Vector2f     get_position(const b2Body* body); // Typically the top-left corner.
 void         set_world_center(b2Body* body, const Vector2f& center); // Center of mass.

@@ -35,16 +35,12 @@ b2BodyDef get_body_def(const b2Body* body)
 	return def;
 }
 
-entt::entity get_entity(b2Body* body) {
-	return body->GetUserData().entity;
-}
-
 void set_position(b2Body* body, const Vector2f& position) {
-	body->SetTransform(vector_cast<b2Vec2>(position), body->GetAngle());
+	body->SetTransform(position, body->GetAngle());
 }
 
 Vector2f get_position(const b2Body* body) {
-	return vector_cast<Vector2f>(body->GetPosition());
+	return body->GetPosition();
 }
 
 void set_world_center(b2Body* body, const Vector2f& center) {
@@ -52,19 +48,11 @@ void set_world_center(b2Body* body, const Vector2f& center) {
 }
 
 Vector2f get_world_center(const b2Body* body) {
-	return vector_cast<Vector2f>(body->GetWorldCenter());
-}
-
-void set_linear_velocity(b2Body* body, const Vector2f& velocity) {
-	body->SetLinearVelocity(vector_cast<b2Vec2>(velocity));
-}
-
-Vector2f get_linear_velocity(const b2Body* body) {
-	return vector_cast<Vector2f>(body->GetLinearVelocity());
+	return body->GetWorldCenter();
 }
 
 float get_linear_speed(const b2Body* body) {
-	return length(get_linear_velocity(body));
+	return length(body->GetLinearVelocity());
 }
 
 void set_category_bits(b2Body* body, uint32_t category_bits)
@@ -79,8 +67,9 @@ void set_category_bits(b2Body* body, uint32_t category_bits)
 uint32_t get_category_bits(const b2Body* body)
 {
 	uint32_t category_bits = 0;
-	for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext())
+	for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 		category_bits |= fixture->GetFilterData().categoryBits;
+	}
 	return category_bits;
 }
 

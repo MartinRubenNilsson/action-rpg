@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
                     } else if (ev.key.code == window::Key::F1) {
                         debug_stats = !debug_stats;
                     } else if (ev.key.code == window::Key::F2) {
-                        ecs::debug_flags ^= ecs::DEBUG_ENTITIES;
+                        //ecs::debug_flags ^= ecs::DEBUG_ENTITIES;
                     } else if (ev.key.code == window::Key::F3) {
                         ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                     } else if (ev.key.code == window::Key::F4) {

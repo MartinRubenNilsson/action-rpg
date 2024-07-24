@@ -240,8 +240,8 @@ namespace ecs
 			sprite.tex_min = { (float)left, (float)top };
 			sprite.tex_max = { (float)left + width, (float)top + height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
-			sprite.tex_min /= texture_size;
-			sprite.tex_max /= texture_size;
+			sprite.tex_min /= Vector2f(texture_size);
+			sprite.tex_max /= Vector2f(texture_size);
 			sprite.tex_min.y = 1.f - sprite.tex_min.y; // flip Y
 			sprite.tex_max.y = 1.f - sprite.tex_max.y; // flip Y
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
