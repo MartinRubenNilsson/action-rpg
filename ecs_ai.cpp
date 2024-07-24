@@ -62,7 +62,7 @@ namespace ecs
             _registry.view<Tile, const AiType, b2Body*>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
-                Vector2f velocity = get_linear_velocity(body);
+                Vector2f velocity = body->GetLinearVelocity();
                 if (!is_zero(velocity)) {
                     tile.set_tile(std::string() + get_direction(velocity));
                 }

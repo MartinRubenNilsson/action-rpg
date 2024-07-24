@@ -18,7 +18,7 @@ namespace ecs
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
 			info.position = get_world_center(body);
-			info.velocity = get_linear_velocity(body);
+			info.velocity = body->GetLinearVelocity();
 		}
 		get_float(entity, "speed", info.p_speed);
 		return info;
@@ -45,7 +45,7 @@ namespace ecs
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
 			knowledge.initial_position = get_world_center(body);
-			knowledge.initial_velocity = get_linear_velocity(body);
+			knowledge.initial_velocity = body->GetLinearVelocity();
 		}
 		return knowledge;
 	}

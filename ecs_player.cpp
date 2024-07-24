@@ -136,7 +136,7 @@ namespace ecs
 			// GET PHYSICS STATE
 
 			const Vector2f position = get_world_center(body);
-			const Vector2f velocity = get_linear_velocity(body);
+			const Vector2f velocity = body->GetLinearVelocity();
 			Vector2f new_velocity; // will be modified differently depending on the state
 
 			enum class HeldItemType
@@ -268,7 +268,7 @@ namespace ecs
 			} break;
 			}
 
-			set_linear_velocity(body, new_velocity);
+			body->SetLinearVelocity(new_velocity);
 
 			// UPDATE HELD ITEM GRAPHICS
 

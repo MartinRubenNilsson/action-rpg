@@ -62,7 +62,7 @@ namespace ecs
 			if (action.status != AiActionStatus::Running) continue;
 
 			const Vector2f my_pos = get_world_center(body);
-			const Vector2f my_old_dir = normalize(get_linear_velocity(body));
+			const Vector2f my_old_dir = normalize(body->GetLinearVelocity());
 			Vector2f my_new_dir;
 
 			switch (action.type) {
@@ -165,7 +165,7 @@ namespace ecs
 			} break;
 			}
 
-			set_linear_velocity(body, action.speed * my_new_dir);
+			body->SetLinearVelocity(action.speed * my_new_dir);
 		}
 	}
 
