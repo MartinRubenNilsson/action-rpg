@@ -103,7 +103,7 @@ namespace map
 			std::string event_path = "event:/" + music;
 			if (!audio::is_any_playing(event_path)) {
 				audio::stop_all_in_bus(audio::BUS_MUSIC);
-				audio::play(event_path);
+				audio::create_event({ .path = event_path.c_str() });
 			}
 		}
 	}

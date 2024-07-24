@@ -104,7 +104,7 @@ namespace ecs
 				ui::open_or_enqueue_textbox_presets(string);
 			}
 			if (get_string(hit.entity, "sound", string)) {
-				audio::play(string);
+				audio::create_event({ .path = string.c_str() });
 			}
 		}
 	}
@@ -153,7 +153,7 @@ namespace ecs
 			audio::set_listener_position(position);
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
 			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().contains("step")) {
-				audio::play("event:/snd_footstep");
+				audio::create_event({ .path = "event:/snd_footstep" });
 			}
 
 			// UPDATE POST-PROCESSING
@@ -205,7 +205,7 @@ namespace ecs
 
 				if (player.input_flags & INPUT_SWING_SWORD) {
 					tile.set_tile("sword_attack_"s + tile_dir);
-					audio::play("event:/snd_sword_attack");
+					audio::create_event({ .path = "event:/snd_sword_attack" });
 					tile.set_flag(TF_LOOP, false);
 					player.state = PlayerState::SwingingSword;
 				} else if (player.input_flags & INPUT_SHOOT_BOW && player.arrows > 0) {
@@ -464,8 +464,8 @@ namespace ecs
 		if (!_registry.all_of<Player>(entity)) return false;
 		detach_camera(entity);
 		audio::stop_all_in_bus();
-		audio::play("event:/snd_player_die");
-		audio::play("event:/mus_coffin_dance");
+		audio::create_event({ .path = "event:/snd_player_die" });
+		audio::create_event({ .path = "event:/mus_coffin_dance" });
 		ui::open_or_enqueue_textbox_presets("player_die");
 		ui::bindings::hud_player_health = 0;
 		return true;
@@ -481,7 +481,7 @@ namespace ecs
 		player.health = std::max(0, player.health - damage.amount);
 		add_trauma_to_active_camera(0.8f);
 		if (player.health > 0) { // Player survived
-			audio::play("event:/snd_player_hurt");
+			audio::create_event({ .path = "event:/snd_player_hurt" });
 			player.hurt_timer.start();
 		} else { // Player died
 			player.state = PlayerState::Dying;

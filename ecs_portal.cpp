@@ -47,7 +47,7 @@ namespace ecs
 		if (portal.activated) return false;
 		portal.activated = true;
 		if (map::open(portal.target_map)) {
-			audio::play("event:/snd_map_transition");
+			audio::create_event({ .path = "event:/snd_map_transition" });
 		}
 		return false;
 	}

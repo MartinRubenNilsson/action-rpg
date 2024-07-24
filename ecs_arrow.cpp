@@ -48,7 +48,7 @@ namespace ecs
 		}
 
 		// AUDIO
-		audio::play("event:/snd_fire_arrow");
+		audio::create_event({ .path = "event:/snd_fire_arrow" });
 
 		return entity;
 	}

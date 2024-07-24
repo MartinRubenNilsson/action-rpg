@@ -23,12 +23,12 @@ namespace ui
 			switch (ev.GetId()) {
 			case Rml::EventId::Mouseover: {
 				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
-					audio::play("event:/ui/snd_button_hover");
+					audio::create_event({ .path = "event:/ui/snd_button_hover" });
 				}
 			} break;
 			case Rml::EventId::Click: {
 				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
-					audio::play("event:/ui/snd_button_click");
+					audio::create_event({ .path = "event:/ui/snd_button_click" });
 				}
 			} break;
 			}

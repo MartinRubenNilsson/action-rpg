@@ -60,7 +60,7 @@ namespace ecs
 	{
 		//TODO: more stuff here
 
-		audio::play("event:/snd_slime_dying");
+		audio::create_event({ .path = "event:/snd_slime_dying" });
 
 		// TODO use snd_slime_hurt when slime is damaged and snd_slime_dying when slime is dead
 		// audio::play("event:/snd_slime_hurt");
@@ -73,7 +73,7 @@ namespace ecs
 	{
 		if (!has_body(entity)) return false;
 		Vector2f position = get_world_center(get_body(entity));
-		audio::play("event:/snd_cut_grass");
+		audio::create_event({ .path = "event:/snd_cut_grass" });
 		if (random::chance(0.2f)) {
 			PickupType pickup_type = (PickupType)random::range_i(0, (int)PickupType::Count - 1);
 			create_pickup(pickup_type, position + Vector2f(2.f, 2.f));

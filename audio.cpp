@@ -69,11 +69,11 @@ namespace audio
 		return bus;
 	}
 
-	FMOD::Studio::EventDescription* _get_event_description(const std::string& path)
+	FMOD::Studio::EventDescription* _get_event_description(const char* path)
 	{
 		FMOD::Studio::EventDescription* desc = nullptr;
-		if (_system->getEvent(path.c_str(), &desc) != FMOD_OK && log_errors) {
-			console::log_error("Could not find audio event: " + path);
+		if (_system->getEvent(path, &desc) != FMOD_OK && log_errors) {
+			console::log_error("Could not find audio event: " + std::string(path));
 		}
 		return desc;
 	}
@@ -225,7 +225,7 @@ namespace audio
 
 	bool is_any_playing(const std::string& event_path)
 	{
-		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
+		FMOD::Studio::EventDescription* desc = _get_event_description(event_path.c_str());
 		if (!desc) return false;
 		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc)) {
 			FMOD_STUDIO_PLAYBACK_STATE state;
@@ -235,30 +235,31 @@ namespace audio
 		return false;
 	}
 
-	Handle<Event> play(const std::string& event_path, const EventOptions& options)
+	Handle<Event> create_event(const EventDesc& desc)
 	{
-		if (_events_played_this_frame.contains(event_path)) return Handle<Event>();
-		FMOD::Studio::EventDescription* desc = _get_event_description(event_path);
-		if (!desc) return Handle<Event>();
-		FMOD::Studio::EventInstance* instance = _create_event_instance(desc);
+		if (!desc.path) return Handle<Event>();
+		if (_events_played_this_frame.contains(desc.path)) return Handle<Event>();
+		FMOD::Studio::EventDescription* studio_desc = _get_event_description(desc.path);
+		if (!studio_desc) return Handle<Event>();
+		FMOD::Studio::EventInstance* instance = _create_event_instance(studio_desc);
 		if (!instance) return Handle<Event>();
 		Handle<Event> handle = _event_pool.emplace(Event{ .instance = instance });
-		_events_played_this_frame.insert(event_path);
+		_events_played_this_frame.insert(desc.path);
 		instance->setCallback(_on_event_destroyed, FMOD_STUDIO_EVENT_CALLBACK_DESTROYED);
 		instance->setUserData(_handle_to_userdata(handle));
-		instance->setVolume(options.volume);
-		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(options.position);
+		instance->setVolume(desc.volume);
+		FMOD_3D_ATTRIBUTES attributes = _pos_to_3d_attributes(desc.position);
 		instance->set3DAttributes(&attributes);
-		if (options.start) {
+		if (desc.start) {
 			instance->start();
 		}
-		if (options.release) {
+		if (desc.release) {
 			instance->release();
 		}
 		return handle;
 	}
 
-	bool stop(Handle<Event> handle)
+	bool stop_event(Handle<Event> handle)
 	{
 		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
@@ -266,7 +267,7 @@ namespace audio
 		return true;
 	}
 
-	bool set_volume(Handle<Event> handle, float volume)
+	bool set_event_volume(Handle<Event> handle, float volume)
 	{
 		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
@@ -274,7 +275,7 @@ namespace audio
 		return true;
 	}
 
-	bool get_volume(Handle<Event> handle, float& volume)
+	bool get_event_volume(Handle<Event> handle, float& volume)
 	{
 		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
@@ -282,7 +283,7 @@ namespace audio
 		return true;
 	}
 
-	bool set_position(Handle<Event> handle, const Vector2f& position)
+	bool set_event_position(Handle<Event> handle, const Vector2f& position)
 	{
 		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;
@@ -291,7 +292,7 @@ namespace audio
 		return true;
 	}
 
-	bool get_position(Handle<Event> handle, Vector2f& position)
+	bool get_event_position(Handle<Event> handle, Vector2f& position)
 	{
 		FMOD::Studio::EventInstance* instance = _get_event_instance(handle);
 		if (!instance) return false;

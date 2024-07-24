@@ -50,15 +50,15 @@ namespace ecs
 				switch (pickup.type) {
 				case PickupType::Arrow:
 					player.arrows++;
-					audio::play("event:/snd_pickup");
+					audio::create_event({ .path = "event:/snd_pickup" });
 					break;
 				case PickupType::Rupee:
 					player.rupees++;
-					audio::play("event:/snd_pickup_rupee");
+					audio::create_event({ .path = "event:/snd_pickup_rupee" });
 					break;
 				case PickupType::Bomb:
 					player.bombs++;
-					audio::play("event:/snd_pickup");
+					audio::create_event({ .path = "event:/snd_pickup" });
 					break;
 		
 				case PickupType::Heart:

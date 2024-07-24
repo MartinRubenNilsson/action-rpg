@@ -285,9 +285,8 @@ namespace map
 				} else if (object.class_ == "audio_source") {
 					std::string event_name;
 					if (object.properties.get_string("event", event_name)) {
-						audio::EventOptions options{};
-						options.position = position;
-						audio::play("event:/" + event_name, options);
+						std::string path = "event:/" + event_name;
+						audio::create_event({ .path = path.c_str(), .position = position });
 					}
 				}
 			}

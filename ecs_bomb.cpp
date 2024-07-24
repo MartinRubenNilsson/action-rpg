@@ -24,8 +24,8 @@ namespace ecs
         add_trauma_to_active_camera(0.8f);
         create_vfx(VfxType::Explosion, bomb.explosion_center);
         destroy_at_end_of_frame(entity);
-        audio::play("event:/snd_bomb_explosion");
-        audio::stop(bomb.fuse_sound);
+        audio::create_event({ .path = "event:/snd_bomb_explosion" });
+        audio::stop_event(bomb.fuse_sound);
         postprocessing::create_shockwave(bomb.explosion_center);
     }
 
@@ -67,9 +67,7 @@ namespace ecs
         {
             Bomb& bomb = _registry.emplace<Bomb>(entity);
             bomb.explosion_timer.start();
-            audio::EventOptions options{};
-            options.position = position;
-            bomb.fuse_sound = audio::play("event:/snd_bomb_fuse", options);
+            bomb.fuse_sound = audio::create_event({ .path = "event:/snd_bomb_fuse", .position = position });
             bomb.explosion_center = position;
         }
         {

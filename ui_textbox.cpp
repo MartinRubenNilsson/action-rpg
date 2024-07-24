@@ -72,7 +72,7 @@ namespace ui
 			bindings::textbox_selected_option < bindings::textbox_options.size()) {
 			const std::string& option = bindings::textbox_options[bindings::textbox_selected_option];
 			_textbox->options_callback(option);
-			audio::play("event:/ui/snd_button_click");
+			audio::create_event({ .path = "event:/ui/snd_button_click" });
 		} else {
 			open_next_textbox_in_queue();
 		}
@@ -82,7 +82,7 @@ namespace ui
 	{
 		if (bindings::textbox_selected_option > 0) {
 			bindings::textbox_selected_option--;
-			audio::play("event:/ui/snd_button_hover");
+			audio::create_event({ .path = "event:/ui/snd_button_hover" });
 		}
 	}
 
@@ -90,7 +90,7 @@ namespace ui
 	{
 		if (bindings::textbox_selected_option + 1 < bindings::textbox_options.size()) {
 			bindings::textbox_selected_option++;
-			audio::play("event:/ui/snd_button_hover");
+			audio::create_event({ .path = "event:/ui/snd_button_hover" });
 		}
 	}
 
@@ -167,8 +167,10 @@ namespace ui
 			_textbox_typing_time += dt;
 			if (_textbox_typing_time >= seconds_per_char) {
 				_textbox_typing_time -= seconds_per_char;
-				if (isgraph(_get_nth_plain(_textbox->text, _textbox_typing_counter)))
-					audio::play("event:/" + _textbox->typing_sound);
+				if (isgraph(_get_nth_plain(_textbox->text, _textbox_typing_counter))) {
+					std::string path = "event:/" + _textbox->typing_sound;
+					audio::create_event({ .path = path.c_str() });
+				}
 				++_textbox_typing_counter;
 			}
 		} else {
@@ -221,7 +223,8 @@ namespace ui
 		_textbox_typing_time = 0.f;
 		_textbox_typing_counter = 0;
 		if (!_textbox->opening_sound.empty()) {
-			audio::play("event:/" + _textbox->opening_sound);
+			std::string path = "event:/" + _textbox->opening_sound;
+			audio::create_event({ .path = path.c_str() });
 		}
 		_set_textbox_document_visible(true);
 	}

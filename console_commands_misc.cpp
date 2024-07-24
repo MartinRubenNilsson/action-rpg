@@ -113,7 +113,7 @@ namespace console
 			cmd.desc = "Plays an audio event";
 			cmd.params[0] = { "", "event_path", "The full path of the event" };
 			cmd.callback = [](const Params& params) {
-				audio::play(std::get<std::string>(params[0].arg));
+				audio::create_event({ .path = std::get<std::string>(params[0].arg).c_str() });
 			};
 		}
 

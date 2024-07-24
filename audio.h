@@ -4,6 +4,15 @@ namespace audio
 {
 	struct Event;
 
+	struct EventDesc
+	{
+		const char* path = nullptr;
+		float volume = 1.f;
+		Vector2f position;
+		bool start = true;
+		bool release = true;
+	};
+
 	extern const std::string BUS_MASTER;
 	extern const std::string BUS_SOUND;
 	extern const std::string BUS_MUSIC;
@@ -32,20 +41,12 @@ namespace audio
 	bool is_valid(const std::string& event_path);
 	bool is_any_playing(const std::string& event_path);
 
-	struct EventOptions
-	{
-		float volume = 1.f;
-		Vector2f position;
-		bool start = true;
-		bool release = true;
-	};
-
-	Handle<Event> play(const std::string& event_path, const EventOptions& options = EventOptions());
-	bool stop(Handle<Event> handle);
-	bool set_volume(Handle<Event> handle, float volume);
-	bool get_volume(Handle<Event> handle, float& volume);
-	bool set_position(Handle<Event> handle, const Vector2f& position);
-	bool get_position(Handle<Event> handle, Vector2f& position);
+	Handle<Event> create_event(const EventDesc& desc);
+	bool stop_event(Handle<Event> handle);
+	bool set_event_volume(Handle<Event> handle, float volume);
+	bool get_event_volume(Handle<Event> handle, float& volume);
+	bool set_event_position(Handle<Event> handle, const Vector2f& position);
+	bool get_event_position(Handle<Event> handle, Vector2f& position);
 
 	// BUSES
 
