@@ -149,6 +149,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
+    <ClCompile Include="ecs_chest.cpp" />
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
+    <ClInclude Include="ecs_chest.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="handle.h" />

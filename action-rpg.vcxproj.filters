@@ -314,6 +314,9 @@
     <ClCompile Include="pool.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_chest.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -870,6 +873,9 @@
     </ClInclude>
     <ClInclude Include="handle.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_chest.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
