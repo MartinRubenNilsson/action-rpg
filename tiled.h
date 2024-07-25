@@ -5,40 +5,55 @@ namespace tiled
 {
 	struct Tile;
 	struct WangColor;
-	struct Tileset;
+
+	// A 32-bit integer that stores a tile GID in the lower 28 bits and flip flags in the upper 4 bits.
+	struct TileRef
+	{
+		union
+		{
+			unsigned int value = 0;
+			struct
+			{
+				unsigned int gid : 28; // global tile ID
+				unsigned int rotated_hexagonal_120 : 1; // only for hexagonal maps
+				unsigned int flipped_diagonally : 1;
+				unsigned int flipped_vertically : 1;
+				unsigned int flipped_horizontally : 1;
+			};
+		};
+	};
+
+	struct TilesetRef
+	{
+		unsigned int first_gid = 0;
+		Handle<Tileset> tileset;
+	};
 
 	enum class ObjectType
 	{
 		Rectangle,
 		Ellipse,
 		Point,
-		Polygon, // Object::points is nonempty
-		Polyline, // Object::points is nonempty
-		Tile, // Object::tile is nonnull
-	};
-
-	enum FlipFlags : uint8_t
-	{
-		FLIP_HORIZONTAL = (1 << 0),
-		FLIP_VERTICAL   = (1 << 1),
-		FLIP_DIAGONAL   = (1 << 2), // in orthogonal and isometric maps
-		FLIP_ROTATE_60  = FLIP_DIAGONAL, // in hexagonal maps
-		FLIP_ROTATE_120 = (1 << 3), // in hexagonal maps
+		Polygon,
+		Polyline,
+		Tile,
 	};
 
 	struct Object
 	{
-		std::string path; // nonempty if object is a template
+		entt::entity id = entt::null;
+		ObjectType type{};
+		std::string template_path;
 		std::string name;
 		std::string class_;
 		Properties properties;
-		std::vector<Vector2f> points; // in pixels; relative to position
-		const Tile* tile = nullptr; // nonnull if object is a tile; TODO: replace with tile_id
+		std::vector<Vector2f> points; // in pixels; relative to position; only relevant if type = ObjectType::Polygon/Polyline
+		TileRef tile; // only relevant if type = ObjectType::Tile
+		TilesetRef tileset; // only relevant if type = ObjectType::Tile
 		Vector2f position; // in pixels
 		Vector2f size; // in pixels
-		entt::entity entity = entt::null;
-		ObjectType type = ObjectType::Rectangle;
-		uint8_t flip_flags = 0; // only for tile objects
+
+		const Tile* get_tile() const;
 	};
 
 	struct Frame
@@ -62,6 +77,7 @@ namespace tiled
 			COUNT
 		};
 
+		// TODO: don't use pointers
 		const WangColor* wangcolors[COUNT] = {}; // null if uncolored
 	};
 
@@ -124,22 +140,6 @@ namespace tiled
 		Group,
 	};
 
-	struct TileRef
-	{
-		union
-		{
-			unsigned int value = 0;
-			struct
-			{
-				unsigned int gid : 28; // global tile ID
-				unsigned int rotated_hexagonal_120 : 1; // in hexagonal maps
-				unsigned int flipped_diagonally : 1;
-				unsigned int flipped_vertically : 1;
-				unsigned int flipped_horizontally : 1;
-			};
-		};
-	};
-
 	struct Layer
 	{
 		LayerType type{};
@@ -151,12 +151,6 @@ namespace tiled
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
 		bool visible = true;
-	};
-
-	struct TilesetRef
-	{
-		unsigned int first_gid = 0;
-		Handle<Tileset> tileset;
 	};
 
 	struct Map

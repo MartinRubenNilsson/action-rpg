@@ -21,7 +21,7 @@ namespace fonts
 
 namespace tiled
 {
+	struct Map;
 	struct Tileset;
 	struct Object;
-	struct Map;
 }

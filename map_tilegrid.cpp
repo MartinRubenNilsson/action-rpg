@@ -147,6 +147,7 @@ namespace map
 				for (int y = 0; y < _grid.size.y; ++y) {
 					for (int x = 0; x < _grid.size.x; ++x) {
 						int index = x + y * _grid.size.x;
+						if (!layer.tiles[index].gid) continue;
 						const tiled::Tile* layer_tile = map.get_tile(layer.tiles[index].gid);
 						if (!layer_tile) continue;
 						if (layer_tile->wangtiles.empty()) continue;

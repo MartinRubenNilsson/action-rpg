@@ -8,27 +8,6 @@
 
 namespace tiled
 {
-	constexpr unsigned int _FLIP_HORIZONTAL_BIT = 0x80000000;
-	constexpr unsigned int _FLIP_VERTICAL_BIT   = 0x40000000;
-	constexpr unsigned int _FLIP_DIAGONAL_BIT   = 0x20000000;
-	constexpr unsigned int _FLIP_ROTATE_120_BIT = 0x10000000;
-	constexpr unsigned int _FLIP_FLAGS_BITMASK = _FLIP_HORIZONTAL_BIT | _FLIP_VERTICAL_BIT | _FLIP_DIAGONAL_BIT | _FLIP_ROTATE_120_BIT;
-
-	unsigned int _get_gid(unsigned int gid_with_flip_flags)
-	{
-		return gid_with_flip_flags & ~_FLIP_FLAGS_BITMASK;
-	}
-
-	uint8_t _get_flip_flags(unsigned int gid_with_flip_flags)
-	{
-		uint8_t flip_flags = 0;
-		if (gid_with_flip_flags & _FLIP_HORIZONTAL_BIT) flip_flags |= FLIP_HORIZONTAL;
-		if (gid_with_flip_flags & _FLIP_VERTICAL_BIT)   flip_flags |= FLIP_VERTICAL;
-		if (gid_with_flip_flags & _FLIP_DIAGONAL_BIT)   flip_flags |= FLIP_DIAGONAL;
-		if (gid_with_flip_flags & _FLIP_ROTATE_120_BIT) flip_flags |= FLIP_ROTATE_120;
-		return flip_flags;
-	}
-
 	Pool<Map> _maps;
 	std::unordered_map<std::string, Handle<Map>> _path_to_map_handle;
 	Pool<Tileset> _tilesets;
@@ -85,7 +64,7 @@ namespace tiled
 	{
 		_load_properties(node, object.properties);
 		if (pugi::xml_attribute id = node.attribute("id")) {
-			object.entity = (entt::entity)id.as_uint();
+			object.id = (entt::entity)id.as_uint();
 		}
 		if (pugi::xml_attribute name = node.attribute("name")) {
 			object.name = name.as_string();
@@ -115,6 +94,10 @@ namespace tiled
 		} else if (pugi::xml_node polyline = node.child("polyline")) {
 			object.type = ObjectType::Polyline;
 			object.points = _load_points(polyline);
+		}
+		if (pugi::xml_attribute gid = node.attribute("gid")) {
+			object.type = ObjectType::Tile;
+			object.tile.value = gid.as_uint();
 		}
 	}
 
@@ -156,6 +139,16 @@ namespace tiled
 			dest[j++] = (b << 4) | (c >> 2);
 			dest[j++] = (c << 6) | d;
 		}
+	}
+
+	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid)
+	{
+		for (auto it = tilesets.rbegin(); it != tilesets.rend(); ++it) {
+			if (gid >= it->first_gid) {
+				return *it;
+			}
+		}
+		return TilesetRef{};
 	}
 
 	void _load_layer_recursive(Map& map, pugi::xml_node node)
@@ -243,33 +236,16 @@ namespace tiled
 					template_path += '/';
 					template_path += template_attribute.as_string();
 					template_path = filesystem::get_normalized_path(template_path);
-					const Object* template_ = _templates.get(load_template(template_path));
-					if (!template_) {
-						console::log_error("Failed to find template: " + template_path);
-						continue;
+					if (const Object* template_object = _templates.get(load_template(template_path))) {
+						object = *template_object;
 					}
-					object = *template_;
 				}
+				// By loading the object after copying the template, we can override properties.
 				_load_object(object_node, object);
-				if (pugi::xml_attribute gid_attribute = object_node.attribute("gid")) {
-					unsigned int gid_with_flip_flags = gid_attribute.as_uint();
-					unsigned int gid = _get_gid(gid_with_flip_flags);
-					const Tile* tile = nullptr;
-					for (const TilesetRef& tileset_ref : map.tilesets) {
-						if (gid < tileset_ref.first_gid) continue;
-						const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
-						if (!tileset) continue;
-						if (gid >= tileset_ref.first_gid + tileset->tile_count) continue;
-						tile = &tileset->tiles[gid - tileset_ref.first_gid];
-						break;
-					}
-					if (!tile) {
-						console::log_error("Failed to find tile with GID: " + std::to_string(gid));
-						continue;
-					}
-					object.tile = tile;
-					object.type = ObjectType::Tile;
-					object.flip_flags = _get_flip_flags(gid_with_flip_flags);
+				if (object.tile.gid != 0 && object.tileset.first_gid == 0) {
+					// This happens when the object is not a template and has a tile, in which case
+					// we need to resolve its tileset. (For templates this is done at load time.)
+					object.tileset = _get_tileset_for_gid(map.tilesets, object.tile.gid);
 				}
 			}
 		} break;
@@ -315,12 +291,10 @@ namespace tiled
 				console::log_error("Embedded tilesets are not supported: " + map.path);
 				continue;
 			}
-
 			std::string tileset_path = filesystem::get_parent_path(map.path);
 			tileset_path += '/';
 			tileset_path += source_attribute.as_string();
 			tileset_path = filesystem::get_normalized_path(tileset_path);
-
 			TilesetRef& tileset_ref = map.tilesets.emplace_back();
 			tileset_ref.first_gid = tileset_node.attribute("firstgid").as_uint();
 			tileset_ref.tileset = load_tileset(tileset_path);
@@ -454,36 +428,24 @@ namespace tiled
 		pugi::xml_node template_node = doc.child("template");
 		pugi::xml_node object_node = template_node.child("object");
 
-		Object template_{};
-		template_.path = normalized_path;
-		_load_object(object_node, template_);
+		Object object{};
+		object.template_path = normalized_path;
+		_load_object(object_node, object);
 		if (pugi::xml_node tileset_node = template_node.child("tileset")) {
 			pugi::xml_attribute source_attribute = tileset_node.attribute("source");
 			if (!source_attribute) {
-				console::log_error("Embedded tilesets are not supported: " + template_.path);
+				console::log_error("Embedded tilesets are not supported: " + normalized_path);
 				return Handle<Object>();
 			}
-			std::string tileset_path = filesystem::get_parent_path(template_.path);
+			std::string tileset_path = filesystem::get_parent_path(normalized_path);
 			tileset_path += '/';
 			tileset_path += source_attribute.as_string();
 			tileset_path = filesystem::get_normalized_path(tileset_path);
-
-			const Tileset* tileset = _tilesets.get(load_tileset(tileset_path));
-			if (!tileset) {
-				console::log_error("Failed to find tileset: " + tileset_path);
-				return Handle<Object>();
-			}
-
-			unsigned int gid_with_flip_flags = object_node.attribute("gid").as_uint();
-			unsigned int gid = _get_gid(gid_with_flip_flags);
-			unsigned int id = gid - tileset_node.attribute("firstgid").as_uint();
-
-			template_.tile = &tileset->tiles.at(id);
-			template_.type = ObjectType::Tile;
-			template_.flip_flags = _get_flip_flags(gid_with_flip_flags);
+			object.tileset.first_gid = tileset_node.attribute("firstgid").as_uint();
+			object.tileset.tileset = load_tileset(tileset_path);
 		}
 
-		const Handle<Object> handle = _templates.emplace(std::move(template_));
+		const Handle<Object> handle = _templates.emplace(std::move(object));
 		_path_to_template_handle[normalized_path] = handle;
 		return handle;
 	}
@@ -564,15 +526,19 @@ namespace tiled
 		return nullptr;
 	}
 
+	const Tile* Object::get_tile() const
+	{
+		if (type != ObjectType::Tile) return nullptr;
+		const Tileset* tileset = _tilesets.get(this->tileset.tileset);
+		if (!tileset) return nullptr;
+		return &tileset->tiles[tile.gid - this->tileset.first_gid];
+	}
+
 	const Tile* Map::get_tile(unsigned int gid) const
 	{
-		for (const TilesetRef& tileset_ref : tilesets) {
-			if (gid < tileset_ref.first_gid) continue;
-			const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
-			if (!tileset) continue;
-			if (gid >= tileset_ref.first_gid + tileset->tile_count) continue;
-			return &tileset->tiles[gid - tileset_ref.first_gid];
-		}
-		return nullptr;
+		TilesetRef tileset_ref = _get_tileset_for_gid(tilesets, gid);
+		const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
+		if (!tileset) return nullptr;
+		return &tileset->tiles[gid - tileset_ref.first_gid];
 	}
 }

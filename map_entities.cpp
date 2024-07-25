@@ -92,7 +92,7 @@ namespace map
 
 				// Attempt to use the object's UID as the entity identifier.
 				// If the identifier is already in use, a new one will be generated.
-				entt::entity entity = ecs::create(object.entity);
+				entt::entity entity = ecs::create(object.id);
 
 				if (!object.name.empty())
 					ecs::set_name(entity, object.name);
@@ -110,13 +110,14 @@ namespace map
 					position.y -= object.size.y;
 
 				if (object.type == tiled::ObjectType::Tile) {
-					assert(object.tile && "Tile not found.");
+					const tiled::Tile* tile = object.get_tile();
+					assert(tile && "Tile not found.");
 
 					Vector2f sorting_pivot = object.size / 2.f;
 
 					// LOAD COLLIDERS
 
-					if (!object.tile->objects.empty()) {
+					if (!tile->objects.empty()) {
 
 						b2BodyDef body_def{};
 						body_def.type = b2_dynamicBody;
@@ -124,7 +125,7 @@ namespace map
 						body_def.position.Set(position.x, position.y);
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
-						for (const tiled::Object& collider : object.tile->objects) {
+						for (const tiled::Object& collider : tile->objects) {
 
 							if (collider.name == "pivot")
 								sorting_pivot = collider.position;
@@ -163,14 +164,14 @@ namespace map
 
 					// EMPLACE TILE
 
-					ecs::Tile& tile = ecs::emplace_tile(entity, object.tile);
-					tile.position = position;
-					tile.sorting_pivot = sorting_pivot;
-					tile.sorting_layer = sprites::SL_OBJECTS;
-					tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					tile.set_flag(ecs::TF_FLIP_X, object.flip_flags & tiled::FLIP_HORIZONTAL);
-					tile.set_flag(ecs::TF_FLIP_Y, object.flip_flags & tiled::FLIP_VERTICAL);
-					tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.flip_flags & tiled::FLIP_DIAGONAL);
+					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
+					ecs_tile.position = position;
+					ecs_tile.sorting_pivot = sorting_pivot;
+					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
+					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TF_FLIP_X, object.tile.flipped_horizontally);
+					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.tile.flipped_vertically);
+					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.tile.flipped_diagonally);
 
 				} else { // If object is not a tile
 
