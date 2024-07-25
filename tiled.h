@@ -80,12 +80,6 @@ namespace tiled
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
 	};
 
-	struct TileInstance
-	{
-		const Tile* tile = nullptr; //TODO: replace with index
-		uint8_t flip_flags = 0;
-	};
-
 	struct WangColor
 	{
 		std::string name;
@@ -130,13 +124,29 @@ namespace tiled
 		Group,
 	};
 
+	struct TileRef
+	{
+		union
+		{
+			unsigned int value = 0;
+			struct
+			{
+				unsigned int gid : 28; // global tile ID
+				unsigned int rotated_hexagonal_120 : 1; // in hexagonal maps
+				unsigned int flipped_diagonally : 1;
+				unsigned int flipped_vertically : 1;
+				unsigned int flipped_horizontally : 1;
+			};
+		};
+	};
+
 	struct Layer
 	{
-		LayerType type;
+		LayerType type{};
 		std::string name;
 		std::string class_;
 		Properties properties;
-		std::vector<TileInstance> tiles; // nonempty if type = LayerType::Tile; size = width * height
+		std::vector<TileRef> tiles; // nonempty if type = LayerType::Tile; size = width * height
 		std::vector<Object> objects; // nonempty if type = LayerType::Object 
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
@@ -161,6 +171,8 @@ namespace tiled
 		unsigned int height = 0; // in tiles
 		unsigned int tile_width = 0; // in pixels
 		unsigned int tile_height = 0; // in pixels
+
+		const Tile* get_tile(unsigned int gid) const;
 	};
 
 	Handle<Map> load_map(const std::string& path);

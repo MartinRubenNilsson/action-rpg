@@ -299,8 +299,13 @@ namespace map
 			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
 
-					const auto [tile, flip_flags] = layer.tiles[tile_y * layer.width + tile_x];
-					if (!tile) continue;
+					const tiled::TileRef tile_ref = layer.tiles[tile_y * layer.width + tile_x];
+					if (!tile_ref.gid) continue;
+					const tiled::Tile* tile = map.get_tile(tile_ref.gid);
+					if (!tile) {
+						console::log_error("Tile not found for GID " + std::to_string(tile_ref.gid));
+						continue;
+					}
 
 					float position_x = (float)tile_x * map.tile_width;
 					float position_y = (float)tile_y * map.tile_height;
@@ -403,9 +408,9 @@ namespace map
 					ecs_tile.sorting_layer = sorting_layer;
 					ecs_tile.sorting_pivot = Vector2f(sorting_pivot_x, sorting_pivot_y);
 					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TF_FLIP_X, flip_flags & tiled::FLIP_HORIZONTAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_Y, flip_flags & tiled::FLIP_VERTICAL);
-					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, flip_flags & tiled::FLIP_DIAGONAL);
+					ecs_tile.set_flag(ecs::TF_FLIP_X, tile_ref.flipped_horizontally);
+					ecs_tile.set_flag(ecs::TF_FLIP_Y, tile_ref.flipped_vertically);
+					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
 				}
 			}
 		}

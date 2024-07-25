@@ -179,15 +179,13 @@ namespace tiled
 		case LayerType::Tile: {
 			pugi::xml_node data_node = node.child("data");
 			const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
-			// Each unsigned 32-bit integer in the data array stores a global tile ID
-			// in the lower 28 bits and flip flags in the higher 4 bits.
-			std::vector<unsigned int> data(layer.width * layer.height);
+			layer.tiles.resize(layer.width * layer.height);
 			if (strcmp(encoding, "csv") == 0) {
 				std::istringstream ss(data_node.text().as_string());
 				std::string token;
 				size_t i = 0;
-				while (i < data.size() && std::getline(ss, token, ',')) {
-					data[i++] = std::stoul(token);
+				while (i < layer.tiles.size() && std::getline(ss, token, ',')) {
+					layer.tiles[i++].value = std::stoul(token);
 				}
 			} else if (strcmp(encoding, "base64") == 0) {
 
@@ -215,22 +213,19 @@ namespace tiled
 
 				const pugi::char_t* compression = data_node.attribute("compression").as_string();
 				if (strcmp(compression, "zlib") == 0) {
-					uLongf data_size = (uLongf)(data.size() * sizeof(unsigned int));
-					uncompress((Bytef*)data.data(), &data_size,
+					uLongf data_size = (uLongf)(layer.tiles.size() * sizeof(unsigned int));
+					uncompress((Bytef*)layer.tiles.data(), &data_size,
 						(Bytef*)compressed_data.data(), (uLongf)compressed_data.size());
 				} else if (strcmp(compression, "") == 0) { // No compression
 					// We may have up to 3 bytes of padding at the end of compressed_data
 					// as a result of the Base64 decoding process; these can be discarded.
-					assert(compressed_data.size() >= data.size() * sizeof(unsigned int));
-					memcpy(data.data(), compressed_data.data(), data.size() * sizeof(unsigned int));
+					assert(compressed_data.size() >= layer.tiles.size() * sizeof(unsigned int));
+					memcpy(layer.tiles.data(), compressed_data.data(), layer.tiles.size() * sizeof(unsigned int));
 				} else {
 					console::log_error(
 						"Unknown Tiled map tile layer compression: " + std::string(compression) + "\n"
 						"  Map: " + map.path + "\n"
 						"  Layer: " + layer.name);
-					layer.width = 0;
-					layer.height = 0;
-					break;
 				}
 
 			} else {
@@ -238,29 +233,6 @@ namespace tiled
 					"Unknown Tiled map tile layer encoding.\n"
 					"  Map: " + map.path + "\n"
 					"  Layer: " + layer.name);
-				layer.width = 0;
-				layer.height = 0;
-				break;
-			}
-			layer.tiles.resize(data.size());
-			for (size_t i = 0; i < data.size(); ++i) {
-				unsigned int gid_with_flip_flag = data[i];
-				if (!gid_with_flip_flag) continue; // 0 means no tile
-				unsigned int gid = _get_gid(gid_with_flip_flag);
-				const Tile* tile = nullptr;
-				for (const TilesetRef& tileset_ref : map.tilesets) {
-					if (gid < tileset_ref.first_gid) continue;
-					const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
-					if (!tileset) continue;
-					if (gid >= tileset_ref.first_gid + tileset->tile_count) continue;
-					tile = &tileset->tiles[gid - tileset_ref.first_gid];
-					break;
-				}
-				if (!tile) {
-					console::log_error("Failed to find tile with GID: " + std::to_string(gid));
-					continue;
-				}
-				layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
 			}
 		} break;
 		case LayerType::Object: {
@@ -589,6 +561,18 @@ namespace tiled
 		for (const Tile& tile : tileset.tiles)
 			if (tile.class_ == class_)
 				return &tile;
+		return nullptr;
+	}
+
+	const Tile* Map::get_tile(unsigned int gid) const
+	{
+		for (const TilesetRef& tileset_ref : tilesets) {
+			if (gid < tileset_ref.first_gid) continue;
+			const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
+			if (!tileset) continue;
+			if (gid >= tileset_ref.first_gid + tileset->tile_count) continue;
+			return &tileset->tiles[gid - tileset_ref.first_gid];
+		}
 		return nullptr;
 	}
 }
