@@ -108,8 +108,9 @@ namespace ecs
 
 		// PROCESS CONTACTS
 
-		for (const PhysicsContact& contact : _physics_contact_listener.contacts)
+		for (const PhysicsContact& contact : _physics_contact_listener.contacts) {
 			on_begin_contact(contact);
+		}
 		_physics_contact_listener.contacts.clear();
 	}
 

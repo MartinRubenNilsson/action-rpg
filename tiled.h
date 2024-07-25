@@ -67,6 +67,7 @@ namespace tiled
 
 	struct Tile
 	{
+		Handle<Tileset> tileset;
 		unsigned int id = 0; // Index into Tileset::tiles
 		unsigned int left = 0; // in pixels
 		unsigned int top = 0; // in pixels
@@ -77,7 +78,6 @@ namespace tiled
 		std::vector<Object>	objects;
 		std::vector<Frame> animation; // nonempty if tile is animated
 		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
-		const Tileset* tileset = nullptr; //TODO: replace with Handle<Tileset>
 	};
 
 	struct TileInstance
@@ -147,8 +147,13 @@ namespace tiled
 		unsigned int tile_height = 0; // in pixels
 	};
 
-	// Loads all tilesets (.tsx), then all templates (.tx), then all maps (.tmx).
-	void load_assets(const std::string& dir);
+	Handle<Map> load_map(const std::string& path);
+	Handle<Tileset> load_tileset(const std::string& path);
+	Handle<Object> load_template(const std::string& path);
+
+	const Map* get_map(Handle<Map> handle);
+	const Tileset* get_tileset(Handle<Tileset> handle);
+	const Object* get_template(Handle<Object> handle);
 
 	std::span<const Map> get_maps();
 	std::span<const Tileset> get_tilesets();

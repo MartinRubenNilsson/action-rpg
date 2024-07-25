@@ -24,7 +24,7 @@ namespace ecs
 			shader = graphics::load_shader(
 				"assets/shaders/sprite.vert",
 				"assets/shaders/" + shader_name + ".frag");
-		} else if (tile->tileset->properties.get_string("shader", shader_name)) {
+		} else if (tiled::get_tileset(_tile->tileset)->properties.get_string("shader", shader_name)) {
 			shader = graphics::load_shader(
 				"assets/shaders/sprite.vert",
 				"assets/shaders/" + shader_name + ".frag");
@@ -48,7 +48,7 @@ namespace ecs
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
 		if (texture == Handle<graphics::Texture>()) {
-			texture = graphics::load_texture(tile->tileset->image_path);
+			texture = graphics::load_texture(tiled::get_tileset(_tile->tileset)->image_path);
 		}
 		return true;
 	}
@@ -58,7 +58,7 @@ namespace ecs
 		if (!_tile) return nullptr;
 		if (account_for_animation && _animation_frame < _tile->animation.size()) {
 			unsigned int tile_id = _tile->animation[_animation_frame].tile_id;
-			return &_tile->tileset->tiles[tile_id];
+			return &tiled::get_tileset(_tile->tileset)->tiles[tile_id];
 		}
 		return _tile;
 	}
@@ -67,17 +67,17 @@ namespace ecs
 	{
 		if (!_tile) return false; // no tileset to look in
 		if (id == _tile->id) return false;
-		if (id >= _tile->tileset->tiles.size()) return false;
-		return _set_tile(&_tile->tileset->tiles[id]);
+		if (id >= tiled::get_tileset(_tile->tileset)->tiles.size()) return false;
+		return _set_tile(&tiled::get_tileset(_tile->tileset)->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int id, const std::string& tileset_name)
 	{
 		if (tileset_name.empty()) return false;
 		const tiled::Tileset* tileset = nullptr;
-		if (_tile && tileset_name == _tile->tileset->name) {
+		if (_tile && tileset_name == tiled::get_tileset(_tile->tileset)->name) {
 			if (id == _tile->id) return false;
-			tileset = _tile->tileset;
+			tileset = tiled::get_tileset(_tile->tileset);
 		} else {
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
@@ -91,16 +91,16 @@ namespace ecs
 		if (class_.empty()) return false;
 		if (!_tile) return false; // no tileset to look in
 		if (class_ == _tile->class_) return false;
-		return _set_tile(tiled::find_tile_by_class(*_tile->tileset, class_));
+		return _set_tile(tiled::find_tile_by_class(*tiled::get_tileset(_tile->tileset), class_));
 	}
 
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
 	{
 		if (class_.empty() || tileset_name.empty()) return false;
 		const tiled::Tileset* tileset = nullptr;
-		if (_tile && tileset_name == _tile->tileset->name) {
+		if (_tile && tileset_name == tiled::get_tileset(_tile->tileset)->name) {
 			if (class_ == _tile->class_) return false;
-			tileset = _tile->tileset;
+			tileset = tiled::get_tileset(_tile->tileset);
 		} else {
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
@@ -121,7 +121,7 @@ namespace ecs
 	}
 
 	const std::string& Tile::get_tileset_name() const {
-		return _tile ? _tile->tileset->name : _DUMMY_EMPTY_STRING;
+		return _tile ? tiled::get_tileset(_tile->tileset)->name : _DUMMY_EMPTY_STRING;
 	}
 
 	const Properties& Tile::get_properties(bool account_for_animation) const

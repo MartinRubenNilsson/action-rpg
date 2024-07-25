@@ -305,9 +305,9 @@ namespace map
 					float position_x = (float)tile_x * map.tile_width;
 					float position_y = (float)tile_y * map.tile_height;
 					float pivot_x = 0.f;
-					float pivot_y = (float)(tile->tileset->tile_height - map.tile_height);
-					float sorting_pivot_x = tile->tileset->tile_width / 2.f;
-					float sorting_pivot_y = tile->tileset->tile_height - map.tile_height / 2.f;
+					float pivot_y = (float)(tile->height - map.tile_height);
+					float sorting_pivot_x = tile->width / 2.f;
+					float sorting_pivot_y = tile->height - map.tile_height / 2.f;
 
 					entt::entity entity = ecs::create();
 					if (!tile->class_.empty())

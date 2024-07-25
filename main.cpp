@@ -51,7 +51,18 @@ int main(int argc, char* argv[])
         if (file.format != filesystem::FileFormat::RmlUiDocument) continue;
         ui::load_document_from_file(file.path);
     }
-    tiled::load_assets("assets/tiled");
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
+        if (file.format != filesystem::FileFormat::TiledTileset) continue;
+        tiled::load_tileset(file.path);
+    }
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
+        if (file.format != filesystem::FileFormat::TiledTemplate) continue;
+        tiled::load_template(file.path);
+    }
+    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
+        if (file.format != filesystem::FileFormat::TiledMap) continue;
+        tiled::load_map(file.path);
+    }
 
     ui::add_event_listeners(); // Must come after loading RML documents.
 
