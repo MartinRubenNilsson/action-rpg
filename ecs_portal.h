@@ -23,5 +23,5 @@ namespace ecs
 	bool remove_portal(entt::entity entity);
 	bool has_portal(entt::entity entity);
 
-	bool activate_portal(entt::entity entity);
+	void activate_portal(entt::entity entity);
 }

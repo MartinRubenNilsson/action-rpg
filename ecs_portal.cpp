@@ -36,15 +36,13 @@ namespace ecs
 		return _registry.all_of<Portal>(entity);
 	}
 
-	bool activate_portal(entt::entity entity)
+	void activate_portal(entt::entity entity)
 	{
-		if (!_registry.all_of<Portal>(entity)) return false;
-		Portal& portal = _registry.get<Portal>(entity);
-		if (portal.activated) return false;
-		portal.activated = true;
-		if (map::open(portal.target_map)) {
-			audio::create_event({ .path = "event:/snd_map_transition" });
-		}
-		return false;
+		Portal* portal = get_portal(entity);
+		if (!portal) return;
+		if (portal->activated) return;
+		portal->activated = true;
+		if (!map::open(portal->target_map)) return;
+		audio::create_event({ .path = "event:/snd_map_transition" });
 	}
 }

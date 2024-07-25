@@ -3,6 +3,8 @@
 #include "tiled.h"
 #include "console.h"
 #include "sprites.h"
+#include "audio.h"
+#include "physics_helpers.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
@@ -12,8 +14,7 @@
 #include "ecs_ai.h"
 #include "ecs_portal.h"
 #include "ecs_character.h"
-#include "physics_helpers.h"
-#include "audio.h"
+#include "ecs_chest.h"
 
 // Precautionary measure so people don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
@@ -86,7 +87,7 @@ namespace map
 		// Create object entities first. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
 		for (const tiled::Layer& layer : map.layers) {
-			if (layer.objects.empty()) continue;
+			if (layer.type != tiled::LayerType::Object) continue;
 			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
 			for (const tiled::Object& object : layer.objects) {
 
@@ -272,10 +273,11 @@ namespace map
 				} else if (object.class_ == "slime") {
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 				} else if (object.class_ == "portal") {
-					ecs::Portal& portal = ecs::emplace_portal(entity);
+					ecs::Portal portal{};
 					object.properties.get_string("target_map", portal.target_map);
 					object.properties.get_string("target_point", portal.target_point);
 					object.properties.get_string("exit_direction", portal.exit_direction);
+					ecs::emplace_portal(entity, portal);
 				} else if (object.class_ == "camera") {
 					ecs::Camera camera{};
 					camera.view.center = position;
@@ -290,14 +292,15 @@ namespace map
 						audio::create_event({ .path = path.c_str(), .position = position });
 					}
 				} else if (object.class_ == "chest") {
-					// TO
+					ecs::Chest chest{};
+					ecs::emplace_chest(entity, chest);
 				}
 			}
 		}
 
 		// Create tile entities second.
 		for (const tiled::Layer& layer : map.layers) {
-			if (layer.tiles.empty()) continue;
+			if (layer.type != tiled::LayerType::Tile) continue;
 			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
 			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
 				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {

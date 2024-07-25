@@ -1,7 +1,26 @@
 #include "stdafx.h"
 #include "ecs_chest.h"
+#include "console.h"
 
 namespace ecs
 {
+    extern entt::registry _registry;
 
+    Chest& emplace_chest(entt::entity entity, const Chest& chest)
+    {
+        return _registry.emplace<Chest>(entity, chest);
+    }
+
+    Chest* get_chest(entt::entity entity)
+    {
+        return _registry.try_get<Chest>(entity);
+    }
+
+    void open_chest(entt::entity entity)
+    {
+        Chest* chest = get_chest(entity);
+        if (!chest) return;
+        if (chest->opened) return;
+        console::log_error("Chest opened");
+    }
 }
