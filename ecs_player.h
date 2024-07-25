@@ -8,7 +8,7 @@ namespace window
 
 namespace ecs
 {
-	enum InputFlags : uint32_t
+	enum INPUT_FLAGS : unsigned int
 	{
 		// Continuous actions
 
@@ -38,7 +38,7 @@ namespace ecs
 
 	struct Player
 	{
-		uint32_t input_flags = 0;
+		unsigned int input_flags = 0;
 		PlayerState state = PlayerState::Normal;
 		Vector2f look_dir = { 0.f, 1.f };
 		Timer hurt_timer = { 1.f };

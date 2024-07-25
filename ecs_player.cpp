@@ -19,6 +19,8 @@
 #include "ecs_character.h"
 #include "map_tilegrid.h"
 #include "postprocessing.h"
+#include "shapes.h"
+#include "ecs_chest.h"
 
 namespace ecs
 {
@@ -28,8 +30,8 @@ namespace ecs
 	const float _PLAYER_ARROW_SPEED = 160.f;
 
 	extern entt::registry _registry;
-	uint32_t _input_flags_to_enable = 0;
-	uint32_t _input_flags_to_disable = 0;
+	unsigned int _input_flags_to_enable = 0;
+	unsigned int _input_flags_to_disable = 0;
 
 	void process_window_event_for_players(const window::Event& ev)
 	{
@@ -96,9 +98,14 @@ namespace ecs
 		Vector2f box_center = position;
 		Vector2f box_min = box_center - Vector2f(6.f, 6.f);
 		Vector2f box_max = box_center + Vector2f(6.f, 6.f);
-		//debug::draw_box(box_min, box_max, Color::Cyan, 0.2f);
+		//shapes::add_box_to_render_queue(box_min, box_max, colors::CYAN, 0.2f);
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
-			std::string class_ = get_class(hit.entity);
+			const std::string& hit_class = get_class(hit.entity);
+
+			if (hit_class == "chest") {
+				ecs::open_chest(hit.entity);
+			}
+
 			std::string string;
 			if (get_string(hit.entity, "textbox", string)) {
 				ui::open_or_enqueue_textbox_presets(string);
