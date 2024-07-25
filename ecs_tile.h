@@ -9,16 +9,16 @@ namespace tiled
 
 namespace ecs
 {
-	enum TileFlags : unsigned int
+	enum TILE_FLAGS : unsigned int
 	{
-		TF_VISIBLE        = (1 << 0), // if not set, the tile is not rendered
-		TF_FLIP_X         = (1 << 1), // flip the sprite horizontally
-		TF_FLIP_Y         = (1 << 2), // flip the sprite vertically
-		TF_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
-		TF_LOOP           = (1 << 4), // loop the animation
-		TF_FLIP_X_ON_LOOP = (1 << 5), // flip the sprite horizontally when the animation loops
-		TF_FRAME_CHANGED  = (1 << 6), // the animation frame changed last update
-		TF_LOOPED	      = (1 << 7), // the animation looped last update
+		TILE_VISIBLE        = (1 << 0), // if not set, the tile is not rendered
+		TILE_FLIP_X         = (1 << 1), // flip the sprite horizontally
+		TILE_FLIP_Y         = (1 << 2), // flip the sprite vertically
+		TILE_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
+		TILE_LOOP           = (1 << 4), // loop the animation
+		TILE_FLIP_X_ON_LOOP = (1 << 5), // flip the sprite horizontally when the animation loops
+		TILE_FRAME_CHANGED  = (1 << 6), // the animation frame changed last update
+		TILE_LOOPED	        = (1 << 7), // the animation looped last update
 	};
 
 	class Tile
@@ -40,9 +40,12 @@ namespace ecs
 		bool is_valid() const { return _tile; }
 		bool set_tile(unsigned int id); // uses the current tileset
 		bool set_tile(unsigned int id, const std::string& tileset_name);
+		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
 		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height, bool account_for_animation = true) const;
+		unsigned int get_id(bool account_for_animation = true) const;
+		Vector2u get_coords(bool account_for_animation = true) const;
 		const std::string& get_class(bool account_for_animation = true) const;
 		const std::string& get_tileset_name() const;
 		const Properties& get_properties(bool account_for_animation = true) const;
@@ -50,15 +53,15 @@ namespace ecs
 		void update_animation(float dt);
 		float get_animation_duration() const; // in seconds
 		unsigned int get_animation_frame() const;
-		void set_flag(TileFlags flag, bool value);
-		bool get_flag(TileFlags flag) const;
+		void set_flag(unsigned int flag, bool value);
+		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);
 
 	private:
-		const tiled::Tile* _tile = nullptr;
+		const tiled::Tile* _tile = nullptr; // TODO: remove this pointer and replace with Handle<Tileset> and tile_id
 		unsigned int _animation_duration_ms = 0;
 		unsigned int _animation_frame = 0;
-		unsigned int _flags = TF_VISIBLE | TF_LOOP;
+		unsigned int _flags = TILE_VISIBLE | TILE_LOOP;
 
 		bool _set_tile(const tiled::Tile* tile);
 		const tiled::Tile* _get_tile(bool account_for_animation) const;

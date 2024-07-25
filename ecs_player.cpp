@@ -159,7 +159,7 @@ namespace ecs
 
 			audio::set_listener_position(position);
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
-			if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().contains("step")) {
+			if (tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("step")) {
 				audio::create_event({ .path = "event:/snd_footstep" });
 			}
 
@@ -171,17 +171,17 @@ namespace ecs
 
 			switch (dir) {
 			case 'r':
-				tile.set_flag(TF_FLIP_X, false);
-				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
+				tile.set_flag(TILE_FLIP_X, false);
+				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				break;
 			case 'l':
 				tile_dir = 'r';
-				tile.set_flag(TF_FLIP_X, true);
-				tile.set_flag(TF_FLIP_X_ON_LOOP, false);
+				tile.set_flag(TILE_FLIP_X, true);
+				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				break;
 			case 'u':
 			case 'd':
-				tile.set_flag(TF_FLIP_X_ON_LOOP, true);
+				tile.set_flag(TILE_FLIP_X_ON_LOOP, true);
 				break;
 			}
 
@@ -213,34 +213,34 @@ namespace ecs
 				if (player.input_flags & INPUT_SWING_SWORD) {
 					tile.set_tile("sword_attack_"s + tile_dir);
 					audio::create_event({ .path = "event:/snd_sword_attack" });
-					tile.set_flag(TF_LOOP, false);
+					tile.set_flag(TILE_LOOP, false);
 					player.state = PlayerState::SwingingSword;
 				} else if (player.input_flags & INPUT_SHOOT_BOW && player.arrows > 0) {
 					tile.set_tile("bow_shot_"s + tile_dir);
-					tile.set_flag(TF_LOOP, false);
+					tile.set_flag(TILE_LOOP, false);
 					player.state = PlayerState::ShootingBow;
 				} else if (player.input_flags & INPUT_DROP_BOMB && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 					tile.set_tile("run_"s + tile_dir);
-					tile.set_flag(TF_LOOP, true);
+					tile.set_flag(TILE_LOOP, true);
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_tile("walk_"s + tile_dir);
-					tile.set_flag(TF_LOOP, true);
+					tile.set_flag(TILE_LOOP, true);
 				} else if (player.input_flags & INPUT_INTERACT) {
 					_player_interact(position + player.look_dir * 16.f);
 				} else {
 					tile.set_tile("idle_"s + tile_dir);
-					tile.set_flag(TF_LOOP, true);
+					tile.set_flag(TILE_LOOP, true);
 				}
 			} break;
 			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
 				if (tile_dir != 'r') {
-					tile.set_flag(TF_FLIP_X, false);
+					tile.set_flag(TILE_FLIP_X, false);
 				}
-				if (tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().contains("strike")) {
+				if (tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("strike")) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 				if (tile.animation_timer.finished()) {
@@ -250,9 +250,9 @@ namespace ecs
 			case PlayerState::ShootingBow: {
 				held_item_type = HeldItemType::Bow;
 				if (tile_dir != 'r') {
-					tile.set_flag(TF_FLIP_X, false);
+					tile.set_flag(TILE_FLIP_X, false);
 				}
-				if (player.arrows > 0 && tile.get_flag(TF_FRAME_CHANGED) && tile.get_properties().contains("shoot")) {
+				if (player.arrows > 0 && tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("shoot")) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
 				}
@@ -263,7 +263,7 @@ namespace ecs
 			case PlayerState::Dying: {
 				if (tile_dir == 'd') tile_dir = 'u';
 				tile.set_tile("dying_"s + tile_dir);
-				tile.set_flag(TF_LOOP, false);
+				tile.set_flag(TILE_LOOP, false);
 				if (tile.animation_timer.finished()) {
 					tile.set_tile("dead_"s + tile_dir);
 					kill_player(player_entity);
@@ -280,7 +280,7 @@ namespace ecs
 			// UPDATE HELD ITEM GRAPHICS
 
 			if (Tile* held_item_tile = get_tile(player.held_item)) {
-				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
+				held_item_tile->set_flag(TILE_VISIBLE, held_item_type != HeldItemType::None);
 				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {

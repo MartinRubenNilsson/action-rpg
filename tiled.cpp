@@ -353,8 +353,10 @@ namespace tiled
 			Tile& tile = tileset->tiles[id];
 			tile.tileset = handle;
 			tile.id = id;
-			tile.left = (id % tileset->columns) * (tileset->tile_width + tileset->spacing) + tileset->margin;
-			tile.top = (id / tileset->columns) * (tileset->tile_height + tileset->spacing) + tileset->margin;
+			tile.x = id % tileset->columns;
+			tile.y = id / tileset->columns;
+			tile.left = tile.x * (tileset->tile_width + tileset->spacing) + tileset->margin;
+			tile.top = tile.y * (tileset->tile_height + tileset->spacing) + tileset->margin;
 			tile.width = tileset->tile_width;
 			tile.height = tileset->tile_height;
 		}

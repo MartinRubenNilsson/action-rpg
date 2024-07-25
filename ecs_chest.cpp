@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ecs_chest.h"
+#include "ecs_tile.h"
 #include "console.h"
 
 namespace ecs
@@ -21,6 +22,13 @@ namespace ecs
         Chest* chest = get_chest(entity);
         if (!chest) return;
         if (chest->opened) return;
-        console::log_error("Chest opened");
+        chest->opened = true;
+
+        if (ecs::Tile* tile = ecs::get_tile(entity)) {
+            Vector2u coords = tile->get_coords();
+            if (coords.y % 2 == 0) {
+                tile->set_tile(coords.x, coords.y + 1);
+            }
+        }
     }
 }

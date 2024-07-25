@@ -85,6 +85,8 @@ namespace tiled
 	{
 		Handle<Tileset> tileset;
 		unsigned int id = 0; // Index into Tileset::tiles
+		unsigned int x = 0; // in tiles
+		unsigned int y = 0; // in tiles
 		unsigned int left = 0; // in pixels
 		unsigned int top = 0; // in pixels
 		unsigned int width = 0; // in pixels
@@ -101,7 +103,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		unsigned int tile_id = UINT_MAX; // Index into Tileset::tiles; UINT_MAX if no tile has been chosen to represent this color
+		unsigned int tile_id = 0; // Index into Tileset::tiles, or UINT_MAX if no tile has been chosen to represent this color.
 		float probability = 0.f;
 		Color color;
 	};
@@ -111,7 +113,7 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		unsigned int tile_id = UINT_MAX; // Index into Tileset::tiles; UINT_MAX if no tile has been chosen to represent this set
+		unsigned int tile_id = 0; // Index into Tileset::tiles, or UINT_MAX if no tile has been chosen to represent this set.
 		std::vector<WangColor> colors;
 	};
 

@@ -40,8 +40,8 @@ namespace ecs
 		_tile = tile;
 		_animation_duration_ms = 0;
 		_animation_frame = 0;
-		set_flag(TF_FRAME_CHANGED, false);
-		set_flag(TF_LOOPED, false);
+		set_flag(TILE_FRAME_CHANGED, false);
+		set_flag(TILE_LOOPED, false);
 		for (const tiled::Frame& frame : _tile->animation) {
 			_animation_duration_ms += frame.duration;
 		}
@@ -84,6 +84,15 @@ namespace ecs
 		if (!tileset) return false;
 		if (id >= tileset->tiles.size()) return false;
 		return _set_tile(&tileset->tiles[id]);
+	}
+
+	bool Tile::set_tile(unsigned int x, unsigned int y)
+	{
+		if (!_tile) return false; // no tileset to look in
+		if (x == _tile->x && y == _tile->y) return false;
+		const tiled::Tileset* tileset = tiled::get_tileset(_tile->tileset);
+		if (x >= tileset->columns || y >= tileset->tile_count / tileset->columns) return false;
+		return _set_tile(&tileset->tiles[y * tileset->columns + x]);
 	}
 
 	bool Tile::set_tile(const std::string& class_)
@@ -146,7 +155,24 @@ namespace ecs
 		}
 	}
 
-	bool Tile::has_animation() const {
+	unsigned int Tile::get_id(bool account_for_animation) const
+	{
+		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
+			return tile->id;
+		}
+		return 0;
+	}
+
+	Vector2u Tile::get_coords(bool account_for_animation) const
+	{
+		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
+			return Vector2u(tile->x, tile->y);
+		}
+		return Vector2u(0, 0);
+	}
+
+	bool Tile::has_animation() const
+	{
 		return _animation_duration_ms != 0;
 	}
 
@@ -154,19 +180,19 @@ namespace ecs
 	{
 		if (!_tile) return;
 		if (!_animation_duration_ms) return;
-		set_flag(TF_FRAME_CHANGED, false);
-		set_flag(TF_LOOPED, false);
-		const bool loop = get_flag(TF_LOOP);
+		set_flag(TILE_FRAME_CHANGED, false);
+		set_flag(TILE_LOOPED, false);
+		const bool loop = get_flag(TILE_LOOP);
 		if (animation_timer.update(animation_speed * dt, loop) && loop) {
-			set_flag(TF_LOOPED, true);
-			if (get_flag(TF_FLIP_X_ON_LOOP))
-				set_flag(TF_FLIP_X, !get_flag(TF_FLIP_X));
+			set_flag(TILE_LOOPED, true);
+			if (get_flag(TILE_FLIP_X_ON_LOOP))
+				set_flag(TILE_FLIP_X, !get_flag(TILE_FLIP_X));
 		}
 		unsigned int time = (unsigned int)(animation_timer.get_time() * 1000.f); // in milliseconds
 		for (unsigned int frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
 			unsigned int frame_duration = _tile->animation[frame_index].duration;
 			if (time < frame_duration) {
-				set_flag(TF_FRAME_CHANGED, frame_index != _animation_frame);
+				set_flag(TILE_FRAME_CHANGED, frame_index != _animation_frame);
 				_animation_frame = frame_index;
 				return;
 			} else {
@@ -178,15 +204,17 @@ namespace ecs
 		_animation_frame = (unsigned int)_tile->animation.size() - 1;
 	}
 
-	float Tile::get_animation_duration() const {
+	float Tile::get_animation_duration() const
+	{
 		return _animation_duration_ms / 1000.f;
 	}
 
-	unsigned int Tile::get_animation_frame() const {
+	unsigned int Tile::get_animation_frame() const
+	{
 		return _animation_frame;
 	}
 
-	void Tile::set_flag(TileFlags flag, bool value)
+	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {
 			_flags |= flag;
@@ -195,11 +223,13 @@ namespace ecs
 		}
 	}
 
-	bool Tile::get_flag(TileFlags flag) const {
+	bool Tile::get_flag(unsigned int flag) const
+	{
 		return (_flags & flag) != 0;
 	}
 
-	bool _get_nth_bit(int value, int n) {
+	bool _get_nth_bit(int value, int n)
+	{
 		return (value & (1 << n)) >> n;
 	}
 
@@ -207,9 +237,9 @@ namespace ecs
 	{
 		bool bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
 		bool bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
-		set_flag(TF_FLIP_X, bit_0 != bit_1); // XOR
-		set_flag(TF_FLIP_Y, bit_1);
-		set_flag(TF_FLIP_DIAGONAL, bit_0);
+		set_flag(TILE_FLIP_X, bit_0 != bit_1); // XOR
+		set_flag(TILE_FLIP_Y, bit_1);
+		set_flag(TILE_FLIP_DIAGONAL, bit_0);
 	}
 
 	void update_tiles(float dt)
@@ -228,7 +258,7 @@ namespace ecs
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
 			if (!tile.is_valid()) continue;
-			if (!tile.get_flag(TF_VISIBLE)) continue;
+			if (!tile.get_flag(TILE_VISIBLE)) continue;
 			sprite.texture = tile.texture;
 			if (sprite.texture == Handle<graphics::Texture>()) continue;
 			Vector2u texture_size;
@@ -250,13 +280,13 @@ namespace ecs
 			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
 			sprite.flags = 0;
-			if (tile.get_flag(TF_FLIP_X)) {
+			if (tile.get_flag(TILE_FLIP_X)) {
 				sprite.flags |= sprites::SF_FLIP_X;
 			}
-			if (tile.get_flag(TF_FLIP_Y)) {
+			if (tile.get_flag(TILE_FLIP_Y)) {
 				sprite.flags |= sprites::SF_FLIP_Y;
 			}
-			if (tile.get_flag(TF_FLIP_DIAGONAL)) {
+			if (tile.get_flag(TILE_FLIP_DIAGONAL)) {
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
 			}
 			sprite.pre_render_callback = nullptr;

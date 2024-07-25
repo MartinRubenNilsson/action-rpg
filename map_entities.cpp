@@ -174,10 +174,10 @@ namespace map
 					ecs_tile.position = position;
 					ecs_tile.sorting_pivot = sorting_pivot;
 					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
-					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TF_FLIP_X, object.tile.flipped_horizontally);
-					ecs_tile.set_flag(ecs::TF_FLIP_Y, object.tile.flipped_vertically);
-					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, object.tile.flipped_diagonally);
+					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TILE_FLIP_X, object.tile.flipped_horizontally);
+					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile.flipped_vertically);
+					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, object.tile.flipped_diagonally);
 
 				} else { // If object is not a tile
 
@@ -428,10 +428,10 @@ namespace map
 					ecs_tile.pivot = Vector2f(pivot_x, pivot_y);
 					ecs_tile.sorting_layer = sorting_layer;
 					ecs_tile.sorting_pivot = Vector2f(sorting_pivot_x, sorting_pivot_y);
-					ecs_tile.set_flag(ecs::TF_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TF_FLIP_X, tile_ref.flipped_horizontally);
-					ecs_tile.set_flag(ecs::TF_FLIP_Y, tile_ref.flipped_vertically);
-					ecs_tile.set_flag(ecs::TF_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
+					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
+					ecs_tile.set_flag(ecs::TILE_FLIP_X, tile_ref.flipped_horizontally);
+					ecs_tile.set_flag(ecs::TILE_FLIP_Y, tile_ref.flipped_vertically);
+					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
 				}
 			}
 		}
