@@ -118,29 +118,20 @@ namespace tiled
 		}
 	}
 
-	bool _is_tile_layer(const char* str)
+	bool _string_to_layer_type(const char* str, LayerType& type)
 	{
-		return strcmp(str, "layer") == 0;
-	}
-
-	bool _is_object_layer(const char* str)
-	{
-		return strcmp(str, "objectgroup") == 0;
-	}
-
-	bool _is_image_layer(const char* str)
-	{
-		return strcmp(str, "imagelayer") == 0;
-	}
-
-	bool _is_group_layer(const char* str)
-	{
-		return strcmp(str, "group") == 0;
-	}
-
-	bool _is_layer(const char* str)
-	{
-		return _is_tile_layer(str) || _is_object_layer(str) || _is_image_layer(str) || _is_group_layer(str);
+		if (strcmp(str, "layer") == 0) {
+			type = LayerType::Tile;
+		} else if (strcmp(str, "objectgroup") == 0) {
+			type = LayerType::Object;
+		} else if (strcmp(str, "imagelayer") == 0) {
+			type = LayerType::Image;
+		} else if (strcmp(str, "group") == 0) {
+			type = LayerType::Group;
+		} else {
+			return false;
+		}
+		return true;
 	}
 
 	// Maps each ASCII character to its corresponding 6-bit Base64 value,
@@ -216,7 +207,9 @@ namespace tiled
 		}
 		std::vector<pugi::xml_node> layer_node_stack;
 		for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children())) {
-			if (_is_layer(child_node.name())) {
+			LayerType dummy_layer_type;
+			// Some children may be <tileset> nodes, and we are only interested in layers.
+			if (_string_to_layer_type(child_node.name(), dummy_layer_type)) {
 				layer_node_stack.push_back(child_node);
 			}
 		}
@@ -224,13 +217,15 @@ namespace tiled
 			pugi::xml_node layer_node = layer_node_stack.back();
 			layer_node_stack.pop_back();
 			Layer& layer = map.layers.emplace_back();
+			_string_to_layer_type(layer_node.name(), layer.type);
 			layer.name = layer_node.attribute("name").as_string();
 			layer.class_ = layer_node.attribute("class").as_string();
 			layer.width = layer_node.attribute("width").as_uint();
 			layer.height = layer_node.attribute("height").as_uint();
 			layer.visible = layer_node.attribute("visible").as_bool(true);
 			_load_properties(layer_node, layer.properties);
-			if (_is_tile_layer(layer_node.name())) {
+			switch (layer.type) {
+			case LayerType::Tile: {
 				pugi::xml_node data_node = layer_node.child("data");
 				const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
 				// Each unsigned 32-bit integer in the data array stores a global tile ID
@@ -314,7 +309,8 @@ namespace tiled
 					}
 					layer.tiles[i] = { tile, _get_flip_flags(gid_with_flip_flag) };
 				}
-			} else if (_is_object_layer(layer_node.name())) {
+			} break;
+			case LayerType::Object: {
 				for (pugi::xml_node object_node : layer_node.children("object")) {
 					Object& object = layer.objects.emplace_back();
 					if (pugi::xml_attribute template_attribute = object_node.attribute("template")) {
@@ -349,14 +345,18 @@ namespace tiled
 						object.flip_flags = _get_flip_flags(gid_with_flip_flags);
 					}
 				}
-			} else if (_is_image_layer(layer_node.name())) {
+			} break;
+			case LayerType::Image: {
 				// TODO
-			} else if (_is_group_layer(layer_node.name())) {
-				for (pugi::xml_node child_node : std::ranges::reverse_view(layer_node.children()))
-					if (_is_layer(child_node.name()))
+			} break;
+			case LayerType::Group: {
+				LayerType dummy_layer_type;
+				for (pugi::xml_node child_node : std::ranges::reverse_view(layer_node.children())) {
+					if (_string_to_layer_type(child_node.name(), dummy_layer_type)) {
 						layer_node_stack.push_back(child_node);
-			} else {
-				assert(false);
+					}
+				}
+			} break;
 			}
 		}
 

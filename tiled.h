@@ -122,13 +122,22 @@ namespace tiled
 		unsigned int margin = 0; // in pixels
 	};
 
+	enum class LayerType
+	{
+		Tile,
+		Object,
+		Image,
+		Group,
+	};
+
 	struct Layer
 	{
+		LayerType type;
 		std::string name;
 		std::string class_;
 		Properties properties;
-		std::vector<TileInstance> tiles; // nonempty if tile layer; size = width * height
-		std::vector<Object> objects; // nonempty if object layer 
+		std::vector<TileInstance> tiles; // nonempty if type = LayerType::Tile; size = width * height
+		std::vector<Object> objects; // nonempty if type = LayerType::Object 
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
 		bool visible = true;
