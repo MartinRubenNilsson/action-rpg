@@ -70,15 +70,16 @@ namespace map
 		std::optional<ecs::Portal> last_active_portal;
 		{
 			entt::entity player_entity = ecs::find_player_entity();
-			if (ecs::Player* player = ecs::get_player(player_entity))
+			if (ecs::Player* player = ecs::get_player(player_entity)) {
 				last_player = *player;
-			if (ecs::Character* character = ecs::get_character(player_entity))
+			}
+			if (ecs::Character* character = ecs::get_character(player_entity)) {
 				last_player_character = *character;
-		}
-		{
+			}
 			entt::entity portal_entity = ecs::find_active_portal_entity();
-			if (ecs::Portal* portal = ecs::get_portal(portal_entity))
+			if (ecs::Portal* portal = ecs::get_portal(portal_entity)) {
 				last_active_portal = *portal;
+			}
 		}
 
 		// Destroy all entities before creating new ones.
@@ -95,20 +96,24 @@ namespace map
 				// If the identifier is already in use, a new one will be generated.
 				entt::entity entity = ecs::create(object.id);
 
-				if (!object.name.empty())
+				if (!object.name.empty()) {
 					ecs::set_name(entity, object.name);
-				if (!object.class_.empty())
+				}
+				if (!object.class_.empty()) {
 					ecs::set_class(entity, object.class_);
-				if (!object.properties.empty())
+				}
+				if (!object.properties.empty()) {
 					ecs::set_properties(entity, object.properties);
+				}
 
 				Vector2f position = object.position;
 
 				// Objects are positioned by their top-left corner, except for tiles,
 				// which are positioned by their bottom-left corner. This is confusing,
 				// so let's adjust the position here to make it consistent.
-				if (object.type == tiled::ObjectType::Tile)
+				if (object.type == tiled::ObjectType::Tile) {
 					position.y -= object.size.y;
+				}
 
 				if (object.type == tiled::ObjectType::Tile) {
 					const tiled::Tile* tile = object.get_tile();
@@ -292,8 +297,18 @@ namespace map
 						audio::create_event({ .path = path.c_str(), .position = position });
 					}
 				} else if (object.class_ == "chest") {
+
 					ecs::Chest chest{};
 					ecs::emplace_chest(entity, chest);
+
+					b2BodyDef body_def{};
+					body_def.type = b2_staticBody;
+					body_def.position = position;
+					b2Body* body = ecs::emplace_body(entity, body_def);
+
+					b2PolygonShape shape{};
+					shape.SetAsBox(10.f, 6.f, object.size / 2.f + Vector2f(0.f, 6.f), 0.f);
+					body->CreateFixture(&shape, 0.f);
 				}
 			}
 		}
