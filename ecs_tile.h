@@ -28,7 +28,7 @@ namespace ecs
 		Tile(const tiled::Tile* tile);
 
 		Handle<graphics::Texture> texture;
-		Handle<graphics::Shader> shader = Handle<graphics::Shader>();
+		Handle<graphics::Shader> shader;
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
