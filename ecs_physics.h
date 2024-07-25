@@ -27,10 +27,9 @@ namespace ecs
 	bool has_body(entt::entity entity);
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body);
-	b2Body* get_body(entt::entity entity); // WARNING: undefined behavior if entity has no body
-	// To be consistent with the other try_get functions, try_get_body should technically
+	// To be consistent with the other get_*() functions, get_body() should technically
 	// return a pointer to a pointer, but that would be a bit awkward to use.
-	b2Body* try_get_body(entt::entity entity);
+	b2Body* get_body(entt::entity entity);
 	bool remove_body(entt::entity entity);
 
 	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits = 0xFFFF, RaycastHit* hit = nullptr);

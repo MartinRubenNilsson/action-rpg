@@ -59,8 +59,7 @@ namespace ecs
 	entt::entity find_player_entity();
 
 	Player& emplace_player(entt::entity entity, const Player& player = {});
-	Player& get_player(entt::entity entity); // Undefined behavior if entity does not have a Player component!
-	Player* try_get_player(entt::entity entity);
+	Player* get_player(entt::entity entity);
 	bool remove_player(entt::entity entity);
 	bool has_player(entt::entity entity);
 

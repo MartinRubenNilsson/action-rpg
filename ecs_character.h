@@ -157,8 +157,7 @@ namespace ecs
 	};
 
 	Character& emplace_character(entt::entity entity, const Character& ch = {});
-	Character& get_character(entt::entity entity); // Undefined behavior if entity does not have a Character component!
-	Character* try_get_character(entt::entity entity);
+	Character* get_character(entt::entity entity);
 	bool remove_character(entt::entity entity);
 	bool has_character(entt::entity entity);
 

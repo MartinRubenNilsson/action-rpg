@@ -28,11 +28,7 @@ namespace ecs
 		return _registry.emplace<Character>(entity, ch);
 	}
 
-	Character& get_character(entt::entity entity) {
-		return _registry.get<Character>(entity);
-	}
-
-	Character* try_get_character(entt::entity entity) {
+	Character* get_character(entt::entity entity) {
 		return _registry.try_get<Character>(entity);
 	}
 

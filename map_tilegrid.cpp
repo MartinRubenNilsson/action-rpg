@@ -92,11 +92,7 @@ namespace map
 
 	TileGrid _grid;
 
-	Tile& _get_tile(const Vector2i& position) {
-		return _grid.tiles[position.x + position.y * _grid.size.x];
-	}
-
-	Tile* _try_get_tile(const Vector2i& position)
+	Tile* _get_tile(const Vector2i& position)
 	{
 		if (position.x < 0) return nullptr;
 		if (position.y < 0) return nullptr;
@@ -194,7 +190,7 @@ namespace map
 	TerrainType get_terrain_type_at(const Vector2f& world_pos)
 	{
 		Vector2i tile_pos = world_to_tile(world_pos);
-		Tile* tile = _try_get_tile(tile_pos);
+		Tile* tile = _get_tile(tile_pos);
 		if (!tile) return TerrainType::None;
 		const bool left = (int)world_pos.x % _grid.tile_size.x < _grid.tile_size.x / 2;
 		const bool top = (int)world_pos.y % _grid.tile_size.y < _grid.tile_size.y / 2;
@@ -233,10 +229,10 @@ namespace map
 		if (path.size() >= 2 && path.front() == start && path.back() == end)
 			return true;
 
-		Tile* start_tile = _try_get_tile(start);
+		Tile* start_tile = _get_tile(start);
 		if (!start_tile || !start_tile->passable)
 			return false;
-		Tile* end_tile = _try_get_tile(end);
+		Tile* end_tile = _get_tile(end);
 		if (!end_tile || !end_tile->passable)
 			return false;
 
@@ -268,7 +264,7 @@ namespace map
 			for (const Vector2i& direction : _ALLOWED_MOVEMENT_DIRECTIONS) {
 
 				Vector2i neighbor_pos = current_pos + direction;
-				Tile* neighbor_tile = _try_get_tile(neighbor_pos);
+				Tile* neighbor_tile = _get_tile(neighbor_pos);
 				if (!neighbor_tile) continue;
 				if (!neighbor_tile->passable) continue;
 				if (neighbor_tile->state == Tile::CLOSED) continue;
@@ -291,7 +287,7 @@ namespace map
 			return false;
 
 		path.clear();
-		for (Tile* tile = end_tile; tile; tile = _try_get_tile(tile->parent))
+		for (Tile* tile = end_tile; tile; tile = _get_tile(tile->parent))
 			path.push_back(tile->position);
 		std::reverse(path.begin(), path.end());
 

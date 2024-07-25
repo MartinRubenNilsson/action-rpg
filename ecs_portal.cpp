@@ -24,11 +24,7 @@ namespace ecs
 		return _registry.emplace_or_replace<Portal>(entity, portal);
 	}
 
-	Portal& get_portal(entt::entity entity) {
-		return _registry.get<Portal>(entity);
-	}
-
-	Portal* try_get_portal(entt::entity entity) {
+	Portal* get_portal(entt::entity entity) {
 		return _registry.try_get<Portal>(entity);
 	}
 

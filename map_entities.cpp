@@ -69,14 +69,14 @@ namespace map
 		std::optional<ecs::Portal> last_active_portal;
 		{
 			entt::entity player_entity = ecs::find_player_entity();
-			if (ecs::Player* player = ecs::try_get_player(player_entity))
+			if (ecs::Player* player = ecs::get_player(player_entity))
 				last_player = *player;
-			if (ecs::Character* character = ecs::try_get_character(player_entity))
+			if (ecs::Character* character = ecs::get_character(player_entity))
 				last_player_character = *character;
 		}
 		{
 			entt::entity portal_entity = ecs::find_active_portal_entity();
-			if (ecs::Portal* portal = ecs::try_get_portal(portal_entity))
+			if (ecs::Portal* portal = ecs::get_portal(portal_entity))
 				last_active_portal = *portal;
 		}
 
@@ -214,8 +214,8 @@ namespace map
 
 				if (object.class_ == "player") {
 
-					b2Body* body = ecs::try_get_body(entity);
-					ecs::Tile* tile = ecs::try_get_tile(entity);
+					b2Body* body = ecs::get_body(entity);
+					ecs::Tile* tile = ecs::get_tile(entity);
 
 					ecs::Player player{};
 					if (last_player) {
@@ -289,6 +289,8 @@ namespace map
 						std::string path = "event:/" + event_name;
 						audio::create_event({ .path = path.c_str(), .position = position });
 					}
+				} else if (object.class_ == "chest") {
+					// TO
 				}
 			}
 		}
@@ -417,7 +419,8 @@ namespace map
 		}
 	}
 
-	void destroy_entities() {
+	void destroy_entities()
+	{
 		ecs::clear();
 	}
 }

@@ -69,8 +69,7 @@ namespace ecs
 
 	Tile& emplace_tile(entt::entity entity);
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
-	Tile& get_tile(entt::entity entity); // Undefined behavior if entity does not have a Tile component!
-	Tile* try_get_tile(entt::entity entity);
+	Tile* get_tile(entt::entity entity);
 	bool remove_tile(entt::entity entity);
 	bool has_tile(entt::entity entity);
 }

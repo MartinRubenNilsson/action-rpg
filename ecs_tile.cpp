@@ -280,11 +280,7 @@ namespace ecs
 		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
-	Tile& get_tile(entt::entity entity) {
-		return _registry.get<Tile>(entity);
-	}
-
-	Tile* try_get_tile(entt::entity entity) {
+	Tile* get_tile(entt::entity entity) {
 		return _registry.try_get<Tile>(entity);
 	}
 

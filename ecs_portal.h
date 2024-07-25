@@ -19,8 +19,7 @@ namespace ecs
 	entt::entity find_active_portal_entity();
 
 	Portal& emplace_portal(entt::entity entity, const Portal& portal = {});
-	Portal& get_portal(entt::entity entity); // Undefined behavior if entity does not have a Portal component.
-	Portal* try_get_portal(entt::entity entity);
+	Portal* get_portal(entt::entity entity);
 	bool remove_portal(entt::entity entity);
 	bool has_portal(entt::entity entity);
 

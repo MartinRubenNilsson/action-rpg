@@ -272,7 +272,7 @@ namespace ecs
 
 			// UPDATE HELD ITEM GRAPHICS
 
-			if (Tile* held_item_tile = try_get_tile(player.held_item)) {
+			if (Tile* held_item_tile = get_tile(player.held_item)) {
 				held_item_tile->set_flag(TF_VISIBLE, held_item_type != HeldItemType::None);
 				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
@@ -443,11 +443,7 @@ namespace ecs
 		return _registry.emplace_or_replace<Player>(entity, player);
 	}
 
-	Player& get_player(entt::entity entity) {
-		return _registry.get<Player>(entity);
-	}
-
-	Player* try_get_player(entt::entity entity) {
+	Player* get_player(entt::entity entity) {
 		return _registry.try_get<Player>(entity);
 	}
 
