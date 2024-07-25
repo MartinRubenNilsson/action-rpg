@@ -143,12 +143,19 @@ namespace tiled
 		bool visible = true;
 	};
 
+	struct TilesetRef
+	{
+		unsigned int first_gid = 0;
+		Handle<Tileset> tileset;
+	};
+
 	struct Map
 	{
 		std::string path;
 		std::string name; // filename without extension
 		std::string class_;
 		Properties properties;
+		std::vector<TilesetRef> tilesets; // sorted by first_gid
 		std::vector<Layer> layers;
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
