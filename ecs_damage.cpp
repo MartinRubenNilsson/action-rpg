@@ -9,7 +9,6 @@
 
 namespace ecs
 {
-	extern entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_that_took_damage;
 
 	bool apply_damage_in_box(const Damage& damage, const Vector2f& box_min, const Vector2f& box_max, uint16_t mask_bits)
@@ -18,8 +17,8 @@ namespace ecs
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, mask_bits)) {
 			if (hit.entity == damage.source) continue;
 			if (_entities_that_took_damage.contains(hit.entity)) continue;
-			if (apply_damage(hit.entity, damage))
-				_entities_that_took_damage.insert(hit.entity);
+			if (!apply_damage(hit.entity, damage)) continue;
+			_entities_that_took_damage.insert(hit.entity);
 		}
 		bool any_damaged = !_entities_that_took_damage.empty();
 		_entities_that_took_damage.clear();
@@ -32,8 +31,8 @@ namespace ecs
 		for (const OverlapHit& hit : overlap_circle(center, radius, mask_bits)) {
 			if (hit.entity == damage.source) continue;
 			if (_entities_that_took_damage.contains(hit.entity)) continue;
-			if (apply_damage(hit.entity, damage))
-				_entities_that_took_damage.insert(hit.entity);
+			if (!apply_damage(hit.entity, damage)) continue;
+			_entities_that_took_damage.insert(hit.entity);
 		}
 		bool any_damaged = !_entities_that_took_damage.empty();
 		_entities_that_took_damage.clear();
@@ -42,8 +41,8 @@ namespace ecs
 
 	bool apply_damage(entt::entity entity, const Damage& damage)
 	{
-		if (!_registry.valid(entity)) return false;
-		std::string class_ = get_class(entity);
+		const std::string& class_ = get_class(entity);
+		if (class_.empty()) return false;
 		if (class_ == "player") {
 			return apply_damage_to_player(entity, damage);
 		} else if (class_ == "slime") {

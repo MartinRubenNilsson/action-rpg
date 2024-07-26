@@ -8,6 +8,8 @@
 #include "ecs_camera.h"
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
+#include "ecs_interact.h"
+#include "ecs_character.h"
 #include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"
@@ -16,11 +18,9 @@
 #include "ui_hud.h"
 #include "ui_textbox.h"
 #include "random.h"
-#include "ecs_character.h"
 #include "map_tilegrid.h"
 #include "postprocessing.h"
 #include "shapes.h"
-#include "ecs_chest.h"
 
 namespace ecs
 {
@@ -88,30 +88,6 @@ namespace ecs
 			case window::Key::LControl:
 				_input_flags_to_disable |= INPUT_STEALTH;
 				break;
-			}
-		}
-	}
-
-	// TODO: Put in a separate unit
-	void _player_interact(const Vector2f& position)
-	{
-		Vector2f box_center = position;
-		Vector2f box_min = box_center - Vector2f(6.f, 6.f);
-		Vector2f box_max = box_center + Vector2f(6.f, 6.f);
-		//shapes::add_box_to_render_queue(box_min, box_max, colors::CYAN, 0.2f);
-		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
-			const std::string& hit_class = get_class(hit.entity);
-
-			if (hit_class == "chest") {
-				ecs::open_chest(hit.entity);
-			}
-
-			std::string string;
-			if (get_string(hit.entity, "textbox", string)) {
-				ui::open_or_enqueue_textbox_presets(string);
-			}
-			if (get_string(hit.entity, "sound", string)) {
-				audio::create_event({ .path = string.c_str() });
 			}
 		}
 	}
@@ -234,7 +210,10 @@ namespace ecs
 				}
 
 				if (player.input_flags & INPUT_INTERACT) {
-					_player_interact(position + player.look_dir * 16.f);
+					const Vector2f box_center = position + player.look_dir * 16.f;
+					const Vector2f box_min = box_center - Vector2f(6.f, 6.f);
+					const Vector2f box_max = box_center + Vector2f(6.f, 6.f);
+					interact_in_box(box_min, box_max);
 				}
 
 			} break;

@@ -250,9 +250,6 @@
     <ClCompile Include="map_entities.cpp">
       <Filter>map</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_damage.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="sprites.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -318,6 +315,9 @@
       <Filter>ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_interact.cpp">
+      <Filter>ecs\mechanics</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_damage.cpp">
       <Filter>ecs\mechanics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -796,9 +796,6 @@
     <ClInclude Include="map_entities.h">
       <Filter>map</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_damage.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
     <ClInclude Include="sprites.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -881,6 +878,9 @@
       <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_interact.h">
+      <Filter>ecs\mechanics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_damage.h">
       <Filter>ecs\mechanics</Filter>
     </ClInclude>
   </ItemGroup>
