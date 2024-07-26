@@ -71,15 +71,22 @@ namespace map
 
 		// Pre-create object entities. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
+		for (const tiled::Layer& layer : map.layers) {
+			if (layer.type != tiled::LayerType::Object) continue;
+			for (const tiled::Object& object : layer.objects) {
+				ecs::create(object.id);
+			}
+		}
 
 		// Setup object entities.
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
 			for (const tiled::Object& object : layer.objects) {
 
-				// Attempt to use the object's UID as the entity identifier.
-				// If the identifier is already in use, a new one will be generated.
-				entt::entity entity = ecs::create(object.id);
+				// At this point, a corresponding entity should have been created
+				// that reuses the object UID from Tiled. If not, something went wrong.
+				entt::entity entity = object.id;
+				assert(ecs::valid(entity));
 
 				if (!object.name.empty()) {
 					ecs::set_name(entity, object.name);
