@@ -4,6 +4,11 @@
 #include "sprites.h"
 #include "console.h"
 
+namespace map
+{
+    size_t get_next_free_layer_index();
+}
+
 namespace ecs
 {
     extern entt::registry _registry;
@@ -48,7 +53,7 @@ namespace ecs
             sprite.tex_max /= Vector2f(texture_size);
             sprite.texture = vfx.texture;
             sprite.sorting_pos = sprite.min + tex_half_size;
-            sprite.sorting_layer = sprites::SL_VFX;
+            sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
 			sprites::add_sprite_to_render_queue(sprite);
 		}
     }

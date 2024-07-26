@@ -8,6 +8,11 @@ namespace tiled
 	struct Tile;
 }
 
+namespace map
+{
+	size_t get_object_layer_index();
+}
+
 namespace ecs
 {
 	enum TILE_FLAGS : unsigned int
@@ -33,7 +38,7 @@ namespace ecs
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
-		uint8_t sorting_layer = sprites::SL_OBJECTS;
+		uint8_t sorting_layer = (uint8_t)map::get_object_layer_index();
 		Color color = colors::WHITE;
 		Timer animation_timer;
 		float animation_speed = 1.f;
@@ -47,7 +52,6 @@ namespace ecs
 		unsigned int get_id(bool account_for_animation = true) const;
 		Vector2u get_coords(bool account_for_animation = true) const;
 		const std::string& get_class(bool account_for_animation = true) const;
-		const std::string& get_tileset_name() const;
 		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);

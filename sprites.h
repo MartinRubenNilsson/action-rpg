@@ -7,17 +7,6 @@ namespace graphics
 
 namespace sprites
 {
-	enum SortingLayer : uint8_t
-	{
-		SL_BACKGROUND_1,
-		SL_BACKGROUND_2,
-		SL_OBJECTS,
-		SL_FOREGROUND_1,
-		SL_FOREGROUND_2,
-		SL_COLLIDERS,
-		SL_VFX,
-	};
-
 	enum SpriteFlags : uint8_t
 	{
 		SF_NONE          = 0,

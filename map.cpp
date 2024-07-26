@@ -14,6 +14,8 @@ namespace map
 	bool debug = false;
 	std::string _current_map_name;
 	std::string _next_map_name;
+	size_t _object_layer_index = 0;
+	size_t _next_free_layer_index = 0;
 	float _transition_duration = -1.f; // negative when not transitioning; zero when transitioning instantly; otherwise positive
 	float _transition_progress = 1.f; // -1 to 1
 
@@ -82,6 +84,8 @@ namespace map
 		// CLOSE CURRENT MAP
 
 		if (current_map) {
+			_object_layer_index = 0;
+			_next_free_layer_index = 0;
 			audio::stop_all_in_bus(audio::BUS_SOUND);
 			ui::close_textbox_and_clear_queue();
 		}
@@ -94,6 +98,21 @@ namespace map
 			audio::stop_all_in_bus();
 			return;
 		}
+
+		// Resolve the layer index on which to place objects/entities.
+		for (size_t layer_index = 0; layer_index < next_map->layers.size(); ++layer_index) {
+			const tiled::Layer& layer = next_map->layers[layer_index];
+			if (layer.type == tiled::LayerType::Tile) {
+				if (layer.name.starts_with("object") || layer.name.starts_with("Object")) {
+					_object_layer_index = layer_index;
+					break;
+				}
+			} else if (layer.type == tiled::LayerType::Object) {
+				_object_layer_index = layer_index;
+				break;
+			}
+		}
+		_next_free_layer_index = next_map->layers.size();
 
 		create_tilegrid(*next_map);
 		create_entities(*next_map);
@@ -160,11 +179,23 @@ namespace map
 		return transition(options);
 	}
 
-	float get_transition_progress() {
+	size_t get_object_layer_index()
+	{
+		return _object_layer_index;
+	}
+
+	size_t get_next_free_layer_index()
+	{
+		return _next_free_layer_index;
+	}
+
+	float get_transition_progress()
+	{
 		return (_transition_duration >= 0.f) ? _transition_progress : 0.f;
 	}
 
-	bool is_dark() {
+	bool is_dark()
+	{
 		return _current_map_name.starts_with("muddy_cave"); // HACK
 	}
 }

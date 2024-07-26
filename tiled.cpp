@@ -253,7 +253,7 @@ namespace tiled
 			// TODO
 		} break;
 		case LayerType::Group: {
-			for (pugi::xml_node child_node : std::ranges::reverse_view(node.children())) {
+			for (pugi::xml_node child_node : node.children()) {
 				_load_layer_recursive(map, child_node);
 			}
 		} break;
@@ -305,7 +305,7 @@ namespace tiled
 			return a.first_gid < b.first_gid;
 		});
 
-		for (pugi::xml_node child_node : std::ranges::reverse_view(map_node.children())) {
+		for (pugi::xml_node child_node : map_node.children()) {
 			_load_layer_recursive(map, child_node);
 		}
 

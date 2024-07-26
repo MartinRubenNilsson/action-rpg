@@ -144,12 +144,6 @@ namespace ecs
 		return _DUMMY_EMPTY_STRING;
 	}
 
-	const std::string& Tile::get_tileset_name() const
-	{
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		return tile ? tiled::get_tileset(tile->tileset)->name : _DUMMY_EMPTY_STRING;
-	}
-
 	const Properties& Tile::get_properties(bool account_for_animation) const
 	{
 		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
@@ -295,7 +289,7 @@ namespace ecs
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader = tile.shader;
 			sprite.color = tile.color;
-			sprite.sorting_layer = (uint8_t)tile.sorting_layer;
+			sprite.sorting_layer = tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
 			sprite.flags = 0;
 			if (tile.get_flag(TILE_FLIP_X)) {

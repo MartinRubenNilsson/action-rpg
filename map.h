@@ -26,6 +26,9 @@ namespace map
 	bool close(float transition_duration = DEFAULT_TRANSITION_DURATION);
 	bool reset(float transition_duration = DEFAULT_TRANSITION_DURATION);
 
+	size_t get_object_layer_index();
+	size_t get_next_free_layer_index(); // one past the last layer index
+
 	// The transition progress is a value between -1 and 1. It is 0 when not transitioning,
 	// positive when transitioning out of a map, and negative when transitioning in to a map.
 	float get_transition_progress();

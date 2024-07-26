@@ -2,7 +2,6 @@
 #include "map_entities.h"
 #include "tiled.h"
 #include "console.h"
-#include "sprites.h"
 #include "audio.h"
 #include "physics_helpers.h"
 #include "ecs_common.h"
@@ -23,22 +22,7 @@
 
 namespace map
 {
-	const std::unordered_map<std::string, sprites::SortingLayer> _LAYER_NAME_TO_SORTING_LAYER = {
-		{ "Under Sprite 1", sprites::SL_BACKGROUND_1 },
-		{ "Under Sprite 2", sprites::SL_BACKGROUND_2 },
-		{ "Object Layer",   sprites::SL_OBJECTS      },
-		{ "Entities",       sprites::SL_OBJECTS      },
-		{ "Over Sprite 1",  sprites::SL_FOREGROUND_1 },
-		{ "Over Sprite 2",  sprites::SL_FOREGROUND_2 },
-		{ "Collision",      sprites::SL_COLLIDERS    },
-	};
-
-	sprites::SortingLayer _layer_name_to_sorting_layer(const std::string& name)
-	{
-		auto it = _LAYER_NAME_TO_SORTING_LAYER.find(name);
-		if (it != _LAYER_NAME_TO_SORTING_LAYER.end()) return it->second;
-		return sprites::SL_OBJECTS;
-	}
+	size_t get_object_layer_index();
 
 	void create_entities(const tiled::Map& map)
 	{
@@ -89,7 +73,6 @@ namespace map
 		// object UIDs we get from Tiled are free to use as entity identifiers.
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
-			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
 			for (const tiled::Object& object : layer.objects) {
 
 				// Attempt to use the object's UID as the entity identifier.
@@ -176,7 +159,12 @@ namespace map
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 					ecs_tile.position = position;
 					ecs_tile.sorting_pivot = sorting_pivot;
-					ecs_tile.sorting_layer = sprites::SL_OBJECTS;
+					// PITFALL: We don't set the sorting layer to the layer index here.
+					// This is because we want all objects to be on the same layer, so they
+					// are rendered in the correct order. This sorting layer may also be the
+					// index of a tile layer so that certain static tiles are rendered as if
+					// they were objects, e.g. trees and other props.
+					ecs_tile.sorting_layer = (uint8_t)get_object_layer_index();
 					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TILE_FLIP_X, object.tile.flipped_horizontally);
 					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile.flipped_vertically);
@@ -325,13 +313,13 @@ namespace map
 		}
 
 		// Create tile entities second.
-		for (const tiled::Layer& layer : map.layers) {
+		for (size_t layer_index = 0; layer_index < map.layers.size(); ++layer_index) {
+			const tiled::Layer& layer = map.layers[layer_index];
 			if (layer.type != tiled::LayerType::Tile) continue;
-			sprites::SortingLayer sorting_layer = _layer_name_to_sorting_layer(layer.name);
-			for (uint32_t tile_y = 0; tile_y < layer.height; tile_y++) {
-				for (uint32_t tile_x = 0; tile_x < layer.width; tile_x++) {
+			for (unsigned int x = 0; x < layer.height; x++) {
+				for (unsigned int y = 0; y < layer.width; y++) {
 
-					const tiled::TileRef tile_ref = layer.tiles[tile_y * layer.width + tile_x];
+					const tiled::TileRef tile_ref = layer.tiles[x * layer.width + y];
 					if (!tile_ref.gid) continue;
 					const tiled::Tile* tile = map.get_tile(tile_ref.gid);
 					if (!tile) {
@@ -339,8 +327,8 @@ namespace map
 						continue;
 					}
 
-					float position_x = (float)tile_x * map.tile_width;
-					float position_y = (float)tile_y * map.tile_height;
+					float position_x = (float)y * map.tile_width;
+					float position_y = (float)x * map.tile_height;
 					float pivot_x = 0.f;
 					float pivot_y = (float)(tile->height - map.tile_height);
 					float sorting_pivot_x = tile->width / 2.f;
@@ -431,14 +419,19 @@ namespace map
 					// CRITICAL: This is an important optimization. Iterating through all entities
 					// with both a Tile and b2Body* component can be expensive if there are many such
 					// entities. "Pure" colliders don't need a tile component, so let's skip adding one.
-					if (sorting_layer == sprites::SL_COLLIDERS) continue;
+					if (layer.name == "colliders" ||
+						layer.name == "Colliders" ||
+						layer.name == "collision" ||
+						layer.name == "Collision") {
+						continue;
+					}
 
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
 					ecs_tile.position = Vector2f(position_x, position_y);
 					ecs_tile.pivot = Vector2f(pivot_x, pivot_y);
-					ecs_tile.sorting_layer = sorting_layer;
+					ecs_tile.sorting_layer = (uint8_t)layer_index;
 					ecs_tile.sorting_pivot = Vector2f(sorting_pivot_x, sorting_pivot_y);
 					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TILE_FLIP_X, tile_ref.flipped_horizontally);
