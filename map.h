@@ -33,4 +33,8 @@ namespace map
 	// positive when transitioning out of a map, and negative when transitioning in to a map.
 	float get_transition_progress();
 	bool is_dark();
+
+	// PATCHING
+
+	void mark_chest_as_opened(entt::entity entity);
 }

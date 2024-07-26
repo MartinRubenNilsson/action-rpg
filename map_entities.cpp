@@ -69,8 +69,10 @@ namespace map
 		// Destroy all entities before creating new ones.
 		destroy_entities();
 
-		// Create object entities first. This is because we want to be sure that the
+		// Pre-create object entities. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
+
+		// Setup object entities.
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
 			for (const tiled::Object& object : layer.objects) {
@@ -312,7 +314,7 @@ namespace map
 			}
 		}
 
-		// Create tile entities second.
+		// Create and setup tile entities.
 		for (size_t layer_index = 0; layer_index < map.layers.size(); ++layer_index) {
 			const tiled::Layer& layer = map.layers[layer_index];
 			if (layer.type != tiled::LayerType::Tile) continue;
@@ -327,12 +329,9 @@ namespace map
 						continue;
 					}
 
-					float position_x = (float)y * map.tile_width;
-					float position_y = (float)x * map.tile_height;
-					float pivot_x = 0.f;
-					float pivot_y = (float)(tile->height - map.tile_height);
-					float sorting_pivot_x = tile->width / 2.f;
-					float sorting_pivot_y = tile->height - map.tile_height / 2.f;
+					const Vector2f position = { (float)y * map.tile_width, (float)x * map.tile_height };
+					const Vector2f pivot = { 0.f, (float)tile->height - (float)map.tile_height };
+					Vector2f sorting_pivot = { tile->width / 2.f, tile->height - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
 					if (!tile->class_.empty()) {
@@ -348,19 +347,17 @@ namespace map
 
 						b2BodyDef body_def{};
 						body_def.type = b2_staticBody;
-						body_def.position.x = position_x;
-						body_def.position.y = position_y;
+						body_def.position = position;
 						body_def.fixedRotation = true;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile->objects) {
 							if (collider.name == "pivot") {
-								sorting_pivot_x = collider.position.x;
-								sorting_pivot_y = collider.position.y;
+								sorting_pivot = collider.position;
 							}
 
-							float collider_cx = (collider.position.x - pivot_x);
-							float collider_cy = (collider.position.y - pivot_y);
+							float collider_cx = collider.position.x - pivot.x;
+							float collider_cy = collider.position.y - pivot.y;
 							float collider_hw = collider.size.x / 2.0f;
 							float collider_hh = collider.size.y / 2.0f;
 
@@ -384,7 +381,7 @@ namespace map
 								body->CreateFixture(&fixture_def);
 							} break;
 							case tiled::ObjectType::Polygon: {
-								size_t count = collider.points.size();
+								const size_t count = collider.points.size();
 								if (count < 3) {
 									console::log_error("Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
@@ -429,16 +426,23 @@ namespace map
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
-					ecs_tile.position = Vector2f(position_x, position_y);
-					ecs_tile.pivot = Vector2f(pivot_x, pivot_y);
+					ecs_tile.position = position;
+					ecs_tile.pivot = pivot;
 					ecs_tile.sorting_layer = (uint8_t)layer_index;
-					ecs_tile.sorting_pivot = Vector2f(sorting_pivot_x, sorting_pivot_y);
+					ecs_tile.sorting_pivot = sorting_pivot;
 					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
 					ecs_tile.set_flag(ecs::TILE_FLIP_X, tile_ref.flipped_horizontally);
 					ecs_tile.set_flag(ecs::TILE_FLIP_Y, tile_ref.flipped_vertically);
 					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
 				}
 			}
+		}
+	}
+
+	void patch_entities(const MapPatch& patch)
+	{
+		for (entt::entity entity : patch.chests_to_open) {
+			ecs::open_chest(entity);
 		}
 	}
 

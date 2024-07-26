@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ecs_chest.h"
 #include "ecs_tile.h"
-#include "console.h"
+#include "map.h"
 
 namespace ecs
 {
@@ -30,5 +30,7 @@ namespace ecs
                 tile->set_tile(coords.x, coords.y + 1);
             }
         }
+
+        map::mark_chest_as_opened(entity);
     }
 }

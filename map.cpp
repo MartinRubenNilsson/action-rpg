@@ -18,6 +18,7 @@ namespace map
 	size_t _next_free_layer_index = 0;
 	float _transition_duration = -1.f; // negative when not transitioning; zero when transitioning instantly; otherwise positive
 	float _transition_progress = 1.f; // -1 to 1
+	std::unordered_map<std::string, MapPatch> _map_name_to_patch;
 
 	void _show_debug_window(float dt)
 	{
@@ -116,6 +117,7 @@ namespace map
 
 		create_tilegrid(*next_map);
 		create_entities(*next_map);
+		patch_entities(_map_name_to_patch[_current_map_name]);
 
 		std::string music;
 		if (next_map->properties.get_string("music", music)) {
@@ -197,5 +199,27 @@ namespace map
 	bool is_dark()
 	{
 		return _current_map_name.starts_with("muddy_cave"); // HACK
+	}
+
+	MapPatch* _get_patch()
+	{
+		if (_current_map_name.empty()) return nullptr;
+		return &_map_name_to_patch[_current_map_name];
+	}
+
+	template <typename T>
+	bool _insert_into_sorted_vector(std::vector<T>& vec, const T& value)
+	{
+		auto it = std::lower_bound(vec.begin(), vec.end(), value);
+		if (it != vec.end() && *it == value) return false;
+		vec.insert(it, value);
+		return true;
+	}
+
+	void mark_chest_as_opened(entt::entity entity)
+	{
+		MapPatch* patch = _get_patch();
+		if (!patch) return;
+		_insert_into_sorted_vector(patch->chests_to_open, entity);
 	}
 }
