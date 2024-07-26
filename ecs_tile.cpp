@@ -262,7 +262,7 @@ namespace ecs
 			tile.update_animation(dt);
 		}
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
-			tile.position = get_position(body);
+			tile.position = body->GetPosition();
 		}
 	}
 

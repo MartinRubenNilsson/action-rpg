@@ -142,7 +142,7 @@ namespace ecs
 
 			// GET PHYSICS STATE
 
-			const Vector2f position = get_world_center(body);
+			const Vector2f position = body->GetWorldCenter();
 			const Vector2f velocity = body->GetLinearVelocity();
 			Vector2f new_velocity; // will be modified differently depending on the state
 
@@ -411,7 +411,7 @@ namespace ecs
 			ImGui::SetNextItemOpen(player_count == 1, ImGuiCond_Appearing);
 			if (!ImGui::TreeNode(tree_node_label.c_str())) continue;
 
-			Vector2f position = get_world_center(body);
+			Vector2f position = body->GetWorldCenter();
 			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
 			ImGui::Text("Terrain: %s", map::to_string(map::get_terrain_type_at(position)).c_str());
 			ImGui::Text("State: %s", magic_enum::enum_name(player.state).data());

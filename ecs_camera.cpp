@@ -47,7 +47,7 @@ namespace ecs
 			// If the camera has a follow target, center the view on the target.
 			if (_registry.valid(camera.entity_to_follow) &&
 				_registry.all_of<b2Body*>(camera.entity_to_follow)) {
-				camera.view.center = get_world_center(_registry.get<b2Body*>(camera.entity_to_follow));
+				camera.view.center = _registry.get<b2Body*>(camera.entity_to_follow)->GetWorldCenter();
 			}
 
 			camera.view = _confine_camera_view(camera.view, camera.confines_min, camera.confines_max);

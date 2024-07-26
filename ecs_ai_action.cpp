@@ -61,7 +61,7 @@ namespace ecs
 			_registry.view<AiAction, b2Body*>().each()) {
 			if (action.status != AiActionStatus::Running) continue;
 
-			const Vector2f my_pos = get_world_center(body);
+			const Vector2f my_pos = body->GetWorldCenter();
 			const Vector2f my_old_dir = normalize(body->GetLinearVelocity());
 			Vector2f my_new_dir;
 
@@ -88,7 +88,7 @@ namespace ecs
 					break;
 				}
 				b2Body* target_body = get_body(action.entity);
-				Vector2f target_pos = get_world_center(target_body);
+				Vector2f target_pos = target_body->GetWorldCenter();
 				Vector2f me_to_target = target_pos - my_pos;
 				float dist_to_target = length(me_to_target);
 				if (dist_to_target <= action.radius) {
@@ -130,7 +130,7 @@ namespace ecs
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				Vector2f danger_pos = get_world_center(get_body(action.entity));
+				Vector2f danger_pos = get_body(action.entity)->GetWorldCenter();
 				Vector2f to_danger = danger_pos - my_pos;
 				float dist = length(to_danger);
 				if (dist >= action.radius) {

@@ -17,7 +17,7 @@ namespace ecs
 		info.class_ = get_class(entity);
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
-			info.position = get_world_center(body);
+			info.position = body->GetWorldCenter();
 			info.velocity = body->GetLinearVelocity();
 		}
 		get_float(entity, "speed", info.p_speed);
@@ -44,7 +44,7 @@ namespace ecs
 		AiKnowledge& knowledge = _registry.emplace_or_replace<AiKnowledge>(entity);
 		if (_registry.all_of<b2Body*>(entity)) {
 			b2Body* body = _registry.get<b2Body*>(entity);
-			knowledge.initial_position = get_world_center(body);
+			knowledge.initial_position = body->GetWorldCenter();
 			knowledge.initial_velocity = body->GetLinearVelocity();
 		}
 		return knowledge;
