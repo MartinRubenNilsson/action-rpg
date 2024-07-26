@@ -228,12 +228,15 @@ namespace ecs
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					tile.set_tile("walk_"s + tile_dir);
 					tile.set_flag(TILE_LOOP, true);
-				} else if (player.input_flags & INPUT_INTERACT) {
-					_player_interact(position + player.look_dir * 16.f);
 				} else {
 					tile.set_tile("idle_"s + tile_dir);
 					tile.set_flag(TILE_LOOP, true);
 				}
+
+				if (player.input_flags & INPUT_INTERACT) {
+					_player_interact(position + player.look_dir * 16.f);
+				}
+
 			} break;
 			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
