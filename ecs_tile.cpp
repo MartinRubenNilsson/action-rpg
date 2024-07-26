@@ -5,17 +5,24 @@
 #include "graphics.h"
 #include "sprites.h"
 
+namespace tiled
+{
+	const Tile* _get_tile(Handle<Tileset> tileset_handle, unsigned int tile_id)
+	{
+		if (tileset_handle == Handle<Tileset>()) return nullptr;
+		const Tileset* tileset = get_tileset(tileset_handle);
+		if (!tileset) return nullptr;
+		if (tile_id >= tileset->tiles.size()) return nullptr;
+		return &tileset->tiles[tile_id];
+	}
+}
+
 namespace ecs
 {
 	extern entt::registry _registry;
 	float _tile_time_accumulator = 0.f;
 
-	Tile::Tile()
-		: sorting_layer(sprites::SL_OBJECTS)
-	{}
-
 	Tile::Tile(const tiled::Tile* tile)
-		: Tile()
 	{
 		assert(tile);
 		_set_tile(tile);
@@ -24,7 +31,7 @@ namespace ecs
 			shader = graphics::load_shader(
 				"assets/shaders/sprite.vert",
 				"assets/shaders/" + shader_name + ".frag");
-		} else if (tiled::get_tileset(_tile->tileset)->properties.get_string("shader", shader_name)) {
+		} else if (tiled::get_tileset(tile->tileset)->properties.get_string("shader", shader_name)) {
 			shader = graphics::load_shader(
 				"assets/shaders/sprite.vert",
 				"assets/shaders/" + shader_name + ".frag");
@@ -36,48 +43,52 @@ namespace ecs
 	bool Tile::_set_tile(const tiled::Tile* tile)
 	{
 		if (!tile) return false;
-		if (tile == _tile) return false;
-		_tile = tile;
+		if (tile->tileset == _tileset_handle && tile->id == _tile_id) return false;
+		_tileset_handle = tile->tileset;
+		_tile_id = tile->id;
 		_animation_duration_ms = 0;
 		_animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
-		for (const tiled::Frame& frame : _tile->animation) {
+		for (const tiled::Frame& frame : tile->animation) {
 			_animation_duration_ms += frame.duration;
 		}
 		animation_timer = Timer(_animation_duration_ms / 1000.f);
 		animation_timer.start();
 		if (texture == Handle<graphics::Texture>()) {
-			texture = graphics::load_texture(tiled::get_tileset(_tile->tileset)->image_path);
+			texture = graphics::load_texture(tiled::get_tileset(tile->tileset)->image_path);
 		}
 		return true;
 	}
 
 	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
-		if (!_tile) return nullptr;
-		if (account_for_animation && _animation_frame < _tile->animation.size()) {
-			unsigned int tile_id = _tile->animation[_animation_frame].tile_id;
-			return &tiled::get_tileset(_tile->tileset)->tiles[tile_id];
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		if (!tile) return nullptr;
+		if (account_for_animation && _animation_frame < tile->animation.size()) {
+			unsigned int tile_id = tile->animation[_animation_frame].tile_id;
+			return &tiled::get_tileset(tile->tileset)->tiles[tile_id];
 		}
-		return _tile;
+		return tile;
 	}
 
 	bool Tile::set_tile(unsigned int id)
 	{
-		if (!_tile) return false; // no tileset to look in
-		if (id == _tile->id) return false;
-		if (id >= tiled::get_tileset(_tile->tileset)->tiles.size()) return false;
-		return _set_tile(&tiled::get_tileset(_tile->tileset)->tiles[id]);
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		if (!tile) return false; // no tileset to look in
+		if (id == tile->id) return false;
+		if (id >= tiled::get_tileset(tile->tileset)->tiles.size()) return false;
+		return _set_tile(&tiled::get_tileset(tile->tileset)->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int id, const std::string& tileset_name)
 	{
 		if (tileset_name.empty()) return false;
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
 		const tiled::Tileset* tileset = nullptr;
-		if (_tile && tileset_name == tiled::get_tileset(_tile->tileset)->name) {
-			if (id == _tile->id) return false;
-			tileset = tiled::get_tileset(_tile->tileset);
+		if (tile && tileset_name == tiled::get_tileset(tile->tileset)->name) {
+			if (id == tile->id) return false;
+			tileset = tiled::get_tileset(tile->tileset);
 		} else {
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
@@ -88,9 +99,10 @@ namespace ecs
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)
 	{
-		if (!_tile) return false; // no tileset to look in
-		if (x == _tile->x && y == _tile->y) return false;
-		const tiled::Tileset* tileset = tiled::get_tileset(_tile->tileset);
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		if (!tile) return false; // no tileset to look in
+		if (x == tile->x && y == tile->y) return false;
+		const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
 		if (x >= tileset->columns || y >= tileset->tile_count / tileset->columns) return false;
 		return _set_tile(&tileset->tiles[y * tileset->columns + x]);
 	}
@@ -98,18 +110,20 @@ namespace ecs
 	bool Tile::set_tile(const std::string& class_)
 	{
 		if (class_.empty()) return false;
-		if (!_tile) return false; // no tileset to look in
-		if (class_ == _tile->class_) return false;
-		return _set_tile(tiled::find_tile_by_class(*tiled::get_tileset(_tile->tileset), class_));
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		if (!tile) return false; // no tileset to look in
+		if (class_ == tile->class_) return false;
+		return _set_tile(tiled::find_tile_by_class(*tiled::get_tileset(tile->tileset), class_));
 	}
 
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
 	{
 		if (class_.empty() || tileset_name.empty()) return false;
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
 		const tiled::Tileset* tileset = nullptr;
-		if (_tile && tileset_name == tiled::get_tileset(_tile->tileset)->name) {
-			if (class_ == _tile->class_) return false;
-			tileset = tiled::get_tileset(_tile->tileset);
+		if (tile && tileset_name == tiled::get_tileset(tile->tileset)->name) {
+			if (class_ == tile->class_) return false;
+			tileset = tiled::get_tileset(tile->tileset);
 		} else {
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
@@ -124,19 +138,23 @@ namespace ecs
 
 	const std::string& Tile::get_class(bool account_for_animation) const
 	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation))
+		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
 			return tile->class_;
+		}
 		return _DUMMY_EMPTY_STRING;
 	}
 
-	const std::string& Tile::get_tileset_name() const {
-		return _tile ? tiled::get_tileset(_tile->tileset)->name : _DUMMY_EMPTY_STRING;
+	const std::string& Tile::get_tileset_name() const
+	{
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		return tile ? tiled::get_tileset(tile->tileset)->name : _DUMMY_EMPTY_STRING;
 	}
 
 	const Properties& Tile::get_properties(bool account_for_animation) const
 	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation))
+		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
 			return tile->properties;
+		}
 		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
@@ -178,8 +196,9 @@ namespace ecs
 
 	void Tile::update_animation(float dt)
 	{
-		if (!_tile) return;
 		if (!_animation_duration_ms) return;
+		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		if (!tile) return;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
 		const bool loop = get_flag(TILE_LOOP);
@@ -189,8 +208,8 @@ namespace ecs
 				set_flag(TILE_FLIP_X, !get_flag(TILE_FLIP_X));
 		}
 		unsigned int time = (unsigned int)(animation_timer.get_time() * 1000.f); // in milliseconds
-		for (unsigned int frame_index = 0; frame_index < _tile->animation.size(); ++frame_index) {
-			unsigned int frame_duration = _tile->animation[frame_index].duration;
+		for (unsigned int frame_index = 0; frame_index < tile->animation.size(); ++frame_index) {
+			unsigned int frame_duration = tile->animation[frame_index].duration;
 			if (time < frame_duration) {
 				set_flag(TILE_FRAME_CHANGED, frame_index != _animation_frame);
 				_animation_frame = frame_index;
@@ -201,7 +220,7 @@ namespace ecs
 		}
 		// Park on the last frame. We will for example get here if
 		// animation_timer.get_time() == animation_timer.get_duration().
-		_animation_frame = (unsigned int)_tile->animation.size() - 1;
+		_animation_frame = (unsigned int)tile->animation.size() - 1;
 	}
 
 	float Tile::get_animation_duration() const
@@ -257,7 +276,6 @@ namespace ecs
 	{
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
-			if (!tile.is_valid()) continue;
 			if (!tile.get_flag(TILE_VISIBLE)) continue;
 			sprite.texture = tile.texture;
 			if (sprite.texture == Handle<graphics::Texture>()) continue;
@@ -302,23 +320,23 @@ namespace ecs
 		}
 	}
 
-	Tile& emplace_tile(entt::entity entity) {
+	Tile& emplace_tile(entt::entity entity)
+	{
 		return _registry.emplace_or_replace<Tile>(entity);
 	}
 
-	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile) {
+	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile)
+	{
 		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
-	Tile* get_tile(entt::entity entity) {
+	Tile* get_tile(entt::entity entity)
+	{
 		return _registry.try_get<Tile>(entity);
 	}
 
-	bool remove_tile(entt::entity entity) {
+	bool remove_tile(entt::entity entity)
+	{
 		return _registry.remove<Tile>(entity);
-	}
-
-	bool has_tile(entt::entity entity) {
-		return _registry.all_of<Tile>(entity);
 	}
 }

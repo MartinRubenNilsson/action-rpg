@@ -1,6 +1,7 @@
 #pragma once
 #include "timer.h"
 #include "properties.h"
+#include "sprites.h"
 
 namespace tiled
 {
@@ -24,7 +25,7 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile();
+		Tile() = default;
 		Tile(const tiled::Tile* tile);
 
 		Handle<graphics::Texture> texture;
@@ -32,12 +33,11 @@ namespace ecs
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
-		uint8_t sorting_layer = 0;
+		uint8_t sorting_layer = sprites::SL_OBJECTS;
 		Color color = colors::WHITE;
 		Timer animation_timer;
 		float animation_speed = 1.f;
 
-		bool is_valid() const { return _tile; }
 		bool set_tile(unsigned int id); // uses the current tileset
 		bool set_tile(unsigned int id, const std::string& tileset_name);
 		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
@@ -58,9 +58,10 @@ namespace ecs
 		void set_rotation(int clockwise_quarter_turns);
 
 	private:
-		const tiled::Tile* _tile = nullptr; // TODO: remove this pointer and replace with Handle<Tileset> and tile_id
+		Handle<tiled::Tileset> _tileset_handle;
+		unsigned int _tile_id = 0; // index into tiled::Tileset::tiles
 		unsigned int _animation_duration_ms = 0;
-		unsigned int _animation_frame = 0;
+		unsigned int _animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int _flags = TILE_VISIBLE | TILE_LOOP;
 
 		bool _set_tile(const tiled::Tile* tile);
@@ -74,5 +75,4 @@ namespace ecs
 	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile* get_tile(entt::entity entity);
 	bool remove_tile(entt::entity entity);
-	bool has_tile(entt::entity entity);
 }

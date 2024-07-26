@@ -16,7 +16,7 @@
 #include "ecs_character.h"
 #include "ecs_chest.h"
 
-// Precautionary measure so people don't access entt::registry directly in this file.
+// Precautionary measure so we don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
 #define registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
 #define _registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
@@ -133,14 +133,15 @@ namespace map
 
 						for (const tiled::Object& collider : tile->objects) {
 
-							if (collider.name == "pivot")
+							if (collider.name == "pivot") {
 								sorting_pivot = collider.position;
+							}
 
 							float collider_x = collider.position.x;
 							float collider_y = collider.position.y;
 							float collider_hw = collider.size.x / 2.0f;
 							float collider_hh = collider.size.y / 2.0f;
-							b2Vec2 collider_center(collider_x + collider_hw, collider_y + collider_hh);
+							Vector2f collider_center(collider_x + collider_hw, collider_y + collider_hh);
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
@@ -149,8 +150,9 @@ namespace map
 								b2FixtureDef fixture_def{};
 								fixture_def.shape = &shape;
 								fixture_def.density = 1.f;
-								if (!object.class_.empty())
+								if (!object.class_.empty()) {
 									fixture_def.filter = ecs::get_filter_for_class(object.class_);
+								}
 								body->CreateFixture(&fixture_def);
 							} break;
 							case tiled::ObjectType::Ellipse: {
@@ -160,8 +162,9 @@ namespace map
 								b2FixtureDef fixture_def{};
 								fixture_def.shape = &shape;
 								fixture_def.density = 1.f;
-								if (!object.class_.empty())
+								if (!object.class_.empty()) {
 									fixture_def.filter = ecs::get_filter_for_class(object.class_);
+								}
 								body->CreateFixture(&fixture_def);
 							} break;
 							}
@@ -191,7 +194,7 @@ namespace map
 
 					float hw = object.size.x / 2.f;
 					float hh = object.size.y / 2.f;
-					b2Vec2 center(hw, hh);
+					Vector2f center(hw, hh);
 
 					switch (object.type) {
 					case tiled::ObjectType::Rectangle: {
@@ -239,15 +242,15 @@ namespace map
 							}
 						}
 
-						if (last_active_portal->exit_direction == "up")
+						if (last_active_portal->exit_direction == "up") {
 							player.look_dir = { 0.f, -1.f };
-						else if (last_active_portal->exit_direction == "down")
+						} else if (last_active_portal->exit_direction == "down") {
 							player.look_dir = { 0.f, 1.f };
-						else if (last_active_portal->exit_direction == "left")
+						} else if (last_active_portal->exit_direction == "left") {
 							player.look_dir = { -1.f, 0.f };
-						else if (last_active_portal->exit_direction == "right")
+						} else if (last_active_portal->exit_direction == "right") {
 							player.look_dir = { 1.f, 0.f };
-
+						}
 					}
 
 					player.held_item = ecs::create();
@@ -276,26 +279,34 @@ namespace map
 					}
 
 				} else if (object.class_ == "slime") {
+
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
+
 				} else if (object.class_ == "portal") {
+
 					ecs::Portal portal{};
 					object.properties.get_string("target_map", portal.target_map);
 					object.properties.get_string("target_point", portal.target_point);
 					object.properties.get_string("exit_direction", portal.exit_direction);
 					ecs::emplace_portal(entity, portal);
+
 				} else if (object.class_ == "camera") {
+
 					ecs::Camera camera{};
 					camera.view.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);
 					ecs::emplace_camera(entity, camera);
+
 				} else if (object.class_ == "audio_source") {
+
 					std::string event_name;
 					if (object.properties.get_string("event", event_name)) {
 						std::string path = "event:/" + event_name;
 						audio::create_event({ .path = path.c_str(), .position = position });
 					}
+
 				} else if (object.class_ == "chest") {
 
 					ecs::Chest chest{};
@@ -336,10 +347,12 @@ namespace map
 					float sorting_pivot_y = tile->height - map.tile_height / 2.f;
 
 					entt::entity entity = ecs::create();
-					if (!tile->class_.empty())
+					if (!tile->class_.empty()) {
 						ecs::set_class(entity, tile->class_);
-					if (!tile->properties.empty())
+					}
+					if (!tile->properties.empty()) {
 						ecs::set_properties(entity, tile->properties);
+					}
 
 					// EMPLACE BODY
 
@@ -418,8 +431,7 @@ namespace map
 					// CRITICAL: This is an important optimization. Iterating through all entities
 					// with both a Tile and b2Body* component can be expensive if there are many such
 					// entities. "Pure" colliders don't need a tile component, so let's skip adding one.
-					if (sorting_layer == sprites::SL_COLLIDERS)
-						continue;
+					if (sorting_layer == sprites::SL_COLLIDERS) continue;
 
 					// EMPLACE TILE
 

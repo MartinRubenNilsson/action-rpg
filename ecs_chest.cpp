@@ -9,7 +9,7 @@ namespace ecs
 
     Chest& emplace_chest(entt::entity entity, const Chest& chest)
     {
-        return _registry.emplace<Chest>(entity, chest);
+        return _registry.emplace_or_replace<Chest>(entity, chest);
     }
 
     Chest* get_chest(entt::entity entity)
