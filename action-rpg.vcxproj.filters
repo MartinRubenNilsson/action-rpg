@@ -317,6 +317,9 @@
     <ClCompile Include="ecs_chest.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_interact.cpp">
+      <Filter>ecs\mechanics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -877,6 +880,9 @@
     <ClInclude Include="ecs_chest.h">
       <Filter>ecs</Filter>
     </ClInclude>
+    <ClInclude Include="ecs_interact.h">
+      <Filter>ecs\mechanics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">
@@ -947,6 +953,9 @@
     </Filter>
     <Filter Include="graphics\renderdoc">
       <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\mechanics">
+      <UniqueIdentifier>{bda05a2e-3455-426f-87f2-f5bcb303a363}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
