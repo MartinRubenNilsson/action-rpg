@@ -13,26 +13,22 @@ namespace ecs
 {
     extern entt::registry _registry;
 
-    float _bomb_elapsed_time = 0.f;
-
     void _explode_bomb(entt::entity entity)
     {
-        if (!_registry.all_of<Bomb>(entity)) return;
-        Bomb& bomb = _registry.get<Bomb>(entity);
+        Bomb* bomb = get_bomb(entity);
+        if (!bomb) return;
         apply_damage_in_circle({ DamageType::Explosion, 2, entity },
-            bomb.explosion_center, bomb.explosion_radius);
+            bomb->explosion_center, bomb->explosion_radius);
         add_trauma_to_active_camera(0.8f);
-        create_vfx(VfxType::Explosion, bomb.explosion_center);
+        create_vfx(VfxType::Explosion, bomb->explosion_center);
         destroy_at_end_of_frame(entity);
         audio::create_event({ .path = "event:/snd_bomb_explosion" });
-        audio::stop_event(bomb.fuse_sound);
-        postprocessing::create_shockwave(bomb.explosion_center);
+        audio::stop_event(bomb->fuse_sound);
+        postprocessing::create_shockwave(bomb->explosion_center);
     }
 
     void update_bombs(float dt)
     {
-        _bomb_elapsed_time += dt;
-
         for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
 
             bomb.explosion_timer.update(dt);
@@ -41,23 +37,24 @@ namespace ecs
                 continue;
             }
 
-            // Start blinking at >50% progress
-            if (bomb.explosion_timer.get_progress() < 0.5f) continue;  
-            constexpr float BLINK_SPEED = 20.f;
-            float blink_fraction = 0.75f + 0.25f * std::sin(_bomb_elapsed_time * BLINK_SPEED);
-            tile.color.a = (unsigned char)(255 * blink_fraction);
+            if (bomb.explosion_timer.get_progress() > 0.5f) {
+                // Start blinking at >50% progress 
+                constexpr float BLINK_FREQUENCY = 6.f; // in Hz
+                float blink_fraction = 0.75f + 0.25f * sin(bomb.explosion_timer.get_time_left() * BLINK_FREQUENCY * M_2PI);
+                tile.color.g = (unsigned char)(255 * blink_fraction);
+                tile.color.b = (unsigned char)(255 * blink_fraction);
+            }
         }
     }
 
-    bool apply_damage_to_bomb(entt::entity entity, const Damage& damage)
+    Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb)
     {
-        // DON'T call _explode_bomb() directly here, I got a stack overflow
-        // when two bombs kept on exploding each other in an infinite loop!
-        if (damage.amount <= 0) return false;
-        if (!_registry.all_of<Bomb>(entity)) return false;
-        Bomb& bomb = _registry.get<Bomb>(entity);
-        bomb.explosion_timer.finish();
-        return true;
+        return _registry.emplace_or_replace<Bomb>(entity, bomb);
+    }
+
+    Bomb* get_bomb(entt::entity entity)
+    {
+        return _registry.try_get<Bomb>(entity);
     }
 
     entt::entity create_bomb(const Vector2f& position)
@@ -85,8 +82,19 @@ namespace ecs
             tile.set_tile("bomb", "items1");
             tile.position = position;
             tile.pivot = Vector2f(8.f, 16.f);
-            tile.sorting_pivot = Vector2f(8.f, 16.f);
+            tile.sorting_pivot = tile.pivot;
         }
         return entity;
+    }
+
+    bool apply_damage_to_bomb(entt::entity entity, const Damage& damage)
+    {
+        // DON'T call _explode_bomb() directly here, I got a stack overflow
+        // when two bombs kept on exploding each other in an infinite loop!
+        if (damage.amount <= 0) return false;
+        Bomb* bomb = get_bomb(entity);
+        if (!bomb) return false;
+        bomb->explosion_timer.finish();
+        return true;
     }
 }

@@ -13,5 +13,8 @@ namespace ecs
 
     void update_bombs(float dt);
 
+    Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb);
+    Bomb* get_bomb(entt::entity entity);
+
     entt::entity create_bomb(const Vector2f& position);
 }

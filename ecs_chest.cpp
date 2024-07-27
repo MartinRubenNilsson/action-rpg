@@ -3,6 +3,7 @@
 #include "ecs_tile.h"
 #include "map.h"
 #include "ui_textbox.h"
+#include "ecs_bomb.h"
 
 namespace ecs
 {
@@ -46,5 +47,10 @@ namespace ecs
             ui::open_textbox({ .text = "You open the chest and it explodes!" });
         } break;
         }
+    }
+
+    void interact_with_chest(entt::entity entity)
+    {
+        open_chest(entity);
     }
 }
