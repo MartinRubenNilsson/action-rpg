@@ -2,6 +2,7 @@
 #include "ecs_chest.h"
 #include "ecs_tile.h"
 #include "map.h"
+#include "ui_textbox.h"
 
 namespace ecs
 {
@@ -23,14 +24,17 @@ namespace ecs
         if (!chest) return;
         if (chest->opened) return;
         chest->opened = true;
+        map::mark_chest_as_opened(entity);
 
-        if (ecs::Tile* tile = ecs::get_tile(entity)) {
+        if (Tile* tile = get_tile(entity)) {
+            // We assume that the closed chest tile is on an even row,
+            // and the corresponding open chest tile is on the next row.
             Vector2u coords = tile->get_coords();
             if (coords.y % 2 == 0) {
                 tile->set_tile(coords.x, coords.y + 1);
             }
         }
 
-        map::mark_chest_as_opened(entity);
+        ui::open_textbox({ .text = "You open the chest and find... nothing!" });
     }
 }

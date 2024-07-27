@@ -448,7 +448,7 @@ namespace map
 
 	void patch_entities(const MapPatch& patch)
 	{
-		for (entt::entity entity : patch.chests_to_open) {
+		for (entt::entity entity : patch.opened_chests) {
 			ecs::open_chest(entity);
 		}
 	}

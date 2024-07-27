@@ -220,6 +220,6 @@ namespace map
 	{
 		MapPatch* patch = _get_patch();
 		if (!patch) return;
-		_insert_into_sorted_vector(patch->chests_to_open, entity);
+		_insert_into_sorted_vector(patch->opened_chests, entity);
 	}
 }

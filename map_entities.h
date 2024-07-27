@@ -9,7 +9,7 @@ namespace map
 {
 	struct MapPatch
 	{
-		std::vector<entt::entity> chests_to_open;
+		std::vector<entt::entity> opened_chests;
 	};
 
 	void create_entities(const tiled::Map& map);

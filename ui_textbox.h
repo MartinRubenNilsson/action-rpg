@@ -45,6 +45,6 @@ namespace ui
 	void close_textbox();
 	void close_textbox_and_clear_queue();
 
-	std::span<const Textbox> find_textbox_presets(const std::string& id);
+	std::span<const Textbox> get_textbox_presets(const std::string& id);
 	void open_or_enqueue_textbox_presets(const std::string& id);
 }

@@ -13,7 +13,7 @@ namespace ui
 
 	std::vector<Textbox> _textbox_presets;
 
-	std::span<const Textbox> find_textbox_presets(const std::string& id)
+	std::span<const Textbox> get_textbox_presets(const std::string& id)
 	{
 		auto [first, last] = std::equal_range(_textbox_presets.begin(), _textbox_presets.end(), Textbox{ id },
 			[](const Textbox& a, const Textbox& b) { return a.id < b.id; });
