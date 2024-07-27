@@ -298,8 +298,7 @@ namespace map
 
 				} else if (object.class_ == "audio_source") {
 
-					std::string event_name;
-					if (object.properties.get_string("event", event_name)) {
+					if (std::string event_name; object.properties.get_string("event", event_name)) {
 						std::string path = "event:/" + event_name;
 						audio::create_event({ .path = path.c_str(), .position = position });
 					}
@@ -466,7 +465,7 @@ namespace map
 			ecs::destroy_immediately(entity);
 		}
 		for (entt::entity entity : patch.opened_chests) {
-			ecs::open_chest(entity);
+			ecs::open_chest(entity, true);
 		}
 	}
 

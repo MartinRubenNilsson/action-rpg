@@ -20,7 +20,7 @@ namespace ecs
         return _registry.try_get<Chest>(entity);
     }
 
-    void open_chest(entt::entity entity)
+    void open_chest(entt::entity entity, bool ignore_contents)
     {
         Chest* chest = get_chest(entity);
         if (!chest) return;
@@ -35,6 +35,8 @@ namespace ecs
                 tile->set_tile(coords.x, coords.y + 1);
             }
         }
+
+        if (ignore_contents) return;
 
         switch (chest->type) {
         case ChestType::Normal: {
