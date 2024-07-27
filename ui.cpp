@@ -108,7 +108,7 @@ namespace ui
 		Rml::Debugger::Initialise(_debugger_context);
 		Rml::Debugger::SetContext(_context);
 		create_bindings();
-		register_textbox_presets();
+		create_textbox_presets();
 	}
 
 	void shutdown()

@@ -21,7 +21,7 @@ namespace ui
 	};
 
 	void add_textbox_event_listeners();
-	void register_textbox_presets();
+	void create_textbox_presets();
 	void update_textbox(float dt);
 
 	bool is_textbox_open();

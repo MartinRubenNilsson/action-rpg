@@ -20,8 +20,10 @@ namespace ui
 		return { first, last };
 	}
 
-	void register_textbox_presets()
+	void create_textbox_presets()
 	{
+		_textbox_presets.clear();
+
 		{
 			Textbox& tb = _textbox_presets.emplace_back();
 			tb.id = "player_die";
@@ -42,8 +44,7 @@ namespace ui
 			};
 		}
 
-		std::stable_sort(_textbox_presets.begin(), _textbox_presets.end(), [](const Textbox& a, const Textbox& b) {
-			return a.id < b.id;
-		});
+		std::stable_sort(_textbox_presets.begin(), _textbox_presets.end(),
+			[](const Textbox& a, const Textbox& b) { return a.id < b.id; });
 	}
 }
