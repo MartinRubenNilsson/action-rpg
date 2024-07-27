@@ -15,12 +15,14 @@ namespace ecs
 		for (const OverlapHit& hit : overlap_box(box_min, box_max, ~CC_Player)) {
 			interact(hit.entity);
 			std::string string;
+#if 0
 			if (get_string(hit.entity, "textbox", string)) {
 				ui::open_or_enqueue_textbox_presets(string);
 			}
 			if (get_string(hit.entity, "sound", string)) {
 				audio::create_event({ .path = string.c_str() });
 			}
+#endif
 		}
 	}
 

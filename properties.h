@@ -42,7 +42,7 @@ inline void Properties::_set(const std::string& name, const T& value)
 {
 	// Do a binary search to find the property with the given name.
 	auto it = std::ranges::lower_bound(_properties, name, {}, &Property::first);
-	if (it != _properties.end()) {
+	if (it != _properties.end() && it->first == name) {
 		it->second = value;
 	} else {
 		_properties.emplace(it, name, value);
@@ -55,6 +55,7 @@ inline bool Properties::_get(const std::string& name, T& value) const
 	// Do a binary search to find the property with the given name.
 	auto it = std::ranges::lower_bound(_properties, name, {}, &Property::first);
 	if (it == _properties.end()) return false;
+	if (it->first != name) return false;
 	if (!std::holds_alternative<T>(it->second)) return false;
 	value = std::get<T>(it->second);
 	return true;

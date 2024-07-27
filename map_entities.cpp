@@ -307,6 +307,11 @@ namespace map
 				} else if (object.class_ == "chest") {
 
 					ecs::Chest chest{};
+					if (std::string type; object.properties.get_string("type", type)) {
+						if (type == "bomb") {
+							chest.type = ecs::ChestType::Bomb;
+						}
+					}
 					ecs::emplace_chest(entity, chest);
 
 					b2BodyDef body_def{};

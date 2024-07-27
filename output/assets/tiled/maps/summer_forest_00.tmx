@@ -147,7 +147,11 @@
    <point/>
   </object>
   <object id="31" type="chest" gid="3489" x="112" y="368" width="32" height="32"/>
-  <object id="34" type="chest" gid="3492" x="176" y="448" width="32" height="32"/>
+  <object id="34" type="chest" gid="3492" x="176" y="448" width="32" height="32">
+   <properties>
+    <property name="type" value="bomb"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="5" name="Over Sprite 1" width="32" height="32">
   <data encoding="csv">

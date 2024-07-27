@@ -24,6 +24,9 @@ namespace ecs
         if (!chest) return;
         if (chest->opened) return;
         chest->opened = true;
+
+        // By marking the chest as opened, we ensure that the chest
+        // stay open when the player re-enters the map.
         map::mark_chest_as_opened(entity);
 
         if (Tile* tile = get_tile(entity)) {
@@ -35,6 +38,13 @@ namespace ecs
             }
         }
 
-        ui::open_textbox({ .text = "You open the chest and find... nothing!" });
+        switch (chest->type) {
+        case ChestType::Normal: {
+            ui::open_textbox({ .text = "You open the chest and find... nothing!" });
+        } break;
+        case ChestType::Bomb: {
+            ui::open_textbox({ .text = "You open the chest and it explodes!" });
+        } break;
+        }
     }
 }

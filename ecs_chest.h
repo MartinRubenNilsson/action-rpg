@@ -2,8 +2,15 @@
 
 namespace ecs
 {
+	enum class ChestType
+	{
+		Normal,
+		Bomb, // trap chest; explodes when opened
+	};
+
 	struct Chest
 	{
+		ChestType type = ChestType::Normal;
 		bool opened = false;
 	};
 
