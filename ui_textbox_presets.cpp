@@ -13,10 +13,13 @@ namespace ui
 
 	std::vector<Textbox> _textbox_presets;
 
-	std::span<const Textbox> get_textbox_presets(const std::string& id)
+	std::span<const Textbox> get_textbox_presets(const std::string& path)
 	{
-		auto [first, last] = std::equal_range(_textbox_presets.begin(), _textbox_presets.end(), Textbox{ id },
-			[](const Textbox& a, const Textbox& b) { return a.id < b.id; });
+		const size_t path_size = path.size();
+		auto [first, last] = std::equal_range(_textbox_presets.begin(), _textbox_presets.end(), Textbox{ path },
+			[path_size](const Textbox& left, const Textbox& right) {
+				return strncmp(left.path.c_str(), right.path.c_str(), path_size) < 0;
+			});
 		return { first, last };
 	}
 
@@ -26,13 +29,13 @@ namespace ui
 
 		{
 			Textbox& tb = _textbox_presets.emplace_back();
-			tb.id = "player_die";
+			tb.path = "player/die/0";
 			tb.text = "You are <span style='color: red'>deader than dead</span>!<br/>Oh, what a pity that your adventure should end here, and so soon...";
 			tb.sprite = Textbox::SPRITE_SKULL;
 		}
 		{
 			Textbox& tb = _textbox_presets.emplace_back();
-			tb.id = "player_die";
+			tb.path = "player/die/1";
 			tb.text = "Would you like to try again?";
 			tb.options = { "Yes", "No" };
 			tb.options_callback = [](const std::string& option) {
@@ -45,6 +48,6 @@ namespace ui
 		}
 
 		std::stable_sort(_textbox_presets.begin(), _textbox_presets.end(),
-			[](const Textbox& a, const Textbox& b) { return a.id < b.id; });
+			[](const Textbox& a, const Textbox& b) { return a.path < b.path; });
 	}
 }

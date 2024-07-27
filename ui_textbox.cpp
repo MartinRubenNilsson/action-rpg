@@ -261,9 +261,9 @@ namespace ui
 		_textbox_queue.clear();
 	}
 
-	void open_or_enqueue_textbox_presets(const std::string& id)
+	void open_or_enqueue_textbox_presets(const std::string& path)
 	{
-		for (const Textbox& textbox : get_textbox_presets(id)) {
+		for (const Textbox& textbox : get_textbox_presets(path)) {
 			open_or_enqueue_textbox(textbox);
 		}
 	}

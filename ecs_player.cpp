@@ -452,7 +452,7 @@ namespace ecs
 		audio::stop_all_in_bus();
 		audio::create_event({ .path = "event:/snd_player_die" });
 		audio::create_event({ .path = "event:/mus_coffin_dance" });
-		ui::open_or_enqueue_textbox_presets("player_die");
+		ui::open_or_enqueue_textbox_presets("player/die");
 		ui::bindings::hud_player_health = 0;
 		return true;
 	}

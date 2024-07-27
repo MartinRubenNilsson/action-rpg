@@ -10,7 +10,7 @@ namespace ui
 		static const std::string DEFAULT_TYPING_SOUND;
 		static const float DEFAULT_TYPING_SPEED;
 
-		std::string id;
+		std::string path;
 		std::string text; // RML
 		std::string sprite;
 		std::string opening_sound; // name of sound event
@@ -45,6 +45,6 @@ namespace ui
 	void close_textbox();
 	void close_textbox_and_clear_queue();
 
-	std::span<const Textbox> get_textbox_presets(const std::string& id);
-	void open_or_enqueue_textbox_presets(const std::string& id);
+	std::span<const Textbox> get_textbox_presets(const std::string& path);
+	void open_or_enqueue_textbox_presets(const std::string& path);
 }
