@@ -45,4 +45,4 @@ char get_direction(const Vector2f& v); // Returns the direction ('r', 'l', 'u', 
 // COMPUTATIONAL GEOMETRY
 
 bool is_convex(const std::vector<Vector2f>& polygon);
-std::vector<std::array<Vector2f, 3>> triangulate(const std::vector<Vector2f>& polygon);
+std::vector<Vector2f> triangulate(const std::vector<Vector2f>& polygon); // Returns a list of triangles.

@@ -414,11 +414,12 @@ namespace map
 									fixture_def.shape = &shape;
 									body->CreateFixture(&fixture_def);
 								} else {
-									for (const std::array<Vector2f, 3>& triangle : triangulate(collider.points)) {
+									const std::vector<Vector2f> triangles = triangulate(collider.points);
+									for (size_t i = 0; i < triangles.size(); i += 3) {
 										b2Vec2 points[3];
-										for (size_t i = 0; i < 3; ++i) {
-											points[i].x = collider_cx + triangle[i].x;
-											points[i].y = collider_cy + triangle[i].y;
+										for (size_t j = 0; j < 3; ++j) {
+											points[j].x = collider_cx + triangles[i + j].x;
+											points[j].y = collider_cy + triangles[i + j].y;
 										}
 										b2PolygonShape shape{};
 										shape.Set(points, 3);

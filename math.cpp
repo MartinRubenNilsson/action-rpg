@@ -143,13 +143,13 @@ bool is_convex(const std::vector<Vector2f>& polygon)
 	return true;
 }
 
-std::vector<std::array<Vector2f, 3>> triangulate(const std::vector<Vector2f>& polygon)
+std::vector<Vector2f> triangulate(const std::vector<Vector2f>& polygon)
 {
 	//Ear clipping algorithm: https://www.youtube.com/watch?v=d9tytAQbpXM
 	size_t vertex_count = polygon.size();
 	assert(vertex_count >= 3);
 	if (vertex_count == 3) {
-		return { { polygon[0], polygon[1], polygon[2] } };
+		return { polygon[0], polygon[1], polygon[2] };
 	}
 	bool is_polygon_clockwise = false;
 	{
@@ -168,39 +168,46 @@ std::vector<std::array<Vector2f, 3>> triangulate(const std::vector<Vector2f>& po
 		Vector2f v10 = polygon[i0] - polygon[i1];
 		Vector2f v12 = polygon[i2] - polygon[i1];
 		float angle = angle_unsigned(v10, v12);
-		if (is_clockwise(v10, v12) != is_polygon_clockwise)
+		if (is_clockwise(v10, v12) != is_polygon_clockwise) {
 			angle = M_2PI - angle;
+		}
 		angles[i1] = angle;
 	}
 	std::vector<Vector2f> polygon_copy = polygon;
-	std::vector<std::array<Vector2f, 3>> triangles;
+	std::vector<Vector2f> triangles;
 	while (vertex_count > 3) {
 		size_t i2 = std::ranges::min_element(angles) - angles.begin();
 		size_t i0 = (i2 + vertex_count - 2) % vertex_count;
 		size_t i1 = (i2 + vertex_count - 1) % vertex_count;
 		size_t i3 = (i2 + 1) % vertex_count;
 		size_t i4 = (i2 + 2) % vertex_count;
-		triangles.push_back({ polygon_copy[i1], polygon_copy[i2], polygon_copy[i3] });
+		triangles.push_back(polygon_copy[i1]);
+		triangles.push_back(polygon_copy[i2]);
+		triangles.push_back(polygon_copy[i3]);
 		{
 			Vector2f v10 = polygon_copy[i0] - polygon_copy[i1];
 			Vector2f v13 = polygon_copy[i3] - polygon_copy[i1];
 			float angle = angle_unsigned(v10, v13);
-			if (is_clockwise(v10, v13) != is_polygon_clockwise)
+			if (is_clockwise(v10, v13) != is_polygon_clockwise) {
 				angle = M_2PI - angle;
+			}
 			angles[i1] = angle;
 		}
 		{
 			Vector2f v31 = polygon_copy[i1] - polygon_copy[i3];
 			Vector2f v34 = polygon_copy[i4] - polygon_copy[i3];
 			float angle = angle_unsigned(v31, v34);
-			if (is_clockwise(v31, v34) != is_polygon_clockwise)
+			if (is_clockwise(v31, v34) != is_polygon_clockwise) {
 				angle = M_2PI - angle;
+			}
 			angles[i3] = angle;
 		}
 		polygon_copy.erase(polygon_copy.begin() + i2);
 		angles.erase(angles.begin() + i2);
 		--vertex_count;
 	}
-	triangles.push_back({ polygon_copy[0], polygon_copy[1], polygon_copy[2] });
+	triangles.push_back(polygon_copy[0]);
+	triangles.push_back(polygon_copy[1]);
+	triangles.push_back(polygon_copy[2]);
 	return triangles;
 }
