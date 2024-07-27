@@ -36,5 +36,6 @@ namespace map
 
 	// PATCHING
 
+	void mark_entity_as_destroyed(entt::entity entity);
 	void mark_chest_as_opened(entt::entity entity);
 }

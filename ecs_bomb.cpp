@@ -13,29 +13,29 @@ namespace ecs
 {
     extern entt::registry _registry;
 
-    void _explode_bomb(entt::entity entity)
-    {
-        Bomb* bomb = get_bomb(entity);
-        if (!bomb) return;
-        apply_damage_in_circle({ DamageType::Explosion, 2, entity },
-            bomb->explosion_center, bomb->explosion_radius);
-        add_trauma_to_active_camera(0.8f);
-        create_vfx(VfxType::Explosion, bomb->explosion_center);
-        destroy_at_end_of_frame(entity);
-        audio::create_event({ .path = "event:/snd_bomb_explosion" });
-        audio::stop_event(bomb->fuse_sound);
-        postprocessing::create_shockwave(bomb->explosion_center);
-    }
-
     void update_bombs(float dt)
     {
-        for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
+        for (auto [entity, bomb, body] : _registry.view<Bomb, b2Body*>().each()) {
 
+            if (!bomb.ignited) continue;
             bomb.explosion_timer.update(dt);
-            if (bomb.explosion_timer.finished()) {
-                _explode_bomb(entity);
-                continue;
-            }
+
+            const Vector2f center = body->GetWorldCenter();
+            audio::set_event_position(bomb.fuse_sound, center);
+
+            if (!bomb.explosion_timer.finished()) continue;
+
+            // Explode the bomb
+            apply_damage_in_circle({ DamageType::Explosion, 2, entity }, center, bomb.explosion_radius);
+            add_trauma_to_active_camera(0.8f);
+            create_vfx(VfxType::Explosion, center);
+            destroy_at_end_of_frame(entity);
+            audio::create_event({ .path = "event:/snd_bomb_explosion", .position = center });
+            audio::stop_event(bomb.fuse_sound);
+            postprocessing::create_shockwave(center);
+		}
+
+        for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
 
             if (bomb.explosion_timer.get_progress() > 0.5f) {
                 // Start blinking at >50% progress 
@@ -61,16 +61,12 @@ namespace ecs
     {
         entt::entity entity = _registry.create();
         set_class(entity, "bomb");
-        {
-            Bomb& bomb = _registry.emplace<Bomb>(entity);
-            bomb.explosion_timer.start();
-            bomb.fuse_sound = audio::create_event({ .path = "event:/snd_bomb_fuse", .position = position });
-            bomb.explosion_center = position;
-        }
+        emplace_bomb(entity);
+        ignite_bomb(entity);
         {
             b2BodyDef body_def{};
             body_def.type = b2_staticBody;
-            body_def.position.Set(position.x, position.y);
+            body_def.position = position;
             body_def.fixedRotation = true;
             b2Body* body = emplace_body(entity, body_def);
             b2CircleShape shape{};
@@ -85,6 +81,16 @@ namespace ecs
             tile.sorting_pivot = tile.pivot;
         }
         return entity;
+    }
+
+    void ignite_bomb(entt::entity entity)
+    {
+        Bomb* bomb = get_bomb(entity);
+		if (!bomb) return;
+		if (bomb->ignited) return;
+		bomb->ignited = true;
+        bomb->explosion_timer.start();
+		bomb->fuse_sound = audio::create_event({ .path = "event:/snd_bomb_fuse" });
     }
 
     bool apply_damage_to_bomb(entt::entity entity, const Damage& damage)

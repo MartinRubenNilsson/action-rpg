@@ -97,8 +97,9 @@ namespace ecs
 		return true;
 	}
 
-	void emplace_camera(entt::entity entity, const Camera& camera) {
-		_registry.emplace_or_replace<Camera>(entity, camera);
+	Camera& emplace_camera(entt::entity entity, const Camera& camera)
+	{
+		return _registry.emplace_or_replace<Camera>(entity, camera);
 	}
 
 	entt::entity detach_camera(entt::entity entity)

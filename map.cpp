@@ -216,6 +216,13 @@ namespace map
 		return true;
 	}
 
+	void mark_entity_as_destroyed(entt::entity entity)
+	{
+		MapPatch* patch = _get_patch();
+		if (!patch) return;
+		_insert_into_sorted_vector(patch->destroyed_entities, entity);
+	}
+
 	void mark_chest_as_opened(entt::entity entity)
 	{
 		MapPatch* patch = _get_patch();

@@ -9,6 +9,7 @@ namespace map
 {
 	struct MapPatch
 	{
+		std::vector<entt::entity> destroyed_entities;
 		std::vector<entt::entity> opened_chests;
 	};
 

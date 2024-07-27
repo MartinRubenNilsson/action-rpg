@@ -453,6 +453,11 @@ namespace map
 
 	void patch_entities(const MapPatch& patch)
 	{
+		// Patching is a way to modify the state of the map after it has been created.
+
+		for (entt::entity entity : patch.destroyed_entities) {
+			ecs::destroy_immediately(entity);
+		}
 		for (entt::entity entity : patch.opened_chests) {
 			ecs::open_chest(entity);
 		}
