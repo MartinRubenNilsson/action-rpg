@@ -7,19 +7,41 @@
 
 namespace ui
 {
+	namespace bindings
+	{
+		// HUD
+
+		int hud_player_health = 0;
+		int hud_arrow_ammo = 0;
+		int hud_bomb_ammo = 0;
+		int hud_rupee_amount = 0;
+
+		// TEXTBOX
+
+		std::string textbox_text; // RML
+		bool textbox_has_sprite = false;
+		std::string textbox_sprite;
+		bool textbox_has_options = false;
+		std::vector<std::string> textbox_options;
+		size_t textbox_selected_option = 0;
+	}
+
 	extern Rml::Context* _context;
 	Rml::DataModelHandle _data_model_handle;
 
-	bool is_variable_dirty(const std::string& name) {
+	bool is_variable_dirty(const std::string& name)
+	{
 		return _data_model_handle.IsVariableDirty(name);
 	}
 
-	void dirty_all_variables() {
+	void dirty_all_variables()
+	{
 		_data_model_handle.DirtyAllVariables();
 	}
 
 	template <void (*Func)()>
-	Rml::DataEventFunc _wrap() {
+	Rml::DataEventFunc _wrap()
+	{
 		return [](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) { Func(); };
 	}
 

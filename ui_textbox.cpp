@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ui_textbox.h"
+#include "ui_bindings.h"
 #include "audio.h"
 
 namespace ui
@@ -38,13 +39,6 @@ namespace ui
 
 	namespace bindings
 	{
-		std::string textbox_text; // RML
-		bool textbox_has_sprite = false;
-		std::string textbox_sprite;
-		bool textbox_has_options = false;
-		std::vector<std::string> textbox_options;
-		size_t textbox_selected_option = 0;
-
 		void _clear_textbox_bindings()
 		{
 			textbox_text.clear();

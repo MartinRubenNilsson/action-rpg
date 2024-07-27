@@ -17,6 +17,7 @@
 #include "window_events.h"
 #include "ui_hud.h"
 #include "ui_textbox.h"
+#include "ui_bindings.h"
 #include "random.h"
 #include "map_tilegrid.h"
 #include "postprocessing.h"

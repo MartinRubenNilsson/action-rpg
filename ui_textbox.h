@@ -20,16 +20,6 @@ namespace ui
 		void (*options_callback)(const std::string& option) = nullptr;
 	};
 
-	namespace bindings
-	{
-		extern std::string textbox_text; // RML
-		extern bool textbox_has_sprite;
-		extern std::string textbox_sprite;
-		extern bool textbox_has_options;
-		extern std::vector<std::string> textbox_options;
-		extern size_t textbox_selected_option;
-	}
-
 	void add_textbox_event_listeners();
 	void register_textbox_presets();
 	void update_textbox(float dt);
