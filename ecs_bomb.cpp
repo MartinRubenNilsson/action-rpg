@@ -20,7 +20,7 @@ namespace ecs
             if (!bomb.ignited) continue;
             bomb.explosion_timer.update(dt);
 
-            const Vector2f center = body->GetWorldCenter();
+            const Vector2f center = body->GetPosition();
             audio::set_event_position(bomb.fuse_sound, center);
 
             if (!bomb.explosion_timer.finished()) continue;

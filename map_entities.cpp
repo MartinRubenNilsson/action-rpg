@@ -314,13 +314,20 @@ namespace map
 					}
 					ecs::emplace_chest(entity, chest);
 
+					const Vector2f pivot = { 16.f, 22.f };
+
+					if (ecs::Tile* tile = ecs::get_tile(entity)) {
+						tile->pivot = pivot;
+						tile->sorting_pivot = pivot;
+					}
+
 					b2BodyDef body_def{};
 					body_def.type = b2_staticBody;
-					body_def.position = position;
+					body_def.position = position + pivot;
 					b2Body* body = ecs::emplace_body(entity, body_def);
 
 					b2PolygonShape shape{};
-					shape.SetAsBox(10.f, 6.f, object.size / 2.f + Vector2f(0.f, 6.f), 0.f);
+					shape.SetAsBox(10.f, 6.f, b2Vec2_zero, 0.f);
 					body->CreateFixture(&shape, 0.f);
 				}
 			}
