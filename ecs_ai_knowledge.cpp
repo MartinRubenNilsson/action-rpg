@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_common.h"
+#include "ecs_physics.h"
 
 namespace ecs
 {
@@ -14,8 +15,7 @@ namespace ecs
 		info.entity = entity;
 		info.name = get_name(entity);
 		info.class_ = get_class(entity);
-		if (_registry.all_of<b2Body*>(entity)) {
-			b2Body* body = _registry.get<b2Body*>(entity);
+		if (b2Body* body = get_body(entity)) {
 			info.position = body->GetWorldCenter();
 			info.velocity = body->GetLinearVelocity();
 		}
@@ -34,15 +34,15 @@ namespace ecs
 		}
 	}
 
-	const AiWorld& get_ai_world() {
+	const AiWorld& get_ai_world()
+	{
 		return _ai_world;
 	}
 
 	AiKnowledge& emplace_ai_knowledge(entt::entity entity)
 	{
 		AiKnowledge& knowledge = _registry.emplace_or_replace<AiKnowledge>(entity);
-		if (_registry.all_of<b2Body*>(entity)) {
-			b2Body* body = _registry.get<b2Body*>(entity);
+		if (b2Body* body = get_body(entity)) {
 			knowledge.initial_position = body->GetWorldCenter();
 			knowledge.initial_velocity = body->GetLinearVelocity();
 		}
