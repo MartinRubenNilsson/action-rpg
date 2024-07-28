@@ -235,7 +235,12 @@ namespace map
 
 					b2CircleShape shape{};
 					shape.m_radius = 7.f;
-					body->CreateFixture(&shape, 1.f);
+
+					b2FixtureDef fixture_def{};
+					fixture_def.shape = &shape;
+					fixture_def.density = 1.f;
+					fixture_def.filter = ecs::get_filter_for_class(object.class_);
+					body->CreateFixture(&fixture_def);
 
 					ecs::Tile* tile = ecs::get_tile(entity);
 					if (tile) {
