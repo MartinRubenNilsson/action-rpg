@@ -58,7 +58,7 @@ namespace tiled
 
 	struct Frame
 	{
-		unsigned int duration = 0; // in milliseconds
+		unsigned int duration_ms = 0; // in milliseconds
 		unsigned int tile_id = 0; // Index into Tileset::tiles
 	};
 

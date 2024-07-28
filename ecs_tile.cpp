@@ -27,14 +27,15 @@ namespace ecs
 		if (tile->tileset == _tileset_handle && tile->id == _tile_id) return false;
 		_tileset_handle = tile->tileset;
 		_tile_id = tile->id;
-		_animation_duration_ms = 0;
 		_animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
+		float animation_duration = 0.f;
 		for (const tiled::Frame& frame : tile->animation) {
-			_animation_duration_ms += frame.duration;
+			animation_duration += frame.duration_ms; // in milliseconds
 		}
-		animation_timer = Timer(_animation_duration_ms / 1000.f);
+		animation_duration /= 1000.f; // in seconds
+		animation_timer = Timer(animation_duration);
 		animation_timer.start();
 		if (texture == Handle<graphics::Texture>()) {
 			texture = graphics::load_texture(tiled::get_tileset(tile->tileset)->image_path);
@@ -179,12 +180,12 @@ namespace ecs
 
 	bool Tile::has_animation() const
 	{
-		return _animation_duration_ms != 0;
+		return animation_timer.get_duration();
 	}
 
 	void Tile::update_animation(float dt)
 	{
-		if (!_animation_duration_ms) return;
+		if (!animation_timer.get_duration()) return;
 		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
 		if (!tile) return;
 		set_flag(TILE_FRAME_CHANGED, false);
@@ -197,7 +198,7 @@ namespace ecs
 		}
 		unsigned int time = (unsigned int)(animation_timer.get_time() * 1000.f); // in milliseconds
 		for (unsigned int frame_index = 0; frame_index < tile->animation.size(); ++frame_index) {
-			unsigned int frame_duration = tile->animation[frame_index].duration;
+			unsigned int frame_duration = tile->animation[frame_index].duration_ms;
 			if (time < frame_duration) {
 				set_flag(TILE_FRAME_CHANGED, frame_index != _animation_frame);
 				_animation_frame = frame_index;
@@ -209,11 +210,6 @@ namespace ecs
 		// Park on the last frame. We will for example get here if
 		// animation_timer.get_time() == animation_timer.get_duration().
 		_animation_frame = (unsigned int)tile->animation.size() - 1;
-	}
-
-	float Tile::get_animation_duration() const
-	{
-		return _animation_duration_ms / 1000.f;
 	}
 
 	unsigned int Tile::get_animation_frame() const

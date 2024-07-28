@@ -369,7 +369,7 @@ namespace tiled
 			}
 			for (pugi::xml_node frame_node : tile_node.child("animation").children("frame")) {
 				Frame& frame = tile.animation.emplace_back();
-				frame.duration = frame_node.attribute("duration").as_uint();
+				frame.duration_ms = frame_node.attribute("duration").as_uint();
 				frame.tile_id = frame_node.attribute("tileid").as_uint();
 			}
 		}

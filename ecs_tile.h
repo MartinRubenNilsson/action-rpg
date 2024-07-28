@@ -53,7 +53,6 @@ namespace ecs
 		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
-		float get_animation_duration() const; // in seconds
 		unsigned int get_animation_frame() const;
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
@@ -62,7 +61,6 @@ namespace ecs
 	private:
 		Handle<tiled::Tileset> _tileset_handle;
 		unsigned int _tile_id = 0; // index into tiled::Tileset::tiles
-		unsigned int _animation_duration_ms = 0;
 		unsigned int _animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int _flags = TILE_VISIBLE | TILE_LOOP;
 
