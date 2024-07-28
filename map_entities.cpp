@@ -119,7 +119,7 @@ namespace map
 						b2BodyDef body_def{};
 						body_def.type = b2_dynamicBody;
 						body_def.fixedRotation = true;
-						body_def.position.Set(position.x, position.y);
+						body_def.position = position;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile->objects) {
@@ -231,6 +231,7 @@ namespace map
 					b2BodyDef body_def{};
 					body_def.type = b2_dynamicBody;
 					body_def.position = position + pivot;
+					body_def.fixedRotation = true;
 					b2Body* body = ecs::emplace_body(entity, body_def);
 
 					b2CircleShape shape{};
