@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ecs_camera.h"
+#include "ecs_physics.h"
 #include "random.h"
 #include "easings.h"
 
@@ -44,9 +45,8 @@ namespace ecs
 
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 			// If the camera has a follow target, center the view on the target.
-			if (_registry.valid(camera.entity_to_follow) &&
-				_registry.all_of<b2Body*>(camera.entity_to_follow)) {
-				camera.view.center = _registry.get<b2Body*>(camera.entity_to_follow)->GetWorldCenter();
+			if (b2Body* body = get_body(camera.entity_to_follow)) {
+				camera.view.center = body->GetPosition();
 			}
 
 			camera.view = _confine_camera_view(camera.view, camera.confines_min, camera.confines_max);
