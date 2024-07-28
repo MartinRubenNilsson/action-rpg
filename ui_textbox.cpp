@@ -267,4 +267,12 @@ namespace ui
 			open_or_enqueue_textbox(textbox);
 		}
 	}
+
+	void show_textbox_debug_window()
+	{
+#ifdef DEBUG_IMGUI
+		ImGui::Begin("Textbox");
+		ImGui::End();
+#endif
+	}
 }

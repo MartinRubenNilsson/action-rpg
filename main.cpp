@@ -6,6 +6,7 @@
 #include "audio.h"
 #include "ui.h"
 #include "ui_menus.h"
+#include "ui_textbox.h"
 #include "map.h"
 #include "ecs.h"
 #include "console.h"
@@ -80,6 +81,7 @@ int main(int argc, char* argv[])
 #endif
 
     bool debug_stats = false;
+    bool debug_textboxes = false;
     bool debug_textures = false;
 
     // GAME LOOP
@@ -112,7 +114,7 @@ int main(int argc, char* argv[])
                     } else if (ev.key.code == window::Key::F1) {
                         debug_stats = !debug_stats;
                     } else if (ev.key.code == window::Key::F2) {
-                        //ecs::debug_flags ^= ecs::DEBUG_ENTITIES;
+                        debug_textboxes = !debug_textboxes;
                     } else if (ev.key.code == window::Key::F3) {
                         ecs::debug_flags ^= ecs::DEBUG_PHYSICS;
                     } else if (ev.key.code == window::Key::F4) {
@@ -308,9 +310,13 @@ int main(int argc, char* argv[])
             ImGui::End();
         }
 
+        if (debug_textboxes) {
+			ui::show_textbox_debug_window();
+		}
         if (debug_textures) {
             graphics::show_texture_debug_window();
         }
+
 #endif // DEBUG_IMGUI
 
 #ifdef DEBUG_IMGUI

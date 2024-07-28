@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ui_textbox.h"
 #include "ui.h"
-#include "console.h"
 
 namespace ui
 {
@@ -9,9 +8,13 @@ namespace ui
 	const std::string Textbox::SPRITE_GOLDEN_KEY = "icon-golden-key";
 	const std::string Textbox::OPENING_SOUND_ITEM_FANFARE = "snd_item_fanfare";
 	const std::string Textbox::DEFAULT_TYPING_SOUND = "snd_txt1";
-	const float Textbox::DEFAULT_TYPING_SPEED = 25.f;
 
 	std::vector<Textbox> _textbox_presets;
+
+	std::span<const Textbox> get_textbox_presets()
+	{
+		return _textbox_presets;
+	}
 
 	std::span<const Textbox> get_textbox_presets(const std::string& path)
 	{

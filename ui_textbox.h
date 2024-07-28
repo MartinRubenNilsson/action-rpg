@@ -8,14 +8,13 @@ namespace ui
 		static const std::string SPRITE_GOLDEN_KEY;
 		static const std::string OPENING_SOUND_ITEM_FANFARE;
 		static const std::string DEFAULT_TYPING_SOUND;
-		static const float DEFAULT_TYPING_SPEED;
 
 		std::string path;
 		std::string text; // RML
 		std::string sprite;
 		std::string opening_sound; // name of sound event
 		std::string typing_sound = DEFAULT_TYPING_SOUND;
-		float typing_speed = DEFAULT_TYPING_SPEED; // in chars per second, 0 = instant
+		float typing_speed = 25.f; // in chars per second, 0 = instant
 		std::vector<std::string> options;
 		void (*options_callback)(const std::string& option) = nullptr;
 	};
@@ -45,6 +44,15 @@ namespace ui
 	void close_textbox();
 	void close_textbox_and_clear_queue();
 
+	// PRESETS
+
+	// Returns a list of all textbox presets, sorted lexicographically by Textbox::path.
+	std::span<const Textbox> get_textbox_presets();
+	// Returns a list of all textbox presets whose path starts with the given path.
 	std::span<const Textbox> get_textbox_presets(const std::string& path);
 	void open_or_enqueue_textbox_presets(const std::string& path);
+
+	// DEBUGGING
+
+	void show_textbox_debug_window();
 }
