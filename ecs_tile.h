@@ -39,6 +39,7 @@ namespace ecs
 		Color color = colors::WHITE;
 		Timer animation_timer;
 		float animation_speed = 1.f;
+		unsigned int flags = TILE_VISIBLE | TILE_LOOP;
 
 		bool set_tile(const tiled::Tile* tile);
 		bool set_tile(unsigned int id); // uses the current tileset
@@ -62,7 +63,6 @@ namespace ecs
 		Handle<tiled::Tileset> _tileset_handle;
 		unsigned int _tile_id = 0; // index into tiled::Tileset::tiles
 		unsigned int _animation_frame = 0; // index into tiled::Tile::animation
-		unsigned int _flags = TILE_VISIBLE | TILE_LOOP;
 
 		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};

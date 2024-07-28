@@ -220,15 +220,15 @@ namespace ecs
 	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {
-			_flags |= flag;
+			flags |= flag;
 		} else {
-			_flags &= ~flag;
+			flags &= ~flag;
 		}
 	}
 
 	bool Tile::get_flag(unsigned int flag) const
 	{
-		return (_flags & flag) != 0;
+		return (flags & flag) != 0;
 	}
 
 	bool _get_nth_bit(int value, int n)
