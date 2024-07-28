@@ -164,7 +164,8 @@ namespace map
 
 					// EMPLACE TILE
 
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
+					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
+					ecs_tile.set_tile(tile);
 					ecs_tile.position = position;
 					ecs_tile.sorting_pivot = sorting_pivot;
 					// PITFALL: We don't set the sorting layer to the layer index here.
@@ -443,7 +444,8 @@ namespace map
 
 					// EMPLACE TILE
 
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity, tile);
+					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
+					ecs_tile.set_tile(tile);
 					ecs_tile.position = position;
 					ecs_tile.pivot = pivot;
 					ecs_tile.sorting_layer = (uint8_t)layer_index;

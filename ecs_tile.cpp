@@ -21,25 +21,7 @@ namespace ecs
 	extern entt::registry _registry;
 	float _tile_time_accumulator = 0.f;
 
-	Tile::Tile(const tiled::Tile* tile)
-	{
-		assert(tile);
-		_set_tile(tile);
-		std::string shader_name;
-		if (tile->properties.get_string("shader", shader_name)) {
-			shader = graphics::load_shader(
-				"assets/shaders/sprite.vert",
-				"assets/shaders/" + shader_name + ".frag");
-		} else if (tiled::get_tileset(tile->tileset)->properties.get_string("shader", shader_name)) {
-			shader = graphics::load_shader(
-				"assets/shaders/sprite.vert",
-				"assets/shaders/" + shader_name + ".frag");
-		} else {
-			shader = graphics::sprite_shader;
-		}
-	}
-
-	bool Tile::_set_tile(const tiled::Tile* tile)
+	bool Tile::set_tile(const tiled::Tile* tile)
 	{
 		if (!tile) return false;
 		if (tile->tileset == _tileset_handle && tile->id == _tile_id) return false;
@@ -56,6 +38,19 @@ namespace ecs
 		animation_timer.start();
 		if (texture == Handle<graphics::Texture>()) {
 			texture = graphics::load_texture(tiled::get_tileset(tile->tileset)->image_path);
+		}
+		if (shader == Handle<graphics::Shader>()) {
+			if (std::string shader_name; tile->properties.get_string("shader", shader_name)) {
+				shader = graphics::load_shader(
+					"assets/shaders/sprite.vert",
+					"assets/shaders/" + shader_name + ".frag");
+			} else if (tiled::get_tileset(tile->tileset)->properties.get_string("shader", shader_name)) {
+				shader = graphics::load_shader(
+					"assets/shaders/sprite.vert",
+					"assets/shaders/" + shader_name + ".frag");
+			} else {
+				shader = graphics::sprite_shader;
+			}
 		}
 		return true;
 	}
@@ -77,7 +72,7 @@ namespace ecs
 		if (!tile) return false; // no tileset to look in
 		if (id == tile->id) return false;
 		if (id >= tiled::get_tileset(tile->tileset)->tiles.size()) return false;
-		return _set_tile(&tiled::get_tileset(tile->tileset)->tiles[id]);
+		return set_tile(&tiled::get_tileset(tile->tileset)->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int id, const std::string& tileset_name)
@@ -93,7 +88,7 @@ namespace ecs
 		}
 		if (!tileset) return false;
 		if (id >= tileset->tiles.size()) return false;
-		return _set_tile(&tileset->tiles[id]);
+		return set_tile(&tileset->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)
@@ -103,7 +98,7 @@ namespace ecs
 		if (x == tile->x && y == tile->y) return false;
 		const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
 		if (x >= tileset->columns || y >= tileset->tile_count / tileset->columns) return false;
-		return _set_tile(&tileset->tiles[y * tileset->columns + x]);
+		return set_tile(&tileset->tiles[y * tileset->columns + x]);
 	}
 
 	bool Tile::set_tile(const std::string& class_)
@@ -112,7 +107,7 @@ namespace ecs
 		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
 		if (!tile) return false; // no tileset to look in
 		if (class_ == tile->class_) return false;
-		return _set_tile(tiled::find_tile_by_class(*tiled::get_tileset(tile->tileset), class_));
+		return set_tile(tiled::find_tile_by_class(*tiled::get_tileset(tile->tileset), class_));
 	}
 
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
@@ -127,7 +122,7 @@ namespace ecs
 			tileset = tiled::find_tileset_by_name(tileset_name);
 		}
 		if (!tileset) return false;
-		return _set_tile(tiled::find_tile_by_class(*tileset, class_));
+		return set_tile(tiled::find_tile_by_class(*tileset, class_));
 	}
 
 	// For optimization purposes; returning a reference to a dummy object
@@ -316,11 +311,6 @@ namespace ecs
 	Tile& emplace_tile(entt::entity entity)
 	{
 		return _registry.emplace_or_replace<Tile>(entity);
-	}
-
-	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile)
-	{
-		return _registry.emplace_or_replace<Tile>(entity, tile);
 	}
 
 	Tile* get_tile(entt::entity entity)

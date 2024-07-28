@@ -30,9 +30,6 @@ namespace ecs
 	class Tile
 	{
 	public:
-		Tile() = default;
-		Tile(const tiled::Tile* tile);
-
 		Handle<graphics::Texture> texture;
 		Handle<graphics::Shader> shader;
 		Vector2f position; // in pixels
@@ -43,6 +40,7 @@ namespace ecs
 		Timer animation_timer;
 		float animation_speed = 1.f;
 
+		bool set_tile(const tiled::Tile* tile);
 		bool set_tile(unsigned int id); // uses the current tileset
 		bool set_tile(unsigned int id, const std::string& tileset_name);
 		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
@@ -68,7 +66,6 @@ namespace ecs
 		unsigned int _animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int _flags = TILE_VISIBLE | TILE_LOOP;
 
-		bool _set_tile(const tiled::Tile* tile);
 		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};
 
@@ -76,7 +73,6 @@ namespace ecs
 	void add_tile_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
-	Tile& emplace_tile(entt::entity entity, const tiled::Tile* tile);
 	Tile* get_tile(entt::entity entity);
 	bool remove_tile(entt::entity entity);
 }
