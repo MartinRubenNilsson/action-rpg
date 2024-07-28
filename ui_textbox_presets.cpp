@@ -58,7 +58,7 @@ namespace ui
 			};
 		}
 
-		std::stable_sort(_textbox_presets.begin(), _textbox_presets.end(),
+		std::sort(_textbox_presets.begin(), _textbox_presets.end(),
 			[](const Textbox& a, const Textbox& b) { return a.path < b.path; });
 	}
 }
