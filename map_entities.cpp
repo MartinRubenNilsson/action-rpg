@@ -251,7 +251,7 @@ namespace map
 
 					if (last_active_portal) {
 
-						if (const tiled::Object* target_point = tiled::find_object_by_name(map, last_active_portal->target_point)) {
+						if (const tiled::Object* target_point = map.get_object(last_active_portal->target_point)) {
 							if (body) {
 								body->SetTransform(target_point->position, 0.f);
 							}

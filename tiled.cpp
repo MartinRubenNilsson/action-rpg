@@ -500,25 +500,6 @@ namespace tiled
 		return nullptr;
 	}
 
-	const Object* find_object_by_name(const Layer& layer, const std::string& name)
-	{
-		if (name.empty()) return nullptr;
-		for (const Object& object : layer.objects)
-			if (object.name == name)
-				return &object;
-		return nullptr;
-	}
-
-	const Object* find_object_by_name(const Map& map, const std::string& name)
-	{
-		if (name.empty()) return nullptr;
-		for (const Layer& layer : map.layers)
-			for (const Object& object : layer.objects)
-				if (object.name == name)
-					return &object;
-		return nullptr;
-	}
-
 	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
 	{
 		if (class_.empty()) return nullptr;
@@ -542,5 +523,16 @@ namespace tiled
 		const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
 		if (!tileset) return nullptr;
 		return &tileset->tiles[gid - tileset_ref.first_gid];
+	}
+
+	const Object* Map::get_object(const std::string& name) const
+	{
+		if (name.empty()) return nullptr;
+		for (const Layer& layer : layers) {
+			for (const Object& object : layer.objects) {
+				if (object.name == name) return &object;
+			}
+		}
+		return nullptr;
 	}
 }
