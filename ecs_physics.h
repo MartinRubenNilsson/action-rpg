@@ -29,7 +29,6 @@ namespace ecs
 	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint16 mask_bits = 0xFFFF);
 	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint16 mask_bits = 0xFFFF);
 
-	bool has_body(entt::entity entity);
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body);
 	// To be consistent with the other get_*() functions, get_body() should technically

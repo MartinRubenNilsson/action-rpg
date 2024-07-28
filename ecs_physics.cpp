@@ -249,11 +249,6 @@ namespace ecs
 		return hits;
 	}
 
-	bool has_body(entt::entity entity)
-	{
-		return _registry.all_of<b2Body*>(entity);
-	}
-
 	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
 	{
 		b2BodyDef body_def_copy = body_def;

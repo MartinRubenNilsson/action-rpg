@@ -82,11 +82,11 @@ namespace ecs
 				}
 			} break;
 			case AiActionType::Pursue: {
-				if (!has_body(action.entity)) {
+				b2Body* target_body = get_body(action.entity);
+				if (!target_body) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				b2Body* target_body = get_body(action.entity);
 				Vector2f target_pos = target_body->GetWorldCenter();
 				Vector2f me_to_target = target_pos - my_pos;
 				float dist_to_target = length(me_to_target);
@@ -125,11 +125,12 @@ namespace ecs
 				my_new_dir = _get_magnetic_field_line_at(magnetic_field_to_me, magnetic_field_rotation);
 			} break;
 			case AiActionType::Flee: {
-				if (!has_body(action.entity)) {
+				b2Body* danger_body = get_body(action.entity);
+				if (!danger_body) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				Vector2f danger_pos = get_body(action.entity)->GetWorldCenter();
+				Vector2f danger_pos = danger_body->GetWorldCenter();
 				Vector2f to_danger = danger_pos - my_pos;
 				float dist = length(to_danger);
 				if (dist >= action.radius) {

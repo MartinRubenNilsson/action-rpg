@@ -69,8 +69,9 @@ namespace ecs
 
 	bool apply_damage_to_grass(entt::entity entity, const Damage& damage)
 	{
-		if (!has_body(entity)) return false;
-		Vector2f position = get_body(entity)->GetWorldCenter();
+		b2Body* body = get_body(entity);
+		if (!body) return false;
+		Vector2f position = body->GetWorldCenter();
 		audio::create_event({ .path = "event:/snd_cut_grass" });
 		if (random::chance(0.2f)) {
 			PickupType pickup_type = (PickupType)random::range_i(0, (int)PickupType::Count - 1);
