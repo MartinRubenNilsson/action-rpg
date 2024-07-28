@@ -6,6 +6,7 @@
 #include "ecs_damage.h"
 #include "ecs_portal.h"
 #include "audio.h"
+#include "console.h"
 
 namespace ecs
 {
@@ -74,6 +75,29 @@ namespace ecs
 				apply_damage_to_player(entity_a, { DamageType::Melee, 1 });
 			}
 		}
+	}
+
+	void on_end_contact(const PhysicsContact& contact)
+	{
+		b2Fixture* fixture_a = contact.fixture_a;
+		b2Fixture* fixture_b = contact.fixture_b;
+		b2Body* body_a = fixture_a->GetBody();
+		b2Body* body_b = fixture_b->GetBody();
+		entt::entity entity_a = body_a->GetUserData().entity;
+		entt::entity entity_b = body_b->GetUserData().entity;
+		std::string class_a = get_class(entity_a);
+		std::string class_b = get_class(entity_b);
+		if (class_a.empty() && class_b.empty()) return;
+
+		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
+		if (class_a.compare(class_b) > 0) {
+			std::swap(fixture_a, fixture_b);
+			std::swap(body_a, body_b);
+			std::swap(entity_a, entity_b);
+			std::swap(class_a, class_b);
+		}
+
+		// TODO
 	}
 }
 

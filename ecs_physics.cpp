@@ -11,20 +11,25 @@ namespace ecs
 	// Instead make a deep copy of the contact point data into your own buffer."
 	struct PhysicsContactListener : b2ContactListener
 	{
-		std::vector<PhysicsContact> contacts;
+		std::vector<PhysicsContact> begin_contacts;
+		std::vector<PhysicsContact> end_contacts;
 		
-		void BeginContact(b2Contact* b2contact) override {
+		void BeginContact(b2Contact* b2contact) override
+		{
 			PhysicsContact contact{};
 			contact.fixture_a = b2contact->GetFixtureA();
 			contact.fixture_b = b2contact->GetFixtureB();
-			contacts.push_back(contact);
+			begin_contacts.push_back(contact);
+		}
+
+		void EndContact(b2Contact* b2contact) override
+		{
+			PhysicsContact contact{};
+			contact.fixture_a = b2contact->GetFixtureA();
+			contact.fixture_b = b2contact->GetFixtureB();
+			end_contacts.push_back(contact);
 		}
 	};
-
-	Vector2f _from_b2(const b2Vec2& vec)
-	{
-		return Vector2f(vec.x, vec.y);
-	}
 
 	Color _from_b2(const b2Color& color)
 	{
@@ -45,13 +50,13 @@ namespace ecs
 			shapes::add_polygon_to_render_queue((const Vector2f*)vertices, vertexCount, _from_b2(color));
 		}
 		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {
-			shapes::add_circle_to_render_queue(_from_b2(center), radius, _from_b2(color));
+			shapes::add_circle_to_render_queue(center, radius, _from_b2(color));
 		}
 		void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override {
-			shapes::add_circle_to_render_queue(_from_b2(center), radius, _from_b2(color));
+			shapes::add_circle_to_render_queue(center, radius, _from_b2(color));
 		}
 		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {
-			shapes::add_line_to_render_queue(_from_b2(p1), _from_b2(p2), _from_b2(color));
+			shapes::add_line_to_render_queue(p1, p2, _from_b2(color));
 		}
 		void DrawTransform(const b2Transform& xf) override {}
 		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
@@ -107,10 +112,15 @@ namespace ecs
 
 		// PROCESS CONTACTS
 
-		for (const PhysicsContact& contact : _physics_contact_listener.contacts) {
+		for (const PhysicsContact& contact : _physics_contact_listener.begin_contacts) {
 			on_begin_contact(contact);
 		}
-		_physics_contact_listener.contacts.clear();
+		_physics_contact_listener.begin_contacts.clear();
+
+		for (const PhysicsContact& contact : _physics_contact_listener.end_contacts) {
+			on_end_contact(contact);
+		}
+		_physics_contact_listener.end_contacts.clear();
 	}
 
 	void debug_draw_physics()
