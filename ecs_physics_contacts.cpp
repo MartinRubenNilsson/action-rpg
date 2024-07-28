@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ecs_physics_contacts.h"
-#include "physics_helpers.h"
 #include "ecs_common.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"

@@ -389,7 +389,6 @@
     <ClCompile Include="ui_menus.cpp" />
     <ClCompile Include="ui_rmlui_system_interface.cpp" />
     <ClCompile Include="ui_textbox.cpp" />
-    <ClCompile Include="physics_helpers.cpp" />
     <ClCompile Include="ui_textbox_presets.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="winmain.cpp" />
@@ -584,7 +583,6 @@
     <ClInclude Include="ui_hud.h" />
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />
-    <ClInclude Include="physics_helpers.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

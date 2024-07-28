@@ -3,7 +3,6 @@
 #include "tiled.h"
 #include "console.h"
 #include "audio.h"
-#include "physics_helpers.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
@@ -232,7 +231,7 @@ namespace map
 
 						if (const tiled::Object* target_point = tiled::find_object_by_name(map, last_active_portal->target_point)) {
 							if (body) {
-								set_world_center(body, target_point->position);
+								ecs::set_world_center(body, target_point->position);
 							}
 							if (tile) {
 								position = target_point->position;

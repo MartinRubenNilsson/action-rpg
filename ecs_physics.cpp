@@ -2,7 +2,6 @@
 #include "ecs_physics.h"
 #include "ecs_physics_contacts.h"
 #include "ecs_physics_filters.h"
-#include "physics_helpers.h"
 #include "shapes.h"
 
 namespace ecs
@@ -119,47 +118,6 @@ namespace ecs
 #ifdef _DEBUG
 		_physics_world->DebugDraw();
 #endif
-	}
-
-	bool has_body(entt::entity entity)
-	{
-		return _registry.all_of<b2Body*>(entity);
-	}
-
-	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
-	{
-		b2BodyDef body_def_copy = body_def;
-		body_def_copy.userData.entity = entity;
-		b2Body* body = _physics_world->CreateBody(&body_def_copy);
-		_registry.emplace_or_replace<b2Body*>(entity, body);
-		return body;
-	}
-
-
-	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body)
-	{
-		b2BodyDef body_def = get_body_def(body);
-		b2Body* new_body = _physics_world->CreateBody(&body_def);
-		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-			b2FixtureDef fixture_def = get_fixture_def(fixture);
-			new_body->CreateFixture(&fixture_def);
-		}
-		//HACK: so they don't spawn inside each other
-		b2Vec2 pos = new_body->GetPosition();
-		pos.x += 16.f; //one tile
-		new_body->SetTransform(pos, 0.f);
-		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
-	}
-
-	b2Body* get_body(entt::entity entity)
-	{
-		b2Body** body_ptr = _registry.try_get<b2Body*>(entity);
-		return body_ptr ? *body_ptr : nullptr;
-	}
-
-	bool remove_body(entt::entity entity)
-	{
-		return _registry.remove<b2Body*>(entity);
 	}
 
 	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits, RaycastHit* hit)
@@ -289,5 +247,103 @@ namespace ecs
 		}
 
 		return hits;
+	}
+
+	bool has_body(entt::entity entity)
+	{
+		return _registry.all_of<b2Body*>(entity);
+	}
+
+	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
+	{
+		b2BodyDef body_def_copy = body_def;
+		body_def_copy.userData.entity = entity;
+		b2Body* body = _physics_world->CreateBody(&body_def_copy);
+		_registry.emplace_or_replace<b2Body*>(entity, body);
+		return body;
+	}
+
+
+	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body)
+	{
+		b2BodyDef body_def = get_body_def(body);
+		b2Body* new_body = _physics_world->CreateBody(&body_def);
+		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			b2FixtureDef fixture_def = get_fixture_def(fixture);
+			new_body->CreateFixture(&fixture_def);
+		}
+		//HACK: so they don't spawn inside each other
+		b2Vec2 pos = new_body->GetPosition();
+		pos.x += 16.f; //one tile
+		new_body->SetTransform(pos, 0.f);
+		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
+	}
+
+	b2Body* get_body(entt::entity entity)
+	{
+		b2Body** body_ptr = _registry.try_get<b2Body*>(entity);
+		return body_ptr ? *body_ptr : nullptr;
+	}
+
+	bool remove_body(entt::entity entity)
+	{
+		return _registry.remove<b2Body*>(entity);
+	}
+
+	b2FixtureDef get_fixture_def(const b2Fixture* fixture)
+	{
+		b2FixtureDef def{};
+		def.shape = fixture->GetShape();
+		def.userData = fixture->GetUserData();
+		def.friction = fixture->GetFriction();
+		def.restitution = fixture->GetRestitution();
+		def.restitutionThreshold = fixture->GetRestitutionThreshold();
+		def.density = fixture->GetDensity();
+		def.isSensor = fixture->IsSensor();
+		def.filter = fixture->GetFilterData();
+		return def;
+	}
+
+	b2BodyDef get_body_def(const b2Body* body)
+	{
+		b2BodyDef def{};
+		def.type = body->GetType();
+		def.position = body->GetPosition();
+		def.angle = body->GetAngle();
+		def.linearVelocity = body->GetLinearVelocity();
+		def.angularVelocity = body->GetAngularVelocity();
+		def.linearDamping = body->GetLinearDamping();
+		def.angularDamping = body->GetAngularDamping();
+		def.allowSleep = body->IsSleepingAllowed();
+		def.awake = body->IsAwake();
+		def.fixedRotation = body->IsFixedRotation();
+		def.bullet = body->IsBullet();
+		def.enabled = body->IsEnabled();
+		def.userData = body->GetUserData();
+		def.gravityScale = body->GetGravityScale();
+		return def;
+	}
+
+	void set_world_center(b2Body* body, const Vector2f& center)
+	{
+		body->SetTransform(body->GetPosition() - body->GetWorldCenter() + center, body->GetAngle());
+	}
+
+	void set_category_bits(b2Body* body, uint32_t category_bits)
+	{
+		for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			b2Filter filter = fixture->GetFilterData();
+			filter.categoryBits = category_bits;
+			fixture->SetFilterData(filter);
+		}
+	}
+
+	uint32_t get_category_bits(const b2Body* body)
+	{
+		uint32_t category_bits = 0;
+		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+			category_bits |= fixture->GetFilterData().categoryBits;
+		}
+		return category_bits;
 	}
 }

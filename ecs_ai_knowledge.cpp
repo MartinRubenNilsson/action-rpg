@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_common.h"
-#include "physics_helpers.h"
 
 namespace ecs
 {

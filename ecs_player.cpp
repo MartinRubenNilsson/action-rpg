@@ -10,7 +10,6 @@
 #include "ecs_damage.h"
 #include "ecs_interact.h"
 #include "ecs_character.h"
-#include "physics_helpers.h"
 #include "console.h"
 #include "audio.h"
 #include "window.h"
