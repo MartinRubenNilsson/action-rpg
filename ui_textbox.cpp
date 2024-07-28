@@ -175,8 +175,8 @@ namespace ui
 
 		bindings::textbox_text = _replace_graphical_plain_with_nbsp(
 			_textbox->text, _textbox_typing_counter);
-		bindings::textbox_has_sprite = !_textbox->sprite.empty();
-		bindings::textbox_sprite = _textbox->sprite;
+		bindings::textbox_has_sprite = (_textbox->sprite != TextboxSprite::None);
+		bindings::textbox_sprite = get_textbox_sprite_name(_textbox->sprite);
 		if (finished_typing) {
 			bindings::textbox_has_options = !_textbox->options.empty();
 			bindings::textbox_options = _textbox->options;

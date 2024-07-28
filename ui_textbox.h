@@ -2,16 +2,23 @@
 
 namespace ui
 {
+	enum class TextboxSprite
+	{
+		None,
+		Skull,
+		GoldenKey,
+	};
+
+	const char* get_textbox_sprite_name(TextboxSprite sprite);
+
 	struct Textbox
 	{
-		static const std::string SPRITE_SKULL;
-		static const std::string SPRITE_GOLDEN_KEY;
 		static const std::string OPENING_SOUND_ITEM_FANFARE;
 		static const std::string DEFAULT_TYPING_SOUND;
 
 		std::string path;
 		std::string text; // RML
-		std::string sprite;
+		TextboxSprite sprite = TextboxSprite::None;
 		std::string opening_sound; // name of sound event
 		std::string typing_sound = DEFAULT_TYPING_SOUND;
 		float typing_speed = 25.f; // in chars per second, 0 = instant

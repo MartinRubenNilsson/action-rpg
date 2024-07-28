@@ -4,8 +4,16 @@
 
 namespace ui
 {
-	const std::string Textbox::SPRITE_SKULL = "icon-skull";
-	const std::string Textbox::SPRITE_GOLDEN_KEY = "icon-golden-key";
+	const char* get_textbox_sprite_name(TextboxSprite sprite)
+	{
+		switch (sprite) {
+		case TextboxSprite::None:      return "";
+		case TextboxSprite::Skull:     return "icon-skull";
+		case TextboxSprite::GoldenKey: return "icon-golden-key";
+		default:                       return "";
+		}
+	}
+
 	const std::string Textbox::OPENING_SOUND_ITEM_FANFARE = "snd_item_fanfare";
 	const std::string Textbox::DEFAULT_TYPING_SOUND = "snd_txt1";
 
@@ -34,7 +42,7 @@ namespace ui
 			Textbox& tb = _textbox_presets.emplace_back();
 			tb.path = "player/die/0";
 			tb.text = "You are <span style='color: red'>deader than dead</span>!<br/>Oh, what a pity that your adventure should end here, and so soon...";
-			tb.sprite = Textbox::SPRITE_SKULL;
+			tb.sprite = TextboxSprite::Skull;
 		}
 		{
 			Textbox& tb = _textbox_presets.emplace_back();
