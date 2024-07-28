@@ -220,19 +220,34 @@ namespace map
 
 				if (object.class_ == "player") {
 
-					b2Body* body = ecs::get_body(entity);
-					ecs::Tile* tile = ecs::get_tile(entity);
-
 					ecs::Player player{};
 					if (last_player) {
 						player = *last_player;
 						player.input_flags = 0;
 					}
+
+					const Vector2f pivot = { 32.f, 42.f };
+
+					b2BodyDef body_def{};
+					body_def.type = b2_dynamicBody;
+					body_def.position = position + pivot;
+					b2Body* body = ecs::emplace_body(entity, body_def);
+
+					b2CircleShape shape{};
+					shape.m_radius = 7.f;
+					body->CreateFixture(&shape, 1.f);
+
+					ecs::Tile* tile = ecs::get_tile(entity);
+					if (tile) {
+						tile->pivot = pivot;
+						tile->sorting_pivot = pivot;
+					}
+
 					if (last_active_portal) {
 
 						if (const tiled::Object* target_point = tiled::find_object_by_name(map, last_active_portal->target_point)) {
 							if (body) {
-								ecs::set_world_center(body, target_point->position);
+								body->SetTransform(target_point->position, 0.f);
 							}
 							if (tile) {
 								position = target_point->position;

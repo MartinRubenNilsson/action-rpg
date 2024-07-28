@@ -319,11 +319,6 @@ namespace ecs
 		return def;
 	}
 
-	void set_world_center(b2Body* body, const Vector2f& center)
-	{
-		body->SetTransform(body->GetPosition() - body->GetWorldCenter() + center, body->GetAngle());
-	}
-
 	void set_category_bits(b2Body* body, uint32_t category_bits)
 	{
 		for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
