@@ -44,30 +44,35 @@ namespace ecs
 			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
+
 				//TODO: put somewehere else in a helper function
-				Player& player = _registry.get<Player>(entity_b);
-				Pickup& pickup = _registry.get<Pickup>(entity_a);
-				switch (pickup.type) {
+				Player* player = get_player(entity_b);
+				assert(player);
+				Pickup* pickup = get_pickup(entity_a);
+				assert(pickup);
+
+				switch (pickup->type) {
 				case PickupType::Arrow: {
-					player.arrows++;
+					player->arrows++;
 					audio::create_event({ .path = "event:/snd_pickup" });
 				} break;
 				case PickupType::Rupee: {
-					player.rupees++;
+					player->rupees++;
 					audio::create_event({ .path = "event:/snd_pickup_rupee" });
 				} break;
 				case PickupType::Bomb: {
-					player.bombs++;
+					player->bombs++;
 					audio::create_event({ .path = "event:/snd_pickup" });
 				} break;
 				case PickupType::Heart: {
-					player.health = std::min(player.health + 1, player.max_health);
+					player->health = std::min(player->health + 1, player->max_health);
 					//TODO
 					//audio::play("event:/snd_pickup_heart");
 				} break;
 				}
+
+				destroy_at_end_of_frame(entity_a);
 			}
-			destroy_at_end_of_frame(entity_a);
 		} else if (class_a == "player") {
  			if (class_b == "portal") {
 				activate_portal(entity_b);

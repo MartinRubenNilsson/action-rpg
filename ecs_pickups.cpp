@@ -44,8 +44,10 @@ namespace ecs
 			body_def.type = b2_staticBody;
 			body_def.position.Set(position.x, position.y);
 			b2Body* body = emplace_body(entity, body_def);
+
 			b2CircleShape shape{};
 			shape.m_radius = 4.f;
+
 			b2FixtureDef fixture_def{};
 			fixture_def.shape = &shape;
 			fixture_def.isSensor = true;
@@ -74,11 +76,18 @@ namespace ecs
 		return entity;
 	}
 
-	Pickup& emplace_pickup(entt::entity entity) {
+	Pickup& emplace_pickup(entt::entity entity)
+	{
 		return _registry.emplace_or_replace<Pickup>(entity);
 	}
 
-	bool remove_pickup(entt::entity entity) {
+	Pickup* get_pickup(entt::entity entity)
+	{
+		return _registry.try_get<Pickup>(entity);
+	}
+
+	bool remove_pickup(entt::entity entity)
+	{
 		return _registry.remove<Pickup>(entity);
 	}
 }

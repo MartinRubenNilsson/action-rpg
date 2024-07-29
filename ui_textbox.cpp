@@ -103,9 +103,11 @@ namespace ui
 	size_t _get_plain_count(const std::string& rml)
 	{
 		size_t count = 0;
-		for (size_t i = 0; i < rml.size(); ++i)
-			if (_is_plain(rml, i))
+		for (size_t i = 0; i < rml.size(); ++i) {
+			if (_is_plain(rml, i)) {
 				++count;
+			}
+		}
 		return count;
 	}
 
@@ -131,8 +133,9 @@ namespace ui
 		for (size_t i = 0; i < rml.size(); ++i) {
 			bool replace = false;
 			if (_is_plain(rml, i)) {
-				if (count >= offset && isgraph(rml[i]))
+				if (count >= offset && isgraph(rml[i])) {
 					replace = true;
+				}
 				++count;
 			}
 			ret += replace ? "&nbsp;" : rml.substr(i, 1);
@@ -140,7 +143,8 @@ namespace ui
 		return ret;
 	}
 
-	Rml::ElementDocument* _get_textbox_document() {
+	Rml::ElementDocument* _get_textbox_document()
+	{
 		return _context->GetDocument("textbox");
 	}
 
@@ -272,6 +276,11 @@ namespace ui
 	{
 #ifdef DEBUG_IMGUI
 		ImGui::Begin("Textbox");
+		for (const Textbox& textbox : get_textbox_presets()) {
+			if (ImGui::Button(textbox.path.c_str())) {
+				open_or_enqueue_textbox(textbox);
+			}
+		}
 		ImGui::End();
 #endif
 	}

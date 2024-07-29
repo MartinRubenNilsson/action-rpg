@@ -14,6 +14,9 @@ namespace ecs
 		std::vector<PhysicsContact> begin_contacts;
 		std::vector<PhysicsContact> end_contacts;
 		
+		// This is called when two fixtures begin to overlap.
+		// This is called for sensors and non-sensors.
+		// This event can only occur inside the time step.
 		void BeginContact(b2Contact* b2contact) override
 		{
 			PhysicsContact contact{};
@@ -22,6 +25,9 @@ namespace ecs
 			begin_contacts.push_back(contact);
 		}
 
+		// This is called when two fixtures cease to overlap.
+		// This is called for sensors and non-sensors.
+		// This may be called when a body is destroyed, so this event can occur outside the time step.
 		void EndContact(b2Contact* b2contact) override
 		{
 			PhysicsContact contact{};
