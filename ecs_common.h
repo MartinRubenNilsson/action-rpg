@@ -4,7 +4,7 @@ class Properties; // Forward declaration
 
 namespace ecs
 {
-	void update_common(float dt);
+	void destroy_entities_to_be_destroyed_at_end_of_frame();
 
 	// ENTITY CREATION/DESTRUCTION
 

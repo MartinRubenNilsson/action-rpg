@@ -30,7 +30,8 @@ namespace ecs
 		shutdown_physics();
 	}
 
-	void process_window_event(const window::Event& event) {
+	void process_window_event(const window::Event& event) 
+	{
 		process_window_event_for_players(event);
 	}
 
@@ -43,7 +44,7 @@ namespace ecs
 		update_bombs(dt);	
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
-		update_common(dt);
+		destroy_entities_to_be_destroyed_at_end_of_frame();
 		update_tiles(dt);
 		update_vfx(dt);
 		update_cameras(dt);
