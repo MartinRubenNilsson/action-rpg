@@ -6,36 +6,39 @@
 
 namespace ecs
 {
+	const Vector2f DEFAULT_CAMERA_SIZE = { WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT };
 	const float _CAMERA_BLEND_DURATION = 1.f;
 
 	extern entt::registry _registry;
 
 	entt::entity _active_camera_entity = entt::null;
-	CameraView _last_active_camera_view;
-	CameraView _active_camera_view;
+	Vector2f _last_active_camera_center;
+	Vector2f _last_active_camera_size = DEFAULT_CAMERA_SIZE;
+	Vector2f _active_camera_center;
+	Vector2f _active_camera_size = DEFAULT_CAMERA_SIZE;
 	float _camera_shake_time = 0.f;
 	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
-	CameraView _confine_camera_view(const CameraView& view, const Vector2f& confines_min, const Vector2f& confines_max)
+	Vector2f _confine_camera_center(
+		const Vector2f& camera_center, 
+		const Vector2f& camera_size,
+		const Vector2f& confines_min,
+		const Vector2f& confines_max)
 	{
-		const Vector2f center_min = confines_min + view.size / 2.f;
-		const Vector2f center_max = confines_max - view.size / 2.f;
-		Vector2f new_center = view.center;
+		const Vector2f center_min = confines_min + camera_size / 2.f;
+		const Vector2f center_max = confines_max - camera_size / 2.f;
+		Vector2f confined_center = camera_center;
 		if (center_min.x < center_max.x) {
-			new_center.x = std::clamp(new_center.x, center_min.x, center_max.x);
+			confined_center.x = std::clamp(confined_center.x, center_min.x, center_max.x);
 		} else {
-			new_center.x = (confines_min.x + confines_max.x) / 2.f;
+			confined_center.x = (confines_min.x + confines_max.x) / 2.f;
 		}
 		if (center_min.y < center_max.y) {
-			new_center.y = std::clamp(new_center.y, center_min.y, center_max.y);
+			confined_center.y = std::clamp(confined_center.y, center_min.y, center_max.y);
 		} else {
-			new_center.y = (confines_min.y + confines_max.y) / 2.f;
+			confined_center.y = (confines_min.y + confines_max.y) / 2.f;
 		}
-		return { view.size, new_center };
-	}
-
-	CameraView _lerp_camera_view(const CameraView& a, const CameraView& b, float t) {
-		return { lerp(a.size, b.size, t), lerp(a.center, b.center, t) };
+		return confined_center;
 	}
 
 	void update_cameras(float dt)
@@ -44,12 +47,13 @@ namespace ecs
 		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, _CAMERA_BLEND_DURATION);
 
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
+
 			// If the camera has a follow target, center the view on the target.
 			if (b2Body* body = get_body(camera.entity_to_follow)) {
-				camera.view.center = body->GetPosition();
+				camera.center = body->GetPosition();
 			}
 
-			camera.view = _confine_camera_view(camera.view, camera.confines_min, camera.confines_max);
+			camera.center = _confine_camera_center(camera.center, camera.size, camera.confines_min, camera.confines_max);
 			camera.trauma = std::clamp(camera.trauma - camera.trauma_decay * dt, 0.f, 1.f);
 
 			camera.shake_offset = { 0.f, 0.f };
@@ -62,35 +66,39 @@ namespace ecs
 			}
 
 			// Make sure shake_offset doesn't push the camera outside its confines.
-			CameraView shaky_view = camera.view;
-			shaky_view.center += camera.shake_offset;
-			shaky_view = _confine_camera_view(shaky_view, camera.confines_min, camera.confines_max);
-			camera.shake_offset = shaky_view.center - camera.view.center;
+			Vector2f shaky_center = camera.center + camera.shake_offset;
+			shaky_center = _confine_camera_center(shaky_center, camera.size, camera.confines_min, camera.confines_max);
+			camera.shake_offset = shaky_center - camera.center;
 		}
 
 		// Update the active camera view.
-		if (Camera* camera = _registry.try_get<Camera>(_active_camera_entity)) {
-			_active_camera_view = camera->view;
-			_active_camera_view.center += camera->shake_offset;
+		if (Camera* camera = get_camera(_active_camera_entity)) {
+			_active_camera_center = camera->center + camera->shake_offset;
+			_active_camera_size = camera->size;
 		} else {
-			_active_camera_view = {};
+			_active_camera_center = { 0.f, 0.f };
+			_active_camera_size = DEFAULT_CAMERA_SIZE;
 		}
 	}
 
-	CameraView get_active_camera_view() {
-		return _active_camera_view;
+	void get_active_camera_view(Vector2f& center, Vector2f& size)
+	{
+		center = _active_camera_center;
+		size = _active_camera_size;
 	}
 
-	CameraView get_blended_camera_view()
+	void get_blended_camera_view(Vector2f& center, Vector2f& size)
 	{
 		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
-		return _lerp_camera_view(_last_active_camera_view, _active_camera_view, blend_factor);
+		center = lerp(_last_active_camera_center, _active_camera_center, blend_factor);
+		size = lerp(_last_active_camera_size, _active_camera_size, blend_factor);
 	}
 
 	bool activate_camera(entt::entity entity, bool hard_cut)
 	{
 		if (!_registry.all_of<Camera>(entity)) return false;
-		_last_active_camera_view = _active_camera_view;
+		_last_active_camera_center = _active_camera_center;
+		_last_active_camera_size = _active_camera_size;
 		_active_camera_entity = entity;
 		_camera_blend_time = hard_cut ? _CAMERA_BLEND_DURATION : 0.f;
 		return true;
@@ -101,22 +109,28 @@ namespace ecs
 		return _registry.emplace_or_replace<Camera>(entity, camera);
 	}
 
+	Camera* get_camera(entt::entity entity)
+	{
+		return _registry.try_get<Camera>(entity);
+	}
+
 	entt::entity detach_camera(entt::entity entity)
 	{
-		Camera* camera = _registry.try_get<Camera>(entity);
+		Camera* camera = get_camera(entity);
 		if (!camera) return entt::null;
 		camera->entity_to_follow = entt::null;
 		entt::entity new_entity = _registry.create();
 		_registry.emplace<Camera>(new_entity, *camera);
 		_registry.remove<Camera>(entity);
-		if (_active_camera_entity == entity)
+		if (_active_camera_entity == entity) {
 			_active_camera_entity = new_entity;
+		}
 		return new_entity;
 	}
 
 	bool add_trauma_to_camera(entt::entity entity, float trauma)
 	{
-		if (Camera* camera = _registry.try_get<Camera>(entity)) {
+		if (Camera* camera = get_camera(entity)) {
 			camera->trauma += trauma;
 			return true;
 		}

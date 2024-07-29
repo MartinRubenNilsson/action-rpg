@@ -52,9 +52,10 @@ namespace ecs
 
 	void get_camera_bounds(Vector2f& min, Vector2f& max)
 	{
-		const CameraView view = ecs::get_blended_camera_view();
-		min = view.center - view.size / 2.f;
-		max = view.center + view.size / 2.f;
+		Vector2f center, size;
+		ecs::get_blended_camera_view(center, size);
+		min = center - size / 2.f;
+		max = center + size / 2.f;
 	}
 	 
 	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)

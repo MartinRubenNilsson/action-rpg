@@ -276,7 +276,7 @@ namespace map
 					ecs::emplace_player(entity, player);
 
 					ecs::Camera camera{};
-					camera.view.center = position;
+					camera.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					camera.entity_to_follow = entity;
@@ -311,7 +311,7 @@ namespace map
 				} else if (object.class_ == "camera") {
 
 					ecs::Camera camera{};
-					camera.view.center = position;
+					camera.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);

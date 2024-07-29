@@ -17,15 +17,12 @@ namespace ecs
 	// trauma_decay:       The trauma decreases by this amount per second.
 	// entity_to_follow:   If not null, the camera will try to center its view on this entity.
 
-	struct CameraView
-	{
-		Vector2f size = { 320, 180 };
-		Vector2f center;
-	};
+	extern const Vector2f DEFAULT_CAMERA_SIZE;
 
 	struct Camera
 	{
-		CameraView view;
+		Vector2f center;
+		Vector2f size = DEFAULT_CAMERA_SIZE;
 		Vector2f confines_min;
 		Vector2f confines_max;
 		Vector2f shake_offset;
@@ -38,10 +35,12 @@ namespace ecs
 
 	void update_cameras(float dt);
 
-	CameraView get_active_camera_view(); // Hard-cuts when activating new camera.
-	CameraView get_blended_camera_view(); // Smoothly transitions between cameras.
+	void get_active_camera_view(Vector2f& center, Vector2f& size); // Hard-cuts when activating new camera.
+	void get_blended_camera_view(Vector2f& center, Vector2f& size); // Smoothly transitions between cameras.
 
 	Camera& emplace_camera(entt::entity entity, const Camera& camera = {});
+	Camera* get_camera(entt::entity entity);
+
 	// Copies the camera to a new entity, removes it from the old entity, and returns the new entity.
 	entt::entity detach_camera(entt::entity entity);
 	bool activate_camera(entt::entity entity, bool hard_cut = false);
