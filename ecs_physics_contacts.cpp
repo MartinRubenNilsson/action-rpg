@@ -10,8 +10,6 @@
 
 namespace ecs
 {
-	extern entt::registry _registry;
-
 	void on_begin_contact(const PhysicsContact& contact)
 	{
 		b2Fixture* fixture_a = contact.fixture_a;
