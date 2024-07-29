@@ -110,12 +110,14 @@ namespace ecs
 				_PHYSICS_POSITION_ITERATIONS);
 		}
 
-		// PROCESS CONTACTS
+		// PROCESS BEGIN CONTACTS
 
 		for (const PhysicsContact& contact : _physics_contact_listener.begin_contacts) {
 			on_begin_contact(contact);
 		}
 		_physics_contact_listener.begin_contacts.clear();
+
+		// PROCESS END CONTACTS
 
 		for (const PhysicsContact& contact : _physics_contact_listener.end_contacts) {
 			on_end_contact(contact);
@@ -159,9 +161,7 @@ namespace ecs
 
 		RayCastCallback callback{};
 		callback.mask_bits = mask_bits;
-		_physics_world->RayCast(&callback,
-			b2Vec2(ray_start.x, ray_start.y),
-			b2Vec2(ray_end.x, ray_end.y));
+		_physics_world->RayCast(&callback, ray_start, ray_end);
 		if (hit) *hit = callback.hit;
 		return callback.hit_something;
 	}
@@ -195,9 +195,7 @@ namespace ecs
 
 		RayCastCallback callback{};
 		callback.mask_bits = mask_bits;
-		_physics_world->RayCast(&callback,
-			b2Vec2(ray_start.x, ray_start.y),
-			b2Vec2(ray_end.x, ray_end.y));
+		_physics_world->RayCast(&callback, ray_start, ray_end);
 
 		return callback.hits;
 	}
@@ -224,9 +222,7 @@ namespace ecs
 
 		QueryCallback callback{};
 		callback.mask_bits = mask_bits;
-		_physics_world->QueryAABB(&callback, b2AABB{
-			b2Vec2(box_min.x, box_min.y),
-			b2Vec2(box_max.x, box_max.y) });
+		_physics_world->QueryAABB(&callback, b2AABB{ box_min, box_max });
 
 		return callback.hits;
 	}
