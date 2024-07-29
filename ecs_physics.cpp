@@ -88,7 +88,6 @@ namespace ecs
 	void initialize_physics()
 	{
 		_physics_world = new b2World(b2Vec2(0.f, 0.f));
-		_physics_world->SetContactListener(&_physics_contact_listener);
 		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
 #ifdef _DEBUG
 		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
@@ -107,6 +106,12 @@ namespace ecs
 	{
 		// STEP PHYSICS WORLD
 
+		// There was a crash where destroying a body would invoke PhysicsContactListener::EndContact(),
+		// which would enqueue a PhysicsContact whose member pointers would immediately get invalidated
+		// since the body would be destroyed. To fix this I've made it so that the PhysicsContactListener
+		// is only set during the physics step, so destroying a body won't affect the contacts.
+		_physics_world->SetContactListener(&_physics_contact_listener);
+
 		_physics_time_accumulator += dt;
 		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
 			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
@@ -115,6 +120,8 @@ namespace ecs
 				_PHYSICS_VELOCITY_ITERATIONS,
 				_PHYSICS_POSITION_ITERATIONS);
 		}
+
+		_physics_world->SetContactListener(nullptr);
 
 		// PROCESS BEGIN CONTACTS
 
