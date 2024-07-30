@@ -59,12 +59,16 @@ namespace graphics
 
 	// TODO: load compressed textures :)
 
-	Handle<Texture> create_texture(
-		unsigned int width,
-		unsigned int height,
-		unsigned int channels = 4,
-		const unsigned char* data = nullptr, //pass nullptr to create an empty texture
-		const std::string& name_hint = "texture");
+	struct TextureDesc
+	{
+		std::string_view debug_name = "texture";
+		unsigned int width = 0;
+		unsigned int height = 0;
+		unsigned int channels = 4;
+		const unsigned char* initial_data = nullptr;
+	};
+
+	Handle<Texture> create_texture(const TextureDesc&& desc);
 	Handle<Texture> load_texture(const std::string& path, bool flip_y = true);
 	Handle<Texture> copy_texture(Handle<Texture> handle);
 	void destroy_texture(Handle<Texture> handle);

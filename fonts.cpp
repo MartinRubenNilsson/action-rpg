@@ -3,6 +3,8 @@
 #include "pool.h"
 #include "console.h"
 #include "graphics.h"
+#include "filesystem.h"
+
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 
@@ -32,7 +34,8 @@ namespace fonts
 	{
 		// CHECK IF FONT ALREADY LOADED
 
-		auto it = _font_path_to_handle.find(path);
+		const std::string normalized_path = filesystem::get_normalized_path(path);
+		auto it = _font_path_to_handle.find(normalized_path);
 		if (it != _font_path_to_handle.end()) {
 			return it->second;
 		}
@@ -41,7 +44,7 @@ namespace fonts
 
 		std::ifstream file(path, std::ios::binary);
 		if (!file) {
-			console::log_error("Failed to open font file: " + path);
+			console::log_error("Failed to open font file: " + normalized_path);
 			return Handle<Font>();
 		}
 
@@ -55,7 +58,7 @@ namespace fonts
 
 		stbtt_fontinfo info{};
 		if (!stbtt_InitFont(&font.info, font.data.data(), 0)) {
-			console::log_error("Failed to load font: " + path);
+			console::log_error("Failed to load font: " + normalized_path);
 			return Handle<Font>();
 		}
 
@@ -63,14 +66,19 @@ namespace fonts
 
 		font.atlas_pixels.resize(ATLAS_TEXTURE_SIZE * ATLAS_TEXTURE_SIZE);
 		stbtt_PackBegin(&font.pack_context, font.atlas_pixels.data(), ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 0, 1, nullptr);
-		font.atlas_texture = graphics::create_texture(ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 1, font.atlas_pixels.data(), path);
+		font.atlas_texture = graphics::create_texture({ 
+			.debug_name = normalized_path,
+			.width = ATLAS_TEXTURE_SIZE,
+			.height = ATLAS_TEXTURE_SIZE,
+			.channels = 1,
+			.initial_data = font.atlas_pixels.data() });
 		graphics::set_texture_filter(font.atlas_texture, graphics::TextureFilter::Linear);
 
 		// IMPORTANT: We must move construct the font, otherwise
 		// font.data/font.atlas_pixels are reallocated and
 		// font.info/font.pack_context are invalidated.
 		const Handle<Font> handle = _font_pool.emplace(std::move(font));
-		_font_path_to_handle[path] = handle;
+		_font_path_to_handle[normalized_path] = handle;
 
 		return handle;
 	}

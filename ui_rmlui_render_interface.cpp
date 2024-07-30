@@ -114,8 +114,11 @@ namespace ui
 		const Rml::byte* source,
 		const Rml::Vector2i& source_dimensions)
 	{
-		const Handle<graphics::Texture> texture = graphics::create_texture(
-			source_dimensions.x, source_dimensions.y, 4, source, "rmlui texture");
+		const Handle<graphics::Texture> texture = graphics::create_texture({
+			.debug_name = "rmlui texture",
+			.width = (unsigned int)source_dimensions.x,
+			.height = (unsigned int)source_dimensions.y,
+			.initial_data = source });
 		if (texture == Handle<graphics::Texture>()) return false;
 		texture_handle = _to_rml_handle(texture);
 		return true;

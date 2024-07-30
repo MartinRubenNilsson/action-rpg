@@ -42,7 +42,7 @@ namespace graphics
 
 	struct Texture
 	{
-		std::string name; // unique name
+		std::string debug_name;
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 0;
@@ -67,7 +67,7 @@ namespace graphics
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_name_to_handle;
 	Pool<Texture> _texture_pool;
-	std::unordered_map<std::string, Handle<Texture>> _texture_name_to_handle;
+	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
 	Pool<RenderTarget> _render_target_pool;
 	std::unordered_map<std::string, Handle<RenderTarget>> _render_target_name_to_handle;
 	std::vector<Handle<RenderTarget>> _temporary_render_targets;
@@ -110,10 +110,10 @@ namespace graphics
 	}
 #endif
 
-	void _set_debug_label(GLenum identifier, GLuint name, const std::string& label)
+	void _set_debug_label(GLenum identifier, GLuint name, std::string_view label)
 	{
 #ifdef DEBUG_GRAPHICS
-		glObjectLabel(identifier, name, (GLsizei)label.size(), label.c_str());
+		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
 #endif
 	}
 
@@ -228,7 +228,7 @@ namespace graphics
 			}
 		}
 		_texture_pool.clear();
-		_texture_name_to_handle.clear();
+		_texture_path_to_handle.clear();
 
 		// DELETE RENDER TARGETS
 
@@ -494,65 +494,48 @@ namespace graphics
 	
 	}
 
-	Handle<Texture> create_texture(
-		unsigned int width,
-		unsigned int height,
-		unsigned int channels,
-		const unsigned char* data,
-		const std::string& name_hint)
+	Handle<Texture> create_texture(const TextureDesc&& desc)
 	{
-		// DETERMINE FORMAT
-
 		GLenum format = GL_RGBA;
-		if (channels == 1) {
+		if (desc.channels == 1) {
 			format = GL_RED;
-		} else if (channels == 2) {
+		} else if (desc.channels == 2) {
 			format = GL_RG;
-		} else if (channels == 3) {
+		} else if (desc.channels == 3) {
 			format = GL_RGB;
-		} else if (channels == 4) {
+		} else if (desc.channels == 4) {
 			format = GL_RGBA;
 		}
-
-		// CREATE TEXTURE OBJECT
 
 		GLuint texture_object;
 		glGenTextures(1, &texture_object);
 		glBindTexture(GL_TEXTURE_2D, texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-		// STORE TEXTURE
+		glTexImage2D(GL_TEXTURE_2D, 0, format, desc.width, desc.height, 0, format, GL_UNSIGNED_BYTE, desc.initial_data);
 
 		Texture texture{};
-		texture.name = _generate_unique_name(_texture_name_to_handle, name_hint);
-		texture.width = width;
-		texture.height = height;
-		texture.channels = channels;
-		texture.bytes = width * height * channels;
+		texture.debug_name = desc.debug_name;
+		texture.width = desc.width;
+		texture.height = desc.height;
+		texture.channels = desc.channels;
+		texture.bytes = desc.width * desc.height * desc.channels;
 		texture.texture_object = texture_object;
-		_set_debug_label(GL_TEXTURE, texture_object, texture.name);
+		_set_debug_label(GL_TEXTURE, texture_object, texture.debug_name);
 		texture.filter = TextureFilter::Nearest;
 
-		const Handle<Texture> handle = _texture_pool.emplace(texture);
-		_texture_name_to_handle[texture.name] = handle;
 		_total_texture_memory_usage_in_bytes += texture.bytes;
 
-		return handle;
+		return _texture_pool.emplace(std::move(texture));
 	}
 
 	Handle<Texture> load_texture(const std::string& path, bool flip_y)
 	{
-		// CHECK IF ALREADY LOADED
-
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		const auto it = _texture_name_to_handle.find(normalized_path);
-		if (it != _texture_name_to_handle.end()) {
+		const auto it = _texture_path_to_handle.find(normalized_path);
+		if (it != _texture_path_to_handle.end()) {
 			return it->second;
 		}
-
-		// LOAD TEXTURE DATA
 
 		const int was_flip_on_load = stbi__vertically_flip_on_load_global;
 		stbi__vertically_flip_on_load_global = flip_y;
@@ -565,10 +548,17 @@ namespace graphics
 			return Handle<Texture>();
 		}
 
-		// CREATE TEXTURE
+		const Handle<Texture> handle = create_texture({
+			.debug_name = normalized_path,
+			.width = (unsigned int)width,
+			.height = (unsigned int)height,
+			.channels = (unsigned int)channels,
+			.initial_data = data });
 
-		const Handle<Texture> handle = create_texture(width, height, channels, data, normalized_path);
 		stbi_image_free(data);
+
+		_texture_path_to_handle[normalized_path] = handle;
+
 		return handle;
 	}
 
@@ -577,12 +567,11 @@ namespace graphics
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return Handle<Texture>();
 
-		const Handle<Texture> copy_handle = create_texture(
-			texture->width,
-			texture->height,
-			texture->channels,
-			nullptr,
-			texture->name + " (copy)");
+		const Handle<Texture> copy_handle = create_texture({
+			.debug_name = texture->debug_name + " (copy)",
+			.width = texture->width,
+			.height = texture->height,
+			.channels = texture->channels });
 
 		// PITFALL: create_texture() may have caused _texture_pool
 		// to internally reallocate, so we need to re-fetch texture.
@@ -605,7 +594,7 @@ namespace graphics
 		if (!texture) return;
 		glDeleteTextures(1, &texture->texture_object);
 		_total_texture_memory_usage_in_bytes -= texture->bytes;
-		_texture_name_to_handle.erase(texture->name);
+		_texture_path_to_handle.erase(texture->debug_name);
 		_texture_pool.free(handle);
 		*texture = Texture();
 	}
@@ -668,7 +657,10 @@ namespace graphics
 	{
 		// CREATE TEXTURE
 
-		const Handle<Texture> texture_handle = create_texture(width, height, 4, nullptr, name_hint);
+		const Handle<Texture> texture_handle = create_texture({
+			.debug_name = name_hint + " texture",
+			.width = width,
+			.height = height });
 		const Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) {
 			console::log_error("Failed to create render target: " + name_hint);
@@ -891,7 +883,7 @@ namespace graphics
 		for (size_t i = 0; i < _texture_pool.size(); ++i) {
 			const Texture& texture = _texture_pool.data()[i];
 			if (texture.texture_object == 0) continue;
-			if (ImGui::TreeNode(texture.name.c_str())) {
+			if (ImGui::TreeNode(texture.debug_name.c_str())) {
 				ImGui::Text("Dimensions: %dx%dx%d", texture.width, texture.height, texture.channels);
 				unsigned int kb = texture.bytes / 1024;
 				unsigned int mb = kb / 1024;
