@@ -1,0 +1,1 @@
+for /r %i in (*.png) do ktx create "%i" "%~dpni.ktx2" --format R8G8B8A8_SRGB --zstd 22
