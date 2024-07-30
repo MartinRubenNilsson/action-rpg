@@ -491,7 +491,6 @@ namespace graphics
 				glProgramUniformMatrix4fv(shader->program_object, uniform->location, 1, GL_FALSE, matrix);
 			}
 		}
-	
 	}
 
 	Handle<Texture> create_texture(const TextureDesc&& desc)
