@@ -7,6 +7,7 @@ namespace filesystem
 		Unknown,
 		Text, // .txt
 		PngImage, // .png
+		KhronosTexture, // .ktx2
 		TiledMap, // .tmx
 		TiledTileset, // .tsx
 		TiledTemplate, // .tx
@@ -31,6 +32,7 @@ namespace filesystem
 	size_t get_file_count();
 	std::span<const File> get_files();
 	std::span<const File> get_files_in_directory(const std::string& directory_path); // recursive
+	bool file_exists(const std::string& path);
 
 	// PATHS
 

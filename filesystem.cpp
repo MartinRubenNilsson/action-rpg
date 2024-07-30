@@ -10,6 +10,7 @@ namespace filesystem
 	{
 		if (path.ends_with(".txt"))  return FileFormat::Text;
 		if (path.ends_with(".png"))  return FileFormat::PngImage;
+		if (path.ends_with(".ktx2")) return FileFormat::KhronosTexture;
 		if (path.ends_with(".tmx"))  return FileFormat::TiledMap;
 		if (path.ends_with(".tsx"))  return FileFormat::TiledTileset;
 		if (path.ends_with(".tx"))   return FileFormat::TiledTemplate;
@@ -51,9 +52,14 @@ namespace filesystem
 		const size_t prefix_size = normalized_directory_path.size();
 		auto [first, last] = std::ranges::equal_range(_files, File{ .path = normalized_directory_path },
 			[prefix_size](const File& left, const File& right) {
-			return strncmp(left.path.c_str(), right.path.c_str(), prefix_size) < 0;
+				return strncmp(left.path.c_str(), right.path.c_str(), prefix_size) < 0;
 		});
-		return std::span<const File>{first, last};
+		return { first, last };
+	}
+
+	bool file_exists(const std::string& path)
+	{
+		return std::ranges::binary_search(_files, path, {}, &File::path);
 	}
 
 	std::string get_normalized_path(const std::string& path)
