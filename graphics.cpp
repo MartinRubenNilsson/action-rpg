@@ -567,7 +567,9 @@ namespace graphics
 
 		// CREATE TEXTURE
 
-		return create_texture(width, height, channels, data, normalized_path);
+		const Handle<Texture> handle = create_texture(width, height, channels, data, normalized_path);
+		stbi_image_free(data);
+		return handle;
 	}
 
 	Handle<Texture> copy_texture(Handle<Texture> handle)
