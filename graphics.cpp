@@ -531,11 +531,11 @@ namespace graphics
 		return _texture_pool.emplace(std::move(texture));
 	}
 
-	Handle<Texture> load_texture(const std::string& path, bool flip_y)
+	Handle<Texture> load_texture(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
 
-#if 0
+#if 1
 		// First, attempt to load the texture from a KTX2 file, if it exists.
 		if (const std::string normalized_path_ktx2 = filesystem::replace_extension(normalized_path, ".ktx2");
 			filesystem::file_exists(normalized_path_ktx2)) {
@@ -553,11 +553,13 @@ namespace graphics
 				return Handle<Texture>();
 			}
 
+			// TODO: check ktx_texture->vkFormat and convert to OpenGL format if necessary
+
 			const Handle<Texture> handle = create_texture({
 				.debug_name = normalized_path_ktx2,
 				.width = ktx_texture->baseWidth,
 				.height = ktx_texture->baseHeight,
-				.channels = ktx_texture->numLayers,
+				.channels = 4, // we assume 4 channels (RGBA) for now
 				.initial_data = ktx_texture->pData });
 
 			ktxTexture_Destroy(ktxTexture(ktx_texture));
@@ -570,11 +572,8 @@ namespace graphics
 			return it->second;
 		}
 
-		const int was_flip_on_load = stbi__vertically_flip_on_load_global;
-		stbi__vertically_flip_on_load_global = flip_y;
 		int width, height, channels;
 		unsigned char* data = stbi_load(normalized_path.c_str(), &width, &height, &channels, 0);
-		stbi__vertically_flip_on_load_global = was_flip_on_load;
 		if (!data) {
 			console::log_error("Failed to load texture: " + normalized_path);
 			console::log_error(stbi_failure_reason());
@@ -926,8 +925,7 @@ namespace graphics
 					ImGui::Text("Memory: %d KB", kb);
 				}
 				ImGui::Image((ImTextureID)(uintptr_t)texture.texture_object,
-					ImVec2((float)texture.width, (float)texture.height),
-					ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+					ImVec2((float)texture.width, (float)texture.height));
 				ImGui::TreePop();
 			}
 		}

@@ -69,7 +69,7 @@ namespace graphics
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);
-	Handle<Texture> load_texture(const std::string& path, bool flip_y = true);
+	Handle<Texture> load_texture(const std::string& path);
 	Handle<Texture> copy_texture(Handle<Texture> handle);
 	void destroy_texture(Handle<Texture> handle);
 

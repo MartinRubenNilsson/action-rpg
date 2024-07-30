@@ -99,7 +99,7 @@ namespace ui
 		Rml::Vector2i& texture_dimensions,
 		const Rml::String& source)
 	{
-		const Handle<graphics::Texture> texture = graphics::load_texture(source, false);
+		const Handle<graphics::Texture> texture = graphics::load_texture(source);
 		if (texture == Handle<graphics::Texture>()) return false;
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);

@@ -70,8 +70,7 @@ namespace fonts
 			.debug_name = normalized_path,
 			.width = ATLAS_TEXTURE_SIZE,
 			.height = ATLAS_TEXTURE_SIZE,
-			.channels = 1,
-			.initial_data = font.atlas_pixels.data() });
+			.channels = 1 });
 		graphics::set_texture_filter(font.atlas_texture, graphics::TextureFilter::Linear);
 
 		// IMPORTANT: We must move construct the font, otherwise
