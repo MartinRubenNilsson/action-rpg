@@ -86,4 +86,11 @@ namespace filesystem
 	{
 		return std::filesystem::path(path).extension().string();
 	}
+
+	std::string replace_extension(const std::string& path, const std::string& new_extension)
+	{
+		std::filesystem::path p = path;
+		p.replace_extension(new_extension);
+		return p.string();
+	}
 }

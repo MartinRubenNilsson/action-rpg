@@ -41,4 +41,5 @@ namespace filesystem
 	std::string get_filename(const std::string& path);
 	std::string get_stem(const std::string& path);
 	std::string get_extension(const std::string& path);
+	std::string replace_extension(const std::string& path, const std::string& new_extension);
 }

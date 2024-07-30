@@ -2,12 +2,15 @@
 #include "graphics.h"
 #include "pool.h"
 #include "console.h"
+#include "filesystem.h"
+
 #include <glad/glad.h>
-#pragma comment(lib, "opengl32")
+#define KHRONOS_STATIC
 #include <ktx.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "filesystem.h"
+
+#pragma comment(lib, "opengl32")
 
 namespace graphics
 {
@@ -531,8 +534,39 @@ namespace graphics
 	Handle<Texture> load_texture(const std::string& path, bool flip_y)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		const auto it = _texture_path_to_handle.find(normalized_path);
-		if (it != _texture_path_to_handle.end()) {
+
+#if 0
+		// First, attempt to load the texture from a KTX2 file, if it exists.
+		if (const std::string normalized_path_ktx2 = filesystem::replace_extension(normalized_path, ".ktx2");
+			filesystem::file_exists(normalized_path_ktx2)) {
+
+			if (const auto it = _texture_path_to_handle.find(normalized_path_ktx2); it != _texture_path_to_handle.end()) {
+				return it->second;
+			}
+
+			ktxTexture2* ktx_texture;
+			ktxResult result = ktxTexture2_CreateFromNamedFile(
+				normalized_path_ktx2.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktx_texture);
+
+			if (result != KTX_SUCCESS) {
+				console::log_error("Failed to load KTX2 texture: " + normalized_path_ktx2);
+				return Handle<Texture>();
+			}
+
+			const Handle<Texture> handle = create_texture({
+				.debug_name = normalized_path_ktx2,
+				.width = ktx_texture->baseWidth,
+				.height = ktx_texture->baseHeight,
+				.channels = ktx_texture->numLayers,
+				.initial_data = ktx_texture->pData });
+
+			ktxTexture_Destroy(ktxTexture(ktx_texture));
+			_texture_path_to_handle[normalized_path_ktx2] = handle;
+			return handle;
+		}
+#endif
+
+		if (const auto it = _texture_path_to_handle.find(normalized_path); it != _texture_path_to_handle.end()) {
 			return it->second;
 		}
 
@@ -555,9 +589,7 @@ namespace graphics
 			.initial_data = data });
 
 		stbi_image_free(data);
-
 		_texture_path_to_handle[normalized_path] = handle;
-
 		return handle;
 	}
 
@@ -566,8 +598,9 @@ namespace graphics
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return Handle<Texture>();
 
+		const std::string debug_name = texture->debug_name + " (copy)";
 		const Handle<Texture> copy_handle = create_texture({
-			.debug_name = texture->debug_name + " (copy)",
+			.debug_name = debug_name,
 			.width = texture->width,
 			.height = texture->height,
 			.channels = texture->channels });
@@ -656,8 +689,9 @@ namespace graphics
 	{
 		// CREATE TEXTURE
 
+		const std::string texture_debug_name = name_hint + " texture";
 		const Handle<Texture> texture_handle = create_texture({
-			.debug_name = name_hint + " texture",
+			.debug_name = texture_debug_name,
 			.width = width,
 			.height = height });
 		const Texture* texture = _texture_pool.get(texture_handle);
