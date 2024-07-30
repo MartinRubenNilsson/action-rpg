@@ -513,6 +513,7 @@ namespace graphics
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, desc.width, desc.height, 0, format, GL_UNSIGNED_BYTE, desc.initial_data);
+		_set_debug_label(GL_TEXTURE, texture_object, desc.debug_name);
 
 		Texture texture{};
 		texture.debug_name = desc.debug_name;
@@ -521,7 +522,6 @@ namespace graphics
 		texture.channels = desc.channels;
 		texture.bytes = desc.width * desc.height * desc.channels;
 		texture.texture_object = texture_object;
-		_set_debug_label(GL_TEXTURE, texture_object, texture.debug_name);
 		texture.filter = TextureFilter::Nearest;
 
 		_total_texture_memory_usage_in_bytes += texture.bytes;
