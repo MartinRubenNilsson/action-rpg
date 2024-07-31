@@ -38,8 +38,8 @@ namespace audio
 
 	// EVENTS
 
-	bool is_valid(const std::string& event_path);
-	bool is_any_playing(const std::string& event_path);
+	bool is_valid(const char* path);
+	bool is_any_playing(const char* path);
 
 	Handle<Event> create_event(const EventDesc& desc);
 	bool stop_event(Handle<Event> handle);

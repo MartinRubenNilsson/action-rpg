@@ -2,13 +2,13 @@
 <objects serializationModel="Studio.02.02.00">
 	<object class="Event" id="{a704473b-b86d-4916-be0c-5d7ea05ff267}">
 		<property name="name">
-			<value>mus_forest</value>
+			<value>summer_forest</value>
 		</property>
 		<property name="outputFormat">
 			<value>1</value>
 		</property>
 		<relationship name="folder">
-			<destination>{2193e7ff-7646-43d4-b0ee-a4f2213d8c77}</destination>
+			<destination>{675f47a6-2bb2-49c9-9e73-2b8bc1a1576a}</destination>
 		</relationship>
 		<relationship name="mixer">
 			<destination>{ff1dca28-888b-46ca-a8a5-333ce4d4a0a1}</destination>

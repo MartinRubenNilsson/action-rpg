@@ -217,15 +217,17 @@ namespace audio
 		return true;
 	}
 
-	bool is_valid(const std::string& event_path)
+	bool is_valid(const char* path)
 	{
+		if (!path) return false;
 		FMOD::Studio::EventDescription* desc_dummy = nullptr;
-		return _system->getEvent(event_path.c_str(), &desc_dummy) == FMOD_OK;
+		return _system->getEvent(path, &desc_dummy) == FMOD_OK;
 	}
 
-	bool is_any_playing(const std::string& event_path)
+	bool is_any_playing(const char* path)
 	{
-		FMOD::Studio::EventDescription* desc = _get_event_description(event_path.c_str());
+		if (!path) return false;
+		FMOD::Studio::EventDescription* desc = _get_event_description(path);
 		if (!desc) return false;
 		for (FMOD::Studio::EventInstance* instance : _get_event_instances(desc)) {
 			FMOD_STUDIO_PLAYBACK_STATE state;

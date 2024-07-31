@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="23">
- <properties>
-  <property name="music" value="mus_quiet"/>
- </properties>
  <tileset firstgid="1" source="../tilesets/dungeon.tsx"/>
  <tileset firstgid="626" source="../tilesets/effects/fire_spritesheet.tsx"/>
  <tileset firstgid="690" source="../tilesets/retro_interior/TopDownHouse_FurnitureState1.tsx"/>
