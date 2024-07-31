@@ -4,6 +4,11 @@
 
 namespace graphics
 {
+	enum UNIFORM_BUFFER_INDEX
+	{
+		UNIFORM_BUFFER_INDEX_FRAME = 0,
+	};
+
 	extern const float IDENTITY_MATRIX[16] = {
 		1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,
@@ -15,6 +20,8 @@ namespace graphics
 	Handle<Shader> fullscreen_shader;
 	Handle<Shader> shape_shader;
 	Handle<Shader> ui_shader;
+
+	Handle<ConstantBuffer> frame_constant_buffer;
 
 	void initialize_globals()
 	{
@@ -30,5 +37,11 @@ namespace graphics
 		ui_shader = load_shader(
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
+
+		frame_constant_buffer = create_constant_buffer({
+			.debug_name = "frame constant buffer",
+			.size = sizeof(FrameConstantBuffer) });
+
+		bind_constant_buffer(UNIFORM_BUFFER_INDEX_FRAME, frame_constant_buffer);
 	}
 }

@@ -1,6 +1,9 @@
 #version 430
 
-uniform mat4 view_proj_matrix;
+layout (std140, binding = 0) uniform frame_constants
+{
+	mat4 view_proj_matrix;
+};
 
 layout (location = 0) in vec2 vertex_position;
 layout (location = 1) in vec4 vertex_color;

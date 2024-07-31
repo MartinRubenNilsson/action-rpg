@@ -48,7 +48,6 @@ namespace ui
 		graphics::bind_shader(graphics::ui_shader);
 		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
 		graphics::set_uniform_2f(graphics::ui_shader, "viewport_size", (float)_viewport_width, (float)_viewport_height);
-		graphics::set_uniform_1i(graphics::ui_shader, "tex", 0);
 	}
 
 	void restore_render_state()

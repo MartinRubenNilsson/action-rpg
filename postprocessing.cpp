@@ -70,7 +70,6 @@ namespace postprocessing
 
 		// Bind some shader uniforms
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1i(shader, "tex", 0);
 		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
 
 		for (const Shockwave& shockwave : _shockwaves) {
@@ -120,7 +119,6 @@ namespace postprocessing
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1i(shader, "tex", 0);
 		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
 		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
@@ -155,7 +153,6 @@ namespace postprocessing
 
 		// Render screen transition
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1i(shader, "tex", 0);
 		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
@@ -202,7 +199,6 @@ namespace postprocessing
 
 			// Horizontal pass
 			graphics::bind_shader(shader_hor);
-			graphics::set_uniform_1i(shader_hor, "tex", 0);
 			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
 			graphics::bind_render_target(intermediate_target);
@@ -210,7 +206,6 @@ namespace postprocessing
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
-			graphics::set_uniform_1i(shader_ver, "tex", 0);
 			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
 			graphics::bind_render_target(target);

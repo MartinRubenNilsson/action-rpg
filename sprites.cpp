@@ -49,7 +49,6 @@ namespace sprites
 	void _render_batch(Handle<graphics::Shader> shader, Handle<graphics::Texture> texture)
 	{
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1i(shader, "tex", 0);
 		graphics::bind_texture(0, texture);
 		graphics::draw_triangle_strip(_batch_vertex_buffer, _batch_vertices);
 		_batches_drawn++;

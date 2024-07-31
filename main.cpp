@@ -215,10 +215,6 @@ int main(int argc, char* argv[])
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
 
-        Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(
-            window_framebuffer_width, window_framebuffer_height);
-        graphics::bind_render_target(render_target);
-        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
 
         {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
@@ -245,20 +241,17 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::set_uniform_mat4(graphics::sprite_shader, "view_proj_matrix", projection_matrix);
-            graphics::set_uniform_mat4(graphics::shape_shader, "view_proj_matrix", projection_matrix);
-            graphics::set_uniform_mat4(graphics::load_shader( //HACK: i just wanna see the grass
-                "assets/shaders/sprite.vert",
-                "assets/shaders/grass.frag"),
-                "view_proj_matrix", projection_matrix);
-            graphics::set_uniform_mat4(graphics::load_shader( //HACK: i just wanna see the text
-                "assets/shaders/sprite.vert",
-                "assets/shaders/text.frag"),
-                "view_proj_matrix", projection_matrix);
+            graphics::FrameConstantBuffer frame_constants{};
+            memcpy(frame_constants.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
+
+            graphics::update_constant_buffer(graphics::frame_constant_buffer, &frame_constants, sizeof(frame_constants));
         }
 
+        Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(
+            window_framebuffer_width, window_framebuffer_height);
+        graphics::bind_render_target(render_target);
+        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
-
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
 
@@ -322,19 +315,15 @@ int main(int argc, char* argv[])
 #endif // DEBUG_IMGUI
 
 #ifdef DEBUG_IMGUI
-        // RENDER IMGUI
         {
             graphics::ScopedDebugGroup debug_group("ImGui");
             imgui_backends::render();
         }
 #endif
-
-        // RENDER TO WINDOW
         {
             graphics::ScopedDebugGroup debug_group("Window");
             graphics::bind_window_render_target();
             graphics::bind_shader(graphics::fullscreen_shader);
-            graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
             graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
             graphics::draw_triangles(3);
             graphics::release_temporary_render_target(render_target);
