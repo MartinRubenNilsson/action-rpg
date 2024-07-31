@@ -18,8 +18,6 @@ namespace graphics
 
 	void initialize_globals()
 	{
-
-
 		sprite_shader = load_shader(
 			"assets/shaders/sprite.vert",
 			"assets/shaders/sprite.frag");
