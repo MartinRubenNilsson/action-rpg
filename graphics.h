@@ -59,6 +59,7 @@ namespace graphics
 
 	Handle<ConstantBuffer> create_constant_buffer(const ConstantBufferDesc&& desc);
 	void update_constant_buffer(Handle<ConstantBuffer> handle, const void* data, unsigned int size);
+	void bind_constant_buffer(unsigned int index, Handle<ConstantBuffer> handle);
 
 	// TEXTURES
 

@@ -182,17 +182,21 @@ namespace graphics
 
 		// DELETE SHADERS
 
-		for (size_t i = 0; i < _shader_pool.size(); ++i) {
-			const Shader& shader = _shader_pool.data()[i];
+		for (const Shader& shader : _shader_pool.span()) {
 			glDeleteProgram(shader.program_object);
 		}
 		_shader_pool.clear();
 		_shader_paths_to_handle.clear();
 
+		// DELETE CONSTANT BUFFERS
+
+		for (const ConstantBuffer& constant_buffer : _constant_buffer_pool.span()) {
+			glDeleteBuffers(1, &constant_buffer.uniform_buffer_object);
+		}
+
 		// DELETE TEXTURES
 
-		for (size_t i = 0; i < _texture_pool.size(); ++i) {
-			const Texture& texture = _texture_pool.data()[i];
+		for (const Texture& texture : _texture_pool.span()) {
 			if (texture.texture_object) {
 				glDeleteTextures(1, &texture.texture_object);
 			}
@@ -202,8 +206,7 @@ namespace graphics
 
 		// DELETE RENDER TARGETS
 
-		for (size_t i = 0; i < _texture_pool.size(); ++i) {
-			const RenderTarget& render_target = _render_target_pool.data()[i];
+		for (const RenderTarget& render_target : _render_target_pool.span()) {
 			glDeleteFramebuffers(1, &render_target.framebuffer_object);
 		}
 		_render_target_pool.clear();
@@ -485,6 +488,13 @@ namespace graphics
 		if (size != constant_buffer->size) return;
 		glBindBuffer(GL_UNIFORM_BUFFER, constant_buffer->uniform_buffer_object);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
+	}
+
+	void bind_constant_buffer(unsigned int index, Handle<ConstantBuffer> handle)
+	{
+		if (const ConstantBuffer* constant_buffer = _constant_buffer_pool.get(handle)) {
+			glBindBufferBase(GL_UNIFORM_BUFFER, index, constant_buffer->uniform_buffer_object);
+		}
 	}
 
 	Handle<Texture> create_texture(const TextureDesc&& desc)

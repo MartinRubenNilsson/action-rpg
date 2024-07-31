@@ -5,9 +5,11 @@ template <typename T>
 class Pool
 {
 public:
-	const T* data() const;
+	const T* data() const { return _data.data(); }
 
-	size_t size() const;
+	size_t size() const { return _data.size(); }
+
+	std::span<const T> span() const { return { _data.data(), _data.size() }; }
 
 	void clear();
 
@@ -23,18 +25,6 @@ private:
 	std::vector<uint16_t> _generations; // Same size as _data.
 	std::vector<uint16_t> _freelist; // Stores the indices of previously freed slots.
 };
-
-template<typename T>
-inline const T* Pool<T>::data() const
-{
-	return _data.data();
-}
-
-template<typename T>
-inline size_t Pool<T>::size() const
-{
-	return _data.size();
-}
 
 template<typename T>
 inline void Pool<T>::clear()
