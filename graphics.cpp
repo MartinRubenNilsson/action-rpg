@@ -598,31 +598,19 @@ namespace graphics
 		return handle;
 	}
 
-	Handle<Texture> copy_texture(Handle<Texture> handle)
+	Handle<Texture> copy_texture(Handle<Texture> src)
 	{
-		const Texture* texture = _texture_pool.get(handle);
-		if (!texture) return Handle<Texture>();
-
-		const std::string debug_name = texture->debug_name + " (copy)";
-		const Handle<Texture> copy_handle = create_texture({
-			.debug_name = debug_name,
-			.width = texture->width,
-			.height = texture->height,
-			.channels = texture->channels });
-
-		// PITFALL: create_texture() may have caused _texture_pool
-		// to internally reallocate, so we need to re-fetch texture.
-		texture = _texture_pool.get(handle);
-		assert(texture);
-		const Texture* copy_texture = _texture_pool.get(copy_handle);
-		assert(copy_texture);
-
-		glCopyImageSubData(
-			texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			copy_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			texture->width, texture->height, 1);
-
-		return copy_handle;
+		Handle<Texture> dest;
+		if (const Texture* src_texture = _texture_pool.get(src)) {
+			const std::string debug_name = src_texture->debug_name + " (copy)";
+			dest = create_texture({
+				.debug_name = debug_name,
+				.width = src_texture->width,
+				.height = src_texture->height,
+				.channels = src_texture->channels });
+			copy_texture(dest, src);
+		}
+		return dest;
 	}
 
 	void destroy_texture(Handle<Texture> handle)
@@ -656,6 +644,20 @@ namespace graphics
 		if (!texture) return;
 		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RED, GL_UNSIGNED_BYTE, data);
+	}
+
+	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
+	{
+		Texture* dest_texture = _texture_pool.get(dest);
+		Texture* src_texture = _texture_pool.get(src);
+		if (!dest_texture || !src_texture) return;
+		if (dest_texture->width != src_texture->width) return;
+		if (dest_texture->height != src_texture->height) return;
+		glBindTexture(GL_TEXTURE_2D, dest_texture->texture_object);
+		glCopyImageSubData(
+			src_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			dest_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
+			dest_texture->width, dest_texture->height, 1);
 	}
 
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)

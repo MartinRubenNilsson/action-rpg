@@ -76,13 +76,15 @@ namespace graphics
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);
 	Handle<Texture> load_texture(const std::string& path);
-	Handle<Texture> copy_texture(Handle<Texture> handle);
+	Handle<Texture> copy_texture(Handle<Texture> src);
 	void destroy_texture(Handle<Texture> handle);
 
 	void bind_texture(unsigned int binding, Handle<Texture> handle);
 	void unbind_texture(unsigned int binding);
 
 	void update_texture(Handle<Texture> handle, const unsigned char* data);
+	void copy_texture(Handle<Texture> dest, Handle<Texture> src);
+
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
 	void set_texture_filter(Handle<Texture> handle, TextureFilter filter);
 	TextureFilter get_texture_filter(Handle<Texture> handle);
