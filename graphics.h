@@ -49,15 +49,13 @@ namespace graphics
 
 	// TEXTURES
 
-	// TODO: load compressed textures :)
-
 	struct TextureDesc
 	{
 		std::string_view debug_name = "texture";
 		unsigned int width = 0;
 		unsigned int height = 0;
-		unsigned int channels = 4;
-		const unsigned char* initial_data = nullptr;
+		unsigned int channels = 4; // TODO: replace with format enum
+		const unsigned char* initial_data = nullptr; // TODO: replace with std::span<const unsigned char>
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);
