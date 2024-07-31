@@ -237,7 +237,7 @@ namespace audio
 		return false;
 	}
 
-	Handle<Event> create_event(const EventDesc& desc)
+	Handle<Event> create_event(const EventDesc&& desc)
 	{
 		if (!desc.path) return Handle<Event>();
 		if (_events_played_this_frame.contains(desc.path)) return Handle<Event>();
