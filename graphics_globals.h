@@ -3,7 +3,7 @@
 namespace graphics
 {
 	// Stores uniform data that only changes once per frame.
-	struct FrameConstantBuffer
+	struct FrameConstants
 	{
 		float view_proj_matrix[16] = {};
 	};
@@ -15,7 +15,7 @@ namespace graphics
 	extern Handle<Shader> shape_shader;
 	extern Handle<Shader> ui_shader;
 
-	extern Handle<ConstantBuffer> frame_constant_buffer;
+	extern Handle<ConstantBuffer> frame_constants;
 
 	void initialize_globals();
 }
