@@ -187,6 +187,11 @@ namespace map
 		return transition(options);
 	}
 
+	const std::string& get_name()
+	{
+		return _current_map_name;
+	}
+
 	size_t get_object_layer_index()
 	{
 		return _object_layer_index;

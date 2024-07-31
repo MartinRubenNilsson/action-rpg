@@ -26,6 +26,7 @@ namespace map
 	bool close(float transition_duration = DEFAULT_TRANSITION_DURATION);
 	bool reset(float transition_duration = DEFAULT_TRANSITION_DURATION);
 
+	const std::string& get_name();
 	size_t get_object_layer_index();
 	size_t get_next_free_layer_index(); // one past the last layer index
 
