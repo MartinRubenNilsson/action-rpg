@@ -490,11 +490,16 @@ namespace graphics
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 
-	void bind_constant_buffer(unsigned int index, Handle<ConstantBuffer> handle)
+	void bind_constant_buffer(unsigned int binding_point, Handle<ConstantBuffer> handle)
 	{
 		if (const ConstantBuffer* constant_buffer = _constant_buffer_pool.get(handle)) {
-			glBindBufferBase(GL_UNIFORM_BUFFER, index, constant_buffer->uniform_buffer_object);
+			glBindBufferBase(GL_UNIFORM_BUFFER, binding_point, constant_buffer->uniform_buffer_object);
 		}
+	}
+
+	void unbind_constant_buffer(unsigned int binding_point)
+	{
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding_point, 0);
 	}
 
 	Handle<Texture> create_texture(const TextureDesc&& desc)
@@ -631,17 +636,17 @@ namespace graphics
 		*texture = Texture();
 	}
 
-	void bind_texture(unsigned int texture_unit, Handle<Texture> handle)
+	void bind_texture(unsigned int binding_point, Handle<Texture> handle)
 	{
 		if (const Texture* texture = _texture_pool.get(handle)) {
-			glActiveTexture(GL_TEXTURE0 + texture_unit);
+			glActiveTexture(GL_TEXTURE0 + binding_point);
 			glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		}
 	}
 
-	void unbind_texture(unsigned int texture_unit)
+	void unbind_texture(unsigned int binding_point)
 	{
-		glActiveTexture(GL_TEXTURE0 + texture_unit);
+		glActiveTexture(GL_TEXTURE0 + binding_point);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
