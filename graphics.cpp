@@ -25,7 +25,7 @@ namespace graphics
 
 	struct Shader
 	{
-		std::string name; // unique name
+		std::string debug_name;
 		std::vector<ShaderUniform> uniforms;
 		GLuint program_object = 0;
 	};
@@ -55,7 +55,7 @@ namespace graphics
 	GLuint _vertex_buffer_object = 0;
 	GLuint _element_buffer_object = 0;
 	Pool<Shader> _shader_pool;
-	std::unordered_map<std::string, Handle<Shader>> _shader_name_to_handle;
+	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
 	Pool<RenderTarget> _render_target_pool;
@@ -179,7 +179,7 @@ namespace graphics
 			glDeleteProgram(shader.program_object);
 		}
 		_shader_pool.clear();
-		_shader_name_to_handle.clear();
+		_shader_paths_to_handle.clear();
 
 		// DELETE TEXTURES
 
@@ -203,61 +203,61 @@ namespace graphics
 		_temporary_render_targets.clear();
 	}
 
-	Handle<Shader> create_shader(
-		const std::string& vertex_shader_bytecode,
-		const std::string& fragment_shader_bytecode,
-		const std::string& name_hint)
+	Handle<Shader> create_shader(const ShaderDesc&& desc)
 	{
-		const GLuint program_object = glCreateProgram();
-
-		{
-			// COMPILE VERTEX SHADER
-
-			const GLuint vertex_shader_object = glCreateShader(GL_VERTEX_SHADER);
-			const char* vertex_shader_string = vertex_shader_bytecode.c_str();
-			glShaderSource(vertex_shader_object, 1, &vertex_shader_string, nullptr);
-			glCompileShader(vertex_shader_object);
-			int success;
-			glGetShaderiv(vertex_shader_object, GL_COMPILE_STATUS, &success);
-			if (!success) {
-				char info_log[512];
-				glGetShaderInfoLog(vertex_shader_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile vertex shader: " + name_hint);
-				console::log_error(info_log);
-				glDeleteShader(vertex_shader_object);
-				glDeleteProgram(program_object);
-				return Handle<Shader>();
-			}
-
-			// ATTACH VERTEX SHADER
-
-			glAttachShader(program_object, vertex_shader_object);
-			glDeleteShader(vertex_shader_object);
+		if (desc.vs_source.empty()) {
+			console::log_error("Vertex shader source code is empty: " + std::string(desc.debug_name));
+			return Handle<Shader>();
+		}
+		if (desc.fs_source.empty()) {
+			console::log_error("Fragment shader source code is empty: " + std::string(desc.debug_name));
+			return Handle<Shader>();
 		}
 
-		{
-			// COMPILE FRAGMENT SHADER
+		const GLuint program_object = glCreateProgram();
 
-			const GLuint fragment_shader_object = glCreateShader(GL_FRAGMENT_SHADER);
-			const char* fragment_shader_string = fragment_shader_bytecode.c_str();
-			glShaderSource(fragment_shader_object, 1, &fragment_shader_string, nullptr);
-			glCompileShader(fragment_shader_object);
+		// COMPILE AND ATTACH VERTEX SHADER
+		{
+			const char* vs_string = desc.vs_source.data();
+			const GLint vs_length = (GLint)desc.vs_source.size();
+			const GLuint vs_object = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vs_object, 1, &vs_string, &vs_length);
+			glCompileShader(vs_object);
 			int success;
-			glGetShaderiv(fragment_shader_object, GL_COMPILE_STATUS, &success);
+			glGetShaderiv(vs_object, GL_COMPILE_STATUS, &success);
 			if (!success) {
 				char info_log[512];
-				glGetShaderInfoLog(fragment_shader_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile fragment shader: " + name_hint);
+				glGetShaderInfoLog(vs_object, sizeof(info_log), nullptr, info_log);
+				console::log_error("Failed to compile vertex shader: " + std::string(desc.debug_name));
 				console::log_error(info_log);
-				glDeleteShader(fragment_shader_object);
+				glDeleteShader(vs_object);
 				glDeleteProgram(program_object);
 				return Handle<Shader>();
 			}
+			glAttachShader(program_object, vs_object);
+			glDeleteShader(vs_object);
+		}
 
-			// ATTACH FRAGMENT SHADER
-
-			glAttachShader(program_object, fragment_shader_object);
-			glDeleteShader(fragment_shader_object);
+		// COMPILE AND ATTACH FRAGMENT SHADER
+		{
+			const char* fs_string = desc.fs_source.data();
+			const GLint fs_length = (GLint)desc.fs_source.size();
+			const GLuint fs_object = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fs_object, 1, &fs_string, &fs_length);
+			glCompileShader(fs_object);
+			int success;
+			glGetShaderiv(fs_object, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				char info_log[512];
+				glGetShaderInfoLog(fs_object, sizeof(info_log), nullptr, info_log);
+				console::log_error("Failed to compile fragment shader: " + std::string(desc.debug_name));
+				console::log_error(info_log);
+				glDeleteShader(fs_object);
+				glDeleteProgram(program_object);
+				return Handle<Shader>();
+			}
+			glAttachShader(program_object, fs_object);
+			glDeleteShader(fs_object);
 		}
 
 		// LINK PROGRAM OBJECT
@@ -268,7 +268,7 @@ namespace graphics
 			if (!success) {
 				char info_log[512];
 				glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to link program object: " + name_hint);
+				console::log_error("Failed to link program object: " + std::string(desc.debug_name));
 				console::log_error(info_log);
 				glDeleteProgram(program_object);
 				return Handle<Shader>();
@@ -294,63 +294,61 @@ namespace graphics
 
 		// STORE SHADER
 
-		const std::string name = _generate_unique_name(_shader_name_to_handle, name_hint);
-
 		Shader shader{};
-		shader.name = name;
+		shader.debug_name = desc.debug_name;
 		shader.uniforms = std::move(uniform_locations);
 		shader.program_object = program_object;
-		_set_debug_label(GL_PROGRAM, program_object, name);
+		_set_debug_label(GL_PROGRAM, program_object, desc.debug_name);
 
-		const Handle<Shader> handle = _shader_pool.emplace(std::move(shader));
-		_shader_name_to_handle[name] = handle;
-
-		return handle;
+		return _shader_pool.emplace(std::move(shader));
 	}
 
-	Handle<Shader> load_shader(const std::string& vertex_shader_path, const std::string& fragment_shader_path)
+	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path)
 	{
-		// CHECK CACHE FOR EXISTING SHADER
-		
-		const std::string name = vertex_shader_path + ":" + fragment_shader_path;
-		{
-			const auto it = _shader_name_to_handle.find(name);
-			if (it != _shader_name_to_handle.end()) {
-				return it->second;
-			}
+		const std::string normalized_vs_path = filesystem::get_normalized_path(vs_path);
+		const std::string normalized_fs_path = filesystem::get_normalized_path(fs_path);
+		const std::string paths = normalized_vs_path + ":" + normalized_fs_path;
+
+		if (const auto it = _shader_paths_to_handle.find(paths); it != _shader_paths_to_handle.end()) {
+			return it->second;
 		}
 
-		// LOAD VERTEX SHADER BYTECODE
+		// LOAD VERTEX SHADER SOURCE CODE
 
-		std::string vertex_shader_bytecode;
+		std::string vs_source;
 		{
-			std::ifstream vertex_shader_file{ vertex_shader_path };
-			if (!vertex_shader_file) {
-				console::log_error("Failed to open vertex shader file: " + vertex_shader_path);
+			std::ifstream vs_file{ normalized_vs_path };
+			if (!vs_file) {
+				console::log_error("Failed to open vertex shader file: " + normalized_vs_path);
 				return Handle<Shader>();
 			}
-			vertex_shader_bytecode = {
-				std::istreambuf_iterator<char>(vertex_shader_file),
+			vs_source = {
+				std::istreambuf_iterator<char>(vs_file),
 				std::istreambuf_iterator<char>() };
 		}
 
-		// LOAD FRAGMENT SHADER BYTECODE
+		// LOAD FRAGMENT SHADER SOURCE CODE
 
-		std::string fragment_shader_bytecode;
+		std::string fs_source;
 		{
-			std::ifstream fragment_shader_file{ fragment_shader_path };
-			if (!fragment_shader_file) {
-				console::log_error("Failed to open fragment shader file: " + fragment_shader_path);
+			std::ifstream fs_file{ normalized_fs_path };
+			if (!fs_file) {
+				console::log_error("Failed to open fragment shader file: " + normalized_fs_path);
 				return Handle<Shader>();
 			}
-			fragment_shader_bytecode = {
-				std::istreambuf_iterator<char>(fragment_shader_file),
+			fs_source = {
+				std::istreambuf_iterator<char>(fs_file),
 				std::istreambuf_iterator<char>() };
 		}
 
-		// CREATE SHADER
+		const Handle<Shader> handle = create_shader({
+			.debug_name = paths,
+			.vs_source = vs_source,
+			.fs_source = fs_source });
 
-		return create_shader(vertex_shader_bytecode, fragment_shader_bytecode, name);
+		_shader_paths_to_handle[paths] = handle;
+
+		return handle;
 	}
 
 	void _bind_program_if_not_already_bound(GLuint program_object)

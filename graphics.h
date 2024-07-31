@@ -24,15 +24,15 @@ namespace graphics
 
 	// SHADERS
 
-	//TODO: split shaders into vertex and fragment shaders
+	struct ShaderDesc
+	{
+		std::string_view debug_name = "shader";
+		std::string_view vs_source; // vertex shader source code
+		std::string_view fs_source; // fragment shader source code
+	};
 
-	Handle<Shader> create_shader(
-		const std::string& vertex_shader_bytecode,
-		const std::string& fragment_shader_bytecode,
-		const std::string& name_hint = "shader");
-	Handle<Shader> load_shader(
-		const std::string& vertex_shader_path,
-		const std::string& fragment_shader_path);
+	Handle<Shader> create_shader(const ShaderDesc&& desc);
+	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path);
 
 	void bind_shader(Handle<Shader> handle);
 	void unbind_shader();
