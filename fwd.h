@@ -10,6 +10,7 @@ namespace audio
 namespace graphics
 {
 	struct Shader;
+	struct ConstantBuffer;
 	struct Texture;
 	struct RenderTarget;
 }

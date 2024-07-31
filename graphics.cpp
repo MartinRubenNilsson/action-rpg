@@ -30,6 +30,13 @@ namespace graphics
 		GLuint program_object = 0;
 	};
 
+	struct ConstantBuffer
+	{
+		std::string debug_name;
+		unsigned int size = 0;
+		GLuint uniform_buffer_object = 0;
+	};
+
 	struct Texture
 	{
 		std::string debug_name;
@@ -56,6 +63,7 @@ namespace graphics
 	GLuint _element_buffer_object = 0;
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
+	Pool<ConstantBuffer> _constant_buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
 	Pool<RenderTarget> _render_target_pool;
@@ -451,6 +459,32 @@ namespace graphics
 				glProgramUniformMatrix4fv(shader->program_object, uniform->location, 1, GL_FALSE, matrix);
 			}
 		}
+	}
+
+	Handle<ConstantBuffer> create_constant_buffer(const ConstantBufferDesc&& desc)
+	{
+		GLuint uniform_buffer_object;
+		glGenBuffers(1, &uniform_buffer_object);
+		glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_object);
+		glBufferData(GL_UNIFORM_BUFFER, desc.size, desc.initial_data, GL_DYNAMIC_DRAW);
+		_set_debug_label(GL_BUFFER, uniform_buffer_object, desc.debug_name);
+
+		ConstantBuffer constant_buffer{};
+		constant_buffer.debug_name = desc.debug_name;
+		constant_buffer.size = desc.size;
+		constant_buffer.uniform_buffer_object = uniform_buffer_object;
+
+		return _constant_buffer_pool.emplace(std::move(constant_buffer));
+	}
+
+	void update_constant_buffer(Handle<ConstantBuffer> handle, const void* data, unsigned int size)
+	{
+		if (!data || !size) return;
+		ConstantBuffer* constant_buffer = _constant_buffer_pool.get(handle);
+		if (!constant_buffer) return;
+		if (size != constant_buffer->size) return;
+		glBindBuffer(GL_UNIFORM_BUFFER, constant_buffer->uniform_buffer_object);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 
 	Handle<Texture> create_texture(const TextureDesc&& desc)

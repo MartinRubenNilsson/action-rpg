@@ -3,6 +3,7 @@
 namespace graphics
 {
 	struct Shader;
+	struct ConstantBuffer;
 	struct Texture;
 	struct RenderTarget;
 
@@ -47,6 +48,18 @@ namespace graphics
 	void set_uniform_4i(Handle<Shader> handle, std::string_view name, int x, int y, int z, int w);
 	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16]);
 
+	// CONSTANT BUFFERS
+
+	struct ConstantBufferDesc
+	{
+		std::string_view debug_name = "constant buffer";
+		unsigned int size = 0;
+		const void* initial_data = nullptr;
+	};
+
+	Handle<ConstantBuffer> create_constant_buffer(const ConstantBufferDesc&& desc);
+	void update_constant_buffer(Handle<ConstantBuffer> handle, const void* data, unsigned int size);
+
 	// TEXTURES
 
 	struct TextureDesc
@@ -55,7 +68,7 @@ namespace graphics
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 4; // TODO: replace with format enum
-		const unsigned char* initial_data = nullptr; // TODO: replace with std::span<const unsigned char>
+		const unsigned char* initial_data = nullptr;
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);
