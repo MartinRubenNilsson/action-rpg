@@ -19,14 +19,6 @@ namespace graphics
 		Vector2f tex_coord;
 	};
 
-	extern const float IDENTITY_MATRIX[16];
-
-	extern Handle<RenderTarget> window_render_target;
-	extern Handle<Shader> sprite_shader;
-	extern Handle<Shader> fullscreen_shader;
-	extern Handle<Shader> shape_shader;
-	extern Handle<Shader> ui_shader;
-
 	void initialize();
 	void shutdown();
 
@@ -90,6 +82,7 @@ namespace graphics
 	Handle<RenderTarget> aquire_temporary_render_target(unsigned int width, unsigned int height);
 	void release_temporary_render_target(Handle<RenderTarget> handle);
 
+	void bind_window_render_target();
 	void bind_render_target(Handle<RenderTarget> handle);
 
 	// IMPORTANT: You need to bind the render target before calling clear_render_target()!

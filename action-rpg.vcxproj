@@ -153,6 +153,7 @@
     <ClCompile Include="ecs_interact.cpp" />
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
+    <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
     <ClCompile Include="pool.cpp" />
     <ClCompile Include="renderdoc.cpp" />
@@ -425,6 +426,7 @@
     <ClInclude Include="ecs_interact.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
+    <ClInclude Include="graphics_globals.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="imgui_backends.h" />

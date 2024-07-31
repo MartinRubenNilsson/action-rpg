@@ -14,19 +14,6 @@
 
 namespace graphics
 {
-	extern const float IDENTITY_MATRIX[16] = {
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f,
-	};
-
-	Handle<RenderTarget> window_render_target;
-	Handle<Shader> sprite_shader;
-	Handle<Shader> fullscreen_shader;
-	Handle<Shader> shape_shader;
-	Handle<Shader> ui_shader;
-
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
 
 	struct ShaderUniform
@@ -160,34 +147,6 @@ namespace graphics
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		// CREATE WINDOW RENDER TARGET
-		{
-			RenderTarget render_target{};
-			render_target.name = "window render target";
-			// The window has both a front and back buffer, so there's no point
-			// in setting a single texture for its render target.
-			render_target.texture = Handle<Texture>();
-			render_target.framebuffer_object = 0; // default framebuffer
-
-			window_render_target = _render_target_pool.emplace(render_target);
-			_render_target_name_to_handle[render_target.name] = window_render_target;
-		}
-
-		// LOAD DEFAULT SHADERS
-
-		sprite_shader = load_shader(
-			"assets/shaders/sprite.vert",
-			"assets/shaders/sprite.frag");
-		fullscreen_shader = load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
-			"assets/shaders/fullscreen.frag");
-		shape_shader = load_shader(
-			"assets/shaders/shape.vert",
-			"assets/shaders/shape.frag");
-		ui_shader = load_shader(
-			"assets/shaders/ui.vert",
-			"assets/shaders/ui.frag");
 	}
 
 	void shutdown()
@@ -760,6 +719,13 @@ namespace graphics
 	void release_temporary_render_target(Handle<RenderTarget> handle)
 	{
 		_temporary_render_targets.push_back(handle);
+	}
+
+	void bind_window_render_target()
+	{
+		// The default framebuffer is the framebuffer of the window and has name 0.
+		// It is created at the same time as the OpenGL context.
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	void bind_render_target(Handle<RenderTarget> handle)

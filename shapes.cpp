@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 #include "shapes.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 namespace shapes
 {

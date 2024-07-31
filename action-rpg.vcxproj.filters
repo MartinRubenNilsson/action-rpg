@@ -317,6 +317,9 @@
     <ClCompile Include="random.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="graphics_globals.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -876,6 +879,9 @@
     </ClInclude>
     <ClInclude Include="random.h">
       <Filter>utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics_globals.h">
+      <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

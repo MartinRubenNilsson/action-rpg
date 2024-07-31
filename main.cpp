@@ -15,6 +15,7 @@
 #include "postprocessing.h"
 #include "settings.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 #include "shapes.h"
 #include "sprites.h"
 #include "renderdoc.h"
@@ -35,6 +36,7 @@ int main(int argc, char* argv[])
     imgui_backends::initialize(window::get_glfw_window());
 #endif
     graphics::initialize();
+    graphics::initialize_globals();
     console::initialize();
     audio::initialize();
     ui::initialize();
@@ -330,7 +332,7 @@ int main(int argc, char* argv[])
         // RENDER TO WINDOW
         {
             graphics::ScopedDebugGroup debug_group("Window");
-            graphics::bind_render_target(graphics::window_render_target);
+            graphics::bind_window_render_target();
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::set_uniform_1i(graphics::fullscreen_shader, "tex", 0);
             graphics::bind_texture(0, graphics::get_render_target_texture(render_target));

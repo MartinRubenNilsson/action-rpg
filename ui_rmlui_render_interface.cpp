@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ui_rmlui_render_interface.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 #include "console.h"
 
 namespace ui

@@ -19,11 +19,13 @@ namespace sprites
 		return false;
 	}
 
-	constexpr unsigned int _calc_vertices_in_batch(unsigned int sprite_count) {
+	constexpr unsigned int _calc_vertices_in_batch(unsigned int sprite_count)
+	{
 		return 6 * sprite_count - 2;
 	}
 
-	constexpr unsigned int _calc_sprites_in_batch(unsigned int vertex_count) {
+	constexpr unsigned int _calc_sprites_in_batch(unsigned int vertex_count)
+	{
 		return (vertex_count + 2) / 6;
 	}
 
@@ -154,19 +156,23 @@ namespace sprites
 		_sprites = 0;
 	}
 
-	unsigned int get_sprites_drawn() {
+	unsigned int get_sprites_drawn()
+	{
 		return _sprites_drawn;
 	}
 
-	unsigned int get_batches_drawn() {
+	unsigned int get_batches_drawn()
+	{
 		return _batches_drawn;
 	}
 
-	unsigned int get_vertices_in_largest_batch() {
+	unsigned int get_vertices_in_largest_batch()
+	{
 		return _vertices_in_largest_batch;
 	}
 
-	unsigned int get_sprites_in_largest_batch() {
+	unsigned int get_sprites_in_largest_batch()
+	{
 		return _calc_sprites_in_batch(_vertices_in_largest_batch);
 	}
 }
