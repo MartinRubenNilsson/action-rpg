@@ -1,8 +1,9 @@
 #version 430
 
-uniform sampler2D tex;
-uniform sampler2D lut1;
-uniform sampler2D lut2;
+layout (binding = 0) uniform sampler2D tex;
+layout (binding = 1) uniform sampler2D lut1;
+layout (binding = 2) uniform sampler2D lut2;
+
 uniform int lut1_type;
 uniform int lut1_y;
 uniform int lut2_type;

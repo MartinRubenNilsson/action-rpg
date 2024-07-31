@@ -374,9 +374,6 @@ namespace ecs
 		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
 
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1i(shader, "tex", 0);
-		graphics::set_uniform_1i(shader, "lut1", 1);
-		graphics::set_uniform_1i(shader, "lut2", 2);
 
 		for (const Layer& layer : layers) {
 			const Handle<graphics::Texture> texture = graphics::load_texture(base_dir + layer.texture_path);
