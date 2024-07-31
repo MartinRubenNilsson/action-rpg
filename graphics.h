@@ -59,8 +59,9 @@ namespace graphics
 
 	Handle<ConstantBuffer> create_constant_buffer(const ConstantBufferDesc&& desc);
 	void update_constant_buffer(Handle<ConstantBuffer> handle, const void* data, unsigned int size);
-	void bind_constant_buffer(unsigned int binding_point, Handle<ConstantBuffer> handle);
-	void unbind_constant_buffer(unsigned int binding_point);
+
+	void bind_constant_buffer(unsigned int binding, Handle<ConstantBuffer> handle);
+	void unbind_constant_buffer(unsigned int binding);
 
 	// TEXTURES
 
@@ -78,8 +79,8 @@ namespace graphics
 	Handle<Texture> copy_texture(Handle<Texture> handle);
 	void destroy_texture(Handle<Texture> handle);
 
-	void bind_texture(unsigned int binding_point, Handle<Texture> handle);
-	void unbind_texture(unsigned int binding_point);
+	void bind_texture(unsigned int binding, Handle<Texture> handle);
+	void unbind_texture(unsigned int binding);
 
 	void update_texture(Handle<Texture> handle, const unsigned char* data);
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
