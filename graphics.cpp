@@ -45,7 +45,7 @@ namespace graphics
 		unsigned int channels = 0;
 		unsigned int bytes = 0; // for debugging
 		GLuint texture_object = 0;
-		TextureFilter filter = TextureFilter::Nearest;
+		Filter filter = Filter::Nearest;
 	};
 
 	struct Framebuffer
@@ -518,7 +518,7 @@ namespace graphics
 		texture.channels = desc.channels;
 		texture.bytes = desc.width * desc.height * desc.channels;
 		texture.texture_object = texture_object;
-		texture.filter = TextureFilter::Nearest;
+		texture.filter = Filter::Nearest;
 
 		_total_texture_memory_usage_in_bytes += texture.bytes;
 
@@ -659,22 +659,22 @@ namespace graphics
 		}
 	}
 
-	void set_texture_filter(Handle<Texture> handle, TextureFilter filter)
+	void set_texture_filter(Handle<Texture> handle, Filter filter)
 	{
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
-		const GLint gl_filter = (filter == TextureFilter::Nearest) ? GL_NEAREST : GL_LINEAR;
+		const GLint gl_filter = (filter == Filter::Nearest) ? GL_NEAREST : GL_LINEAR;
 		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
 	}
 
-	TextureFilter get_texture_filter(Handle<Texture> handle)
+	Filter get_texture_filter(Handle<Texture> handle)
 	{
 		const Texture* texture = _texture_pool.get(handle);
-		return texture ? texture->filter : TextureFilter::Nearest;
+		return texture ? texture->filter : Filter::Nearest;
 	}
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)

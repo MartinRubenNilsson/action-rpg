@@ -191,8 +191,8 @@ namespace postprocessing
 			graphics::get_framebuffer_texture(intermediate_framebuffer);
 
 		// Set linear filtering
-		graphics::set_texture_filter(texture, graphics::TextureFilter::Linear);
-		graphics::set_texture_filter(intermediate_texture, graphics::TextureFilter::Linear);
+		graphics::set_texture_filter(texture, graphics::Filter::Linear);
+		graphics::set_texture_filter(intermediate_texture, graphics::Filter::Linear);
 
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
@@ -213,8 +213,8 @@ namespace postprocessing
 		}
 
 		// Cleanup
-		graphics::set_texture_filter(texture, graphics::TextureFilter::Nearest);
-		graphics::set_texture_filter(intermediate_texture, graphics::TextureFilter::Nearest);
+		graphics::set_texture_filter(texture, graphics::Filter::Nearest);
+		graphics::set_texture_filter(intermediate_texture, graphics::Filter::Nearest);
 		graphics::release_temporary_framebuffer(intermediate_framebuffer);
 	}
 

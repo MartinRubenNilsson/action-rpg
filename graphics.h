@@ -7,7 +7,7 @@ namespace graphics
 	struct Texture;
 	struct Framebuffer;
 
-	enum class TextureFilter
+	enum class Filter
 	{
 		Nearest, // Sample nearest texel
 		Linear, // Linear interpolation between texels
@@ -87,8 +87,8 @@ namespace graphics
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src);
 
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
-	void set_texture_filter(Handle<Texture> handle, TextureFilter filter);
-	TextureFilter get_texture_filter(Handle<Texture> handle);
+	void set_texture_filter(Handle<Texture> handle, Filter filter);
+	Filter get_texture_filter(Handle<Texture> handle);
 
 	// FRAMEBUFFER
 
