@@ -2,6 +2,7 @@
 #include "ui_textbox.h"
 #include "ui_bindings.h"
 #include "audio.h"
+#include <deque>
 
 namespace ui
 {

@@ -2,6 +2,7 @@
 #include "console.h"
 #include "console_commands.h"
 #include "window_events.h"
+#include <deque> // TODO: use a ringbuffer instead
 
 namespace console
 {
@@ -17,10 +18,10 @@ namespace console
 	std::stringstream _cout_stream;
 	std::stringstream _cerr_stream;
 	std::string _command_line;
-	std::deque<std::string> _command_queue;
-	std::deque<std::string> _command_history;
-	std::deque<std::string>::iterator _command_history_it = _command_history.end();
-	std::deque<std::pair<std::string, Color>> _history;
+	std::deque<std::string> _command_queue; // TODO: use a ringbuffer instead
+	std::deque<std::string> _command_history; // TODO: use a ringbuffer instead
+	std::deque<std::string>::iterator _command_history_it = _command_history.end(); // TODO: use a ringbuffer instead
+	std::deque<std::pair<std::string, Color>> _history; // TODO: use a ringbuffer instead
 	std::unordered_map<window::Key, std::string> _key_bindings;
 
 #ifdef DEBUG_IMGUI

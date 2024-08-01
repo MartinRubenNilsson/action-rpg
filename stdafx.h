@@ -1,7 +1,6 @@
 #pragma once
 #include "config.h"
 
-#include <deque>
 #include <fstream>
 #include <queue>
 #include <ranges>
