@@ -427,7 +427,7 @@ namespace ecs
 			graphics::bind_texture(1, lut1_texture);
 			graphics::bind_texture(2, lut2_texture);
 
-			graphics::draw_triangles(3);
+			graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 		}
 
 		graphics::destroy_texture(ch.texture);

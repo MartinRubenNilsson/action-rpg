@@ -87,7 +87,7 @@ namespace postprocessing
 			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
 			graphics::bind_framebuffer(intermediate_framebuffer);
-			graphics::draw_triangles(3);
+			graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 
 			// Interchange framebuffers
 			graphics::release_temporary_framebuffer(framebuffer);
@@ -124,7 +124,7 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
 		graphics::bind_framebuffer(intermediate_framebuffer);
-		graphics::draw_triangles(3);
+		graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 
 		// Cleanup
 		graphics::release_temporary_framebuffer(framebuffer);
@@ -157,7 +157,7 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
 		graphics::bind_framebuffer(intermediate_framebuffer);
-		graphics::draw_triangles(3);
+		graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 
 		// Cleanup
 		graphics::release_temporary_framebuffer(framebuffer);
@@ -202,14 +202,14 @@ namespace postprocessing
 			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
 			graphics::bind_framebuffer(intermediate_framebuffer);
-			graphics::draw_triangles(3);
+			graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
 			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
 			graphics::bind_framebuffer(framebuffer);
-			graphics::draw_triangles(3);
+			graphics::draw_triangles(3); // draw a fullscreen-covering triangle
 		}
 
 		// Cleanup
