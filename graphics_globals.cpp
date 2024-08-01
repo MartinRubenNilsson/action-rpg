@@ -30,7 +30,7 @@ namespace graphics
 			"assets/shaders/sprite.vert",
 			"assets/shaders/sprite.frag");
 		fullscreen_shader = load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/fullscreen.frag");
 		shape_shader = load_shader(
 			"assets/shaders/shape.vert",

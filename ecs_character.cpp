@@ -358,7 +358,7 @@ namespace ecs
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/bake_character.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 

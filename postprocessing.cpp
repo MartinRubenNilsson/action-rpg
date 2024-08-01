@@ -59,7 +59,7 @@ namespace postprocessing
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/shockwave.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
@@ -103,7 +103,7 @@ namespace postprocessing
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/darkness.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
@@ -138,7 +138,7 @@ namespace postprocessing
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/screen_transition.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
@@ -171,11 +171,11 @@ namespace postprocessing
 
 		// Load shaders
 		const Handle<graphics::Shader> shader_hor = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/gaussian_blur_hor.frag");
 		if (shader_hor == Handle<graphics::Shader>()) return;
 		const Handle<graphics::Shader> shader_ver = graphics::load_shader(
-			"assets/shaders/fullscreen_triangle.vert",
+			"assets/shaders/fullscreen.vert",
 			"assets/shaders/gaussian_blur_ver.frag");
 		if (shader_ver == Handle<graphics::Shader>()) return;
 
