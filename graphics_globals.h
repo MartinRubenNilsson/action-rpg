@@ -13,6 +13,7 @@ namespace graphics
 	extern Handle<Shader> sprite_shader;
 	extern Handle<Shader> fullscreen_shader;
 	extern Handle<Shader> shape_shader;
+	extern Handle<Shader> text_shader;
 	extern Handle<Shader> ui_shader;
 
 	extern Handle<UniformBuffer> frame_uniforms;

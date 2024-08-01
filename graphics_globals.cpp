@@ -4,9 +4,9 @@
 
 namespace graphics
 {
-	enum UNIFORM_BUFFER_INDEX
+	enum UNIFORM_BUFFER_BINDING
 	{
-		UNIFORM_BUFFER_INDEX_FRAME = 0,
+		UNIFORM_BUFFER_BINDING_FRAME = 0,
 	};
 
 	extern const float IDENTITY_MATRIX[16] = {
@@ -19,6 +19,7 @@ namespace graphics
 	Handle<Shader> sprite_shader;
 	Handle<Shader> fullscreen_shader;
 	Handle<Shader> shape_shader;
+	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
 	Handle<UniformBuffer> frame_uniforms;
@@ -34,6 +35,9 @@ namespace graphics
 		shape_shader = load_shader(
 			"assets/shaders/shape.vert",
 			"assets/shaders/shape.frag");
+		text_shader = load_shader(
+			"assets/shaders/sprite.vert",
+			"assets/shaders/text.frag");
 		ui_shader = load_shader(
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
@@ -42,6 +46,6 @@ namespace graphics
 			.debug_name = "frame constant buffer",
 			.size = sizeof(FrameUniforms) });
 
-		bind_uniform_buffer(UNIFORM_BUFFER_INDEX_FRAME, frame_uniforms);
+		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniforms);
 	}
 }

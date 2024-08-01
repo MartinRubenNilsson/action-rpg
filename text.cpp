@@ -2,6 +2,7 @@
 #include "text.h"
 #include "fonts.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 namespace text
 {
@@ -62,11 +63,7 @@ namespace text
             vertex.position += text.position;
 		}
 
-        const Handle<graphics::Shader> shader = graphics::load_shader(
-            "assets/shaders/sprite.vert",
-            "assets/shaders/text.frag");
-        if (shader == Handle<graphics::Shader>()) return;
-        graphics::bind_shader(shader);
+        graphics::bind_shader(graphics::text_shader);
         graphics::bind_texture(0, fonts::get_atlas_texture(text.font));
         graphics::draw_triangles(vertices.data(), (unsigned int)vertices.size());
 	}
