@@ -14,7 +14,7 @@ namespace window
 	
 	void _error_callback(int error, const char* description)
 	{
-		console::log_error(std::format("GLFW error {}: {}", error, description));
+		console::log_error("GLFW error: "s + description);
 	}
 
 	void _window_close_callback(GLFWwindow* window)

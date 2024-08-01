@@ -2,7 +2,6 @@
 #include "config.h"
 
 #include <deque>
-#include <format>
 #include <fstream>
 #include <queue>
 #include <ranges>

@@ -93,7 +93,7 @@ namespace graphics
 	{
 		if (type == GL_DEBUG_TYPE_PUSH_GROUP) return;
 		if (type == GL_DEBUG_TYPE_POP_GROUP) return;
-		console::log_error(std::format("OpenGL: {}", message));
+		console::log_error("OpenGL: "s + message);
 	}
 #endif
 

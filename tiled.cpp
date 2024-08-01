@@ -216,7 +216,7 @@ namespace tiled
 					memcpy(layer.tiles.data(), compressed_data.data(), layer.tiles.size() * sizeof(unsigned int));
 				} else {
 					console::log_error(
-						"Unknown Tiled map tile layer compression: " + std::string(compression) + "\n"
+						"Unknown Tiled map tile layer compression: "s + compression + "\n"
 						"  Map: " + map.path + "\n"
 						"  Layer: " + layer.name);
 				}
