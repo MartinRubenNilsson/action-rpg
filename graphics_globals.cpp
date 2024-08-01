@@ -21,7 +21,7 @@ namespace graphics
 	Handle<Shader> shape_shader;
 	Handle<Shader> ui_shader;
 
-	Handle<ConstantBuffer> frame_constants;
+	Handle<UniformBuffer> frame_uniforms;
 
 	void initialize_globals()
 	{
@@ -38,10 +38,10 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
-		frame_constants = create_constant_buffer({
+		frame_uniforms = create_uniform_buffer({
 			.debug_name = "frame constant buffer",
-			.size = sizeof(FrameConstants) });
+			.size = sizeof(FrameUniforms) });
 
-		bind_constant_buffer(UNIFORM_BUFFER_INDEX_FRAME, frame_constants);
+		bind_uniform_buffer(UNIFORM_BUFFER_INDEX_FRAME, frame_uniforms);
 	}
 }

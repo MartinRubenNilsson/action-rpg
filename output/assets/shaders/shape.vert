@@ -1,6 +1,6 @@
 #version 430
 
-layout (std140, binding = 0) uniform frame_constants
+layout (std140, binding = 0) uniform FrameUniforms
 {
 	mat4 view_proj_matrix;
 };

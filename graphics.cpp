@@ -30,7 +30,7 @@ namespace graphics
 		GLuint program_object = 0;
 	};
 
-	struct ConstantBuffer
+	struct UniformBuffer
 	{
 		std::string debug_name;
 		unsigned int size = 0;
@@ -63,7 +63,7 @@ namespace graphics
 	GLuint _element_buffer_object = 0;
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
-	Pool<ConstantBuffer> _constant_buffer_pool;
+	Pool<UniformBuffer> _uniform_buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
 	Pool<RenderTarget> _render_target_pool;
@@ -190,7 +190,7 @@ namespace graphics
 
 		// DELETE CONSTANT BUFFERS
 
-		for (const ConstantBuffer& constant_buffer : _constant_buffer_pool.span()) {
+		for (const UniformBuffer& constant_buffer : _uniform_buffer_pool.span()) {
 			glDeleteBuffers(1, &constant_buffer.uniform_buffer_object);
 		}
 
@@ -464,7 +464,7 @@ namespace graphics
 		}
 	}
 
-	Handle<ConstantBuffer> create_constant_buffer(const ConstantBufferDesc&& desc)
+	Handle<UniformBuffer> create_uniform_buffer(const UniformBufferDesc&& desc)
 	{
 		GLuint uniform_buffer_object;
 		glGenBuffers(1, &uniform_buffer_object);
@@ -472,32 +472,32 @@ namespace graphics
 		glBufferData(GL_UNIFORM_BUFFER, desc.size, desc.initial_data, GL_DYNAMIC_DRAW);
 		_set_debug_label(GL_BUFFER, uniform_buffer_object, desc.debug_name);
 
-		ConstantBuffer constant_buffer{};
+		UniformBuffer constant_buffer{};
 		constant_buffer.debug_name = desc.debug_name;
 		constant_buffer.size = desc.size;
 		constant_buffer.uniform_buffer_object = uniform_buffer_object;
 
-		return _constant_buffer_pool.emplace(std::move(constant_buffer));
+		return _uniform_buffer_pool.emplace(std::move(constant_buffer));
 	}
 
-	void update_constant_buffer(Handle<ConstantBuffer> handle, const void* data, unsigned int size)
+	void update_uniform_buffer(Handle<UniformBuffer> handle, const void* data, unsigned int size)
 	{
 		if (!data || !size) return;
-		ConstantBuffer* constant_buffer = _constant_buffer_pool.get(handle);
+		UniformBuffer* constant_buffer = _uniform_buffer_pool.get(handle);
 		if (!constant_buffer) return;
 		if (size != constant_buffer->size) return;
 		glBindBuffer(GL_UNIFORM_BUFFER, constant_buffer->uniform_buffer_object);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 
-	void bind_constant_buffer(unsigned int binding, Handle<ConstantBuffer> handle)
+	void bind_uniform_buffer(unsigned int binding, Handle<UniformBuffer> handle)
 	{
-		if (const ConstantBuffer* constant_buffer = _constant_buffer_pool.get(handle)) {
+		if (const UniformBuffer* constant_buffer = _uniform_buffer_pool.get(handle)) {
 			glBindBufferBase(GL_UNIFORM_BUFFER, binding, constant_buffer->uniform_buffer_object);
 		}
 	}
 
-	void unbind_constant_buffer(unsigned int binding)
+	void unbind_uniform_buffer(unsigned int binding)
 	{
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}

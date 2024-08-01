@@ -241,10 +241,10 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::FrameConstants frame_constants{};
-            memcpy(frame_constants.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
+            graphics::FrameUniforms FrameUniforms{};
+            memcpy(FrameUniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
 
-            graphics::update_constant_buffer(graphics::frame_constants, &frame_constants, sizeof(frame_constants));
+            graphics::update_uniform_buffer(graphics::frame_uniforms, &FrameUniforms, sizeof(FrameUniforms));
         }
 
         Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(
