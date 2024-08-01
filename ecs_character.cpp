@@ -362,16 +362,16 @@ namespace ecs
 			"assets/shaders/bake_character.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
-		// Aquire render target
-		const Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(1024, 1024);
-		if (render_target == Handle<graphics::RenderTarget>()) return;
+		// Aquire framebuffer
+		const Handle<graphics::Framebuffer> framebuffer = graphics::aquire_temporary_framebuffer(1024, 1024);
+		if (framebuffer == Handle<graphics::Framebuffer>()) return;
 
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		graphics::set_viewport(0, 0, 1024, 1024);
 
-		graphics::bind_render_target(render_target);
-		graphics::clear_render_target(0.f, 0.f, 0.f, 0.f);
+		graphics::bind_framebuffer(framebuffer);
+		graphics::clear_framebuffer(0.f, 0.f, 0.f, 0.f);
 
 		graphics::bind_shader(shader);
 
@@ -431,8 +431,8 @@ namespace ecs
 		}
 
 		graphics::destroy_texture(ch.texture);
-		ch.texture = graphics::copy_texture(graphics::get_render_target_texture(render_target));
-		graphics::release_temporary_render_target(render_target);
+		ch.texture = graphics::copy_texture(graphics::get_framebuffer_texture(framebuffer));
+		graphics::release_temporary_framebuffer(framebuffer);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 	}
 }

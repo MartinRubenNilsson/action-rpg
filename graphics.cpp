@@ -48,9 +48,9 @@ namespace graphics
 		TextureFilter filter = TextureFilter::Nearest;
 	};
 
-	struct RenderTarget
+	struct Framebuffer
 	{
-		std::string name; // unique name
+		std::string debug_name;
 		Handle<Texture> texture;
 		GLuint framebuffer_object = 0;
 		bool is_temporary = false;
@@ -66,21 +66,10 @@ namespace graphics
 	Pool<UniformBuffer> _uniform_buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
-	Pool<RenderTarget> _render_target_pool;
-	std::unordered_map<std::string, Handle<RenderTarget>> _render_target_name_to_handle;
-	std::vector<Handle<RenderTarget>> _temporary_render_targets;
+	Pool<Framebuffer> _framebuffer_pool;
+	std::vector<Handle<Framebuffer>> _temporary_framebuffers;
 	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
-
-	template <class NameContainer>
-	std::string _generate_unique_name(const NameContainer& name_container, const std::string& name_hint)
-	{
-		std::string name = name_hint;
-		for (int i = 1; name_container.contains(name); i++) {
-			name = name_hint + " (" + std::to_string(i) + ")";
-		}
-		return name;
-	}
 
 	const ShaderUniform* _get_shader_uniform(const std::vector<ShaderUniform> &uniforms, std::string_view name)
 	{
@@ -204,14 +193,13 @@ namespace graphics
 		_texture_pool.clear();
 		_texture_path_to_handle.clear();
 
-		// DELETE RENDER TARGETS
+		// DELETE FRAMEBUFFERS
 
-		for (const RenderTarget& render_target : _render_target_pool.span()) {
-			glDeleteFramebuffers(1, &render_target.framebuffer_object);
+		for (const Framebuffer& framebuffer : _framebuffer_pool.span()) {
+			glDeleteFramebuffers(1, &framebuffer.framebuffer_object);
 		}
-		_render_target_pool.clear();
-		_render_target_name_to_handle.clear();
-		_temporary_render_targets.clear();
+		_framebuffer_pool.clear();
+		_temporary_framebuffers.clear();
 	}
 
 	Handle<Shader> create_shader(const ShaderDesc&& desc)
@@ -689,22 +677,20 @@ namespace graphics
 		return texture ? texture->filter : TextureFilter::Nearest;
 	}
 
-	Handle<RenderTarget> create_render_target(
-		unsigned int width,
-		unsigned int height,
-		const std::string& name_hint)
+	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
 	{
 		// CREATE TEXTURE
 
-		const std::string texture_debug_name = name_hint + " texture";
+		const std::string texture_debug_name = std::string(desc.debug_name) + " texture";
 		const Handle<Texture> texture_handle = create_texture({
 			.debug_name = texture_debug_name,
-			.width = width,
-			.height = height });
+			.width = desc.width,
+			.height = desc.height });
+
 		const Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) {
-			console::log_error("Failed to create render target: " + name_hint);
-			return Handle<RenderTarget>();
+			console::log_error("Failed to create framebuffer: " + std::string(desc.debug_name));
+			return Handle<Framebuffer>();
 		}
 
 		// SAVE CURRENT FRAMEBUFFER OBJECT
@@ -727,73 +713,70 @@ namespace graphics
 		// CHECK COMPLETENESS
 
 		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE) {
-			console::log_error("Failed to create render target: " + name_hint);
+			console::log_error("Failed to create framebuffer: " + std::string(desc.debug_name));
 			glDeleteFramebuffers(1, &framebuffer_object);
 			destroy_texture(texture_handle);
-			return Handle<RenderTarget>();
+			return Handle<Framebuffer>();
 		}
 
 		// STORE RENDER TARGET
 
-		RenderTarget render_target{};
-		render_target.name = _generate_unique_name(_render_target_name_to_handle, name_hint);
-		render_target.texture = texture_handle;
-		render_target.framebuffer_object = framebuffer_object;
-		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, render_target.name);
+		Framebuffer framebuffer{};
+		framebuffer.debug_name = desc.debug_name;
+		framebuffer.texture = texture_handle;
+		framebuffer.framebuffer_object = framebuffer_object;
+		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, desc.debug_name);
 
-		const Handle<RenderTarget> target_handle = _render_target_pool.emplace(render_target);
-		_render_target_name_to_handle[render_target.name] = target_handle;
-
-		return target_handle;
+		return  _framebuffer_pool.emplace(std::move(framebuffer));
 	}
 
-	Handle<RenderTarget> aquire_temporary_render_target(unsigned int width, unsigned int height)
+	Handle<Framebuffer> aquire_temporary_framebuffer(unsigned int width, unsigned int height)
 	{
-		for (size_t i = 0; i < _temporary_render_targets.size(); ++i) {
-			const Handle<RenderTarget> handle = _temporary_render_targets[i];
-			const RenderTarget* render_target = _render_target_pool.get(handle);
-			if (!render_target) continue;
-			const Texture* texture = _texture_pool.get(render_target->texture);
+		for (size_t i = 0; i < _temporary_framebuffers.size(); ++i) {
+			const Handle<Framebuffer> handle = _temporary_framebuffers[i];
+			const Framebuffer* framebuffer = _framebuffer_pool.get(handle);
+			if (!framebuffer) continue;
+			const Texture* texture = _texture_pool.get(framebuffer->texture);
 			if (!texture) continue;
 			if (texture->width != width) continue;
 			if (texture->height != height) continue;
-			std::swap(_temporary_render_targets[i], _temporary_render_targets.back());
-			_temporary_render_targets.pop_back();
+			std::swap(_temporary_framebuffers[i], _temporary_framebuffers.back());
+			_temporary_framebuffers.pop_back();
 			return handle;
 		}
-		std::string name_hint = "temporary render target " + std::to_string(width) + "x" + std::to_string(height);
-		return create_render_target(width, height, name_hint);
+		std::string debug_name = "temporary framebuffer " + std::to_string(width) + "x" + std::to_string(height);
+		return create_framebuffer({ .debug_name = debug_name, .width = width, .height = height });
 	}
 
-	void release_temporary_render_target(Handle<RenderTarget> handle)
+	void release_temporary_framebuffer(Handle<Framebuffer> handle)
 	{
-		_temporary_render_targets.push_back(handle);
+		_temporary_framebuffers.push_back(handle);
 	}
 
-	void bind_window_render_target()
+	void bind_window_framebuffer()
 	{
 		// The default framebuffer is the framebuffer of the window and has name 0.
 		// It is created at the same time as the OpenGL context.
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void bind_render_target(Handle<RenderTarget> handle)
+	void bind_framebuffer(Handle<Framebuffer> handle)
 	{
-		if (const RenderTarget* render_target = _render_target_pool.get(handle)) {
-			glBindFramebuffer(GL_FRAMEBUFFER, render_target->framebuffer_object);
+		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
+			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->framebuffer_object);
 		}
 	}
 
-	void clear_render_target(float r, float g, float b, float a)
+	void clear_framebuffer(float r, float g, float b, float a)
 	{
 		glClearColor(r, g, b, a);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	Handle<Texture> get_render_target_texture(Handle<RenderTarget> handle)
+	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle)
 	{
-		if (const RenderTarget* render_target = _render_target_pool.get(handle)) {
-			return render_target->texture;
+		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
+			return framebuffer->texture;
 		}
 		return Handle<Texture>();
 	}

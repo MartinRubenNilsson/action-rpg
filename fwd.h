@@ -12,7 +12,7 @@ namespace graphics
 	struct Shader;
 	struct UniformBuffer;
 	struct Texture;
-	struct RenderTarget;
+	struct Framebuffer;
 }
 
 namespace fonts

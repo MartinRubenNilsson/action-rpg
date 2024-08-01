@@ -52,7 +52,7 @@ namespace postprocessing
 		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_shockwaves(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
 		graphics::ScopedDebugGroup debug_group("Shockwaves");
@@ -64,7 +64,7 @@ namespace postprocessing
 		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
+		Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
@@ -74,9 +74,9 @@ namespace postprocessing
 
 		for (const Shockwave& shockwave : _shockwaves) {
 
-			// Aquire intermediate render target
-			const Handle<graphics::RenderTarget> intermediate_target =
-				graphics::aquire_temporary_render_target(width, height);
+			// Aquire intermediate framebuffer
+			const Handle<graphics::Framebuffer> intermediate_framebuffer =
+				graphics::aquire_temporary_framebuffer(width, height);
 
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
@@ -86,17 +86,17 @@ namespace postprocessing
 			graphics::set_uniform_1f(shader, "size", shockwave.size);
 			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
-			graphics::bind_render_target(intermediate_target);
+			graphics::bind_framebuffer(intermediate_framebuffer);
 			graphics::draw_triangles(3);
 
-			// Interchange render targets
-			graphics::release_temporary_render_target(target);
-			target = intermediate_target;
-			texture = graphics::get_render_target_texture(target);
+			// Interchange framebuffers
+			graphics::release_temporary_framebuffer(framebuffer);
+			framebuffer = intermediate_framebuffer;
+			texture = graphics::get_framebuffer_texture(framebuffer);
 		}
 	}
 
-	void _render_darkness(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_darkness(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
 		graphics::ScopedDebugGroup debug_group("Darkness");
@@ -108,13 +108,13 @@ namespace postprocessing
 		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate render target
-		const Handle<graphics::RenderTarget> intermediate_target =
-			graphics::aquire_temporary_render_target(width, height);
+		// Aquire intermediate framebuffer
+		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+			graphics::aquire_temporary_framebuffer(width, height);
 
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
@@ -123,15 +123,15 @@ namespace postprocessing
 		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
-		graphics::bind_render_target(intermediate_target);
+		graphics::bind_framebuffer(intermediate_framebuffer);
 		graphics::draw_triangles(3);
 
 		// Cleanup
-		graphics::release_temporary_render_target(target);
-		target = intermediate_target;
+		graphics::release_temporary_framebuffer(framebuffer);
+		framebuffer = intermediate_framebuffer;
 	}
 
-	void _render_screen_transition(Handle<graphics::RenderTarget>& target)
+	void _render_screen_transition(Handle<graphics::Framebuffer>& framebuffer)
 	{
 		if (_screen_transition_progress == 0.f) return;
 		graphics::ScopedDebugGroup debug_group("Screen transition");
@@ -143,28 +143,28 @@ namespace postprocessing
 		if (shader == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate render target
-		const Handle<graphics::RenderTarget> intermediate_target =
-			graphics::aquire_temporary_render_target(width, height);
+		// Aquire intermediate framebuffer
+		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+			graphics::aquire_temporary_framebuffer(width, height);
 
 		// Render screen transition
 		graphics::bind_shader(shader);
 		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
-		graphics::bind_render_target(intermediate_target);
+		graphics::bind_framebuffer(intermediate_framebuffer);
 		graphics::draw_triangles(3);
 
 		// Cleanup
-		graphics::release_temporary_render_target(target);
-		target = intermediate_target;
+		graphics::release_temporary_framebuffer(framebuffer);
+		framebuffer = intermediate_framebuffer;
 	}
 
-	void _render_gaussian_blur(Handle<graphics::RenderTarget>& target)
+	void _render_gaussian_blur(Handle<graphics::Framebuffer>& framebuffer)
 	{
 		if (_gaussian_blur_iterations == 0) return;
 		graphics::ScopedDebugGroup debug_group("Gaussian blur");
@@ -180,15 +180,15 @@ namespace postprocessing
 		if (shader_ver == Handle<graphics::Shader>()) return;
 
 		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_render_target_texture(target);
+		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate render target
-		const Handle<graphics::RenderTarget> intermediate_target =
-			graphics::aquire_temporary_render_target(width, height);
+		// Aquire intermediate framebuffer
+		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+			graphics::aquire_temporary_framebuffer(width, height);
 		const Handle<graphics::Texture> intermediate_texture =
-			graphics::get_render_target_texture(intermediate_target);
+			graphics::get_framebuffer_texture(intermediate_framebuffer);
 
 		// Set linear filtering
 		graphics::set_texture_filter(texture, graphics::TextureFilter::Linear);
@@ -201,33 +201,34 @@ namespace postprocessing
 			graphics::bind_shader(shader_hor);
 			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
-			graphics::bind_render_target(intermediate_target);
+			graphics::bind_framebuffer(intermediate_framebuffer);
 			graphics::draw_triangles(3);
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
 			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, intermediate_texture);
-			graphics::bind_render_target(target);
+			graphics::bind_framebuffer(framebuffer);
 			graphics::draw_triangles(3);
 		}
 
 		// Cleanup
 		graphics::set_texture_filter(texture, graphics::TextureFilter::Nearest);
 		graphics::set_texture_filter(intermediate_texture, graphics::TextureFilter::Nearest);
-		graphics::release_temporary_render_target(intermediate_target);
+		graphics::release_temporary_framebuffer(intermediate_framebuffer);
 	}
 
-	void render(Handle<graphics::RenderTarget>& target, const Vector2f& camera_min, const Vector2f& camera_max)
+	void render(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group("Postprocessing");
-		_render_shockwaves(target, camera_min, camera_max);
-		_render_darkness(target, camera_min, camera_max);
-		_render_screen_transition(target);
-		_render_gaussian_blur(target);
+		_render_shockwaves(framebuffer, camera_min, camera_max);
+		_render_darkness(framebuffer, camera_min, camera_max);
+		_render_screen_transition(framebuffer);
+		_render_gaussian_blur(framebuffer);
 	}
 
-	void set_pixel_scale(float scale) {
+	void set_pixel_scale(float scale)
+	{
 		_pixel_scale = std::max(scale, 0.1f);
 	}
 
@@ -241,19 +242,23 @@ namespace postprocessing
 		_shockwaves.push_back(shockwave);
 	}
 
-	void set_darkness_intensity(float intensity) {
+	void set_darkness_intensity(float intensity)
+	{
 		_darkness_intensity = std::clamp(intensity, 0.f, 1.f);
 	}
 
-	void set_darkness_center(const Vector2f& position_in_world_space) {
+	void set_darkness_center(const Vector2f& position_in_world_space)
+	{
 		_darkness_center_ws = position_in_world_space;
 	}
 
-	void set_screen_transition_progress(float progress) {
+	void set_screen_transition_progress(float progress)
+	{
 		_screen_transition_progress = std::clamp(progress, -1.f, 1.f);
 	}
 
-	void set_gaussian_blur_iterations(size_t iterations) {
+	void set_gaussian_blur_iterations(size_t iterations)
+	{
 		_gaussian_blur_iterations = std::min(iterations, MAX_GAUSSIAN_BLUR_ITERATIONS);
 	}
 }

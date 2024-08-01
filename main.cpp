@@ -241,16 +241,15 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::FrameUniforms FrameUniforms{};
-            memcpy(FrameUniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
-
-            graphics::update_uniform_buffer(graphics::frame_uniforms, &FrameUniforms, sizeof(FrameUniforms));
+            graphics::FrameUniforms frame_uniforms{};
+            memcpy(frame_uniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
+            graphics::update_uniform_buffer(graphics::frame_uniforms, &frame_uniforms, sizeof(frame_uniforms));
         }
 
-        Handle<graphics::RenderTarget> render_target = graphics::aquire_temporary_render_target(
+        Handle<graphics::Framebuffer> framebuffer = graphics::aquire_temporary_framebuffer(
             window_framebuffer_width, window_framebuffer_height);
-        graphics::bind_render_target(render_target);
-        graphics::clear_render_target(0.f, 0.f, 0.f, 1.f);
+        graphics::bind_framebuffer(framebuffer);
+        graphics::clear_framebuffer(0.f, 0.f, 0.f, 1.f);
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
         background::render_sprites(camera_min, camera_max);
         ecs::render_sprites(camera_min, camera_max);
@@ -268,7 +267,7 @@ int main(int argc, char* argv[])
         postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
         postprocessing::set_pixel_scale(pixel_scale);
-        postprocessing::render(render_target, camera_min, camera_max);
+        postprocessing::render(framebuffer, camera_min, camera_max);
 
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
@@ -322,11 +321,11 @@ int main(int argc, char* argv[])
 #endif
         {
             graphics::ScopedDebugGroup debug_group("Window");
-            graphics::bind_window_render_target();
+            graphics::bind_window_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
-            graphics::bind_texture(0, graphics::get_render_target_texture(render_target));
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(framebuffer));
             graphics::draw_triangles(3);
-            graphics::release_temporary_render_target(render_target);
+            graphics::release_temporary_framebuffer(framebuffer);
         }
 
         window::swap_buffers();

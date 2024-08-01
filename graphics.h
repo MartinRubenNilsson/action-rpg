@@ -5,7 +5,7 @@ namespace graphics
 	struct Shader;
 	struct UniformBuffer;
 	struct Texture;
-	struct RenderTarget;
+	struct Framebuffer;
 
 	enum class TextureFilter
 	{
@@ -90,21 +90,24 @@ namespace graphics
 	void set_texture_filter(Handle<Texture> handle, TextureFilter filter);
 	TextureFilter get_texture_filter(Handle<Texture> handle);
 
-	// RENDER TARGETS
+	// FRAMEBUFFER
 
-	Handle<RenderTarget> create_render_target(
-		unsigned int width,
-		unsigned int height,
-		const std::string& name_hint = "render target");
-	Handle<RenderTarget> aquire_temporary_render_target(unsigned int width, unsigned int height);
-	void release_temporary_render_target(Handle<RenderTarget> handle);
+	struct FramebufferDesc
+	{
+		std::string_view debug_name = "framebuffer";
+		unsigned int width = 0;
+		unsigned int height = 0;
+	};
 
-	void bind_window_render_target();
-	void bind_render_target(Handle<RenderTarget> handle);
+	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
+	Handle<Framebuffer> aquire_temporary_framebuffer(unsigned int width, unsigned int height);
+	void release_temporary_framebuffer(Handle<Framebuffer> handle);
 
-	// IMPORTANT: You need to bind the render target before calling clear_render_target()!
-	void clear_render_target(float r, float g, float b, float a);
-	Handle<Texture> get_render_target_texture(Handle<RenderTarget> handle);
+	void bind_window_framebuffer();
+	void bind_framebuffer(Handle<Framebuffer> handle);
+
+	void clear_framebuffer(float r, float g, float b, float a); // Clears the currently bound framebuffer.
+	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
 	// FIXED-FUNCTION PIPELINE
 

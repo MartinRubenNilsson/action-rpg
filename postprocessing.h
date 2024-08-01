@@ -9,14 +9,14 @@ namespace postprocessing
 	// 3. Screen transition
 	// 4. Gaussian blur
 	// 
-	// Some postprocessing effects use intermediate render targets, which
-	// are pooled and reused for efficiency. This includes the target you
-	// pass to render(), meaning that you may get a different target back!
+	// Some postprocessing effects use intermediate framebuffers, which
+	// are pooled and reused for efficiency. This includes the framebuffer you
+	// pass to render(), meaning that you may get a different framebuffer back!
 
 	extern const size_t MAX_GAUSSIAN_BLUR_ITERATIONS;
 
 	void update(float dt);
-	void render(Handle<graphics::RenderTarget>& target, const Vector2f &camera_min, const Vector2f& camera_max);
+	void render(Handle<graphics::Framebuffer>& framebuffer, const Vector2f &camera_min, const Vector2f& camera_max);
 
 	void set_pixel_scale(float scale);
 	void create_shockwave(const Vector2f& position_ws); // ws = world space
