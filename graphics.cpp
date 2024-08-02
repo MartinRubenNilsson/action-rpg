@@ -137,8 +137,9 @@ namespace graphics
 
 		glGenBuffers(1, &_vertex_buffer_object);
 		glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_object);
-		glBindVertexBuffer(0, _vertex_buffer_object, 0, sizeof(Vertex));
 		glBufferData(GL_ARRAY_BUFFER, _MAX_VERTEX_COUNT * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
+
+		glBindVertexBuffer(0, _vertex_buffer_object, 0, sizeof(Vertex));
 
 		// CREATE AND BIND ELEMENT BUFFER
 
