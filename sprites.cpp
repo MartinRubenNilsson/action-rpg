@@ -50,7 +50,7 @@ namespace sprites
 	{
 		graphics::bind_shader(shader);
 		graphics::bind_texture(0, texture);
-		graphics::draw(graphics::PrimitiveTopology::TriangleStrip, _batch_vertex_buffer, _batch_vertices);
+		graphics::draw(graphics::Primitives::TriangleStrip, _batch_vertex_buffer, _batch_vertices);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;

@@ -324,7 +324,7 @@ int main(int argc, char* argv[])
             graphics::bind_window_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::bind_texture(0, graphics::get_framebuffer_texture(framebuffer));
-            graphics::draw(graphics::PrimitiveTopology::TriangleList, 3); // draw a fullscreen-covering triangle
+            graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
             graphics::release_temporary_framebuffer(framebuffer);
         }
 

@@ -144,7 +144,7 @@ namespace shapes
 			_vertices[2 * l + 1].position = line.p2;
 			_vertices[2 * l + 1].color = line.color;
 		}
-		graphics::draw(graphics::PrimitiveTopology::LineList, _vertices.data(), (unsigned int)_vertices.size());
+		graphics::draw(graphics::Primitives::LineList, _vertices.data(), (unsigned int)_vertices.size());
 	}
 
 	void _render_boxes()
@@ -162,7 +162,7 @@ namespace shapes
 			vertices[2].color = box.color;
 			vertices[3].color = box.color;
 			vertices[4] = vertices[0];
-			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, std::size(vertices));
+			graphics::draw(graphics::Primitives::LineStrip, vertices, std::size(vertices));
 		}
 	}
 
@@ -178,7 +178,7 @@ namespace shapes
 			}
 			vertices[polygon.count].position = polygon.points[0];
 			vertices[polygon.count].color = polygon.color;
-			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, polygon.count + 1);
+			graphics::draw(graphics::Primitives::LineStrip, vertices, polygon.count + 1);
 		}
 	}
 
@@ -196,7 +196,7 @@ namespace shapes
 				vertices[i].color = circle.color;
 			}
 			vertices[SUBDIVISIONS] = vertices[0];
-			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, std::size(vertices));
+			graphics::draw(graphics::Primitives::LineStrip, vertices, std::size(vertices));
 		}
 	}
 

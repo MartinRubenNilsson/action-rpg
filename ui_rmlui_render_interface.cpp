@@ -79,7 +79,7 @@ namespace ui
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
 		}
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
-		graphics::draw(graphics::PrimitiveTopology::TriangleList,
+		graphics::draw(graphics::Primitives::TriangleList,
 			(graphics::Vertex*)vertices, (unsigned int)num_vertices,
 			(unsigned int*)indices, (unsigned int)num_indices);
 	}

@@ -7,15 +7,6 @@ namespace graphics
 	struct Texture;
 	struct Framebuffer;
 
-	enum class PrimitiveTopology
-	{
-		PointList,
-		LineList,
-		LineStrip,
-		TriangleList,
-		TriangleStrip,
-	};
-
 	struct Vertex
 	{
 		Vector2f position;
@@ -130,9 +121,18 @@ namespace graphics
 
 	// DRAWING
 
-	void draw(PrimitiveTopology topology, unsigned int vertex_count);
-	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count);
-	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count);
+	enum class Primitives
+	{
+		PointList,
+		LineList,
+		LineStrip,
+		TriangleList,
+		TriangleStrip,
+	};
+
+	void draw(Primitives primitives, unsigned int vertex_count);
+	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count);
+	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count);
 
 	// DEBUGGING
 

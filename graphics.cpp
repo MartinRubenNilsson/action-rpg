@@ -842,41 +842,41 @@ namespace graphics
 		height = scissor_box[3];
 	}
 
-	GLenum _primitive_topology_to_mode(PrimitiveTopology topology)
+	GLenum _to_gl_primitives(Primitives primitives)
 	{
-		switch (topology) {
-		case PrimitiveTopology::PointList:     return GL_POINTS;
-		case PrimitiveTopology::LineList:      return GL_LINES;
-		case PrimitiveTopology::LineStrip:     return GL_LINE_STRIP;
-		case PrimitiveTopology::TriangleList:  return GL_TRIANGLES;
-		case PrimitiveTopology::TriangleStrip: return GL_TRIANGLE_STRIP;
+		switch (primitives) {
+		case Primitives::PointList:     return GL_POINTS;
+		case Primitives::LineList:      return GL_LINES;
+		case Primitives::LineStrip:     return GL_LINE_STRIP;
+		case Primitives::TriangleList:  return GL_TRIANGLES;
+		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
 		default:							   return 0; // should never happen
 		}
 	}
 
-	void draw(PrimitiveTopology topology, unsigned int vertex_count)
+	void draw(Primitives primitives, unsigned int vertex_count)
 	{
 		if (!vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
+		glDrawArrays(_to_gl_primitives(primitives), 0, vertex_count);
 	}
 
-	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count)
+	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
+		glDrawArrays(_to_gl_primitives(primitives), 0, vertex_count);
 	}
 
-	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count)
+	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count)
 	{
 		if (!vertices || !vertex_count || !indices || !index_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		index_count = std::min(index_count, _MAX_INDEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_count * sizeof(unsigned int), indices);
-		glDrawElements(_primitive_topology_to_mode(topology), index_count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void push_debug_group(std::string_view name)
