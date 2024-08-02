@@ -53,7 +53,6 @@ namespace graphics
 		std::string debug_name;
 		Handle<Texture> texture;
 		GLuint framebuffer_object = 0;
-		bool is_temporary = false;
 	};
 
 	constexpr unsigned int _MAX_VERTEX_COUNT = 65536;
