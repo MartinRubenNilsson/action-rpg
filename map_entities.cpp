@@ -357,8 +357,13 @@ namespace map
 		for (size_t layer_index = 0; layer_index < map.layers.size(); ++layer_index) {
 			const tiled::Layer& layer = map.layers[layer_index];
 			if (layer.type != tiled::LayerType::Tile) continue;
-			for (unsigned int y = 0; y < layer.height; y++) {
-				for (unsigned int x = 0; x < layer.width; x++) {
+			// OPTIMIZATION: When iterating through the view of all ecs::Tile components,
+			// EnTT returns them in reverse order. Let's therefore create them in reverse order
+			// (bottom-to-top and right-to-left) so that when we iterate we access them in
+			// approximate draw order (left-to-right and top-to-bottom). This makes it so
+			// we spend less time sorting them before rendering.
+			for (unsigned int y = layer.height; y--;) {
+				for (unsigned int x = layer.width; x--;) {
 
 					const tiled::TileRef tile_ref = layer.tiles[x + y * layer.width];
 					if (!tile_ref.gid) continue;
