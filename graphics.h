@@ -7,6 +7,15 @@ namespace graphics
 	struct Texture;
 	struct Framebuffer;
 
+	enum class PrimitiveTopology
+	{
+		PointList,
+		LineList,
+		LineStrip,
+		TriangleList,
+		TriangleStrip,
+	};
+
 	enum class Filter
 	{
 		Nearest, // Sample nearest texel
