@@ -65,6 +65,6 @@ namespace text
 
         graphics::bind_shader(graphics::text_shader);
         graphics::bind_texture(0, fonts::get_atlas_texture(text.font));
-        graphics::draw_triangle_list(vertices.data(), (unsigned int)vertices.size());
+        graphics::draw(graphics::PrimitiveTopology::TriangleList, vertices.data(), (unsigned int)vertices.size());
 	}
 }

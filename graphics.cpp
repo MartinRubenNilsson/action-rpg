@@ -858,31 +858,14 @@ namespace graphics
 		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
 	}
 
-	void draw_triangle_list(unsigned int vertex_count)
-	{
-		if (!vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
-	}
-
-	void draw_triangle_list(const Vertex* vertices, unsigned int vertex_count)
-	{
-		if (!vertices || !vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
-	}
-
-	void draw_triangle_list(
-		const Vertex* vertices, unsigned int vertex_count,
-		unsigned int* indices, unsigned int index_count)
+	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count)
 	{
 		if (!vertices || !vertex_count || !indices || !index_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		index_count = std::min(index_count, _MAX_INDEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_count * sizeof(unsigned int), indices);
-		glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(_primitive_topology_to_mode(topology), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void push_debug_group(std::string_view name)
