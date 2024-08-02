@@ -5,6 +5,7 @@
 #include "ecs_common.h"
 #include "ui_textbox.h"
 #include "audio.h"
+#include "shapes.h"
 
 namespace ecs
 {

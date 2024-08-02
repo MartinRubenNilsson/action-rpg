@@ -144,13 +144,13 @@ namespace shapes
 			_vertices[2 * l + 1].position = line.p2;
 			_vertices[2 * l + 1].color = line.color;
 		}
-		graphics::draw_lines(_vertices.data(), (unsigned int)_vertices.size());
+		graphics::draw(graphics::PrimitiveTopology::LineList, _vertices.data(), (unsigned int)_vertices.size());
 	}
 
 	void _render_boxes()
 	{
 		if (_boxes.empty()) return;
-		graphics::Vertex vertices[4];
+		graphics::Vertex vertices[5];
 		for (const Box& box : _boxes) {
 			if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
 			vertices[0].position = { box.min.x, box.min.y };
@@ -161,7 +161,8 @@ namespace shapes
 			vertices[1].color = box.color;
 			vertices[2].color = box.color;
 			vertices[3].color = box.color;
-			graphics::draw_line_loop(vertices, 4);
+			vertices[4] = vertices[0];
+			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, std::size(vertices));
 		}
 	}
 
@@ -177,24 +178,25 @@ namespace shapes
 			}
 			vertices[polygon.count].position = polygon.points[0];
 			vertices[polygon.count].color = polygon.color;
-			graphics::draw_line_strip(vertices, polygon.count + 1);
+			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, polygon.count + 1);
 		}
 	}
 
 	void _render_circles()
 	{
 		if (_circles.empty()) return;
-		constexpr unsigned int VERTEX_COUNT = 32;
-		constexpr float ANGLE_STEP = 6.283185307f / VERTEX_COUNT;
-		graphics::Vertex vertices[VERTEX_COUNT];
+		constexpr unsigned int SUBDIVISIONS = 32;
+		constexpr float ANGLE_STEP = 6.283185307f / SUBDIVISIONS;
+		graphics::Vertex vertices[SUBDIVISIONS + 1];
 		for (const Circle& circle : _circles) {
 			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
-			for (unsigned int i = 0; i < VERTEX_COUNT; ++i) {
+			for (unsigned int i = 0; i < SUBDIVISIONS; ++i) {
 				const float angle = i * ANGLE_STEP;
 				vertices[i].position = circle.center + circle.radius * Vector2f{ std::cos(angle), std::sin(angle) };
 				vertices[i].color = circle.color;
 			}
-			graphics::draw_line_loop(vertices, VERTEX_COUNT);
+			vertices[SUBDIVISIONS] = vertices[0];
+			graphics::draw(graphics::PrimitiveTopology::LineStrip, vertices, std::size(vertices));
 		}
 	}
 
@@ -240,11 +242,6 @@ namespace shapes
 	{
 		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
 		_circles.emplace_back(center, radius, color, lifetime);
-	}
-
-	void draw_text(const std::string& string, const Vector2f& position, float lifetime) {
-		//TODO: culling
-		_texts.emplace_back(string, position, lifetime);
 	}
 }
 

@@ -831,28 +831,31 @@ namespace graphics
 		height = scissor_box[3];
 	}
 
-	void draw_lines(const Vertex* vertices, unsigned int vertex_count)
+	GLenum _primitive_topology_to_mode(PrimitiveTopology topology)
 	{
-		if (!vertices || !vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(GL_LINES, 0, vertex_count);
+		switch (topology) {
+		case PrimitiveTopology::PointList:     return GL_POINTS;
+		case PrimitiveTopology::LineList:      return GL_LINES;
+		case PrimitiveTopology::LineStrip:     return GL_LINE_STRIP;
+		case PrimitiveTopology::TriangleList:  return GL_TRIANGLES;
+		case PrimitiveTopology::TriangleStrip: return GL_TRIANGLE_STRIP;
+		default:							   return 0; // should never happen
+		}
 	}
 
-	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count)
+	void draw(PrimitiveTopology topology, unsigned int vertex_count)
 	{
-		if (!vertices || !vertex_count) return;
+		if (!vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(GL_LINE_STRIP, 0, vertex_count);
+		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
 	}
 
-	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count)
+	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
+		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
 	}
 
 	void draw_triangle_strip(unsigned int vertex_count)
@@ -870,14 +873,14 @@ namespace graphics
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
 	}
 
-	void draw_triangles(unsigned int vertex_count)
+	void draw_triangle_list(unsigned int vertex_count)
 	{
 		if (!vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 	}
 
-	void draw_triangles(const Vertex* vertices, unsigned int vertex_count)
+	void draw_triangle_list(const Vertex* vertices, unsigned int vertex_count)
 	{
 		if (!vertices || !vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
@@ -885,7 +888,7 @@ namespace graphics
 		glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 	}
 
-	void draw_triangles(
+	void draw_triangle_list(
 		const Vertex* vertices, unsigned int vertex_count,
 		unsigned int* indices, unsigned int index_count)
 	{

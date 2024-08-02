@@ -129,14 +129,14 @@ namespace graphics
 
 	// DRAWING
 
-	void draw_lines(const Vertex* vertices, unsigned int vertex_count);
-	void draw_line_strip(const Vertex* vertices, unsigned int vertex_count);
-	void draw_line_loop(const Vertex* vertices, unsigned int vertex_count);
+	void draw(PrimitiveTopology topology, unsigned int vertex_count);
+	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count);
+
 	void draw_triangle_strip(unsigned int vertex_count);
 	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
-	void draw_triangles(unsigned int vertex_count);
-	void draw_triangles(const Vertex* vertices, unsigned int vertex_count);
-	void draw_triangles(
+	void draw_triangle_list(unsigned int vertex_count);
+	void draw_triangle_list(const Vertex* vertices, unsigned int vertex_count);
+	void draw_triangle_list(
 		const Vertex* vertices, unsigned int vertex_count,
 		unsigned int* indices, unsigned int index_count);
 
