@@ -186,8 +186,8 @@ namespace graphics
 
 		// DELETE CONSTANT BUFFERS
 
-		for (const UniformBuffer& constant_buffer : _uniform_buffer_pool.span()) {
-			glDeleteBuffers(1, &constant_buffer.uniform_buffer_object);
+		for (const UniformBuffer& uniform_buffer : _uniform_buffer_pool.span()) {
+			glDeleteBuffers(1, &uniform_buffer.uniform_buffer_object);
 		}
 
 		// DELETE TEXTURES
@@ -467,28 +467,28 @@ namespace graphics
 		glBufferData(GL_UNIFORM_BUFFER, desc.size, desc.initial_data, GL_DYNAMIC_DRAW);
 		_set_debug_label(GL_BUFFER, uniform_buffer_object, desc.debug_name);
 
-		UniformBuffer constant_buffer{};
-		constant_buffer.debug_name = desc.debug_name;
-		constant_buffer.size = desc.size;
-		constant_buffer.uniform_buffer_object = uniform_buffer_object;
+		UniformBuffer uniform_buffer{};
+		uniform_buffer.debug_name = desc.debug_name;
+		uniform_buffer.size = desc.size;
+		uniform_buffer.uniform_buffer_object = uniform_buffer_object;
 
-		return _uniform_buffer_pool.emplace(std::move(constant_buffer));
+		return _uniform_buffer_pool.emplace(std::move(uniform_buffer));
 	}
 
 	void update_uniform_buffer(Handle<UniformBuffer> handle, const void* data, unsigned int size)
 	{
 		if (!data || !size) return;
-		UniformBuffer* constant_buffer = _uniform_buffer_pool.get(handle);
-		if (!constant_buffer) return;
-		if (size != constant_buffer->size) return;
-		glBindBuffer(GL_UNIFORM_BUFFER, constant_buffer->uniform_buffer_object);
+		UniformBuffer* uniform_buffer = _uniform_buffer_pool.get(handle);
+		if (!uniform_buffer) return;
+		if (size != uniform_buffer->size) return;
+		glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer->uniform_buffer_object);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
 	}
 
 	void bind_uniform_buffer(unsigned int binding, Handle<UniformBuffer> handle)
 	{
-		if (const UniformBuffer* constant_buffer = _uniform_buffer_pool.get(handle)) {
-			glBindBufferBase(GL_UNIFORM_BUFFER, binding, constant_buffer->uniform_buffer_object);
+		if (const UniformBuffer* uniform_buffer = _uniform_buffer_pool.get(handle)) {
+			glBindBufferBase(GL_UNIFORM_BUFFER, binding, uniform_buffer->uniform_buffer_object);
 		}
 	}
 
