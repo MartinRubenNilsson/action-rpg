@@ -357,10 +357,10 @@ namespace map
 		for (size_t layer_index = 0; layer_index < map.layers.size(); ++layer_index) {
 			const tiled::Layer& layer = map.layers[layer_index];
 			if (layer.type != tiled::LayerType::Tile) continue;
-			for (unsigned int x = 0; x < layer.height; x++) {
-				for (unsigned int y = 0; y < layer.width; y++) {
+			for (unsigned int y = 0; y < layer.height; y++) {
+				for (unsigned int x = 0; x < layer.width; x++) {
 
-					const tiled::TileRef tile_ref = layer.tiles[x * layer.width + y];
+					const tiled::TileRef tile_ref = layer.tiles[x + y * layer.width];
 					if (!tile_ref.gid) continue;
 					const tiled::Tile* tile = map.get_tile(tile_ref.gid);
 					if (!tile) {
@@ -368,7 +368,7 @@ namespace map
 						continue;
 					}
 
-					const Vector2f position = { (float)y * map.tile_width, (float)x * map.tile_height };
+					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
 					const Vector2f pivot = { 0.f, (float)tile->height - (float)map.tile_height };
 					Vector2f sorting_pivot = { tile->width / 2.f, tile->height - map.tile_height / 2.f };
 
