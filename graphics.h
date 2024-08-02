@@ -16,12 +16,6 @@ namespace graphics
 		TriangleStrip,
 	};
 
-	enum class Filter
-	{
-		Nearest, // Sample nearest texel
-		Linear, // Linear interpolation between texels
-	};
-
 	struct Vertex
 	{
 		Vector2f position;
@@ -75,6 +69,12 @@ namespace graphics
 
 	// TEXTURES
 
+	enum class Filter
+	{
+		Nearest, // Sample nearest texel
+		Linear, // Linear interpolation between texels
+	};
+
 	struct TextureDesc
 	{
 		std::string_view debug_name = "texture";
@@ -82,6 +82,7 @@ namespace graphics
 		unsigned int height = 0;
 		unsigned int channels = 4; // TODO: replace with format enum
 		const unsigned char* initial_data = nullptr;
+		Filter filter = Filter::Nearest;
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);

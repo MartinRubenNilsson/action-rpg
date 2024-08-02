@@ -496,6 +496,15 @@ namespace graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}
 
+	GLint _to_gl_filter(Filter filter)
+	{
+		switch (filter) {
+		case Filter::Nearest: return GL_NEAREST;
+		case Filter::Linear:  return GL_LINEAR;
+		default:			  return 0; // should never happen
+		}
+	}
+
 	Handle<Texture> create_texture(const TextureDesc&& desc)
 	{
 		GLenum format = GL_RGBA;
@@ -512,8 +521,9 @@ namespace graphics
 		GLuint texture_object;
 		glGenTextures(1, &texture_object);
 		glBindTexture(GL_TEXTURE_2D, texture_object);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		const GLint gl_filter = _to_gl_filter(desc.filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, desc.width, desc.height, 0, format, GL_UNSIGNED_BYTE, desc.initial_data);
 		_set_debug_label(GL_TEXTURE, texture_object, desc.debug_name);
 
@@ -524,7 +534,7 @@ namespace graphics
 		texture.channels = desc.channels;
 		texture.bytes = desc.width * desc.height * desc.channels;
 		texture.texture_object = texture_object;
-		texture.filter = Filter::Nearest;
+		texture.filter = desc.filter;
 
 		_total_texture_memory_usage_in_bytes += texture.bytes;
 
@@ -671,7 +681,7 @@ namespace graphics
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
-		const GLint gl_filter = (filter == Filter::Nearest) ? GL_NEAREST : GL_LINEAR;
+		const GLint gl_filter = _to_gl_filter(filter);
 		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
