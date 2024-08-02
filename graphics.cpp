@@ -116,24 +116,31 @@ namespace graphics
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
-		// CREATE AND BIND VERTEX ARRAY OBJECT
+		// CREATE AND BIND VERTEX ARRAY
 
 		glGenVertexArrays(1, &_vertex_array_object);
 		glBindVertexArray(_vertex_array_object);
 
-		// CREATE AND BIND VERTEX BUFFER OBJECT
+		// ENABLE VERTEX ATTRIBUTES
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribFormat(0, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
+		glVertexAttribBinding(0, 0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribFormat(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
+		glVertexAttribBinding(1, 0);
+		glEnableVertexAttribArray(2);
+		glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
+		glVertexAttribBinding(2, 0);
+
+		// CREATE AND BIND VERTEX BUFFER
 
 		glGenBuffers(1, &_vertex_buffer_object);
 		glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_object);
+		glBindVertexBuffer(0, _vertex_buffer_object, 0, sizeof(Vertex));
 		glBufferData(GL_ARRAY_BUFFER, _MAX_VERTEX_COUNT * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coord));	
 
-		// CREATE AND BIND ELEMENT BUFFER OBJECT
+		// CREATE AND BIND ELEMENT BUFFER
 
 		glGenBuffers(1, &_element_buffer_object);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _element_buffer_object);
