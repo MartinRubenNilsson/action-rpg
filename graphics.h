@@ -100,7 +100,7 @@ namespace graphics
 	void set_texture_filter(Handle<Texture> handle, Filter filter);
 	Filter get_texture_filter(Handle<Texture> handle);
 
-	// FRAMEBUFFER
+	// FRAMEBUFFERS
 
 	struct FramebufferDesc
 	{
