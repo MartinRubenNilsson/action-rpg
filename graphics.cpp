@@ -858,21 +858,6 @@ namespace graphics
 		glDrawArrays(_primitive_topology_to_mode(topology), 0, vertex_count);
 	}
 
-	void draw_triangle_strip(unsigned int vertex_count)
-	{
-		if (!vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
-	}
-
-	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count)
-	{
-		if (!vertices || !vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, vertex_count);
-	}
-
 	void draw_triangle_list(unsigned int vertex_count)
 	{
 		if (!vertex_count) return;

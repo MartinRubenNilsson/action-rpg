@@ -132,8 +132,6 @@ namespace graphics
 	void draw(PrimitiveTopology topology, unsigned int vertex_count);
 	void draw(PrimitiveTopology topology, const Vertex* vertices, unsigned int vertex_count);
 
-	void draw_triangle_strip(unsigned int vertex_count);
-	void draw_triangle_strip(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_list(unsigned int vertex_count);
 	void draw_triangle_list(const Vertex* vertices, unsigned int vertex_count);
 	void draw_triangle_list(
