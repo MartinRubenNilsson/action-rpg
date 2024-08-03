@@ -461,7 +461,6 @@ namespace graphics
 		glBindBuffer(gl_buffer_type, buffer_object);
 		glBufferData(gl_buffer_type, desc.byte_size, desc.initial_data, gl_usage);
 		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
-
 		Buffer buffer{};
 		buffer.debug_name = desc.debug_name;
 		buffer.type = desc.type;
