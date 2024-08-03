@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "filesystem.h"
 #include <filesystem>
+#include <fstream>
 
 namespace filesystem
 {
@@ -62,16 +63,42 @@ namespace filesystem
 		return std::ranges::binary_search(_files, path, {}, &File::path);
 	}
 
-	bool load_text(const std::string& path, std::string& text)
+	bool read_text(const std::string& path, std::string& text)
 	{
 		std::ifstream file(path, std::ios::ate);
-		if (!file.is_open()) return false;
+		if (!file) return false;
 		text.resize(file.tellg());
 		file.seekg(0);
 		file.read(text.data(), text.size());
 		while (!text.empty() && text.back() == '\0') {
 			text.pop_back();
 		}
+		return true;
+	}
+
+	bool write_text(const std::string& path, const std::string& text)
+	{
+		std::ofstream file(path);
+		if (!file) return false;
+		file.write(text.data(), text.size());
+		return true;
+	}
+
+	bool read_binary(const std::string& path, std::vector<unsigned char>& data)
+	{
+		std::ifstream file(path, std::ios::ate | std::ios::binary);
+		if (!file) return false;
+		data.resize(file.tellg());
+		file.seekg(0);
+		file.read(reinterpret_cast<char*>(data.data()), data.size());
+		return true;
+	}
+
+	bool write_binary(const std::string& path, const std::vector<unsigned char>& data)
+	{
+		std::ofstream file(path, std::ios::binary);
+		if (!file) return false;
+		file.write(reinterpret_cast<const char*>(data.data()), data.size());
 		return true;
 	}
 

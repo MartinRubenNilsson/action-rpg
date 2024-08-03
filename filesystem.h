@@ -34,9 +34,12 @@ namespace filesystem
 	std::span<const File> get_files_in_directory(const std::string& directory_path); // recursive
 	bool file_exists(const std::string& path);
 
-	// LOADING
+	// READING/WRITING
 
-	bool load_text(const std::string& path, std::string& text);
+	bool read_text(const std::string& path, std::string& text);
+	bool write_text(const std::string& path, const std::string& text);
+	bool read_binary(const std::string& path, std::vector<unsigned char>& data);
+	bool write_binary(const std::string& path, const std::vector<unsigned char>& data);
 
 	// PATHS
 

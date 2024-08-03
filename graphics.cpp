@@ -290,13 +290,13 @@ namespace graphics
 		}
 
 		std::string vs_source;
-		if (!filesystem::load_text(normalized_vs_path, vs_source)) {
+		if (!filesystem::read_text(normalized_vs_path, vs_source)) {
 			console::log_error("Failed to open vertex shader file: " + normalized_vs_path);
 			return Handle<Shader>();
 		}
 
 		std::string fs_source;
-		if (!filesystem::load_text(normalized_fs_path, fs_source)) {
+		if (!filesystem::read_text(normalized_fs_path, fs_source)) {
 			console::log_error("Failed to open fragment shader file: " + normalized_fs_path);
 			return Handle<Shader>();
 		}

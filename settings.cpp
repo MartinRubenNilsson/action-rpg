@@ -2,13 +2,14 @@
 #include "settings.h"
 #include "window.h"
 #include "audio.h"
+#include "filesystem.h"
 
 namespace settings
 {
 	const std::string SETTINGS_FILE_DEFAULT_PATH = "settings.txt";
 
 	bool fullscreen = false;
-	uint32_t window_scale = 5;
+	unsigned int window_scale = 5;
 	bool vsync = false;
 	float volume_master = 1.f;
 	float volume_music = 1.f;
@@ -61,17 +62,17 @@ namespace settings
 
 	bool save_to_file(const std::string& path)
 	{
-		std::ofstream ofs(path);
-		if (!ofs) return false;
-		save_to_stream(ofs);
-		return true;
+		std::ostringstream oss;
+		save_to_stream(oss);
+		return filesystem::write_text(path, oss.str());
 	}
 
 	bool load_from_file(const std::string& path)
 	{
-		std::ifstream ifs(path);
-		if (!ifs) return false;
-		load_from_stream(ifs);
+		std::string text;
+		if (!filesystem::read_text(path, text)) return false;
+		std::istringstream iss(std::move(text));
+		load_from_stream(iss);
 		return true;
 	}
 }
