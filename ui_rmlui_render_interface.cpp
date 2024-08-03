@@ -12,13 +12,13 @@ namespace ui
 	bool _previous_scissor_test_enabled = false;
 	int _previous_scissor_box[4] = { 0 };
 
-	Rml::TextureHandle _to_rml_handle(Handle<graphics::Texture> handle)
+	Rml::TextureHandle _texture_handle_to_rml(Handle<graphics::Texture> handle)
 	{
 		// PITFALL: 0 represents an invalid Rml::TextureHandle.
 		return *(Rml::TextureHandle*)&handle;
 	}
 
-	Handle<graphics::Texture> _from_rml_handle(Rml::TextureHandle handle)
+	Handle<graphics::Texture> _texture_handle_from_rml(Rml::TextureHandle handle)
 	{
 		// PITFALL: 0 represents an invalid Rml::TextureHandle.
 		return *(Handle<graphics::Texture>*)&handle;
@@ -73,7 +73,7 @@ namespace ui
 		const Rml::Vector2f& translation)
 	{
 		if (texture) {
-			graphics::bind_texture(0, _from_rml_handle(texture));
+			graphics::bind_texture(0, _texture_handle_from_rml(texture));
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 1);
 		} else {
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
@@ -119,7 +119,7 @@ namespace ui
 		if (texture == Handle<graphics::Texture>()) return false;
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
-		texture_handle = _to_rml_handle(texture);
+		texture_handle = _texture_handle_to_rml(texture);
 		texture_dimensions.x = width;
 		texture_dimensions.y = height;
 		return true;
@@ -136,13 +136,13 @@ namespace ui
 			.height = (unsigned int)source_dimensions.y,
 			.initial_data = source });
 		if (texture == Handle<graphics::Texture>()) return false;
-		texture_handle = _to_rml_handle(texture);
+		texture_handle = _texture_handle_to_rml(texture);
 		return true;
 	}
 
 	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle)
 	{
-		graphics::destroy_texture(_from_rml_handle(texture_handle));
+		graphics::destroy_texture(_texture_handle_from_rml(texture_handle));
 	}
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
