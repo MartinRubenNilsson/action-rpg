@@ -77,6 +77,7 @@ namespace graphics
 	};
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
+	void destroy_buffer(Handle<Buffer> handle);
 
 	// Writes min(byte_size, buffer->byte_size) bytes from data to the buffer.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size);

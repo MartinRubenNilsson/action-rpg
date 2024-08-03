@@ -472,6 +472,15 @@ namespace graphics
 		return _buffer_pool.emplace(std::move(buffer));
 	}
 
+	void destroy_buffer(Handle<Buffer> handle)
+	{
+		Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		glDeleteBuffers(1, &buffer->buffer_object);
+		*buffer = Buffer();
+		_buffer_pool.free(handle);
+	}
+
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size)
 	{
 		if (!data || !byte_size) return;
@@ -649,9 +658,10 @@ namespace graphics
 		if (!texture) return;
 		glDeleteTextures(1, &texture->texture_object);
 		_total_texture_memory_usage_in_bytes -= texture->byte_size;
+		// HACK: When a texture is loaded, its debug_name is set to the path.
 		_texture_path_to_handle.erase(texture->debug_name);
-		_texture_pool.free(handle);
 		*texture = Texture();
+		_texture_pool.free(handle);
 	}
 
 	void bind_texture(unsigned int binding, Handle<Texture> handle)
