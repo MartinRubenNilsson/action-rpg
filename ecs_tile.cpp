@@ -147,9 +147,9 @@ namespace ecs
 		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
-	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height, bool account_for_animation) const
+	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const
 	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
+		if (const tiled::Tile* tile = _get_tile(true)) {
 			left = tile->left;
 			top = tile->top;
 			width = tile->width;
@@ -268,7 +268,7 @@ namespace ecs
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
 			unsigned int left, top, width, height;
-			tile.get_texture_rect(left, top, width, height, true);
+			tile.get_texture_rect(left, top, width, height);
 			sprite.tex_min = { (float)left, (float)top };
 			sprite.tex_max = { (float)left + width, (float)top + height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;

@@ -18,11 +18,11 @@ namespace ecs
 	enum TILE_FLAGS : unsigned int
 	{
 		TILE_VISIBLE        = (1 << 0), // if not set, the tile is not rendered
-		TILE_FLIP_X         = (1 << 1), // flip the sprite horizontally
-		TILE_FLIP_Y         = (1 << 2), // flip the sprite vertically
+		TILE_FLIP_X         = (1 << 1), // flip the tile horizontally
+		TILE_FLIP_Y         = (1 << 2), // flip the tile vertically
 		TILE_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
 		TILE_LOOP           = (1 << 4), // loop the animation
-		TILE_FLIP_X_ON_LOOP = (1 << 5), // flip the sprite horizontally when the animation loops
+		TILE_FLIP_X_ON_LOOP = (1 << 5), // flip the tile horizontally when the animation loops
 		TILE_FRAME_CHANGED  = (1 << 6), // the animation frame changed last update
 		TILE_LOOPED	        = (1 << 7), // the animation looped last update
 	};
@@ -47,7 +47,7 @@ namespace ecs
 		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
 		bool set_tile(const std::string& class_); // uses the current tileset
 		bool set_tile(const std::string& class_, const std::string& tileset_name);
-		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height, bool account_for_animation = true) const;
+		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const;
 		unsigned int get_id(bool account_for_animation = true) const;
 		Vector2u get_coords(bool account_for_animation = true) const;
 		const std::string& get_class(bool account_for_animation = true) const;

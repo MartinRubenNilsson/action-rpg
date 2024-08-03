@@ -34,6 +34,10 @@ namespace filesystem
 	std::span<const File> get_files_in_directory(const std::string& directory_path); // recursive
 	bool file_exists(const std::string& path);
 
+	// LOADING
+
+	bool load_text(const std::string& path, std::string& text);
+
 	// PATHS
 
 	std::string get_normalized_path(const std::string& path);

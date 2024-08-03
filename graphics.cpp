@@ -289,32 +289,16 @@ namespace graphics
 			return it->second;
 		}
 
-		// LOAD VERTEX SHADER SOURCE CODE
-
 		std::string vs_source;
-		{
-			std::ifstream vs_file{ normalized_vs_path };
-			if (!vs_file) {
-				console::log_error("Failed to open vertex shader file: " + normalized_vs_path);
-				return Handle<Shader>();
-			}
-			vs_source = {
-				std::istreambuf_iterator<char>(vs_file),
-				std::istreambuf_iterator<char>() };
+		if (!filesystem::load_text(normalized_vs_path, vs_source)) {
+			console::log_error("Failed to open vertex shader file: " + normalized_vs_path);
+			return Handle<Shader>();
 		}
 
-		// LOAD FRAGMENT SHADER SOURCE CODE
-
 		std::string fs_source;
-		{
-			std::ifstream fs_file{ normalized_fs_path };
-			if (!fs_file) {
-				console::log_error("Failed to open fragment shader file: " + normalized_fs_path);
-				return Handle<Shader>();
-			}
-			fs_source = {
-				std::istreambuf_iterator<char>(fs_file),
-				std::istreambuf_iterator<char>() };
+		if (!filesystem::load_text(normalized_fs_path, fs_source)) {
+			console::log_error("Failed to open fragment shader file: " + normalized_fs_path);
+			return Handle<Shader>();
 		}
 
 		const Handle<Shader> handle = create_shader({

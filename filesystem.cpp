@@ -62,6 +62,19 @@ namespace filesystem
 		return std::ranges::binary_search(_files, path, {}, &File::path);
 	}
 
+	bool load_text(const std::string& path, std::string& text)
+	{
+		std::ifstream file(path, std::ios::ate);
+		if (!file.is_open()) return false;
+		text.resize(file.tellg());
+		file.seekg(0);
+		file.read(text.data(), text.size());
+		while (!text.empty() && text.back() == '\0') {
+			text.pop_back();
+		}
+		return true;
+	}
+
 	std::string get_normalized_path(const std::string& path)
 	{
 		return std::filesystem::path(path).lexically_normal().string();

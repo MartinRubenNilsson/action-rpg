@@ -2,6 +2,7 @@
 #include "console.h"
 #include "console_commands.h"
 #include "window_events.h"
+#include "filesystem.h"
 #include <deque> // TODO: use a ringbuffer instead
 
 namespace console
@@ -186,70 +187,79 @@ namespace console
 		}
 	}
 
-	bool is_visible() {
+	bool is_visible()
+	{
 		return _visible;
 	}
 
 	void set_visible(bool visible)
 	{
 		_visible = visible;
-		if (_visible)
+		if (_visible) {
 			_reclaim_focus = true;
-		else
+		} else {
 			_has_focus = false;
+		}
 	}
 
 	void toggle_visible()
 	{
 		_visible = !_visible;
-		if (_visible)
+		if (_visible) {
 			_reclaim_focus = true;
-		else
+		} else {
 			_has_focus = false;
+		}
 	}
 
-	bool has_focus() {
+	bool has_focus()
+	{
 		return _has_focus;
 	}
 
-	void clear() {
+	void clear()
+	{
 		_history.clear();
 	}
 
-	void sleep(float seconds) {
+	void sleep(float seconds)
+	{
 		_sleep_timer = std::max(0.f, seconds);
 	}
 
 	void log(const std::string& message)
 	{
 		_history.emplace_back(message, _COLOR_LOG);
-		if (_history.size() > _MAX_HISTORY)
+		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
+		}
 	}
 
 	void log_error(const std::string& message, bool show_console)
 	{
 		_history.emplace_back(message, _COLOR_LOG_ERROR);
-		if (_history.size() > _MAX_HISTORY)
+		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
+		}
 		if (show_console) _visible = true;
 	}
 
 	void execute(const std::string& command_line, bool defer)
 	{
-		if (command_line.starts_with("//"))
-			return; // ignore comments
+		if (command_line.starts_with("//")) return; // ignore comments
 		if (defer) {
 			_command_queue.push_back(command_line);
 			return;
 		}
 		_command_history.push_back(command_line);
-		if (_command_history.size() > _MAX_HISTORY)
+		if (_command_history.size() > _MAX_HISTORY) {
 			_command_history.pop_front();
+		}
 		_command_history_it = _command_history.end();
 		_history.emplace_back(command_line, _COLOR_COMMAND);
-		if (_history.size() > _MAX_HISTORY)
+		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
+		}
 		parse_and_execute_command(command_line);
 	}
 
@@ -259,45 +269,46 @@ namespace console
 		std::string command_line;
 		for (int i = 1; i < argc; ++i) {
 			command_line += argv[i];
-			if (i < argc - 1)
+			if (i < argc - 1) {
 				command_line += ' ';
+			}
 		}
 		execute(command_line);
 	}
 
 	void execute_script_from_file(const std::string& path)
 	{
-		std::ifstream file(path);
-		if (!file) {
-			log_error("Failed to open script: " + path);
+		std::string script;
+		if (!filesystem::load_text(path, script)) {
+			log_error("Failed to open console script: " + path);
 			return;
 		}
-		std::string command_line;
-		while (std::getline(file, command_line)) {
-			execute(command_line, true);
+		std::istringstream script_stream(std::move(script));
+		for (std::string line; std::getline(script_stream, line);) {
+			execute(line, true);
 		}
 	}
 
-	void bind(window::Key key, const std::string& command_line) {
+	void bind(window::Key key, const std::string& command_line)
+	{
 		_key_bindings[key] = command_line;
 	}
 
 	void bind(const std::string& key_string, const std::string& command_line)
 	{
-		auto key = magic_enum::enum_cast<window::Key>(
-			key_string, magic_enum::case_insensitive);
+		auto key = magic_enum::enum_cast<window::Key>(key_string, magic_enum::case_insensitive);
 		if (key.has_value()) bind(key.value(), command_line);
 		else log_error("Failed to bind key: " + key_string);
 	}
 
-	void unbind(window::Key key) {
+	void unbind(window::Key key)
+	{
 		_key_bindings.erase(key);
 	}
 
 	void unbind(const std::string& key_string)
 	{
-		auto key = magic_enum::enum_cast<window::Key>(
-			key_string, magic_enum::case_insensitive);
+		auto key = magic_enum::enum_cast<window::Key>(key_string, magic_enum::case_insensitive);
 		if (key.has_value()) unbind(key.value());
 		else log_error("Failed to unbind key: " + key_string);
 	}
