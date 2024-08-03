@@ -84,6 +84,22 @@ namespace ui
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
 	}
 
+	Rml::CompiledGeometryHandle RmlUiRenderInterface::CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture)
+	{
+		//TODO
+		return Rml::CompiledGeometryHandle();
+	}
+
+	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Vector2f& translation)
+	{
+		//TODO
+	}
+
+	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry)
+	{
+		//TODO
+	}
+
 	void RmlUiRenderInterface::EnableScissorRegion(bool enable)
 	{
 		graphics::set_scissor_test_enabled(enable);

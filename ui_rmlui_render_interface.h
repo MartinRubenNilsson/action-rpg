@@ -10,6 +10,9 @@ namespace ui
 	struct RmlUiRenderInterface : public Rml::RenderInterface
 	{
 		void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation) override;
+		Rml::CompiledGeometryHandle CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture);
+		void RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Vector2f& translation);
+		void ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry);
 		void EnableScissorRegion(bool enable) override;
 		void SetScissorRegion(int x, int y, int width, int height) override;
 		bool LoadTexture(Rml::TextureHandle& texture_handle, Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
