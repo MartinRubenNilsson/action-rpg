@@ -243,10 +243,10 @@ int main(int argc, char* argv[])
 
             graphics::FrameUniforms frame_uniforms{};
             memcpy(frame_uniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
-            graphics::update_buffer(graphics::frame_uniforms, &frame_uniforms, sizeof(frame_uniforms));
+            graphics::update_buffer(graphics::frame_uniform_buffer, &frame_uniforms, sizeof(frame_uniforms));
         }
 
-        Handle<graphics::Framebuffer> framebuffer = graphics::aquire_temporary_framebuffer(
+        Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(
             window_framebuffer_width, window_framebuffer_height);
         graphics::bind_framebuffer(framebuffer);
         graphics::clear_framebuffer(0.f, 0.f, 0.f, 1.f);

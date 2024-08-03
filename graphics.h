@@ -78,8 +78,13 @@ namespace graphics
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
 
+	// Writes min(byte_size, buffer->byte_size) bytes from data to the buffer.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size);
 
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride);
+	void unbind_vertex_buffer(unsigned int binding);
+	void bind_index_buffer(Handle<Buffer> handle);
+	void unbind_index_buffer();
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
 	void unbind_uniform_buffer(unsigned int binding);
 
@@ -126,7 +131,8 @@ namespace graphics
 	};
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
-	Handle<Framebuffer> aquire_temporary_framebuffer(unsigned int width, unsigned int height);
+
+	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height);
 	void release_temporary_framebuffer(Handle<Framebuffer> handle);
 
 	void bind_window_framebuffer();
@@ -156,8 +162,7 @@ namespace graphics
 	};
 
 	void draw(Primitives primitives, unsigned int vertex_count);
-	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count);
-	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count);
+	void draw_indexed(Primitives primitives, unsigned int index_count);
 
 	// DEBUGGING
 

@@ -76,7 +76,7 @@ namespace postprocessing
 
 			// Aquire intermediate framebuffer
 			const Handle<graphics::Framebuffer> intermediate_framebuffer =
-				graphics::aquire_temporary_framebuffer(width, height);
+				graphics::get_temporary_framebuffer(width, height);
 
 			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
@@ -114,7 +114,7 @@ namespace postprocessing
 
 		// Aquire intermediate framebuffer
 		const Handle<graphics::Framebuffer> intermediate_framebuffer =
-			graphics::aquire_temporary_framebuffer(width, height);
+			graphics::get_temporary_framebuffer(width, height);
 
 		const Vector2f center_ts = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max, width, height);
@@ -149,7 +149,7 @@ namespace postprocessing
 
 		// Aquire intermediate framebuffer
 		const Handle<graphics::Framebuffer> intermediate_framebuffer =
-			graphics::aquire_temporary_framebuffer(width, height);
+			graphics::get_temporary_framebuffer(width, height);
 
 		// Render screen transition
 		graphics::bind_shader(shader);
@@ -186,7 +186,7 @@ namespace postprocessing
 
 		// Aquire intermediate framebuffer
 		const Handle<graphics::Framebuffer> intermediate_framebuffer =
-			graphics::aquire_temporary_framebuffer(width, height);
+			graphics::get_temporary_framebuffer(width, height);
 		const Handle<graphics::Texture> intermediate_texture =
 			graphics::get_framebuffer_texture(intermediate_framebuffer);
 

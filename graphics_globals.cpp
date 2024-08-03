@@ -22,7 +22,10 @@ namespace graphics
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
-	Handle<Buffer> frame_uniforms;
+	Handle<Buffer> vertex_buffer;
+	Handle<Buffer> index_buffer;
+
+	Handle<Buffer> frame_uniform_buffer;
 
 	void initialize_globals()
 	{
@@ -42,12 +45,29 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
-		frame_uniforms = create_buffer({
+		constexpr unsigned int MAX_VERTICES = 8192;
+		constexpr unsigned int MAX_INDICES = 8192;
+
+		vertex_buffer = create_buffer({
+			.debug_name = "vertex buffer",
+			.type = BufferType::Vertex,
+			.usage = Usage::DynamicDraw,
+			.byte_size = sizeof(Vertex) * MAX_VERTICES });
+
+		index_buffer = create_buffer({
+			.debug_name = "index buffer",
+			.type = BufferType::Index,
+			.usage = Usage::DynamicDraw,
+			.byte_size = sizeof(unsigned int) * MAX_INDICES });
+
+		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
 			.type = BufferType::Uniform,
 			.usage = Usage::DynamicDraw,
 			.byte_size = sizeof(FrameUniforms) });
 
-		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniforms);
+		bind_vertex_buffer(0, vertex_buffer, sizeof(Vertex));
+		bind_index_buffer(index_buffer);
+		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniform_buffer);
 	}
 }

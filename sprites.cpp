@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "sprites.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 namespace sprites
 {
@@ -50,7 +51,8 @@ namespace sprites
 	{
 		graphics::bind_shader(shader);
 		graphics::bind_texture(0, texture);
-		graphics::draw(graphics::Primitives::TriangleStrip, _batch_vertex_buffer, _batch_vertices);
+		graphics::update_buffer(graphics::vertex_buffer, _batch_vertex_buffer, _batch_vertices * sizeof(graphics::Vertex));
+		graphics::draw(graphics::Primitives::TriangleStrip, _batch_vertices);
 		_batches_drawn++;
 		_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, (unsigned int)_batch_vertices);
 		_batch_vertices = 0;

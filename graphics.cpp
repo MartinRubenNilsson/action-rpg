@@ -57,11 +57,7 @@ namespace graphics
 		GLuint framebuffer_object = 0;
 	};
 
-	constexpr unsigned int _MAX_VERTEX_COUNT = 65536;
-	constexpr unsigned int _MAX_INDEX_COUNT = 65536;
 	GLuint _vertex_array_object = 0;
-	GLuint _vertex_buffer_object = 0;
-	GLuint _element_buffer_object = 0;
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
 	Pool<Buffer> _buffer_pool;
@@ -135,20 +131,6 @@ namespace graphics
 		glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
 		glVertexAttribBinding(2, 0);
 
-		// CREATE AND BIND VERTEX BUFFER
-
-		glGenBuffers(1, &_vertex_buffer_object);
-		glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer_object);
-		glBufferData(GL_ARRAY_BUFFER, _MAX_VERTEX_COUNT * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
-
-		glBindVertexBuffer(0, _vertex_buffer_object, 0, sizeof(Vertex));
-
-		// CREATE AND BIND ELEMENT BUFFER
-
-		glGenBuffers(1, &_element_buffer_object);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _element_buffer_object);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, _MAX_INDEX_COUNT * sizeof(unsigned int), nullptr, GL_DYNAMIC_DRAW);
-
 		// SETUP BLENDING
 
 		glEnable(GL_BLEND);
@@ -162,20 +144,6 @@ namespace graphics
 		if (_vertex_array_object) {
 			glDeleteVertexArrays(1, &_vertex_array_object);
 			_vertex_array_object = 0;
-		}
-
-		// DELETE VERTEX BUFFER OBJECT
-
-		if (_vertex_buffer_object) {
-			glDeleteBuffers(1, &_vertex_buffer_object);
-			_vertex_buffer_object = 0;
-		}
-
-		// DELETE ELEMENT BUFFER OBJECT
-
-		if (_element_buffer_object) {
-			glDeleteBuffers(1, &_element_buffer_object);
-			_element_buffer_object = 0;
 		}
 
 		// DELETE SHADERS
@@ -509,10 +477,36 @@ namespace graphics
 		if (!data || !byte_size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (byte_size != buffer->byte_size) return;
 		const GLenum gl_buffer_type = _buffer_type_to_gl(buffer->type);
+		byte_size = std::min(byte_size, buffer->byte_size);
 		glBindBuffer(gl_buffer_type, buffer->buffer_object);
 		glBufferSubData(gl_buffer_type, 0, byte_size, data);
+	}
+
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride)
+	{
+		const Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		if (buffer->type != BufferType::Vertex) return;
+		glBindVertexBuffer(binding, buffer->buffer_object, 0, byte_stride);
+	}
+
+	void unbind_vertex_buffer(unsigned int binding)
+	{
+		glBindVertexBuffer(binding, 0, 0, 0);
+	}
+
+	void bind_index_buffer(Handle<Buffer> handle)
+	{
+		const Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		if (buffer->type != BufferType::Index) return;
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->buffer_object);
+	}
+
+	void unbind_index_buffer()
+	{
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
@@ -778,7 +772,7 @@ namespace graphics
 		return  _framebuffer_pool.emplace(std::move(framebuffer));
 	}
 
-	Handle<Framebuffer> aquire_temporary_framebuffer(unsigned int width, unsigned int height)
+	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height)
 	{
 		for (size_t i = 0; i < _temporary_framebuffers.size(); ++i) {
 			const Handle<Framebuffer> handle = _temporary_framebuffers[i];
@@ -888,26 +882,13 @@ namespace graphics
 	void draw(Primitives primitives, unsigned int vertex_count)
 	{
 		if (!vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glDrawArrays(_primitives_to_gl(primitives), 0, vertex_count);
 	}
 
-	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count)
+	void draw_indexed(Primitives primitives, unsigned int index_count)
 	{
-		if (!vertices || !vertex_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(_primitives_to_gl(primitives), 0, vertex_count);
-	}
-
-	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count)
-	{
-		if (!vertices || !vertex_count || !indices || !index_count) return;
-		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		index_count = std::min(index_count, _MAX_INDEX_COUNT);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_count * sizeof(unsigned int), indices);
-		glDrawElements(_primitives_to_gl(primitives), index_count, GL_UNSIGNED_INT, nullptr);
+		if (!index_count) return;
+		glDrawElements(_primitives_to_gl(primitives), index_count, GL_UNSIGNED_INT, 0);
 	}
 
 	void push_debug_group(std::string_view name)

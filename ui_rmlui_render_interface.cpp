@@ -79,9 +79,9 @@ namespace ui
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
 		}
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
-		graphics::draw(graphics::Primitives::TriangleList,
-			(graphics::Vertex*)vertices, (unsigned int)num_vertices,
-			(unsigned int*)indices, (unsigned int)num_indices);
+		graphics::update_buffer(graphics::vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
+		graphics::update_buffer(graphics::index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
+		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
 	}
 
 	void RmlUiRenderInterface::EnableScissorRegion(bool enable)

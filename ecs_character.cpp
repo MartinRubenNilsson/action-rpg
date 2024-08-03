@@ -363,7 +363,7 @@ namespace ecs
 		if (shader == Handle<graphics::Shader>()) return;
 
 		// Aquire framebuffer
-		const Handle<graphics::Framebuffer> framebuffer = graphics::aquire_temporary_framebuffer(1024, 1024);
+		const Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(1024, 1024);
 		if (framebuffer == Handle<graphics::Framebuffer>()) return;
 
 		int viewport[4];
