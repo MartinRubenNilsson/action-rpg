@@ -30,11 +30,13 @@ namespace graphics
 		GLuint program_object = 0;
 	};
 
-	struct UniformBuffer
+	struct Buffer
 	{
 		std::string debug_name;
-		unsigned int size = 0;
-		GLuint uniform_buffer_object = 0;
+		BufferType type = BufferType::Vertex;
+		Usage usage = Usage::StaticDraw;
+		unsigned int byte_size = 0;
+		GLuint buffer_object = 0;
 	};
 
 	struct Texture
@@ -43,7 +45,7 @@ namespace graphics
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 0;
-		unsigned int bytes = 0; // for debugging
+		unsigned int byte_size = 0; // for debugging
 		GLuint texture_object = 0;
 		Filter filter = Filter::Nearest;
 	};
@@ -62,7 +64,7 @@ namespace graphics
 	GLuint _element_buffer_object = 0;
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
-	Pool<UniformBuffer> _uniform_buffer_pool;
+	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
 	Pool<Framebuffer> _framebuffer_pool;
@@ -184,10 +186,10 @@ namespace graphics
 		_shader_pool.clear();
 		_shader_paths_to_handle.clear();
 
-		// DELETE CONSTANT BUFFERS
+		// DELETE BUFFERS
 
-		for (const UniformBuffer& uniform_buffer : _uniform_buffer_pool.span()) {
-			glDeleteBuffers(1, &uniform_buffer.uniform_buffer_object);
+		for (const Buffer& buffer : _buffer_pool.span()) {
+			glDeleteBuffers(1, &buffer.buffer_object);
 		}
 
 		// DELETE TEXTURES
@@ -459,37 +461,66 @@ namespace graphics
 		}
 	}
 
-	Handle<UniformBuffer> create_uniform_buffer(const UniformBufferDesc&& desc)
+	GLenum _buffer_type_to_gl(BufferType type)
 	{
-		GLuint uniform_buffer_object;
-		glGenBuffers(1, &uniform_buffer_object);
-		glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer_object);
-		glBufferData(GL_UNIFORM_BUFFER, desc.size, desc.initial_data, GL_DYNAMIC_DRAW);
-		_set_debug_label(GL_BUFFER, uniform_buffer_object, desc.debug_name);
-
-		UniformBuffer uniform_buffer{};
-		uniform_buffer.debug_name = desc.debug_name;
-		uniform_buffer.size = desc.size;
-		uniform_buffer.uniform_buffer_object = uniform_buffer_object;
-
-		return _uniform_buffer_pool.emplace(std::move(uniform_buffer));
-	}
-
-	void update_uniform_buffer(Handle<UniformBuffer> handle, const void* data, unsigned int size)
-	{
-		if (!data || !size) return;
-		UniformBuffer* uniform_buffer = _uniform_buffer_pool.get(handle);
-		if (!uniform_buffer) return;
-		if (size != uniform_buffer->size) return;
-		glBindBuffer(GL_UNIFORM_BUFFER, uniform_buffer->uniform_buffer_object);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, size, data);
-	}
-
-	void bind_uniform_buffer(unsigned int binding, Handle<UniformBuffer> handle)
-	{
-		if (const UniformBuffer* uniform_buffer = _uniform_buffer_pool.get(handle)) {
-			glBindBufferBase(GL_UNIFORM_BUFFER, binding, uniform_buffer->uniform_buffer_object);
+		switch (type) {
+		case BufferType::Vertex:  return GL_ARRAY_BUFFER;
+		case BufferType::Index:   return GL_ELEMENT_ARRAY_BUFFER;
+		case BufferType::Uniform: return GL_UNIFORM_BUFFER;
+		default:					 return 0; // should never happen
 		}
+	}
+
+	GLenum _usage_to_gl(Usage usage)
+	{
+		switch (usage) {
+		case Usage::StaticDraw:  return GL_STATIC_DRAW;
+		case Usage::StaticRead:  return GL_STATIC_READ;
+		case Usage::StaticCopy:  return GL_STATIC_COPY;
+		case Usage::DynamicDraw: return GL_DYNAMIC_DRAW;
+		case Usage::DynamicRead: return GL_DYNAMIC_READ;
+		case Usage::DynamicCopy: return GL_DYNAMIC_COPY;
+		default:				 return 0; // should never happen
+		}
+	}
+
+	Handle<Buffer> create_buffer(const BufferDesc&& desc)
+	{
+		GLuint buffer_object;
+		glGenBuffers(1, &buffer_object);
+		const GLenum gl_buffer_type = _buffer_type_to_gl(desc.type);
+		const GLenum gl_usage = _usage_to_gl(desc.usage);
+		glBindBuffer(gl_buffer_type, buffer_object);
+		glBufferData(gl_buffer_type, desc.byte_size, desc.initial_data, gl_usage);
+		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
+
+		Buffer buffer{};
+		buffer.debug_name = desc.debug_name;
+		buffer.type = desc.type;
+		buffer.usage = desc.usage;
+		buffer.byte_size = desc.byte_size;
+		buffer.buffer_object = buffer_object;
+
+		return _buffer_pool.emplace(std::move(buffer));
+	}
+
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size)
+	{
+		if (!data || !byte_size) return;
+		Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		if (byte_size != buffer->byte_size) return;
+		const GLenum gl_buffer_type = _buffer_type_to_gl(buffer->type);
+		glBindBuffer(gl_buffer_type, buffer->buffer_object);
+		glBufferSubData(gl_buffer_type, 0, byte_size, data);
+	}
+
+	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
+	{
+		const Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		if (buffer->type != BufferType::Uniform) return;
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
 	}
 
 	void unbind_uniform_buffer(unsigned int binding)
@@ -497,7 +528,7 @@ namespace graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}
 
-	GLint _to_gl_filter(Filter filter)
+	GLint _filter_to_gl(Filter filter)
 	{
 		switch (filter) {
 		case Filter::Nearest: return GL_NEAREST;
@@ -522,7 +553,7 @@ namespace graphics
 		GLuint texture_object;
 		glGenTextures(1, &texture_object);
 		glBindTexture(GL_TEXTURE_2D, texture_object);
-		const GLint gl_filter = _to_gl_filter(desc.filter);
+		const GLint gl_filter = _filter_to_gl(desc.filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, desc.width, desc.height, 0, format, GL_UNSIGNED_BYTE, desc.initial_data);
@@ -533,11 +564,11 @@ namespace graphics
 		texture.width = desc.width;
 		texture.height = desc.height;
 		texture.channels = desc.channels;
-		texture.bytes = desc.width * desc.height * desc.channels;
+		texture.byte_size = desc.width * desc.height * desc.channels;
 		texture.texture_object = texture_object;
 		texture.filter = desc.filter;
 
-		_total_texture_memory_usage_in_bytes += texture.bytes;
+		_total_texture_memory_usage_in_bytes += texture.byte_size;
 
 		return _texture_pool.emplace(std::move(texture));
 	}
@@ -623,7 +654,7 @@ namespace graphics
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		glDeleteTextures(1, &texture->texture_object);
-		_total_texture_memory_usage_in_bytes -= texture->bytes;
+		_total_texture_memory_usage_in_bytes -= texture->byte_size;
 		_texture_path_to_handle.erase(texture->debug_name);
 		_texture_pool.free(handle);
 		*texture = Texture();
@@ -682,7 +713,7 @@ namespace graphics
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
-		const GLint gl_filter = _to_gl_filter(filter);
+		const GLint gl_filter = _filter_to_gl(filter);
 		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
@@ -842,7 +873,7 @@ namespace graphics
 		height = scissor_box[3];
 	}
 
-	GLenum _to_gl_primitives(Primitives primitives)
+	GLenum _primitives_to_gl(Primitives primitives)
 	{
 		switch (primitives) {
 		case Primitives::PointList:     return GL_POINTS;
@@ -858,7 +889,7 @@ namespace graphics
 	{
 		if (!vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
-		glDrawArrays(_to_gl_primitives(primitives), 0, vertex_count);
+		glDrawArrays(_primitives_to_gl(primitives), 0, vertex_count);
 	}
 
 	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count)
@@ -866,7 +897,7 @@ namespace graphics
 		if (!vertices || !vertex_count) return;
 		vertex_count = std::min(vertex_count, _MAX_VERTEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
-		glDrawArrays(_to_gl_primitives(primitives), 0, vertex_count);
+		glDrawArrays(_primitives_to_gl(primitives), 0, vertex_count);
 	}
 
 	void draw(Primitives primitives, const Vertex* vertices, unsigned int vertex_count, unsigned int* indices, unsigned int index_count)
@@ -876,7 +907,7 @@ namespace graphics
 		index_count = std::min(index_count, _MAX_INDEX_COUNT);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(Vertex), vertices);
 		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, index_count * sizeof(unsigned int), indices);
-		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(_primitives_to_gl(primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void push_debug_group(std::string_view name)
@@ -903,7 +934,7 @@ namespace graphics
 			if (texture.texture_object == 0) continue;
 			if (ImGui::TreeNode(texture.debug_name.c_str())) {
 				ImGui::Text("Dimensions: %dx%dx%d", texture.width, texture.height, texture.channels);
-				unsigned int kb = texture.bytes / 1024;
+				unsigned int kb = texture.byte_size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
 					ImGui::Text("Memory: %d MB", mb);

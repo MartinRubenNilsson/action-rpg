@@ -22,7 +22,7 @@ namespace graphics
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
-	Handle<UniformBuffer> frame_uniforms;
+	Handle<Buffer> frame_uniforms;
 
 	void initialize_globals()
 	{
@@ -42,9 +42,11 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
-		frame_uniforms = create_uniform_buffer({
-			.debug_name = "frame constant buffer",
-			.size = sizeof(FrameUniforms) });
+		frame_uniforms = create_buffer({
+			.debug_name = "frame uniform buffer",
+			.type = BufferType::Uniform,
+			.usage = Usage::DynamicDraw,
+			.byte_size = sizeof(FrameUniforms) });
 
 		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniforms);
 	}

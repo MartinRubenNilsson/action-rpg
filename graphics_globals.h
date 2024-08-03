@@ -16,7 +16,7 @@ namespace graphics
 	extern Handle<Shader> text_shader;
 	extern Handle<Shader> ui_shader;
 
-	extern Handle<UniformBuffer> frame_uniforms;
+	extern Handle<Buffer> frame_uniforms;
 
 	void initialize_globals();
 }

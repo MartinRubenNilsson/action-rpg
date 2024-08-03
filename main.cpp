@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 
             graphics::FrameUniforms frame_uniforms{};
             memcpy(frame_uniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
-            graphics::update_uniform_buffer(graphics::frame_uniforms, &frame_uniforms, sizeof(frame_uniforms));
+            graphics::update_buffer(graphics::frame_uniforms, &frame_uniforms, sizeof(frame_uniforms));
         }
 
         Handle<graphics::Framebuffer> framebuffer = graphics::aquire_temporary_framebuffer(
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
             sprintf(overlay_text, "%.f us", smoothed_dt * 1'000'000.f);
             ImGui::PlotLines("##dt", dt_buffer, 256, buffer_offset, overlay_text, 0.f, 0.01f, ImVec2(0, 80));
             sprintf(overlay_text, "%.f FPS", smoothed_fps);
-            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 500.f, ImVec2(0, 80));
+            ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 600.f, ImVec2(0, 80));
             ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
             ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());

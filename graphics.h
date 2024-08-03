@@ -3,7 +3,7 @@
 namespace graphics
 {
 	struct Shader;
-	struct UniformBuffer;
+	struct Buffer;
 	struct Texture;
 	struct Framebuffer;
 
@@ -42,20 +42,45 @@ namespace graphics
 	void set_uniform_4i(Handle<Shader> handle, std::string_view name, int x, int y, int z, int w);
 	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16]);
 
-	// UNIFORM BUFFERS
+	// BUFFERS
 
-	struct UniformBufferDesc
+	enum class BufferType
 	{
-		std::string_view debug_name = "uniform buffer";
-		unsigned int size = 0;
+		Vertex,
+		Index,
+		Uniform,
+	};
+
+	enum class Usage
+	{
+		// Static - The contents will be modified once and used many times.
+		// Dynamic - The contents will be modified repeatedly and used many times.
+		// Draw - The contents are modified by the application, and used as the source for GL drawing and image specification commands.
+		// Read - The contents are modified by reading data from the GL, and used to return that data when queried by the application.
+		// Copy - The contents are modified by reading data from the GL, and used as the source for GL drawing and image specification commands.
+
+		StaticDraw,
+		StaticRead,
+		StaticCopy,
+		DynamicDraw,
+		DynamicRead,
+		DynamicCopy,
+	};
+
+	struct BufferDesc
+	{
+		std::string_view debug_name = "buffer";
+		BufferType type = BufferType::Vertex;
+		Usage usage = Usage::StaticDraw;
+		unsigned int byte_size = 0;
 		const void* initial_data = nullptr;
 	};
 
-	Handle<UniformBuffer> create_uniform_buffer(const UniformBufferDesc&& desc);
+	Handle<Buffer> create_buffer(const BufferDesc&& desc);
 
-	void update_uniform_buffer(Handle<UniformBuffer> handle, const void* data, unsigned int size);
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size);
 
-	void bind_uniform_buffer(unsigned int binding, Handle<UniformBuffer> handle);
+	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
 	void unbind_uniform_buffer(unsigned int binding);
 
 	// TEXTURES
