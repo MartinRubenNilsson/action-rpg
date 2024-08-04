@@ -159,7 +159,7 @@ namespace ecs
 				const b2Vec2& normal,
 				float fraction) override
 			{
-				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				const uint16 category_bits = fixture->GetFilterData().categoryBits;
 				if (!(category_bits & mask_bits)) return -1.f;
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();

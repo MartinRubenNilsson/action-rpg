@@ -82,7 +82,7 @@ namespace ecs
  			if (class_b == "portal") {
 				activate_portal(entity_b);
 			} else if (class_b == "slime") {
-				apply_damage_to_player(entity_a, { DamageType::Melee, 1 });
+				apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
 			}
 		}
 	}

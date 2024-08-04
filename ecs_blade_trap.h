@@ -4,8 +4,7 @@ namespace ecs
 {
 	struct BladeTrap
 	{
-		// TODO: Implement
-		int t;
+		unsigned int update_count = 0;
 	};
 
 	void update_blade_traps(float dt);
