@@ -2,9 +2,16 @@
 
 namespace ecs
 {
+	enum class BladeTrapState
+	{
+		Idle,
+		Active,
+	};
+
 	struct BladeTrap
 	{
 		unsigned int update_count = 0;
+		BladeTrapState state = BladeTrapState::Idle;
 	};
 
 	void update_blade_traps(float dt);
