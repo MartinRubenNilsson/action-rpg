@@ -7,7 +7,7 @@
 namespace ecs
 {
 	constexpr float _BLADE_TRAP_EXTEND_SPEED = 16.f * 6.f; // 6 tiles per second
-	constexpr float _BLADE_TRAP_RETRACT_SPEED = 16.f * 2.f; // 6 tiles per second
+	constexpr float _BLADE_TRAP_RETRACT_SPEED = 16.f * 2.f; // 2 tiles per second
 
 	extern entt::registry _registry;
 
