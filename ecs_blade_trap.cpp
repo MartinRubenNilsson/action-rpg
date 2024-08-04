@@ -36,13 +36,17 @@ namespace ecs
 				blade_trap.state = BladeTrapState::Extending;
 
 			} break;
-			case BladeTrapState::Extending: {
+			case BladeTrapState::Retracting: {
 
-				// TODO
+				const float distance_to_start = length(blade_trap.start_position - body->GetPosition());
+				if (distance_to_start >= 0.1f) break;
+
+				body->SetTransform(blade_trap.start_position, 0.f);
+				body->SetLinearVelocity({ 0.f, 0.f });
+				blade_trap.state = BladeTrapState::Idle;
 
 			} break;
 			}
-
 		}
 	}
 
