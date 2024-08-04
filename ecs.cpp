@@ -10,6 +10,7 @@
 #include "ecs_pickups.h"
 #include "ecs_bomb.h"
 #include "ecs_portal.h"
+#include "ecs_blade_trap.h"
 #include "console.h"
 #include "sprites.h"
 #include "shapes.h"
@@ -20,7 +21,8 @@ namespace ecs
 	int debug_flags = DEBUG_NONE;
 	entt::registry _registry;
 
-	void initialize() {
+	void initialize()
+	{
 		initialize_physics();
 	}
 
@@ -41,7 +43,8 @@ namespace ecs
 		update_players(dt);
 		update_portals(dt);
 		update_pickups(dt);
-		update_bombs(dt);	
+		update_bombs(dt);
+		update_blade_traps(dt);
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
 		destroy_entities_to_be_destroyed_at_end_of_frame();

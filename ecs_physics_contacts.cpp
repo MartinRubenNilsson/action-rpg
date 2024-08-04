@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "ecs_physics_contacts.h"
+
 #include "ecs_common.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"
 #include "ecs_damage.h"
 #include "ecs_portal.h"
+#include "ecs_blade_trap.h"
+
 #include "audio.h"
 #include "console.h"
 
@@ -38,7 +41,11 @@ namespace ecs
 		} else if (class_a == "arrow") {
 			destroy_at_end_of_frame(entity_a);
 			if (class_b == "slime" || class_b == "bomb") {
-				apply_damage(entity_b, { DamageType::Projectile, 1 });
+				apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
+			}
+		} else if (class_a == "blade_trap") {
+			if (class_b == "player") {
+				apply_damage(entity_b, { .amount = 1 });
 			}
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {

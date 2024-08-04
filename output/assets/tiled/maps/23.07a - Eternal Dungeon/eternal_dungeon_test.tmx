@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="25" nextobjectid="21">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="25" nextobjectid="22">
  <tileset firstgid="1" source="TSX files/collision &amp; alpha.tsx"/>
  <tileset firstgid="129" source="TSX files/eternal dungeon.tsx"/>
  <tileset firstgid="385" source="TSX files/eternal obelisk 48x64.tsx"/>
@@ -7,6 +7,7 @@
  <tileset firstgid="389" source="TSX files/eternal bone altar 16x48.tsx"/>
  <tileset firstgid="390" source="TSX files/eternal dungeon 16x32.tsx"/>
  <tileset firstgid="398" source="TSX files/bonus shadows.tsx"/>
+ <tileset firstgid="462" source="../../tilesets/items/items1.tsx"/>
  <layer id="17" name="Under Sprite 1" width="50" height="32">
   <data encoding="csv">
 300,301,318,332,319,299,300,300,290,290,290,290,290,290,290,291,300,300,300,300,286,316,316,316,316,316,316,316,316,287,300,300,300,300,289,290,290,290,290,290,290,290,281,311,311,311,311,311,282,295,
@@ -92,6 +93,7 @@
   <object id="18" gid="389" x="48" y="80" width="16" height="48"/>
   <object id="19" template="../../templates/player.tx" x="366.667" y="213.333"/>
   <object id="20" gid="390" x="389.219" y="222.554" width="16" height="32"/>
+  <object id="21" type="blade_trap" gid="552" x="288" y="256" width="16" height="16"/>
  </objectgroup>
  <layer id="20" name="Over Sprite 1" width="50" height="32">
   <data encoding="csv">
@@ -165,7 +167,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <layer id="22" name="Collision" width="50" height="32">
+ <layer id="22" name="Collision" width="50" height="32" visible="0">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

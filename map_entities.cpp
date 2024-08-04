@@ -13,6 +13,7 @@
 #include "ecs_portal.h"
 #include "ecs_character.h"
 #include "ecs_chest.h"
+#include "ecs_blade_trap.h"
 
 // Precautionary measure so we don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
@@ -349,6 +350,31 @@ namespace map
 					b2PolygonShape shape{};
 					shape.SetAsBox(10.f, 6.f, b2Vec2_zero, 0.f);
 					body->CreateFixture(&shape, 0.f);
+
+				} else if (object.class_ == "blade_trap") {
+
+					ecs::emplace_blade_trap(entity);
+
+					const Vector2f pivot = { 8.f, 8.f };
+
+					if (ecs::Tile* tile = ecs::get_tile(entity)) {
+						tile->pivot = pivot;
+						tile->sorting_pivot = pivot;
+					}
+
+					b2BodyDef body_def{};
+					body_def.type = b2_staticBody;
+					body_def.position = position + pivot;
+					body_def.fixedRotation = true;
+					b2Body* body = ecs::emplace_body(entity, body_def);
+
+					b2CircleShape shape{};
+					shape.m_radius = 6.f;
+
+					b2FixtureDef fixture_def{};
+					fixture_def.shape = &shape;
+					fixture_def.isSensor = true;
+					body->CreateFixture(&fixture_def);
 				}
 			}
 		}
