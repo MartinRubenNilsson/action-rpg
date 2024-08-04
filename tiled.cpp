@@ -236,7 +236,7 @@ namespace tiled
 					template_path += '/';
 					template_path += template_attribute.as_string();
 					template_path = filesystem::get_normalized_path(template_path);
-					if (const Object* template_object = _templates.get(load_template(template_path))) {
+					if (const Object* template_object = _templates.get(load_template_from_file(template_path))) {
 						object = *template_object;
 					}
 				}
@@ -260,12 +260,11 @@ namespace tiled
 		}
 	}
 
-	Handle<Map> load_map(const std::string& path)
+	Handle<Map> load_map_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		auto handle_it = _path_to_map_handle.find(normalized_path);
-		if (handle_it != _path_to_map_handle.end()) {
-			return handle_it->second;
+		if (auto it = _path_to_map_handle.find(normalized_path); it != _path_to_map_handle.end()) {
+			return it->second;
 		}
 
 		pugi::xml_document doc;
@@ -297,7 +296,7 @@ namespace tiled
 			tileset_path = filesystem::get_normalized_path(tileset_path);
 			TilesetRef& tileset_ref = map.tilesets.emplace_back();
 			tileset_ref.first_gid = tileset_node.attribute("firstgid").as_uint();
-			tileset_ref.tileset = load_tileset(tileset_path);
+			tileset_ref.tileset = load_tileset_from_file(tileset_path);
 		}
 		// Sort tilesets by first_gid in ascending order. This is shouldn't be necessary
 		// since Tiled already sorts them this way, but it doesn't hurt to be safe.
@@ -314,12 +313,11 @@ namespace tiled
 		return handle;
 	}
 
-	Handle<Tileset> load_tileset(const std::string& path)
+	Handle<Tileset> load_tileset_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		auto handle_it = _path_to_tileset_handle.find(normalized_path);
-		if (handle_it != _path_to_tileset_handle.end()) {
-			return handle_it->second;
+		if (auto it = _path_to_tileset_handle.find(normalized_path); it != _path_to_tileset_handle.end()) {
+			return it->second;
 		}
 
 		pugi::xml_document doc;
@@ -414,12 +412,11 @@ namespace tiled
 		return handle;
 	}
 
-	Handle<Object> load_template(const std::string& path)
+	Handle<Object> load_template_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		auto handle_it = _path_to_template_handle.find(normalized_path);
-		if (handle_it != _path_to_template_handle.end()) {
-			return handle_it->second;
+		if (auto it = _path_to_template_handle.find(normalized_path);  it != _path_to_template_handle.end()) {
+			return it->second;
 		}
 
 		pugi::xml_document doc;
@@ -444,7 +441,7 @@ namespace tiled
 			tileset_path += source_attribute.as_string();
 			tileset_path = filesystem::get_normalized_path(tileset_path);
 			object.tileset.first_gid = tileset_node.attribute("firstgid").as_uint();
-			object.tileset.tileset = load_tileset(tileset_path);
+			object.tileset.tileset = load_tileset_from_file(tileset_path);
 		}
 
 		const Handle<Object> handle = _templates.emplace(std::move(object));

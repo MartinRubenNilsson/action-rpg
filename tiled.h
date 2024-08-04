@@ -172,9 +172,9 @@ namespace tiled
 		const Object* get_object(const std::string& name) const;
 	};
 
-	Handle<Map> load_map(const std::string& path);
-	Handle<Tileset> load_tileset(const std::string& path);
-	Handle<Object> load_template(const std::string& path);
+	Handle<Map> load_map_from_file(const std::string& path);
+	Handle<Tileset> load_tileset_from_file(const std::string& path);
+	Handle<Object> load_template_from_file(const std::string& path);
 
 	const Map* get_map(Handle<Map> handle);
 	const Tileset* get_tileset(Handle<Tileset> handle);
