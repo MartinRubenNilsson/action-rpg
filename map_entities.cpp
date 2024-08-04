@@ -363,7 +363,7 @@ namespace map
 					}
 
 					b2BodyDef body_def{};
-					body_def.type = b2_kinematicBody;
+					body_def.type = b2_dynamicBody;
 					body_def.position = position + pivot;
 					body_def.fixedRotation = true;
 					b2Body* body = ecs::emplace_body(entity, body_def);

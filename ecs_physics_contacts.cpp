@@ -37,6 +37,8 @@ namespace ecs
 			if (class_b == "arrow") {
 				// TODO add audio::play("event:/snd_arrow_hit"); when we have nice animation for arrow hitting a wall
 				destroy_at_end_of_frame(entity_b);
+			} else if (class_b == "blade_trap") {
+				retract_blade_trap(entity_b);
 			}
 		} else if (class_a == "arrow") {
 			destroy_at_end_of_frame(entity_a);
@@ -47,6 +49,7 @@ namespace ecs
 			if (class_b == "player") {
 				apply_damage(entity_b, { .amount = 1 });
 			}
+			destroy_at_end_of_frame(entity_a);
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 

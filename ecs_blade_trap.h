@@ -5,7 +5,8 @@ namespace ecs
 	enum class BladeTrapState
 	{
 		Idle,
-		Active,
+		Extending,
+		Retracting,
 	};
 
 	struct BladeTrap
@@ -18,4 +19,6 @@ namespace ecs
 
 	BladeTrap& emplace_blade_trap(entt::entity entity);
 	BladeTrap* get_blade_trap(entt::entity entity);
+
+	void retract_blade_trap(entt::entity entity);
 }
