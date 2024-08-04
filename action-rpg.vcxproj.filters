@@ -320,6 +320,9 @@
     <ClCompile Include="graphics_globals.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_blade_trap.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -882,6 +885,9 @@
     </ClInclude>
     <ClInclude Include="graphics_globals.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_blade_trap.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
