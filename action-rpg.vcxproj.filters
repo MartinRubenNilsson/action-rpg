@@ -321,7 +321,7 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_blade_trap.cpp">
-      <Filter>ecs</Filter>
+      <Filter>ecs\enemies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -887,7 +887,7 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_blade_trap.h">
-      <Filter>ecs</Filter>
+      <Filter>ecs\enemies</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -956,6 +956,9 @@
     </Filter>
     <Filter Include="ecs\physics\box2d">
       <UniqueIdentifier>{866076fd-537d-4e00-afca-8a89f23366a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\enemies">
+      <UniqueIdentifier>{c8484bdc-09b7-4b8c-ac87-16b2f0ccfaac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

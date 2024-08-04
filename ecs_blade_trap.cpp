@@ -35,6 +35,8 @@ namespace ecs
 				body->SetLinearVelocity(direction * _BLADE_TRAP_EXTEND_SPEED);
 				blade_trap.state = BladeTrapState::Extending;
 
+				// TODO: play sound
+
 			} break;
 			case BladeTrapState::Retracting: {
 
@@ -44,6 +46,8 @@ namespace ecs
 				body->SetTransform(blade_trap.start_position, 0.f);
 				body->SetLinearVelocity({ 0.f, 0.f });
 				blade_trap.state = BladeTrapState::Idle;
+
+				// TODO: play sound
 
 			} break;
 			}
