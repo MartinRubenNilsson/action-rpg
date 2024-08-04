@@ -151,7 +151,7 @@ namespace ecs
 		{
 			RaycastHit hit{};
 			uint16 mask_bits = 0xFFFF;
-			bool hit_something = false;
+			bool has_hit = false;
 
 			float ReportFixture(
 				b2Fixture* fixture,
@@ -167,7 +167,7 @@ namespace ecs
 				hit.point = point;
 				hit.normal = normal;
 				hit.fraction = fraction;
-				hit_something = true;
+				has_hit = true;
 				return 0.f;
 			}
 		};
@@ -176,7 +176,7 @@ namespace ecs
 		callback.mask_bits = mask_bits;
 		_physics_world->RayCast(&callback, ray_start, ray_end);
 		if (hit) *hit = callback.hit;
-		return callback.hit_something;
+		return callback.has_hit;
 	}
 
 	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits)

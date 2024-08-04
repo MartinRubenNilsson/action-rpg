@@ -2,6 +2,7 @@
 #include "ecs_blade_trap.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_common.h"
 
 namespace ecs
 {
@@ -20,7 +21,8 @@ namespace ecs
 			}
 			const Vector2f ray_start = body->GetPosition();
 			const Vector2f ray_end = ray_start + direction * 16.f * 10.f; // raycast 10 tiles
-			if (raycast(ray_start, ray_end, CC_Player)) {
+			RaycastHit hit{};
+			if (raycast(ray_start, ray_end, CM_Default, &hit) && get_class(hit.entity) == "player") {
 				body->SetLinearVelocity(direction * 16.f);
 			}
 		}
