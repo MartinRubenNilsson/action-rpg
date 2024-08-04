@@ -74,8 +74,8 @@ namespace postprocessing
 
 		for (const Shockwave& shockwave : _shockwaves) {
 
-			// Aquire intermediate framebuffer
-			const Handle<graphics::Framebuffer> intermediate_framebuffer =
+			// Aquire temporary framebuffer
+			const Handle<graphics::Framebuffer> temporary_framebuffer =
 				graphics::get_temporary_framebuffer(width, height);
 
 			// Render shockwave
@@ -86,12 +86,12 @@ namespace postprocessing
 			graphics::set_uniform_1f(shader, "size", shockwave.size);
 			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, texture);
-			graphics::bind_framebuffer(intermediate_framebuffer);
+			graphics::bind_framebuffer(temporary_framebuffer);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 			// Interchange framebuffers
 			graphics::release_temporary_framebuffer(framebuffer);
-			framebuffer = intermediate_framebuffer;
+			framebuffer = temporary_framebuffer;
 			texture = graphics::get_framebuffer_texture(framebuffer);
 		}
 	}
@@ -112,8 +112,8 @@ namespace postprocessing
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate framebuffer
-		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+		// Aquire temporary framebuffer
+		const Handle<graphics::Framebuffer> temporary_framebuffer =
 			graphics::get_temporary_framebuffer(width, height);
 
 		const Vector2f center_ts = _map_world_to_target(
@@ -123,12 +123,12 @@ namespace postprocessing
 		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, texture);
-		graphics::bind_framebuffer(intermediate_framebuffer);
+		graphics::bind_framebuffer(temporary_framebuffer);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 		// Cleanup
 		graphics::release_temporary_framebuffer(framebuffer);
-		framebuffer = intermediate_framebuffer;
+		framebuffer = temporary_framebuffer;
 	}
 
 	void _render_screen_transition(Handle<graphics::Framebuffer>& framebuffer)
@@ -147,8 +147,8 @@ namespace postprocessing
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate framebuffer
-		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+		// Aquire temporary framebuffer
+		const Handle<graphics::Framebuffer> temporary_framebuffer =
 			graphics::get_temporary_framebuffer(width, height);
 
 		// Render screen transition
@@ -156,12 +156,12 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, texture);
-		graphics::bind_framebuffer(intermediate_framebuffer);
+		graphics::bind_framebuffer(temporary_framebuffer);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 		// Cleanup
 		graphics::release_temporary_framebuffer(framebuffer);
-		framebuffer = intermediate_framebuffer;
+		framebuffer = temporary_framebuffer;
 	}
 
 	void _render_gaussian_blur(Handle<graphics::Framebuffer>& framebuffer)
@@ -184,15 +184,15 @@ namespace postprocessing
 		unsigned int width, height;
 		graphics::get_texture_size(texture, width, height);
 
-		// Aquire intermediate framebuffer
-		const Handle<graphics::Framebuffer> intermediate_framebuffer =
+		// Aquire temporary framebuffer
+		const Handle<graphics::Framebuffer> temporary_framebuffer =
 			graphics::get_temporary_framebuffer(width, height);
-		const Handle<graphics::Texture> intermediate_texture =
-			graphics::get_framebuffer_texture(intermediate_framebuffer);
+		const Handle<graphics::Texture> temporary_texture =
+			graphics::get_framebuffer_texture(temporary_framebuffer);
 
 		// Set linear filtering
 		graphics::set_texture_filter(texture, graphics::Filter::Linear);
-		graphics::set_texture_filter(intermediate_texture, graphics::Filter::Linear);
+		graphics::set_texture_filter(temporary_texture, graphics::Filter::Linear);
 
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
@@ -201,21 +201,21 @@ namespace postprocessing
 			graphics::bind_shader(shader_hor);
 			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
 			graphics::bind_texture(0, texture);
-			graphics::bind_framebuffer(intermediate_framebuffer);
+			graphics::bind_framebuffer(temporary_framebuffer);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
 			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
-			graphics::bind_texture(0, intermediate_texture);
+			graphics::bind_texture(0, temporary_texture);
 			graphics::bind_framebuffer(framebuffer);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
 
 		// Cleanup
 		graphics::set_texture_filter(texture, graphics::Filter::Nearest);
-		graphics::set_texture_filter(intermediate_texture, graphics::Filter::Nearest);
-		graphics::release_temporary_framebuffer(intermediate_framebuffer);
+		graphics::set_texture_filter(temporary_texture, graphics::Filter::Nearest);
+		graphics::release_temporary_framebuffer(temporary_framebuffer);
 	}
 
 	void render(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
