@@ -353,9 +353,10 @@ namespace map
 
 				} else if (object.class_ == "blade_trap") {
 
-					ecs::emplace_blade_trap(entity);
-
 					const Vector2f pivot = { 8.f, 8.f };
+
+					ecs::BladeTrap& blade_trap = ecs::emplace_blade_trap(entity);
+					blade_trap.start_position = position + pivot;
 
 					if (ecs::Tile* tile = ecs::get_tile(entity)) {
 						tile->pivot = pivot;

@@ -65,6 +65,7 @@ namespace ecs
 		
 		b2Body* body = get_body(entity);
 		if (!body) return;
-		body->SetLinearVelocity({ 0.f, 0.f });
+		const Vector2f direction = normalize(blade_trap->start_position - body->GetPosition());
+		body->SetLinearVelocity(direction * _BLADE_TRAP_RETRACT_SPEED);
 	}
 }

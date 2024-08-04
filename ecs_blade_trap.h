@@ -13,6 +13,7 @@ namespace ecs
 	{
 		unsigned int update_count = 0;
 		BladeTrapState state = BladeTrapState::Idle;
+		Vector2f start_position;
 	};
 
 	void update_blade_traps(float dt);
