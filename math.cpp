@@ -1,101 +1,120 @@
 #include "stdafx.h"
 #include "math.h"
 
-float smoothstep(float x) {
+float smoothstep(float x)
+{
 	return x * x * (3.f - 2.f * x);
 }
 
-float smootherstep(float x) {
+float smootherstep(float x)
+{
 	return x * x * x * (x * (x * 6.f - 15.f) + 10.f);
 }
 
-float lerp(float a, float b, float t) {
+float lerp(float a, float b, float t)
+{
 	return a + (b - a) * t;
 }
 
 float lerp_angle(float a, float b, float t)
 {
-	float angle = std::fmod(b - a, M_2PI);
+	float angle = fmod(b - a, M_2PI);
 	if (angle > M_PI) angle -= M_2PI;
 	else if (angle < -M_PI) angle += M_2PI;
 	return a + angle * t;
 }
 
-bool is_zero(const Vector2f& v) {
+bool is_zero(const Vector2f& v)
+{
 	return v.x == 0 && v.y == 0;
 }
 
-float length_squared(const Vector2f& v) {
+float length_squared(const Vector2f& v)
+{
 	return v.x * v.x + v.y * v.y;
 }
 
-float length(const Vector2f& v) {
-	return std::sqrt(length_squared(v));
+float length(const Vector2f& v)
+{
+	return sqrt(length_squared(v));
 }
 
-Vector2f unit_vector(float angle) {
-	return Vector2f(std::cos(angle), std::sin(angle));
+Vector2f unit_vector(float angle)
+{
+	return Vector2f(cos(angle), sin(angle));
 }
 
-Vector2f normalize(const Vector2f& v) {
+Vector2f normalize(const Vector2f& v)
+{
 	if (float len = length(v))
 		return v / len;
 	return Vector2f(0.f, 0.f);
 }
 
-Vector2f abs(const Vector2f& v) {
-	return Vector2f(std::abs(v.x), std::abs(v.y));
+Vector2f abs(const Vector2f& v)
+{
+	return Vector2f(abs(v.x), abs(v.y));
 }
 
-Vector2f rotate_90deg(const Vector2f& v) {
+Vector2f rotate_90deg(const Vector2f& v)
+{
 	return Vector2f(-v.y, v.x);
 }
 
-float dot(const Vector2f& a, const Vector2f& b) {
+float dot(const Vector2f& a, const Vector2f& b)
+{
 	return a.x * b.x + a.y * b.y;
 }
 
-float det(const Vector2f& a, const Vector2f& b) {
+float det(const Vector2f& a, const Vector2f& b)
+{
 	return a.x * b.y - a.y * b.x;
 }
 
-float angle_unsigned(const Vector2f& a, const Vector2f& b) {
-	if (float len2 = length_squared(a))
-		return std::acos(dot(a, b) / len2);
+float angle_unsigned(const Vector2f& a, const Vector2f& b)
+{
+	if (float len2 = length_squared(a) * length_squared(b)) {
+		return acos(dot(a, b) / sqrt(len2));
+	}
 	return 0.f;
 }
 
-float angle_signed(const Vector2f& a, const Vector2f& b) {
-	return std::atan2(det(a, b), dot(a, b));
+float angle_signed(const Vector2f& a, const Vector2f& b)
+{
+	return atan2(det(a, b), dot(a, b));
 }
 
-bool is_clockwise(const Vector2f& a, const Vector2f& b) {
+bool is_clockwise(const Vector2f& a, const Vector2f& b)
+{
 	return det(a, b) > 0; // Since y-axis is down, this is the opposite of the usual definition.
 }
 
 Vector2f rotate(const Vector2f& v, float angle)
 {
-	float c = std::cos(angle);
-	float s = std::sin(angle);
+	float c = cos(angle);
+	float s = sin(angle);
 	return Vector2f(v.x * c - v.y * s, v.x * s + v.y * c);
 }
 
-Vector2f min(const Vector2f& a, const Vector2f& b) {
+Vector2f min(const Vector2f& a, const Vector2f& b)
+{
 	return Vector2f(std::min(a.x, b.x), std::min(a.y, b.y));
 }
 
-Vector2f max(const Vector2f& a, const Vector2f& b) {
+Vector2f max(const Vector2f& a, const Vector2f& b)
+{
 	return Vector2f(std::max(a.x, b.x), std::max(a.y, b.y));
 }
 
-Vector2f lerp(const Vector2f& a, const Vector2f& b, float t) {
+Vector2f lerp(const Vector2f& a, const Vector2f& b, float t)
+{
 	return a + (b - a) * t;
 }
 
 Vector2f lerp_polar(const Vector2f& a, const Vector2f& b, float t)
 {
 	float len = lerp(length(a), length(b), t);
-	float angle = lerp_angle(std::atan2(a.y, a.x), std::atan2(b.y, b.x), t);
+	float angle = lerp_angle(atan2(a.y, a.x), atan2(b.y, b.x), t);
 	return unit_vector(angle) * len;
 }
 
