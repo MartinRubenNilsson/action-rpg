@@ -168,14 +168,16 @@ namespace ecs
 				hit.normal = normal;
 				hit.fraction = fraction;
 				has_hit = true;
-				return 0.f;
+				return fraction; // Continue the raycast to find the closest hit.
 			}
 		};
 
 		RayCastCallback callback{};
 		callback.mask_bits = mask_bits;
 		_physics_world->RayCast(&callback, ray_start, ray_end);
-		if (hit) *hit = callback.hit;
+		if (hit && callback.has_hit) {
+			*hit = callback.hit;
+		}
 		return callback.has_hit;
 	}
 

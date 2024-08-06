@@ -49,7 +49,6 @@ namespace ecs
 			if (class_b == "player") {
 				apply_damage(entity_b, { .amount = 1 });
 			}
-			destroy_at_end_of_frame(entity_a);
 		} else if (class_a == "pickup") {
 			if (class_b == "player") {
 
