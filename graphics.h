@@ -162,7 +162,7 @@ namespace graphics
 		TriangleStrip,
 	};
 
-	void draw(Primitives primitives, unsigned int vertex_count);
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
 	void draw_indexed(Primitives primitives, unsigned int index_count);
 
 	// DEBUGGING

@@ -868,14 +868,14 @@ namespace graphics
 		case Primitives::LineStrip:     return GL_LINE_STRIP;
 		case Primitives::TriangleList:  return GL_TRIANGLES;
 		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
-		default:							   return 0; // should never happen
+		default:						return 0; // should never happen
 		}
 	}
 
-	void draw(Primitives primitives, unsigned int vertex_count)
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
 	{
 		if (!vertex_count) return;
-		glDrawArrays(_primitives_to_gl(primitives), 0, vertex_count);
+		glDrawArrays(_primitives_to_gl(primitives), vertex_offset, vertex_count);
 	}
 
 	void draw_indexed(Primitives primitives, unsigned int index_count)
