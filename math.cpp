@@ -172,7 +172,12 @@ std::vector<Vector2f> triangulate(const std::vector<Vector2f>& polygon)
 	}
 	bool is_polygon_clockwise = false;
 	{
-		size_t i1 = std::ranges::max_element(polygon, std::less{}, &Vector2f::x) - polygon.begin();
+		size_t i1 = 0; // Will be the rightmost vertex.
+		for (size_t i = 1; i < vertex_count; ++i) {
+			if (polygon[i].x > polygon[i1].x) {
+				i1 = i;
+			}
+		}
 		size_t i0 = (i1 + vertex_count - 1) % vertex_count;
 		size_t i2 = (i1 + 1) % vertex_count;
 		Vector2f v10 = polygon[i0] - polygon[i1];
@@ -195,7 +200,12 @@ std::vector<Vector2f> triangulate(const std::vector<Vector2f>& polygon)
 	std::vector<Vector2f> polygon_copy = polygon;
 	std::vector<Vector2f> triangles;
 	while (vertex_count > 3) {
-		size_t i2 = std::ranges::min_element(angles) - angles.begin();
+		size_t i2 = 0; // Will be the ear tip, i.e. the vertex with the smallest angle.
+		for (size_t i = 1; i < vertex_count; ++i) {
+			if (angles[i] < angles[i2]) {
+				i2 = i;
+			}
+		}
 		size_t i0 = (i2 + vertex_count - 2) % vertex_count;
 		size_t i1 = (i2 + vertex_count - 1) % vertex_count;
 		size_t i3 = (i2 + 1) % vertex_count;
