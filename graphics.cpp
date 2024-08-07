@@ -419,7 +419,7 @@ namespace graphics
 		case BufferType::Vertex:  return GL_ARRAY_BUFFER;
 		case BufferType::Index:   return GL_ELEMENT_ARRAY_BUFFER;
 		case BufferType::Uniform: return GL_UNIFORM_BUFFER;
-		default:					 return 0; // should never happen
+		default:				  return 0; // should never happen
 		}
 	}
 
