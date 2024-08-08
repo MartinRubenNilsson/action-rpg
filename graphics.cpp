@@ -475,6 +475,12 @@ namespace graphics
 		glBufferSubData(gl_buffer_type, 0, byte_size, data);
 	}
 
+	size_t get_buffer_byte_size(Handle<Buffer> handle)
+	{
+		const Buffer* buffer = _buffer_pool.get(handle);
+		return buffer ? buffer->byte_size : 0;
+	}
+
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride)
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);

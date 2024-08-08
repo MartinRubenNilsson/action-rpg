@@ -289,6 +289,7 @@ namespace ecs
 			if (tile.get_flag(TILE_FLIP_DIAGONAL)) {
 				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
 			}
+#if 0
 			sprite.pre_render_callback = nullptr;
 			if (tile.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
@@ -297,6 +298,7 @@ namespace ecs
 					graphics::set_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
 				};
 			}
+#endif
 			sprites::add_sprite_to_render_queue(sprite);
 		}
 	}

@@ -297,7 +297,6 @@ int main(int argc, char* argv[])
             ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
             ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
             ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
-            ImGui::Checkbox("Enable Batching", &sprites::enable_batching);
             ImGui::End();
         }
 

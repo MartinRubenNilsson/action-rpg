@@ -81,6 +81,7 @@ namespace graphics
 
 	// Writes min(byte_size, buffer->byte_size) bytes from data to the buffer.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size);
+	size_t get_buffer_byte_size(Handle<Buffer> handle);
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride);
 	void unbind_vertex_buffer(unsigned int binding);

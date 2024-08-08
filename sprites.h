@@ -20,7 +20,6 @@ namespace sprites
 
 	struct Sprite
 	{
-		void (*pre_render_callback)(const Sprite&) = nullptr; // optional; called just before the sprite is rendered
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture;
 		Vector2f min; // top-left corner world position in pixels
@@ -43,15 +42,8 @@ namespace sprites
 	// 
 	// In all cases, a less-than comparison is used.
 	// If one case yields a tie, then the next case is considered, and so on.
-	// 
-	// If batching is enabled, then sprites that compare equal are merged into the same batch,
-	// unless the pre_render_callback member is set, in which case the sprite is not batched.
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
-
-	extern const unsigned int MAX_SPRITES;
-	extern const unsigned int MAX_SPRITES_PER_BATCH;
-	extern bool enable_batching;
 
 	void reset_rendering_statistics();
 	void add_sprite_to_render_queue(const Sprite& sprite);
