@@ -42,8 +42,8 @@ namespace sprites
 	// so I'm gonna try using eastl::vector to get a performance boost in debug.
 
 	eastl::vector<Sprite> _sprites; // will be sorted by draw order
-	eastl::vector<graphics::Vertex> _vertices;
 	eastl::vector<Batch> _batches;
+	eastl::vector<graphics::Vertex> _vertices;
 
 	unsigned int _sprites_drawn = 0;
 	unsigned int _batches_drawn = 0;
@@ -159,8 +159,8 @@ namespace sprites
 		_batches_drawn += (unsigned int)_batches.size();
 
 		_sprites.clear();
-		_vertices.clear();
 		_batches.clear();
+		_vertices.clear();
 	}
 
 	unsigned int get_sprites_drawn()
