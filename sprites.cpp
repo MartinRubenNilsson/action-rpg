@@ -41,9 +41,7 @@ namespace sprites
 	// Adding and rendering sprites is very hot code,
 	// so I'm gonna try using eastl::vector to get a performance boost in debug.
 
-	eastl::vector<Sprite> _sprites;
-	eastl::vector<unsigned int> _sprite_indices; // will be sorted by draw order
-	eastl::vector<unsigned int> _sprite_indices_scratch_buffer;
+	eastl::vector<Sprite> _sprites; // will be sorted by draw order
 	eastl::vector<graphics::Vertex> _vertices;
 	eastl::vector<Batch> _batches;
 
@@ -60,7 +58,6 @@ namespace sprites
 
 	void add_sprite_to_render_queue(const Sprite& sprite)
 	{
-		_sprite_indices.push_back((unsigned int)_sprites.size());
 		_sprites.push_back(sprite);
 	}
 
@@ -74,11 +71,13 @@ namespace sprites
 		// When investigating, I found that the added sprites usually already containes sorted runs,
 		// so I tried using eastl::tim_sort_buffer to take advantage of that. It gave me a quite
 		// significant performance boost.
+		// 
+		// Timsort requires a scratch buffer of size N/2, so we reserve this amount
+		// at the end of _sprites. This way, _sprites.end() will be both the end of
+		// the array of sprites and also the beginning of the scratch buffer.
 
-		_sprite_indices_scratch_buffer.reserve(_sprite_indices.size() / 2); // Timsort requires a scratch buffer of size N/2
-		eastl::tim_sort_buffer(_sprite_indices.begin(), _sprite_indices.end(), _sprite_indices_scratch_buffer.data(),
-			[](unsigned int left, unsigned int right) { return _sprites[left] < _sprites[right];
-		});
+		_sprites.reserve(_sprites.size() + _sprites.size() / 2);
+		eastl::tim_sort_buffer(_sprites.begin(), _sprites.end(), _sprites.end());
 
 		// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
 		// This is done by creating a triangle strip for each batch and drawing it only when the state changes.
@@ -86,8 +85,7 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
-		for (unsigned int sprite_index : _sprite_indices) {
-			const Sprite& sprite = _sprites[sprite_index];
+		for (const Sprite& sprite : _sprites) {
 
 			Vector2f tl = sprite.min; // top-left corner
 			Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
@@ -160,7 +158,6 @@ namespace sprites
 		_batches_drawn += (unsigned int)_batches.size();
 
 		_sprites.clear();
-		_sprite_indices.clear();
 		_vertices.clear();
 		_batches.clear();
 	}
