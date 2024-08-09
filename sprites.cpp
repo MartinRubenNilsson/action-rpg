@@ -129,15 +129,7 @@ namespace sprites
 		if (vertices_byte_size <= graphics::get_buffer_byte_size(graphics::vertex_buffer)) {
 			graphics::update_buffer(graphics::vertex_buffer, _vertices.data(), vertices_byte_size);
 		} else {
-			//TODO: make a resize buffer function
-			graphics::destroy_buffer(graphics::vertex_buffer);
-			graphics::vertex_buffer = graphics::create_buffer({
-				.debug_name = "vertex buffer",
-				.type = graphics::BufferType::Vertex,
-				.usage = graphics::Usage::DynamicDraw,
-				.byte_size = vertices_byte_size,
-				.initial_data = _vertices.data()
-			});
+			graphics::resize_buffer(graphics::vertex_buffer, vertices_byte_size, _vertices.data());
 		}
 
 		for (const Batch& batch : _batches) {

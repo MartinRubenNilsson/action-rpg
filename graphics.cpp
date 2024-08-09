@@ -440,11 +440,13 @@ namespace graphics
 	{
 		GLuint buffer_object;
 		glGenBuffers(1, &buffer_object);
+		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
+
 		const GLenum gl_buffer_type = _buffer_type_to_gl(desc.type);
 		const GLenum gl_usage = _usage_to_gl(desc.usage);
 		glBindBuffer(gl_buffer_type, buffer_object);
 		glBufferData(gl_buffer_type, desc.byte_size, desc.initial_data, gl_usage);
-		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
+
 		Buffer buffer{};
 		buffer.debug_name = desc.debug_name;
 		buffer.type = desc.type;
@@ -473,6 +475,17 @@ namespace graphics
 		byte_size = std::min(byte_size, buffer->byte_size);
 		glBindBuffer(gl_buffer_type, buffer->buffer_object);
 		glBufferSubData(gl_buffer_type, 0, byte_size, data);
+	}
+
+	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
+	{
+		Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		const GLenum gl_buffer_type = _buffer_type_to_gl(buffer->type);
+		const GLenum gl_usage = _usage_to_gl(buffer->usage);
+		glBindBuffer(gl_buffer_type, buffer->buffer_object);
+		glBufferData(gl_buffer_type, byte_size, initial_data, gl_usage);
+		buffer->byte_size = byte_size;
 	}
 
 	size_t get_buffer_byte_size(Handle<Buffer> handle)
