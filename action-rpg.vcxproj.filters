@@ -323,6 +323,9 @@
     <ClCompile Include="ecs_blade_trap.cpp">
       <Filter>ecs\enemies</Filter>
     </ClCompile>
+    <ClCompile Include="eastl_allocator.cpp">
+      <Filter>utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">

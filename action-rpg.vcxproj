@@ -149,6 +149,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
+    <ClCompile Include="eastl_allocator.cpp" />
     <ClCompile Include="ecs_blade_trap.cpp" />
     <ClCompile Include="ecs_chest.cpp" />
     <ClCompile Include="ecs_interact.cpp" />

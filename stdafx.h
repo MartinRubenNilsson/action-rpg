@@ -10,6 +10,12 @@
 #include <variant>
 #include <vector>
 
+#define EASTL_USER_DEFINED_ALLOCATOR
+
+#include <EASTL/algorithm.h>
+#include <EASTL/sort.h>
+#include <EASTL/vector.h>
+
 using namespace std::literals::string_literals;
 
 #include <entt/entity/registry.hpp>
