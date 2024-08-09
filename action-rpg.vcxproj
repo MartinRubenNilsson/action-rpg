@@ -157,7 +157,6 @@
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
-    <ClCompile Include="pool.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp">

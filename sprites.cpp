@@ -93,15 +93,15 @@ namespace sprites
 			Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
 			Vector2f br = sprite.max; // bottom-right corner
 
-			if (sprite.flags & SF_FLIP_X) {
+			if (sprite.flags & SPRITE_FLIP_HORIZONTAL) {
 				std::swap(tl, tr);
 				std::swap(bl, br);
 			}
-			if (sprite.flags & SF_FLIP_Y) {
+			if (sprite.flags & SPRITE_FLIP_VERTICAL) {
 				std::swap(tl, bl);
 				std::swap(tr, br);
 			}
-			if (sprite.flags & SF_FLIP_DIAGONAL) {
+			if (sprite.flags & SPRITE_FLIP_DIAGONAL) {
 				std::swap(bl, tr);
 			}
 

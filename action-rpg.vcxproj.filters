@@ -302,9 +302,6 @@
     <ClCompile Include="filesystem.cpp">
       <Filter>application</Filter>
     </ClCompile>
-    <ClCompile Include="pool.cpp">
-      <Filter>utilities</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_chest.cpp">
       <Filter>ecs</Filter>
     </ClCompile>

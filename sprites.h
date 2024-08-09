@@ -7,21 +7,20 @@ namespace graphics
 
 namespace sprites
 {
-	enum SpriteFlags : uint8_t
+	enum SPRITE_FLAGS : uint8_t
 	{
-		SF_NONE          = 0,
-		SF_FLIP_X        = 1 << 0,
-		SF_FLIP_Y        = 1 << 1,
-		SF_FLIP_DIAGONAL = 1 << 2,
-		SF_ROTATE_90     = SF_FLIP_X | SF_FLIP_DIAGONAL,
-		SF_ROTATE_180    = SF_FLIP_X | SF_FLIP_Y,
-		SF_ROTATE_270    = SF_FLIP_Y | SF_FLIP_DIAGONAL,
+		SPRITE_FLIP_HORIZONTAL = (1 << 0),
+		SPRITE_FLIP_VERTICAL   = (1 << 1),
+		SPRITE_FLIP_DIAGONAL   = (1 << 2),
+		SPRITE_ROTATE_90       = SPRITE_FLIP_HORIZONTAL | SPRITE_FLIP_DIAGONAL,
+		SPRITE_ROTATE_180      = SPRITE_FLIP_HORIZONTAL | SPRITE_FLIP_VERTICAL,
+		SPRITE_ROTATE_270      = SPRITE_FLIP_VERTICAL | SPRITE_FLIP_DIAGONAL,
 	};
 
 	struct Sprite
 	{
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
-		Handle<graphics::Texture> texture;
+		Handle<graphics::Texture> texture; // TODO: default to error texture
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
 		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates

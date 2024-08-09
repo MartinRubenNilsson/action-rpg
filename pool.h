@@ -21,9 +21,9 @@ public:
 	void free(Handle<T> handle);
 
 private:
-	std::vector<T> _data;
-	std::vector<uint16_t> _generations; // Same size as _data.
-	std::vector<uint16_t> _freelist; // Stores the indices of previously freed slots.
+	eastl::vector<T> _data;
+	eastl::vector<uint16_t> _generations; // Same size as _data.
+	eastl::vector<uint16_t> _freelist; // Stores the indices of previously freed slots.
 };
 
 template<typename T>

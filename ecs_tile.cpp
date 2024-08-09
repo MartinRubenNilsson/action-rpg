@@ -281,13 +281,13 @@ namespace ecs
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
 			sprite.flags = 0;
 			if (tile.get_flag(TILE_FLIP_X)) {
-				sprite.flags |= sprites::SF_FLIP_X;
+				sprite.flags |= sprites::SPRITE_FLIP_HORIZONTAL;
 			}
 			if (tile.get_flag(TILE_FLIP_Y)) {
-				sprite.flags |= sprites::SF_FLIP_Y;
+				sprite.flags |= sprites::SPRITE_FLIP_VERTICAL;
 			}
 			if (tile.get_flag(TILE_FLIP_DIAGONAL)) {
-				sprite.flags |= sprites::SF_FLIP_DIAGONAL;
+				sprite.flags |= sprites::SPRITE_FLIP_DIAGONAL;
 			}
 #if 0
 			sprite.pre_render_callback = nullptr;
