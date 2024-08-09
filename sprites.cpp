@@ -67,7 +67,8 @@ namespace sprites
 
 		if (_sprites.empty()) return;
 
-		// Sort by draw order. As an optimization, we sort indices instead of the sprites themselves.
+		// Sort sprites by draw order.
+		// 
 		// When investigating, I found that the added sprites usually already containes sorted runs,
 		// so I tried using eastl::tim_sort_buffer to take advantage of that. It gave me a quite
 		// significant performance boost.
