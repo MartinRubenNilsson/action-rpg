@@ -22,7 +22,7 @@ namespace ecs
 	void process_window_event(const window::Event& ev);
 	void update(float dt);
 	void get_camera_bounds(Vector2f& min, Vector2f& max);
-	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max);
+	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max);
 	void add_debug_shapes_to_render_queue();
 }
 

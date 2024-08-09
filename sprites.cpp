@@ -47,21 +47,14 @@ namespace sprites
 
 	unsigned int _sprites_drawn = 0;
 	unsigned int _batches_drawn = 0;
-	unsigned int _vertices_in_largest_batch = 0;
+	unsigned int _largest_batch_vertex_count = 0;
 
-	void reset_rendering_statistics()
-	{
-		_sprites_drawn = 0;
-		_batches_drawn = 0;
-		_vertices_in_largest_batch = 0;
-	}
-
-	void add_sprite_to_render_queue(const Sprite& sprite)
+	void add(const Sprite& sprite)
 	{
 		_sprites.push_back(sprite);
 	}
 
-	void render(std::string_view debug_group_name)
+	void draw(std::string_view debug_group_name)
 	{
 		graphics::ScopedDebugGroup debug_group(debug_group_name);
 
@@ -152,7 +145,7 @@ namespace sprites
 			graphics::bind_texture(0, batch.texture);
 			//TODO: bind uniform buffer
 			graphics::draw(graphics::Primitives::TriangleStrip, batch.vertex_count, batch.vertex_offset);
-			_vertices_in_largest_batch = std::max(_vertices_in_largest_batch, batch.vertex_count);
+			_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, batch.vertex_count);
 		}
 
 		_sprites_drawn += (unsigned int)_sprites.size();
@@ -161,6 +154,13 @@ namespace sprites
 		_sprites.clear();
 		_batches.clear();
 		_vertices.clear();
+	}
+
+	void clear_drawing_statistics()
+	{
+		_sprites_drawn = 0;
+		_batches_drawn = 0;
+		_largest_batch_vertex_count = 0;
 	}
 
 	unsigned int get_sprites_drawn()
@@ -173,13 +173,13 @@ namespace sprites
 		return _batches_drawn;
 	}
 
-	unsigned int get_vertices_in_largest_batch()
+	unsigned int get_largest_batch_sprite_count()
 	{
-		return _vertices_in_largest_batch;
+		return _calc_sprites_in_batch(_largest_batch_vertex_count);
 	}
 
-	unsigned int get_sprites_in_largest_batch()
+	unsigned int get_largest_batch_vertex_count()
 	{
-		return _calc_sprites_in_batch(_vertices_in_largest_batch);
+		return _largest_batch_vertex_count;
 	}
 }

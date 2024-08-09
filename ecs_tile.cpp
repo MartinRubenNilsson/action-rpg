@@ -256,7 +256,7 @@ namespace ecs
 		}
 	}
 
-	void add_tile_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max)
+	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
@@ -299,7 +299,7 @@ namespace ecs
 				};
 			}
 #endif
-			sprites::add_sprite_to_render_queue(sprite);
+			sprites::add(sprite);
 		}
 	}
 

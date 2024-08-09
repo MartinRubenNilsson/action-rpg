@@ -68,7 +68,7 @@ namespace ecs
 	};
 
 	void update_tiles(float dt);
-	void add_tile_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max);
+	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
 	Tile* get_tile(entt::entity entity);

@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
 
         const float pixel_scale = (float)window_framebuffer_width / WINDOW_MIN_WIDTH;
 		
-        sprites::reset_rendering_statistics();
+        sprites::clear_drawing_statistics();
 
         Vector2f camera_min;
         Vector2f camera_max;
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
         graphics::clear_framebuffer(0.f, 0.f, 0.f, 1.f);
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
         background::render_sprites(camera_min, camera_max);
-        ecs::render_sprites(camera_min, camera_max);
+        ecs::draw_sprites(camera_min, camera_max);
 
         switch (ui::get_top_menu()) {
         case ui::MenuType::Pause:
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
             ImGui::PlotLines("##fps", fps_buffer, 256, buffer_offset, overlay_text, 0.f, 600.f, ImVec2(0, 80));
             ImGui::Value("Sprites Drawn", sprites::get_sprites_drawn());
             ImGui::Value("Batches Drawn", sprites::get_batches_drawn());
-            ImGui::Value("Largest Batch", sprites::get_sprites_in_largest_batch());
+            ImGui::Value("Largest Batch", sprites::get_largest_batch_sprite_count());
             ImGui::End();
         }
 

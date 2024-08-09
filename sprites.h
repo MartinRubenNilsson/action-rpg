@@ -44,14 +44,14 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
-	void reset_rendering_statistics();
-	void add_sprite_to_render_queue(const Sprite& sprite);
-	void render(std::string_view debug_group_name);
+	void add(const Sprite& sprite); // Adds a sprite to be drawn later.
+	void draw(std::string_view debug_group_name); // Draws all added sprites in draw order.
 
-	// RENDERING STATISTICS
+	// DRAWING STATISTICS
 
+	void clear_drawing_statistics();
 	unsigned int get_sprites_drawn(); 
 	unsigned int get_batches_drawn();
-	unsigned int get_vertices_in_largest_batch();
-	unsigned int get_sprites_in_largest_batch();
+	unsigned int get_largest_batch_sprite_count();
+	unsigned int get_largest_batch_vertex_count();
 }

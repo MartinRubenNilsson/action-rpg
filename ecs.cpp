@@ -61,11 +61,11 @@ namespace ecs
 		max = center + size / 2.f;
 	}
 	 
-	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
+	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
-		add_tile_sprites_to_render_queue(camera_min, camera_max);
-		add_vfx_sprites_to_render_queue(camera_min, camera_max);
-		sprites::render("Game World");
+		add_tile_sprites_for_drawing(camera_min, camera_max);
+		add_vfx_sprites_for_drawing(camera_min, camera_max);
+		sprites::draw("Game World");
 	}
 
 	void add_debug_shapes_to_render_queue()

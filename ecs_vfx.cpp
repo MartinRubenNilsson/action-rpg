@@ -24,7 +24,7 @@ namespace ecs
 		}
     }
 
-    void add_vfx_sprites_to_render_queue(const Vector2f& camera_min, const Vector2f& camera_max)
+    void add_vfx_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max)
     {
         sprites::Sprite sprite{};
         for (auto [entity, vfx] : _registry.view<const Vfx>().each()) {
@@ -54,7 +54,7 @@ namespace ecs
             sprite.texture = vfx.texture;
             sprite.sorting_pos = sprite.min + tex_half_size;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
-			sprites::add_sprite_to_render_queue(sprite);
+			sprites::add(sprite);
 		}
     }
 
