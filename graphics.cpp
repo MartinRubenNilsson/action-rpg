@@ -102,6 +102,7 @@ namespace graphics
 		Handle<Texture> texture;
 	};
 
+	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
 	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
@@ -159,6 +160,10 @@ namespace graphics
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
+		// GET UNIFORM BUFFER OFFSET ALIGNMENT
+
+		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &_uniform_buffer_offset_alignment);
+
 		// CREATE AND BIND VERTEX ARRAY
 
 		glCreateVertexArrays(1, &_vertex_array_object);
@@ -223,6 +228,11 @@ namespace graphics
 		}
 		_framebuffer_pool.clear();
 		_temporary_framebuffers.clear();
+	}
+
+	unsigned int get_uniform_buffer_offset_alignment()
+	{
+		return _uniform_buffer_offset_alignment;
 	}
 
 	Handle<Shader> create_shader(const ShaderDesc&& desc)
@@ -555,6 +565,7 @@ namespace graphics
 
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset)
 	{
+		if (byte_size % _uniform_buffer_offset_alignment != 0) return; // must be a multiple of alignment
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (byte_offset + byte_size > buffer->byte_size) return;

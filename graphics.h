@@ -17,6 +17,8 @@ namespace graphics
 	void initialize();
 	void shutdown();
 
+	unsigned int get_uniform_buffer_offset_alignment();
+
 	// SHADERS
 
 	struct ShaderDesc
@@ -66,7 +68,8 @@ namespace graphics
 	void bind_index_buffer(Handle<Buffer> handle);
 	void unbind_index_buffer();
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
-	// Fails if byte_offset + byte_size exceeds the buffer size.
+	// Fails if byte_offset + byte_size exceeds the buffer size, or if byte_offset
+	// is not a multiple of get_uniform_buffer_offset_alignment().
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset = 0);
 	void unbind_uniform_buffer(unsigned int binding);
 
