@@ -43,7 +43,7 @@ namespace ecs
 		int bombs = 5;
 		int rupees = 10;
 		entt::entity held_item = entt::null;
-		bool pushing = false;
+		bool contacting_pushable_block = false;
 
 		// It really is the pushable block that's making the sound,
 		// but I can't be bothered to make a separate component for it rn.
@@ -65,6 +65,6 @@ namespace ecs
 
 	bool kill_player(entt::entity entity);
 
-	void player_begin_pushing(entt::entity player_entity);
-	void player_end_pushing(entt::entity player_entity);
+	void on_player_begin_contact_pushable_block(entt::entity player_entity);
+	void on_player_end_contact_pushable_block(entt::entity player_entity);
 }

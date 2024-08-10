@@ -196,7 +196,7 @@ namespace ecs
 					new_move_dir = normalize(new_move_dir);
 					if (player.input_flags & INPUT_STEALTH) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;
-					} else if (player.pushing) {
+					} else if (player.contacting_pushable_block) {
 						new_move_speed = _PLAYER_WALK_SPEED;
 					} else if (player.input_flags & INPUT_RUN) {
 						new_move_speed = _PLAYER_RUN_SPEED;
@@ -219,7 +219,7 @@ namespace ecs
 				} else if (player.input_flags & INPUT_DROP_BOMB && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
-				} else if (player.pushing) {
+				} else if (player.contacting_pushable_block && !is_zero(new_velocity)) {
 					switch (dir) {
 					case 'l':
 					case 'r': tile.set_tile(PLAYER_TILE_PUSH_RIGHT); break;
@@ -505,20 +505,20 @@ namespace ecs
 		return true;
 	}
 
-	void player_begin_pushing(entt::entity player_entity)
+	void on_player_begin_contact_pushable_block(entt::entity player_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;
-		player->pushing = true;
+		player->contacting_pushable_block = true;
 		audio::stop_event(player->stone_sliding_sound); // Stop any previously playing sound
 		player->stone_sliding_sound = audio::create_event({ .path = "event:/props/stone_slide" });
 	}
 
-	void player_end_pushing(entt::entity player_entity)
+	void on_player_end_contact_pushable_block(entt::entity player_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;
-		player->pushing = false;
+		player->contacting_pushable_block = false;
 		audio::stop_event(player->stone_sliding_sound);
 	}
 
