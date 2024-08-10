@@ -44,6 +44,10 @@ namespace ecs
 		int rupees = 10;
 		entt::entity held_item = entt::null;
 		bool pushing = false;
+
+		// It really is the pushable block that's making the sound,
+		// but I can't be bothered to make a separate component for it rn.
+		Handle<audio::Event> stone_sliding_sound;
 	};
 
 	void process_window_event_for_players(const window::Event& ev);

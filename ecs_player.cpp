@@ -510,6 +510,8 @@ namespace ecs
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->pushing = true;
+		audio::stop_event(player->stone_sliding_sound); // Stop any previously playing sound
+		player->stone_sliding_sound = audio::create_event({ .path = "event:/props/stone_slide" });
 	}
 
 	void player_end_pushing(entt::entity player_entity)
@@ -517,6 +519,7 @@ namespace ecs
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->pushing = false;
+		audio::stop_event(player->stone_sliding_sound);
 	}
 
 	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
