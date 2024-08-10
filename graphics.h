@@ -138,10 +138,12 @@ namespace graphics
 	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height);
 	void release_temporary_framebuffer(Handle<Framebuffer> handle);
 
-	void bind_window_framebuffer();
+	// The default framebuffer is the window framebuffer.
+	void bind_default_framebuffer();
 	void bind_framebuffer(Handle<Framebuffer> handle);
 
-	void clear_framebuffer(float r, float g, float b, float a); // Clears the currently bound framebuffer.
+	void clear_default_framebuffer(float r, float g, float b, float a);
+	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
 	// FIXED-FUNCTION PIPELINE

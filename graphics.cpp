@@ -28,6 +28,18 @@
 #undef glGenerateMipmap
 #undef glActiveTexture
 
+#undef glGenFramebuffers
+#undef glFramebufferTexture2D 
+#undef glCheckFramebufferStatus
+#undef glBlitFramebuffer
+#undef glClearColor
+#undef glClearDepth
+#undef glClearStencil
+#undef glClear
+#undef glClearBufferiv
+#undef glClearBufferuiv
+#undef glClearBufferfv
+#undef glClearBufferfi
 
 namespace graphics
 {
@@ -70,8 +82,8 @@ namespace graphics
 	struct Framebuffer
 	{
 		std::string debug_name;
-		Handle<Texture> texture;
 		GLuint framebuffer_object = 0;
+		Handle<Texture> texture;
 	};
 
 	GLuint _vertex_array_object = 0;
@@ -765,55 +777,38 @@ namespace graphics
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
 	{
-		// CREATE TEXTURE
-
 		const std::string texture_debug_name = std::string(desc.debug_name) + " texture";
 		const Handle<Texture> texture_handle = create_texture({
 			.debug_name = texture_debug_name,
 			.width = desc.width,
 			.height = desc.height });
-
-		const Texture* texture = _texture_pool.get(texture_handle);
-		if (!texture) {
-			console::log_error("Failed to create framebuffer: " + std::string(desc.debug_name));
+		if (texture_handle == Handle<Texture>()) {
+			console::log_error("Failed to create framebuffer texture: " + std::string(desc.debug_name));
 			return Handle<Framebuffer>();
 		}
 
-		// SAVE CURRENT FRAMEBUFFER OBJECT
+		const Texture* texture = _texture_pool.get(texture_handle);
+		assert(texture);
 
-		int previously_bound_framebuffer_object;
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previously_bound_framebuffer_object);
+		GLuint framebuffer_object = 0;
+		glCreateFramebuffers(1, &framebuffer_object);
+		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, desc.debug_name);
 
-		// CREATE FRAMEBUFFER OBJECT
+		glNamedFramebufferTexture(framebuffer_object, GL_COLOR_ATTACHMENT0, texture->texture_object, 0);
 
-		GLuint framebuffer_object;
-		glGenFramebuffers(1, &framebuffer_object);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_object);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->texture_object, 0);
-		const GLenum framebuffer_status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-		// RESTORE PREVIOUS FRAMEBUFFER OBJECT
-
-		glBindFramebuffer(GL_FRAMEBUFFER, previously_bound_framebuffer_object);
-
-		// CHECK COMPLETENESS
-
-		if (framebuffer_status != GL_FRAMEBUFFER_COMPLETE) {
+		if (glCheckNamedFramebufferStatus(framebuffer_object, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			console::log_error("Failed to create framebuffer: " + std::string(desc.debug_name));
 			glDeleteFramebuffers(1, &framebuffer_object);
 			destroy_texture(texture_handle);
 			return Handle<Framebuffer>();
 		}
 
-		// STORE RENDER TARGET
-
 		Framebuffer framebuffer{};
 		framebuffer.debug_name = desc.debug_name;
-		framebuffer.texture = texture_handle;
 		framebuffer.framebuffer_object = framebuffer_object;
-		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, desc.debug_name);
+		framebuffer.texture = texture_handle;
 
-		return  _framebuffer_pool.emplace(std::move(framebuffer));
+		return _framebuffer_pool.emplace(std::move(framebuffer));
 	}
 
 	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height)
@@ -839,10 +834,8 @@ namespace graphics
 		_temporary_framebuffers.push_back(handle);
 	}
 
-	void bind_window_framebuffer()
+	void bind_default_framebuffer()
 	{
-		// The default framebuffer is the framebuffer of the window and has name 0.
-		// It is created at the same time as the OpenGL context.
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
@@ -853,10 +846,18 @@ namespace graphics
 		}
 	}
 
-	void clear_framebuffer(float r, float g, float b, float a)
+	void clear_default_framebuffer(float r, float g, float b, float a)
 	{
-		glClearColor(r, g, b, a);
-		glClear(GL_COLOR_BUFFER_BIT);
+		float color[4] = { r, g, b, a };
+		glClearNamedFramebufferfv(0, GL_COLOR, 0, color);
+	}
+
+	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a)
+	{
+		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
+			float color[4] = { r, g, b, a };
+			glClearNamedFramebufferfv(framebuffer->framebuffer_object, GL_COLOR, 0, color);
+		}
 	}
 
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle)

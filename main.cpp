@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
         Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(
             window_framebuffer_width, window_framebuffer_height);
         graphics::bind_framebuffer(framebuffer);
-        graphics::clear_framebuffer(0.f, 0.f, 0.f, 1.f);
+        graphics::clear_framebuffer(framebuffer, 0.f, 0.f, 0.f, 1.f);
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
         background::render_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
 #endif
         {
             graphics::ScopedDebugGroup debug_group("Window");
-            graphics::bind_window_framebuffer();
+            graphics::bind_default_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::bind_texture(0, graphics::get_framebuffer_texture(framebuffer));
             graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle

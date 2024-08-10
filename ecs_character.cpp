@@ -370,9 +370,8 @@ namespace ecs
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		graphics::set_viewport(0, 0, 1024, 1024);
 
+		graphics::clear_framebuffer(framebuffer, 0.f, 0.f, 0.f, 0.f);
 		graphics::bind_framebuffer(framebuffer);
-		graphics::clear_framebuffer(0.f, 0.f, 0.f, 0.f);
-
 		graphics::bind_shader(shader);
 
 		for (const Layer& layer : layers) {
