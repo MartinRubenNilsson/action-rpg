@@ -57,15 +57,17 @@ namespace graphics
 	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
 	void destroy_buffer(Handle<Buffer> handle);
 
-	// Writes at most min(byte_size, buffer->byte_size - byte_offset) bytes, starting at byte_offset.
+	// Fails if the buffer is not dynamic, or if byte_offset + byte_size exceeds the buffer size.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size, unsigned int byte_offset = 0);
 	size_t get_buffer_byte_size(Handle<Buffer> handle);
 
-	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride);
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride, unsigned int byte_offset = 0);
 	void unbind_vertex_buffer(unsigned int binding);
 	void bind_index_buffer(Handle<Buffer> handle);
 	void unbind_index_buffer();
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
+	// Fails if byte_offset + byte_size exceeds the buffer size.
+	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset = 0);
 	void unbind_uniform_buffer(unsigned int binding);
 
 	// TEXTURES

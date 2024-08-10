@@ -510,8 +510,7 @@ namespace graphics
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (!buffer->dynamic) return;
-		if (byte_offset >= buffer->byte_size) return;
-		byte_size = std::min(byte_size, buffer->byte_size - byte_offset);
+		if (byte_offset + byte_size > buffer->byte_size) return;
 		glNamedBufferSubData(buffer->buffer_object, byte_offset, byte_size, data);
 	}
 
@@ -523,11 +522,11 @@ namespace graphics
 		return 0;
 	}
 
-	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride)
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride, unsigned int byte_offset)
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, 0, byte_stride);
+		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, byte_offset, byte_stride);
 	}
 
 	void unbind_vertex_buffer(unsigned int binding)
@@ -552,6 +551,14 @@ namespace graphics
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
+	}
+
+	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset)
+	{
+		const Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		if (byte_offset + byte_size > buffer->byte_size) return;
+		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, byte_offset, byte_size);
 	}
 
 	void unbind_uniform_buffer(unsigned int binding)
