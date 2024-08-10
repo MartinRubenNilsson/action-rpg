@@ -267,7 +267,7 @@ int main(int argc, char* argv[])
 
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
-        shapes::render("Game World Debug", camera_min, camera_max);
+        shapes::draw("Game World Debug", camera_min, camera_max);
         shapes::update_lifetimes(game_world_delta_time);
 #endif
         ui::render();

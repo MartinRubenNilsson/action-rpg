@@ -102,7 +102,7 @@ namespace ecs
                     p1.y += paths_drawn * 2.f;
                     p2.x += paths_drawn * 2.f;
                     p2.y += paths_drawn * 2.f;
-                    shapes::add_line_to_render_queue(p1, p2, color);
+                    shapes::add_line(p1, p2, color);
                 }
                 ++paths_drawn;
             }

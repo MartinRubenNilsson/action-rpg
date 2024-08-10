@@ -204,7 +204,7 @@ namespace shapes
 		}
 	}
 
-	void render(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max)
+	void draw(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group(debug_group_name);
 		_last_calculated_view_bounds.min_x = camera_min.x;
@@ -218,19 +218,19 @@ namespace shapes
 		_render_circles();
 	}
 
-	void add_line_to_render_queue(const Vector2f& p1, const Vector2f& p2, const Color& color, float lifetime)
+	void add_line(const Vector2f& p1, const Vector2f& p2, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_line(_last_calculated_view_bounds, p1, p2)) return;
 		_lines.emplace_back(p1, p2, color, lifetime);
 	}
 
-	void add_box_to_render_queue(const Vector2f& min, const Vector2f& max, const Color& color, float lifetime)
+	void add_box(const Vector2f& min, const Vector2f& max, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_box(_last_calculated_view_bounds, min, max)) return;
 		_boxes.emplace_back(min, max, color, lifetime);
 	}
 
-	void add_polygon_to_render_queue(const Vector2f* points, unsigned int count, const Color& color, float lifetime)
+	void add_polygon(const Vector2f* points, unsigned int count, const Color& color, float lifetime)
 	{
 		count = std::min(count, MAX_POLYGON_VERTICES);
 		if (count < 3) return;
@@ -242,7 +242,7 @@ namespace shapes
 		polygon.lifetime = lifetime;
 	}
 
-	void add_circle_to_render_queue(const Vector2f& center, float radius, const Color& color, float lifetime)
+	void add_circle(const Vector2f& center, float radius, const Color& color, float lifetime)
 	{
 		if (lifetime <= 0.f && _cull_circle(_last_calculated_view_bounds, center, radius)) return;
 		_circles.emplace_back(center, radius, color, lifetime);
