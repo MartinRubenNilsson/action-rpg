@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="player" tilewidth="64" tileheight="64" tilecount="256" columns="16">
  <image source="../../../../textures/character/01body/fbas_01body_human_00.png" width="1024" height="1024"/>
- <tile id="0" type="idle_d"/>
  <tile id="8">
   <animation>
    <frame tileid="8" duration="300"/>
    <frame tileid="9" duration="300"/>
   </animation>
  </tile>
- <tile id="16" type="idle_u"/>
  <tile id="24">
   <animation>
    <frame tileid="24" duration="300"/>
    <frame tileid="25" duration="300"/>
   </animation>
  </tile>
- <tile id="32" type="idle_r"/>
  <tile id="40">
   <animation>
    <frame tileid="41" duration="300"/>
@@ -32,7 +29,7 @@
    <frame tileid="50" duration="135"/>
   </animation>
  </tile>
- <tile id="51" type="run_d">
+ <tile id="51">
   <animation>
    <frame tileid="48" duration="80"/>
    <frame tileid="49" duration="55"/>
@@ -49,7 +46,7 @@
    <frame tileid="54" duration="135"/>
   </animation>
  </tile>
- <tile id="55" type="run_u">
+ <tile id="55">
   <animation>
    <frame tileid="52" duration="80"/>
    <frame tileid="53" duration="55"/>
@@ -74,7 +71,7 @@
    <property name="step" value=""/>
   </properties>
  </tile>
- <tile id="70" type="run_r">
+ <tile id="70">
   <animation>
    <frame tileid="64" duration="80"/>
    <frame tileid="65" duration="55"/>

@@ -26,6 +26,10 @@ namespace ecs
 {
 	enum PLAYER_TILE : unsigned int
 	{
+		PLAYER_TILE_IDLE_DOWN = 0,
+		PLAYER_TILE_IDLE_UP = 16,
+		PLAYER_TILE_IDLE_RIGHT = 32,
+
 		PLAYER_TILE_PUSH_DOWN = 8,
 		PLAYER_TILE_PUSH_UP = 24,
 		PLAYER_TILE_PUSH_RIGHT = 40,
@@ -33,6 +37,10 @@ namespace ecs
 		PLAYER_TILE_WALK_DOWN = 48,
 		PLAYER_TILE_WALK_UP = 52,
 		PLAYER_TILE_WALK_RIGHT = 64,
+
+		PLAYER_TILE_RUN_DOWN = 51,
+		PLAYER_TILE_RUN_UP = 55,
+		PLAYER_TILE_RUN_RIGHT = 70,
 	};
 
 	const float _PLAYER_WALK_SPEED = 60.f;
@@ -188,6 +196,8 @@ namespace ecs
 					new_move_dir = normalize(new_move_dir);
 					if (player.input_flags & INPUT_STEALTH) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;
+					} else if (player.pushing) {
+						new_move_speed = _PLAYER_WALK_SPEED;
 					} else if (player.input_flags & INPUT_RUN) {
 						new_move_speed = _PLAYER_RUN_SPEED;
 					} else {
@@ -218,7 +228,12 @@ namespace ecs
 					}
 					tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
-					tile.set_tile("run_"s + tile_dir);
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_RUN_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_RUN_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_RUN_DOWN); break;
+					}
 					tile.set_flag(TILE_LOOP, true);
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 					switch (dir) {
@@ -229,7 +244,12 @@ namespace ecs
 					}
 					tile.set_flag(TILE_LOOP, true);
 				} else {
-					tile.set_tile("idle_"s + tile_dir);
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_IDLE_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_IDLE_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_IDLE_DOWN); break;
+					}
 					tile.set_flag(TILE_LOOP, true);
 				}
 
