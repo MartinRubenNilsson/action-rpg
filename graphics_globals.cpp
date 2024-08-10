@@ -22,8 +22,8 @@ namespace graphics
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
-	Handle<Buffer> vertex_buffer;
-	Handle<Buffer> index_buffer;
+	Handle<Buffer> dynamic_vertex_buffer;
+	Handle<Buffer> dynamic_index_buffer;
 
 	Handle<Buffer> frame_uniform_buffer;
 
@@ -48,26 +48,23 @@ namespace graphics
 		constexpr unsigned int MAX_VERTICES = 8192;
 		constexpr unsigned int MAX_INDICES = 8192;
 
-		vertex_buffer = create_buffer({
-			.debug_name = "vertex buffer",
-			.type = BufferType::Vertex,
-			.usage = Usage::DynamicDraw,
-			.byte_size = sizeof(Vertex) * MAX_VERTICES });
+		dynamic_vertex_buffer = create_buffer({
+			.debug_name = "dynamic vertex buffer",
+			.byte_size = MAX_VERTICES * sizeof(Vertex),
+			.dynamic = true });
 
-		index_buffer = create_buffer({
-			.debug_name = "index buffer",
-			.type = BufferType::Index,
-			.usage = Usage::DynamicDraw,
-			.byte_size = sizeof(unsigned int) * MAX_INDICES });
+		dynamic_index_buffer = create_buffer({
+			.debug_name = "dynamic index buffer",
+			.byte_size = MAX_INDICES * sizeof(unsigned int),
+			.dynamic = true });
 
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
-			.type = BufferType::Uniform,
-			.usage = Usage::DynamicDraw,
-			.byte_size = sizeof(FrameUniforms) });
+			.byte_size = sizeof(FrameUniforms),
+			.dynamic = true });
 
-		bind_vertex_buffer(0, vertex_buffer, sizeof(Vertex));
-		bind_index_buffer(index_buffer);
+		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
+		bind_index_buffer(dynamic_index_buffer);
 		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniform_buffer);
 	}
 }

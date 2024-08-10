@@ -16,8 +16,8 @@ namespace graphics
 	extern Handle<Shader> text_shader;
 	extern Handle<Shader> ui_shader;
 
-	extern Handle<Buffer> vertex_buffer;
-	extern Handle<Buffer> index_buffer;
+	extern Handle<Buffer> dynamic_vertex_buffer;
+	extern Handle<Buffer> dynamic_index_buffer;
 
 	extern Handle<Buffer> frame_uniform_buffer;
 

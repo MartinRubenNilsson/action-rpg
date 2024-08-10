@@ -41,6 +41,12 @@
 #undef glClearBufferfv
 #undef glClearBufferfi
 
+#undef glGenBuffer
+#undef glBufferData
+#undef glBufferSubData
+#undef glBufferStorage
+#undef glNamedBufferData
+
 namespace graphics
 {
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
@@ -62,10 +68,9 @@ namespace graphics
 	struct Buffer
 	{
 		std::string debug_name;
-		BufferType type = BufferType::Vertex;
-		Usage usage = Usage::StaticDraw;
-		unsigned int byte_size = 0;
 		GLuint buffer_object = 0;
+		unsigned int byte_size = 0;
+		bool dynamic = false;
 	};
 
 	struct Texture
@@ -442,49 +447,40 @@ namespace graphics
 		}
 	}
 
-	GLenum _to_gl_buffer_type(BufferType type)
-	{
-		switch (type) {
-		case BufferType::Vertex:  return GL_ARRAY_BUFFER;
-		case BufferType::Index:   return GL_ELEMENT_ARRAY_BUFFER;
-		case BufferType::Uniform: return GL_UNIFORM_BUFFER;
-		default:				  return 0; // should never happen
-		}
-	}
-
-	GLenum _to_gl_usage(Usage usage)
-	{
-		switch (usage) {
-		case Usage::StaticDraw:  return GL_STATIC_DRAW;
-		case Usage::StaticRead:  return GL_STATIC_READ;
-		case Usage::StaticCopy:  return GL_STATIC_COPY;
-		case Usage::DynamicDraw: return GL_DYNAMIC_DRAW;
-		case Usage::DynamicRead: return GL_DYNAMIC_READ;
-		case Usage::DynamicCopy: return GL_DYNAMIC_COPY;
-		default:				 return 0; // should never happen
-		}
-	}
-
 	Handle<Buffer> create_buffer(const BufferDesc&& desc)
 	{
 		GLuint buffer_object = 0;
-		glGenBuffers(1, &buffer_object);
+		glCreateBuffers(1, &buffer_object);
 		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
 
-		const GLenum gl_buffer_type = _to_gl_buffer_type(desc.type);
-		glBindBuffer(gl_buffer_type, buffer_object);
-
-		const GLenum gl_usage = _to_gl_usage(desc.usage);
-		glBufferData(gl_buffer_type, desc.byte_size, desc.initial_data, gl_usage);
+		GLbitfield flags = 0;
+		if (desc.dynamic) {
+			flags |= GL_DYNAMIC_STORAGE_BIT;
+		}
+		glNamedBufferStorage(buffer_object, desc.byte_size, desc.initial_data, flags);
 
 		Buffer buffer{};
 		buffer.debug_name = desc.debug_name;
-		buffer.type = desc.type;
-		buffer.usage = desc.usage;
-		buffer.byte_size = desc.byte_size;
 		buffer.buffer_object = buffer_object;
+		buffer.byte_size = desc.byte_size;
+		buffer.dynamic = desc.dynamic;
 
 		return _buffer_pool.emplace(std::move(buffer));
+	}
+
+	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
+	{
+		Buffer* buffer = _buffer_pool.get(handle);
+		if (!buffer) return;
+		glDeleteBuffers(1, &buffer->buffer_object);
+		glCreateBuffers(1, &buffer->buffer_object);
+		_set_debug_label(GL_BUFFER, buffer->buffer_object, buffer->debug_name);
+		GLbitfield flags = 0;
+		if (buffer->dynamic) {
+			flags |= GL_DYNAMIC_STORAGE_BIT;
+		}
+		glNamedBufferStorage(buffer->buffer_object, byte_size, initial_data, flags);
+		buffer->byte_size = byte_size;
 	}
 
 	void destroy_buffer(Handle<Buffer> handle)
@@ -496,39 +492,29 @@ namespace graphics
 		_buffer_pool.free(handle);
 	}
 
-	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size)
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size, unsigned int byte_offset)
 	{
 		if (!data || !byte_size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		const GLenum gl_buffer_type = _to_gl_buffer_type(buffer->type);
-		byte_size = std::min(byte_size, buffer->byte_size);
-		glBindBuffer(gl_buffer_type, buffer->buffer_object);
-		glBufferSubData(gl_buffer_type, 0, byte_size, data);
-	}
-
-	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
-	{
-		Buffer* buffer = _buffer_pool.get(handle);
-		if (!buffer) return;
-		const GLenum gl_buffer_type = _to_gl_buffer_type(buffer->type);
-		const GLenum gl_usage = _to_gl_usage(buffer->usage);
-		glBindBuffer(gl_buffer_type, buffer->buffer_object);
-		glBufferData(gl_buffer_type, byte_size, initial_data, gl_usage);
-		buffer->byte_size = byte_size;
+		if (!buffer->dynamic) return;
+		if (byte_offset >= buffer->byte_size) return;
+		byte_size = std::min(byte_size, buffer->byte_size - byte_offset);
+		glNamedBufferSubData(buffer->buffer_object, byte_offset, byte_size, data);
 	}
 
 	size_t get_buffer_byte_size(Handle<Buffer> handle)
 	{
-		const Buffer* buffer = _buffer_pool.get(handle);
-		return buffer ? buffer->byte_size : 0;
+		if (const Buffer* buffer = _buffer_pool.get(handle)) {
+			return buffer->byte_size;
+		}
+		return 0;
 	}
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride)
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (buffer->type != BufferType::Vertex) return;
 		glBindVertexBuffer(binding, buffer->buffer_object, 0, byte_stride);
 	}
 
@@ -541,7 +527,6 @@ namespace graphics
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (buffer->type != BufferType::Index) return;
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->buffer_object);
 	}
 
@@ -554,7 +539,6 @@ namespace graphics
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (buffer->type != BufferType::Uniform) return;
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
 	}
 

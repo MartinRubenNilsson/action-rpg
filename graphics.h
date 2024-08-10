@@ -44,44 +44,21 @@ namespace graphics
 
 	// BUFFERS
 
-	enum class BufferType
-	{
-		Vertex,
-		Index,
-		Uniform,
-	};
-
-	enum class Usage
-	{
-		// Static - The contents will be modified once and used many times.
-		// Dynamic - The contents will be modified repeatedly and used many times.
-		// Draw - The contents are modified by the application, and used as the source for GL drawing and image specification commands.
-		// Read - The contents are modified by reading data from the GL, and used to return that data when queried by the application.
-		// Copy - The contents are modified by reading data from the GL, and used as the source for GL drawing and image specification commands.
-
-		StaticDraw,
-		StaticRead,
-		StaticCopy,
-		DynamicDraw,
-		DynamicRead,
-		DynamicCopy,
-	};
-
 	struct BufferDesc
 	{
 		std::string_view debug_name = "buffer";
-		BufferType type = BufferType::Vertex;
-		Usage usage = Usage::StaticDraw;
 		unsigned int byte_size = 0;
 		const void* initial_data = nullptr;
+		bool dynamic = false; // If true, the buffer can be updated with update_buffer().
 	};
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
+	// Since buffer sizes are immutable, resize_buffer() will create a new buffer and destroy the old one.
+	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
 	void destroy_buffer(Handle<Buffer> handle);
 
-	// Writes min(byte_size, buffer->byte_size) bytes from data to the buffer.
-	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size);
-	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
+	// Writes at most min(byte_size, buffer->byte_size - byte_offset) bytes, starting at byte_offset.
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size, unsigned int byte_offset = 0);
 	size_t get_buffer_byte_size(Handle<Buffer> handle);
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride);

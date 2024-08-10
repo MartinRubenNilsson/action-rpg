@@ -126,10 +126,10 @@ namespace sprites
 		}
 
 		const unsigned int vertices_byte_size = (unsigned int)_vertices.size() * sizeof(graphics::Vertex);
-		if (vertices_byte_size <= graphics::get_buffer_byte_size(graphics::vertex_buffer)) {
-			graphics::update_buffer(graphics::vertex_buffer, _vertices.data(), vertices_byte_size);
+		if (vertices_byte_size <= graphics::get_buffer_byte_size(graphics::dynamic_vertex_buffer)) {
+			graphics::update_buffer(graphics::dynamic_vertex_buffer, _vertices.data(), vertices_byte_size);
 		} else {
-			graphics::resize_buffer(graphics::vertex_buffer, vertices_byte_size, _vertices.data());
+			graphics::resize_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, _vertices.data());
 		}
 
 		for (const Batch& batch : _batches) {

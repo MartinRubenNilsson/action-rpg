@@ -63,8 +63,8 @@ namespace ui
 			_previous_scissor_box[1],
 			_previous_scissor_box[2],
 			_previous_scissor_box[3]);
-		graphics::bind_vertex_buffer(0, graphics::vertex_buffer, sizeof(graphics::Vertex));
-		graphics::bind_index_buffer(graphics::index_buffer);
+		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
+		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
 		graphics::pop_debug_group();
 	}
 
@@ -81,8 +81,8 @@ namespace ui
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
 		}
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
-		graphics::update_buffer(graphics::vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
-		graphics::update_buffer(graphics::index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
+		graphics::update_buffer(graphics::dynamic_vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
+		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
 	}
 
@@ -99,14 +99,10 @@ namespace ui
 		CompiledGeometry* compiled_geometry = new CompiledGeometry();
 		compiled_geometry->vertex_buffer = graphics::create_buffer({
 			.debug_name = "rmlui vertex buffer",
-			.type = graphics::BufferType::Vertex,
-			.usage = graphics::Usage::StaticDraw,
 			.byte_size = (unsigned int)sizeof(graphics::Vertex) * num_vertices,
 			.initial_data = vertices });
 		compiled_geometry->index_buffer = graphics::create_buffer({
 			.debug_name = "rmlui index buffer",
-			.type = graphics::BufferType::Index,
-			.usage = graphics::Usage::StaticDraw,
 			.byte_size = (unsigned int)sizeof(unsigned int) * num_indices,
 			.initial_data = indices });
 		compiled_geometry->index_count = (unsigned int)num_indices;
