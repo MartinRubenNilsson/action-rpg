@@ -16,11 +16,13 @@ namespace ecs
     void update_vfx(float dt)
     {
         for (auto [entity, vfx] : _registry.view<Vfx>().each()) {
-            if (vfx.time < 0.f)
+            if (vfx.time < 0.f) {
                 vfx.time = 0.f;
+            }
 			vfx.time += dt;
-            if (vfx.time >= vfx.frame_rows * vfx.frame_cols * vfx.frame_duration)
+            if (vfx.time >= vfx.frame_rows * vfx.frame_cols * vfx.frame_duration) {
 				_registry.destroy(entity);
+            }
 		}
     }
 

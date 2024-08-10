@@ -109,7 +109,11 @@ namespace ecs
 			std::swap(class_a, class_b);
 		}
 
-		// TODO
+		if (class_a == "player") {
+			if (class_b == "pushable_block") {
+				body_b->SetLinearVelocity(b2Vec2_zero);
+			}
+		}
 	}
 }
 
