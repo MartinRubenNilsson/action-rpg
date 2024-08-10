@@ -16,6 +16,8 @@ namespace graphics
 		0.f, 0.f, 0.f, 1.f,
 	};
 
+	eastl::vector<graphics::Vertex> temp_vertices;
+
 	Handle<Shader> sprite_shader;
 	Handle<Shader> fullscreen_shader;
 	Handle<Shader> shape_shader;

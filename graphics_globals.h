@@ -10,6 +10,10 @@ namespace graphics
 
 	extern const float IDENTITY_MATRIX[16];
 
+	// You may use this as a temporary scratch buffer for vertices, for example
+	// when building a list of vertices to eventually upload to a buffer.
+	extern eastl::vector<graphics::Vertex> temp_vertices;
+
 	extern Handle<Shader> sprite_shader;
 	extern Handle<Shader> fullscreen_shader;
 	extern Handle<Shader> shape_shader;

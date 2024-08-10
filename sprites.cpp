@@ -43,7 +43,6 @@ namespace sprites
 
 	eastl::vector<Sprite> _sprites; // will be sorted by draw order
 	eastl::vector<Batch> _batches;
-	eastl::vector<graphics::Vertex> _vertices;
 
 	unsigned int _sprites_drawn = 0;
 	unsigned int _batches_drawn = 0;
@@ -79,6 +78,8 @@ namespace sprites
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH
 		// are the triangle strips for two sprites, then the batched triangle strip will be ABCDDEEFGH.
 
+		graphics::temp_vertices.clear();
+
 		for (const Sprite& sprite : _sprites) {
 
 			Vector2f tl = sprite.min; // top-left corner
@@ -106,30 +107,30 @@ namespace sprites
 				Batch& current_batch = _batches.back();
 				if (sprite.shader == current_batch.shader && sprite.texture == current_batch.texture) {
 					// Add degenerate triangles to separate the sprites
-					_vertices.emplace_back(_vertices.back()); // D
-					_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
+					graphics::temp_vertices.emplace_back(graphics::temp_vertices.back()); // D
+					graphics::temp_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
 					current_batch.vertex_count += 2;
 				} else {
 					Batch& new_batch = _batches.emplace_back();
 					new_batch.shader = sprite.shader;
 					new_batch.texture = sprite.texture;
-					new_batch.vertex_offset = (unsigned int)_vertices.size();
+					new_batch.vertex_offset = (unsigned int)graphics::temp_vertices.size();
 				}
 			}
 
 			// Add the vertices of the new sprite to the batch
-			_vertices.emplace_back(tl, sprite.color, sprite.tex_min);
-			_vertices.emplace_back(bl, sprite.color, Vector2f(sprite.tex_min.x, sprite.tex_max.y));
-			_vertices.emplace_back(tr, sprite.color, Vector2f(sprite.tex_max.x, sprite.tex_min.y));
-			_vertices.emplace_back(br, sprite.color, sprite.tex_max);
+			graphics::temp_vertices.emplace_back(tl, sprite.color, sprite.tex_min);
+			graphics::temp_vertices.emplace_back(bl, sprite.color, Vector2f(sprite.tex_min.x, sprite.tex_max.y));
+			graphics::temp_vertices.emplace_back(tr, sprite.color, Vector2f(sprite.tex_max.x, sprite.tex_min.y));
+			graphics::temp_vertices.emplace_back(br, sprite.color, sprite.tex_max);
 			_batches.back().vertex_count += 4;
 		}
 
-		const unsigned int vertices_byte_size = (unsigned int)_vertices.size() * sizeof(graphics::Vertex);
+		const unsigned int vertices_byte_size = (unsigned int)graphics::temp_vertices.size() * sizeof(graphics::Vertex);
 		if (vertices_byte_size <= graphics::get_buffer_byte_size(graphics::dynamic_vertex_buffer)) {
-			graphics::update_buffer(graphics::dynamic_vertex_buffer, _vertices.data(), vertices_byte_size);
+			graphics::update_buffer(graphics::dynamic_vertex_buffer, graphics::temp_vertices.data(), vertices_byte_size);
 		} else {
-			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, _vertices.data());
+			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
 		}
 
 		for (const Batch& batch : _batches) {
@@ -145,7 +146,7 @@ namespace sprites
 
 		_sprites.clear();
 		_batches.clear();
-		_vertices.clear();
+		graphics::temp_vertices.clear();
 	}
 
 	void clear_drawing_statistics()
