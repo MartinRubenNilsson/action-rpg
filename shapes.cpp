@@ -46,21 +46,23 @@ namespace shapes
 		float lifetime = 0.f;
 	};
 
-	struct Text
+	struct Batch
 	{
-		std::string string;
-		Vector2f position;
-		float lifetime = 0.f;
+		graphics::Primitives primitive{};
+		unsigned int vertex_count = 0;
+		unsigned int vertex_offset = 0;
 	};
 
 	// Culling will use the view bounds from last render call,
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
+
 	std::vector<Line> _lines;
 	std::vector<Box> _boxes;
 	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
-	std::vector<Text> _texts;
+
+	std::vector<Batch> _batches;
 	std::vector<graphics::Vertex> _vertices;
 
 	bool _cull_line(const ViewBounds& bounds, const Vector2f& p1, const Vector2f& p2)
@@ -128,94 +130,105 @@ namespace shapes
 		_update_lifetimes(_boxes, dt);
 		_update_lifetimes(_polygons, dt);
 		_update_lifetimes(_circles, dt);
-		_update_lifetimes(_texts, dt);
-	}
-
-	void _render_lines()
-	{
-		const size_t line_count = _lines.size();
-		if (line_count == 0) return;
-		_vertices.resize(line_count * 2);
-		for (size_t l = 0; l < line_count; ++l) {
-			const Line& line = _lines[l];
-			if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2)) continue;
-			_vertices[2 * l + 0].position = line.p1;
-			_vertices[2 * l + 0].color = line.color;
-			_vertices[2 * l + 1].position = line.p2;
-			_vertices[2 * l + 1].color = line.color;
-		}
-		graphics::update_buffer(graphics::dynamic_vertex_buffer, _vertices.data(), (unsigned int)_vertices.size() * sizeof(graphics::Vertex));
-		graphics::draw(graphics::Primitives::LineList, (unsigned int)_vertices.size());
-	}
-
-	void _render_boxes()
-	{
-		if (_boxes.empty()) return;
-		graphics::Vertex vertices[5];
-		for (const Box& box : _boxes) {
-			if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
-			vertices[0].position = { box.min.x, box.min.y };
-			vertices[1].position = { box.max.x, box.min.y };
-			vertices[2].position = { box.max.x, box.max.y };
-			vertices[3].position = { box.min.x, box.max.y };
-			vertices[0].color = box.color;
-			vertices[1].color = box.color;
-			vertices[2].color = box.color;
-			vertices[3].color = box.color;
-			vertices[4] = vertices[0];
-			graphics::update_buffer(graphics::dynamic_vertex_buffer, vertices, std::size(vertices) * sizeof(graphics::Vertex));
-			graphics::draw(graphics::Primitives::LineStrip, std::size(vertices));
-		}
-	}
-
-	void _render_polygons()
-	{
-		if (_polygons.empty()) return;
-		graphics::Vertex vertices[MAX_POLYGON_VERTICES + 1];
-		for (const Polygon& polygon : _polygons) {
-			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count)) continue;
-			for (size_t i = 0; i < polygon.count; ++i) {
-				vertices[i].position = polygon.points[i];
-				vertices[i].color = polygon.color;
-			}
-			vertices[polygon.count].position = polygon.points[0];
-			vertices[polygon.count].color = polygon.color;
-			graphics::update_buffer(graphics::dynamic_vertex_buffer, vertices, (polygon.count + 1) * sizeof(graphics::Vertex));
-			graphics::draw(graphics::Primitives::LineStrip, polygon.count + 1);
-		}
-	}
-
-	void _render_circles()
-	{
-		if (_circles.empty()) return;
-		constexpr unsigned int SUBDIVISIONS = 32;
-		constexpr float ANGLE_STEP = 6.283185307f / SUBDIVISIONS;
-		graphics::Vertex vertices[SUBDIVISIONS + 1];
-		for (const Circle& circle : _circles) {
-			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
-			for (unsigned int i = 0; i < SUBDIVISIONS; ++i) {
-				const float angle = i * ANGLE_STEP;
-				vertices[i].position = circle.center + circle.radius * Vector2f{ std::cos(angle), std::sin(angle) };
-				vertices[i].color = circle.color;
-			}
-			vertices[SUBDIVISIONS] = vertices[0];
-			graphics::update_buffer(graphics::dynamic_vertex_buffer, vertices, std::size(vertices) * sizeof(graphics::Vertex));
-			graphics::draw(graphics::Primitives::LineStrip, std::size(vertices));
-		}
 	}
 
 	void draw(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group(debug_group_name);
+
 		_last_calculated_view_bounds.min_x = camera_min.x;
 		_last_calculated_view_bounds.min_y = camera_min.y;
 		_last_calculated_view_bounds.max_x = camera_max.x;
 		_last_calculated_view_bounds.max_y = camera_max.y;
+
+		// SETUP
+
+		_batches.clear();
+		_vertices.clear();
+
+		// CREATE LINE BATCH
+		{
+			Batch& batch = _batches.emplace_back();
+			batch.primitive = graphics::Primitives::LineList;
+			batch.vertex_offset = (unsigned int)_vertices.size();
+			for (const Line& line : _lines) {
+				if (_cull_line(_last_calculated_view_bounds, line.p1, line.p2)) continue;
+				_vertices.emplace_back(line.p1, line.color);
+				_vertices.emplace_back(line.p2, line.color);
+				batch.vertex_count += 2;
+			}
+		}
+
+		// CREATE BOX BATCHES
+		{
+			for (const Box& box : _boxes) {
+				if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
+				Batch& draw = _batches.emplace_back();
+				draw.primitive = graphics::Primitives::LineStrip;
+				draw.vertex_count = 5;
+				draw.vertex_offset = (unsigned int)_vertices.size();
+				_vertices.emplace_back(Vector2f{ box.min.x, box.min.y }, box.color);
+				_vertices.emplace_back(Vector2f{ box.max.x, box.min.y }, box.color);
+				_vertices.emplace_back(Vector2f{ box.max.x, box.max.y }, box.color);
+				_vertices.emplace_back(Vector2f{ box.min.x, box.max.y }, box.color);
+				_vertices.emplace_back(_vertices[draw.vertex_offset]);
+			}
+		}
+
+		// CREATE POLYGON BATCHES
+		{
+			for (const Polygon& polygon : _polygons) {
+				if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count)) continue;
+				Batch& draw = _batches.emplace_back();
+				draw.primitive = graphics::Primitives::LineStrip;
+				draw.vertex_count = polygon.count + 1;
+				draw.vertex_offset = (unsigned int)_vertices.size();
+				for (unsigned int i = 0; i < polygon.count; ++i) {
+					_vertices.emplace_back(polygon.points[i], polygon.color);
+				}
+				_vertices.emplace_back(_vertices[draw.vertex_offset]);
+			}
+		}
+
+		// CREATE CIRCLE BATCHES
+		{
+			constexpr unsigned int SUBDIVISIONS = 32;
+			constexpr float ANGLE_STEP = 6.283185307f / SUBDIVISIONS;
+			for (const Circle& circle : _circles) {
+				if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
+				Batch& draw = _batches.emplace_back();
+				draw.primitive = graphics::Primitives::LineStrip;
+				draw.vertex_count = SUBDIVISIONS + 1;
+				draw.vertex_offset = (unsigned int)_vertices.size();
+				for (unsigned int i = 0; i < SUBDIVISIONS; ++i) {
+					const float angle = i * ANGLE_STEP;
+					const Vector2f position = circle.center + circle.radius * Vector2f{ cos(angle), sin(angle) };
+					_vertices.emplace_back(position, circle.color);
+				}
+				_vertices.emplace_back(_vertices[draw.vertex_offset]);
+			}
+		}
+
+		// DRAW BATCHES
+
+		const unsigned int vertices_byte_size = (unsigned int)_vertices.size() * sizeof(graphics::Vertex);
+		if (vertices_byte_size <= graphics::get_buffer_byte_size(graphics::dynamic_vertex_buffer)) {
+			graphics::update_buffer(graphics::dynamic_vertex_buffer, _vertices.data(), vertices_byte_size);
+		} else {
+			graphics::resize_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, _vertices.data());
+		}
+
 		graphics::bind_shader(graphics::shape_shader);
-		_render_lines();
-		_render_boxes();
-		_render_polygons();
-		_render_circles();
+		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
+
+		for (const Batch& draw : _batches) {
+			graphics::draw(draw.primitive, draw.vertex_count, draw.vertex_offset);
+		}
+
+		// CLEANUP
+
+		_batches.clear();
+		_vertices.clear();
 	}
 
 	void add_line(const Vector2f& p1, const Vector2f& p2, const Color& color, float lifetime)
