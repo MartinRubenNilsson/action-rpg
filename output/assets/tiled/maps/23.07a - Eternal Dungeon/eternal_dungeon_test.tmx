@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="25" nextobjectid="22">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="50" height="32" tilewidth="16" tileheight="16" infinite="0" nextlayerid="26" nextobjectid="29">
  <tileset firstgid="1" source="TSX files/collision &amp; alpha.tsx"/>
  <tileset firstgid="129" source="TSX files/eternal dungeon.tsx"/>
  <tileset firstgid="385" source="TSX files/eternal obelisk 48x64.tsx"/>
@@ -203,4 +203,18 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="25" name="Comments">
+  <object id="22" x="383.667" y="104.833" width="80" height="17">
+   <text fontfamily="Arial" pixelsize="8" wrap="1" color="#ffffff">Textbox here?</text>
+  </object>
+  <object id="26" x="305.333" y="124.833" width="80" height="17">
+   <text fontfamily="Arial" pixelsize="8" wrap="1" color="#ffffff">Lightmapping for torches?</text>
+  </object>
+  <object id="27" x="376" y="450.833" width="80" height="17">
+   <text fontfamily="Arial" pixelsize="8" wrap="1" color="#ffffff">Corridor to build up tension?</text>
+  </object>
+  <object id="28" x="549.333" y="218.833" width="80" height="34.3333">
+   <text fontfamily="Arial" pixelsize="8" wrap="1" color="#ffffff">This door can lead to a room which leads to staircase on right</text>
+  </object>
+ </objectgroup>
 </map>
