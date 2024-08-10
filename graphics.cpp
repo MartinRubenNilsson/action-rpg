@@ -490,7 +490,7 @@ namespace graphics
 		return _buffer_pool.emplace(std::move(buffer));
 	}
 
-	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
+	void recreate_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
 	{
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;

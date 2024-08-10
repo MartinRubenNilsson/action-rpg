@@ -55,8 +55,7 @@ namespace graphics
 	};
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
-	// Since buffer sizes are immutable, resize_buffer() will create a new buffer and destroy the old one.
-	void resize_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
+	void recreate_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
 	void destroy_buffer(Handle<Buffer> handle);
 
 	// Fails if the buffer is not dynamic, or if byte_offset + byte_size exceeds the buffer size.
