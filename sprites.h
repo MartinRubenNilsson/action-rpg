@@ -44,6 +44,8 @@ namespace sprites
 	//
 	bool operator<(const Sprite& left, const Sprite& right);
 
+	// DRAWING
+
 	void add(const Sprite& sprite); // Adds a sprite to be drawn later.
 	void draw(std::string_view debug_group_name); // Draws all added sprites in draw order.
 

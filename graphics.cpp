@@ -12,6 +12,23 @@
 
 #pragma comment(lib, "opengl32")
 
+// Undefine pre-DSA functions to force the use of DSA whenever possible.
+
+#undef glGenTextures
+#undef glBindTexture
+#undef glTexParameterf
+#undef glTexParameteri
+#undef glTexParameterfv
+#undef glTexParameteriv
+#undef glTexParameterIiv
+#undef glTexParameterIuiv
+#undef glTexImage2D
+#undef glTexStorage2D
+#undef glTexSubImage2D
+#undef glGenerateMipmap
+#undef glActiveTexture
+
+
 namespace graphics
 {
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
@@ -42,11 +59,11 @@ namespace graphics
 	struct Texture
 	{
 		std::string debug_name;
+		GLuint texture_object = 0;
 		unsigned int width = 0;
 		unsigned int height = 0;
 		unsigned int channels = 0;
 		unsigned int byte_size = 0; // for debugging
-		GLuint texture_object = 0;
 		Filter filter = Filter::Nearest;
 	};
 
@@ -413,7 +430,7 @@ namespace graphics
 		}
 	}
 
-	GLenum _buffer_type_to_gl(BufferType type)
+	GLenum _to_gl_buffer_type(BufferType type)
 	{
 		switch (type) {
 		case BufferType::Vertex:  return GL_ARRAY_BUFFER;
@@ -423,7 +440,7 @@ namespace graphics
 		}
 	}
 
-	GLenum _usage_to_gl(Usage usage)
+	GLenum _to_gl_usage(Usage usage)
 	{
 		switch (usage) {
 		case Usage::StaticDraw:  return GL_STATIC_DRAW;
@@ -438,13 +455,14 @@ namespace graphics
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc)
 	{
-		GLuint buffer_object;
+		GLuint buffer_object = 0;
 		glGenBuffers(1, &buffer_object);
 		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
 
-		const GLenum gl_buffer_type = _buffer_type_to_gl(desc.type);
-		const GLenum gl_usage = _usage_to_gl(desc.usage);
+		const GLenum gl_buffer_type = _to_gl_buffer_type(desc.type);
 		glBindBuffer(gl_buffer_type, buffer_object);
+
+		const GLenum gl_usage = _to_gl_usage(desc.usage);
 		glBufferData(gl_buffer_type, desc.byte_size, desc.initial_data, gl_usage);
 
 		Buffer buffer{};
@@ -471,7 +489,7 @@ namespace graphics
 		if (!data || !byte_size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		const GLenum gl_buffer_type = _buffer_type_to_gl(buffer->type);
+		const GLenum gl_buffer_type = _to_gl_buffer_type(buffer->type);
 		byte_size = std::min(byte_size, buffer->byte_size);
 		glBindBuffer(gl_buffer_type, buffer->buffer_object);
 		glBufferSubData(gl_buffer_type, 0, byte_size, data);
@@ -481,8 +499,8 @@ namespace graphics
 	{
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		const GLenum gl_buffer_type = _buffer_type_to_gl(buffer->type);
-		const GLenum gl_usage = _usage_to_gl(buffer->usage);
+		const GLenum gl_buffer_type = _to_gl_buffer_type(buffer->type);
+		const GLenum gl_usage = _to_gl_usage(buffer->usage);
 		glBindBuffer(gl_buffer_type, buffer->buffer_object);
 		glBufferData(gl_buffer_type, byte_size, initial_data, gl_usage);
 		buffer->byte_size = byte_size;
@@ -533,7 +551,7 @@ namespace graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}
 
-	GLint _filter_to_gl(Filter filter)
+	GLint _to_gl_filter(Filter filter)
 	{
 		switch (filter) {
 		case Filter::Nearest: return GL_NEAREST;
@@ -542,35 +560,53 @@ namespace graphics
 		}
 	}
 
+	GLenum _to_gl_format(unsigned int channels)
+	{
+		switch (channels) {
+		case 1: return GL_RED;
+		case 2: return GL_RG;
+		case 3: return GL_RGB;
+		case 4: return GL_RGBA;
+		default: return 0; // should never happen
+		}
+	}
+
+	GLenum _to_gl_sized_format(unsigned int channels)
+	{
+		switch (channels) {
+		case 1: return GL_R8;
+		case 2: return GL_RG8;
+		case 3: return GL_RGB8;
+		case 4: return GL_RGBA8;
+		default: return 0; // should never happen
+		}
+	}
+
 	Handle<Texture> create_texture(const TextureDesc&& desc)
 	{
-		GLenum format = GL_RGBA;
-		if (desc.channels == 1) {
-			format = GL_RED;
-		} else if (desc.channels == 2) {
-			format = GL_RG;
-		} else if (desc.channels == 3) {
-			format = GL_RGB;
-		} else if (desc.channels == 4) {
-			format = GL_RGBA;
-		}
-
-		GLuint texture_object;
-		glGenTextures(1, &texture_object);
-		glBindTexture(GL_TEXTURE_2D, texture_object);
-		const GLint gl_filter = _filter_to_gl(desc.filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, desc.width, desc.height, 0, format, GL_UNSIGNED_BYTE, desc.initial_data);
+		GLuint texture_object = 0;
+		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
 		_set_debug_label(GL_TEXTURE, texture_object, desc.debug_name);
+
+		const GLint gl_filter = _to_gl_filter(desc.filter);
+		glTextureParameteri(texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glTextureParameteri(texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
+
+		const GLenum internal_format = _to_gl_sized_format(desc.channels);
+		glTextureStorage2D(texture_object, 1, internal_format, desc.width, desc.height);
+
+		if (desc.initial_data) {
+			const GLenum format = _to_gl_format(desc.channels);
+			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, format, GL_UNSIGNED_BYTE, desc.initial_data);
+		}
 
 		Texture texture{};
 		texture.debug_name = desc.debug_name;
+		texture.texture_object = texture_object;
 		texture.width = desc.width;
 		texture.height = desc.height;
 		texture.channels = desc.channels;
 		texture.byte_size = desc.width * desc.height * desc.channels;
-		texture.texture_object = texture_object;
 		texture.filter = desc.filter;
 
 		_total_texture_memory_usage_in_bytes += texture.byte_size;
@@ -669,33 +705,30 @@ namespace graphics
 	void bind_texture(unsigned int binding, Handle<Texture> handle)
 	{
 		if (const Texture* texture = _texture_pool.get(handle)) {
-			glActiveTexture(GL_TEXTURE0 + binding);
-			glBindTexture(GL_TEXTURE_2D, texture->texture_object);
+			glBindTextureUnit(binding, texture->texture_object);
 		}
 	}
 
 	void unbind_texture(unsigned int binding)
 	{
-		glActiveTexture(GL_TEXTURE0 + binding);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindTextureUnit(binding, 0);
 	}
 
 	void update_texture(Handle<Texture> handle, const unsigned char* data)
 	{
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture->width, texture->height, GL_RED, GL_UNSIGNED_BYTE, data);
+		const GLenum format = _to_gl_format(texture->channels);
+		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
 	{
 		Texture* dest_texture = _texture_pool.get(dest);
-		Texture* src_texture = _texture_pool.get(src);
+		const Texture* src_texture = _texture_pool.get(src);
 		if (!dest_texture || !src_texture) return;
 		if (dest_texture->width != src_texture->width) return;
 		if (dest_texture->height != src_texture->height) return;
-		glBindTexture(GL_TEXTURE_2D, dest_texture->texture_object);
 		glCopyImageSubData(
 			src_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
 			dest_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
@@ -719,10 +752,9 @@ namespace graphics
 		if (!texture) return;
 		if (texture->filter == filter) return;
 		texture->filter = filter;
-		const GLint gl_filter = _filter_to_gl(filter);
-		glBindTexture(GL_TEXTURE_2D, texture->texture_object);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter);
+		const GLint gl_filter = _to_gl_filter(filter);
+		glTextureParameteri(texture->texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glTextureParameteri(texture->texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
 	}
 
 	Filter get_texture_filter(Handle<Texture> handle)
@@ -879,7 +911,7 @@ namespace graphics
 		height = scissor_box[3];
 	}
 
-	GLenum _primitives_to_gl(Primitives primitives)
+	GLenum _to_gl_primitives(Primitives primitives)
 	{
 		switch (primitives) {
 		case Primitives::PointList:     return GL_POINTS;
@@ -894,13 +926,13 @@ namespace graphics
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
 	{
 		if (!vertex_count) return;
-		glDrawArrays(_primitives_to_gl(primitives), vertex_offset, vertex_count);
+		glDrawArrays(_to_gl_primitives(primitives), vertex_offset, vertex_count);
 	}
 
 	void draw_indexed(Primitives primitives, unsigned int index_count)
 	{
 		if (!index_count) return;
-		glDrawElements(_primitives_to_gl(primitives), index_count, GL_UNSIGNED_INT, 0);
+		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, 0);
 	}
 
 	void push_debug_group(std::string_view name)
