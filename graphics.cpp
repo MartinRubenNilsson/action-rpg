@@ -47,6 +47,17 @@
 #undef glBufferStorage
 #undef glNamedBufferData
 
+#undef glGenVertexArrays
+#undef glEnableVertexAttribArray
+#undef glDisableVertexAttribArray
+#undef glVertexAttribPointer
+#undef glVertexAttribFormat
+#undef glVertexAttribIFormat
+#undef glVertexAttribLFormat
+#undef glVertexAttribBinding
+#undef glVertexBindingDivisor
+#undef glBindVertexBuffer
+
 namespace graphics
 {
 	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
@@ -150,20 +161,21 @@ namespace graphics
 #endif
 		// CREATE AND BIND VERTEX ARRAY
 
-		glGenVertexArrays(1, &_vertex_array_object);
+		glCreateVertexArrays(1, &_vertex_array_object);
+		_set_debug_label(GL_VERTEX_ARRAY, _vertex_array_object, "vertex array");
 		glBindVertexArray(_vertex_array_object);
 
-		// ENABLE VERTEX ATTRIBUTES
+		// SETUP VERTEX ARRAY ATTRIBUTES
 
-		glEnableVertexAttribArray(0);
-		glVertexAttribFormat(0, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
-		glVertexAttribBinding(0, 0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribFormat(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
-		glVertexAttribBinding(1, 0);
-		glEnableVertexAttribArray(2);
-		glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
-		glVertexAttribBinding(2, 0);
+		glEnableVertexArrayAttrib(_vertex_array_object, 0);
+		glEnableVertexArrayAttrib(_vertex_array_object, 1);
+		glEnableVertexArrayAttrib(_vertex_array_object, 2);
+		glVertexArrayAttribFormat(_vertex_array_object, 0, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
+		glVertexArrayAttribFormat(_vertex_array_object, 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
+		glVertexArrayAttribFormat(_vertex_array_object, 2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
+		glVertexArrayAttribBinding(_vertex_array_object, 0, 0);
+		glVertexArrayAttribBinding(_vertex_array_object, 1, 0);
+		glVertexArrayAttribBinding(_vertex_array_object, 2, 0);
 
 		// SETUP BLENDING
 
@@ -515,24 +527,24 @@ namespace graphics
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glBindVertexBuffer(binding, buffer->buffer_object, 0, byte_stride);
+		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, 0, byte_stride);
 	}
 
 	void unbind_vertex_buffer(unsigned int binding)
 	{
-		glBindVertexBuffer(binding, 0, 0, 0);
+		glVertexArrayVertexBuffer(_vertex_array_object, binding, 0, 0, 0);
 	}
 
 	void bind_index_buffer(Handle<Buffer> handle)
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer->buffer_object);
+		glVertexArrayElementBuffer(_vertex_array_object, buffer->buffer_object);
 	}
 
 	void unbind_index_buffer()
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glVertexArrayElementBuffer(_vertex_array_object, 0);
 	}
 
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
@@ -755,8 +767,10 @@ namespace graphics
 
 	Filter get_texture_filter(Handle<Texture> handle)
 	{
-		const Texture* texture = _texture_pool.get(handle);
-		return texture ? texture->filter : Filter::Nearest;
+		if (const Texture* texture = _texture_pool.get(handle)) {
+			return texture->filter;
+		}
+		return Filter();
 	}
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
