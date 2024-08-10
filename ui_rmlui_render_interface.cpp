@@ -167,6 +167,7 @@ namespace ui
 			.debug_name = "rmlui texture",
 			.width = (unsigned int)source_dimensions.x,
 			.height = (unsigned int)source_dimensions.y,
+			.format = graphics::Format::R8G8B8A8_UNORM,
 			.initial_data = source });
 		if (texture == Handle<graphics::Texture>()) return false;
 		texture_handle = _texture_handle_to_rml(texture);

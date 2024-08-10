@@ -72,6 +72,15 @@ namespace graphics
 
 	// TEXTURES
 
+	enum class Format
+	{
+		UNKNOWN,
+		R8_UNORM,
+		R8G8_UNORM,
+		R8G8B8_UNORM,
+		R8G8B8A8_UNORM,
+	};
+
 	enum class Filter
 	{
 		Nearest, // Sample nearest texel
@@ -83,7 +92,7 @@ namespace graphics
 		std::string_view debug_name = "texture";
 		unsigned int width = 0;
 		unsigned int height = 0;
-		unsigned int channels = 4; // TODO: replace with format enum
+		Format format = Format::UNKNOWN;
 		const unsigned char* initial_data = nullptr;
 		Filter filter = Filter::Nearest;
 	};

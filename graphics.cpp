@@ -90,7 +90,7 @@ namespace graphics
 		GLuint texture_object = 0;
 		unsigned int width = 0;
 		unsigned int height = 0;
-		unsigned int channels = 0;
+		Format format = Format::UNKNOWN;
 		unsigned int byte_size = 0; // for debugging
 		Filter filter = Filter::Nearest;
 	};
@@ -566,34 +566,45 @@ namespace graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}
 
+	GLenum _to_gl_base_format(Format format)
+	{
+		switch (format) {
+		case Format::R8_UNORM:       return GL_RED;
+		case Format::R8G8_UNORM:     return GL_RG;
+		case Format::R8G8B8_UNORM:   return GL_RGB;
+		case Format::R8G8B8A8_UNORM: return GL_RGBA;
+		default: return 0;
+		}
+	}
+
+	GLenum _to_gl_sized_format(Format format)
+	{
+		switch (format) {
+		case Format::R8_UNORM:       return GL_R8;
+		case Format::R8G8_UNORM:     return GL_RG8;
+		case Format::R8G8B8_UNORM:   return GL_RGB8;
+		case Format::R8G8B8A8_UNORM: return GL_RGBA8;
+		default: return 0;
+		}
+	}
+
+	unsigned _get_byte_size(Format format)
+	{
+		switch (format) {
+		case Format::R8_UNORM:       return 1;
+		case Format::R8G8_UNORM:     return 2;
+		case Format::R8G8B8_UNORM:   return 3;
+		case Format::R8G8B8A8_UNORM: return 4;
+		default: return 0;
+		}
+	}
+
 	GLint _to_gl_filter(Filter filter)
 	{
 		switch (filter) {
 		case Filter::Nearest: return GL_NEAREST;
 		case Filter::Linear:  return GL_LINEAR;
-		default:			  return 0; // should never happen
-		}
-	}
-
-	GLenum _to_gl_format(unsigned int channels)
-	{
-		switch (channels) {
-		case 1: return GL_RED;
-		case 2: return GL_RG;
-		case 3: return GL_RGB;
-		case 4: return GL_RGBA;
-		default: return 0; // should never happen
-		}
-	}
-
-	GLenum _to_gl_sized_format(unsigned int channels)
-	{
-		switch (channels) {
-		case 1: return GL_R8;
-		case 2: return GL_RG8;
-		case 3: return GL_RGB8;
-		case 4: return GL_RGBA8;
-		default: return 0; // should never happen
+		default:			  return 0;
 		}
 	}
 
@@ -607,12 +618,12 @@ namespace graphics
 		glTextureParameteri(texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTextureParameteri(texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
 
-		const GLenum gl_sized_format = _to_gl_sized_format(desc.channels);
+		const GLenum gl_sized_format = _to_gl_sized_format(desc.format);
 		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
 
 		if (desc.initial_data) {
-			const GLenum gl_format = _to_gl_format(desc.channels);
-			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, gl_format, GL_UNSIGNED_BYTE, desc.initial_data);
+			const GLenum gl_base_format = _to_gl_base_format(desc.format);
+			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, gl_base_format, GL_UNSIGNED_BYTE, desc.initial_data);
 		}
 
 		Texture texture{};
@@ -620,8 +631,8 @@ namespace graphics
 		texture.texture_object = texture_object;
 		texture.width = desc.width;
 		texture.height = desc.height;
-		texture.channels = desc.channels;
-		texture.byte_size = desc.width * desc.height * desc.channels;
+		texture.format = desc.format;
+		texture.byte_size = desc.width * desc.height * _get_byte_size(desc.format);
 		texture.filter = desc.filter;
 
 		_total_texture_memory_usage_in_bytes += texture.byte_size;
@@ -657,7 +668,7 @@ namespace graphics
 				.debug_name = normalized_path_ktx2,
 				.width = ktx_texture->baseWidth,
 				.height = ktx_texture->baseHeight,
-				.channels = 4, // we assume 4 channels (RGBA) for now
+				.format = Format::R8G8B8A8_UNORM, // we assume this format for now
 				.initial_data = ktx_texture->pData });
 
 			ktxTexture_Destroy(ktxTexture(ktx_texture));
@@ -678,11 +689,17 @@ namespace graphics
 			return Handle<Texture>();
 		}
 
+		Format format = Format::UNKNOWN;
+		if      (channels == 1) format = Format::R8_UNORM;
+		else if (channels == 2) format = Format::R8G8_UNORM;
+		else if (channels == 3) format = Format::R8G8B8_UNORM;
+		else if (channels == 4) format = Format::R8G8B8A8_UNORM;
+
 		const Handle<Texture> handle = create_texture({
 			.debug_name = normalized_path,
 			.width = (unsigned int)width,
 			.height = (unsigned int)height,
-			.channels = (unsigned int)channels,
+			.format = format,
 			.initial_data = data });
 
 		stbi_image_free(data);
@@ -699,7 +716,8 @@ namespace graphics
 				.debug_name = debug_name,
 				.width = src_texture->width,
 				.height = src_texture->height,
-				.channels = src_texture->channels });
+				.format = src_texture->format,
+				.filter = src_texture->filter });
 			copy_texture(dest, src);
 		}
 		return dest;
@@ -733,8 +751,8 @@ namespace graphics
 	{
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		const GLenum gl_format = _to_gl_format(texture->channels);
-		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, gl_format, GL_UNSIGNED_BYTE, data);
+		const GLenum gl_base_format = _to_gl_base_format(texture->format);
+		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, gl_base_format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
@@ -786,7 +804,8 @@ namespace graphics
 		const Handle<Texture> texture_handle = create_texture({
 			.debug_name = texture_debug_name,
 			.width = desc.width,
-			.height = desc.height });
+			.height = desc.height,
+			.format = Format::R8G8B8A8_UNORM });
 		if (texture_handle == Handle<Texture>()) {
 			console::log_error("Failed to create framebuffer texture: " + std::string(desc.debug_name));
 			return Handle<Framebuffer>();
@@ -964,7 +983,8 @@ namespace graphics
 			const Texture& texture = _texture_pool.data()[i];
 			if (texture.texture_object == 0) continue;
 			if (ImGui::TreeNode(texture.debug_name.c_str())) {
-				ImGui::Text("Dimensions: %dx%dx%d", texture.width, texture.height, texture.channels);
+				ImGui::Text("Dimensions: %dx%dx", texture.width, texture.height);
+				ImGui::Text("Format: %s", magic_enum::enum_name(texture.format).data());
 				unsigned int kb = texture.byte_size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
