@@ -2,6 +2,11 @@
 
 // fwd.h - forward declarations
 
+namespace window
+{
+	struct Event;
+}
+
 namespace audio
 {
 	struct Event;

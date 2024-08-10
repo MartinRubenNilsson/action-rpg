@@ -1,11 +1,6 @@
 #pragma once
 #include "timer.h"
 
-namespace window
-{
-	struct Event;
-}
-
 namespace ecs
 {
 	enum INPUT_FLAGS : unsigned int
@@ -48,6 +43,7 @@ namespace ecs
 		int bombs = 5;
 		int rupees = 10;
 		entt::entity held_item = entt::null;
+		bool pushing = false;
 	};
 
 	void process_window_event_for_players(const window::Event& ev);
@@ -64,4 +60,7 @@ namespace ecs
 	bool has_player(entt::entity entity);
 
 	bool kill_player(entt::entity entity);
+
+	void player_begin_pushing(entt::entity player_entity);
+	void player_end_pushing(entt::entity player_entity);
 }

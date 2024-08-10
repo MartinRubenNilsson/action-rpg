@@ -24,6 +24,17 @@
 
 namespace ecs
 {
+	enum PLAYER_TILE : unsigned int
+	{
+		PLAYER_TILE_PUSH_DOWN = 8,
+		PLAYER_TILE_PUSH_UP = 24,
+		PLAYER_TILE_PUSH_RIGHT = 40,
+
+		PLAYER_TILE_WALK_DOWN = 48,
+		PLAYER_TILE_WALK_UP = 52,
+		PLAYER_TILE_WALK_RIGHT = 64,
+	};
+
 	const float _PLAYER_WALK_SPEED = 60.f;
 	const float _PLAYER_RUN_SPEED = 136.f;
 	const float _PLAYER_STEALTH_SPEED = 36.f;
@@ -198,11 +209,24 @@ namespace ecs
 				} else if (player.input_flags & INPUT_DROP_BOMB && player.bombs > 0) {
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
+				} else if (player.pushing) {
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_PUSH_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_PUSH_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_PUSH_DOWN); break;
+					}
+					tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 					tile.set_tile("run_"s + tile_dir);
 					tile.set_flag(TILE_LOOP, true);
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
-					tile.set_tile("walk_"s + tile_dir);
+					switch (dir) {
+					case 'l': 
+					case 'r': tile.set_tile(PLAYER_TILE_WALK_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_WALK_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_WALK_DOWN); break;
+					}
 					tile.set_flag(TILE_LOOP, true);
 				} else {
 					tile.set_tile("idle_"s + tile_dir);
@@ -424,23 +448,28 @@ namespace ecs
 #endif
 	}
 
-	entt::entity find_player_entity() {
+	entt::entity find_player_entity()
+	{
 		return _registry.view<Player>().front();
 	}
 
-	Player& emplace_player(entt::entity entity, const Player& player) {
+	Player& emplace_player(entt::entity entity, const Player& player)
+	{
 		return _registry.emplace_or_replace<Player>(entity, player);
 	}
 
-	Player* get_player(entt::entity entity) {
+	Player* get_player(entt::entity entity)
+	{
 		return _registry.try_get<Player>(entity);
 	}
 
-	bool remove_player(entt::entity entity) {
+	bool remove_player(entt::entity entity)
+	{
 		return _registry.remove<Player>(entity);
 	}
 
-	bool has_player(entt::entity entity) {
+	bool has_player(entt::entity entity)
+	{
 		return _registry.all_of<Player>(entity);
 	}
 
@@ -456,20 +485,34 @@ namespace ecs
 		return true;
 	}
 
+	void player_begin_pushing(entt::entity player_entity)
+	{
+		Player* player = get_player(player_entity);
+		if (!player) return;
+		player->pushing = true;
+	}
+
+	void player_end_pushing(entt::entity player_entity)
+	{
+		Player* player = get_player(player_entity);
+		if (!player) return;
+		player->pushing = false;
+	}
+
 	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
 	{
 		if (damage.amount <= 0) return false;
-		if (!_registry.all_of<Player>(entity)) return false;
-		Player& player = _registry.get<Player>(entity);
-		if (player.health <= 0) return false; // Player is already dead
-		if (player.hurt_timer.running()) return false; // Player is invulnerable
-		player.health = std::max(0, player.health - damage.amount);
+		Player* player = get_player(entity);
+		if (!player) return false;
+		if (player->health <= 0) return false; // Player is already dead
+		if (player->hurt_timer.running()) return false; // Player is invulnerable
+		player->health = std::max(0, player->health - damage.amount);
 		add_trauma_to_active_camera(0.8f);
-		if (player.health > 0) { // Player survived
+		if (player->health > 0) { // Player survived
 			audio::create_event({ .path = "event:/snd_player_hurt" });
-			player.hurt_timer.start();
+			player->hurt_timer.start();
 		} else { // Player died
-			player.state = PlayerState::Dying;
+			player->state = PlayerState::Dying;
 		}
 		return true;
 	}

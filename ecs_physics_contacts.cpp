@@ -85,6 +85,8 @@ namespace ecs
 				activate_portal(entity_b);
 			} else if (class_b == "slime") {
 				apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
+			} else if (class_b == "pushable_block") {
+				player_begin_pushing(entity_a);
 			}
 		}
 	}
@@ -112,6 +114,7 @@ namespace ecs
 		if (class_a == "player") {
 			if (class_b == "pushable_block") {
 				body_b->SetLinearVelocity(b2Vec2_zero);
+				player_end_pushing(entity_a);
 			}
 		}
 	}
