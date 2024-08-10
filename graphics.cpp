@@ -592,12 +592,12 @@ namespace graphics
 		glTextureParameteri(texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glTextureParameteri(texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
 
-		const GLenum internal_format = _to_gl_sized_format(desc.channels);
-		glTextureStorage2D(texture_object, 1, internal_format, desc.width, desc.height);
+		const GLenum gl_sized_format = _to_gl_sized_format(desc.channels);
+		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
 
 		if (desc.initial_data) {
-			const GLenum format = _to_gl_format(desc.channels);
-			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, format, GL_UNSIGNED_BYTE, desc.initial_data);
+			const GLenum gl_format = _to_gl_format(desc.channels);
+			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, gl_format, GL_UNSIGNED_BYTE, desc.initial_data);
 		}
 
 		Texture texture{};
@@ -718,8 +718,8 @@ namespace graphics
 	{
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		const GLenum format = _to_gl_format(texture->channels);
-		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, format, GL_UNSIGNED_BYTE, data);
+		const GLenum gl_format = _to_gl_format(texture->channels);
+		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, gl_format, GL_UNSIGNED_BYTE, data);
 	}
 
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
