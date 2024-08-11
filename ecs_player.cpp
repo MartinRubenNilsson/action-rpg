@@ -366,7 +366,6 @@ namespace ecs
 				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
-					uint32_t frame = tile.get_animation_frame();
 					held_item_tile->set_tileset("sword");
 					held_item_tile->set_tile(3);
 					held_item_tile->position = position;
@@ -376,32 +375,32 @@ namespace ecs
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
 					case 'u':
-						held_item_tile->set_rotation((int)frame - 1);
-						switch (frame) {
+						held_item_tile->set_rotation((int)tile.animation_frame - 1);
+						switch (tile.animation_frame) {
 						case 0: held_item_tile->position += { -18.f, -3.f }; break;
 						case 1: held_item_tile->position += { 0.f, -21.f }; break;
 						case 2: held_item_tile->position += { 20.f, -1.f }; break;
 						}
 						break;
 					case 'r':
-						held_item_tile->set_rotation(2 - (int)frame);
-						switch (frame) {
+						held_item_tile->set_rotation(2 - (int)tile.animation_frame);
+						switch (tile.animation_frame) {
 						case 0: held_item_tile->position += { -0.f, 18.f }; break;
 						case 1: held_item_tile->position += { 28.f, 0.f }; break;
 						case 2: held_item_tile->position += { 1.f, -18.f }; break;
 						}
 						break;
 					case 'd':
-						held_item_tile->set_rotation((int)frame + 1);
-						switch (frame) {
+						held_item_tile->set_rotation((int)tile.animation_frame + 1);
+						switch (tile.animation_frame) {
 						case 0: held_item_tile->position += { 18.f, 2.f }; break;
 						case 1: held_item_tile->position += { 0.f, 20.f }; break;
 						case 2: held_item_tile->position += { -18.f, -2.f }; break;
 						}
 						break;
 					case 'l':
-						held_item_tile->set_rotation((int)frame + 2);
-						switch (frame) {
+						held_item_tile->set_rotation((int)tile.animation_frame + 2);
+						switch (tile.animation_frame) {
 						case 0: held_item_tile->position += { 2.f, 18.f }; break;
 						case 1: held_item_tile->position += { -28.f, 0.f }; break;
 						case 2: held_item_tile->position += { -2.f, -18.f }; break;
@@ -410,9 +409,8 @@ namespace ecs
 					}
 				} break;
 				case HeldItemType::Bow: {
-					uint32_t frame = tile.get_animation_frame();
 					held_item_tile->set_tileset("bow_01");
-					held_item_tile->set_tile(frame);
+					held_item_tile->set_tile(tile.animation_frame);
 					held_item_tile->position = position;
 					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };
