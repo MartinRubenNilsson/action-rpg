@@ -102,24 +102,32 @@ namespace map
 
 				Vector2f position = object.position;
 
-				// Objects are positioned by their top-left corner, except for tiles,
-				// which are positioned by their bottom-left corner. This is confusing,
-				// so let's adjust the position here to make it consistent.
 				if (object.type == tiled::ObjectType::Tile) {
-					position.y -= object.size.y;
-				}
 
-				if (object.type == tiled::ObjectType::Tile) {
-					const tiled::Tile* tile = object.get_tile();
-					assert(tile && "Tile not found.");
-					const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
-					assert(tileset && "Tileset not found.");
+					// Objects are positioned by their top-left corner, except for tiles,
+					// which are positioned by their bottom-left corner. This is confusing,
+					// so let's adjust the position here to make it consistent.
+					position.y -= object.size.y;
+
+					const tiled::Tileset* tileset = tiled::get_tileset(object.tileset_ref.tileset);
+					if (!tileset) {
+						console::log_error("Tileset not found for object " + object.name);
+						continue;
+					}
+
+					const unsigned int tile_id = object.tile_ref.gid - object.tileset_ref.first_gid;
+					if (tile_id >= tileset->tiles.size()) {
+						console::log_error("Tile not found for object " + object.name);
+						continue;
+					}
+
+					const tiled::Tile& tile = tileset->tiles[tile_id];
 
 					Vector2f sorting_pivot = object.size / 2.f;
 
 					// LOAD COLLIDERS
 
-					if (!tile->objects.empty()) {
+					if (!tile.objects.empty()) {
 
 						b2BodyDef body_def{};
 						body_def.type = b2_dynamicBody;
@@ -127,7 +135,7 @@ namespace map
 						body_def.position = position;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
-						for (const tiled::Object& collider : tile->objects) {
+						for (const tiled::Object& collider : tile.objects) {
 
 							if (collider.name == "pivot") {
 								sorting_pivot = collider.position;
@@ -171,7 +179,7 @@ namespace map
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
 					ecs_tile.set_tileset(tileset->handle);
-					ecs_tile.set_tile(tile->id);
+					ecs_tile.set_tile(tile_id);
 					ecs_tile.position = position;
 					ecs_tile.sorting_pivot = sorting_pivot;
 					// PITFALL: We don't set the sorting layer to the layer index here.
@@ -181,9 +189,9 @@ namespace map
 					// they were objects, e.g. trees and other props.
 					ecs_tile.sorting_layer = (uint8_t)get_object_layer_index();
 					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TILE_FLIP_X, object.tile.flipped_horizontally);
-					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile.flipped_vertically);
-					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, object.tile.flipped_diagonally);
+					ecs_tile.set_flag(ecs::TILE_FLIP_X, object.tile_ref.flipped_horizontally);
+					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile_ref.flipped_vertically);
+					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, object.tile_ref.flipped_diagonally);
 
 				} else { // If object is not a tile
 
@@ -401,33 +409,39 @@ namespace map
 					const tiled::TileRef tile_ref = layer.tiles[x + y * layer.width];
 					if (!tile_ref.gid) continue; // Skip empty tiles
 
-					const tiled::Tile* tile = map.get_tile(tile_ref.gid);
-					if (!tile) {
-						console::log_error("Tile not found for GID " + std::to_string(tile_ref.gid));
-						continue;
-					}
-					const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
+					const tiled::TilesetRef tileset_ref = map.get_tileset_ref(tile_ref.gid);
+					if (!tileset_ref.first_gid) continue; // Valid GIDs start at 1
+
+					const tiled::Tileset* tileset = tiled::get_tileset(tileset_ref.tileset);
 					if (!tileset) {
 						console::log_error("Tileset not found for GID " + std::to_string(tile_ref.gid));
 						continue;
 					}
 
-					const Vector2f size = { (float)tile->width, (float)tile->height };
+					const unsigned int tile_id = tile_ref.gid - tileset_ref.first_gid;
+					if (tile_id >= tileset->tiles.size()) {
+						console::log_error("Tile not found for GID " + std::to_string(tile_ref.gid));
+						continue;
+					}
+
+					const tiled::Tile& tile = tileset->tiles[tile_id];
+
+					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
 					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
-					const Vector2f pivot = { 0.f, (float)tile->height - (float)map.tile_height };
-					Vector2f sorting_pivot = { tile->width / 2.f, tile->height - map.tile_height / 2.f };
+					const Vector2f pivot = { 0.f, (float)tileset->tile_height - (float)map.tile_height };
+					Vector2f sorting_pivot = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
-					if (!tile->class_.empty()) {
-						ecs::set_class(entity, tile->class_);
+					if (!tile.class_.empty()) {
+						ecs::set_class(entity, tile.class_);
 					}
-					if (!tile->properties.empty()) {
-						ecs::set_properties(entity, tile->properties);
+					if (!tile.properties.empty()) {
+						ecs::set_properties(entity, tile.properties);
 					}
 
 					// EMPLACE BODY
 
-					if (!tile->objects.empty()) {
+					if (!tile.objects.empty()) {
 
 						b2BodyDef body_def{};
 						body_def.type = b2_staticBody;
@@ -435,7 +449,7 @@ namespace map
 						body_def.fixedRotation = true;
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
-						for (const tiled::Object& collider : tile->objects) {
+						for (const tiled::Object& collider : tile.objects) {
 							if (collider.name == "pivot") {
 								sorting_pivot = collider.position;
 							}
@@ -509,16 +523,16 @@ namespace map
 					}
 
 #if 0
-					if (tile->animation.empty()) {
+					if (tile_ref.animation.empty()) {
 
 						// EMPLACE SPRITE
 
 						sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-						sprite.texture = graphics::load_texture(tileset->image_path);
+						sprite.texture = graphics::load_texture(tileset_ref->image_path);
 						sprite.min = position - pivot;
 						sprite.max = position + size - pivot;
-						sprite.tex_min = { (float)tile->left, (float)tile->top };
-						sprite.tex_max = { (float)tile->left + tile->width, (float)tile->top + tile->height };
+						sprite.tex_min = { (float)tile_ref.left, (float)tile_ref.top };
+						sprite.tex_max = { (float)tile_ref.left + tile_ref.width, (float)tile_ref.top + tile_ref.height };
 						unsigned int texture_width = 0;
 						unsigned int texture_height = 0;
 						graphics::get_texture_size(sprite.texture, texture_width, texture_height);
@@ -547,7 +561,7 @@ namespace map
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
 					ecs_tile.set_tileset(tileset->handle);
-					ecs_tile.set_tile(tile->id);
+					ecs_tile.set_tile(tile_id);
 					ecs_tile.position = position;
 					ecs_tile.pivot = pivot;
 					ecs_tile.sorting_layer = (uint8_t)layer_index;

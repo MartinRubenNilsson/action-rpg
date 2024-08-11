@@ -48,12 +48,10 @@ namespace tiled
 		std::string class_;
 		Properties properties;
 		std::vector<Vector2f> points; // in pixels; relative to position; only relevant if type = ObjectType::Polygon/Polyline
-		TileRef tile; // only relevant if type = ObjectType::Tile
-		TilesetRef tileset; // only relevant if type = ObjectType::Tile
+		TileRef tile_ref; // only relevant if type = ObjectType::Tile
+		TilesetRef tileset_ref; // only relevant if type = ObjectType::Tile
 		Vector2f position; // in pixels
 		Vector2f size; // in pixels
-
-		const Tile* get_tile() const;
 	};
 
 	struct Frame
@@ -83,14 +81,6 @@ namespace tiled
 
 	struct Tile
 	{
-		Handle<Tileset> tileset;
-		unsigned int id = 0; // Index into Tileset::tiles
-		unsigned int x = 0; // in tiles
-		unsigned int y = 0; // in tiles
-		unsigned int left = 0; // in pixels
-		unsigned int top = 0; // in pixels
-		unsigned int width = 0; // in pixels
-		unsigned int height = 0; // in pixels
 		std::string class_;
 		Properties properties;
 		std::vector<Object>	objects;
@@ -169,6 +159,7 @@ namespace tiled
 		unsigned int tile_width = 0; // in pixels
 		unsigned int tile_height = 0; // in pixels
 
+		TilesetRef get_tileset_ref(unsigned int gid) const;
 		const Tile* get_tile(unsigned int gid) const;
 		const Object* get_object(const std::string& name) const;
 	};

@@ -71,7 +71,7 @@ namespace ecs
 				break;
 #if 0
 			case PickupType::Heart:
-				tile.set_tile("heart", "items1");
+				tile_ref.set_tile("heart", "items1");
 				break;
 #endif
 			}

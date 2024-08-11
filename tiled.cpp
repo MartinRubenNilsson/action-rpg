@@ -72,14 +72,6 @@ namespace tiled
 		return nullptr;
 	}
 
-	const Tile* Object::get_tile() const
-	{
-		if (type != ObjectType::Tile) return nullptr;
-		const Tileset* tileset = _tilesets.get(this->tileset.tileset);
-		if (!tileset) return nullptr;
-		return &tileset->tiles[tile.gid - this->tileset.first_gid];
-	}
-
 	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid)
 	{
 		for (auto it = tilesets.rbegin(); it != tilesets.rend(); ++it) {
@@ -90,11 +82,20 @@ namespace tiled
 		return TilesetRef{};
 	}
 
+	TilesetRef Map::get_tileset_ref(unsigned int gid) const
+	{
+		return _get_tileset_for_gid(tilesets, gid);
+	}
+
 	const Tile* Map::get_tile(unsigned int gid) const
 	{
-		TilesetRef tileset_ref = _get_tileset_for_gid(tilesets, gid);
+		if (gid == 0) return nullptr;
+		TilesetRef tileset_ref = get_tileset_ref(gid);
+		if (tileset_ref.first_gid == 0) return nullptr;
 		const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
 		if (!tileset) return nullptr;
+		if (gid < tileset_ref.first_gid) return nullptr;
+		if (gid >= tileset_ref.first_gid + tileset->tile_count) return nullptr;
 		return &tileset->tiles[gid - tileset_ref.first_gid];
 	}
 
@@ -191,7 +192,7 @@ namespace tiled
 		}
 		if (pugi::xml_attribute gid = node.attribute("gid")) {
 			object.type = ObjectType::Tile;
-			object.tile.value = gid.as_uint();
+			object.tile_ref.value = gid.as_uint();
 		}
 	}
 
@@ -326,10 +327,10 @@ namespace tiled
 				}
 				// By loading the object after copying the template, we can override properties.
 				_load_object(object_node, object);
-				if (object.tile.gid != 0 && object.tileset.first_gid == 0) {
+				if (object.tile_ref.gid != 0 && object.tileset_ref.first_gid == 0) {
 					// This happens when the object is not a template and has a tile, in which case
 					// we need to resolve its tileset. (For templates this is done at load time.)
-					object.tileset = _get_tileset_for_gid(map.tilesets, object.tile.gid);
+					object.tileset_ref = _get_tileset_for_gid(map.tilesets, object.tile_ref.gid);
 				}
 			}
 		} break;
@@ -432,17 +433,6 @@ namespace tiled
 		tileset->image_path = filesystem::get_normalized_path(tileset->image_path);
 		_load_properties(tileset_node, tileset->properties);
 		tileset->tiles.resize(tileset->tile_count);
-		for (unsigned int id = 0; id < tileset->tile_count; ++id) {
-			Tile& tile = tileset->tiles[id];
-			tile.tileset = handle;
-			tile.id = id;
-			tile.x = id % tileset->columns;
-			tile.y = id / tileset->columns;
-			tile.left = tile.x * (tileset->tile_width + tileset->spacing) + tileset->margin;
-			tile.top = tile.y * (tileset->tile_height + tileset->spacing) + tileset->margin;
-			tile.width = tileset->tile_width;
-			tile.height = tileset->tile_height;
-		}
 		for (pugi::xml_node tile_node : tileset_node.children("tile")) {
 			Tile& tile = tileset->tiles.at(tile_node.attribute("id").as_uint());
 			tile.class_ = tile_node.attribute("type").as_string(); // SIC: "type", not "class"
@@ -525,8 +515,8 @@ namespace tiled
 			tileset_path += '/';
 			tileset_path += source_attribute.as_string();
 			tileset_path = filesystem::get_normalized_path(tileset_path);
-			object.tileset.first_gid = tileset_node.attribute("firstgid").as_uint();
-			object.tileset.tileset = load_tileset_from_file(tileset_path);
+			object.tileset_ref.first_gid = tileset_node.attribute("firstgid").as_uint();
+			object.tileset_ref.tileset = load_tileset_from_file(tileset_path);
 		}
 
 		const Handle<Object> handle = _templates.emplace(std::move(object));
