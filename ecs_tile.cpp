@@ -176,19 +176,19 @@ namespace ecs
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
 			if (!tile.get_flag(TILE_VISIBLE)) continue;
-			sprite.texture = tile.texture;
-			if (sprite.texture == Handle<graphics::Texture>()) continue;
-			Vector2u texture_size;
-			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
+			const Vector2f tex_size = { (float)tile.texture_rect_width, (float)tile.texture_rect_height };
+			sprite.max = sprite.min + tex_size;
+			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.tex_min = { (float)tile.texture_rect_left, (float)tile.texture_rect_top };
-			sprite.tex_max = { (float)tile.texture_rect_left + tile.texture_rect_width, (float)tile.texture_rect_top + tile.texture_rect_height };
-			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			sprite.tex_max = sprite.tex_min + tex_size;
+			Vector2u texture_size;
+			graphics::get_texture_size(tile.texture, texture_size.x, texture_size.y);
 			sprite.tex_min /= Vector2f(texture_size);
 			sprite.tex_max /= Vector2f(texture_size);
-			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
 			sprite.shader = tile.shader;
+			sprite.texture = tile.texture;
 			sprite.color = tile.color;
 			sprite.sorting_layer = tile.sorting_layer;
 			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
