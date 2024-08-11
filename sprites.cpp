@@ -138,9 +138,18 @@ namespace sprites
 			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
 		}
 
+		Handle<graphics::Shader> currently_bound_shader;
+		Handle<graphics::Texture> currently_bound_texture;
+
 		for (const Batch& batch : _batches) {
-			graphics::bind_shader(batch.shader);
-			graphics::bind_texture(0, batch.texture);
+			if (batch.shader != currently_bound_shader) {
+				graphics::bind_shader(batch.shader);
+				currently_bound_shader = batch.shader;
+			}
+			if (batch.texture != currently_bound_texture) {
+				graphics::bind_texture(0, batch.texture);
+				currently_bound_texture = batch.texture;
+			}
 			//TODO: bind uniform buffer
 			graphics::draw(graphics::Primitives::TriangleStrip, batch.vertex_count, batch.vertex_offset);
 			_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, batch.vertex_count);
