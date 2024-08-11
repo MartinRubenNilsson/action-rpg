@@ -42,8 +42,15 @@ namespace ecs
 	struct Tile
 	{
 		Handle<tiled::Tileset> tileset;
-		unsigned int tile_id = 0; // index into tiled::Tileset::tiles
-		unsigned int tile_id_animated = 0; // index into tiled::Tileset::tiles
+		unsigned int id = 0; // index into tiled::Tileset::tiles
+		unsigned int id_animated = 0; // index into tiled::Tileset::tiles
+		unsigned int row = 0; // in tiles
+		unsigned int column = 0; // in tiles
+		unsigned int texture_rect_left = 0; // in pixels
+		unsigned int texture_rect_top = 0; // in pixels
+		unsigned int texture_rect_width = 0; // in pixels
+		unsigned int texture_rect_height = 0; // in pixels
+
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture;
 		Vector2f position; // in pixels
@@ -60,8 +67,6 @@ namespace ecs
 		bool set_tile(unsigned int id); // uses the current tileset
 		bool set_tileset(const std::string& tileset_name);
 		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
-		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const;
-		Vector2u get_coords(bool account_for_animation = true) const;
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);

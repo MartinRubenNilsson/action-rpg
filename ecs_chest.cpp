@@ -30,9 +30,8 @@ namespace ecs
         if (Tile* tile = get_tile(entity)) {
             // We assume that the closed chest tile is on an even row,
             // and the corresponding open chest tile is on the next row.
-            Vector2u coords = tile->get_coords();
-            if (coords.y % 2 == 0) {
-                tile->set_tile(coords.x, coords.y + 1);
+            if (tile->column % 2 == 0) {
+                tile->set_tile(tile->row, tile->column + 1);
             }
         }
 

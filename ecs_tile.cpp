@@ -12,10 +12,16 @@ namespace ecs
 	bool Tile::set_tile(const tiled::Tile* tile)
 	{
 		if (!tile) return false;
-		if (tile->tileset == tileset && tile->id == tile_id) return false;
+		if (tile->tileset == tileset && tile->id == id) return false;
 		tileset = tile->tileset;
-		tile_id = tile->id;
-		tile_id_animated = tile->id;
+		id = tile->id;
+		id_animated = tile->id;
+		row = tile->x;
+		column = tile->y;
+		texture_rect_left = tile->left;
+		texture_rect_top = tile->top;
+		texture_rect_width = tile->width;
+		texture_rect_height = tile->height;
 		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
@@ -37,8 +43,14 @@ namespace ecs
 		const tiled::Tileset* tileset_ptr = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset_ptr) return false;
 		tileset = tileset_ptr->handle;
-		tile_id = 0;
-		tile_id_animated = 0;
+		id = 0;
+		id_animated = 0;
+		row = 0;
+		column = 0;
+		texture_rect_left = 0;
+		texture_rect_top = 0;
+		texture_rect_width = tileset_ptr->tile_width;
+		texture_rect_height = tileset_ptr->tile_height;
 		texture = graphics::load_texture(tileset_ptr->image_path);
 		animation_timer = Timer();
 		animation_frame = 0;
@@ -49,43 +61,21 @@ namespace ecs
 
 	bool Tile::set_tile(unsigned int id)
 	{
-		if (id == tile_id) return false;
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
-		if (!tileset_ptr) return false;
-		if (id >= tileset_ptr->tiles.size()) return false;
-		return set_tile(&tileset_ptr->tiles[id]);
+		if (this->id == id) return false;
+		const tiled::Tileset* tileset = tiled::get_tileset(this->tileset);
+		if (!tileset) return false;
+		if (id >= tileset->tiles.size()) return false;
+		return set_tile(&tileset->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)
 	{
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
-		if (!tileset_ptr) return false;
-		const unsigned int id = y * tileset_ptr->columns + x;
-		if (id == tile_id) return false;
-		if (id >= tileset_ptr->tiles.size()) return false;
-		return set_tile(&tileset_ptr->tiles[id]);
-	}
-
-	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const
-	{
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
-		if (!tileset_ptr) return;
-		if (tile_id_animated >= tileset_ptr->tiles.size()) return;
-		const tiled::Tile* tile_ptr = &tileset_ptr->tiles[tile_id_animated];
-		left = tile_ptr->left;
-		top = tile_ptr->top;
-		width = tile_ptr->width;
-		height = tile_ptr->height;
-	}
-
-	Vector2u Tile::get_coords(bool account_for_animation) const
-	{
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
-		if (!tileset_ptr) return { 0, 0 };
-		if (tile_id >= tileset_ptr->tiles.size()) return { 0, 0 };
-		const tiled::Tile* tile_ptr = &tileset_ptr->tiles[tile_id];
-		if (!tile_ptr) return { 0, 0 };
-		return { tile_ptr->x, tile_ptr->y };
+		const tiled::Tileset* tileset = tiled::get_tileset(this->tileset);
+		if (!tileset) return false;
+		const unsigned int id = y * tileset->columns + x;
+		if (this->id == id) return false;
+		if (id >= tileset->tiles.size()) return false;
+		return set_tile(&tileset->tiles[id]);
 	}
 
 	void Tile::set_flag(unsigned int flag, bool value)
@@ -122,10 +112,17 @@ namespace ecs
 
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
 
-			const tiled::Tileset* tileset_ptr = tiled::get_tileset(tile.tileset);
-			if (!tileset_ptr) continue;
-			if (tile.tile_id >= tileset_ptr->tiles.size()) continue;
-			const tiled::Tile& tiled_tile = tileset_ptr->tiles[tile.tile_id];
+			const tiled::Tileset* tileset = tiled::get_tileset(tile.tileset);
+			if (!tileset) continue;
+			if (tile.id >= tileset->tiles.size()) continue;
+			const tiled::Tile& tiled_tile = tileset->tiles[tile.id];
+
+			tile.row = tiled_tile.x;
+			tile.column = tiled_tile.y;
+			tile.texture_rect_left = tiled_tile.left;
+			tile.texture_rect_top = tiled_tile.top;
+			tile.texture_rect_width = tiled_tile.width;
+			tile.texture_rect_height = tiled_tile.height;
 
 			if (!tile.animation_timer.get_duration()) continue;
 			tile.set_flag(TILE_FRAME_CHANGED, false);
@@ -142,17 +139,24 @@ namespace ecs
 			unsigned int time_ms = (unsigned int)(tile.animation_timer.get_time() * 1000.f); // in milliseconds
 
 			bool found_frame = false;
-			for (unsigned int frame_index = 0; frame_index < tiled_tile.animation.size(); ++frame_index) {
-				const tiled::Frame& frame = tiled_tile.animation[frame_index];
-				if (time_ms < frame.duration_ms) {
-					tile.set_flag(TILE_FRAME_CHANGED, frame_index != tile.animation_frame);
-					tile.animation_frame = frame_index;
-					tile.tile_id_animated = frame.tile_id;
-					found_frame = true;
-					break;
-				} else {
+			for (unsigned int f = 0; f < tiled_tile.animation.size(); ++f) {
+				const tiled::Frame& frame = tiled_tile.animation[f];
+				if (frame.duration_ms <= time_ms) {
 					time_ms -= frame.duration_ms;
+					continue;
 				}
+				tile.set_flag(TILE_FRAME_CHANGED, f != tile.animation_frame);
+				tile.animation_frame = f;
+				tile.id_animated = frame.tile_id;
+				const tiled::Tile& frame_tile = tileset->tiles[frame.tile_id];
+				tile.row = frame_tile.x;
+				tile.column = frame_tile.y;
+				tile.texture_rect_left = frame_tile.left;
+				tile.texture_rect_top = frame_tile.top;
+				tile.texture_rect_width = frame_tile.width;
+				tile.texture_rect_height = frame_tile.height;
+				found_frame = true;
+				break;
 			}
 
 			if (!found_frame) {
@@ -178,10 +182,8 @@ namespace ecs
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			unsigned int left, top, width, height;
-			tile.get_texture_rect(left, top, width, height);
-			sprite.tex_min = { (float)left, (float)top };
-			sprite.tex_max = { (float)left + width, (float)top + height };
+			sprite.tex_min = { (float)tile.texture_rect_left, (float)tile.texture_rect_top };
+			sprite.tex_max = { (float)tile.texture_rect_left + tile.texture_rect_width, (float)tile.texture_rect_top + tile.texture_rect_height };
 			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
 			sprite.tex_min /= Vector2f(texture_size);
 			sprite.tex_max /= Vector2f(texture_size);
