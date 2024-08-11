@@ -54,6 +54,14 @@ namespace ecs
         _update_ai_decision_making(dt);
         update_ai_actions(dt);
     }
+
+    enum SLIME_TILE : unsigned int
+    {
+		SLIME_TILE_WALK_DOWN = 0,
+		SLIME_TILE_WALK_RIGHT = 4,
+        SLIME_TILE_WALK_UP = 8,
+		SLIME_TILE_WALK_LEFT = 12,
+    };
     
     void update_ai_graphics(float dt)
     {
@@ -63,7 +71,12 @@ namespace ecs
             case AiType::Slime: {
                 Vector2f velocity = body->GetLinearVelocity();
                 if (!is_zero(velocity)) {
-                    tile.set_tile(std::string() + get_direction(velocity));
+                    switch (get_direction(velocity)) {
+                    case 'd': tile.set_tile(SLIME_TILE_WALK_DOWN); break;
+                    case 'r': tile.set_tile(SLIME_TILE_WALK_RIGHT); break;
+                    case 'u': tile.set_tile(SLIME_TILE_WALK_UP); break;
+                    case 'l': tile.set_tile(SLIME_TILE_WALK_LEFT); break;
+                    }
                 }
                 tile.animation_speed = length(velocity) / 32.f;
             } break;
