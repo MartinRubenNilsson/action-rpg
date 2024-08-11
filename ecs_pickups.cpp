@@ -30,13 +30,6 @@ namespace ecs
 		}
 	}
 
-	enum ITEM_TILE
-	{
-		ITEM_TILE_RUPEE = 40,
-		ITEM_TILE_POTION = 77,
-		ITEM_TILE_SPEAR = 96,
-	};
-
 	entt::entity create_pickup(PickupType type, const Vector2f& position)
 	{
 		entt::entity entity = _registry.create();

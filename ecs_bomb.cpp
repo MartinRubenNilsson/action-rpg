@@ -57,12 +57,6 @@ namespace ecs
         return _registry.try_get<Bomb>(entity);
     }
 
-    enum ITEM_TILE
-    {
-        ITEM_TILE_POTION = 77,
-        ITEM_TILE_SPEAR = 96,
-    };
-
     entt::entity create_bomb(const Vector2f& position)
     {
         entt::entity entity = _registry.create();

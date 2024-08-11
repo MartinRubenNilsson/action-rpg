@@ -10,12 +10,6 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	enum ITEM_TILE
-	{
-		ITEM_TILE_POTION = 77,
-		ITEM_TILE_SPEAR = 96,
-	};
-
 	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
 	{
 		entt::entity entity = _registry.create();

@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "sprites.h"
 
+#if 0
 namespace tiled
 {
 	const Tile* _get_tile(Handle<Tileset> tileset_handle, unsigned int tile_id)
@@ -15,6 +16,7 @@ namespace tiled
 		return &tileset->tiles[tile_id];
 	}
 }
+#endif
 
 namespace ecs
 {
@@ -58,22 +60,24 @@ namespace ecs
 
 	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		if (!tile) return nullptr;
+		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
+		if (!tileset) return nullptr;
+		if (_tile_id >= tileset->tiles.size()) return nullptr;
+		const tiled::Tile* tile = &tileset->tiles[_tile_id];
 		if (account_for_animation && _animation_frame < tile->animation.size()) {
 			unsigned int tile_id = tile->animation[_animation_frame].tile_id;
-			return &tiled::get_tileset(tile->tileset)->tiles[tile_id];
+			tile = &tileset->tiles[tile_id];
 		}
 		return tile;
 	}
 
 	bool Tile::set_tile(unsigned int id)
 	{
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		if (!tile) return false; // no tileset to look in
-		if (id == tile->id) return false;
-		if (id >= tiled::get_tileset(tile->tileset)->tiles.size()) return false;
-		return set_tile(&tiled::get_tileset(tile->tileset)->tiles[id]);
+		if (id == _tile_id) return false;
+		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
+		if (!tileset) return false;
+		if (id >= tileset->tiles.size()) return false;
+		return set_tile(&tileset->tiles[id]);
 	}
 
 	bool Tile::set_tileset(const std::string& tileset_name)
@@ -93,12 +97,12 @@ namespace ecs
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)
 	{
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		if (!tile) return false; // no tileset to look in
-		if (x == tile->x && y == tile->y) return false;
-		const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
-		if (x >= tileset->columns || y >= tileset->tile_count / tileset->columns) return false;
-		return set_tile(&tileset->tiles[y * tileset->columns + x]);
+		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
+		if (!tileset) return false;
+		const unsigned int id = y * tileset->columns + x;
+		if (id == _tile_id) return false;
+		if (id >= tileset->tiles.size()) return false;
+		return set_tile(&tileset->tiles[id]);
 	}
 
 	// For optimization purposes; returning a reference to a dummy object
@@ -117,8 +121,6 @@ namespace ecs
 	{
 		const tiled::Tile* tile = _get_tile(true);
 		if (!tile) return;
-		const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
-		if (!tileset) return;
 		left = tile->left;
 		top = tile->top;
 		width = tile->width;
@@ -149,7 +151,7 @@ namespace ecs
 	void Tile::update_animation(float dt)
 	{
 		if (!animation_timer.get_duration()) return;
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
+		const tiled::Tile* tile = _get_tile(false);
 		if (!tile) return;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);

@@ -26,6 +26,14 @@ namespace ecs
 		TILE_LOOPED	        = (1 << 7), // the animation looped last update
 	};
 
+	// need to figure out a better place to put this...
+	enum ITEM_TILE
+	{
+		ITEM_TILE_RUPEE = 40,
+		ITEM_TILE_POTION = 77,
+		ITEM_TILE_SPEAR = 96,
+	};
+
 	class Tile
 	{
 	public:
