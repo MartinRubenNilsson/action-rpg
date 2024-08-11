@@ -42,19 +42,6 @@ namespace ecs
 		if (texture == Handle<graphics::Texture>()) {
 			texture = graphics::load_texture(tiled::get_tileset(tile->tileset)->image_path);
 		}
-		if (shader == Handle<graphics::Shader>()) {
-			if (std::string shader_name; tile->properties.get_string("shader", shader_name)) {
-				shader = graphics::load_shader(
-					"assets/shaders/sprite.vert",
-					"assets/shaders/" + shader_name + ".frag");
-			} else if (tiled::get_tileset(tile->tileset)->properties.get_string("shader", shader_name)) {
-				shader = graphics::load_shader(
-					"assets/shaders/sprite.vert",
-					"assets/shaders/" + shader_name + ".frag");
-			} else {
-				shader = graphics::sprite_shader;
-			}
-		}
 		return true;
 	}
 

@@ -7,6 +7,11 @@ namespace tiled
 	struct Tile;
 }
 
+namespace graphics
+{
+	extern Handle<Shader> sprite_shader;
+}
+
 namespace map
 {
 	size_t get_object_layer_index();
@@ -37,8 +42,8 @@ namespace ecs
 	class Tile
 	{
 	public:
+		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture;
-		Handle<graphics::Shader> shader;
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
