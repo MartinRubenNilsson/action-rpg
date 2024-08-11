@@ -57,6 +57,12 @@ namespace ecs
         return _registry.try_get<Bomb>(entity);
     }
 
+    enum ITEM_TILE
+    {
+        ITEM_TILE_POTION = 77,
+        ITEM_TILE_SPEAR = 96,
+    };
+
     entt::entity create_bomb(const Vector2f& position)
     {
         entt::entity entity = _registry.create();
@@ -75,7 +81,8 @@ namespace ecs
         }
         {
             Tile& tile = emplace_tile(entity);
-            tile.set_tile("bomb", "items1");
+            tile.set_tileset("items1");
+            tile.set_tile(ITEM_TILE_POTION);
             tile.position = position;
             tile.pivot = Vector2f(8.f, 16.f);
             tile.sorting_pivot = tile.pivot;

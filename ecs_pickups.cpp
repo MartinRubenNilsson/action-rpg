@@ -30,6 +30,13 @@ namespace ecs
 		}
 	}
 
+	enum ITEM_TILE
+	{
+		ITEM_TILE_RUPEE = 40,
+		ITEM_TILE_POTION = 77,
+		ITEM_TILE_SPEAR = 96,
+	};
+
 	entt::entity create_pickup(PickupType type, const Vector2f& position)
 	{
 		entt::entity entity = _registry.create();
@@ -55,23 +62,26 @@ namespace ecs
 		}
 		{
 			Tile& tile = emplace_tile(entity);
-			switch (type) {
-			case PickupType::Arrow:
-				tile.set_tile("arrow", "items1");
-				break;
-			case PickupType::Rupee:
-				tile.set_tile("rupee", "items1");
-				break;
-			case PickupType::Bomb:
-				tile.set_tile("bomb", "items1");
-				break;
-			case PickupType::Heart:
-				tile.set_tile("heart", "items1");
-				break;
-			}
 			tile.position = position;
 			tile.pivot = Vector2f(8.f, 8.f);
 			tile.sorting_pivot = Vector2f(8.f, 16.f);
+			tile.set_tileset("items1");
+			switch (type) {
+			case PickupType::Arrow:
+				tile.set_tile(ITEM_TILE_SPEAR); // placeholder
+				break;
+			case PickupType::Rupee:
+				tile.set_tile(ITEM_TILE_RUPEE);
+				break;
+			case PickupType::Bomb:
+				tile.set_tile(ITEM_TILE_POTION); // placeholder
+				break;
+#if 0
+			case PickupType::Heart:
+				tile.set_tile("heart", "items1");
+				break;
+#endif
+			}
 		}
 		return entity;
 	}

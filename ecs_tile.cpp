@@ -101,21 +101,6 @@ namespace ecs
 		return set_tile(&tileset->tiles[y * tileset->columns + x]);
 	}
 
-	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
-	{
-		if (class_.empty() || tileset_name.empty()) return false;
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		const tiled::Tileset* tileset = nullptr;
-		if (tile && tileset_name == tiled::get_tileset(tile->tileset)->name) {
-			if (class_ == tile->class_) return false;
-			tileset = tiled::get_tileset(tile->tileset);
-		} else {
-			tileset = tiled::find_tileset_by_name(tileset_name);
-		}
-		if (!tileset) return false;
-		return set_tile(tiled::find_tile_by_class(*tileset, class_));
-	}
-
 	// For optimization purposes; returning a reference to a dummy object
 	// is cheaper than having to construct and return an empty object.
 	const Properties _DUMMY_EMPTY_PROPERTIES;
