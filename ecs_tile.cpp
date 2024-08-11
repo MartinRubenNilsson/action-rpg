@@ -102,15 +102,6 @@ namespace ecs
 		return set_tile(&tileset->tiles[y * tileset->columns + x]);
 	}
 
-	bool Tile::set_tile(const std::string& class_)
-	{
-		if (class_.empty()) return false;
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		if (!tile) return false; // no tileset to look in
-		if (class_ == tile->class_) return false;
-		return set_tile(tiled::find_tile_by_class(*tiled::get_tileset(tile->tileset), class_));
-	}
-
 	bool Tile::set_tile(const std::string& class_, const std::string& tileset_name)
 	{
 		if (class_.empty() || tileset_name.empty()) return false;
