@@ -366,7 +366,8 @@ namespace ecs
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
 					uint32_t frame = tile.get_animation_frame();
-					held_item_tile->set_tile(3, "sword");
+					held_item_tile->set_tileset("sword");
+					held_item_tile->set_tile(3);
 					held_item_tile->position = position;
 					held_item_tile->position.y -= 10.f;
 					held_item_tile->pivot = { 16.f, 16.f };
@@ -409,7 +410,8 @@ namespace ecs
 				} break;
 				case HeldItemType::Bow: {
 					uint32_t frame = tile.get_animation_frame();
-					held_item_tile->set_tile(frame, "bow_01");
+					held_item_tile->set_tileset("bow_01");
+					held_item_tile->set_tile(frame);
 					held_item_tile->position = position;
 					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };

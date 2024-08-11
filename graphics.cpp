@@ -105,10 +105,10 @@ namespace graphics
 	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
-	std::unordered_map<std::string, Handle<Shader>> _shader_paths_to_handle;
+	std::unordered_map<std::string, Handle<Shader>> _path_to_shader;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
-	std::unordered_map<std::string, Handle<Texture>> _texture_path_to_handle;
+	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
 	Pool<Framebuffer> _framebuffer_pool;
 	std::vector<Handle<Framebuffer>> _temporary_framebuffers;
 	GLuint _last_bound_program_object = 0;
@@ -203,7 +203,7 @@ namespace graphics
 			glDeleteProgram(shader.program_object);
 		}
 		_shader_pool.clear();
-		_shader_paths_to_handle.clear();
+		_path_to_shader.clear();
 
 		// DELETE BUFFERS
 
@@ -219,7 +219,7 @@ namespace graphics
 			}
 		}
 		_texture_pool.clear();
-		_texture_path_to_handle.clear();
+		_path_to_texture.clear();
 
 		// DELETE FRAMEBUFFERS
 
@@ -341,7 +341,7 @@ namespace graphics
 		const std::string normalized_fs_path = filesystem::get_normalized_path(fs_path);
 		const std::string paths = normalized_vs_path + ":" + normalized_fs_path;
 
-		if (const auto it = _shader_paths_to_handle.find(paths); it != _shader_paths_to_handle.end()) {
+		if (const auto it = _path_to_shader.find(paths); it != _path_to_shader.end()) {
 			return it->second;
 		}
 
@@ -362,7 +362,7 @@ namespace graphics
 			.vs_source = vs_source,
 			.fs_source = fs_source });
 
-		_shader_paths_to_handle[paths] = handle;
+		_path_to_shader[paths] = handle;
 
 		return handle;
 	}
@@ -660,7 +660,7 @@ namespace graphics
 		if (const std::string normalized_path_ktx2 = filesystem::replace_extension(normalized_path, ".ktx2");
 			filesystem::file_exists(normalized_path_ktx2)) {
 
-			if (const auto it = _texture_path_to_handle.find(normalized_path_ktx2); it != _texture_path_to_handle.end()) {
+			if (const auto it = _path_to_texture.find(normalized_path_ktx2); it != _path_to_texture.end()) {
 				return it->second;
 			}
 
@@ -683,12 +683,12 @@ namespace graphics
 				.initial_data = ktx_texture->pData });
 
 			ktxTexture_Destroy(ktxTexture(ktx_texture));
-			_texture_path_to_handle[normalized_path_ktx2] = handle;
+			_path_to_texture[normalized_path_ktx2] = handle;
 			return handle;
 		}
 #endif
 
-		if (const auto it = _texture_path_to_handle.find(normalized_path); it != _texture_path_to_handle.end()) {
+		if (const auto it = _path_to_texture.find(normalized_path); it != _path_to_texture.end()) {
 			return it->second;
 		}
 
@@ -714,7 +714,7 @@ namespace graphics
 			.initial_data = data });
 
 		stbi_image_free(data);
-		_texture_path_to_handle[normalized_path] = handle;
+		_path_to_texture[normalized_path] = handle;
 		return handle;
 	}
 
@@ -741,7 +741,7 @@ namespace graphics
 		glDeleteTextures(1, &texture->texture_object);
 		_total_texture_memory_usage_in_bytes -= texture->byte_size;
 		// HACK: When a texture is loaded, its debug_name is set to the path.
-		_texture_path_to_handle.erase(texture->debug_name);
+		_path_to_texture.erase(texture->debug_name);
 		*texture = Texture();
 		_texture_pool.free(handle);
 	}

@@ -76,20 +76,19 @@ namespace ecs
 		return set_tile(&tiled::get_tileset(tile->tileset)->tiles[id]);
 	}
 
-	bool Tile::set_tile(unsigned int id, const std::string& tileset_name)
+	bool Tile::set_tileset(const std::string& tileset_name)
 	{
-		if (tileset_name.empty()) return false;
-		const tiled::Tile* tile = tiled::_get_tile(_tileset_handle, _tile_id);
-		const tiled::Tileset* tileset = nullptr;
-		if (tile && tileset_name == tiled::get_tileset(tile->tileset)->name) {
-			if (id == tile->id) return false;
-			tileset = tiled::get_tileset(tile->tileset);
-		} else {
-			tileset = tiled::find_tileset_by_name(tileset_name);
-		}
+		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset) return false;
-		if (id >= tileset->tiles.size()) return false;
-		return set_tile(&tileset->tiles[id]);
+		_tileset_handle = tileset->handle;
+		texture = graphics::load_texture(tileset->image_path);
+		_tile_id = 0;
+		_animation_frame = 0;
+		set_flag(TILE_FRAME_CHANGED, false);
+		set_flag(TILE_LOOPED, false);
+		float animation_duration = 0.f;
+		animation_timer = Timer(animation_duration);
+		return true;
 	}
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)

@@ -9,11 +9,105 @@
 namespace tiled
 {
 	Pool<Map> _maps;
-	std::unordered_map<std::string, Handle<Map>> _path_to_map_handle;
+	std::unordered_map<std::string, Handle<Map>> _path_to_map;
 	Pool<Tileset> _tilesets;
-	std::unordered_map<std::string, Handle<Tileset>> _path_to_tileset_handle;
+	std::unordered_map<std::string, Handle<Tileset>> _path_to_tileset;
 	Pool<Object> _templates;
-	std::unordered_map<std::string, Handle<Object>> _path_to_template_handle;
+	std::unordered_map<std::string, Handle<Object>> _path_to_template;
+
+	std::span<const Map> get_maps()
+	{
+		return _maps.span();
+	}
+
+	std::span<const Tileset> get_tilesets()
+	{
+		return _tilesets.span();
+	}
+
+	std::span<const Object> get_templates()
+	{
+		return _templates.span();
+	}
+
+	const Map* get_map(Handle<Map> handle)
+	{
+		return _maps.get(handle);
+	}
+
+	const Tileset* get_tileset(Handle<Tileset> handle)
+	{
+		return _tilesets.get(handle);
+	}
+
+	const Object* get_template(Handle<Object> handle)
+	{
+		return _templates.get(handle);
+	}
+
+	const Map* find_map_by_name(const std::string& name)
+	{
+		if (name.empty()) return nullptr;
+		for (const Map& map : get_maps())
+			if (map.name == name)
+				return &map;
+		return nullptr;
+	}
+
+	const Tileset* find_tileset_by_name(const std::string& name)
+	{
+		if (name.empty()) return nullptr;
+		for (const Tileset& tileset : get_tilesets())
+			if (tileset.name == name)
+				return &tileset;
+		return nullptr;
+	}
+
+	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
+	{
+		if (class_.empty()) return nullptr;
+		for (const Tile& tile : tileset.tiles)
+			if (tile.class_ == class_)
+				return &tile;
+		return nullptr;
+	}
+
+	const Tile* Object::get_tile() const
+	{
+		if (type != ObjectType::Tile) return nullptr;
+		const Tileset* tileset = _tilesets.get(this->tileset.tileset);
+		if (!tileset) return nullptr;
+		return &tileset->tiles[tile.gid - this->tileset.first_gid];
+	}
+
+	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid)
+	{
+		for (auto it = tilesets.rbegin(); it != tilesets.rend(); ++it) {
+			if (gid >= it->first_gid) {
+				return *it;
+			}
+		}
+		return TilesetRef{};
+	}
+
+	const Tile* Map::get_tile(unsigned int gid) const
+	{
+		TilesetRef tileset_ref = _get_tileset_for_gid(tilesets, gid);
+		const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
+		if (!tileset) return nullptr;
+		return &tileset->tiles[gid - tileset_ref.first_gid];
+	}
+
+	const Object* Map::get_object(const std::string& name) const
+	{
+		if (name.empty()) return nullptr;
+		for (const Layer& layer : layers) {
+			for (const Object& object : layer.objects) {
+				if (object.name == name) return &object;
+			}
+		}
+		return nullptr;
+	}
 
 	void _load_properties(const pugi::xml_node& node, Properties& properties)
 	{
@@ -141,16 +235,6 @@ namespace tiled
 		}
 	}
 
-	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid)
-	{
-		for (auto it = tilesets.rbegin(); it != tilesets.rend(); ++it) {
-			if (gid >= it->first_gid) {
-				return *it;
-			}
-		}
-		return TilesetRef{};
-	}
-
 	void _load_layer_recursive(Map& map, pugi::xml_node node)
 	{
 		// PITFALL: node may be of type <tileset>, and we are only interested in layers,
@@ -263,7 +347,7 @@ namespace tiled
 	Handle<Map> load_map_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		if (auto it = _path_to_map_handle.find(normalized_path); it != _path_to_map_handle.end()) {
+		if (auto it = _path_to_map.find(normalized_path); it != _path_to_map.end()) {
 			return it->second;
 		}
 
@@ -309,14 +393,14 @@ namespace tiled
 		}
 
 		const Handle<Map> handle = _maps.emplace(std::move(map));
-		_path_to_map_handle[normalized_path] = handle;
+		_path_to_map[normalized_path] = handle;
 		return handle;
 	}
 
 	Handle<Tileset> load_tileset_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		if (auto it = _path_to_tileset_handle.find(normalized_path); it != _path_to_tileset_handle.end()) {
+		if (auto it = _path_to_tileset.find(normalized_path); it != _path_to_tileset.end()) {
 			return it->second;
 		}
 
@@ -328,10 +412,11 @@ namespace tiled
 		pugi::xml_node tileset_node = doc.child("tileset");
 
 		const Handle<Tileset> handle = _tilesets.emplace();
-		_path_to_tileset_handle[normalized_path] = handle;
+		_path_to_tileset[normalized_path] = handle;
 
 		Tileset* tileset = _tilesets.get(handle);
 		assert(tileset);
+		tileset->handle = handle;
 		tileset->path = normalized_path;
 		tileset->name = tileset_node.attribute("name").as_string();
 		tileset->class_ = tileset_node.attribute("class").as_string();
@@ -415,7 +500,7 @@ namespace tiled
 	Handle<Object> load_template_from_file(const std::string& path)
 	{
 		const std::string normalized_path = filesystem::get_normalized_path(path);
-		if (auto it = _path_to_template_handle.find(normalized_path);  it != _path_to_template_handle.end()) {
+		if (auto it = _path_to_template.find(normalized_path);  it != _path_to_template.end()) {
 			return it->second;
 		}
 
@@ -445,91 +530,7 @@ namespace tiled
 		}
 
 		const Handle<Object> handle = _templates.emplace(std::move(object));
-		_path_to_template_handle[normalized_path] = handle;
+		_path_to_template[normalized_path] = handle;
 		return handle;
-	}
-
-	const Map* get_map(Handle<Map> handle)
-	{
-		return _maps.get(handle);
-	}
-
-	const Tileset* get_tileset(Handle<Tileset> handle)
-	{
-		return _tilesets.get(handle);
-	}
-
-	const Object* get_template(Handle<Object> handle)
-	{
-		return _templates.get(handle);
-	}
-
-	std::span<const Map> get_maps()
-	{
-		return { _maps.data(), _maps.size() };
-	}
-
-	std::span<const Tileset> get_tilesets()
-	{
-		return { _tilesets.data(), _tilesets.size() };
-	}
-
-	std::span<const Object> get_templates()
-	{
-		return { _templates.data(), _templates.size() };
-	}
-
-	const Map* find_map_by_name(const std::string& name)
-	{
-		if (name.empty()) return nullptr;
-		for (const Map& map : get_maps())
-			if (map.name == name)
-				return &map;
-		return nullptr;
-	}
-
-	const Tileset* find_tileset_by_name(const std::string& name)
-	{
-		if (name.empty()) return nullptr;
-		for (const Tileset& tileset : get_tilesets())
-			if (tileset.name == name)
-				return &tileset;
-		return nullptr;
-	}
-
-	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
-	{
-		if (class_.empty()) return nullptr;
-		for (const Tile& tile : tileset.tiles)
-			if (tile.class_ == class_)
-				return &tile;
-		return nullptr;
-	}
-
-	const Tile* Object::get_tile() const
-	{
-		if (type != ObjectType::Tile) return nullptr;
-		const Tileset* tileset = _tilesets.get(this->tileset.tileset);
-		if (!tileset) return nullptr;
-		return &tileset->tiles[tile.gid - this->tileset.first_gid];
-	}
-
-	const Tile* Map::get_tile(unsigned int gid) const
-	{
-		TilesetRef tileset_ref = _get_tileset_for_gid(tilesets, gid);
-		const Tileset* tileset = _tilesets.get(tileset_ref.tileset);
-		if (!tileset) return nullptr;
-		return &tileset->tiles[gid - tileset_ref.first_gid];
-	}
-
-	const Object* Map::get_object(const std::string& name) const
-	{
-		if (name.empty()) return nullptr;
-		for (const Layer& layer : layers) {
-			for (const Object& object : layer.objects) {
-				if (object.name == name) return &object;
-			}
-		}
-		return nullptr;
 	}
 }

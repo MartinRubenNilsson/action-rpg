@@ -42,7 +42,7 @@ namespace ecs
 		{
 			b2BodyDef body_def{};
 			body_def.type = b2_staticBody;
-			body_def.position.Set(position.x, position.y);
+			body_def.position = position;
 			b2Body* body = emplace_body(entity, body_def);
 
 			b2CircleShape shape{};

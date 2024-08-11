@@ -14,6 +14,7 @@ namespace ui
 		}
 	}
 
+	//TODO: replace with enum and getter
 	const std::string Textbox::OPENING_SOUND_ITEM_FANFARE = "snd_item_fanfare";
 	const std::string Textbox::DEFAULT_TYPING_SOUND = "snd_txt1";
 
@@ -59,6 +60,6 @@ namespace ui
 		}
 
 		std::sort(_textbox_presets.begin(), _textbox_presets.end(),
-			[](const Textbox& a, const Textbox& b) { return a.path < b.path; });
+			[](const Textbox& left, const Textbox& right) { return left.path < right.path; });
 	}
 }
