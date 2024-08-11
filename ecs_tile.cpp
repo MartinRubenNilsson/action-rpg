@@ -103,14 +103,6 @@ namespace ecs
 		height = tile->height;
 	}
 
-	unsigned int Tile::get_id(bool account_for_animation) const
-	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
-			return tile->id;
-		}
-		return 0;
-	}
-
 	Vector2u Tile::get_coords(bool account_for_animation) const
 	{
 		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {

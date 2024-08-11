@@ -60,7 +60,6 @@ namespace ecs
 		bool set_tileset(const std::string& tileset_name);
 		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
 		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const;
-		unsigned int get_id(bool account_for_animation = true) const;
 		Vector2u get_coords(bool account_for_animation = true) const;
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
