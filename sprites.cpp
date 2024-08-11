@@ -77,7 +77,7 @@ namespace sprites
 
 		if (_sprites.empty()) return;
 
-		// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
+		// Sprites sharing the same state (shader, texture, etc.) are batched together to reduce draw calls.
 		// This is done by creating a triangle strip for each batch and drawing it only when the state changes.
 		// Each sprite is represented by 4 vertices in the triangle strip, but we also need to add duplicate
 		// vertices to create degenerate triangles that separate the sprites in the strip: If ABCD and EFGH

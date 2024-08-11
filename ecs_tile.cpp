@@ -29,7 +29,7 @@ namespace ecs
 		if (tile->tileset == _tileset_handle && tile->id == _tile_id) return false;
 		_tileset_handle = tile->tileset;
 		_tile_id = tile->id;
-		_animation_frame = 0;
+		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
 		float animation_duration = 0.f;
@@ -51,8 +51,8 @@ namespace ecs
 		if (!tileset) return nullptr;
 		if (_tile_id >= tileset->tiles.size()) return nullptr;
 		const tiled::Tile* tile = &tileset->tiles[_tile_id];
-		if (account_for_animation && _animation_frame < tile->animation.size()) {
-			unsigned int tile_id = tile->animation[_animation_frame].tile_id;
+		if (account_for_animation && animation_frame < tile->animation.size()) {
+			unsigned int tile_id = tile->animation[animation_frame].tile_id;
 			tile = &tileset->tiles[tile_id];
 		}
 		return tile;
@@ -74,7 +74,7 @@ namespace ecs
 		_tileset_handle = tileset->handle;
 		texture = graphics::load_texture(tileset->image_path);
 		_tile_id = 0;
-		_animation_frame = 0;
+		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
 		float animation_duration = 0.f;
@@ -90,18 +90,6 @@ namespace ecs
 		if (id == _tile_id) return false;
 		if (id >= tileset->tiles.size()) return false;
 		return set_tile(&tileset->tiles[id]);
-	}
-
-	// For optimization purposes; returning a reference to a dummy object
-	// is cheaper than having to construct and return an empty object.
-	const Properties _DUMMY_EMPTY_PROPERTIES;
-
-	const Properties& Tile::get_properties(bool account_for_animation) const
-	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
-			return tile->properties;
-		}
-		return _DUMMY_EMPTY_PROPERTIES;
 	}
 
 	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const
@@ -152,8 +140,8 @@ namespace ecs
 		for (unsigned int frame_index = 0; frame_index < tile->animation.size(); ++frame_index) {
 			unsigned int frame_duration = tile->animation[frame_index].duration_ms;
 			if (time < frame_duration) {
-				set_flag(TILE_FRAME_CHANGED, frame_index != _animation_frame);
-				_animation_frame = frame_index;
+				set_flag(TILE_FRAME_CHANGED, frame_index != animation_frame);
+				animation_frame = frame_index;
 				return;
 			} else {
 				time -= frame_duration;
@@ -161,12 +149,12 @@ namespace ecs
 		}
 		// Park on the last frame. We will for example get here if
 		// animation_timer.get_time() == animation_timer.get_duration().
-		_animation_frame = (unsigned int)tile->animation.size() - 1;
+		animation_frame = (unsigned int)tile->animation.size() - 1;
 	}
 
 	unsigned int Tile::get_animation_frame() const
 	{
-		return _animation_frame;
+		return animation_frame;
 	}
 
 	void Tile::set_flag(unsigned int flag, bool value)

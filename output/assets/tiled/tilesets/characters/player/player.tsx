@@ -20,9 +20,6 @@
   </animation>
  </tile>
  <tile id="48">
-  <properties>
-   <property name="step" value=""/>
-  </properties>
   <animation>
    <frame tileid="48" duration="135"/>
    <frame tileid="49" duration="135"/>
@@ -37,9 +34,6 @@
   </animation>
  </tile>
  <tile id="52">
-  <properties>
-   <property name="step" value=""/>
-  </properties>
   <animation>
    <frame tileid="52" duration="135"/>
    <frame tileid="53" duration="135"/>
@@ -54,9 +48,6 @@
   </animation>
  </tile>
  <tile id="64">
-  <properties>
-   <property name="step" value=""/>
-  </properties>
   <animation>
    <frame tileid="64" duration="135"/>
    <frame tileid="65" duration="135"/>
@@ -65,11 +56,6 @@
    <frame tileid="68" duration="135"/>
    <frame tileid="69" duration="135"/>
   </animation>
- </tile>
- <tile id="67">
-  <properties>
-   <property name="step" value=""/>
-  </properties>
  </tile>
  <tile id="70">
   <animation>
@@ -89,9 +75,6 @@
   </animation>
  </tile>
  <tile id="133">
-  <properties>
-   <property name="strike" value=""/>
-  </properties>
   <animation>
    <frame tileid="133" duration="160"/>
    <frame tileid="134" duration="500"/>
@@ -111,9 +94,6 @@
   </animation>
  </tile>
  <tile id="149">
-  <properties>
-   <property name="strike" value=""/>
-  </properties>
   <animation>
    <frame tileid="149" duration="160"/>
    <frame tileid="150" duration="500"/>
@@ -133,9 +113,6 @@
   </animation>
  </tile>
  <tile id="165">
-  <properties>
-   <property name="strike" value=""/>
-  </properties>
   <animation>
    <frame tileid="165" duration="160"/>
    <frame tileid="166" duration="500"/>

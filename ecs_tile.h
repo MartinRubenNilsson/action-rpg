@@ -51,6 +51,7 @@ namespace ecs
 		Color color = colors::WHITE;
 		Timer animation_timer;
 		float animation_speed = 1.f;
+		unsigned int animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int flags = TILE_VISIBLE | TILE_LOOP;
 
 		bool set_tile(const tiled::Tile* tile);
@@ -60,7 +61,6 @@ namespace ecs
 		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const;
 		unsigned int get_id(bool account_for_animation = true) const;
 		Vector2u get_coords(bool account_for_animation = true) const;
-		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
 		unsigned int get_animation_frame() const;
@@ -71,7 +71,6 @@ namespace ecs
 	private:
 		Handle<tiled::Tileset> _tileset_handle;
 		unsigned int _tile_id = 0; // index into tiled::Tileset::tiles
-		unsigned int _animation_frame = 0; // index into tiled::Tile::animation
 
 		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};

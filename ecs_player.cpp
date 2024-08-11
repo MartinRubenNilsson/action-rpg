@@ -168,7 +168,8 @@ namespace ecs
 
 			audio::set_listener_position(position);
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
-			if (tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("step")) {
+			if (tile.get_flag(TILE_FRAME_CHANGED) && tile.animation_frame % 3 == 0) {
+				// Take a step every 3 frames
 				audio::create_event({ .path = "event:/snd_footstep" });
 			}
 
@@ -307,7 +308,7 @@ namespace ecs
 				if (tile_dir != 'r') {
 					tile.set_flag(TILE_FLIP_X, false);
 				}
-				if (tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("strike")) {
+				if (tile.get_flag(TILE_FRAME_CHANGED) && tile.animation_frame == 1) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 				if (tile.animation_timer.finished()) {
@@ -319,7 +320,7 @@ namespace ecs
 				if (tile_dir != 'r') {
 					tile.set_flag(TILE_FLIP_X, false);
 				}
-				if (player.arrows > 0 && tile.get_flag(TILE_FRAME_CHANGED) && tile.get_properties().contains("shoot")) {
+				if (player.arrows > 0 && tile.get_flag(TILE_FRAME_CHANGED) && tile.animation_frame == 2) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
 				}
