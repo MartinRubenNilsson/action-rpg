@@ -152,11 +152,6 @@ namespace ecs
 		animation_frame = (unsigned int)tile->animation.size() - 1;
 	}
 
-	unsigned int Tile::get_animation_frame() const
-	{
-		return animation_frame;
-	}
-
 	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {

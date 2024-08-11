@@ -63,7 +63,6 @@ namespace ecs
 		Vector2u get_coords(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
-		unsigned int get_animation_frame() const;
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);
