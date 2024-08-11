@@ -10,10 +10,10 @@ namespace tiled
 	const Tile* _get_tile(Handle<Tileset> tileset_handle, unsigned int tile_id)
 	{
 		if (tileset_handle == Handle<Tileset>()) return nullptr;
-		const Tileset* tileset = get_tileset(tileset_handle);
-		if (!tileset) return nullptr;
-		if (tile_id >= tileset->tiles.size()) return nullptr;
-		return &tileset->tiles[tile_id];
+		const Tileset* tileset_ptr = get_tileset(tileset_handle);
+		if (!tileset_ptr) return nullptr;
+		if (tile_id >= tileset_ptr->tiles.size()) return nullptr;
+		return &tileset_ptr->tiles[tile_id];
 	}
 }
 #endif
@@ -26,9 +26,9 @@ namespace ecs
 	bool Tile::set_tile(const tiled::Tile* tile)
 	{
 		if (!tile) return false;
-		if (tile->tileset == _tileset_handle && tile->id == _tile_id) return false;
-		_tileset_handle = tile->tileset;
-		_tile_id = tile->id;
+		if (tile->tileset == tileset && tile->id == tile_id) return false;
+		tileset = tile->tileset;
+		tile_id = tile->id;
 		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
@@ -47,49 +47,50 @@ namespace ecs
 
 	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
 	{
-		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
-		if (!tileset) return nullptr;
-		if (_tile_id >= tileset->tiles.size()) return nullptr;
-		const tiled::Tile* tile = &tileset->tiles[_tile_id];
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return nullptr;
+		if (tile_id >= tileset_ptr->tiles.size()) return nullptr;
+		const tiled::Tile* tile = &tileset_ptr->tiles[tile_id];
 		if (account_for_animation && animation_frame < tile->animation.size()) {
 			unsigned int tile_id = tile->animation[animation_frame].tile_id;
-			tile = &tileset->tiles[tile_id];
+			tile = &tileset_ptr->tiles[tile_id];
 		}
 		return tile;
 	}
 
-	bool Tile::set_tile(unsigned int id)
-	{
-		if (id == _tile_id) return false;
-		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
-		if (!tileset) return false;
-		if (id >= tileset->tiles.size()) return false;
-		return set_tile(&tileset->tiles[id]);
-	}
+	
 
 	bool Tile::set_tileset(const std::string& tileset_name)
 	{
-		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
-		if (!tileset) return false;
-		_tileset_handle = tileset->handle;
-		texture = graphics::load_texture(tileset->image_path);
-		_tile_id = 0;
+		const tiled::Tileset* tileset_ptr = tiled::find_tileset_by_name(tileset_name);
+		if (!tileset_ptr) return false;
+		tileset = tileset_ptr->handle;
+		tile_id = 0;
+		texture = graphics::load_texture(tileset_ptr->image_path);
+		animation_timer = Timer();
 		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
-		float animation_duration = 0.f;
-		animation_timer = Timer(animation_duration);
 		return true;
+	}
+
+	bool Tile::set_tile(unsigned int id)
+	{
+		if (id == tile_id) return false;
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return false;
+		if (id >= tileset_ptr->tiles.size()) return false;
+		return set_tile(&tileset_ptr->tiles[id]);
 	}
 
 	bool Tile::set_tile(unsigned int x, unsigned int y)
 	{
-		const tiled::Tileset* tileset = tiled::get_tileset(_tileset_handle);
-		if (!tileset) return false;
-		const unsigned int id = y * tileset->columns + x;
-		if (id == _tile_id) return false;
-		if (id >= tileset->tiles.size()) return false;
-		return set_tile(&tileset->tiles[id]);
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return false;
+		const unsigned int id = y * tileset_ptr->columns + x;
+		if (id == tile_id) return false;
+		if (id >= tileset_ptr->tiles.size()) return false;
+		return set_tile(&tileset_ptr->tiles[id]);
 	}
 
 	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const

@@ -39,9 +39,10 @@ namespace ecs
 		ITEM_TILE_SPEAR = 96,
 	};
 
-	class Tile
+	struct Tile
 	{
-	public:
+		Handle<tiled::Tileset> tileset;
+		unsigned int tile_id = 0; // index into tiled::Tileset::tiles
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture;
 		Vector2f position; // in pixels
@@ -66,10 +67,6 @@ namespace ecs
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);
-
-	private:
-		Handle<tiled::Tileset> _tileset_handle;
-		unsigned int _tile_id = 0; // index into tiled::Tileset::tiles
 
 		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};
