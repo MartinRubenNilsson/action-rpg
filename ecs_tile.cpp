@@ -124,35 +124,6 @@ namespace ecs
 		return animation_timer.get_duration();
 	}
 
-	void Tile::update_animation(float dt)
-	{
-		if (!animation_timer.get_duration()) return;
-		const tiled::Tile* tile = _get_tile(false);
-		if (!tile) return;
-		set_flag(TILE_FRAME_CHANGED, false);
-		set_flag(TILE_LOOPED, false);
-		const bool loop = get_flag(TILE_LOOP);
-		if (animation_timer.update(animation_speed * dt, loop) && loop) {
-			set_flag(TILE_LOOPED, true);
-			if (get_flag(TILE_FLIP_X_ON_LOOP))
-				set_flag(TILE_FLIP_X, !get_flag(TILE_FLIP_X));
-		}
-		unsigned int time = (unsigned int)(animation_timer.get_time() * 1000.f); // in milliseconds
-		for (unsigned int frame_index = 0; frame_index < tile->animation.size(); ++frame_index) {
-			unsigned int frame_duration = tile->animation[frame_index].duration_ms;
-			if (time < frame_duration) {
-				set_flag(TILE_FRAME_CHANGED, frame_index != animation_frame);
-				animation_frame = frame_index;
-				return;
-			} else {
-				time -= frame_duration;
-			}
-		}
-		// Park on the last frame. We will for example get here if
-		// animation_timer.get_time() == animation_timer.get_duration().
-		animation_frame = (unsigned int)tile->animation.size() - 1;
-	}
-
 	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {
@@ -184,9 +155,48 @@ namespace ecs
 	void update_tiles(float dt)
 	{
 		_tile_time_accumulator += dt;
+
 		for (auto [entity, tile] : _registry.view<Tile>().each()) {
-			tile.update_animation(dt);
+
+			const tiled::Tileset* tileset_ptr = tiled::get_tileset(tile.tileset);
+			if (!tileset_ptr) continue;
+			if (tile.tile_id >= tileset_ptr->tiles.size()) continue;
+			const tiled::Tile& tiled_tile = tileset_ptr->tiles[tile.tile_id];
+
+			if (!tile.animation_timer.get_duration()) continue;
+			tile.set_flag(TILE_FRAME_CHANGED, false);
+			tile.set_flag(TILE_LOOPED, false);
+			const bool loop = tile.get_flag(TILE_LOOP);
+
+			if (tile.animation_timer.update(tile.animation_speed * dt, loop) && loop) {
+				tile.set_flag(TILE_LOOPED, true);
+				if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
+					tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
+				}
+			}
+
+			unsigned int time = (unsigned int)(tile.animation_timer.get_time() * 1000.f); // in milliseconds
+
+			bool found_frame = false;
+			for (unsigned int frame = 0; frame < tiled_tile.animation.size(); ++frame) {
+				unsigned int duration = tiled_tile.animation[frame].duration_ms;
+				if (time < duration) {
+					tile.set_flag(TILE_FRAME_CHANGED, frame != tile.animation_frame);
+					tile.animation_frame = frame;
+					found_frame = true;
+					break;
+				} else {
+					time -= duration;
+				}
+			}
+
+			if (!found_frame) {
+				// Park on the last frame. We will for example get here if
+				// animation_timer.get_time() == animation_timer.get_duration().
+				tile.animation_frame = (unsigned int)tiled_tile.animation.size() - 1;
+			}
 		}
+
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
 			tile.position = body->GetPosition();
 		}
