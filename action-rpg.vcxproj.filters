@@ -323,6 +323,9 @@
     <ClCompile Include="eastl_allocator.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_sprite.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -888,6 +891,9 @@
     </ClInclude>
     <ClInclude Include="ecs_blade_trap.h">
       <Filter>ecs\enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_sprite.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

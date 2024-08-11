@@ -115,17 +115,14 @@ namespace ecs
 
 	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const
 	{
-		if (const tiled::Tile* tile = _get_tile(true)) {
-			left = tile->left;
-			top = tile->top;
-			width = tile->width;
-			height = tile->height;
-		} else {
-			left = 0;
-			top = 0;
-			width = 0;
-			height = 0;
-		}
+		const tiled::Tile* tile = _get_tile(true);
+		if (!tile) return;
+		const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
+		if (!tileset) return;
+		left = tile->left;
+		top = tile->top;
+		width = tile->width;
+		height = tile->height;
 	}
 
 	unsigned int Tile::get_id(bool account_for_animation) const

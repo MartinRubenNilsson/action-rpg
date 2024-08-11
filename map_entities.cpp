@@ -3,9 +3,11 @@
 #include "tiled.h"
 #include "console.h"
 #include "audio.h"
+#include "graphics.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_sprite.h"
 #include "ecs_tile.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
@@ -394,13 +396,20 @@ namespace map
 				for (unsigned int x = layer.width; x--;) {
 
 					const tiled::TileRef tile_ref = layer.tiles[x + y * layer.width];
-					if (!tile_ref.gid) continue;
+					if (!tile_ref.gid) continue; // Skip empty tiles
+
 					const tiled::Tile* tile = map.get_tile(tile_ref.gid);
 					if (!tile) {
 						console::log_error("Tile not found for GID " + std::to_string(tile_ref.gid));
 						continue;
 					}
+					const tiled::Tileset* tileset = tiled::get_tileset(tile->tileset);
+					if (!tileset) {
+						console::log_error("Tileset not found for GID " + std::to_string(tile_ref.gid));
+						continue;
+					}
 
+					const Vector2f size = { (float)tile->width, (float)tile->height };
 					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
 					const Vector2f pivot = { 0.f, (float)tile->height - (float)map.tile_height };
 					Vector2f sorting_pivot = { tile->width / 2.f, tile->height - map.tile_height / 2.f };
@@ -493,6 +502,39 @@ namespace map
 						layer.name == "Colliders" ||
 						layer.name == "collision" ||
 						layer.name == "Collision") {
+						continue;
+					}
+
+					if (tile->animation.empty()) {
+
+						// EMPLACE SPRITE
+
+						sprites::Sprite& sprite = ecs::emplace_sprite(entity);
+						sprite.texture = graphics::load_texture(tileset->image_path);
+						sprite.min = position - pivot;
+						sprite.max = position + size - pivot;
+						sprite.tex_min = { (float)tile->left, (float)tile->top };
+						sprite.tex_max = { (float)tile->left + tile->width, (float)tile->top + tile->height };
+						unsigned int texture_width = 0;
+						unsigned int texture_height = 0;
+						graphics::get_texture_size(sprite.texture, texture_width, texture_height);
+						sprite.tex_min /= Vector2f(texture_width, texture_height);
+						sprite.tex_max /= Vector2f(texture_width, texture_height);
+						sprite.sorting_pos = position - pivot + sorting_pivot;
+						sprite.sorting_layer = (uint8_t)layer_index;
+						if (!layer.visible) {
+							sprite.flags |= sprites::SPRITE_VISIBLE;
+						}
+						if (tile_ref.flipped_horizontally) {
+							sprite.flags |= sprites::SPRITE_FLIP_HORIZONTAL;
+						}
+						if (tile_ref.flipped_vertically) {
+							sprite.flags |= sprites::SPRITE_FLIP_VERTICAL;
+						}
+						if (tile_ref.flipped_diagonally) {
+							sprite.flags |= sprites::SPRITE_FLIP_DIAGONAL;
+						}
+
 						continue;
 					}
 

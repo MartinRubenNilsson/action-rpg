@@ -2,6 +2,7 @@
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
+#include "ecs_sprite.h"
 #include "ecs_player.h"
 #include "ecs_ai.h"
 #include "ecs_tile.h"
@@ -63,9 +64,17 @@ namespace ecs
 	 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
+			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
+			if (sprite.min.x > camera_max.x) continue;
+			if (sprite.min.y > camera_max.y) continue;
+			if (sprite.max.x < camera_min.x) continue;
+			if (sprite.max.y < camera_min.y) continue;
+			sprites::add(sprite);
+		}
 		add_tile_sprites_for_drawing(camera_min, camera_max);
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
-		sprites::draw("Game World");
+		sprites::draw("ECS");
 	}
 
 	void add_debug_shapes_to_render_queue()

@@ -9,9 +9,10 @@ namespace sprites
 {
 	enum SPRITE_FLAGS : uint8_t
 	{
-		SPRITE_FLIP_HORIZONTAL = (1 << 0),
-		SPRITE_FLIP_VERTICAL   = (1 << 1),
-		SPRITE_FLIP_DIAGONAL   = (1 << 2),
+		SPRITE_VISIBLE		   = (1 << 0), // for use in game logic
+		SPRITE_FLIP_HORIZONTAL = (1 << 1),
+		SPRITE_FLIP_VERTICAL   = (1 << 2),
+		SPRITE_FLIP_DIAGONAL   = (1 << 3),
 		SPRITE_ROTATE_90       = SPRITE_FLIP_HORIZONTAL | SPRITE_FLIP_DIAGONAL,
 		SPRITE_ROTATE_180      = SPRITE_FLIP_HORIZONTAL | SPRITE_FLIP_VERTICAL,
 		SPRITE_ROTATE_270      = SPRITE_FLIP_VERTICAL | SPRITE_FLIP_DIAGONAL,
@@ -28,7 +29,7 @@ namespace sprites
 		Vector2f sorting_pos;
 		Color color = colors::WHITE;
 		uint8_t sorting_layer = 0;
-		uint8_t flags = 0;
+		uint8_t flags = SPRITE_VISIBLE;
 	};
 
 	// Orders sprites by draw order. Members are compared in a cascading fashion:
