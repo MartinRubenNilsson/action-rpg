@@ -119,11 +119,6 @@ namespace ecs
 		return Vector2u(0, 0);
 	}
 
-	bool Tile::has_animation() const
-	{
-		return animation_timer.get_duration();
-	}
-
 	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {
