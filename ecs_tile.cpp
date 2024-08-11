@@ -128,16 +128,7 @@ namespace ecs
 
 	// For optimization purposes; returning a reference to a dummy object
 	// is cheaper than having to construct and return an empty object.
-	const std::string _DUMMY_EMPTY_STRING;
 	const Properties _DUMMY_EMPTY_PROPERTIES;
-
-	const std::string& Tile::get_class(bool account_for_animation) const
-	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
-			return tile->class_;
-		}
-		return _DUMMY_EMPTY_STRING;
-	}
 
 	const Properties& Tile::get_properties(bool account_for_animation) const
 	{

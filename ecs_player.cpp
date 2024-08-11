@@ -41,6 +41,20 @@ namespace ecs
 		PLAYER_TILE_RUN_DOWN = 51,
 		PLAYER_TILE_RUN_UP = 55,
 		PLAYER_TILE_RUN_RIGHT = 70,
+
+		PLAYER_TILE_FOREHAND_STRIKE_DOWN = 132,
+		PLAYER_TILE_FOREHAND_STRIKE_UP = 148,
+		PLAYER_TILE_FOREHAND_STRIKE_RIGHT = 164,
+
+		PLAYER_TILE_BOW_SHOT_DOWN = 133,
+		PLAYER_TILE_BOW_SHOT_UP = 149,
+		PLAYER_TILE_BOW_SHOT_RIGHT = 165,
+
+		PLAYER_TILE_DYING_RIGHT_DOWN = 178,
+		PLAYER_TILE_DYING_RIGHT_UP = 181,
+
+		PLAYER_TILE_DEAD_RIGHT_DOWN = 180,
+		PLAYER_TILE_DEAD_RIGHT_UP = 183,
 	};
 
 	const float _PLAYER_WALK_SPEED = 60.f;
@@ -208,18 +222,38 @@ namespace ecs
 				new_velocity = new_move_dir * new_move_speed;
 
 				if (player.input_flags & INPUT_SWING_SWORD) {
-					tile.set_tile("sword_attack_"s + tile_dir);
+
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_FOREHAND_STRIKE_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_FOREHAND_STRIKE_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_FOREHAND_STRIKE_DOWN); break;
+					}
+
 					audio::create_event({ .path = "event:/snd_sword_attack" });
 					tile.set_flag(TILE_LOOP, false);
+
 					player.state = PlayerState::SwingingSword;
+
 				} else if (player.input_flags & INPUT_SHOOT_BOW && player.arrows > 0) {
-					tile.set_tile("bow_shot_"s + tile_dir);
+
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_BOW_SHOT_RIGHT); break;
+					case 'u': tile.set_tile(PLAYER_TILE_BOW_SHOT_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_BOW_SHOT_DOWN); break;
+					}
 					tile.set_flag(TILE_LOOP, false);
+
 					player.state = PlayerState::ShootingBow;
+
 				} else if (player.input_flags & INPUT_DROP_BOMB && player.bombs > 0) {
+
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
+
 				} else if (player.contacting_pushable_block && !is_zero(new_velocity)) {
+
 					switch (dir) {
 					case 'l':
 					case 'r': tile.set_tile(PLAYER_TILE_PUSH_RIGHT); break;
@@ -227,7 +261,9 @@ namespace ecs
 					case 'd': tile.set_tile(PLAYER_TILE_PUSH_DOWN); break;
 					}
 					tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
+
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
+
 					switch (dir) {
 					case 'l':
 					case 'r': tile.set_tile(PLAYER_TILE_RUN_RIGHT); break;
@@ -235,7 +271,9 @@ namespace ecs
 					case 'd': tile.set_tile(PLAYER_TILE_RUN_DOWN); break;
 					}
 					tile.set_flag(TILE_LOOP, true);
+
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
+
 					switch (dir) {
 					case 'l': 
 					case 'r': tile.set_tile(PLAYER_TILE_WALK_RIGHT); break;
@@ -243,7 +281,9 @@ namespace ecs
 					case 'd': tile.set_tile(PLAYER_TILE_WALK_DOWN); break;
 					}
 					tile.set_flag(TILE_LOOP, true);
+
 				} else {
+
 					switch (dir) {
 					case 'l':
 					case 'r': tile.set_tile(PLAYER_TILE_IDLE_RIGHT); break;
@@ -251,6 +291,7 @@ namespace ecs
 					case 'd': tile.set_tile(PLAYER_TILE_IDLE_DOWN); break;
 					}
 					tile.set_flag(TILE_LOOP, true);
+
 				}
 
 				if (player.input_flags & INPUT_INTERACT) {
@@ -287,14 +328,28 @@ namespace ecs
 				}
 			} break;
 			case PlayerState::Dying: {
-				if (tile_dir == 'd') tile_dir = 'u';
-				tile.set_tile("dying_"s + tile_dir);
+
+				switch (dir) {
+				case 'l':
+				case 'r': tile.set_tile(PLAYER_TILE_DYING_RIGHT_DOWN); break;
+				case 'u': tile.set_tile(PLAYER_TILE_DYING_RIGHT_UP); break;
+				case 'd': tile.set_tile(PLAYER_TILE_DYING_RIGHT_DOWN); break;
+				}
+
 				tile.set_flag(TILE_LOOP, false);
 				if (tile.animation_timer.finished()) {
-					tile.set_tile("dead_"s + tile_dir);
+
+					switch (dir) {
+					case 'l':
+					case 'r': tile.set_tile(PLAYER_TILE_DEAD_RIGHT_DOWN); break;
+					case 'u': tile.set_tile(PLAYER_TILE_DEAD_RIGHT_UP); break;
+					case 'd': tile.set_tile(PLAYER_TILE_DEAD_RIGHT_DOWN); break;
+					}
+
 					kill_player(player_entity);
 					player.state = PlayerState::Dead;
 				}
+
 			} break;
 			case PlayerState::Dead: {
 				// Do nothing, u r ded
@@ -445,7 +500,7 @@ namespace ecs
 			if (ImGui::Button("Apply 1 Damage"))
 				apply_damage_to_player(entity, { DamageType::Default, 1 });
 			if (ImGui::Button("Kill"))
-				kill_player(entity);
+				apply_damage_to_player(entity, { DamageType::Default, 999 });
 
 			if (ImGui::Button("Give 5 Arrows"))
 				player.arrows += 5;

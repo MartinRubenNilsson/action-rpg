@@ -175,6 +175,7 @@ int main(int argc, char* argv[])
         console::update(main_delta_time);
         background::update(main_delta_time);
         ui::update(main_delta_time);
+        map::update(main_delta_time);
 
         float game_delta_time = main_delta_time;
         if (steam::is_overlay_active()) {
@@ -183,7 +184,6 @@ int main(int argc, char* argv[])
         if (ui::is_menu_or_textbox_visible()) {
             game_delta_time = 0.f;
         }
-        map::update(game_delta_time);
 
         float game_world_delta_time = game_delta_time;
         if (map::get_transition_progress() != 0.f) {

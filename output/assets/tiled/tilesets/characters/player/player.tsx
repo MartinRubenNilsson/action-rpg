@@ -81,14 +81,14 @@
    <frame tileid="71" duration="155"/>
   </animation>
  </tile>
- <tile id="132" type="sword_attack_d">
+ <tile id="132">
   <animation>
    <frame tileid="132" duration="180"/>
    <frame tileid="133" duration="80"/>
    <frame tileid="12" duration="380"/>
   </animation>
  </tile>
- <tile id="133" type="bow_shot_d">
+ <tile id="133">
   <properties>
    <property name="strike" value=""/>
   </properties>
@@ -103,14 +103,14 @@
    <property name="shoot" value=""/>
   </properties>
  </tile>
- <tile id="148" type="sword_attack_u">
+ <tile id="148">
   <animation>
    <frame tileid="148" duration="180"/>
    <frame tileid="149" duration="80"/>
    <frame tileid="28" duration="380"/>
   </animation>
  </tile>
- <tile id="149" type="bow_shot_u">
+ <tile id="149">
   <properties>
    <property name="strike" value=""/>
   </properties>
@@ -125,14 +125,14 @@
    <property name="shoot" value=""/>
   </properties>
  </tile>
- <tile id="164" type="sword_attack_r">
+ <tile id="164">
   <animation>
    <frame tileid="164" duration="180"/>
    <frame tileid="165" duration="80"/>
    <frame tileid="44" duration="380"/>
   </animation>
  </tile>
- <tile id="165" type="bow_shot_r">
+ <tile id="165">
   <properties>
    <property name="strike" value=""/>
   </properties>
@@ -147,20 +147,18 @@
    <property name="shoot" value=""/>
   </properties>
  </tile>
- <tile id="178" type="dying_r">
+ <tile id="178">
   <animation>
    <frame tileid="178" duration="200"/>
    <frame tileid="179" duration="200"/>
    <frame tileid="180" duration="100"/>
   </animation>
  </tile>
- <tile id="180" type="dead_l"/>
- <tile id="181" type="dying_u">
+ <tile id="181">
   <animation>
    <frame tileid="181" duration="200"/>
    <frame tileid="182" duration="200"/>
    <frame tileid="183" duration="100"/>
   </animation>
  </tile>
- <tile id="183" type="dead_u"/>
 </tileset>

@@ -1,7 +1,6 @@
 #pragma once
 #include "timer.h"
 #include "properties.h"
-#include "sprites.h"
 
 namespace tiled
 {
@@ -50,7 +49,6 @@ namespace ecs
 		void get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const;
 		unsigned int get_id(bool account_for_animation = true) const;
 		Vector2u get_coords(bool account_for_animation = true) const;
-		const std::string& get_class(bool account_for_animation = true) const;
 		const Properties& get_properties(bool account_for_animation = true) const;
 		bool has_animation() const;
 		void update_animation(float dt);
