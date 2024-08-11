@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
         graphics::bind_framebuffer(framebuffer);
         graphics::clear_framebuffer(framebuffer, 0.f, 0.f, 0.f, 1.f);
         graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
-        background::render_sprites(camera_min, camera_max);
+        background::draw_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
 
         switch (ui::get_top_menu()) {

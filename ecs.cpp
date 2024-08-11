@@ -74,6 +74,7 @@ namespace ecs
 		}
 		add_tile_sprites_for_drawing(camera_min, camera_max);
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
+		sprites::sort();
 		sprites::draw("ECS");
 	}
 

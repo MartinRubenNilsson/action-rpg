@@ -53,10 +53,8 @@ namespace sprites
 		_sprites.push_back(sprite);
 	}
 
-	void draw(std::string_view debug_group_name)
+	void sort()
 	{
-		graphics::ScopedDebugGroup debug_group(debug_group_name);
-
 		if (_sprites.empty()) return;
 
 		// Sort sprites by draw order.
@@ -71,6 +69,13 @@ namespace sprites
 
 		_sprites.reserve(_sprites.size() + _sprites.size() / 2);
 		eastl::tim_sort_buffer(_sprites.begin(), _sprites.end(), _sprites.end());
+	}
+
+	void draw(std::string_view debug_group_name)
+	{
+		graphics::ScopedDebugGroup debug_group(debug_group_name);
+
+		if (_sprites.empty()) return;
 
 		// Sprites sharing the same state (texture and shader) are batched together to reduce draw calls.
 		// This is done by creating a triangle strip for each batch and drawing it only when the state changes.

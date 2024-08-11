@@ -22,6 +22,8 @@ namespace sprites
 	{
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture; // TODO: default to error texture
+		//TODO: store handle to uniform buffer
+		//TODO: store uint16_t offset and size into uniform buffer
 		Vector2f min; // top-left corner world position in pixels
 		Vector2f max; // bottom-right corner world position in pixels
 		Vector2f tex_min = { 0.f, 0.f }; // top-left corner normalized texture coordinates
@@ -47,8 +49,9 @@ namespace sprites
 
 	// DRAWING
 
-	void add(const Sprite& sprite); // Adds a sprite to be drawn later.
-	void draw(std::string_view debug_group_name); // Draws all added sprites in draw order.
+	void add(const Sprite& sprite); // Adds a sprite to be sorted and drawn later.
+	void sort(); // Sorts all added sprites by draw order.
+	void draw(std::string_view debug_group_name); // Draws all added sprites.
 
 	// DRAWING STATISTICS
 

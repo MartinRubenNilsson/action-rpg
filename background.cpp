@@ -59,7 +59,7 @@ namespace background
 		}
 	}
 
-	void render_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
+	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_type == Type::None) return;
 		sprites::Sprite sprite{};
@@ -73,6 +73,7 @@ namespace background
 				sprites::add(sprite);
 			}
 		}
+		// We don't have to sort before drawing, since the sprites were added in draw order.
 		sprites::draw("Background");
 	}
 }
