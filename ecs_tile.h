@@ -2,11 +2,6 @@
 #include "timer.h"
 #include "properties.h"
 
-namespace tiled
-{
-	struct Tile;
-}
-
 namespace graphics
 {
 	extern Handle<Shader> sprite_shader;
@@ -42,10 +37,7 @@ namespace ecs
 	struct Tile
 	{
 		Handle<tiled::Tileset> tileset;
-		unsigned int id = 0; // index into tiled::Tileset::tiles
-		unsigned int id_animated = 0; // index into tiled::Tileset::tiles
-		unsigned int row = 0; // in tiles
-		unsigned int column = 0; // in tiles
+		unsigned int id = 0; // index into tiled::Tileset::tiles[]
 		unsigned int texture_rect_left = 0; // in pixels
 		unsigned int texture_rect_top = 0; // in pixels
 		unsigned int texture_rect_width = 0; // in pixels
@@ -58,15 +50,15 @@ namespace ecs
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		uint8_t sorting_layer = (uint8_t)map::get_object_layer_index();
 		Color color = colors::WHITE;
-		Timer animation_timer;
+		Timer animation_timer = { 1.f }; // runs from 0 to 1 (normalized time)
 		float animation_speed = 1.f;
 		unsigned int animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int flags = TILE_VISIBLE | TILE_LOOP;
 
-		bool set_tile(const tiled::Tile* tile);
-		bool set_tile(unsigned int id); // uses the current tileset
+		void set_texture_rect(unsigned int id);
+		bool set_tileset(Handle<tiled::Tileset> handle);
 		bool set_tileset(const std::string& tileset_name);
-		bool set_tile(unsigned int x, unsigned int y); // uses the current tileset
+		bool set_tile(unsigned int id);
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);

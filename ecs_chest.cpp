@@ -28,10 +28,14 @@ namespace ecs
         chest->opened = true;
 
         if (Tile* tile = get_tile(entity)) {
-            // We assume that the closed chest tile is on an even row,
-            // and the corresponding open chest tile is on the next row.
-            if (tile->column % 2 == 0) {
-                tile->set_tile(tile->row, tile->column + 1);
+            // At the time I'm writing this code, the treasure chest tileset has 6 rows and 5 columns. 
+            // Each chest's closed sprite is on an even row and its corresponding open sprite is right below it.
+            constexpr unsigned int COLUMNS = 5;
+            unsigned int x = tile->id / COLUMNS;
+            unsigned int y = tile->id % COLUMNS;
+            if (x % 2 == 0) {
+                // If the chest is closed, we open it by setting the tile to the one right below it.
+                tile->set_tile((x + 1) * COLUMNS + y);
             }
         }
 
