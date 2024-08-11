@@ -505,6 +505,7 @@ namespace map
 						continue;
 					}
 
+#if 0
 					if (tile->animation.empty()) {
 
 						// EMPLACE SPRITE
@@ -537,6 +538,7 @@ namespace map
 
 						continue;
 					}
+#endif
 
 					// EMPLACE TILE
 

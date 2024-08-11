@@ -43,6 +43,7 @@ namespace ecs
 	{
 		Handle<tiled::Tileset> tileset;
 		unsigned int tile_id = 0; // index into tiled::Tileset::tiles
+		unsigned int tile_id_animated = 0; // index into tiled::Tileset::tiles
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture;
 		Vector2f position; // in pixels
@@ -64,8 +65,6 @@ namespace ecs
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
 		void set_rotation(int clockwise_quarter_turns);
-
-		const tiled::Tile* _get_tile(bool account_for_animation) const;
 	};
 
 	void update_tiles(float dt);

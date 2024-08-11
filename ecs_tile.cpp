@@ -4,20 +4,6 @@
 #include "graphics.h"
 #include "sprites.h"
 
-#if 0
-namespace tiled
-{
-	const Tile* _get_tile(Handle<Tileset> tileset_handle, unsigned int tile_id)
-	{
-		if (tileset_handle == Handle<Tileset>()) return nullptr;
-		const Tileset* tileset_ptr = get_tileset(tileset_handle);
-		if (!tileset_ptr) return nullptr;
-		if (tile_id >= tileset_ptr->tiles.size()) return nullptr;
-		return &tileset_ptr->tiles[tile_id];
-	}
-}
-#endif
-
 namespace ecs
 {
 	extern entt::registry _registry;
@@ -29,6 +15,7 @@ namespace ecs
 		if (tile->tileset == tileset && tile->id == tile_id) return false;
 		tileset = tile->tileset;
 		tile_id = tile->id;
+		tile_id_animated = tile->id;
 		animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
@@ -45,27 +32,13 @@ namespace ecs
 		return true;
 	}
 
-	const tiled::Tile* Tile::_get_tile(bool account_for_animation) const
-	{
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
-		if (!tileset_ptr) return nullptr;
-		if (tile_id >= tileset_ptr->tiles.size()) return nullptr;
-		const tiled::Tile* tile = &tileset_ptr->tiles[tile_id];
-		if (account_for_animation && animation_frame < tile->animation.size()) {
-			unsigned int tile_id = tile->animation[animation_frame].tile_id;
-			tile = &tileset_ptr->tiles[tile_id];
-		}
-		return tile;
-	}
-
-	
-
 	bool Tile::set_tileset(const std::string& tileset_name)
 	{
 		const tiled::Tileset* tileset_ptr = tiled::find_tileset_by_name(tileset_name);
 		if (!tileset_ptr) return false;
 		tileset = tileset_ptr->handle;
 		tile_id = 0;
+		tile_id_animated = 0;
 		texture = graphics::load_texture(tileset_ptr->image_path);
 		animation_timer = Timer();
 		animation_frame = 0;
@@ -95,20 +68,24 @@ namespace ecs
 
 	void Tile::get_texture_rect(unsigned int& left, unsigned int& top, unsigned int& width, unsigned int& height) const
 	{
-		const tiled::Tile* tile = _get_tile(true);
-		if (!tile) return;
-		left = tile->left;
-		top = tile->top;
-		width = tile->width;
-		height = tile->height;
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return;
+		if (tile_id_animated >= tileset_ptr->tiles.size()) return;
+		const tiled::Tile* tile_ptr = &tileset_ptr->tiles[tile_id_animated];
+		left = tile_ptr->left;
+		top = tile_ptr->top;
+		width = tile_ptr->width;
+		height = tile_ptr->height;
 	}
 
 	Vector2u Tile::get_coords(bool account_for_animation) const
 	{
-		if (const tiled::Tile* tile = _get_tile(account_for_animation)) {
-			return Vector2u(tile->x, tile->y);
-		}
-		return Vector2u(0, 0);
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return { 0, 0 };
+		if (tile_id >= tileset_ptr->tiles.size()) return { 0, 0 };
+		const tiled::Tile* tile_ptr = &tileset_ptr->tiles[tile_id];
+		if (!tile_ptr) return { 0, 0 };
+		return { tile_ptr->x, tile_ptr->y };
 	}
 
 	void Tile::set_flag(unsigned int flag, bool value)
@@ -162,18 +139,19 @@ namespace ecs
 				}
 			}
 
-			unsigned int time = (unsigned int)(tile.animation_timer.get_time() * 1000.f); // in milliseconds
+			unsigned int time_ms = (unsigned int)(tile.animation_timer.get_time() * 1000.f); // in milliseconds
 
 			bool found_frame = false;
-			for (unsigned int frame = 0; frame < tiled_tile.animation.size(); ++frame) {
-				unsigned int duration = tiled_tile.animation[frame].duration_ms;
-				if (time < duration) {
-					tile.set_flag(TILE_FRAME_CHANGED, frame != tile.animation_frame);
-					tile.animation_frame = frame;
+			for (unsigned int frame_index = 0; frame_index < tiled_tile.animation.size(); ++frame_index) {
+				const tiled::Frame& frame = tiled_tile.animation[frame_index];
+				if (time_ms < frame.duration_ms) {
+					tile.set_flag(TILE_FRAME_CHANGED, frame_index != tile.animation_frame);
+					tile.animation_frame = frame_index;
+					tile.tile_id_animated = frame.tile_id;
 					found_frame = true;
 					break;
 				} else {
-					time -= duration;
+					time_ms -= frame.duration_ms;
 				}
 			}
 
@@ -224,7 +202,7 @@ namespace ecs
 			}
 #if 0
 			sprite.pre_render_callback = nullptr;
-			if (tile.get_class() == "grass") {
+			if (tile_ptr.get_class() == "grass") {
 				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
 					if (sprite.shader == Handle<graphics::Shader>()) return;
 					graphics::set_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
