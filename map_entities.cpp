@@ -108,7 +108,7 @@ namespace map
 				switch (object.type) {
 				case tiled::ObjectType::Tile: {
 
-					// Objects are positioned by their top-left corner, unless it's a tile,
+					// In Tiled, objects are positioned by their top-left corner, unless it's a tile,
 					// in which case it's positioned by its bottom-left corner. This is confusing,
 					// so let's adjust the position here to make it consistent.
 					position.y -= object.size.y;
@@ -183,6 +183,44 @@ namespace map
 						}
 					}
 
+					// EMPLACE SPRITE
+
+					const unsigned int tex_rect_l = (tile_id % tileset->columns) * (tileset->tile_width + tileset->spacing) + tileset->margin;
+					const unsigned int tex_rect_t = (tile_id / tileset->columns) * (tileset->tile_height + tileset->spacing) + tileset->margin;
+					const unsigned int tex_rect_r = tex_rect_l + tileset->tile_width;
+					const unsigned int tex_rect_b = tex_rect_t + tileset->tile_height;
+
+					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
+					sprite.shader = graphics::sprite_shader;
+					sprite.texture = graphics::load_texture(tileset->image_path);
+					sprite.min = position;
+					sprite.max = position + object.size;
+					sprite.tex_min = { (float)tex_rect_l, (float)tex_rect_t };
+					sprite.tex_max = { (float)tex_rect_r, (float)tex_rect_b };
+					Vector2u texture_size;
+					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+					sprite.tex_min /= Vector2f(texture_size);
+					sprite.tex_max /= Vector2f(texture_size);
+					sprite.sorting_pos = position + sorting_pivot;
+					// PITFALL: We don't set the sorting layer to the layer index here.
+					// This is because we want all objects to be on the same layer, so they
+					// are rendered in the correct order. This sorting layer may also be the
+					// index of a tile layer so that certain static tiles are rendered as if
+					// they were objects, e.g. trees and other props.
+					sprite.sorting_layer = (uint8_t)get_object_layer_index();
+					if (!layer.visible) {
+						sprite.flags &= ~sprites::SPRITE_VISIBLE;
+					}
+					if (object.tile_ref.flipped_horizontally) {
+						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
+					if (object.tile_ref.flipped_vertically) {
+						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
+					}
+					if (object.tile_ref.flipped_diagonally) {
+						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
+					}
+
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
@@ -190,16 +228,6 @@ namespace map
 					ecs_tile.set_tile(tile_id);
 					ecs_tile.position = position;
 					ecs_tile.sorting_pivot = sorting_pivot;
-					// PITFALL: We don't set the sorting layer to the layer index here.
-					// This is because we want all objects to be on the same layer, so they
-					// are rendered in the correct order. This sorting layer may also be the
-					// index of a tile layer so that certain static tiles are rendered as if
-					// they were objects, e.g. trees and other props.
-					ecs_tile.sorting_layer = (uint8_t)get_object_layer_index();
-					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TILE_FLIP_X, object.tile_ref.flipped_horizontally);
-					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile_ref.flipped_vertically);
-					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, object.tile_ref.flipped_diagonally);
 
 					// EMPLACE TILE ANIMATION
 
@@ -327,9 +355,11 @@ namespace map
 					ecs::emplace_character(entity, character);
 					ecs::regenerate_character_texture(character);
 
+#if 0
 					if (tile) {
 						tile->texture = character.texture;
 					}
+#endif
 
 				} else if (object.class_ == "slime") {
 
@@ -546,40 +576,38 @@ namespace map
 						continue;
 					}
 
-#if 0
-					if (tile_ref.animation.empty()) {
+					// EMPLACE SPRITE
 
-						// EMPLACE SPRITE
+					const unsigned int tex_rect_l = (tile_id % tileset->columns) * (tileset->tile_width + tileset->spacing) + tileset->margin;
+					const unsigned int tex_rect_t = (tile_id / tileset->columns) * (tileset->tile_height + tileset->spacing) + tileset->margin;
+					const unsigned int tex_rect_r = tex_rect_l + tileset->tile_width;
+					const unsigned int tex_rect_b = tex_rect_t + tileset->tile_height;
 
-						sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-						sprite.texture = graphics::load_texture(tileset_ref->image_path);
-						sprite.min = position - pivot;
-						sprite.max = position + size - pivot;
-						sprite.tex_min = { (float)tile_ref.left, (float)tile_ref.top };
-						sprite.tex_max = { (float)tile_ref.left + tile_ref.width, (float)tile_ref.top + tile_ref.height };
-						unsigned int texture_width = 0;
-						unsigned int texture_height = 0;
-						graphics::get_texture_size(sprite.texture, texture_width, texture_height);
-						sprite.tex_min /= Vector2f(texture_width, texture_height);
-						sprite.tex_max /= Vector2f(texture_width, texture_height);
-						sprite.sorting_pos = position - pivot + sorting_pivot;
-						sprite.sorting_layer = (uint8_t)layer_index;
-						if (!layer.visible) {
-							sprite.flags |= sprites::SPRITE_VISIBLE;
-						}
-						if (tile_ref.flipped_horizontally) {
-							sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
-						}
-						if (tile_ref.flipped_vertically) {
-							sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
-						}
-						if (tile_ref.flipped_diagonally) {
-							sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
-						}
-
-						continue;
+					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
+					sprite.shader = graphics::sprite_shader;
+					sprite.texture = graphics::load_texture(tileset->image_path);
+					sprite.min = position - pivot;
+					sprite.max = position + size - pivot;
+					sprite.tex_min = { (float)tex_rect_l, (float)tex_rect_t };
+					sprite.tex_max = { (float)tex_rect_r, (float)tex_rect_b };
+					Vector2u texture_size;
+					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+					sprite.tex_min /= Vector2f(texture_size);
+					sprite.tex_max /= Vector2f(texture_size);
+					sprite.sorting_pos = position - pivot + sorting_pivot;
+					sprite.sorting_layer = (uint8_t)layer_index;
+					if (!layer.visible) {
+						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
-#endif
+					if (tile_ref.flipped_horizontally) {
+						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
+					if (tile_ref.flipped_vertically) {
+						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
+					}
+					if (tile_ref.flipped_diagonally) {
+						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
+					}
 
 					// EMPLACE TILE
 
@@ -588,17 +616,13 @@ namespace map
 					ecs_tile.set_tile(tile_id);
 					ecs_tile.position = position;
 					ecs_tile.pivot = pivot;
-					ecs_tile.sorting_layer = (uint8_t)layer_index;
 					ecs_tile.sorting_pivot = sorting_pivot;
-					ecs_tile.set_flag(ecs::TILE_VISIBLE, layer.visible);
-					ecs_tile.set_flag(ecs::TILE_FLIP_X, tile_ref.flipped_horizontally);
-					ecs_tile.set_flag(ecs::TILE_FLIP_Y, tile_ref.flipped_vertically);
-					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
 
+					// EMPLACE TILE ANIMATION
+
+					// The majority of tiles are not animated and don't change during gameplay,
+					// so let's only add a tile animation component if the tile is actually animated.
 					if (!tile.animation.empty()) {
-
-						// EMPLACE TILE ANIMATION
-
 						ecs::emplace_tile_animation(entity);
 					}
 				}

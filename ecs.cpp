@@ -51,6 +51,7 @@ namespace ecs
 		destroy_entities_to_be_destroyed_at_end_of_frame();
 		update_tile_positions(dt);
 		update_tile_animations(dt);
+		update_tile_sprites(dt);
 		update_vfx(dt);
 		update_cameras(dt);
 	}
@@ -67,10 +68,10 @@ namespace ecs
 	{
 		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
 			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
-			if (sprite.min.x > camera_max.x) continue;
-			if (sprite.min.y > camera_max.y) continue;
 			if (sprite.max.x < camera_min.x) continue;
 			if (sprite.max.y < camera_min.y) continue;
+			if (sprite.min.x > camera_max.x) continue;
+			if (sprite.min.y > camera_max.y) continue;
 			sprites::add(sprite);
 		}
 		add_tile_sprites_for_drawing(camera_min, camera_max);

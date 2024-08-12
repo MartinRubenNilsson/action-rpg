@@ -15,10 +15,10 @@ namespace ecs
 		if (id >= tileset->tiles.size()) return;
 		const unsigned int x = id % tileset->columns;
 		const unsigned int y = id / tileset->columns;
-		this->texture_rect_left = x * (tileset->tile_width + tileset->spacing) + tileset->margin;
-		this->texture_rect_top = y * (tileset->tile_height + tileset->spacing) + tileset->margin;
-		this->texture_rect_width = tileset->tile_width;
-		this->texture_rect_height = tileset->tile_height;
+		this->tex_rect_l = x * (tileset->tile_width + tileset->spacing) + tileset->margin;
+		this->tex_rect_t = y * (tileset->tile_height + tileset->spacing) + tileset->margin;
+		this->tex_rect_w = tileset->tile_width;
+		this->tex_rect_h = tileset->tile_height;
 	}
 
 	bool Tile::set_tileset(Handle<tiled::Tileset> handle)
@@ -26,7 +26,6 @@ namespace ecs
 		const tiled::Tileset* tileset = tiled::get_tileset(handle);
 		if (!tileset) return false;
 		this->tileset = handle;
-		this->texture = graphics::load_texture(tileset->image_path);
 		this->id = UINT_MAX; // force an update in set_tile()
 		set_tile(0); // set to the first tile in the tileset
 		return true;
@@ -59,6 +58,7 @@ namespace ecs
 		}
 	}
 
+#if 0
 	bool Tile::get_flag(unsigned int flag) const
 	{
 		return (flags & flag) != 0;
@@ -77,6 +77,7 @@ namespace ecs
 		set_flag(TILE_FLIP_Y, bit_1);
 		set_flag(TILE_FLIP_DIAGONAL, bit_0);
 	}
+#endif
 
 	void update_tile_positions(float dt)
 	{
@@ -115,9 +116,11 @@ namespace ecs
 			if (animation.progress >= 1.f) {
 				if (animation.loop) {
 					animation.progress = fmodf(animation.progress, 1.f);
+#if 0
 					if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
 						tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
 					}
+#endif
 				} else {
 					animation.progress = 1.f;
 				}
@@ -141,17 +144,35 @@ namespace ecs
 		}
 	}
 
+	void update_tile_sprites(float dt)
+	{
+		//TODO: only run this when necessary
+		for (auto [entity, sprite, tile] : _registry.view<sprites::Sprite, const Tile>().each()) {
+			sprite.min = tile.position - tile.pivot;
+			const Vector2f tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
+			sprite.max = sprite.min + tex_size;
+			sprite.tex_min = { (float)tile.tex_rect_l, (float)tile.tex_rect_t };
+			sprite.tex_max = sprite.tex_min + tex_size;
+			Vector2u texture_size;
+			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+			sprite.tex_min /= Vector2f(texture_size);
+			sprite.tex_max /= Vector2f(texture_size);
+			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
+		}
+	}
+
 	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+#if 0
 		sprites::Sprite sprite{};
 		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
 			if (!tile.get_flag(TILE_VISIBLE)) continue;
 			sprite.min = tile.position - tile.pivot;
 			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			const Vector2f tex_size = { (float)tile.texture_rect_width, (float)tile.texture_rect_height };
+			const Vector2f tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
 			sprite.max = sprite.min + tex_size;
 			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-			sprite.tex_min = { (float)tile.texture_rect_left, (float)tile.texture_rect_top };
+			sprite.tex_min = { (float)tile.tex_rect_l, (float)tile.tex_rect_t };
 			sprite.tex_max = sprite.tex_min + tex_size;
 			Vector2u texture_size;
 			graphics::get_texture_size(tile.texture, texture_size.x, texture_size.y);
@@ -184,6 +205,7 @@ namespace ecs
 #endif
 			sprites::add(sprite);
 		}
+#endif
 	}
 
 	Tile& emplace_tile(entt::entity entity)

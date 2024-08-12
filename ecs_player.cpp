@@ -4,6 +4,7 @@
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_arrow.h"
+#include "ecs_sprite.h"
 #include "ecs_tile.h"
 #include "ecs_camera.h"
 #include "ecs_bomb.h"
@@ -136,8 +137,8 @@ namespace ecs
 	{
 		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
-		for (auto [player_entity, player, body, tile, animation] :
-			_registry.view<Player, b2Body*, Tile, TileAnimation>().each()) {
+		for (auto [player_entity, player, body, sprite, tile, animation] :
+			_registry.view<Player, b2Body*, sprites::Sprite, Tile, TileAnimation>().each()) {
 
 			if (player_accepts_input) {
 				player.input_flags |= _input_flags_to_enable;
@@ -182,12 +183,12 @@ namespace ecs
 
 			switch (dir) {
 			case 'r':
-				tile.set_flag(TILE_FLIP_X, false);
+				sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				break;
 			case 'l':
 				tile_dir = 'r';
-				tile.set_flag(TILE_FLIP_X, true);
+				sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
 				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
 				break;
 			case 'u':
@@ -310,7 +311,7 @@ namespace ecs
 			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
 				if (tile_dir != 'r') {
-					tile.set_flag(TILE_FLIP_X, false);
+					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 				if (animation.frame_changed && animation.frame == 1) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
@@ -322,7 +323,7 @@ namespace ecs
 			case PlayerState::ShootingBow: {
 				held_item_type = HeldItemType::Bow;
 				if (tile_dir != 'r') {
-					tile.set_flag(TILE_FLIP_X, false);
+					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 				if (player.arrows > 0 && animation.frame_changed && animation.frame == 2) {
 					player.arrows--;
@@ -367,6 +368,7 @@ namespace ecs
 
 			// UPDATE HELD ITEM GRAPHICS
 
+#if 0
 			if (Tile* held_item_tile = get_tile(player.held_item)) {
 				held_item_tile->set_flag(TILE_VISIBLE, held_item_type != HeldItemType::None);
 				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
@@ -453,15 +455,16 @@ namespace ecs
 				} break;
 				} 
 			}
+#endif
 
-			// UPDATE TILE COLOR
+			// UPDATE SPRITE COLOR
 
 			if (player.hurt_timer.running()) {
 				constexpr float BLINK_PERIOD = 0.15f;
 				float fraction = fmod(player.hurt_timer.get_time(), BLINK_PERIOD) / BLINK_PERIOD;
-				tile.color.a = (unsigned char)(255 * fraction);
+				sprite.color.a = (unsigned char)(255 * fraction);
 			} else {
-				tile.color.a = 255;
+				sprite.color.a = 255;
 			}
 
 			// UPDATE HUD
@@ -516,11 +519,13 @@ namespace ecs
 			if (ImGui::Button("Give 5 Rupees"))
 				player.rupees += 5;
 
+#if 0
 			if (ImGui::Button("Randomize Appearance")) {
 				randomize_character(character);
 				regenerate_character_texture(character);
 				tile.texture = character.texture;
 			}
+#endif
 
 			ImGui::Spacing(); //did this even do anything??
 			ImGui::TreePop();

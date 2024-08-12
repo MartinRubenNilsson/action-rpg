@@ -35,6 +35,7 @@ namespace ecs
             postprocessing::create_shockwave(center);
 		}
 
+#if 0
         for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
 
             if (bomb.explosion_timer.get_progress() > 0.5f) {
@@ -45,6 +46,7 @@ namespace ecs
                 tile.color.b = (unsigned char)(255 * blink_fraction);
             }
         }
+#endif
     }
 
     Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb)
