@@ -68,10 +68,10 @@ namespace ecs
 	{
 		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
 			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
-			if (sprite.max.x < camera_min.x) continue;
-			if (sprite.max.y < camera_min.y) continue;
-			if (sprite.min.x > camera_max.x) continue;
-			if (sprite.min.y > camera_max.y) continue;
+			if (sprite.pos.x > camera_max.x) continue;
+			if (sprite.pos.y > camera_max.y) continue;
+			if (sprite.pos.x + sprite.size.x < camera_min.x) continue;
+			if (sprite.pos.y + sprite.size.y < camera_min.y) continue;
 			sprites::add(sprite);
 		}
 		add_vfx_sprites_for_drawing(camera_min, camera_max);

@@ -109,10 +109,10 @@ namespace tiled
 
 	struct TextureRect
 	{
-		unsigned int l = 0; // in pixels
-		unsigned int t = 0; // in pixels
-		unsigned int r = 0; // in pixels
-		unsigned int b = 0; // in pixels
+		unsigned int x = 0; // in pixels
+		unsigned int y = 0; // in pixels
+		unsigned int w = 0; // in pixels
+		unsigned int h = 0; // in pixels
 	};
 
 	struct Tileset

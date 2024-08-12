@@ -14,10 +14,10 @@ namespace ecs
 	{
 		Handle<tiled::Tileset> tileset;
 		unsigned int id = 0; // index into tiled::Tileset::tiles[]
-		unsigned int tex_rect_l = 0; // in pixels
-		unsigned int tex_rect_t = 0; // in pixels
-		unsigned int tex_rect_r = 0; // in pixels
-		unsigned int tex_rect_b = 0; // in pixels
+		unsigned int tex_rect_x = 0; // in pixels
+		unsigned int tex_rect_y = 0; // in pixels
+		unsigned int tex_rect_w = 0; // in pixels
+		unsigned int tex_rect_h = 0; // in pixels
 
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner

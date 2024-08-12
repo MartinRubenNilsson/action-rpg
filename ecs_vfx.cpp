@@ -40,21 +40,21 @@ namespace ecs
             uint32_t frame_col = frame % vfx.frame_cols;
             Vector2u texture_size;
             graphics::get_texture_size(vfx.texture, texture_size.x, texture_size.y);
-            sprite.tex_min = {
+            sprite.tex_pos = {
                 (float)texture_size.x * frame_col / vfx.frame_cols,
                 (float)texture_size.y * frame_row / vfx.frame_rows };
-            sprite.tex_max = {
-				(float)texture_size.x * (frame_col + 1) / vfx.frame_cols,
-				(float)texture_size.y * (frame_row + 1) / vfx.frame_rows };
-            Vector2f tex_half_size = (sprite.tex_max - sprite.tex_min) / 2.f;
-            sprite.min = vfx.position - tex_half_size;
-            if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-            sprite.max = vfx.position + tex_half_size;
-			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-            sprite.tex_min /= Vector2f(texture_size);
-            sprite.tex_max /= Vector2f(texture_size);
+            sprite.tex_size = { (float)texture_size.x, (float)texture_size.y };
+            Vector2f tex_half_size = sprite.tex_size / 2.f;
+            sprite.pos = vfx.position - tex_half_size;
+            if (sprite.pos.x > camera_max.x) continue;
+            if (sprite.pos.y > camera_max.y) continue;
+            sprite.size = sprite.tex_size;
+            if (sprite.pos.x + sprite.size.x < camera_min.x) continue;
+            if (sprite.pos.y + sprite.size.y < camera_min.y) continue;
+            sprite.tex_pos /= Vector2f(texture_size);
+            sprite.tex_size /= Vector2f(texture_size);
             sprite.texture = vfx.texture;
-            sprite.sorting_pos = sprite.min + tex_half_size;
+            sprite.sorting_pos = sprite.pos + tex_half_size;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
 			sprites::add(sprite);
 		}

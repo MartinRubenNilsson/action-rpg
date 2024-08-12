@@ -87,10 +87,15 @@ namespace sprites
 
 		for (const Sprite& sprite : _sprites) {
 
-			Vector2f tl = sprite.min; // top-left corner
-			Vector2f bl = { sprite.min.x, sprite.max.y }; // bottom-left corner
-			Vector2f tr = { sprite.max.x, sprite.min.y }; // top-right corner
-			Vector2f br = sprite.max; // bottom-right corner
+			Vector2f tl = sprite.pos; // top-left corner
+			Vector2f br = sprite.pos + sprite.size; // bottom-right corner
+			Vector2f tr = { br.x, tl.y }; // top-right corner
+			Vector2f bl = { tl.x, br.y }; // bottom-left corner
+
+			const Vector2f tex_tl = sprite.tex_pos;
+			const Vector2f tex_br = sprite.tex_pos + sprite.tex_size;
+			const Vector2f tex_tr = { tex_br.x, tex_tl.y };
+			const Vector2f tex_bl = { tex_tl.x, tex_br.y };
 
 			if (sprite.flags & SPRITE_FLIP_HORIZONTALLY) {
 				std::swap(tl, tr);
@@ -113,7 +118,7 @@ namespace sprites
 				if (sprite.shader == current_batch.shader && sprite.texture == current_batch.texture) {
 					// Add degenerate triangles to separate the sprites
 					graphics::temp_vertices.emplace_back(graphics::temp_vertices.back()); // D
-					graphics::temp_vertices.emplace_back(tl, sprite.color, sprite.tex_min); // E
+					graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl); // E
 					current_batch.vertex_count += 2;
 				} else {
 					Batch& new_batch = _batches.emplace_back();
@@ -124,10 +129,10 @@ namespace sprites
 			}
 
 			// Add the vertices of the new sprite to the batch
-			graphics::temp_vertices.emplace_back(tl, sprite.color, sprite.tex_min);
-			graphics::temp_vertices.emplace_back(bl, sprite.color, Vector2f(sprite.tex_min.x, sprite.tex_max.y));
-			graphics::temp_vertices.emplace_back(tr, sprite.color, Vector2f(sprite.tex_max.x, sprite.tex_min.y));
-			graphics::temp_vertices.emplace_back(br, sprite.color, sprite.tex_max);
+			graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl);
+			graphics::temp_vertices.emplace_back(bl, sprite.color, tex_bl);
+			graphics::temp_vertices.emplace_back(tr, sprite.color, tex_tr);
+			graphics::temp_vertices.emplace_back(br, sprite.color, tex_br);
 			_batches.back().vertex_count += 4;
 		}
 

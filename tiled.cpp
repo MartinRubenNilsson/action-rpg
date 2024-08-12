@@ -68,10 +68,10 @@ namespace tiled
 		const unsigned x = id % columns;
 		const unsigned y = id / columns;
 		TextureRect rect{};
-		rect.l = x * (tile_width + spacing) + margin;
-		rect.t = y * (tile_height + spacing) + margin;
-		rect.r = rect.l + tile_width;
-		rect.b = rect.t + tile_height;
+		rect.x = x * (tile_width + spacing) + margin;
+		rect.y = y * (tile_height + spacing) + margin;
+		rect.w = tile_width;
+		rect.h = tile_height;
 		return rect;
 	}
 

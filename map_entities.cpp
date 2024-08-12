@@ -190,14 +190,14 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.min = position;
-					sprite.max = position + object.size;
-					sprite.tex_min = { (float)tex_rect.l, (float)tex_rect.t };
-					sprite.tex_max = { (float)tex_rect.r, (float)tex_rect.b };
+					sprite.pos = position;
+					sprite.size = object.size;
+					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_min /= Vector2f(texture_size);
-					sprite.tex_max /= Vector2f(texture_size);
+					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_size /= Vector2f(texture_size);
 					sprite.sorting_pos = position + sorting_pivot;
 					// PITFALL: We don't set the sorting layer to the layer index here.
 					// This is because we want all objects to be on the same layer, so they
@@ -580,14 +580,14 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.min = position - pivot;
-					sprite.max = position + size - pivot;
-					sprite.tex_min = { (float)tex_rect.l, (float)tex_rect.t };
-					sprite.tex_max = { (float)tex_rect.r, (float)tex_rect.b };
+					sprite.pos = position - pivot;
+					sprite.size = size;
+					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.w };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_min /= Vector2f(texture_size);
-					sprite.tex_max /= Vector2f(texture_size);
+					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_size /= Vector2f(texture_size);
 					sprite.sorting_pos = position - pivot + sorting_pivot;
 					sprite.sorting_layer = (uint8_t)layer_index;
 					if (!layer.visible) {

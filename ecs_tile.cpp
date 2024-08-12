@@ -14,10 +14,10 @@ namespace ecs
 		if (!tileset) return;
 		if (id >= tileset->tiles.size()) return;
 		const tiled::TextureRect& tex_rect = tileset->get_texture_rect(id);
-		this->tex_rect_l = tex_rect.l;
-		this->tex_rect_t = tex_rect.t;
-		this->tex_rect_r = tex_rect.r;
-		this->tex_rect_b = tex_rect.b;
+		this->tex_rect_x = tex_rect.x;
+		this->tex_rect_y = tex_rect.y;
+		this->tex_rect_w = tex_rect.w;
+		this->tex_rect_h = tex_rect.h;
 	}
 
 	bool Tile::set_tileset(Handle<tiled::Tileset> handle)
@@ -144,15 +144,15 @@ namespace ecs
 	{
 		//TODO: only run this when necessary
 		for (auto [entity, sprite, tile] : _registry.view<sprites::Sprite, const Tile>().each()) {
-			sprite.tex_min = { (float)tile.tex_rect_l, (float)tile.tex_rect_t };
-			sprite.tex_max = { (float)tile.tex_rect_r, (float)tile.tex_rect_b };
-			sprite.min = tile.position - tile.pivot;
-			sprite.max = sprite.min + sprite.tex_max - sprite.tex_min;
+			sprite.tex_pos = { (float)tile.tex_rect_x, (float)tile.tex_rect_y };
+			sprite.tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
+			sprite.pos = tile.position - tile.pivot;
+			sprite.size = sprite.tex_size;
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-			sprite.tex_min /= Vector2f(texture_size);
-			sprite.tex_max /= Vector2f(texture_size);
-			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
+			sprite.tex_pos /= Vector2f(texture_size);
+			sprite.tex_size /= Vector2f(texture_size);
+			sprite.sorting_pos = sprite.pos + tile.sorting_pivot;
 		}
 	}
 
