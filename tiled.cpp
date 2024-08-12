@@ -63,13 +63,16 @@ namespace tiled
 		return nullptr;
 	}
 
-	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_)
+	TextureRect Tileset::get_texture_rect(unsigned int id) const
 	{
-		if (class_.empty()) return nullptr;
-		for (const Tile& tile : tileset.tiles)
-			if (tile.class_ == class_)
-				return &tile;
-		return nullptr;
+		const unsigned x = id % columns;
+		const unsigned y = id / columns;
+		TextureRect rect{};
+		rect.l = x * (tile_width + spacing) + margin;
+		rect.t = y * (tile_height + spacing) + margin;
+		rect.r = rect.l + tile_width;
+		rect.b = rect.t + tile_height;
+		return rect;
 	}
 
 	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid)

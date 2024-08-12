@@ -107,6 +107,14 @@ namespace tiled
 		std::vector<WangColor> colors;
 	};
 
+	struct TextureRect
+	{
+		unsigned int l = 0; // in pixels
+		unsigned int t = 0; // in pixels
+		unsigned int r = 0; // in pixels
+		unsigned int b = 0; // in pixels
+	};
+
 	struct Tileset
 	{
 		Handle<Tileset> handle;
@@ -123,6 +131,8 @@ namespace tiled
 		unsigned int tile_height = 0; // in pixels
 		unsigned int spacing = 0; // in pixels
 		unsigned int margin = 0; // in pixels
+
+		TextureRect get_texture_rect(unsigned int id) const;
 	};
 
 	enum class LayerType
@@ -174,7 +184,6 @@ namespace tiled
 
 	const Map* find_map_by_name(const std::string& name);
 	const Tileset* find_tileset_by_name(const std::string& name);
-	const Tile* find_tile_by_class(const Tileset& tileset, const std::string& class_);
 
 	Handle<Map> load_map_from_file(const std::string& path);
 	Handle<Tileset> load_tileset_from_file(const std::string& path);

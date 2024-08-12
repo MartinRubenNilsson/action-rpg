@@ -185,18 +185,15 @@ namespace map
 
 					// EMPLACE SPRITE
 
-					const unsigned int tex_rect_l = (tile_id % tileset->columns) * (tileset->tile_width + tileset->spacing) + tileset->margin;
-					const unsigned int tex_rect_t = (tile_id / tileset->columns) * (tileset->tile_height + tileset->spacing) + tileset->margin;
-					const unsigned int tex_rect_r = tex_rect_l + tileset->tile_width;
-					const unsigned int tex_rect_b = tex_rect_t + tileset->tile_height;
+					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
 					sprite.min = position;
 					sprite.max = position + object.size;
-					sprite.tex_min = { (float)tex_rect_l, (float)tex_rect_t };
-					sprite.tex_max = { (float)tex_rect_r, (float)tex_rect_b };
+					sprite.tex_min = { (float)tex_rect.l, (float)tex_rect.t };
+					sprite.tex_max = { (float)tex_rect.r, (float)tex_rect.b };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 					sprite.tex_min /= Vector2f(texture_size);
@@ -578,18 +575,15 @@ namespace map
 
 					// EMPLACE SPRITE
 
-					const unsigned int tex_rect_l = (tile_id % tileset->columns) * (tileset->tile_width + tileset->spacing) + tileset->margin;
-					const unsigned int tex_rect_t = (tile_id / tileset->columns) * (tileset->tile_height + tileset->spacing) + tileset->margin;
-					const unsigned int tex_rect_r = tex_rect_l + tileset->tile_width;
-					const unsigned int tex_rect_b = tex_rect_t + tileset->tile_height;
+					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
 					sprite.min = position - pivot;
 					sprite.max = position + size - pivot;
-					sprite.tex_min = { (float)tex_rect_l, (float)tex_rect_t };
-					sprite.tex_max = { (float)tex_rect_r, (float)tex_rect_b };
+					sprite.tex_min = { (float)tex_rect.l, (float)tex_rect.t };
+					sprite.tex_max = { (float)tex_rect.r, (float)tex_rect.b };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 					sprite.tex_min /= Vector2f(texture_size);
