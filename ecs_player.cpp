@@ -233,7 +233,8 @@ namespace ecs
 					}
 
 					audio::create_event({ .path = "event:/snd_sword_attack" });
-					tile.set_flag(TILE_LOOP, false);
+					animation.progress = 0.f;
+					animation.loop = false;
 
 					player.state = PlayerState::SwingingSword;
 
@@ -245,7 +246,9 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_BOW_SHOT_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_BOW_SHOT_DOWN); break;
 					}
-					tile.set_flag(TILE_LOOP, false);
+
+					animation.progress = 0.f;
+					animation.loop = false;
 
 					player.state = PlayerState::ShootingBow;
 
@@ -272,7 +275,7 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_RUN_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_RUN_DOWN); break;
 					}
-					tile.set_flag(TILE_LOOP, true);
+					animation.loop = true;
 
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 
@@ -282,7 +285,7 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_WALK_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_WALK_DOWN); break;
 					}
-					tile.set_flag(TILE_LOOP, true);
+					animation.loop = true;
 
 				} else {
 
@@ -292,7 +295,7 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_IDLE_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_IDLE_DOWN); break;
 					}
-					tile.set_flag(TILE_LOOP, true);
+					animation.loop = true;
 
 				}
 
@@ -338,7 +341,9 @@ namespace ecs
 				case 'd': tile.set_tile(PLAYER_TILE_DYING_RIGHT_DOWN); break;
 				}
 
-				tile.set_flag(TILE_LOOP, false);
+				animation.progress = 0.f;
+				animation.loop = false;
+
 				if (animation.progress == 1.f) {
 
 					switch (dir) {

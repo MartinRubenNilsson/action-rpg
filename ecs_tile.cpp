@@ -48,7 +48,6 @@ namespace ecs
 		this->id = id;
 		set_texture_rect(id);
 		set_flag(TILE_FRAME_CHANGED, false);
-		set_flag(TILE_LOOPED, false);
 		return true;
 	}
 
@@ -80,12 +79,15 @@ namespace ecs
 		set_flag(TILE_FLIP_DIAGONAL, bit_0);
 	}
 
-	void update_tiles(float dt)
+	void update_tile_positions(float dt)
 	{
 		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
 			tile.position = body->GetPosition();
 		}
+	}
 
+	void update_tile_animations(float dt)
+	{
 		for (auto [entity, tile, animation] : _registry.view<Tile, TileAnimation>().each()) {
 
 			const tiled::Tileset* tiled_tileset = tiled::get_tileset(tile.tileset);
@@ -94,7 +96,6 @@ namespace ecs
 			const tiled::Tile& tiled_tile = tiled_tileset->tiles[tile.id];
 
 			tile.set_flag(TILE_FRAME_CHANGED, false);
-			tile.set_flag(TILE_LOOPED, false);
 
 			if (tiled_tile.animation.empty()) continue;
 
@@ -111,9 +112,8 @@ namespace ecs
 
 			animation.progress += delta_progress;
 			if (animation.progress >= 1.f) {
-				if (tile.get_flag(TILE_LOOP)) {
+				if (animation.loop) {
 					animation.progress = fmodf(animation.progress, 1.f);
-					tile.set_flag(TILE_LOOPED, true);
 					if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
 						tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
 					}

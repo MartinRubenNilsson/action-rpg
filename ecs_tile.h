@@ -18,10 +18,8 @@ namespace ecs
 		TILE_FLIP_X         = (1 << 1), // flip the tile horizontally
 		TILE_FLIP_Y         = (1 << 2), // flip the tile vertically
 		TILE_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
-		TILE_LOOP           = (1 << 4), // loop the animation
-		TILE_FLIP_X_ON_LOOP = (1 << 5), // flip the tile horizontally when the animation loops
-		TILE_FRAME_CHANGED  = (1 << 6), // the animation frame changed last update
-		TILE_LOOPED	        = (1 << 7), // the animation looped last update
+		TILE_FLIP_X_ON_LOOP = (1 << 4), // flip the tile horizontally when the animation loops
+		TILE_FRAME_CHANGED  = (1 << 5), // the animation frame changed last update
 	};
 
 	// need to figure out a better place to put this...
@@ -48,7 +46,7 @@ namespace ecs
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		uint8_t sorting_layer = (uint8_t)map::get_object_layer_index();
 		Color color = colors::WHITE;
-		unsigned int flags = TILE_VISIBLE | TILE_LOOP;
+		unsigned int flags = TILE_VISIBLE;
 
 		void set_texture_rect(unsigned int id);
 		bool set_tileset(Handle<tiled::Tileset> handle);
@@ -64,9 +62,11 @@ namespace ecs
 		float progress = 0.f; // aka normalized time, in the range [0, 1]
 		float speed = 1.f;
 		unsigned int frame = 0; // index into tiled::Tile::animation
+		bool loop = true;
 	};
 
-	void update_tiles(float dt);
+	void update_tile_positions(float dt);
+	void update_tile_animations(float dt);
 	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
