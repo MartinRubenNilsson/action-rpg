@@ -50,7 +50,6 @@ namespace ecs
 	void update_tile_positions(float dt);
 	void update_tile_animations(float dt);
 	void update_tile_sprites(float dt);
-	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
 	Tile* get_tile(entt::entity entity);

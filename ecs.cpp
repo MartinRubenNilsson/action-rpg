@@ -74,7 +74,6 @@ namespace ecs
 			if (sprite.min.y > camera_max.y) continue;
 			sprites::add(sprite);
 		}
-		add_tile_sprites_for_drawing(camera_min, camera_max);
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
 		sprites::sort();
 		sprites::draw("ECS");

@@ -161,53 +161,6 @@ namespace ecs
 		}
 	}
 
-	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max)
-	{
-#if 0
-		sprites::Sprite sprite{};
-		for (auto [entity, tile] : _registry.view<const Tile>().each()) {
-			if (!tile.get_flag(TILE_VISIBLE)) continue;
-			sprite.min = tile.position - tile.pivot;
-			if (sprite.min.x > camera_max.x || sprite.min.y > camera_max.y) continue;
-			const Vector2f tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
-			sprite.max = sprite.min + tex_size;
-			if (sprite.max.x < camera_min.x || sprite.max.y < camera_min.y) continue;
-			sprite.tex_min = { (float)tile.tex_rect_l, (float)tile.tex_rect_t };
-			sprite.tex_max = sprite.tex_min + tex_size;
-			Vector2u texture_size;
-			graphics::get_texture_size(tile.texture, texture_size.x, texture_size.y);
-			sprite.tex_min /= Vector2f(texture_size);
-			sprite.tex_max /= Vector2f(texture_size);
-			sprite.shader = tile.shader;
-			sprite.texture = tile.texture;
-			sprite.color = tile.color;
-			sprite.sorting_layer = tile.sorting_layer;
-			sprite.sorting_pos = sprite.min + tile.sorting_pivot;
-			sprite.flags = 0;
-			if (tile.get_flag(TILE_FLIP_X)) {
-				sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
-			}
-			if (tile.get_flag(TILE_FLIP_Y)) {
-				sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
-			}
-			if (tile.get_flag(TILE_FLIP_DIAGONAL)) {
-				sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
-			}
-#if 0
-			sprite.pre_render_callback = nullptr;
-			if (tile_ptr.get_class() == "grass") {
-				sprite.pre_render_callback = [](const sprites::Sprite& sprite) {
-					if (sprite.shader == Handle<graphics::Shader>()) return;
-					graphics::set_uniform_1f(sprite.shader, "time", _tile_time_accumulator);
-					graphics::set_uniform_2f(sprite.shader, "position", sprite.min.x, sprite.min.y);
-				};
-			}
-#endif
-			sprites::add(sprite);
-		}
-#endif
-	}
-
 	Tile& emplace_tile(entt::entity entity)
 	{
 		return _registry.emplace_or_replace<Tile>(entity);
