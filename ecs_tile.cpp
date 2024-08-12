@@ -7,7 +7,6 @@
 namespace ecs
 {
 	extern entt::registry _registry;
-	float _tile_time_accumulator = 0.f;
 
 	void Tile::set_texture_rect(unsigned int id)
 	{
@@ -48,9 +47,6 @@ namespace ecs
 		if (id >= tileset->tiles.size()) return false;
 		this->id = id;
 		set_texture_rect(id);
-		this->animation_timer = Timer{ 1.f };
-		this->animation_timer.start();
-		this->animation_frame = 0;
 		set_flag(TILE_FRAME_CHANGED, false);
 		set_flag(TILE_LOOPED, false);
 		return true;
@@ -86,14 +82,16 @@ namespace ecs
 
 	void update_tiles(float dt)
 	{
-		_tile_time_accumulator += dt;
+		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
+			tile.position = body->GetPosition();
+		}
 
-		for (auto [entity, tile] : _registry.view<Tile>().each()) {
+		for (auto [entity, tile, animation] : _registry.view<Tile, TileAnimation>().each()) {
 
-			const tiled::Tileset* tileset = tiled::get_tileset(tile.tileset);
-			if (!tileset) continue;
-			if (tile.id >= tileset->tiles.size()) continue;
-			const tiled::Tile& tiled_tile = tileset->tiles[tile.id];
+			const tiled::Tileset* tiled_tileset = tiled::get_tileset(tile.tileset);
+			if (!tiled_tileset) continue;
+			if (tile.id >= tiled_tileset->tiles.size()) continue;
+			const tiled::Tile& tiled_tile = tiled_tileset->tiles[tile.id];
 
 			tile.set_flag(TILE_FRAME_CHANGED, false);
 			tile.set_flag(TILE_LOOPED, false);
@@ -107,34 +105,38 @@ namespace ecs
 
 			if (!duration_ms) continue;
 
-			const float normalized_dt = tile.animation_speed * dt * 1000.f / duration_ms;
-			const bool loop = tile.get_flag(TILE_LOOP);
-			if (tile.animation_timer.update(normalized_dt, loop) && loop) {
-				tile.set_flag(TILE_LOOPED, true);
-				if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
-					tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
+			constexpr float MILLISECONDS_PER_SECOND = 1000.f;
+			// TODO: support for negative speed
+			const float delta_progress = std::max(animation.speed, 0.f) * dt * MILLISECONDS_PER_SECOND / duration_ms;
+
+			animation.progress += delta_progress;
+			if (animation.progress >= 1.f) {
+				if (tile.get_flag(TILE_LOOP)) {
+					animation.progress = fmodf(animation.progress, 1.f);
+					tile.set_flag(TILE_LOOPED, true);
+					if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
+						tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
+					}
+				} else {
+					animation.progress = 1.f;
 				}
 			}
 
-			unsigned int time_ms = (unsigned int)(tile.animation_timer.get_progress() * duration_ms);
+			unsigned int elapsed_time_ms = (unsigned int)(animation.progress * duration_ms);
 
 			for (unsigned int frame = 0; frame < tiled_tile.animation.size(); ++frame) {
 				const tiled::Frame& tiled_frame = tiled_tile.animation[frame];
-				if (time_ms >= tiled_frame.duration_ms) {
-					time_ms -= tiled_frame.duration_ms;
+				if (elapsed_time_ms >= tiled_frame.duration_ms) {
+					elapsed_time_ms -= tiled_frame.duration_ms;
 					continue;
 				}
-				if (frame != tile.animation_frame) {
-					tile.animation_frame = frame;
+				if (frame != animation.frame) {
+					animation.frame = frame;
 					tile.set_texture_rect(tiled_frame.tile_id);
 					tile.set_flag(TILE_FRAME_CHANGED, true);
 				}
 				break;
 			}
-		}
-
-		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
-			tile.position = body->GetPosition();
 		}
 	}
 
@@ -196,5 +198,10 @@ namespace ecs
 	bool remove_tile(entt::entity entity)
 	{
 		return _registry.remove<Tile>(entity);
+	}
+
+	TileAnimation& emplace_tile_animation(entt::entity entity)
+	{
+		return _registry.emplace_or_replace<TileAnimation>(entity);
 	}
 }

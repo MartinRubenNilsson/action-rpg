@@ -69,10 +69,12 @@ namespace map
 		}
 
 		// Destroy all entities before creating new ones.
+
 		destroy_entities();
 
 		// Pre-create object entities. This is because we want to be sure that the
 		// object UIDs we get from Tiled are free to use as entity identifiers.
+
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
 			for (const tiled::Object& object : layer.objects) {
@@ -81,6 +83,7 @@ namespace map
 		}
 
 		// Setup object entities.
+
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
 			for (const tiled::Object& object : layer.objects) {
@@ -102,10 +105,11 @@ namespace map
 
 				Vector2f position = object.position;
 
-				if (object.type == tiled::ObjectType::Tile) {
+				switch (object.type) {
+				case tiled::ObjectType::Tile: {
 
-					// Objects are positioned by their top-left corner, except for tiles,
-					// which are positioned by their bottom-left corner. This is confusing,
+					// Objects are positioned by their top-left corner, unless it's a tile,
+					// in which case it's positioned by its bottom-left corner. This is confusing,
 					// so let's adjust the position here to make it consistent.
 					position.y -= object.size.y;
 
@@ -149,6 +153,7 @@ namespace map
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
+
 								b2PolygonShape shape{};
 								shape.SetAsBox(collider_hw, collider_hh, collider_center, 0.f);
 								b2FixtureDef fixture_def{};
@@ -158,8 +163,10 @@ namespace map
 									fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								}
 								body->CreateFixture(&fixture_def);
+
 							} break;
 							case tiled::ObjectType::Ellipse: {
+
 								b2CircleShape shape{};
 								shape.m_p = collider_center;
 								shape.m_radius = collider_hw;
@@ -170,8 +177,9 @@ namespace map
 									fixture_def.filter = ecs::get_filter_for_class(object.class_);
 								}
 								body->CreateFixture(&fixture_def);
+
 							} break;
-							}
+							} // switch (collider.type)
 						}
 					}
 
@@ -193,7 +201,14 @@ namespace map
 					ecs_tile.set_flag(ecs::TILE_FLIP_Y, object.tile_ref.flipped_vertically);
 					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, object.tile_ref.flipped_diagonally);
 
-				} else { // If object is not a tile
+					// EMPLACE TILE ANIMATION
+
+					// For convenience, we assume all tile objects are animated
+					// or will be animated in the future after changing tile.
+					ecs::emplace_tile_animation(entity);
+
+				} break;
+				default: { // Rectangle, Ellipse, Point, Polygon, Polyline
 
 					// LOAD COLLIDERS
 
@@ -209,6 +224,7 @@ namespace map
 
 					switch (object.type) {
 					case tiled::ObjectType::Rectangle: {
+
 						b2PolygonShape shape{};
 						shape.SetAsBox(hw, hh, center, 0.f);
 						b2FixtureDef fixture_def{};
@@ -216,8 +232,10 @@ namespace map
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
 						body->CreateFixture(&fixture_def);
+
 					} break;
 					case tiled::ObjectType::Ellipse: {
+
 						b2CircleShape shape{};
 						shape.m_p = center;
 						shape.m_radius = hw;
@@ -226,9 +244,12 @@ namespace map
 						fixture_def.isSensor = true;
 						fixture_def.filter = ecs::get_filter_for_class(object.class_);
 						body->CreateFixture(&fixture_def);
+
 					} break;
-					}
-				}
+					} // switch (object.type)
+
+				} break;
+				} // switch (object.type)
 
 				// CLASS-SPECIFIC ENTITY SETUP
 
@@ -395,14 +416,17 @@ namespace map
 		}
 
 		// Create and setup tile entities.
+
 		for (size_t layer_index = 0; layer_index < map.layers.size(); ++layer_index) {
 			const tiled::Layer& layer = map.layers[layer_index];
 			if (layer.type != tiled::LayerType::Tile) continue;
-			// OPTIMIZATION: When iterating through the view of all ecs::Tile components,
-			// EnTT returns them in reverse order. Let's therefore create them in reverse order
-			// (bottom-to-top and right-to-left) so that when we iterate we access them in
-			// approximate draw order (left-to-right and top-to-bottom). This makes it so
-			// we spend less time sorting them before rendering.
+
+			// OPTIMIZATION: When iterating through the view of all ecs::Tile components, EnTT
+			// returns them in reverse order of creation. Let's therefore CREATE them in reverse
+			// draw order (bottom-to-top and right-to-left) so that when we iterate we access them
+			// in draw order (left-to-right and top-to-bottom). This makes it so we spend less time
+			// sorting them before rendering.
+
 			for (unsigned int y = layer.height; y--;) {
 				for (unsigned int x = layer.width; x--;) {
 
@@ -570,6 +594,13 @@ namespace map
 					ecs_tile.set_flag(ecs::TILE_FLIP_X, tile_ref.flipped_horizontally);
 					ecs_tile.set_flag(ecs::TILE_FLIP_Y, tile_ref.flipped_vertically);
 					ecs_tile.set_flag(ecs::TILE_FLIP_DIAGONAL, tile_ref.flipped_diagonally);
+
+					if (!tile.animation.empty()) {
+
+						// EMPLACE TILE ANIMATION
+
+						ecs::emplace_tile_animation(entity);
+					}
 				}
 			}
 		}

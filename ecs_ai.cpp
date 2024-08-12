@@ -65,8 +65,8 @@ namespace ecs
     
     void update_ai_graphics(float dt)
     {
-        for (auto [entity, tile, ai_type, body] :
-            _registry.view<Tile, const AiType, b2Body*>().each()) {
+        for (auto [entity, tile, animation, ai_type, body] :
+            _registry.view<Tile, TileAnimation, const AiType, b2Body*>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
                 Vector2f velocity = body->GetLinearVelocity();
@@ -78,7 +78,7 @@ namespace ecs
                     case 'l': tile.set_tile(SLIME_TILE_WALK_LEFT); break;
                     }
                 }
-                tile.animation_speed = length(velocity) / 32.f;
+                animation.speed = length(velocity) / 32.f;
             } break;
 			}
 		}

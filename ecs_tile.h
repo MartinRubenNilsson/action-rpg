@@ -1,6 +1,4 @@
 #pragma once
-#include "timer.h"
-#include "properties.h"
 
 namespace graphics
 {
@@ -50,9 +48,6 @@ namespace ecs
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 		uint8_t sorting_layer = (uint8_t)map::get_object_layer_index();
 		Color color = colors::WHITE;
-		Timer animation_timer = { 1.f }; // runs from 0 to 1 (normalized time)
-		float animation_speed = 1.f;
-		unsigned int animation_frame = 0; // index into tiled::Tile::animation
 		unsigned int flags = TILE_VISIBLE | TILE_LOOP;
 
 		void set_texture_rect(unsigned int id);
@@ -64,10 +59,19 @@ namespace ecs
 		void set_rotation(int clockwise_quarter_turns);
 	};
 
+	struct TileAnimation
+	{
+		float progress = 0.f; // aka normalized time, in the range [0, 1]
+		float speed = 1.f;
+		unsigned int frame = 0; // index into tiled::Tile::animation
+	};
+
 	void update_tiles(float dt);
 	void add_tile_sprites_for_drawing(const Vector2f& camera_min, const Vector2f& camera_max);
 
 	Tile& emplace_tile(entt::entity entity);
 	Tile* get_tile(entt::entity entity);
 	bool remove_tile(entt::entity entity);
+
+	TileAnimation& emplace_tile_animation(entt::entity entity);
 }
