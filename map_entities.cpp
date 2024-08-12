@@ -568,13 +568,13 @@ namespace map
 							sprite.flags |= sprites::SPRITE_VISIBLE;
 						}
 						if (tile_ref.flipped_horizontally) {
-							sprite.flags |= sprites::SPRITE_FLIP_HORIZONTAL;
+							sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
 						}
 						if (tile_ref.flipped_vertically) {
-							sprite.flags |= sprites::SPRITE_FLIP_VERTICAL;
+							sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
 						}
 						if (tile_ref.flipped_diagonally) {
-							sprite.flags |= sprites::SPRITE_FLIP_DIAGONAL;
+							sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 						}
 
 						continue;
