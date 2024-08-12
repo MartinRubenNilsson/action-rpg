@@ -47,7 +47,6 @@ namespace ecs
 		if (id >= tileset->tiles.size()) return false;
 		this->id = id;
 		set_texture_rect(id);
-		set_flag(TILE_FRAME_CHANGED, false);
 		return true;
 	}
 
@@ -88,14 +87,16 @@ namespace ecs
 
 	void update_tile_animations(float dt)
 	{
+		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
+			animation.frame_changed = false;
+		}
+
 		for (auto [entity, tile, animation] : _registry.view<Tile, TileAnimation>().each()) {
 
 			const tiled::Tileset* tiled_tileset = tiled::get_tileset(tile.tileset);
 			if (!tiled_tileset) continue;
 			if (tile.id >= tiled_tileset->tiles.size()) continue;
 			const tiled::Tile& tiled_tile = tiled_tileset->tiles[tile.id];
-
-			tile.set_flag(TILE_FRAME_CHANGED, false);
 
 			if (tiled_tile.animation.empty()) continue;
 
@@ -132,8 +133,8 @@ namespace ecs
 				}
 				if (frame != animation.frame) {
 					animation.frame = frame;
+					animation.frame_changed = true;
 					tile.set_texture_rect(tiled_frame.tile_id);
-					tile.set_flag(TILE_FRAME_CHANGED, true);
 				}
 				break;
 			}

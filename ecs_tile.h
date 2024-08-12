@@ -19,7 +19,6 @@ namespace ecs
 		TILE_FLIP_Y         = (1 << 2), // flip the tile vertically
 		TILE_FLIP_DIAGONAL  = (1 << 3), // flip the bottom-left and top-right corners
 		TILE_FLIP_X_ON_LOOP = (1 << 4), // flip the tile horizontally when the animation loops
-		TILE_FRAME_CHANGED  = (1 << 5), // the animation frame changed last update
 	};
 
 	// need to figure out a better place to put this...
@@ -61,8 +60,9 @@ namespace ecs
 	{
 		float progress = 0.f; // aka normalized time, in the range [0, 1]
 		float speed = 1.f;
-		unsigned int frame = 0; // index into tiled::Tile::animation
+		unsigned int frame = 0; // index into tiled::Tile::animation[]
 		bool loop = true;
+		bool frame_changed = false;
 	};
 
 	void update_tile_positions(float dt);
