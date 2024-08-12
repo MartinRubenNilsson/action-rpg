@@ -40,6 +40,7 @@ namespace ecs
 			body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
 		}
 
+#if 0
 		// GRAPHICS
 		{
 			Tile& tile = emplace_tile(entity);
@@ -47,6 +48,7 @@ namespace ecs
 			tile.set_tile(ITEM_TILE_SPEAR); // placeholder
 			tile.pivot = Vector2f(6.f, 6.f);
 		}
+#endif
 
 		// AUDIO
 		audio::create_event({ .path = "event:/snd_fire_arrow" });

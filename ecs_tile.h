@@ -19,8 +19,6 @@ namespace ecs
 		unsigned int tex_rect_w = 0; // in pixels
 		unsigned int tex_rect_h = 0; // in pixels
 
-		Vector2f position; // in pixels
-		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
 
 		void set_texture_rect(unsigned int id);
@@ -45,7 +43,6 @@ namespace ecs
 		bool looped = false;
 	};
 
-	void update_tile_positions(float dt);
 	void update_tile_animations(float dt);
 	void update_tile_sprites(float dt);
 

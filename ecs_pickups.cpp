@@ -55,6 +55,7 @@ namespace ecs
 			fixture_def.isSensor = true;
 			body->CreateFixture(&fixture_def);
 		}
+#if 0
 		{
 			Tile& tile = emplace_tile(entity);
 			tile.position = position;
@@ -78,6 +79,7 @@ namespace ecs
 #endif
 			}
 		}
+#endif
 		return entity;
 	}
 

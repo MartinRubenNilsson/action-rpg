@@ -78,13 +78,6 @@ namespace ecs
 	}
 #endif
 
-	void update_tile_positions(float dt)
-	{
-		for (auto [entity, tile, body] : _registry.view<Tile, b2Body*>().each()) {
-			tile.position = body->GetPosition();
-		}
-	}
-
 	void update_tile_animations(float dt)
 	{
 		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
@@ -142,11 +135,11 @@ namespace ecs
 
 	void update_tile_sprites(float dt)
 	{
+#if 1
 		//TODO: only run this when necessary
 		for (auto [entity, sprite, tile] : _registry.view<sprites::Sprite, const Tile>().each()) {
 			sprite.tex_pos = { (float)tile.tex_rect_x, (float)tile.tex_rect_y };
 			sprite.tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
-			sprite.pos = tile.position - tile.pivot;
 			sprite.size = sprite.tex_size;
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
@@ -154,6 +147,7 @@ namespace ecs
 			sprite.tex_size /= Vector2f(texture_size);
 			sprite.sorting_pos = sprite.pos + tile.sorting_pivot;
 		}
+#endif
 	}
 
 	Tile& emplace_tile(entt::entity entity)

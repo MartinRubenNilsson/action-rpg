@@ -5,6 +5,14 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
+	void update_sprite_body_attachments()
+	{
+		for (auto [entity, sprite, body, attachment]  :
+			_registry.view<sprites::Sprite, b2Body*, SpriteBodyAttachment>().each()) {
+			sprite.pos = body->GetPosition() + attachment.position;
+		}
+	}
+
 	sprites::Sprite& emplace_sprite(entt::entity entity)
 	{
 		return _registry.emplace_or_replace<sprites::Sprite>(entity);
@@ -13,5 +21,15 @@ namespace ecs
 	sprites::Sprite* get_sprite(entt::entity entity)
 	{
 		return _registry.try_get<sprites::Sprite>(entity);
+	}
+
+	SpriteBodyAttachment& emplace_sprite_body_attachment(entt::entity entity, const Vector2f& position)
+	{
+		return _registry.emplace_or_replace<SpriteBodyAttachment>(entity, position);
+	}
+
+	SpriteBodyAttachment* get_sprite_body_attachment(entt::entity entity)
+	{
+		return _registry.try_get<SpriteBodyAttachment>(entity);
 	}
 }

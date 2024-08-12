@@ -75,6 +75,7 @@ namespace ecs
             shape.m_radius = 4.f;
             body->CreateFixture(&shape, 0.f);
         }
+#if 0
         {
             Tile& tile = emplace_tile(entity);
             tile.set_tileset("items1");
@@ -83,6 +84,7 @@ namespace ecs
             tile.pivot = Vector2f(8.f, 16.f);
             tile.sorting_pivot = tile.pivot;
         }
+#endif
         return entity;
     }
 

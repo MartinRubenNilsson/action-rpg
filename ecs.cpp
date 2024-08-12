@@ -49,9 +49,9 @@ namespace ecs
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
 		destroy_entities_to_be_destroyed_at_end_of_frame();
-		update_tile_positions(dt);
 		update_tile_animations(dt);
 		update_tile_sprites(dt);
+		update_sprite_body_attachments();
 		update_vfx(dt);
 		update_cameras(dt);
 	}

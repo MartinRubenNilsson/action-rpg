@@ -129,9 +129,61 @@ namespace map
 
 					Vector2f sorting_pivot = object.size / 2.f;
 
-					// LOAD COLLIDERS
+					// EMPLACE SPRITE
+
+					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
+
+					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
+					sprite.shader = graphics::sprite_shader;
+					sprite.texture = graphics::load_texture(tileset->image_path);
+					sprite.pos = position;
+					sprite.size = object.size;
+					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
+					Vector2u texture_size;
+					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_size /= Vector2f(texture_size);
+					sprite.sorting_pos = position + sorting_pivot;
+					// PITFALL: We don't set the sorting layer to the layer index here.
+					// This is because we want all objects to be on the same layer, so they
+					// are rendered in the correct order. This sorting layer may also be the
+					// index of a tile layer so that certain static tiles are rendered as if
+					// they were objects, e.g. trees and other props.
+					sprite.sorting_layer = (uint8_t)get_object_layer_index();
+					if (!layer.visible) {
+						sprite.flags &= ~sprites::SPRITE_VISIBLE;
+					}
+					if (object.tile_ref.flipped_horizontally) {
+						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
+					if (object.tile_ref.flipped_vertically) {
+						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
+					}
+					if (object.tile_ref.flipped_diagonally) {
+						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
+					}
+
+					// EMPLACE TILE
+
+					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
+					ecs_tile.set_tileset(tileset->handle);
+					ecs_tile.set_tile(tile_id);
+					ecs_tile.sorting_pivot = sorting_pivot;
+
+					// EMPLACE TILE ANIMATION
+
+					// For convenience, we assume all tile objects are animated
+					// or will be animated in the future after changing tile.
+					ecs::emplace_tile_animation(entity);
 
 					if (!tile.objects.empty()) {
+
+						// EMPLACE SPRITE-BODY ATTACHMENT
+
+						ecs::emplace_sprite_body_attachment(entity);
+
+						// EMPLACE BODY
 
 						b2BodyDef body_def{};
 						body_def.type = b2_dynamicBody;
@@ -179,58 +231,9 @@ namespace map
 								body->CreateFixture(&fixture_def);
 
 							} break;
-							} // switch (collider.type)
+							}
 						}
 					}
-
-					// EMPLACE SPRITE
-
-					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
-
-					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-					sprite.shader = graphics::sprite_shader;
-					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.pos = position;
-					sprite.size = object.size;
-					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
-					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
-					Vector2u texture_size;
-					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_pos /= Vector2f(texture_size);
-					sprite.tex_size /= Vector2f(texture_size);
-					sprite.sorting_pos = position + sorting_pivot;
-					// PITFALL: We don't set the sorting layer to the layer index here.
-					// This is because we want all objects to be on the same layer, so they
-					// are rendered in the correct order. This sorting layer may also be the
-					// index of a tile layer so that certain static tiles are rendered as if
-					// they were objects, e.g. trees and other props.
-					sprite.sorting_layer = (uint8_t)get_object_layer_index();
-					if (!layer.visible) {
-						sprite.flags &= ~sprites::SPRITE_VISIBLE;
-					}
-					if (object.tile_ref.flipped_horizontally) {
-						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
-					}
-					if (object.tile_ref.flipped_vertically) {
-						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
-					}
-					if (object.tile_ref.flipped_diagonally) {
-						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
-					}
-
-					// EMPLACE TILE
-
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
-					ecs_tile.set_tileset(tileset->handle);
-					ecs_tile.set_tile(tile_id);
-					ecs_tile.position = position;
-					ecs_tile.sorting_pivot = sorting_pivot;
-
-					// EMPLACE TILE ANIMATION
-
-					// For convenience, we assume all tile objects are animated
-					// or will be animated in the future after changing tile.
-					ecs::emplace_tile_animation(entity);
 
 				} break;
 				default: { // Rectangle, Ellipse, Point, Polygon, Polyline
@@ -271,10 +274,10 @@ namespace map
 						body->CreateFixture(&fixture_def);
 
 					} break;
-					} // switch (object.type)
+					}
 
 				} break;
-				} // switch (object.type)
+				}
 
 				// CLASS-SPECIFIC ENTITY SETUP
 
@@ -305,9 +308,11 @@ namespace map
 
 					ecs::Tile* tile = ecs::get_tile(entity);
 					if (tile) {
-						tile->pivot = pivot;
+						//tile->pivot = pivot;
 						tile->sorting_pivot = pivot;
 					}
+
+					ecs::emplace_sprite_body_attachment(entity, -pivot);
 
 					if (last_active_portal) {
 
@@ -399,7 +404,7 @@ namespace map
 					const Vector2f pivot = { 16.f, 22.f };
 
 					if (ecs::Tile* tile = ecs::get_tile(entity)) {
-						tile->pivot = pivot;
+						//tile->pivot = pivot;
 						tile->sorting_pivot = pivot;
 					}
 
@@ -421,7 +426,7 @@ namespace map
 					blade_trap.start_position = position + pivot;
 
 					if (ecs::Tile* tile = ecs::get_tile(entity)) {
-						tile->pivot = pivot;
+						//tile->pivot = pivot;
 						tile->sorting_pivot = pivot;
 					}
 
@@ -438,6 +443,8 @@ namespace map
 					fixture_def.shape = &shape;
 					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
+
+					ecs::emplace_sprite_body_attachment(entity, -pivot);
 				}
 			}
 		}
@@ -608,8 +615,6 @@ namespace map
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
 					ecs_tile.set_tileset(tileset->handle);
 					ecs_tile.set_tile(tile_id);
-					ecs_tile.position = position;
-					ecs_tile.pivot = pivot;
 					ecs_tile.sorting_pivot = sorting_pivot;
 
 					// EMPLACE TILE ANIMATION
