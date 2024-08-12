@@ -48,6 +48,7 @@ namespace ecs
 		return true;
 	}
 
+#if 0
 	void Tile::set_flag(unsigned int flag, bool value)
 	{
 		if (value) {
@@ -57,7 +58,6 @@ namespace ecs
 		}
 	}
 
-#if 0
 	bool Tile::get_flag(unsigned int flag) const
 	{
 		return (flags & flag) != 0;
@@ -89,6 +89,7 @@ namespace ecs
 	{
 		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
 			animation.frame_changed = false;
+			animation.looped = false;
 		}
 
 		for (auto [entity, tile, animation] : _registry.view<Tile, TileAnimation>().each()) {
@@ -114,12 +115,8 @@ namespace ecs
 			animation.progress += delta_progress;
 			if (animation.progress >= 1.f) {
 				if (animation.loop) {
+					animation.looped = true;
 					animation.progress = fmodf(animation.progress, 1.f);
-#if 0
-					if (tile.get_flag(TILE_FLIP_X_ON_LOOP)) {
-						tile.set_flag(TILE_FLIP_X, !tile.get_flag(TILE_FLIP_X));
-					}
-#endif
 				} else {
 					animation.progress = 1.f;
 				}

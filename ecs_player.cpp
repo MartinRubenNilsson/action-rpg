@@ -178,23 +178,11 @@ namespace ecs
 			// UPDATE POST-PROCESSING
 			postprocessing::set_darkness_center(position);
 
-			char dir = get_direction(player.look_dir);
-			char tile_dir = dir;
+			const char dir = get_direction(player.look_dir);
 
 			switch (dir) {
-			case 'r':
-				sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
-				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
-				break;
-			case 'l':
-				tile_dir = 'r';
-				sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
-				tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
-				break;
-			case 'u':
-			case 'd':
-				tile.set_flag(TILE_FLIP_X_ON_LOOP, true);
-				break;
+			case 'l': sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY; break;
+			case 'r': sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY; break;
 			}
 
 			switch (player.state) {
@@ -266,7 +254,11 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_PUSH_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_PUSH_DOWN); break;
 					}
-					tile.set_flag(TILE_FLIP_X_ON_LOOP, false);
+
+					animation.loop = true;
+					if (animation.looped && (dir == 'u' || dir == 'd')) {
+						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
 
 				} else if (new_move_speed >= _PLAYER_RUN_SPEED) {
 
@@ -276,7 +268,11 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_RUN_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_RUN_DOWN); break;
 					}
+
 					animation.loop = true;
+					if (animation.looped && (dir == 'u' || dir == 'd')) {
+						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
 
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 
@@ -286,7 +282,11 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_WALK_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_WALK_DOWN); break;
 					}
+
 					animation.loop = true;
+					if (animation.looped && (dir == 'u' || dir == 'd')) {
+						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
 
 				} else {
 
@@ -296,7 +296,9 @@ namespace ecs
 					case 'u': tile.set_tile(PLAYER_TILE_IDLE_UP); break;
 					case 'd': tile.set_tile(PLAYER_TILE_IDLE_DOWN); break;
 					}
+
 					animation.loop = true;
+					sprite.flags &= ~sprites::SPRITE_FLIP_VERTICALLY;
 
 				}
 
@@ -310,9 +312,11 @@ namespace ecs
 			} break;
 			case PlayerState::SwingingSword: {
 				held_item_type = HeldItemType::Sword;
+#if 0
 				if (tile_dir != 'r') {
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
+#endif
 				if (animation.frame_changed && animation.frame == 1) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
@@ -322,9 +326,11 @@ namespace ecs
 			} break;
 			case PlayerState::ShootingBow: {
 				held_item_type = HeldItemType::Bow;
+#if 0
 				if (tile_dir != 'r') {
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
+#endif
 				if (player.arrows > 0 && animation.frame_changed && animation.frame == 2) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);

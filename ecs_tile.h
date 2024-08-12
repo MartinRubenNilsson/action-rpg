@@ -2,11 +2,6 @@
 
 namespace ecs
 {
-	enum TILE_FLAGS : unsigned int
-	{
-		TILE_FLIP_X_ON_LOOP = (1 << 4), // flip the tile horizontally when the animation loops
-	};
-
 	// need to figure out a better place to put this...
 	enum ITEM_TILE
 	{
@@ -27,15 +22,17 @@ namespace ecs
 		Vector2f position; // in pixels
 		Vector2f pivot; // in pixels, relative to the top-left corner
 		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
-		unsigned int flags = 0;
 
 		void set_texture_rect(unsigned int id);
 		bool set_tileset(Handle<tiled::Tileset> handle);
 		bool set_tileset(const std::string& tileset_name);
 		bool set_tile(unsigned int id);
+
+#if 0
 		void set_flag(unsigned int flag, bool value);
 		bool get_flag(unsigned int flag) const;
-		//void set_rotation(int clockwise_quarter_turns);
+		void set_rotation(int clockwise_quarter_turns);
+#endif
 	};
 
 	struct TileAnimation
@@ -45,6 +42,7 @@ namespace ecs
 		unsigned int frame = 0; // index into tiled::Tile::animation[]
 		bool loop = true;
 		bool frame_changed = false;
+		bool looped = false;
 	};
 
 	void update_tile_positions(float dt);
