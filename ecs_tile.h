@@ -19,8 +19,6 @@ namespace ecs
 		unsigned int tex_rect_w = 0; // in pixels
 		unsigned int tex_rect_h = 0; // in pixels
 
-		Vector2f sorting_pivot; // in pixels, relative to the top-left corner
-
 		void set_texture_rect(unsigned int id);
 		bool set_tileset(Handle<tiled::Tileset> handle);
 		bool set_tileset(const std::string& tileset_name);

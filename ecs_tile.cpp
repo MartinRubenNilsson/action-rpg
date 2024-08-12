@@ -145,7 +145,6 @@ namespace ecs
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.tex_pos /= Vector2f(texture_size);
 			sprite.tex_size /= Vector2f(texture_size);
-			sprite.sorting_pos = sprite.pos + tile.sorting_pivot;
 		}
 #endif
 	}

@@ -30,7 +30,7 @@ namespace sprites
 		Vector2f size; // width and height in world space
 		Vector2f tex_pos = { 0.f, 0.f }; // top-left corner in normalized texture coordinates
 		Vector2f tex_size = { 1.f, 1.f }; // width and height in normalized texture coordinates
-		Vector2f sorting_pos;
+		Vector2f sorting_point;
 		Color color = colors::WHITE;
 		uint8_t sorting_layer = 0;
 		uint8_t flags = SPRITE_VISIBLE;
@@ -41,8 +41,8 @@ namespace sprites
 	// Orders sprites by draw order. Members are compared in a cascading fashion:
 	// 
 	// 1. sorting_layer
-	// 2. sorting_pos.y
-	// 3. sorting_pos.x
+	// 2. pos.y + sorting_point.y
+	// 3. pos.x + sorting_point.x
 	// 4. shader
 	// 5. texture
 	// 

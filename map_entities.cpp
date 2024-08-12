@@ -127,8 +127,6 @@ namespace map
 
 					const tiled::Tile& tile = tileset->tiles[tile_id];
 
-					Vector2f sorting_pivot = object.size / 2.f;
-
 					// EMPLACE SPRITE
 
 					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
@@ -144,13 +142,13 @@ namespace map
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 					sprite.tex_pos /= Vector2f(texture_size);
 					sprite.tex_size /= Vector2f(texture_size);
-					sprite.sorting_pos = position + sorting_pivot;
 					// PITFALL: We don't set the sorting layer to the layer index here.
 					// This is because we want all objects to be on the same layer, so they
 					// are rendered in the correct order. This sorting layer may also be the
 					// index of a tile layer so that certain static tiles are rendered as if
 					// they were objects, e.g. trees and other props.
 					sprite.sorting_layer = (uint8_t)get_object_layer_index();
+					sprite.sorting_point = object.size / 2.f;
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
@@ -169,7 +167,6 @@ namespace map
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
 					ecs_tile.set_tileset(tileset->handle);
 					ecs_tile.set_tile(tile_id);
-					ecs_tile.sorting_pivot = sorting_pivot;
 
 					// EMPLACE TILE ANIMATION
 
@@ -194,7 +191,7 @@ namespace map
 						for (const tiled::Object& collider : tile.objects) {
 
 							if (collider.name == "pivot") {
-								sorting_pivot = collider.position;
+								sprite.sorting_point = collider.position;
 							}
 
 							float collider_x = collider.position.x;
@@ -309,7 +306,7 @@ namespace map
 					ecs::Tile* tile = ecs::get_tile(entity);
 					if (tile) {
 						//tile->pivot = pivot;
-						tile->sorting_pivot = pivot;
+						//tile->sorting_pivot = pivot;
 					}
 
 					ecs::emplace_sprite_body_attachment(entity, -pivot);
@@ -405,7 +402,7 @@ namespace map
 
 					if (ecs::Tile* tile = ecs::get_tile(entity)) {
 						//tile->pivot = pivot;
-						tile->sorting_pivot = pivot;
+						//tile->sorting_pivot = pivot;
 					}
 
 					b2BodyDef body_def{};
@@ -427,7 +424,7 @@ namespace map
 
 					if (ecs::Tile* tile = ecs::get_tile(entity)) {
 						//tile->pivot = pivot;
-						tile->sorting_pivot = pivot;
+						//tile->sorting_pivot = pivot;
 					}
 
 					b2BodyDef body_def{};
@@ -487,7 +484,7 @@ namespace map
 					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
 					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
 					const Vector2f pivot = { 0.f, (float)tileset->tile_height - (float)map.tile_height };
-					Vector2f sorting_pivot = { size.x / 2.f, size.y - map.tile_height / 2.f };
+					Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
 					if (!tile.class_.empty()) {
@@ -509,7 +506,7 @@ namespace map
 
 						for (const tiled::Object& collider : tile.objects) {
 							if (collider.name == "pivot") {
-								sorting_pivot = collider.position;
+								sorting_point = collider.position;
 							}
 
 							float collider_cx = collider.position.x - pivot.x;
@@ -595,8 +592,8 @@ namespace map
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 					sprite.tex_pos /= Vector2f(texture_size);
 					sprite.tex_size /= Vector2f(texture_size);
-					sprite.sorting_pos = position - pivot + sorting_pivot;
 					sprite.sorting_layer = (uint8_t)layer_index;
+					sprite.sorting_point = sorting_point;
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
@@ -615,7 +612,6 @@ namespace map
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
 					ecs_tile.set_tileset(tileset->handle);
 					ecs_tile.set_tile(tile_id);
-					ecs_tile.sorting_pivot = sorting_pivot;
 
 					// EMPLACE TILE ANIMATION
 

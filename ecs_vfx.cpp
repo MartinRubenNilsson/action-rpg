@@ -54,8 +54,8 @@ namespace ecs
             sprite.tex_pos /= Vector2f(texture_size);
             sprite.tex_size /= Vector2f(texture_size);
             sprite.texture = vfx.texture;
-            sprite.sorting_pos = sprite.pos + tex_half_size;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
+            sprite.sorting_point = tex_half_size;
 			sprites::add(sprite);
 		}
     }
