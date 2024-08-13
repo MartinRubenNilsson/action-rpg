@@ -184,10 +184,6 @@ namespace map
 
 						for (const tiled::Object& collider : tile.objects) {
 
-							if (collider.name == "pivot") {
-								sprite.sorting_point = collider.position;
-							}
-
 							float collider_x = collider.position.x;
 							float collider_y = collider.position.y;
 							float collider_hw = collider.size.x / 2.0f;
@@ -516,6 +512,10 @@ namespace map
 					}
 					if (tile_ref.flipped_diagonally) {
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
+					}
+
+					if (tile.class_ == "grass") {
+						sprite.sorting_point = { 8.f, 20.f };
 					}
 
 					// EMPLACE ANIMATION
