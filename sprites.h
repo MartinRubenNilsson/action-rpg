@@ -18,9 +18,9 @@ namespace sprites
 		SPRITE_ROTATE_270        = SPRITE_FLIP_VERTICALLY | SPRITE_FLIP_DIAGONALLY,
 	};
 
-	struct
-		//alignas(std::hardware_constructive_interference_size)
-		Sprite
+	constexpr size_t L1_CACHE_LINE_SIZE = std::hardware_constructive_interference_size;
+
+	struct alignas(L1_CACHE_LINE_SIZE) Sprite
 	{
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture; // TODO: default to error texture
@@ -36,7 +36,7 @@ namespace sprites
 		uint8_t flags = SPRITE_VISIBLE;
 	};
 
-	//static_assert(sizeof(Sprite) <= std::hardware_constructive_interference_size, "Sprite doen't fit in a cache line!");
+	static_assert(sizeof(Sprite) <= L1_CACHE_LINE_SIZE, "Sprite doen't fit in a cache line!");
 
 	// Orders sprites by draw order. Members are compared in a cascading fashion:
 	// 
