@@ -473,10 +473,10 @@ namespace map
 
 					const Vector2f position = {
 						(float)x * map.tile_width,
-						(float)y * map.tile_height - (float)tileset->tile_height + (float)map.tile_height
+						(float)y * map.tile_height - tileset->tile_height + map.tile_height
 					};
 					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
-					Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
+					const Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
 					if (!tile.class_.empty()) {
@@ -604,6 +604,7 @@ namespace map
 					// CLASS-SPECIFIC ENTITY SETUP
 
 					if (tile.class_ == "grass") {
+						//TODO: set shader and uniform buffer
 						sprite.sorting_point = { 8.f, 20.f };
 						if (body) {
 							for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {

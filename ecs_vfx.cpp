@@ -35,27 +35,22 @@ namespace ecs
             if (!vfx.frame_cols) continue;
             if (vfx.time < 0.f) continue;
             if (vfx.frame_duration <= 0.f) continue;
-            uint32_t frame = (uint32_t)(vfx.time / vfx.frame_duration);
-            uint32_t frame_row = frame / vfx.frame_cols;
-            uint32_t frame_col = frame % vfx.frame_cols;
+            const unsigned int frame = (unsigned int)(vfx.time / vfx.frame_duration);
+            const unsigned int frame_row = frame / vfx.frame_cols;
+            const unsigned int frame_col = frame % vfx.frame_cols;
             Vector2u texture_size;
             graphics::get_texture_size(vfx.texture, texture_size.x, texture_size.y);
-            sprite.tex_pos = {
-                (float)texture_size.x * frame_col / vfx.frame_cols,
-                (float)texture_size.y * frame_row / vfx.frame_rows };
-            sprite.tex_size = { (float)texture_size.x, (float)texture_size.y };
-            Vector2f tex_half_size = sprite.tex_size / 2.f;
-            sprite.pos = vfx.position - tex_half_size;
+            sprite.tex_pos = { (float)frame_col / vfx.frame_cols, (float)frame_row / vfx.frame_rows };
+            sprite.tex_size = { 1.f / vfx.frame_cols, 1.f / vfx.frame_rows };
+            sprite.size = sprite.tex_size * Vector2f(texture_size);
+            sprite.pos = vfx.position - sprite.size / 2.f;
             if (sprite.pos.x > camera_max.x) continue;
             if (sprite.pos.y > camera_max.y) continue;
-            sprite.size = sprite.tex_size;
             if (sprite.pos.x + sprite.size.x < camera_min.x) continue;
             if (sprite.pos.y + sprite.size.y < camera_min.y) continue;
-            sprite.tex_pos /= Vector2f(texture_size);
-            sprite.tex_size /= Vector2f(texture_size);
             sprite.texture = vfx.texture;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
-            sprite.sorting_point = tex_half_size;
+            sprite.sorting_point = sprite.tex_size / 2.f;
 			sprites::add(sprite);
 		}
     }
