@@ -165,8 +165,8 @@ namespace map
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
-					ecs_tile.set_tileset(tileset->handle);
-					ecs_tile.set_tile(tile_id);
+					ecs_tile.set_tileset(object.tileset_ref.tileset);
+					ecs_tile.id = tile_id;
 
 					// EMPLACE TILE ANIMATION
 
@@ -610,8 +610,8 @@ namespace map
 					// EMPLACE TILE
 
 					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
-					ecs_tile.set_tileset(tileset->handle);
-					ecs_tile.set_tile(tile_id);
+					ecs_tile.set_tileset(tileset_ref.tileset);
+					ecs_tile.id = tile_id;
 
 					// EMPLACE TILE ANIMATION
 

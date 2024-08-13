@@ -12,6 +12,7 @@ namespace tiled
 	std::unordered_map<std::string, Handle<Map>> _path_to_map;
 	Pool<Tileset> _tilesets;
 	std::unordered_map<std::string, Handle<Tileset>> _path_to_tileset;
+	std::unordered_map<std::string, Handle<Tileset>> _name_to_tileset;
 	Pool<Object> _templates;
 	std::unordered_map<std::string, Handle<Object>> _path_to_template;
 
@@ -54,22 +55,18 @@ namespace tiled
 		return nullptr;
 	}
 
-	const Tileset* find_tileset_by_name(const std::string& name)
+	Handle<Tileset> find_tileset_by_name(const std::string& name)
 	{
-		if (name.empty()) return nullptr;
-		for (const Tileset& tileset : get_tilesets())
-			if (tileset.name == name)
-				return &tileset;
-		return nullptr;
+		auto it = _name_to_tileset.find(name);
+		if (it == _name_to_tileset.end()) return Handle<Tileset>();
+		return it->second;
 	}
 
 	TextureRect Tileset::get_texture_rect(unsigned int id) const
 	{
-		const unsigned x = id % columns;
-		const unsigned y = id / columns;
 		TextureRect rect{};
-		rect.x = x * (tile_width + spacing) + margin;
-		rect.y = y * (tile_height + spacing) + margin;
+		rect.x = (id % columns) * (tile_width + spacing) + margin;
+		rect.y = (id / columns) * (tile_height + spacing) + margin;
 		rect.w = tile_width;
 		rect.h = tile_height;
 		return rect;
@@ -417,10 +414,10 @@ namespace tiled
 
 		const Handle<Tileset> handle = _tilesets.emplace();
 		_path_to_tileset[normalized_path] = handle;
+		_name_to_tileset[tileset_node.attribute("name").as_string()] = handle;
 
 		Tileset* tileset = _tilesets.get(handle);
 		assert(tileset);
-		tileset->handle = handle;
 		tileset->path = normalized_path;
 		tileset->name = tileset_node.attribute("name").as_string();
 		tileset->class_ = tileset_node.attribute("class").as_string();

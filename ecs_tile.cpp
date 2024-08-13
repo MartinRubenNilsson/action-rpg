@@ -8,44 +8,18 @@ namespace ecs
 {
 	extern entt::registry _registry;
 
-	void Tile::set_texture_rect(unsigned int id)
-	{
-		const tiled::Tileset* tileset = tiled::get_tileset(this->tileset);
-		if (!tileset) return;
-		if (id >= tileset->tiles.size()) return;
-		const tiled::TextureRect& tex_rect = tileset->get_texture_rect(id);
-		this->tex_rect_x = tex_rect.x;
-		this->tex_rect_y = tex_rect.y;
-		this->tex_rect_w = tex_rect.w;
-		this->tex_rect_h = tex_rect.h;
-	}
-
 	bool Tile::set_tileset(Handle<tiled::Tileset> handle)
 	{
 		const tiled::Tileset* tileset = tiled::get_tileset(handle);
 		if (!tileset) return false;
 		this->tileset = handle;
-		this->id = UINT_MAX; // force an update in set_tile()
-		set_tile(0); // set to the first tile in the tileset
+		this->id = 0;
 		return true;
 	}
 
 	bool Tile::set_tileset(const std::string& tileset_name)
 	{
-		const tiled::Tileset* tileset = tiled::find_tileset_by_name(tileset_name);
-		if (!tileset) return false;
-		return set_tileset(tileset->handle);
-	}
-
-	bool Tile::set_tile(unsigned int id)
-	{
-		if (id == this->id) return false;
-		const tiled::Tileset* tileset = tiled::get_tileset(this->tileset);
-		if (!tileset) return false;
-		if (id >= tileset->tiles.size()) return false;
-		this->id = id;
-		set_texture_rect(id);
-		return true;
+		return set_tileset(tiled::find_tileset_by_name(tileset_name));
 	}
 
 #if 0
@@ -126,7 +100,7 @@ namespace ecs
 				if (frame != animation.frame) {
 					animation.frame = frame;
 					animation.frame_changed = true;
-					tile.set_texture_rect(tiled_frame.tile_id);
+					tile.id = tiled_frame.tile_id;
 				}
 				break;
 			}
@@ -138,9 +112,16 @@ namespace ecs
 #if 1
 		//TODO: only run this when necessary
 		for (auto [entity, sprite, tile] : _registry.view<sprites::Sprite, const Tile>().each()) {
-			sprite.tex_pos = { (float)tile.tex_rect_x, (float)tile.tex_rect_y };
-			sprite.tex_size = { (float)tile.tex_rect_w, (float)tile.tex_rect_h };
+
+			const tiled::Tileset* tileset = tiled::get_tileset(tile.tileset);
+			if (!tileset) continue;
+			if (tile.id >= tileset->tiles.size()) continue;
+			const tiled::TextureRect& tex_rect = tileset->get_texture_rect(tile.id);
+
+			sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 			sprite.size = sprite.tex_size;
+
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.tex_pos /= Vector2f(texture_size);

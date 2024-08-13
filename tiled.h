@@ -117,7 +117,6 @@ namespace tiled
 
 	struct Tileset
 	{
-		Handle<Tileset> handle;
 		std::string path;
 		std::string image_path;
 		std::string name;
@@ -183,7 +182,7 @@ namespace tiled
 	const Object* get_template(Handle<Object> handle);
 
 	const Map* find_map_by_name(const std::string& name);
-	const Tileset* find_tileset_by_name(const std::string& name);
+	Handle<Tileset> find_tileset_by_name(const std::string& name);
 
 	Handle<Map> load_map_from_file(const std::string& path);
 	Handle<Tileset> load_tileset_from_file(const std::string& path);

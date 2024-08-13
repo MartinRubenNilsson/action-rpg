@@ -35,7 +35,7 @@ namespace ecs
             unsigned int y = tile->id % COLUMNS;
             if (x % 2 == 0) {
                 // If the chest is closed, we open it by setting the tile to the one right below it.
-                tile->set_tile((x + 1) * COLUMNS + y);
+                tile->id = (x + 1) * COLUMNS + y;
             }
         }
 

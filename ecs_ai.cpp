@@ -72,10 +72,10 @@ namespace ecs
                 Vector2f velocity = body->GetLinearVelocity();
                 if (!is_zero(velocity)) {
                     switch (get_direction(velocity)) {
-                    case 'd': tile.set_tile(SLIME_TILE_WALK_DOWN); break;
-                    case 'r': tile.set_tile(SLIME_TILE_WALK_RIGHT); break;
-                    case 'u': tile.set_tile(SLIME_TILE_WALK_UP); break;
-                    case 'l': tile.set_tile(SLIME_TILE_WALK_LEFT); break;
+                    case 'd': tile.id = SLIME_TILE_WALK_DOWN; break;
+                    case 'r': tile.id = SLIME_TILE_WALK_RIGHT; break;
+                    case 'u': tile.id = SLIME_TILE_WALK_UP; break;
+                    case 'l': tile.id = SLIME_TILE_WALK_LEFT; break;
                     }
                 }
                 animation.speed = length(velocity) / 32.f;
