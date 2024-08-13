@@ -50,7 +50,7 @@ namespace ecs
             if (sprite.pos.y + sprite.size.y < camera_min.y) continue;
             sprite.texture = vfx.texture;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
-            sprite.sorting_point = sprite.tex_size / 2.f;
+            sprite.sorting_point = sprite.size / 2.f;
 			sprites::add(sprite);
 		}
     }
