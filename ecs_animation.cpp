@@ -9,26 +9,6 @@ namespace ecs
 	extern entt::registry _registry;
 
 #if 0
-
-	void Animation::set_flag(unsigned int flag, bool value)
-	{
-		if (value) {
-			flags |= flag;
-		} else {
-			flags &= ~flag;
-		}
-	}
-
-	bool Animation::get_flag(unsigned int flag) const
-	{
-		return (flags & flag) != 0;
-	}
-
-	bool _get_nth_bit(int value, int n)
-	{
-		return (value & (1 << n)) >> n;
-	}
-
 	void Animation::set_rotation(int clockwise_quarter_turns)
 	{
 		bool bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
@@ -55,7 +35,8 @@ namespace ecs
 				animation._previous_tile_id = animation.tile_id;
 				animation._animated_tile_id = animation.tile_id;
 				animation._frame_id = 0;
-				animation.progress = 0.f;
+				// HACK: keep progress when changing tile_id so player walk/run animations don't restart
+				//animation.progress = 0.f;
 				animation._dirty = true;
 			}
 
