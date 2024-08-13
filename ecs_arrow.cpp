@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ecs_arrow.h"
 #include "ecs_common.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "audio.h"
@@ -43,7 +43,7 @@ namespace ecs
 #if 0
 		// GRAPHICS
 		{
-			Tile& tile = emplace_tile(entity);
+			Animation& tile = emplace_animation(entity);
 			tile.set_tileset("items1");
 			tile.set_tile(ITEM_TILE_SPEAR); // placeholder
 			tile.pivot = Vector2f(6.f, 6.f);

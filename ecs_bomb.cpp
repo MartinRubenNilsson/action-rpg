@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ecs_bomb.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"
 #include "ecs_physics.h"
@@ -36,7 +36,7 @@ namespace ecs
 		}
 
 #if 0
-        for (auto [entity, bomb, tile] : _registry.view<Bomb, Tile>().each()) {
+        for (auto [entity, bomb, tile] : _registry.view<Bomb, Animation>().each()) {
 
             if (bomb.explosion_timer.get_progress() > 0.5f) {
                 // Start blinking at >50% progress 
@@ -77,7 +77,7 @@ namespace ecs
         }
 #if 0
         {
-            Tile& tile = emplace_tile(entity);
+            Animation& tile = emplace_animation(entity);
             tile.set_tileset("items1");
             tile.set_tile(ITEM_TILE_POTION);
             tile.position = position;

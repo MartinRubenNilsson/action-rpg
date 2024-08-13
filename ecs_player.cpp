@@ -5,7 +5,7 @@
 #include "ecs_physics_filters.h"
 #include "ecs_arrow.h"
 #include "ecs_sprite.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 #include "ecs_camera.h"
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
@@ -137,8 +137,8 @@ namespace ecs
 	{
 		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
-		for (auto [player_entity, player, body, sprite, tile, animation] :
-			_registry.view<Player, b2Body*, sprites::Sprite, Tile, TileAnimation>().each()) {
+		for (auto [player_entity, player, body, sprite, animation] :
+			_registry.view<Player, b2Body*, sprites::Sprite, Animation>().each()) {
 
 			if (player_accepts_input) {
 				player.input_flags |= _input_flags_to_enable;
@@ -170,7 +170,7 @@ namespace ecs
 
 			audio::set_listener_position(position);
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
-			if (animation.frame_changed && animation.frame % 3 == 0) {
+			if (animation.frame_changed && animation.frame_id % 3 == 0) {
 				// Take a step every 3 frames
 				audio::create_event({ .path = "event:/snd_footstep" });
 			}
@@ -216,9 +216,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_FOREHAND_STRIKE_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_FOREHAND_STRIKE_UP; break;
-					case 'd': tile.id = PLAYER_TILE_FOREHAND_STRIKE_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_FOREHAND_STRIKE_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_FOREHAND_STRIKE_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_FOREHAND_STRIKE_DOWN; break;
 					}
 
 					audio::create_event({ .path = "event:/snd_sword_attack" });
@@ -231,9 +231,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_BOW_SHOT_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_BOW_SHOT_UP; break;
-					case 'd': tile.id = PLAYER_TILE_BOW_SHOT_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_BOW_SHOT_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_BOW_SHOT_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_BOW_SHOT_DOWN; break;
 					}
 
 					animation.progress = 0.f;
@@ -250,9 +250,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_PUSH_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_PUSH_UP; break;
-					case 'd': tile.id = PLAYER_TILE_PUSH_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_PUSH_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_PUSH_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_PUSH_DOWN; break;
 					}
 
 					animation.loop = true;
@@ -264,9 +264,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_RUN_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_RUN_UP; break;
-					case 'd': tile.id = PLAYER_TILE_RUN_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_RUN_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_RUN_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_RUN_DOWN; break;
 					}
 
 					animation.loop = true;
@@ -278,9 +278,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l': 
-					case 'r': tile.id = PLAYER_TILE_WALK_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_WALK_UP; break;
-					case 'd': tile.id = PLAYER_TILE_WALK_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_WALK_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_WALK_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_WALK_DOWN; break;
 					}
 
 					animation.loop = true;
@@ -292,9 +292,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_IDLE_RIGHT; break;
-					case 'u': tile.id = PLAYER_TILE_IDLE_UP; break;
-					case 'd': tile.id = PLAYER_TILE_IDLE_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_IDLE_RIGHT; break;
+					case 'u': animation.tile_id = PLAYER_TILE_IDLE_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_IDLE_DOWN; break;
 					}
 
 					animation.loop = true;
@@ -317,7 +317,7 @@ namespace ecs
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 #endif
-				if (animation.frame_changed && animation.frame == 1) {
+				if (animation.frame_changed && animation.frame_id == 1) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 				if (animation.progress == 1.f) {
@@ -331,7 +331,7 @@ namespace ecs
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 #endif
-				if (player.arrows > 0 && animation.frame_changed && animation.frame == 2) {
+				if (player.arrows > 0 && animation.frame_changed && animation.frame_id == 2) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
 				}
@@ -343,9 +343,9 @@ namespace ecs
 
 				switch (dir) {
 				case 'l':
-				case 'r': tile.id = PLAYER_TILE_DYING_RIGHT_DOWN; break;
-				case 'u': tile.id = PLAYER_TILE_DYING_RIGHT_UP; break;
-				case 'd': tile.id = PLAYER_TILE_DYING_RIGHT_DOWN; break;
+				case 'r': animation.tile_id = PLAYER_TILE_DYING_RIGHT_DOWN; break;
+				case 'u': animation.tile_id = PLAYER_TILE_DYING_RIGHT_UP; break;
+				case 'd': animation.tile_id = PLAYER_TILE_DYING_RIGHT_DOWN; break;
 				}
 
 				animation.progress = 0.f;
@@ -355,9 +355,9 @@ namespace ecs
 
 					switch (dir) {
 					case 'l':
-					case 'r': tile.id = PLAYER_TILE_DEAD_RIGHT_DOWN; break;
-					case 'u': tile.id = PLAYER_TILE_DEAD_RIGHT_UP; break;
-					case 'd': tile.id = PLAYER_TILE_DEAD_RIGHT_DOWN; break;
+					case 'r': animation.tile_id = PLAYER_TILE_DEAD_RIGHT_DOWN; break;
+					case 'u': animation.tile_id = PLAYER_TILE_DEAD_RIGHT_UP; break;
+					case 'd': animation.tile_id = PLAYER_TILE_DEAD_RIGHT_DOWN; break;
 					}
 
 					kill_player(player_entity);
@@ -375,9 +375,9 @@ namespace ecs
 			// UPDATE HELD ITEM GRAPHICS
 
 #if 0
-			if (Tile* held_item_tile = get_tile(player.held_item)) {
+			if (Animation* held_item_tile = get_animation(player.held_item)) {
 				held_item_tile->set_flag(TILE_VISIBLE, held_item_type != HeldItemType::None);
-				Vector2f player_tile_sorting_pos = tile.position - tile.pivot + tile.sorting_pivot;
+				Vector2f player_tile_sorting_pos = animation.position - animation.pivot + animation.sorting_pivot;
 				switch (held_item_type) {
 				case HeldItemType::Sword: {
 					held_item_tile->set_tileset("sword");
@@ -389,32 +389,32 @@ namespace ecs
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
 					case 'u':
-						held_item_tile->set_rotation((int)animation.frame - 1);
-						switch (animation.frame) {
+						held_item_tile->set_rotation((int)animation.frame_id - 1);
+						switch (animation.frame_id) {
 						case 0: held_item_tile->position += { -18.f, -3.f }; break;
 						case 1: held_item_tile->position += { 0.f, -21.f }; break;
 						case 2: held_item_tile->position += { 20.f, -1.f }; break;
 						}
 						break;
 					case 'r':
-						held_item_tile->set_rotation(2 - (int)animation.frame);
-						switch (animation.frame) {
+						held_item_tile->set_rotation(2 - (int)animation.frame_id);
+						switch (animation.frame_id) {
 						case 0: held_item_tile->position += { -0.f, 18.f }; break;
 						case 1: held_item_tile->position += { 28.f, 0.f }; break;
 						case 2: held_item_tile->position += { 1.f, -18.f }; break;
 						}
 						break;
 					case 'd':
-						held_item_tile->set_rotation((int)animation.frame + 1);
-						switch (animation.frame) {
+						held_item_tile->set_rotation((int)animation.frame_id + 1);
+						switch (animation.frame_id) {
 						case 0: held_item_tile->position += { 18.f, 2.f }; break;
 						case 1: held_item_tile->position += { 0.f, 20.f }; break;
 						case 2: held_item_tile->position += { -18.f, -2.f }; break;
 						}
 						break;
 					case 'l':
-						held_item_tile->set_rotation((int)animation.frame + 2);
-						switch (animation.frame) {
+						held_item_tile->set_rotation((int)animation.frame_id + 2);
+						switch (animation.frame_id) {
 						case 0: held_item_tile->position += { 2.f, 18.f }; break;
 						case 1: held_item_tile->position += { -28.f, 0.f }; break;
 						case 2: held_item_tile->position += { -2.f, -18.f }; break;
@@ -424,7 +424,7 @@ namespace ecs
 				} break;
 				case HeldItemType::Bow: {
 					held_item_tile->set_tileset("bow_01");
-					held_item_tile->set_tile(animation.frame);
+					held_item_tile->set_tile(animation.frame_id);
 					held_item_tile->position = position;
 					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };
@@ -498,7 +498,7 @@ namespace ecs
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
-		for (auto [entity, player, body, tile, character] : _registry.view<Player, b2Body*, Tile, Character>().each()) {
+		for (auto [entity, player, body, animation, character] : _registry.view<Player, b2Body*, Animation, Character>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
 			// For convenience, if there's just one player, open debug menu immediately. 
@@ -529,7 +529,7 @@ namespace ecs
 			if (ImGui::Button("Randomize Appearance")) {
 				randomize_character(character);
 				regenerate_character_texture(character);
-				tile.texture = character.texture;
+				animation.texture = character.texture;
 			}
 #endif
 

@@ -208,9 +208,6 @@
     <ClCompile Include="ecs_physics_contacts.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_tile.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_bomb.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
@@ -324,7 +321,10 @@
       <Filter>utilities</Filter>
     </ClCompile>
     <ClCompile Include="ecs_sprite.cpp">
-      <Filter>ecs</Filter>
+      <Filter>ecs\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_animation.cpp">
+      <Filter>ecs\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -597,9 +597,6 @@
     </ClInclude>
     <ClInclude Include="ecs_physics_contacts.h">
       <Filter>ecs\physics</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_tile.h">
-      <Filter>ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_bomb.h">
       <Filter>ecs</Filter>
@@ -893,7 +890,10 @@
       <Filter>ecs\enemies</Filter>
     </ClInclude>
     <ClInclude Include="ecs_sprite.h">
-      <Filter>ecs</Filter>
+      <Filter>ecs\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_animation.h">
+      <Filter>ecs\graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -965,6 +965,9 @@
     </Filter>
     <Filter Include="ecs\enemies">
       <UniqueIdentifier>{c8484bdc-09b7-4b8c-ac87-16b2f0ccfaac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ecs\graphics">
+      <UniqueIdentifier>{a81c1375-587d-4f63-8d82-144aa9a48fe8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "ecs_common.h"
+#include "ecs_sprite.h"
 #include "ecs_pickups.h"
 #include "ecs_physics.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 
 namespace ecs
 {
@@ -14,7 +15,7 @@ namespace ecs
 		_pickup_elapsed_time += dt;
 
 		// Blinking effect
-		for (auto [entity, pickup, tile] : _registry.view<Pickup, Tile>().each()) {
+		for (auto [entity, pickup, sprite] : _registry.view<Pickup, sprites::Sprite>().each()) {
 
 			pickup.pickup_timer.update(dt);
 			if (pickup.pickup_timer.finished()) {
@@ -22,13 +23,11 @@ namespace ecs
 				continue;
 			}
 
-#if 0
 			// Start blinking at >50% progress
 			if (pickup.pickup_timer.get_progress() < 0.5f) continue;
 			constexpr float BLINK_SPEED = 10.f;
 			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
-			tile.color.a = (unsigned char)(255 * blink_fraction);
-#endif
+			sprite.color.a = (unsigned char)(255 * blink_fraction);
 		}
 	}
 
@@ -57,7 +56,7 @@ namespace ecs
 		}
 #if 0
 		{
-			Tile& tile = emplace_tile(entity);
+			Animation& tile = emplace_animation(entity);
 			tile.position = position;
 			tile.pivot = Vector2f(8.f, 8.f);
 			tile.sorting_pivot = Vector2f(8.f, 16.f);

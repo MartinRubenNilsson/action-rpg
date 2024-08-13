@@ -2,7 +2,7 @@
 #include "ecs_ai.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 #include "map_tilegrid.h"
 #include "random.h"
 #include "shapes.h"
@@ -65,17 +65,17 @@ namespace ecs
     
     void update_ai_graphics(float dt)
     {
-        for (auto [entity, tile, animation, ai_type, body] :
-            _registry.view<Tile, TileAnimation, const AiType, b2Body*>().each()) {
+        for (auto [entity, animation, ai_type, body] :
+            _registry.view<Animation, const AiType, b2Body*>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
                 Vector2f velocity = body->GetLinearVelocity();
                 if (!is_zero(velocity)) {
                     switch (get_direction(velocity)) {
-                    case 'd': tile.id = SLIME_TILE_WALK_DOWN; break;
-                    case 'r': tile.id = SLIME_TILE_WALK_RIGHT; break;
-                    case 'u': tile.id = SLIME_TILE_WALK_UP; break;
-                    case 'l': tile.id = SLIME_TILE_WALK_LEFT; break;
+                    case 'd': animation.tile_id = SLIME_TILE_WALK_DOWN; break;
+                    case 'r': animation.tile_id = SLIME_TILE_WALK_RIGHT; break;
+                    case 'u': animation.tile_id = SLIME_TILE_WALK_UP; break;
+                    case 'l': animation.tile_id = SLIME_TILE_WALK_LEFT; break;
                     }
                 }
                 animation.speed = length(velocity) / 32.f;

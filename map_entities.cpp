@@ -8,7 +8,7 @@
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_sprite.h"
-#include "ecs_tile.h"
+#include "ecs_animation.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
@@ -162,17 +162,11 @@ namespace map
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
-					// EMPLACE TILE
+					// EMPLACE ANIMATION
 
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
-					ecs_tile.set_tileset(object.tileset_ref.tileset);
-					ecs_tile.id = tile_id;
-
-					// EMPLACE TILE ANIMATION
-
-					// For convenience, we assume all tile objects are animated
-					// or will be animated in the future after changing tile.
-					ecs::emplace_tile_animation(entity);
+					ecs::Animation& animation = ecs::emplace_animation(entity);
+					animation.tileset = object.tileset_ref.tileset;
+					animation.tile_id = tile_id;
 
 					if (!tile.objects.empty()) {
 
@@ -303,7 +297,7 @@ namespace map
 					fixture_def.filter = ecs::get_filter_for_class(object.class_);
 					body->CreateFixture(&fixture_def);
 
-					ecs::Tile* tile = ecs::get_tile(entity);
+					ecs::Animation* tile = ecs::get_animation(entity);
 					if (tile) {
 						//tile->pivot = pivot;
 						//tile->sorting_pivot = pivot;
@@ -334,7 +328,7 @@ namespace map
 					}
 
 					player.held_item = ecs::create();
-					ecs::emplace_tile(player.held_item);
+					ecs::emplace_animation(player.held_item);
 					ecs::emplace_player(entity, player);
 
 					ecs::Camera camera{};
@@ -400,7 +394,7 @@ namespace map
 
 					const Vector2f pivot = { 16.f, 22.f };
 
-					if (ecs::Tile* tile = ecs::get_tile(entity)) {
+					if (ecs::Animation* tile = ecs::get_animation(entity)) {
 						//tile->pivot = pivot;
 						//tile->sorting_pivot = pivot;
 					}
@@ -422,7 +416,7 @@ namespace map
 					ecs::BladeTrap& blade_trap = ecs::emplace_blade_trap(entity);
 					blade_trap.start_position = position + pivot;
 
-					if (ecs::Tile* tile = ecs::get_tile(entity)) {
+					if (ecs::Animation* tile = ecs::get_animation(entity)) {
 						//tile->pivot = pivot;
 						//tile->sorting_pivot = pivot;
 					}
@@ -607,18 +601,14 @@ namespace map
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
-					// EMPLACE TILE
-
-					ecs::Tile& ecs_tile = ecs::emplace_tile(entity);
-					ecs_tile.set_tileset(tileset_ref.tileset);
-					ecs_tile.id = tile_id;
-
-					// EMPLACE TILE ANIMATION
+					// EMPLACE ANIMATION
 
 					// The majority of tiles are not animated and don't change during gameplay,
-					// so let's only add a tile animation component if the tile is actually animated.
+					// so let's only add an animation component if the tile is actually animated.
 					if (!tile.animation.empty()) {
-						ecs::emplace_tile_animation(entity);
+						ecs::Animation& animation = ecs::emplace_animation(entity);
+						animation.tileset = tileset_ref.tileset;
+						animation.tile_id = tile_id;
 					}
 				}
 			}
