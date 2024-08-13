@@ -8,6 +8,7 @@
 #include "shapes.h"
 #include "text.h"
 #include "fonts.h"
+#include "tile_ids.h"
 
 namespace ecs
 {
@@ -54,14 +55,6 @@ namespace ecs
         _update_ai_decision_making(dt);
         update_ai_actions(dt);
     }
-
-    enum SLIME_TILE : unsigned int
-    {
-		SLIME_TILE_WALK_DOWN = 0,
-		SLIME_TILE_WALK_RIGHT = 4,
-        SLIME_TILE_WALK_UP = 8,
-		SLIME_TILE_WALK_LEFT = 12,
-    };
     
     void update_ai_graphics(float dt)
     {
@@ -72,10 +65,10 @@ namespace ecs
                 Vector2f velocity = body->GetLinearVelocity();
                 if (!is_zero(velocity)) {
                     switch (get_direction(velocity)) {
-                    case 'd': animation.tile_id = SLIME_TILE_WALK_DOWN; break;
-                    case 'r': animation.tile_id = SLIME_TILE_WALK_RIGHT; break;
-                    case 'u': animation.tile_id = SLIME_TILE_WALK_UP; break;
-                    case 'l': animation.tile_id = SLIME_TILE_WALK_LEFT; break;
+                    case 'd': animation.tile_id = TILE_ID_SLIME_WALK_DOWN; break;
+                    case 'r': animation.tile_id = TILE_ID_SLIME_WALK_RIGHT; break;
+                    case 'u': animation.tile_id = TILE_ID_SLIME_WALK_UP; break;
+                    case 'l': animation.tile_id = TILE_ID_SLIME_WALK_LEFT; break;
                     }
                 }
                 animation.speed = length(velocity) / 32.f;
