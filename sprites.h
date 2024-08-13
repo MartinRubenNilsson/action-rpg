@@ -36,7 +36,7 @@ namespace sprites
 		uint8_t flags = SPRITE_VISIBLE;
 	};
 
-	//static_assert(sizeof(Sprite) <= std::hardware_destructive_interference_size, "Sprite doen't fit in a cache line!");
+	//static_assert(sizeof(Sprite) <= std::hardware_constructive_interference_size, "Sprite doen't fit in a cache line!");
 
 	// Orders sprites by draw order. Members are compared in a cascading fashion:
 	// 
