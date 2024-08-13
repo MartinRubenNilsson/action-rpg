@@ -471,9 +471,11 @@ namespace map
 
 					const tiled::Tile& tile = tileset->tiles[tile_id];
 
-					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
+					const Vector2f position = {
+						(float)x * map.tile_width,
+						(float)y * map.tile_height - (float)tileset->tile_height + (float)map.tile_height
+					};
 					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
-					const Vector2f pivot = { 0.f, (float)tileset->tile_height - (float)map.tile_height };
 					Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
@@ -491,7 +493,7 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.pos = position - pivot;
+					sprite.pos = position;
 					sprite.size = size;
 					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
 					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
@@ -514,10 +516,6 @@ namespace map
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
-					if (tile.class_ == "grass") {
-						sprite.sorting_point = { 8.f, 20.f };
-					}
-
 					// EMPLACE ANIMATION
 
 					// The majority of tiles are not animated and don't change during gameplay,
@@ -530,47 +528,47 @@ namespace map
 
 					// EMPLACE BODY
 
+					// PITFALL: We only create bodies for tiles that have colliders!
+					b2Body* body = nullptr;
+
 					if (!tile.objects.empty()) {
 
 						b2BodyDef body_def{};
 						body_def.type = b2_staticBody;
 						body_def.position = position;
 						body_def.fixedRotation = true;
-						b2Body* body = ecs::emplace_body(entity, body_def);
+						body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile.objects) {
 
-#if 0
-							if (collider.name == "pivot") {
-								sorting_point = collider.position;
-							}
-#endif
-
-							float collider_cx = collider.position.x - pivot.x;
-							float collider_cy = collider.position.y - pivot.y;
-							float collider_hw = collider.size.x / 2.0f;
-							float collider_hh = collider.size.y / 2.0f;
+							const Vector2f collider_center = collider.position;
+							const Vector2f collider_half_size = collider.size / 2.f;
 
 							b2FixtureDef fixture_def{};
 							collider.properties.get_bool("sensor", fixture_def.isSensor);
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
+
 								b2PolygonShape shape{};
-								shape.SetAsBox(collider_hw, collider_hh,
-									b2Vec2(collider_cx + collider_hw, collider_cy + collider_hh), 0.f);
+								shape.SetAsBox(
+									collider_half_size.x, collider_half_size.y,
+									collider_center + collider_half_size, 0.f);
 								fixture_def.shape = &shape;
 								body->CreateFixture(&fixture_def);
+
 							} break;
 							case tiled::ObjectType::Ellipse: {
+
 								b2CircleShape shape{};
-								shape.m_p.x = collider_cx;
-								shape.m_p.y = collider_cy;
-								shape.m_radius = collider_hw;
+								shape.m_p = collider_center;
+								shape.m_radius = collider_half_size.x;
 								fixture_def.shape = &shape;
 								body->CreateFixture(&fixture_def);
+
 							} break;
 							case tiled::ObjectType::Polygon: {
+
 								const size_t count = collider.points.size();
 								if (count < 3) {
 									console::log_error("Too few points in polygon collider! Got " +
@@ -578,8 +576,7 @@ namespace map
 								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
 									b2Vec2 points[b2_maxPolygonVertices];
 									for (size_t i = 0; i < count; ++i) {
-										points[i].x = collider_cx + collider.points[i].x;
-										points[i].y = collider_cy + collider.points[i].y;
+										points[i] = collider_center + collider.points[i];
 									}
 									b2PolygonShape shape{};
 									shape.Set(points, (int32)count);
@@ -590,16 +587,27 @@ namespace map
 									for (size_t i = 0; i < triangles.size(); i += 3) {
 										b2Vec2 points[3];
 										for (size_t j = 0; j < 3; ++j) {
-											points[j].x = collider_cx + triangles[i + j].x;
-											points[j].y = collider_cy + triangles[i + j].y;
+											points[j] = collider_center + triangles[i + j];
 										}
 										b2PolygonShape shape{};
 										shape.Set(points, 3);
 										fixture_def.shape = &shape;
 										body->CreateFixture(&fixture_def);
 									}
-								} break;
+								}
+
+							} break;
 							}
+						}
+					}
+
+					// CLASS-SPECIFIC ENTITY SETUP
+
+					if (tile.class_ == "grass") {
+						sprite.sorting_point = { 8.f, 20.f };
+						if (body) {
+							for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+								fixture->SetSensor(true);
 							}
 						}
 					}
