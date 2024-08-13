@@ -6,6 +6,11 @@
 #include "ecs_animation.h"
 #include "tile_ids.h"
 
+namespace map
+{
+	size_t get_object_layer_index();
+}
+
 namespace ecs
 {
 	extern entt::registry _registry;
@@ -59,7 +64,9 @@ namespace ecs
 		{
 			sprites::Sprite& sprite = emplace_sprite(entity);
 			sprite.pos = position - Vector2f(8.f, 8.f);
-			sprite.size = Vector2f(16.f, 16.f);
+			sprite.size = { 16.f, 16.f };
+			sprite.sorting_point = { 8.f, 8.f };
+			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();
 		}
 		{
 			Animation& animation = emplace_animation(entity);
@@ -74,11 +81,9 @@ namespace ecs
 			case PickupType::Bomb:
 				animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
 				break;
-#if 0
 			case PickupType::Heart:
-				tile_ref.tile_id = "heart", "items1");
+				animation.tile_id = TILE_ID_ITEM_BERRIES; // placeholder
 				break;
-#endif
 			}
 		}
 		return entity;

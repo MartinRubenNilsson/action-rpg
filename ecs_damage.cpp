@@ -71,11 +71,11 @@ namespace ecs
 	{
 		b2Body* body = get_body(entity);
 		if (!body) return false;
-		Vector2f position = body->GetWorldCenter();
+		const Vector2f position = body->GetPosition();
 		audio::create_event({ .path = "event:/snd_cut_grass" });
 		if (random::chance(0.2f)) {
 			PickupType pickup_type = (PickupType)random::range_i(0, (int)PickupType::Count - 1);
-			create_pickup(pickup_type, position + Vector2f(2.f, 2.f));
+			create_pickup(pickup_type, position + Vector2f(8.f, 20.f));
 		}
 		destroy_at_end_of_frame(entity);
 		return true;
