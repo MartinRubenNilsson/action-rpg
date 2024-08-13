@@ -170,7 +170,7 @@ namespace ecs
 
 			audio::set_listener_position(position);
 			audio::set_parameter_label("terrain", map::to_string(map::get_terrain_type_at(position)));
-			if (animation.frame_changed && animation.frame_id % 3 == 0) {
+			if (animation._dirty && animation._frame_id % 3 == 0) {
 				// Take a step every 3 frames
 				audio::create_event({ .path = "event:/snd_footstep" });
 			}
@@ -256,7 +256,7 @@ namespace ecs
 					}
 
 					animation.loop = true;
-					if (animation.looped && (dir == 'u' || dir == 'd')) {
+					if (animation._looped && (dir == 'u' || dir == 'd')) {
 						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
 
@@ -270,7 +270,7 @@ namespace ecs
 					}
 
 					animation.loop = true;
-					if (animation.looped && (dir == 'u' || dir == 'd')) {
+					if (animation._looped && (dir == 'u' || dir == 'd')) {
 						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
 
@@ -284,7 +284,7 @@ namespace ecs
 					}
 
 					animation.loop = true;
-					if (animation.looped && (dir == 'u' || dir == 'd')) {
+					if (animation._looped && (dir == 'u' || dir == 'd')) {
 						sprite.flags ^= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
 
@@ -317,7 +317,7 @@ namespace ecs
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 #endif
-				if (animation.frame_changed && animation.frame_id == 1) {
+				if (animation._dirty && animation._frame_id == 1) {
 					_player_attack(player_entity, position + player.look_dir * 16.f);
 				}
 				if (animation.progress == 1.f) {
@@ -331,7 +331,7 @@ namespace ecs
 					sprite.flags &= ~sprites::SPRITE_FLIP_HORIZONTALLY;
 				}
 #endif
-				if (player.arrows > 0 && animation.frame_changed && animation.frame_id == 2) {
+				if (player.arrows > 0 && animation._dirty && animation._frame_id == 2) {
 					player.arrows--;
 					create_arrow(position + player.look_dir * 16.f, player.look_dir * _PLAYER_ARROW_SPEED);
 				}
@@ -389,32 +389,32 @@ namespace ecs
 						player_tile_sorting_pos - held_item_tile->position + held_item_tile->pivot;
 					switch (dir) {
 					case 'u':
-						held_item_tile->set_rotation((int)animation.frame_id - 1);
-						switch (animation.frame_id) {
+						held_item_tile->set_rotation((int)animation._frame_id - 1);
+						switch (animation._frame_id) {
 						case 0: held_item_tile->position += { -18.f, -3.f }; break;
 						case 1: held_item_tile->position += { 0.f, -21.f }; break;
 						case 2: held_item_tile->position += { 20.f, -1.f }; break;
 						}
 						break;
 					case 'r':
-						held_item_tile->set_rotation(2 - (int)animation.frame_id);
-						switch (animation.frame_id) {
+						held_item_tile->set_rotation(2 - (int)animation._frame_id);
+						switch (animation._frame_id) {
 						case 0: held_item_tile->position += { -0.f, 18.f }; break;
 						case 1: held_item_tile->position += { 28.f, 0.f }; break;
 						case 2: held_item_tile->position += { 1.f, -18.f }; break;
 						}
 						break;
 					case 'd':
-						held_item_tile->set_rotation((int)animation.frame_id + 1);
-						switch (animation.frame_id) {
+						held_item_tile->set_rotation((int)animation._frame_id + 1);
+						switch (animation._frame_id) {
 						case 0: held_item_tile->position += { 18.f, 2.f }; break;
 						case 1: held_item_tile->position += { 0.f, 20.f }; break;
 						case 2: held_item_tile->position += { -18.f, -2.f }; break;
 						}
 						break;
 					case 'l':
-						held_item_tile->set_rotation((int)animation.frame_id + 2);
-						switch (animation.frame_id) {
+						held_item_tile->set_rotation((int)animation._frame_id + 2);
+						switch (animation._frame_id) {
 						case 0: held_item_tile->position += { 2.f, 18.f }; break;
 						case 1: held_item_tile->position += { -28.f, 0.f }; break;
 						case 2: held_item_tile->position += { -2.f, -18.f }; break;
@@ -424,7 +424,7 @@ namespace ecs
 				} break;
 				case HeldItemType::Bow: {
 					held_item_tile->set_tileset("bow_01");
-					held_item_tile->set_tile(animation.frame_id);
+					held_item_tile->set_tile(animation._frame_id);
 					held_item_tile->position = position;
 					held_item_tile->position.y -= 13.f;
 					held_item_tile->pivot = { 16.f, 16.f };

@@ -56,8 +56,16 @@ namespace ecs
 	{
 		for (auto [entity, animation] : _registry.view<Animation>().each()) {
 
-			animation.frame_changed = false;
-			animation.looped = false;
+			animation._dirty = false;
+			animation._looped = false;
+
+			if (animation.tile_id != animation._previous_tile_id) {
+				animation._previous_tile_id = animation.tile_id;
+				animation._animated_tile_id = animation.tile_id;
+				animation._frame_id = 0;
+				animation.progress = 0.f;
+				animation._dirty = true;
+			}
 
 			const tiled::Tileset* tileset = tiled::get_tileset(animation.tileset);
 			if (!tileset) continue;
@@ -80,7 +88,7 @@ namespace ecs
 			animation.progress += delta_progress;
 			if (animation.progress >= 1.f) {
 				if (animation.loop) {
-					animation.looped = true;
+					animation._looped = true;
 					animation.progress = fmodf(animation.progress, 1.f);
 				} else {
 					animation.progress = 1.f;
@@ -95,10 +103,10 @@ namespace ecs
 					time_ms -= frame.duration_ms;
 					continue;
 				}
-				if (frame_id != animation.frame_id) {
-					animation.animated_tile_id = frame.tile_id;
-					animation.frame_id = frame_id;
-					animation.frame_changed = true;
+				if (frame_id != animation._frame_id) {
+					animation._animated_tile_id = frame.tile_id;
+					animation._frame_id = frame_id;
+					animation._dirty = true;
 				}
 				break;
 			}
@@ -109,11 +117,13 @@ namespace ecs
 	{
 		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const Animation>().each()) {
 
+			if (!animation._dirty) continue;
+
 			const tiled::Tileset* tileset = tiled::get_tileset(animation.tileset);
 			if (!tileset) continue;
-			if (animation.animated_tile_id >= tileset->tiles.size()) continue;
+			if (animation._animated_tile_id >= tileset->tiles.size()) continue;
 
-			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation.animated_tile_id);
+			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation._animated_tile_id);
 			sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
 			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 			sprite.size = sprite.tex_size;
