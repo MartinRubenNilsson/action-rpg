@@ -2,13 +2,7 @@
 
 namespace ecs
 {
-	// need to figure out a better place to put this...
-	enum ITEM_TILE
-	{
-		ITEM_TILE_RUPEE = 40,
-		ITEM_TILE_POTION = 77,
-		ITEM_TILE_SPEAR = 96,
-	};
+	Handle<tiled::Tileset> get_tileset(const std::string& name);
 
 	struct Animation
 	{

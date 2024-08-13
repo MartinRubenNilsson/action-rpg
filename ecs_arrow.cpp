@@ -45,7 +45,7 @@ namespace ecs
 		{
 			Animation& tile = emplace_animation(entity);
 			tile.set_tileset("items1");
-			tile.set_tile(ITEM_TILE_SPEAR); // placeholder
+			tile.set_tile(TILE_ID_ITEM_SPEAR); // placeholder
 			tile.pivot = Vector2f(6.f, 6.f);
 		}
 #endif

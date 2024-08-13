@@ -9,19 +9,6 @@ namespace ecs
 	extern entt::registry _registry;
 
 #if 0
-	bool Animation::set_tileset(Handle<tiled::Tileset> handle)
-	{
-		const tiled::Tileset* tileset = tiled::get_tileset(handle);
-		if (!tileset) return false;
-		this->tileset = handle;
-		this->tile_id = 0;
-		return true;
-	}
-
-	bool Animation::set_tileset(const std::string& tileset_name)
-	{
-		return set_tileset(tiled::find_tileset_by_name(tileset_name));
-	}
 
 	void Animation::set_flag(unsigned int flag, bool value)
 	{
@@ -51,6 +38,11 @@ namespace ecs
 		set_flag(TILE_FLIP_DIAGONAL, bit_0);
 	}
 #endif
+
+	Handle<tiled::Tileset> get_tileset(const std::string& name)
+	{
+		return tiled::find_tileset_by_name(name);
+	}
 
 	void update_animations(float dt)
 	{
@@ -123,10 +115,13 @@ namespace ecs
 			if (!tileset) continue;
 			if (animation._animated_tile_id >= tileset->tiles.size()) continue;
 
+			if (sprite.texture == Handle<graphics::Texture>()) {
+				sprite.texture = graphics::load_texture(tileset->image_path);
+			}
+
 			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation._animated_tile_id);
 			sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
 			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
-			sprite.size = sprite.tex_size;
 
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);

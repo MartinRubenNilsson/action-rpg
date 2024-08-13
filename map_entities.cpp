@@ -475,8 +475,8 @@ namespace map
 
 					const tiled::Tile& tile = tileset->tiles[tile_id];
 
-					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
 					const Vector2f position = { (float)x * map.tile_width, (float)y * map.tile_height };
+					const Vector2f size = { (float)tileset->tile_width, (float)tileset->tile_height };
 					const Vector2f pivot = { 0.f, (float)tileset->tile_height - (float)map.tile_height };
 					Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
@@ -486,6 +486,46 @@ namespace map
 					}
 					if (!tile.properties.empty()) {
 						ecs::set_properties(entity, tile.properties);
+					}
+
+					// EMPLACE SPRITE
+
+					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
+
+					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
+					sprite.shader = graphics::sprite_shader;
+					sprite.texture = graphics::load_texture(tileset->image_path);
+					sprite.pos = position - pivot;
+					sprite.size = size;
+					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
+					Vector2u texture_size;
+					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_size /= Vector2f(texture_size);
+					sprite.sorting_layer = (uint8_t)layer_index;
+					sprite.sorting_point = sorting_point;
+					if (!layer.visible) {
+						sprite.flags &= ~sprites::SPRITE_VISIBLE;
+					}
+					if (tile_ref.flipped_horizontally) {
+						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
+					}
+					if (tile_ref.flipped_vertically) {
+						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
+					}
+					if (tile_ref.flipped_diagonally) {
+						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
+					}
+
+					// EMPLACE ANIMATION
+
+					// The majority of tiles are not animated and don't change during gameplay,
+					// so let's only add an animation component if the tile is actually animated.
+					if (!tile.animation.empty()) {
+						ecs::Animation& animation = ecs::emplace_animation(entity);
+						animation.tileset = tileset_ref.tileset;
+						animation.tile_id = tile_id;
 					}
 
 					// EMPLACE BODY
@@ -499,9 +539,12 @@ namespace map
 						b2Body* body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile.objects) {
+
+#if 0
 							if (collider.name == "pivot") {
 								sorting_point = collider.position;
 							}
+#endif
 
 							float collider_cx = collider.position.x - pivot.x;
 							float collider_cy = collider.position.y - pivot.y;
@@ -559,56 +602,6 @@ namespace map
 							}
 							}
 						}
-					}
-
-					// CRITICAL: This is an important optimization. Iterating through all entities
-					// with both a Tile and b2Body* component can be expensive if there are many such
-					// entities. "Pure" colliders don't need a tile component, so let's skip adding one.
-					if (layer.name == "colliders" ||
-						layer.name == "Colliders" ||
-						layer.name == "collision" ||
-						layer.name == "Collision") {
-						continue;
-					}
-
-					// EMPLACE SPRITE
-
-					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
-
-					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-					sprite.shader = graphics::sprite_shader;
-					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.pos = position - pivot;
-					sprite.size = size;
-					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
-					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.w };
-					Vector2u texture_size;
-					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_pos /= Vector2f(texture_size);
-					sprite.tex_size /= Vector2f(texture_size);
-					sprite.sorting_layer = (uint8_t)layer_index;
-					sprite.sorting_point = sorting_point;
-					if (!layer.visible) {
-						sprite.flags &= ~sprites::SPRITE_VISIBLE;
-					}
-					if (tile_ref.flipped_horizontally) {
-						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
-					}
-					if (tile_ref.flipped_vertically) {
-						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
-					}
-					if (tile_ref.flipped_diagonally) {
-						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
-					}
-
-					// EMPLACE ANIMATION
-
-					// The majority of tiles are not animated and don't change during gameplay,
-					// so let's only add an animation component if the tile is actually animated.
-					if (!tile.animation.empty()) {
-						ecs::Animation& animation = ecs::emplace_animation(entity);
-						animation.tileset = tileset_ref.tileset;
-						animation.tile_id = tile_id;
 					}
 				}
 			}

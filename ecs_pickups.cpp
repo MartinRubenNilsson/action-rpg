@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#include "ecs_pickups.h"
 #include "ecs_common.h"
 #include "ecs_sprite.h"
-#include "ecs_pickups.h"
 #include "ecs_physics.h"
 #include "ecs_animation.h"
+#include "tile_ids.h"
 
 namespace ecs
 {
@@ -25,6 +26,7 @@ namespace ecs
 
 			// Start blinking at >50% progress
 			if (pickup.pickup_timer.get_progress() < 0.5f) continue;
+
 			constexpr float BLINK_SPEED = 10.f;
 			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
 			sprite.color.a = (unsigned char)(255 * blink_fraction);
@@ -54,31 +56,31 @@ namespace ecs
 			fixture_def.isSensor = true;
 			body->CreateFixture(&fixture_def);
 		}
-#if 0
 		{
-			Animation& tile = emplace_animation(entity);
-			tile.position = position;
-			tile.pivot = Vector2f(8.f, 8.f);
-			tile.sorting_pivot = Vector2f(8.f, 16.f);
-			tile.set_tileset("items1");
+			sprites::Sprite& sprite = emplace_sprite(entity);
+			sprite.pos = position - Vector2f(8.f, 8.f);
+			sprite.size = Vector2f(16.f, 16.f);
+		}
+		{
+			Animation& animation = emplace_animation(entity);
+			animation.tileset = get_tileset("items1");
 			switch (type) {
 			case PickupType::Arrow:
-				tile.set_tile(ITEM_TILE_SPEAR); // placeholder
+				animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
 				break;
 			case PickupType::Rupee:
-				tile.set_tile(ITEM_TILE_RUPEE);
+				animation.tile_id = TILE_ID_ITEM_RUPEE;
 				break;
 			case PickupType::Bomb:
-				tile.set_tile(ITEM_TILE_POTION); // placeholder
+				animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
 				break;
 #if 0
 			case PickupType::Heart:
-				tile_ref.set_tile("heart", "items1");
+				tile_ref.tile_id = "heart", "items1");
 				break;
 #endif
 			}
 		}
-#endif
 		return entity;
 	}
 

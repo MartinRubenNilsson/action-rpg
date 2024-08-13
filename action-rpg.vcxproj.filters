@@ -895,6 +895,7 @@
     <ClInclude Include="ecs_animation.h">
       <Filter>ecs\graphics</Filter>
     </ClInclude>
+    <ClInclude Include="tile_ids.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="ecs">

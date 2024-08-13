@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ecs_bomb.h"
+#include "ecs_sprite.h"
 #include "ecs_animation.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"
@@ -35,18 +36,16 @@ namespace ecs
             postprocessing::create_shockwave(center);
 		}
 
-#if 0
-        for (auto [entity, bomb, tile] : _registry.view<Bomb, Animation>().each()) {
+        for (auto [entity, bomb, sprite] : _registry.view<Bomb, sprites::Sprite>().each()) {
 
-            if (bomb.explosion_timer.get_progress() > 0.5f) {
-                // Start blinking at >50% progress 
-                constexpr float BLINK_FREQUENCY = 6.f; // in Hz
-                float blink_fraction = 0.75f + 0.25f * sin(bomb.explosion_timer.get_time_left() * BLINK_FREQUENCY * M_2PI);
-                tile.color.g = (unsigned char)(255 * blink_fraction);
-                tile.color.b = (unsigned char)(255 * blink_fraction);
-            }
+            // Start blinking at >50% progress 
+            if (bomb.explosion_timer.get_progress() <= 0.5f) continue;
+
+            constexpr float BLINK_FREQUENCY = 6.f; // in Hz
+            float blink_fraction = 0.75f + 0.25f * sin(bomb.explosion_timer.get_time_left() * BLINK_FREQUENCY * M_2PI);
+            sprite.color.g = (unsigned char)(255 * blink_fraction);
+            sprite.color.b = (unsigned char)(255 * blink_fraction);
         }
-#endif
     }
 
     Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb)
@@ -77,12 +76,12 @@ namespace ecs
         }
 #if 0
         {
-            Animation& tile = emplace_animation(entity);
-            tile.set_tileset("items1");
-            tile.set_tile(ITEM_TILE_POTION);
-            tile.position = position;
-            tile.pivot = Vector2f(8.f, 16.f);
-            tile.sorting_pivot = tile.pivot;
+            Animation& sprite = emplace_animation(entity);
+            sprite.set_tileset("items1");
+            sprite.set_tile(TILE_ID_ITEM_POTION);
+            sprite.position = position;
+            sprite.pivot = Vector2f(8.f, 16.f);
+            sprite.sorting_pivot = sprite.pivot;
         }
 #endif
         return entity;

@@ -87,10 +87,10 @@ namespace sprites
 
 		for (const Sprite& sprite : _sprites) {
 
-			Vector2f tl = sprite.pos; // top-left corner
-			Vector2f br = sprite.pos + sprite.size; // bottom-right corner
-			Vector2f tr = { br.x, tl.y }; // top-right corner
-			Vector2f bl = { tl.x, br.y }; // bottom-left corner
+			Vector2f tl = sprite.pos; // top-left
+			Vector2f br = sprite.pos + sprite.size; // bottom-right
+			Vector2f tr = { br.x, tl.y }; // top-right
+			Vector2f bl = { tl.x, br.y }; // bottom-left
 
 			const Vector2f tex_tl = sprite.tex_pos;
 			const Vector2f tex_br = sprite.tex_pos + sprite.tex_size;
