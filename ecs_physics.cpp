@@ -86,10 +86,12 @@ namespace ecs
 		{
 			const b2SensorEvents sensor_events = b2World_GetSensorEvents(_physics_world);
 			for (int32_t i = 0; i < sensor_events.beginCount; ++i) {
-				process_sensor_begin_touch_event(sensor_events.beginEvents[i]);
+				const b2SensorBeginTouchEvent& ev = sensor_events.beginEvents[i];
+				process_sensor_begin_touch_event(ev.sensorShapeId, ev.visitorShapeId);
 			}
 			for (int32_t i = 0; i < sensor_events.endCount; ++i) {
-				process_sensor_end_touch_event(sensor_events.endEvents[i]);
+				const b2SensorEndTouchEvent& ev = sensor_events.endEvents[i];
+				process_sensor_end_touch_event(ev.sensorShapeId, ev.visitorShapeId);
 			}
 		}
 
@@ -97,10 +99,12 @@ namespace ecs
 		{
 			const b2ContactEvents contact_events = b2World_GetContactEvents(_physics_world);
 			for (int32_t i = 0; i < contact_events.beginCount; ++i) {
-				process_contact_begin_touch_event(contact_events.beginEvents[i]);
+				const b2ContactBeginTouchEvent& ev = contact_events.beginEvents[i];
+				process_contact_begin_touch_event(ev.shapeIdA, ev.shapeIdB);
 			}
 			for (int32_t i = 0; i < contact_events.endCount; ++i) {
-				process_contact_end_touch_event(contact_events.endEvents[i]);
+				const b2ContactEndTouchEvent& ev = contact_events.endEvents[i];
+				process_contact_end_touch_event(ev.shapeIdA, ev.shapeIdB);
 			}
 		}
 	}

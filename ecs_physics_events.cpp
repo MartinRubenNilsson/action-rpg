@@ -13,30 +13,27 @@
 
 namespace ecs
 {
-	void process_sensor_begin_touch_event(const b2SensorBeginTouchEvent& ev)
+	void process_sensor_begin_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
 	{
 	}
 
-	void process_sensor_end_touch_event(const b2SensorEndTouchEvent& ev)
+	void process_sensor_end_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
 	{
 	}
 
-	void process_contact_begin_touch_event(const b2ContactBeginTouchEvent& ev)
+	void process_contact_begin_touch_event(b2ShapeId shape_a, b2ShapeId shape_b)
 	{
-#if 0
-		b2Fixture* fixture_a = contact.fixture_a;
-		b2Fixture* fixture_b = contact.fixture_b;
-		b2BodyId body_a = fixture_a->GetBody();
-		b2BodyId body_b = fixture_b->GetBody();
-		entt::entity entity_a = body_a->GetUserData().entity;
-		entt::entity entity_b = body_b->GetUserData().entity;
+		b2BodyId body_a = b2Shape_GetBody(shape_a);
+		b2BodyId body_b = b2Shape_GetBody(shape_b);
+		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
+		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
 		std::string class_a = get_class(entity_a);
 		std::string class_b = get_class(entity_b);
 		if (class_a.empty() && class_b.empty()) return;
 
 		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
  		if (class_a.compare(class_b) > 0) {
-			std::swap(fixture_a, fixture_b);
+			std::swap(shape_a, shape_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
 			std::swap(class_a, class_b);
@@ -98,25 +95,21 @@ namespace ecs
 				on_player_begin_contact_pushable_block(entity_a);
 			}
 		}
-#endif
 	}
 
-	void process_contact_end_touch_event(const b2ContactEndTouchEvent& ev)
+	void process_contact_end_touch_event(b2ShapeId shape_a, b2ShapeId shape_b)
 	{
-#if 0
-		b2Fixture* fixture_a = contact.fixture_a;
-		b2Fixture* fixture_b = contact.fixture_b;
-		b2BodyId body_a = fixture_a->GetBody();
-		b2BodyId body_b = fixture_b->GetBody();
-		entt::entity entity_a = body_a->GetUserData().entity;
-		entt::entity entity_b = body_b->GetUserData().entity;
+		b2BodyId body_a = b2Shape_GetBody(shape_a);
+		b2BodyId body_b = b2Shape_GetBody(shape_b);
+		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
+		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
 		std::string class_a = get_class(entity_a);
 		std::string class_b = get_class(entity_b);
 		if (class_a.empty() && class_b.empty()) return;
 
 		// Sort the classes alphabetically; this reduces the number of cases we need to handle.
 		if (class_a.compare(class_b) > 0) {
-			std::swap(fixture_a, fixture_b);
+			std::swap(shape_a, shape_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
 			std::swap(class_a, class_b);
@@ -124,11 +117,10 @@ namespace ecs
 
 		if (class_a == "player") {
 			if (class_b == "pushable_block") {
-				body_b->SetLinearVelocity(b2Vec2_zero);
+				b2Body_SetLinearVelocity(body_b, b2Vec2_zero);
 				on_player_end_contact_pushable_block(entity_a);
 			}
 		}
-#endif
 	}
 }
 
