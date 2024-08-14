@@ -9,9 +9,9 @@ namespace ecs
 		{ "arrow", make_filter(CC_PlayerAttack) },
 	};
 
-	b2Filter make_filter(uint16_t category, uint16_t mask, int16_t group)
+	b2Filter make_filter(uint32_t category, uint32_t mask, int32_t group)
 	{
-		b2Filter filter;
+		b2Filter filter{};
 		filter.categoryBits = category;
 		filter.maskBits = mask;
 		filter.groupIndex = group;

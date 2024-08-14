@@ -149,6 +149,41 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
+    <ClCompile Include="dependencies\box2d\src\aabb.c" />
+    <ClCompile Include="dependencies\box2d\src\allocate.c" />
+    <ClCompile Include="dependencies\box2d\src\array.c" />
+    <ClCompile Include="dependencies\box2d\src\bitset.c" />
+    <ClCompile Include="dependencies\box2d\src\block_array.c" />
+    <ClCompile Include="dependencies\box2d\src\body.c" />
+    <ClCompile Include="dependencies\box2d\src\broad_phase.c" />
+    <ClCompile Include="dependencies\box2d\src\constraint_graph.c" />
+    <ClCompile Include="dependencies\box2d\src\contact.c" />
+    <ClCompile Include="dependencies\box2d\src\contact_solver.c" />
+    <ClCompile Include="dependencies\box2d\src\core.c" />
+    <ClCompile Include="dependencies\box2d\src\distance.c" />
+    <ClCompile Include="dependencies\box2d\src\distance_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\dynamic_tree.c" />
+    <ClCompile Include="dependencies\box2d\src\geometry.c" />
+    <ClCompile Include="dependencies\box2d\src\hull.c" />
+    <ClCompile Include="dependencies\box2d\src\id_pool.c" />
+    <ClCompile Include="dependencies\box2d\src\island.c" />
+    <ClCompile Include="dependencies\box2d\src\joint.c" />
+    <ClCompile Include="dependencies\box2d\src\manifold.c" />
+    <ClCompile Include="dependencies\box2d\src\math_functions.c" />
+    <ClCompile Include="dependencies\box2d\src\motor_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\mouse_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\prismatic_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\revolute_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\shape.c" />
+    <ClCompile Include="dependencies\box2d\src\solver.c" />
+    <ClCompile Include="dependencies\box2d\src\solver_set.c" />
+    <ClCompile Include="dependencies\box2d\src\stack_allocator.c" />
+    <ClCompile Include="dependencies\box2d\src\table.c" />
+    <ClCompile Include="dependencies\box2d\src\timer.c" />
+    <ClCompile Include="dependencies\box2d\src\types.c" />
+    <ClCompile Include="dependencies\box2d\src\weld_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\wheel_joint.c" />
+    <ClCompile Include="dependencies\box2d\src\world.c" />
     <ClCompile Include="eastl_allocator.cpp" />
     <ClCompile Include="ecs_blade_trap.cpp" />
     <ClCompile Include="ecs_chest.cpp" />
@@ -160,186 +195,6 @@
     <ClCompile Include="imgui_backends.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
-    <ClCompile Include="dependencies\box2d\src\collision\b2_broad_phase.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_chain_shape.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_circle_shape.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_collide_circle.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_collide_edge.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_collide_polygon.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_collision.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_distance.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_dynamic_tree.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_edge_shape.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_polygon_shape.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\collision\b2_time_of_impact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_block_allocator.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_math.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_settings.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_stack_allocator.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\common\b2_timer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_body.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_chain_circle_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_chain_polygon_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_circle_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_contact_manager.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_contact_solver.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_distance_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_edge_circle_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_edge_polygon_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_fixture.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_friction_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_gear_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_island.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_motor_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_mouse_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_polygon_circle_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_polygon_contact.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_prismatic_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_pulley_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_revolute_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_weld_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_wheel_joint.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_world.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamics\b2_world_callbacks.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\rope\b2_rope.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="dependencies\glad\glad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -423,6 +278,33 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\base.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\box2d.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\collision.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\id.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\math_functions.h" />
+    <ClInclude Include="dependencies\box2d\include\box2d\types.h" />
+    <ClInclude Include="dependencies\box2d\src\aabb.h" />
+    <ClInclude Include="dependencies\box2d\src\allocate.h" />
+    <ClInclude Include="dependencies\box2d\src\array.h" />
+    <ClInclude Include="dependencies\box2d\src\bitset.h" />
+    <ClInclude Include="dependencies\box2d\src\block_array.h" />
+    <ClInclude Include="dependencies\box2d\src\body.h" />
+    <ClInclude Include="dependencies\box2d\src\broad_phase.h" />
+    <ClInclude Include="dependencies\box2d\src\constraint_graph.h" />
+    <ClInclude Include="dependencies\box2d\src\contact.h" />
+    <ClInclude Include="dependencies\box2d\src\contact_solver.h" />
+    <ClInclude Include="dependencies\box2d\src\core.h" />
+    <ClInclude Include="dependencies\box2d\src\ctz.h" />
+    <ClInclude Include="dependencies\box2d\src\id_pool.h" />
+    <ClInclude Include="dependencies\box2d\src\island.h" />
+    <ClInclude Include="dependencies\box2d\src\joint.h" />
+    <ClInclude Include="dependencies\box2d\src\shape.h" />
+    <ClInclude Include="dependencies\box2d\src\solver.h" />
+    <ClInclude Include="dependencies\box2d\src\solver_set.h" />
+    <ClInclude Include="dependencies\box2d\src\stack_allocator.h" />
+    <ClInclude Include="dependencies\box2d\src\table.h" />
+    <ClInclude Include="dependencies\box2d\src\world.h" />
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
     <ClInclude Include="ecs_blade_trap.h" />
     <ClInclude Include="ecs_chest.h" />
@@ -442,56 +324,6 @@
     <ClInclude Include="vector2.h" />
     <ClInclude Include="window_events.h" />
     <ClInclude Include="shapes.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_api.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_block_allocator.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_body.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_broad_phase.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_chain_shape.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_circle_shape.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_collision.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_common.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_contact.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_contact_manager.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_distance.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_distance_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_draw.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_dynamic_tree.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_edge_shape.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_fixture.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_friction_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_gear_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_growable_stack.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_math.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_motor_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_mouse_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_polygon_shape.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_prismatic_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_pulley_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_revolute_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_rope.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_settings.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_shape.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_stack_allocator.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_timer.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_time_of_impact.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_time_step.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_types.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_user_settings.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_weld_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_wheel_joint.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_world.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\b2_world_callbacks.h" />
-    <ClInclude Include="dependencies\box2d\include\box2d\box2d.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_chain_circle_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_chain_polygon_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_circle_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_contact_solver.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_edge_circle_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_edge_polygon_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_island.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_polygon_circle_contact.h" />
-    <ClInclude Include="dependencies\box2d\src\dynamics\b2_polygon_contact.h" />
     <ClInclude Include="dependencies\fmod\fmod.h" />
     <ClInclude Include="dependencies\fmod\fmod.hpp" />
     <ClInclude Include="dependencies\fmod\fmod_codec.h" />
@@ -591,6 +423,12 @@
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="dependencies\box2d\src\box2d.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="dependencies\box2d\src\CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

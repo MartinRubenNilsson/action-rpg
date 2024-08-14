@@ -8,8 +8,8 @@ namespace ecs
 	void update_sprite_body_attachments()
 	{
 		for (auto [entity, sprite, body, attachment]  :
-			_registry.view<sprites::Sprite, b2Body*, SpriteBodyAttachment>().each()) {
-			sprite.pos = body->GetPosition() + attachment.position;
+			_registry.view<sprites::Sprite, b2BodyId, SpriteBodyAttachment>().each()) {
+			sprite.pos = b2Body_GetPosition(body) + attachment.position;
 		}
 	}
 

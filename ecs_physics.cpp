@@ -37,69 +37,71 @@ namespace ecs
 		}
 	};
 
-	Color _from_b2(const b2Color& color)
+#ifdef _DEBUG
+	Color _from_b2(const b2HexColor& color)
 	{
-		return Color(
-			(unsigned char)(color.r * 255),
-			(unsigned char)(color.g * 255),
-			(unsigned char)(color.b * 255),
-			(unsigned char)(color.a * 255));
+		Color c{};
+		c.r = (color >> 24) & 0xFF;
+		c.g = (color >> 16) & 0xFF;
+		c.b = (color >> 8) & 0xFF;
+		return c;
 	}
 
-#ifdef _DEBUG
-	struct PhysicsDebugDrawer : b2Draw
+	void _b2_debug_draw_polygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
 	{
-		void DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
-		}
-		void DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) override {
-			shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
-		}
-		void DrawCircle(const b2Vec2& center, float radius, const b2Color& color) override {
-			shapes::add_circle(center, radius, _from_b2(color));
-		}
-		void DrawSolidCircle(const b2Vec2& center, float radius, const b2Vec2& axis, const b2Color& color) override {
-			shapes::add_circle(center, radius, _from_b2(color));
-		}
-		void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color) override {
-			shapes::add_line(p1, p2, _from_b2(color));
-		}
-		void DrawTransform(const b2Transform& xf) override {}
-		void DrawPoint(const b2Vec2& p, float size, const b2Color& color) override {}
-	};
+		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
+	}
 
-	PhysicsDebugDrawer _physics_debug_drawer;
+	void _b2_debug_draw_solid_polygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
+	}
+
+	void _b2_debug_draw_circle(b2Vec2 center, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_circle(center, radius, _from_b2(color));
+	}
+
+	void _b2_debug_draw_solid_circle(b2Transform transform, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_circle(transform.p, radius, _from_b2(color));
+	}
+
+	void _b2_debug_draw_segment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
+	{
+		shapes::add_line(p1, p2, _from_b2(color));
+	}
 #endif // _DEBUG
 
 	extern entt::registry _registry;
 
-	const float _PHYSICS_TIME_STEP = 1.f / 60.f;
-	const int _PHYSICS_VELOCITY_ITERATIONS = 8;
-	const int _PHYSICS_POSITION_ITERATIONS = 3;
+	constexpr float _PHYSICS_TIME_STEP = 1.f / 60.f;
+	constexpr int _PHYSICS_SUB_STEP_COUNT = 4;
 	PhysicsContactListener _physics_contact_listener;
-	b2World* _physics_world = nullptr;
+	b2WorldId _physics_world = b2_nullWorldId;
 	float _physics_time_accumulator = 0.f;
 
-	void _on_destroy_b2Body_ptr(entt::registry& registry, entt::entity entity)
+	void _on_destroy_b2BodyId(entt::registry& registry, entt::entity entity)
 	{
-		_physics_world->DestroyBody(registry.get<b2Body*>(entity));
+		b2DestroyBody(registry.get<b2BodyId>(entity));
 	}
 
 	void initialize_physics()
 	{
-		_physics_world = new b2World(b2Vec2(0.f, 0.f));
-		_registry.on_destroy<b2Body*>().connect<_on_destroy_b2Body_ptr>();
-#ifdef _DEBUG
-		_physics_debug_drawer.SetFlags(b2Draw::e_shapeBit);
-		_physics_world->SetDebugDraw(&_physics_debug_drawer);
-#endif
+		b2SetLengthUnitsPerMeter(16.f); // 16 pixels per meter
+		{
+			b2WorldDef world_def = b2DefaultWorldDef();
+			world_def.gravity = { 0.f, 0.f };
+			_physics_world = b2CreateWorld(&world_def);
+		}
+		_registry.on_destroy<b2BodyId>().connect<_on_destroy_b2BodyId>();
 	}
 
 	void shutdown_physics()
 	{
-		_registry.on_destroy<b2Body*>().disconnect<_on_destroy_b2Body_ptr>();
-		delete _physics_world;
-		_physics_world = nullptr;
+		_registry.on_destroy<b2BodyId>().disconnect<_on_destroy_b2BodyId>();
+		b2DestroyWorld(_physics_world);
+		_physics_world = b2_nullWorldId;
 	}
 
 	void update_physics(float dt)
@@ -114,11 +116,8 @@ namespace ecs
 
 		_physics_time_accumulator += dt;
 		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
+			b2World_Step(_physics_world, _PHYSICS_TIME_STEP, _PHYSICS_SUB_STEP_COUNT);
 			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
-			_physics_world->Step(
-				_PHYSICS_TIME_STEP,
-				_PHYSICS_VELOCITY_ITERATIONS,
-				_PHYSICS_POSITION_ITERATIONS);
 		}
 
 		_physics_world->SetContactListener(nullptr);
@@ -141,16 +140,25 @@ namespace ecs
 	void debug_draw_physics()
 	{
 #ifdef _DEBUG
-		_physics_world->DebugDraw();
+		b2DebugDraw debug_draw{};
+		debug_draw.DrawPolygon = _b2_debug_draw_polygon;
+		debug_draw.DrawSolidPolygon = _b2_debug_draw_solid_polygon;
+		debug_draw.DrawCircle = _b2_debug_draw_circle;
+		debug_draw.DrawSolidCircle = _b2_debug_draw_solid_circle;
+		debug_draw.DrawSegment = _b2_debug_draw_segment;
+		debug_draw.drawShapes = true;
+		debug_draw.drawContacts = true;
+		debug_draw.drawContactNormals = true;
+		b2World_Draw(_physics_world, &debug_draw);
 #endif
 	}
 
-	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits, RaycastHit* hit)
+	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits, RaycastHit* hit)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
 			RaycastHit hit{};
-			uint16 mask_bits = 0xFFFF;
+			uint32_t mask_bits = 0xFFFF;
 			bool has_hit = false;
 
 			float ReportFixture(
@@ -159,11 +167,11 @@ namespace ecs
 				const b2Vec2& normal,
 				float fraction) override
 			{
-				const uint16 category_bits = fixture->GetFilterData().categoryBits;
+				const uint32_t category_bits = fixture->GetFilterData().categoryBits;
 				if (!(category_bits & mask_bits)) return -1.f;
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = hit.body->GetUserData().entity;
+				hit.entity = hit.b2Body_GetUserData().entity;
 				hit.point = point;
 				hit.normal = normal;
 				hit.fraction = fraction;
@@ -181,12 +189,12 @@ namespace ecs
 		return callback.has_hit;
 	}
 
-	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint16 mask_bits)
+	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits)
 	{
 		struct RayCastCallback : public b2RayCastCallback
 		{
 			std::vector<RaycastHit> hits;
-			uint16 mask_bits = 0xFFFF;
+			uint32_t mask_bits = 0xFFFF;
 
 			float ReportFixture(
 				b2Fixture* fixture,
@@ -194,12 +202,12 @@ namespace ecs
 				const b2Vec2& normal,
 				float fraction) override
 			{
-				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				uint32_t category_bits = fixture->GetFilterData().categoryBits;
 				if (!(category_bits & mask_bits)) return -1.f;
 				RaycastHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = hit.body->GetUserData().entity;
+				hit.entity = hit.b2Body_GetUserData().entity;
 				hit.point = point;
 				hit.normal = normal;
 				hit.fraction = fraction;
@@ -215,21 +223,21 @@ namespace ecs
 		return callback.hits;
 	}
 
-	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint16 mask_bits)
+	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint32_t mask_bits)
 	{
 		struct QueryCallback : public b2QueryCallback
 		{
 			std::vector<OverlapHit> hits;
-			uint16 mask_bits = 0xFFFF;
+			uint32_t mask_bits = 0xFFFF;
 
 			bool ReportFixture(b2Fixture* fixture) override
 			{
-				uint16 category_bits = fixture->GetFilterData().categoryBits;
+				uint32_t category_bits = fixture->GetFilterData().categoryBits;
 				if (!(category_bits & mask_bits)) return true;
 				OverlapHit hit{};
 				hit.fixture = fixture;
 				hit.body = fixture->GetBody();
-				hit.entity = hit.body->GetUserData().entity;
+				hit.entity = hit.b2Body_GetUserData().entity;
 				hits.push_back(hit);
 				return true;
 			}
@@ -242,7 +250,7 @@ namespace ecs
 		return callback.hits;
 	}
 
-	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint16 mask_bits)
+	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint32_t mask_bits)
 	{
 		// First, do a broad-phase query to get the potential hits.
 		Vector2f box_min = center - Vector2f(radius, radius);
@@ -270,40 +278,40 @@ namespace ecs
 		return hits;
 	}
 
-	b2Body* emplace_body(entt::entity entity, const b2BodyDef& body_def)
+	b2BodyId emplace_body(entt::entity entity, const b2BodyDef& body_def)
 	{
 		b2BodyDef body_def_copy = body_def;
-		body_def_copy.userData.entity = entity;
-		b2Body* body = _physics_world->CreateBody(&body_def_copy);
-		_registry.emplace_or_replace<b2Body*>(entity, body);
+		body_def_copy.userData = (void*)(uintptr_t)entity;
+		b2BodyId body = b2CreateBody(_physics_world, &body_def_copy);
+		_registry.emplace_or_replace<b2BodyId>(entity, body);
 		return body;
 	}
 
 
-	b2Body* deep_copy_and_emplace_body(entt::entity entity, const b2Body* body)
+	b2BodyId deep_copy_and_emplace_body(entt::entity entity, const b2BodyId body)
 	{
 		b2BodyDef body_def = get_body_def(body);
-		b2Body* new_body = _physics_world->CreateBody(&body_def);
-		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		b2BodyId new_body = _physics_world->CreateBody(&body_def);
+		for (const b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 			b2FixtureDef fixture_def = get_fixture_def(fixture);
 			new_body->CreateFixture(&fixture_def);
 		}
 		//HACK: so they don't spawn inside each other
-		b2Vec2 pos = new_body->GetPosition();
+		b2Vec2 pos = b2Body_GetPosition(body);
 		pos.x += 16.f; //one tile
-		new_body->SetTransform(pos, 0.f);
-		return _registry.emplace_or_replace<b2Body*>(entity, new_body);
+		b2Body_SetTransform(new_body, pos, { 0.f, 0.f });
+		return _registry.emplace_or_replace<b2BodyId>(entity, new_body);
 	}
 
-	b2Body* get_body(entt::entity entity)
+	b2BodyId get_body(entt::entity entity)
 	{
-		b2Body** body_ptr = _registry.try_get<b2Body*>(entity);
-		return body_ptr ? *body_ptr : nullptr;
+		b2BodyId* body_ptr = _registry.try_get<b2BodyId>(entity);
+		return body_ptr ? *body_ptr : b2_nullBodyId;
 	}
 
 	bool remove_body(entt::entity entity)
 	{
-		return _registry.remove<b2Body*>(entity);
+		return _registry.remove<b2BodyId>(entity);
 	}
 
 	b2FixtureDef get_fixture_def(const b2Fixture* fixture)
@@ -320,39 +328,42 @@ namespace ecs
 		return def;
 	}
 
-	b2BodyDef get_body_def(const b2Body* body)
+	b2BodyDef get_body_def(const b2BodyId body)
 	{
-		b2BodyDef def{};
-		def.type = body->GetType();
-		def.position = body->GetPosition();
-		def.angle = body->GetAngle();
-		def.linearVelocity = body->GetLinearVelocity();
-		def.angularVelocity = body->GetAngularVelocity();
-		def.linearDamping = body->GetLinearDamping();
-		def.angularDamping = body->GetAngularDamping();
-		def.allowSleep = body->IsSleepingAllowed();
-		def.awake = body->IsAwake();
-		def.fixedRotation = body->IsFixedRotation();
-		def.bullet = body->IsBullet();
-		def.enabled = body->IsEnabled();
-		def.userData = body->GetUserData();
-		def.gravityScale = body->GetGravityScale();
+		b2BodyDef def = b2DefaultBodyDef();
+		def.type = b2Body_GetType(body);
+		def.position = b2Body_GetPosition(body);
+		def.rotation = b2Body_GetRotation(body);
+		def.linearVelocity = b2Body_GetLinearVelocity(body);
+		def.angularVelocity = b2Body_GetAngularVelocity(body);
+		def.linearDamping = b2Body_GetLinearDamping(body);
+		def.angularDamping = b2Body_GetAngularDamping(body);
+		def.gravityScale = b2Body_GetGravityScale(body);
+		def.sleepThreshold = b2Body_GetSleepThreshold(body);
+		def.userData = b2Body_GetUserData(body);
+		def.enableSleep = b2Body_IsSleepEnabled(body);
+		def.isAwake = b2Body_IsAwake(body);
+		def.fixedRotation = b2Body_IsFixedRotation(body);
+		def.isBullet = b2Body_IsBullet(body);
+		def.isEnabled = b2Body_IsEnabled(body);
+		//def.automaticMass = ???
+		def.allowFastRotation = b2Body_AllowFastRotation(body);
 		return def;
 	}
 
-	void set_category_bits(b2Body* body, uint32_t category_bits)
+	void set_category_bits(b2BodyId body, uint32_t category_bits)
 	{
-		for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		for (b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 			b2Filter filter = fixture->GetFilterData();
 			filter.categoryBits = category_bits;
 			fixture->SetFilterData(filter);
 		}
 	}
 
-	uint32_t get_category_bits(const b2Body* body)
+	uint32_t get_category_bits(const b2BodyId body)
 	{
 		uint32_t category_bits = 0;
-		for (const b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
+		for (const b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 			category_bits |= fixture->GetFilterData().categoryBits;
 		}
 		return category_bits;

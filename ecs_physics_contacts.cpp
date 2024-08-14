@@ -17,8 +17,8 @@ namespace ecs
 	{
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
-		b2Body* body_a = fixture_a->GetBody();
-		b2Body* body_b = fixture_b->GetBody();
+		b2BodyId body_a = fixture_a->GetBody();
+		b2BodyId body_b = fixture_b->GetBody();
 		entt::entity entity_a = body_a->GetUserData().entity;
 		entt::entity entity_b = body_b->GetUserData().entity;
 		std::string class_a = get_class(entity_a);
@@ -95,8 +95,8 @@ namespace ecs
 	{
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
-		b2Body* body_a = fixture_a->GetBody();
-		b2Body* body_b = fixture_b->GetBody();
+		b2BodyId body_a = fixture_a->GetBody();
+		b2BodyId body_b = fixture_b->GetBody();
 		entt::entity entity_a = body_a->GetUserData().entity;
 		entt::entity entity_b = body_b->GetUserData().entity;
 		std::string class_a = get_class(entity_a);

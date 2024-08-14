@@ -22,12 +22,13 @@ namespace ecs
 			arrow.lifetime = 0.f; // unused right now
 		}
 
+#if 0
 		// PHYSICS
 		{
-			b2BodyDef body_def{};
+			b2BodyDef body_def = b2DefaultBodyDef();
 			body_def.type = b2_dynamicBody;
 			body_def.position.Set(position.x, position.y);
-			b2Body* body = emplace_body(entity, body_def);
+			b2BodyId body = emplace_body(entity, body_def);
 
 			b2CircleShape shape{};
 			shape.m_radius = 6.f;
@@ -37,8 +38,9 @@ namespace ecs
 			fixture_def.filter = get_filter_for_class("arrow");
 			body->CreateFixture(&fixture_def);
 
-			body->SetLinearVelocity(b2Vec2(velocity.x, velocity.y));
+			b2Body_SetLinearVelocity(body, b2Vec2(velocity.x, velocity.y));
 		}
+#endif
 
 #if 0
 		// GRAPHICS

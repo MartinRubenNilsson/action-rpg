@@ -106,7 +106,7 @@ namespace ecs
 		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
 		for (auto [player_entity, player, body, sprite, animation] :
-			_registry.view<Player, b2Body*, sprites::Sprite, Animation>().each()) {
+			_registry.view<Player, b2BodyId, sprites::Sprite, Animation>().each()) {
 
 			if (player_accepts_input) {
 				player.input_flags |= _input_flags_to_enable;
@@ -121,8 +121,8 @@ namespace ecs
 
 			// GET PHYSICS STATE
 
-			const Vector2f position = body->GetPosition();
-			const Vector2f velocity = body->GetLinearVelocity();
+			const Vector2f position = b2Body_GetPosition(body);
+			const Vector2f velocity = b2Body_GetLinearVelocity(body);
 			Vector2f new_velocity; // will be modified differently depending on the state
 
 			enum class HeldItemType
@@ -338,7 +338,7 @@ namespace ecs
 			} break;
 			}
 
-			body->SetLinearVelocity(new_velocity);
+			b2Body_SetLinearVelocity(body, new_velocity);
 
 			// UPDATE HELD ITEM GRAPHICS
 
@@ -466,14 +466,14 @@ namespace ecs
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
-		for (auto [entity, player, body, animation, character] : _registry.view<Player, b2Body*, Animation, Character>().each()) {
+		for (auto [entity, player, body, animation, character] : _registry.view<Player, b2BodyId, Animation, Character>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
 			// For convenience, if there's just one player, open debug menu immediately. 
 			ImGui::SetNextItemOpen(player_count == 1, ImGuiCond_Appearing);
 			if (!ImGui::TreeNode(tree_node_label.c_str())) continue;
 
-			Vector2f position = body->GetPosition();
+			Vector2f position = b2Body_GetPosition(body);
 			ImGui::Text("Position: %.1f, %.1f", position.x, position.y);
 			ImGui::Text("Terrain: %s", map::to_string(map::get_terrain_type_at(position)).c_str());
 			ImGui::Text("State: %s", magic_enum::enum_name(player.state).data());

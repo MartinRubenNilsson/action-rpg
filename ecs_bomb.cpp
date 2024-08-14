@@ -16,12 +16,12 @@ namespace ecs
 
     void update_bombs(float dt)
     {
-        for (auto [entity, bomb, body] : _registry.view<Bomb, b2Body*>().each()) {
+        for (auto [entity, bomb, body] : _registry.view<Bomb, b2BodyId>().each()) {
 
             if (!bomb.ignited) continue;
             bomb.explosion_timer.update(dt);
 
-            const Vector2f center = body->GetPosition();
+            const Vector2f center = b2Body_GetPosition(body);
             audio::set_event_position(bomb.fuse_sound, center);
 
             if (!bomb.explosion_timer.finished()) continue;
@@ -64,16 +64,18 @@ namespace ecs
         set_class(entity, "bomb");
         emplace_bomb(entity);
         ignite_bomb(entity);
+#if 0
         {
-            b2BodyDef body_def{};
+            b2BodyDef body_def = b2DefaultBodyDef();
             body_def.type = b2_staticBody;
             body_def.position = position;
             body_def.fixedRotation = true;
-            b2Body* body = emplace_body(entity, body_def);
+            b2BodyId body = emplace_body(entity, body_def);
             b2CircleShape shape{};
             shape.m_radius = 4.f;
             body->CreateFixture(&shape, 0.f);
         }
+#endif
 #if 0
         {
             Animation& sprite = emplace_animation(entity);

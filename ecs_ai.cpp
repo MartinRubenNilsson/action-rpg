@@ -59,10 +59,10 @@ namespace ecs
     void update_ai_graphics(float dt)
     {
         for (auto [entity, animation, ai_type, body] :
-            _registry.view<Animation, const AiType, b2Body*>().each()) {
+            _registry.view<Animation, const AiType, b2BodyId>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
-                Vector2f velocity = body->GetLinearVelocity();
+                Vector2f velocity = b2Body_GetLinearVelocity(body);
                 if (!is_zero(velocity)) {
                     switch (get_direction(velocity)) {
                     case 'd': animation.tile_id = TILE_ID_SLIME_WALK_DOWN; break;

@@ -56,12 +56,11 @@ namespace ecs
 				action.running_time += dt;
 		}
 
-		for (auto [entity, action, body] :
-			_registry.view<AiAction, b2Body*>().each()) {
+		for (auto [entity, action, body] : _registry.view<AiAction, b2BodyId>().each()) {
 			if (action.status != AiActionStatus::Running) continue;
 
-			const Vector2f my_pos = body->GetWorldCenter();
-			const Vector2f my_old_dir = normalize(body->GetLinearVelocity());
+			const Vector2f my_pos = b2Body_GetPosition(body);
+			const Vector2f my_old_dir = normalize(b2Body_GetLinearVelocity(body));
 			Vector2f my_new_dir;
 
 			switch (action.type) {
@@ -82,12 +81,12 @@ namespace ecs
 				}
 			} break;
 			case AiActionType::Pursue: {
-				b2Body* target_body = get_body(action.entity);
-				if (!target_body) {
+				b2BodyId target_body = get_body(action.entity);
+				if (B2_IS_NON_NULL(target_body)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				Vector2f target_pos = target_body->GetWorldCenter();
+				Vector2f target_pos = b2Body_GetPosition(target_body);
 				Vector2f me_to_target = target_pos - my_pos;
 				float dist_to_target = length(me_to_target);
 				if (dist_to_target <= action.radius) {
@@ -125,12 +124,12 @@ namespace ecs
 				my_new_dir = _get_magnetic_field_line_at(magnetic_field_to_me, magnetic_field_rotation);
 			} break;
 			case AiActionType::Flee: {
-				b2Body* danger_body = get_body(action.entity);
-				if (!danger_body) {
+				b2BodyId danger_body = get_body(action.entity);
+				if (B2_IS_NON_NULL(danger_body)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
-				Vector2f danger_pos = danger_body->GetWorldCenter();
+				Vector2f danger_pos = b2Body_GetPosition(danger_body);
 				Vector2f to_danger = danger_pos - my_pos;
 				float dist = length(to_danger);
 				if (dist >= action.radius) {
@@ -165,11 +164,12 @@ namespace ecs
 			} break;
 			}
 
-			body->SetLinearVelocity(action.speed * my_new_dir);
+			b2Body_SetLinearVelocity(body, action.speed * my_new_dir);
 		}
 	}
 
-	void _replace_ai_action(entt::entity entity, const AiAction& action) {
+	void _replace_ai_action(entt::entity entity, const AiAction& action)
+	{
 		_registry.emplace_or_replace<AiAction>(entity, action);
 	}
 

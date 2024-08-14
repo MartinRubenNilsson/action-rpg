@@ -19,12 +19,7 @@
 using namespace std::literals::string_literals;
 
 #include <entt/entity/registry.hpp>
-
-#pragma warning(push)
-#pragma warning(disable: 26495)
 #include <box2d/box2d.h>
-#pragma warning(pop)
-
 #include <RmlUi/Core.h>
 
 #ifdef DEBUG_IMGUI

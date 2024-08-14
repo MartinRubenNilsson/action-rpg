@@ -176,11 +176,11 @@ namespace map
 
 						// EMPLACE BODY
 
-						b2BodyDef body_def{};
+						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_dynamicBody;
 						body_def.fixedRotation = true;
 						body_def.position = position;
-						b2Body* body = ecs::emplace_body(entity, body_def);
+						b2BodyId body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile.objects) {
 
@@ -227,11 +227,11 @@ namespace map
 
 					// LOAD COLLIDERS
 
-					b2BodyDef body_def{};
+					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
 					body_def.position.Set(position.x, position.y);
-					b2Body* body = ecs::emplace_body(entity, body_def);
+					b2BodyId body = ecs::emplace_body(entity, body_def);
 
 					float hw = object.size.x / 2.f;
 					float hh = object.size.y / 2.f;
@@ -278,11 +278,11 @@ namespace map
 
 					const Vector2f pivot = { 32.f, 42.f };
 
-					b2BodyDef body_def{};
+					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_dynamicBody;
 					body_def.position = position + pivot;
 					body_def.fixedRotation = true;
-					b2Body* body = ecs::emplace_body(entity, body_def);
+					b2BodyId body = ecs::emplace_body(entity, body_def);
 
 					b2CircleShape shape{};
 					shape.m_radius = 7.f;
@@ -395,11 +395,11 @@ namespace map
 						//tile->sorting_pivot = pivot;
 					}
 
-					b2BodyDef body_def{};
+					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.position = position + pivot;
 					body_def.fixedRotation = true;
-					b2Body* body = ecs::emplace_body(entity, body_def);
+					b2BodyId body = ecs::emplace_body(entity, body_def);
 
 					b2PolygonShape shape{};
 					shape.SetAsBox(10.f, 6.f, b2Vec2_zero, 0.f);
@@ -417,11 +417,11 @@ namespace map
 						//tile->sorting_pivot = pivot;
 					}
 
-					b2BodyDef body_def{};
+					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_dynamicBody;
 					body_def.position = position + pivot;
 					body_def.fixedRotation = true;
-					b2Body* body = ecs::emplace_body(entity, body_def);
+					b2BodyId body = ecs::emplace_body(entity, body_def);
 
 					b2CircleShape shape{};
 					shape.m_radius = 6.f;
@@ -529,11 +529,11 @@ namespace map
 					// EMPLACE BODY
 
 					// PITFALL: We only create bodies for tiles that have colliders!
-					b2Body* body = nullptr;
+					b2BodyId body = nullptr;
 
 					if (!tile.objects.empty()) {
 
-						b2BodyDef body_def{};
+						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_staticBody;
 						body_def.position = position;
 						body_def.fixedRotation = true;

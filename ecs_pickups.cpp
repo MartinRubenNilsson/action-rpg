@@ -48,10 +48,10 @@ namespace ecs
 			pickup.pickup_timer.start();
 		}
 		{
-			b2BodyDef body_def{};
+			b2BodyDef body_def = b2DefaultBodyDef();
 			body_def.type = b2_staticBody;
 			body_def.position = position;
-			b2Body* body = emplace_body(entity, body_def);
+			b2BodyId body = emplace_body(entity, body_def);
 
 			b2CircleShape shape{};
 			shape.m_radius = 4.f;
