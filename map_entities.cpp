@@ -190,6 +190,7 @@ namespace map
 							float collider_hh = collider.size.y / 2.0f;
 							Vector2f collider_center(collider_x + collider_hw, collider_y + collider_hh);
 
+#if 0
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
 
@@ -219,6 +220,7 @@ namespace map
 
 							} break;
 							}
+#endif
 						}
 					}
 
@@ -227,6 +229,7 @@ namespace map
 
 					// LOAD COLLIDERS
 
+#if 0
 					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
@@ -262,6 +265,7 @@ namespace map
 
 					} break;
 					}
+#endif
 
 				} break;
 				}
@@ -284,6 +288,7 @@ namespace map
 					body_def.fixedRotation = true;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
+#if 0
 					b2CircleShape shape{};
 					shape.m_radius = 7.f;
 
@@ -292,6 +297,7 @@ namespace map
 					fixture_def.density = 1.f;
 					fixture_def.filter = ecs::get_filter_for_class(object.class_);
 					body->CreateFixture(&fixture_def);
+#endif
 
 					ecs::Animation* tile = ecs::get_animation(entity);
 					if (tile) {
@@ -304,9 +310,11 @@ namespace map
 					if (last_active_portal) {
 
 						if (const tiled::Object* target_point = map.get_object(last_active_portal->target_point)) {
+#if 0
 							if (body) {
 								body->SetTransform(target_point->position, 0.f);
 							}
+#endif
 							if (tile) {
 								position = target_point->position;
 							}
@@ -401,9 +409,11 @@ namespace map
 					body_def.fixedRotation = true;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
+#if 0
 					b2PolygonShape shape{};
 					shape.SetAsBox(10.f, 6.f, b2Vec2_zero, 0.f);
 					body->CreateFixture(&shape, 0.f);
+#endif
 
 				} else if (object.class_ == "blade_trap") {
 
@@ -423,6 +433,7 @@ namespace map
 					body_def.fixedRotation = true;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
+#if 0
 					b2CircleShape shape{};
 					shape.m_radius = 6.f;
 
@@ -430,6 +441,7 @@ namespace map
 					fixture_def.shape = &shape;
 					fixture_def.isSensor = true;
 					body->CreateFixture(&fixture_def);
+#endif
 
 					ecs::emplace_sprite_body_attachment(entity, -pivot);
 				}
@@ -529,7 +541,7 @@ namespace map
 					// EMPLACE BODY
 
 					// PITFALL: We only create bodies for tiles that have colliders!
-					b2BodyId body = nullptr;
+					b2BodyId body = b2_nullBodyId;
 
 					if (!tile.objects.empty()) {
 
@@ -544,6 +556,7 @@ namespace map
 							const Vector2f collider_center = collider.position;
 							const Vector2f collider_half_size = collider.size / 2.f;
 
+#if 0
 							b2FixtureDef fixture_def{};
 							collider.properties.get_bool("sensor", fixture_def.isSensor);
 
@@ -598,6 +611,7 @@ namespace map
 
 							} break;
 							}
+#endif
 						}
 					}
 
@@ -606,11 +620,13 @@ namespace map
 					if (tile.class_ == "grass") {
 						//TODO: set shader and uniform buffer
 						sprite.sorting_point = { 8.f, 20.f };
+#if 0
 						if (body) {
 							for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 								fixture->SetSensor(true);
 							}
 						}
+#endif
 					}
 				}
 			}

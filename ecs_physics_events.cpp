@@ -23,6 +23,7 @@ namespace ecs
 
 	void process_contact_begin_touch_event(const b2ContactBeginTouchEvent& ev)
 	{
+#if 0
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
 		b2BodyId body_a = fixture_a->GetBody();
@@ -89,7 +90,7 @@ namespace ecs
 				destroy_at_end_of_frame(entity_a);
 			}
 		} else if (class_a == "player") {
- 			if (class_b == "portal") {
+			if (class_b == "portal") {
 				activate_portal(entity_b);
 			} else if (class_b == "slime") {
 				apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
@@ -97,10 +98,12 @@ namespace ecs
 				on_player_begin_contact_pushable_block(entity_a);
 			}
 		}
+#endif
 	}
 
 	void process_contact_end_touch_event(const b2ContactEndTouchEvent& ev)
 	{
+#if 0
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
 		b2BodyId body_a = fixture_a->GetBody();
@@ -125,6 +128,7 @@ namespace ecs
 				on_player_end_contact_pushable_block(entity_a);
 			}
 		}
+#endif
 	}
 }
 

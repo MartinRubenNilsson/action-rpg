@@ -126,7 +126,7 @@ namespace ecs
 		struct RayCastCallback : public b2RayCastCallback
 		{
 			RaycastHit hit{};
-			uint32_t mask_bits = 0xFFFF;
+			uint32_t mask_bits = UINT32_MAX;
 			bool has_hit = false;
 
 			float ReportFixture(
@@ -162,7 +162,7 @@ namespace ecs
 		struct RayCastCallback : public b2RayCastCallback
 		{
 			std::vector<RaycastHit> hits;
-			uint32_t mask_bits = 0xFFFF;
+			uint32_t mask_bits = UINT32_MAX;
 
 			float ReportFixture(
 				b2Fixture* fixture,
@@ -196,7 +196,7 @@ namespace ecs
 		struct QueryCallback : public b2QueryCallback
 		{
 			std::vector<OverlapHit> hits;
-			uint32_t mask_bits = 0xFFFF;
+			uint32_t mask_bits = UINT32_MAX;
 
 			bool ReportFixture(b2Fixture* fixture) override
 			{

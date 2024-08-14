@@ -53,6 +53,7 @@ namespace ecs
 			body_def.position = position;
 			b2BodyId body = emplace_body(entity, body_def);
 
+#if 0
 			b2CircleShape shape{};
 			shape.m_radius = 4.f;
 
@@ -60,6 +61,7 @@ namespace ecs
 			fixture_def.shape = &shape;
 			fixture_def.isSensor = true;
 			body->CreateFixture(&fixture_def);
+#endif
 		}
 		{
 			sprites::Sprite& sprite = emplace_sprite(entity);

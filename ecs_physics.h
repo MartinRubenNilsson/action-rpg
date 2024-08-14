@@ -5,7 +5,7 @@ namespace ecs
 	struct RaycastHit
 	{
 		b2Fixture* fixture = nullptr;
-		b2BodyId body = nullptr;
+		b2BodyId body = b2_nullBodyId;
 		entt::entity entity = entt::null;
 		Vector2f point;
 		Vector2f normal;
@@ -15,7 +15,7 @@ namespace ecs
 	struct OverlapHit
 	{
 		b2Fixture* fixture = nullptr;
-		b2BodyId body = nullptr;
+		b2BodyId body = b2_nullBodyId;
 		entt::entity entity = entt::null;
 	};
 
@@ -24,10 +24,10 @@ namespace ecs
 	void update_physics(float dt);
 	void debug_draw_physics();
 
-	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits = 0xFFFF, RaycastHit* hit = nullptr);
-	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits = 0xFFFF);
-	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint32_t mask_bits = 0xFFFF);
-	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint32_t mask_bits = 0xFFFF);
+	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits = UINT32_MAX, RaycastHit* hit = nullptr);
+	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits = UINT32_MAX);
+	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint32_t mask_bits = UINT32_MAX);
+	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint32_t mask_bits = UINT32_MAX);
 
 	b2BodyId emplace_body(entt::entity entity, const b2BodyDef& body_def);
 	b2BodyId deep_copy_and_emplace_body(entt::entity entity, const b2BodyId body);

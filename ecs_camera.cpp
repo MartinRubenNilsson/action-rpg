@@ -49,7 +49,7 @@ namespace ecs
 		for (auto [entity, camera] : _registry.view<Camera>().each()) {
 
 			// If the camera has a follow target, center the view on the target.
-			if (b2BodyId body = get_body(camera.entity_to_follow)) {
+			if (b2BodyId body = get_body(camera.entity_to_follow); B2_IS_NON_NULL(body)) {
 				camera.center = b2Body_GetPosition(body);
 			}
 
