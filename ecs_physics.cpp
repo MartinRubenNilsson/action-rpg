@@ -256,14 +256,16 @@ namespace ecs
 	}
 
 
-	b2BodyId deep_copy_and_emplace_body(entt::entity entity, const b2BodyId body)
+	b2BodyId deep_copy_and_emplace_body(entt::entity entity, b2BodyId body)
 	{
 		b2BodyDef body_def = get_body_def(body);
-		b2BodyId new_body = _physics_world->CreateBody(&body_def);
+		b2BodyId new_body = b2CreateBody(_physics_world, &body_def);
+#if 0
 		for (const b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-			b2FixtureDef fixture_def = get_fixture_def(fixture);
+			b2FixtureDef fixture_def = get_shape_def(fixture);
 			new_body->CreateFixture(&fixture_def);
 		}
+#endif
 		//HACK: so they don't spawn inside each other
 		b2Vec2 pos = b2Body_GetPosition(body);
 		pos.x += 16.f; //one tile
@@ -282,9 +284,10 @@ namespace ecs
 		return _registry.remove<b2BodyId>(entity);
 	}
 
-	b2FixtureDef get_fixture_def(const b2Fixture* fixture)
+	b2ShapeDef get_shape_def(b2ShapeId shape)
 	{
-		b2FixtureDef def{};
+		b2ShapeDef def = b2DefaultShapeDef();
+#if 0
 		def.shape = fixture->GetShape();
 		def.userData = fixture->GetUserData();
 		def.friction = fixture->GetFriction();
@@ -293,10 +296,11 @@ namespace ecs
 		def.density = fixture->GetDensity();
 		def.isSensor = fixture->IsSensor();
 		def.filter = fixture->GetFilterData();
+#endif
 		return def;
 	}
 
-	b2BodyDef get_body_def(const b2BodyId body)
+	b2BodyDef get_body_def(b2BodyId body)
 	{
 		b2BodyDef def = b2DefaultBodyDef();
 		def.type = b2Body_GetType(body);
@@ -321,19 +325,23 @@ namespace ecs
 
 	void set_category_bits(b2BodyId body, uint32_t category_bits)
 	{
+#if 0
 		for (b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 			b2Filter filter = fixture->GetFilterData();
 			filter.categoryBits = category_bits;
 			fixture->SetFilterData(filter);
 		}
+#endif
 	}
 
-	uint32_t get_category_bits(const b2BodyId body)
+	uint32_t get_category_bits(b2BodyId body)
 	{
 		uint32_t category_bits = 0;
+#if 0
 		for (const b2Fixture* fixture = b2Body_GetFixtureList(); fixture; fixture = fixture->GetNext()) {
 			category_bits |= fixture->GetFilterData().categoryBits;
 		}
+#endif
 		return category_bits;
 	}
 }

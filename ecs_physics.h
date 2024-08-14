@@ -4,7 +4,7 @@ namespace ecs
 {
 	struct RaycastHit
 	{
-		b2Fixture* fixture = nullptr;
+		b2ShapeId shape = b2_nullShapeId;
 		b2BodyId body = b2_nullBodyId;
 		entt::entity entity = entt::null;
 		Vector2f point;
@@ -14,7 +14,7 @@ namespace ecs
 
 	struct OverlapHit
 	{
-		b2Fixture* fixture = nullptr;
+		b2ShapeId shape = b2_nullShapeId;
 		b2BodyId body = b2_nullBodyId;
 		entt::entity entity = entt::null;
 	};
@@ -30,15 +30,15 @@ namespace ecs
 	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint32_t mask_bits = UINT32_MAX);
 
 	b2BodyId emplace_body(entt::entity entity, const b2BodyDef& body_def);
-	b2BodyId deep_copy_and_emplace_body(entt::entity entity, const b2BodyId body);
+	b2BodyId deep_copy_and_emplace_body(entt::entity entity, b2BodyId body);
 	b2BodyId get_body(entt::entity entity); // Returns b2_nullBodyId if entity has no body.
 	bool remove_body(entt::entity entity);
 
-	b2FixtureDef get_fixture_def(const b2Fixture* fixture);
-	b2BodyDef get_body_def(const b2BodyId body);
+	b2ShapeDef get_shape_def(b2ShapeId shape);
+	b2BodyDef get_body_def(b2BodyId body);
 	// Sets the category bits of all fixtures attached to the body.
 	void set_category_bits(b2BodyId body, uint32_t category_bits);
 	// Returns the bitwise OR of all category bits of all fixtures attached to the body.
-	uint32_t get_category_bits(const b2BodyId body);
+	uint32_t get_category_bits(b2BodyId body);
 }
 
