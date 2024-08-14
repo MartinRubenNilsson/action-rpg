@@ -1,42 +1,11 @@
 #include "stdafx.h"
 #include "ecs_physics.h"
-#include "ecs_physics_contacts.h"
+#include "ecs_physics_events.h"
 #include "ecs_physics_filters.h"
 #include "shapes.h"
 
 namespace ecs
 {
-	// IMPORTANT: The Box2D documentation says:
-	// "Caution: Do not keep a reference to the pointers sent to b2ContactListener.
-	// Instead make a deep copy of the contact point data into your own buffer."
-	struct PhysicsContactListener : b2ContactListener
-	{
-		std::vector<PhysicsContact> begin_contacts;
-		std::vector<PhysicsContact> end_contacts;
-		
-		// This is called when two fixtures begin to overlap.
-		// This is called for sensors and non-sensors.
-		// This event can only occur inside the time step.
-		void BeginContact(b2Contact* b2contact) override
-		{
-			PhysicsContact contact{};
-			contact.fixture_a = b2contact->GetFixtureA();
-			contact.fixture_b = b2contact->GetFixtureB();
-			begin_contacts.push_back(contact);
-		}
-
-		// This is called when two fixtures cease to overlap.
-		// This is called for sensors and non-sensors.
-		// This may be called when a body is destroyed, so this event can occur outside the time step.
-		void EndContact(b2Contact* b2contact) override
-		{
-			PhysicsContact contact{};
-			contact.fixture_a = b2contact->GetFixtureA();
-			contact.fixture_b = b2contact->GetFixtureB();
-			end_contacts.push_back(contact);
-		}
-	};
-
 #ifdef _DEBUG
 	Color _from_b2(const b2HexColor& color)
 	{
@@ -77,7 +46,6 @@ namespace ecs
 
 	constexpr float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	constexpr int _PHYSICS_SUB_STEP_COUNT = 4;
-	PhysicsContactListener _physics_contact_listener;
 	b2WorldId _physics_world = b2_nullWorldId;
 	float _physics_time_accumulator = 0.f;
 
@@ -108,33 +76,33 @@ namespace ecs
 	{
 		// STEP PHYSICS WORLD
 
-		// There was a crash where destroying a body would invoke PhysicsContactListener::EndContact(),
-		// which would enqueue a PhysicsContact whose member pointers would immediately get invalidated
-		// since the body would be destroyed. To fix this I've made it so that the PhysicsContactListener
-		// is only set during the physics step, so destroying a body won't affect the contacts.
-		_physics_world->SetContactListener(&_physics_contact_listener);
-
 		_physics_time_accumulator += dt;
 		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
 			b2World_Step(_physics_world, _PHYSICS_TIME_STEP, _PHYSICS_SUB_STEP_COUNT);
 			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
 		}
 
-		_physics_world->SetContactListener(nullptr);
-
-		// PROCESS BEGIN CONTACTS
-
-		for (const PhysicsContact& contact : _physics_contact_listener.begin_contacts) {
-			on_begin_contact(contact);
+		// PROCESS SENSOR EVENTS
+		{
+			const b2SensorEvents sensor_events = b2World_GetSensorEvents(_physics_world);
+			for (int32_t i = 0; i < sensor_events.beginCount; ++i) {
+				process_sensor_begin_touch_event(sensor_events.beginEvents[i]);
+			}
+			for (int32_t i = 0; i < sensor_events.endCount; ++i) {
+				process_sensor_end_touch_event(sensor_events.endEvents[i]);
+			}
 		}
-		_physics_contact_listener.begin_contacts.clear();
 
-		// PROCESS END CONTACTS
-
-		for (const PhysicsContact& contact : _physics_contact_listener.end_contacts) {
-			on_end_contact(contact);
+		// PROCESS CONTACT EVENTS
+		{
+			const b2ContactEvents contact_events = b2World_GetContactEvents(_physics_world);
+			for (int32_t i = 0; i < contact_events.beginCount; ++i) {
+				process_contact_begin_touch_event(contact_events.beginEvents[i]);
+			}
+			for (int32_t i = 0; i < contact_events.endCount; ++i) {
+				process_contact_end_touch_event(contact_events.endEvents[i]);
+			}
 		}
-		_physics_contact_listener.end_contacts.clear();
 	}
 
 	void debug_draw_physics()
@@ -347,7 +315,7 @@ namespace ecs
 		def.isBullet = b2Body_IsBullet(body);
 		def.isEnabled = b2Body_IsEnabled(body);
 		//def.automaticMass = ???
-		def.allowFastRotation = b2Body_AllowFastRotation(body);
+		//def.allowFastRotation = ???
 		return def;
 	}
 

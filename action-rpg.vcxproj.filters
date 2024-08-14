@@ -70,7 +70,7 @@
     <ClCompile Include="ecs_vfx.cpp">
       <Filter>ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_physics_contacts.cpp">
+    <ClCompile Include="ecs_physics_events.cpp">
       <Filter>ecs\physics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_bomb.cpp">
@@ -418,7 +418,7 @@
     <ClInclude Include="ecs_vfx.h">
       <Filter>ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_physics_contacts.h">
+    <ClInclude Include="ecs_physics_events.h">
       <Filter>ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_bomb.h">

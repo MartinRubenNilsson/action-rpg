@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ecs_physics_contacts.h"
+#include "ecs_physics_events.h"
 
 #include "ecs_common.h"
 #include "ecs_player.h"
@@ -13,7 +13,15 @@
 
 namespace ecs
 {
-	void on_begin_contact(const PhysicsContact& contact)
+	void process_sensor_begin_touch_event(const b2SensorBeginTouchEvent& ev)
+	{
+	}
+
+	void process_sensor_end_touch_event(const b2SensorEndTouchEvent& ev)
+	{
+	}
+
+	void process_contact_begin_touch_event(const b2ContactBeginTouchEvent& ev)
 	{
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
@@ -91,7 +99,7 @@ namespace ecs
 		}
 	}
 
-	void on_end_contact(const PhysicsContact& contact)
+	void process_contact_end_touch_event(const b2ContactEndTouchEvent& ev)
 	{
 		b2Fixture* fixture_a = contact.fixture_a;
 		b2Fixture* fixture_b = contact.fixture_b;
