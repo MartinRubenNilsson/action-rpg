@@ -3,6 +3,12 @@
 #include "ecs_physics_events.h"
 #include "ecs_physics_filters.h"
 
+#ifdef _DEBUG
+#pragma comment(lib, "box2d-d.lib")
+#else
+#pragma comment(lib, "box2d.lib")
+#endif
+
 #ifdef _DEBUG_PHYSICS
 #include "shapes.h"
 #endif

@@ -17,10 +17,6 @@
 /// https://en.wikipedia.org/wiki/Pi
 #define b2_pi 3.14159265359f
 
-#if 0 // CHANGE: Substitute our own vector type
-#include "vector2.h"
-typedef Vector2f b2Vec2;
-#else
 /// 2D vector
 /// This can be used to represent a point or free vector
 typedef struct b2Vec2
@@ -28,7 +24,6 @@ typedef struct b2Vec2
 	/// coordinates
 	float x, y;
 } b2Vec2;
-#endif
 
 /// 2D rotation
 /// This is similar to using a complex number for rotation

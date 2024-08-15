@@ -191,111 +191,6 @@
     <ClCompile Include="ecs_animation.cpp">
       <Filter>ecs\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\mouse_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\prismatic_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\revolute_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\shape.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\solver.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\solver_set.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\stack_allocator.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\table.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\timer.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\types.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\weld_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\wheel_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\world.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\aabb.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\allocate.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\array.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\bitset.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\block_array.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\body.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\broad_phase.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\constraint_graph.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\contact.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\contact_solver.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\core.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\distance.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\distance_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\dynamic_tree.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\geometry.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\hull.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\id_pool.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\island.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\manifold.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\math_functions.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
-    <ClCompile Include="dependencies\box2d\src\motor_joint.c">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -716,86 +611,23 @@
       <Filter>ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="tile_ids.h" />
-    <ClInclude Include="dependencies\box2d\src\shape.h">
-      <Filter>ecs\physics\box2d\src</Filter>
+    <ClInclude Include="dependencies\box2d\base.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\solver.h">
-      <Filter>ecs\physics\box2d\src</Filter>
+    <ClInclude Include="dependencies\box2d\box2d.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\solver_set.h">
-      <Filter>ecs\physics\box2d\src</Filter>
+    <ClInclude Include="dependencies\box2d\collision.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\stack_allocator.h">
-      <Filter>ecs\physics\box2d\src</Filter>
+    <ClInclude Include="dependencies\box2d\id.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\table.h">
-      <Filter>ecs\physics\box2d\src</Filter>
+    <ClInclude Include="dependencies\box2d\math_functions.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\world.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\aabb.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\allocate.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\array.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\bitset.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\block_array.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\body.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\broad_phase.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\constraint_graph.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\contact.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\contact_solver.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\core.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\ctz.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\id_pool.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\island.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\src\joint.h">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\base.h">
-      <Filter>ecs\physics\box2d\include</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\box2d.h">
-      <Filter>ecs\physics\box2d\include</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\collision.h">
-      <Filter>ecs\physics\box2d\include</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\id.h">
-      <Filter>ecs\physics\box2d\include</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\math_functions.h">
-      <Filter>ecs\physics\box2d\include</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\box2d\include\box2d\types.h">
-      <Filter>ecs\physics\box2d\include</Filter>
+    <ClInclude Include="dependencies\box2d\types.h">
+      <Filter>ecs\physics\box2d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -862,30 +694,14 @@
     <Filter Include="ecs\mechanics">
       <UniqueIdentifier>{bda05a2e-3455-426f-87f2-f5bcb303a363}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\physics\box2d">
-      <UniqueIdentifier>{866076fd-537d-4e00-afca-8a89f23366a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ecs\enemies">
       <UniqueIdentifier>{c8484bdc-09b7-4b8c-ac87-16b2f0ccfaac}</UniqueIdentifier>
     </Filter>
     <Filter Include="ecs\graphics">
       <UniqueIdentifier>{a81c1375-587d-4f63-8d82-144aa9a48fe8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\physics\box2d\include">
-      <UniqueIdentifier>{8104c315-7d41-4898-8b55-25de10dfd9a7}</UniqueIdentifier>
+    <Filter Include="ecs\physics\box2d">
+      <UniqueIdentifier>{ffe6cfc6-66be-46cd-a885-5762aed4b6bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\physics\box2d\src">
-      <UniqueIdentifier>{7b776afc-5312-4b38-8858-a4cbb72bd498}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="dependencies\box2d\src\box2d.natvis">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </Natvis>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="dependencies\box2d\src\CMakeLists.txt">
-      <Filter>ecs\physics\box2d\src</Filter>
-    </Text>
   </ItemGroup>
 </Project>
