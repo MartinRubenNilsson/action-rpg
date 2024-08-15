@@ -156,6 +156,7 @@
     <ClCompile Include="ecs_chest.cpp" />
     <ClCompile Include="ecs_interact.cpp" />
     <ClCompile Include="ecs_sprite.cpp" />
+    <ClCompile Include="ecs_uniform_block.cpp" />
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
     <ClCompile Include="graphics_globals.cpp" />
@@ -258,6 +259,7 @@
     <ClInclude Include="ecs_chest.h" />
     <ClInclude Include="ecs_interact.h" />
     <ClInclude Include="ecs_sprite.h" />
+    <ClInclude Include="ecs_uniform_block.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="graphics_globals.h" />

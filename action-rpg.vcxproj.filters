@@ -191,6 +191,9 @@
     <ClCompile Include="ecs_animation.cpp">
       <Filter>ecs\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_uniform_block.cpp">
+      <Filter>ecs\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -628,6 +631,9 @@
     </ClInclude>
     <ClInclude Include="dependencies\box2d\types.h">
       <Filter>ecs\physics\box2d</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_uniform_block.h">
+      <Filter>ecs\graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
