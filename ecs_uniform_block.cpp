@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ecs_uniform_block.h"
+#include "sprites.h"
 
 namespace ecs
 {

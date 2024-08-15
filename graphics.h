@@ -49,27 +49,27 @@ namespace graphics
 	struct BufferDesc
 	{
 		std::string_view debug_name = "buffer";
-		unsigned int byte_size = 0;
+		unsigned int size = 0; // in bytes
 		const void* initial_data = nullptr;
 		bool dynamic = false; // If true, the buffer can be updated with update_buffer().
 	};
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
-	void recreate_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data = nullptr);
+	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);
 	void destroy_buffer(Handle<Buffer> handle);
 
-	// Fails if the buffer is not dynamic, or if byte_offset + byte_size exceeds the buffer size.
-	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size, unsigned int byte_offset = 0);
-	size_t get_buffer_byte_size(Handle<Buffer> handle);
+	// Fails if the buffer is not dynamic, or if offset + size exceeds the buffer size.
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset = 0);
+	size_t get_buffer_size(Handle<Buffer> handle);
 
-	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride, unsigned int byte_offset = 0);
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset = 0);
 	void unbind_vertex_buffer(unsigned int binding);
 	void bind_index_buffer(Handle<Buffer> handle);
 	void unbind_index_buffer();
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
-	// Fails if byte_offset + byte_size exceeds the buffer size, or if byte_offset
+	// Fails if offset + size exceeds the buffer size, or if offset
 	// is not a multiple of get_uniform_buffer_offset_alignment().
-	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset = 0);
+	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset = 0);
 	void unbind_uniform_buffer(unsigned int binding);
 
 	// TEXTURES

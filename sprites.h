@@ -24,8 +24,8 @@ namespace sprites
 	{
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture; // TODO: default to error texture
-		//TODO: store handle to uniform buffer
-		//TODO: store uint16_t offset and size into uniform buffer
+		Handle<graphics::Buffer> uniform_buffer;
+		uint32_t uniform_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
 		Vector2f pos; // top-left corner position in world space
 		Vector2f size; // width and height in world space
 		Vector2f tex_pos = { 0.f, 0.f }; // top-left corner in normalized texture coordinates

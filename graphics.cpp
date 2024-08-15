@@ -80,7 +80,7 @@ namespace graphics
 	{
 		std::string debug_name;
 		GLuint buffer_object = 0;
-		unsigned int byte_size = 0;
+		unsigned int size = 0; // in bytes
 		bool dynamic = false;
 	};
 
@@ -91,7 +91,7 @@ namespace graphics
 		unsigned int width = 0;
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
-		unsigned int byte_size = 0; // for debugging
+		unsigned int size = 0; // in bytes
 		Filter filter = Filter::Nearest;
 	};
 
@@ -479,18 +479,18 @@ namespace graphics
 		if (desc.dynamic) {
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 		}
-		glNamedBufferStorage(buffer_object, desc.byte_size, desc.initial_data, flags);
+		glNamedBufferStorage(buffer_object, desc.size, desc.initial_data, flags);
 
 		Buffer buffer{};
 		buffer.debug_name = desc.debug_name;
 		buffer.buffer_object = buffer_object;
-		buffer.byte_size = desc.byte_size;
+		buffer.size = desc.size;
 		buffer.dynamic = desc.dynamic;
 
 		return _buffer_pool.emplace(std::move(buffer));
 	}
 
-	void recreate_buffer(Handle<Buffer> handle, unsigned int byte_size, const void* initial_data)
+	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data)
 	{
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
@@ -501,8 +501,8 @@ namespace graphics
 		if (buffer->dynamic) {
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 		}
-		glNamedBufferStorage(buffer->buffer_object, byte_size, initial_data, flags);
-		buffer->byte_size = byte_size;
+		glNamedBufferStorage(buffer->buffer_object, size, initial_data, flags);
+		buffer->size = size;
 	}
 
 	void destroy_buffer(Handle<Buffer> handle)
@@ -514,29 +514,29 @@ namespace graphics
 		_buffer_pool.free(handle);
 	}
 
-	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int byte_size, unsigned int byte_offset)
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset)
 	{
-		if (!data || !byte_size) return;
+		if (!data || !size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (!buffer->dynamic) return;
-		if (byte_offset + byte_size > buffer->byte_size) return;
-		glNamedBufferSubData(buffer->buffer_object, byte_offset, byte_size, data);
+		if (offset + size > buffer->size) return;
+		glNamedBufferSubData(buffer->buffer_object, offset, size, data);
 	}
 
-	size_t get_buffer_byte_size(Handle<Buffer> handle)
+	size_t get_buffer_size(Handle<Buffer> handle)
 	{
 		if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			return buffer->byte_size;
+			return buffer->size;
 		}
 		return 0;
 	}
 
-	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int byte_stride, unsigned int byte_offset)
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset)
 	{
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, byte_offset, byte_stride);
+		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, offset, stride);
 	}
 
 	void unbind_vertex_buffer(unsigned int binding)
@@ -563,13 +563,13 @@ namespace graphics
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
 	}
 
-	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int byte_size, unsigned byte_offset)
+	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset)
 	{
-		if (byte_size % _uniform_buffer_offset_alignment != 0) return; // must be a multiple of alignment
+		if (size % _uniform_buffer_offset_alignment != 0) return; // must be a multiple of alignment
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (byte_offset + byte_size > buffer->byte_size) return;
-		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, byte_offset, byte_size);
+		if (offset + size > buffer->size) return;
+		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, offset, size);
 	}
 
 	void unbind_uniform_buffer(unsigned int binding)
@@ -599,7 +599,7 @@ namespace graphics
 		}
 	}
 
-	unsigned _get_byte_size(Format format)
+	unsigned _get_size(Format format)
 	{
 		switch (format) {
 		case Format::R8_UNORM:       return 1;
@@ -643,10 +643,10 @@ namespace graphics
 		texture.width = desc.width;
 		texture.height = desc.height;
 		texture.format = desc.format;
-		texture.byte_size = desc.width * desc.height * _get_byte_size(desc.format);
+		texture.size = desc.width * desc.height * _get_size(desc.format);
 		texture.filter = desc.filter;
 
-		_total_texture_memory_usage_in_bytes += texture.byte_size;
+		_total_texture_memory_usage_in_bytes += texture.size;
 
 		return _texture_pool.emplace(std::move(texture));
 	}
@@ -739,7 +739,7 @@ namespace graphics
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		glDeleteTextures(1, &texture->texture_object);
-		_total_texture_memory_usage_in_bytes -= texture->byte_size;
+		_total_texture_memory_usage_in_bytes -= texture->size;
 		// HACK: When a texture is loaded, its debug_name is set to the path.
 		_path_to_texture.erase(texture->debug_name);
 		*texture = Texture();
@@ -996,7 +996,7 @@ namespace graphics
 			if (ImGui::TreeNode(texture.debug_name.c_str())) {
 				ImGui::Text("Dimensions: %dx%dx", texture.width, texture.height);
 				ImGui::Text("Format: %s", magic_enum::enum_name(texture.format).data());
-				unsigned int kb = texture.byte_size / 1024;
+				unsigned int kb = texture.size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
 					ImGui::Text("Memory: %d MB", mb);

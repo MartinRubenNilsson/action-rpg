@@ -52,17 +52,17 @@ namespace graphics
 
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
-			.byte_size = MAX_VERTICES * sizeof(Vertex),
+			.size = MAX_VERTICES * sizeof(Vertex),
 			.dynamic = true });
 
 		dynamic_index_buffer = create_buffer({
 			.debug_name = "dynamic index buffer",
-			.byte_size = MAX_INDICES * sizeof(unsigned int),
+			.size = MAX_INDICES * sizeof(unsigned int),
 			.dynamic = true });
 
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
-			.byte_size = sizeof(FrameUniforms),
+			.size = sizeof(FrameUniforms),
 			.dynamic = true });
 
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));

@@ -99,11 +99,11 @@ namespace ui
 		CompiledGeometry* compiled_geometry = new CompiledGeometry();
 		compiled_geometry->vertex_buffer = graphics::create_buffer({
 			.debug_name = "rmlui vertex buffer",
-			.byte_size = (unsigned int)sizeof(graphics::Vertex) * num_vertices,
+			.size = (unsigned int)sizeof(graphics::Vertex) * num_vertices,
 			.initial_data = vertices });
 		compiled_geometry->index_buffer = graphics::create_buffer({
 			.debug_name = "rmlui index buffer",
-			.byte_size = (unsigned int)sizeof(unsigned int) * num_indices,
+			.size = (unsigned int)sizeof(unsigned int) * num_indices,
 			.initial_data = indices });
 		compiled_geometry->index_count = (unsigned int)num_indices;
 		compiled_geometry->texture = _texture_handle_from_rml(texture);
