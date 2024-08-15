@@ -2,50 +2,17 @@
 #include "ecs_physics.h"
 #include "ecs_physics_events.h"
 #include "ecs_physics_filters.h"
+
+#ifdef DEBUG_PHYSICS
 #include "shapes.h"
+#endif
 
 namespace ecs
 {
-#ifdef _DEBUG
-	Color _from_b2(const b2HexColor& color)
-	{
-		Color c{};
-		c.r = (color >> 24) & 0xFF;
-		c.g = (color >> 16) & 0xFF;
-		c.b = (color >> 8) & 0xFF;
-		return c;
-	}
-
-	void _b2_debug_draw_polygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
-	{
-		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
-	}
-
-	void _b2_debug_draw_solid_polygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
-	{
-		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _from_b2(color));
-	}
-
-	void _b2_debug_draw_circle(b2Vec2 center, float radius, b2HexColor color, void* context)
-	{
-		shapes::add_circle(center, radius, _from_b2(color));
-	}
-
-	void _b2_debug_draw_solid_circle(b2Transform transform, float radius, b2HexColor color, void* context)
-	{
-		shapes::add_circle(transform.p, radius, _from_b2(color));
-	}
-
-	void _b2_debug_draw_segment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
-	{
-		shapes::add_line(p1, p2, _from_b2(color));
-	}
-#endif // _DEBUG
-
-	extern entt::registry _registry;
-
 	constexpr float _PHYSICS_TIME_STEP = 1.f / 60.f;
 	constexpr int _PHYSICS_SUB_STEP_COUNT = 4;
+
+	extern entt::registry _registry;
 	b2WorldId _physics_world = b2_nullWorldId;
 	float _physics_time_accumulator = 0.f;
 
@@ -74,44 +41,81 @@ namespace ecs
 
 	void update_physics(float dt)
 	{
-		// STEP PHYSICS WORLD
-
 		_physics_time_accumulator += dt;
-		while (_physics_time_accumulator > _PHYSICS_TIME_STEP) {
+		for (; _physics_time_accumulator >= _PHYSICS_TIME_STEP; _physics_time_accumulator -= _PHYSICS_TIME_STEP) {
+
+			// STEP PHYSICS WORLD
+
 			b2World_Step(_physics_world, _PHYSICS_TIME_STEP, _PHYSICS_SUB_STEP_COUNT);
-			_physics_time_accumulator -= _PHYSICS_TIME_STEP;
-		}
 
-		// PROCESS SENSOR EVENTS
-		{
-			const b2SensorEvents sensor_events = b2World_GetSensorEvents(_physics_world);
-			for (int32_t i = 0; i < sensor_events.beginCount; ++i) {
-				const b2SensorBeginTouchEvent& ev = sensor_events.beginEvents[i];
-				process_sensor_begin_touch_event(ev.sensorShapeId, ev.visitorShapeId);
+			// PROCESS SENSOR EVENTS
+			{
+				const b2SensorEvents sensor_events = b2World_GetSensorEvents(_physics_world);
+				for (int32_t i = 0; i < sensor_events.beginCount; ++i) {
+					const b2SensorBeginTouchEvent& ev = sensor_events.beginEvents[i];
+					process_sensor_begin_touch_event(ev.sensorShapeId, ev.visitorShapeId);
+				}
+				for (int32_t i = 0; i < sensor_events.endCount; ++i) {
+					const b2SensorEndTouchEvent& ev = sensor_events.endEvents[i];
+					process_sensor_end_touch_event(ev.sensorShapeId, ev.visitorShapeId);
+				}
 			}
-			for (int32_t i = 0; i < sensor_events.endCount; ++i) {
-				const b2SensorEndTouchEvent& ev = sensor_events.endEvents[i];
-				process_sensor_end_touch_event(ev.sensorShapeId, ev.visitorShapeId);
-			}
-		}
 
-		// PROCESS CONTACT EVENTS
-		{
-			const b2ContactEvents contact_events = b2World_GetContactEvents(_physics_world);
-			for (int32_t i = 0; i < contact_events.beginCount; ++i) {
-				const b2ContactBeginTouchEvent& ev = contact_events.beginEvents[i];
-				process_contact_begin_touch_event(ev.shapeIdA, ev.shapeIdB);
-			}
-			for (int32_t i = 0; i < contact_events.endCount; ++i) {
-				const b2ContactEndTouchEvent& ev = contact_events.endEvents[i];
-				process_contact_end_touch_event(ev.shapeIdA, ev.shapeIdB);
+			// PROCESS CONTACT EVENTS
+			{
+				const b2ContactEvents contact_events = b2World_GetContactEvents(_physics_world);
+				for (int32_t i = 0; i < contact_events.beginCount; ++i) {
+					const b2ContactBeginTouchEvent& ev = contact_events.beginEvents[i];
+					process_contact_begin_touch_event(ev.shapeIdA, ev.shapeIdB);
+				}
+				for (int32_t i = 0; i < contact_events.endCount; ++i) {
+					const b2ContactEndTouchEvent& ev = contact_events.endEvents[i];
+					process_contact_end_touch_event(ev.shapeIdA, ev.shapeIdB);
+				}
 			}
 		}
 	}
 
+#ifdef DEBUG_PHYSICS
+	Color _b2HexColor_to_Color(b2HexColor hex_color)
+	{
+		Color color{};
+		color.r = (hex_color >> 24) & 0xFF;
+		color.g = (hex_color >> 16) & 0xFF;
+		color.b = (hex_color >> 8) & 0xFF;
+		color.a = 255;
+		return color;
+	}
+
+	void _b2_debug_draw_polygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
+	{
+		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _b2HexColor_to_Color(color));
+	}
+
+	void _b2_debug_draw_solid_polygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_polygon((const Vector2f*)vertices, vertexCount, _b2HexColor_to_Color(color));
+	}
+
+	void _b2_debug_draw_circle(b2Vec2 center, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_circle(center, radius, _b2HexColor_to_Color(color));
+	}
+
+	void _b2_debug_draw_solid_circle(b2Transform transform, float radius, b2HexColor color, void* context)
+	{
+		shapes::add_circle(transform.p, radius, _b2HexColor_to_Color(color));
+	}
+
+	void _b2_debug_draw_segment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
+	{
+		shapes::add_line(p1, p2, _b2HexColor_to_Color(color));
+	}
+#endif
+
 	void debug_draw_physics()
 	{
-#ifdef _DEBUG
+#ifdef DEBUG_PHYSICS
 		b2DebugDraw debug_draw{};
 		debug_draw.DrawPolygon = _b2_debug_draw_polygon;
 		debug_draw.DrawSolidPolygon = _b2_debug_draw_solid_polygon;

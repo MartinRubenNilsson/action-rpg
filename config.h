@@ -11,6 +11,7 @@
 #define DEBUG_RENDERDOC
 #define DEBUG_IMGUI
 #define DEBUG_GRAPHICS
+#define DEBUG_PHYSICS
 #endif
 
 #define WINDOW_MIN_WIDTH 320
