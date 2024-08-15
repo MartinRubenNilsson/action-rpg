@@ -1,5 +1,5 @@
 #pragma once
-#ifdef DEBUG_RENDERDOC
+#ifdef _DEBUG_RENDERDOC
 
 namespace renderdoc
 {

@@ -101,8 +101,8 @@ namespace ecs
 				uint32_t mask_bits = ~(my_category_bits | target_category_bits); // Exclude self and target.
 				Vector2f strafe_dir = rotate_90deg(my_new_dir);
 				// If there's a direct line of sight, don't bother with pathfinding.
-				if (!raycast(my_pos + 8.f * strafe_dir, target_pos, mask_bits) &&
-					!raycast(my_pos - 8.f * strafe_dir, target_pos, mask_bits))
+				if (!raycast_closest(my_pos + 8.f * strafe_dir, target_pos, mask_bits) &&
+					!raycast_closest(my_pos - 8.f * strafe_dir, target_pos, mask_bits))
 				{
 					action.path.clear();
 					break;

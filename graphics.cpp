@@ -124,7 +124,7 @@ namespace graphics
 		return nullptr;
 	}
 
-#ifdef DEBUG_GRAPHICS
+#ifdef _DEBUG_GRAPHICS
 	void GLAPIENTRY _debug_message_callback(
 		GLenum source,
 		GLenum type,
@@ -142,14 +142,14 @@ namespace graphics
 
 	void _set_debug_label(GLenum identifier, GLuint name, std::string_view label)
 	{
-#ifdef DEBUG_GRAPHICS
+#ifdef _DEBUG_GRAPHICS
 		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
 #endif
 	}
 
 	void initialize()
 	{
-#ifdef DEBUG_GRAPHICS
+#ifdef _DEBUG_GRAPHICS
 		// HACK: We should be using a post-build event to copy the shaders,
 		// but then it doesn't run when only debugging and not recompiling,
 		// which is annoying when you've changed a shader but not the code,
@@ -973,21 +973,21 @@ namespace graphics
 
 	void push_debug_group(std::string_view name)
 	{
-#ifdef DEBUG_GRAPHICS
+#ifdef _DEBUG_GRAPHICS
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
 #endif
 	}
 
 	void pop_debug_group()
 	{
-#ifdef DEBUG_GRAPHICS
+#ifdef _DEBUG_GRAPHICS
 		glPopDebugGroup();
 #endif
 	}
 
 	void show_texture_debug_window()
 	{
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
 		ImGui::Begin("Textures");
 		ImGui::Text("Total memory usage: %d MB", _total_texture_memory_usage_in_bytes / 1024 / 1024);
 		for (size_t i = 0; i < _texture_pool.size(); ++i) {

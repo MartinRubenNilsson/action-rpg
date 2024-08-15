@@ -6,10 +6,19 @@ struct Vector2
 	T x{};
 	T y{};
 
+	Vector2() = default;
+	Vector2(T x, T y) : x(x), y(y) {}
+	Vector2(const b2Vec2& v) : x(v.x), y(v.y) {}
+
 	template <typename U>
 	operator Vector2<U>() const
 	{
 		return { static_cast<U>(x), static_cast<U>(y) };
+	}
+
+	operator b2Vec2() const
+	{
+		return { static_cast<float>(x), static_cast<float>(y) };
 	}
 
 	auto operator<=>(const Vector2<T>&) const = default;

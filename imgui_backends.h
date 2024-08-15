@@ -1,5 +1,5 @@
 #pragma once
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
 
 struct GLFWwindow;
 

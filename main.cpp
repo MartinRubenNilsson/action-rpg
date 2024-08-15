@@ -28,11 +28,11 @@ int main(int argc, char* argv[])
     }
     steam::initialize(); // Fails silently if Steam is not running.
     filesystem::initialize();
-#ifdef DEBUG_RENDERDOC
+#ifdef _DEBUG_RENDERDOC
     renderdoc::initialize();
 #endif
     window::initialize();
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
     imgui_backends::initialize(window::get_glfw_window());
 #endif
     graphics::initialize();
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         steam::run_message_loop();
         window::poll_events();
 
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
         imgui_backends::new_frame();
 #endif
 
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 #endif // _DEBUG
                 }
 
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
                 if (ev.type == window::EventType::KeyPress && ImGui::GetIO().WantCaptureKeyboard) {
                     continue;
                 }
@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
 #endif
         ui::render();
 
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
         // CREATE DEBUG STATS WINDOW
 
         if (debug_stats) {
@@ -309,7 +309,7 @@ int main(int argc, char* argv[])
 
 #endif // DEBUG_IMGUI
 
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
         {
             graphics::ScopedDebugGroup debug_group("ImGui");
             imgui_backends::render();
@@ -326,7 +326,7 @@ int main(int argc, char* argv[])
 
         window::swap_buffers();
 
-#ifdef DEBUG_RENDERDOC
+#ifdef _DEBUG_RENDERDOC
         renderdoc::open_capture_folder_if_capturing();
 #endif
     }
@@ -337,7 +337,7 @@ int main(int argc, char* argv[])
     ui::shutdown();
     audio::shutdown();
     graphics::shutdown();
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
     imgui_backends::shutdown();
 #endif
     window::shutdown();

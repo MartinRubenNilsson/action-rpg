@@ -8,10 +8,10 @@
 #define OPENGL_VERSION_MINOR 5
 
 #ifdef _DEBUG
-#define DEBUG_RENDERDOC
-#define DEBUG_IMGUI
-#define DEBUG_GRAPHICS
-#define DEBUG_PHYSICS
+#define _DEBUG_RENDERDOC
+#define _DEBUG_IMGUI
+#define _DEBUG_GRAPHICS
+#define _DEBUG_PHYSICS
 #endif
 
 #define WINDOW_MIN_WIDTH 320

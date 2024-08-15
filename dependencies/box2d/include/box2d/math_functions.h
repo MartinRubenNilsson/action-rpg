@@ -17,7 +17,7 @@
 /// https://en.wikipedia.org/wiki/Pi
 #define b2_pi 3.14159265359f
 
-#if 1 // CHANGE: Substitute our own vector type
+#if 0 // CHANGE: Substitute our own vector type
 #include "vector2.h"
 typedef Vector2f b2Vec2;
 #else

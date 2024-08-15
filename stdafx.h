@@ -22,7 +22,7 @@ using namespace std::literals::string_literals;
 #include <box2d/box2d.h>
 #include <RmlUi/Core.h>
 
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
 #include <imgui.h>
 #include <imgui_stdlib.h>
 #endif

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#ifdef DEBUG_RENDERDOC
+#ifdef _DEBUG_RENDERDOC
 #include "renderdoc.h"
 #include <Windows.h>
 #include <shellapi.h> // ShellExecuteW

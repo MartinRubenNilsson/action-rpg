@@ -275,7 +275,7 @@ namespace ui
 
 	void show_textbox_debug_window()
 	{
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
 		ImGui::Begin("Textbox");
 		for (const Textbox& textbox : get_textbox_presets()) {
 			if (ImGui::Button(textbox.path.c_str())) {

@@ -3,7 +3,7 @@
 #include "ecs_physics_events.h"
 #include "ecs_physics_filters.h"
 
-#ifdef DEBUG_PHYSICS
+#ifdef _DEBUG_PHYSICS
 #include "shapes.h"
 #endif
 
@@ -76,7 +76,7 @@ namespace ecs
 		}
 	}
 
-#ifdef DEBUG_PHYSICS
+#ifdef _DEBUG_PHYSICS
 	Color _b2HexColor_to_Color(b2HexColor hex_color)
 	{
 		Color color{};
@@ -115,7 +115,7 @@ namespace ecs
 
 	void debug_draw_physics()
 	{
-#ifdef DEBUG_PHYSICS
+#ifdef _DEBUG_PHYSICS
 		b2DebugDraw debug_draw{};
 		debug_draw.DrawPolygon = _b2_debug_draw_polygon;
 		debug_draw.DrawSolidPolygon = _b2_debug_draw_solid_polygon;
@@ -129,127 +129,89 @@ namespace ecs
 #endif
 	}
 
-	bool raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits, RaycastHit* hit)
+	bool raycast_closest(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits, RaycastHit* hit)
 	{
-		struct RayCastCallback : public b2RayCastCallback
-		{
-			RaycastHit hit{};
-			uint32_t mask_bits = UINT32_MAX;
-			bool has_hit = false;
+		b2QueryFilter query_filter = b2DefaultQueryFilter();
+		query_filter.maskBits = mask_bits;
 
-			float ReportFixture(
-				b2Fixture* fixture,
-				const b2Vec2& point,
-				const b2Vec2& normal,
-				float fraction) override
-			{
-				const uint32_t category_bits = fixture->GetFilterData().categoryBits;
-				if (!(category_bits & mask_bits)) return -1.f;
-				hit.fixture = fixture;
-				hit.body = fixture->GetBody();
-				hit.entity = hit.b2Body_GetUserData().entity;
-				hit.point = point;
-				hit.normal = normal;
-				hit.fraction = fraction;
-				has_hit = true;
-				return fraction; // Continue the raycast to find the closest hit.
-			}
-		};
-
-		RayCastCallback callback{};
-		callback.mask_bits = mask_bits;
-		_physics_world->RayCast(&callback, ray_start, ray_end);
-		if (hit && callback.has_hit) {
-			*hit = callback.hit;
+		const b2RayResult result = b2World_CastRayClosest(_physics_world, ray_start, ray_end - ray_start, query_filter);
+		if (result.hit && hit) {
+			hit->shape = result.shapeId;
+			hit->body = b2Shape_GetBody(hit->shape);
+			hit->entity = (entt::entity)(uintptr_t)b2Body_GetUserData(hit->body);
+			hit->point = result.point;
+			hit->normal = result.normal;
+			hit->fraction = result.fraction;
 		}
-		return callback.has_hit;
+
+		return result.hit;
 	}
 
-	std::vector<RaycastHit> raycast_all(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits)
+	std::vector<RaycastHit> raycast(const Vector2f& ray_start, const Vector2f& ray_end, uint32_t mask_bits)
 	{
-		struct RayCastCallback : public b2RayCastCallback
-		{
-			std::vector<RaycastHit> hits;
-			uint32_t mask_bits = UINT32_MAX;
+		b2QueryFilter query_filter = b2DefaultQueryFilter();
+		query_filter.maskBits = mask_bits;
 
-			float ReportFixture(
-				b2Fixture* fixture,
-				const b2Vec2& point,
-				const b2Vec2& normal,
-				float fraction) override
-			{
-				uint32_t category_bits = fixture->GetFilterData().categoryBits;
-				if (!(category_bits & mask_bits)) return -1.f;
+		std::vector<RaycastHit> hits;
+
+		b2World_CastRay(_physics_world, ray_start, ray_end - ray_start, query_filter,
+			[](b2ShapeId shape_id, b2Vec2 point, b2Vec2 normal, float fraction, void* context) {
 				RaycastHit hit{};
-				hit.fixture = fixture;
-				hit.body = fixture->GetBody();
-				hit.entity = hit.b2Body_GetUserData().entity;
+				hit.shape = shape_id;
+				hit.body = b2Shape_GetBody(shape_id);
+				hit.entity = (entt::entity)(uintptr_t)b2Body_GetUserData(hit.body);
 				hit.point = point;
 				hit.normal = normal;
 				hit.fraction = fraction;
-				hits.push_back(hit);
+				((std::vector<RaycastHit>*)context)->push_back(hit);
 				return 1.f;
-			}
-		};
+		}, &hits);
 
-		RayCastCallback callback{};
-		callback.mask_bits = mask_bits;
-		_physics_world->RayCast(&callback, ray_start, ray_end);
-
-		return callback.hits;
+		return hits;
 	}
 
 	std::vector<OverlapHit> overlap_box(const Vector2f& box_min, const Vector2f& box_max, uint32_t mask_bits)
 	{
-		struct QueryCallback : public b2QueryCallback
-		{
-			std::vector<OverlapHit> hits;
-			uint32_t mask_bits = UINT32_MAX;
+		const Vector2f box_half_size = 0.5 * (box_max - box_min);
+		const Vector2f box_center = 0.5 * (box_min + box_max);
+		b2Polygon box = b2MakeOffsetBox(box_half_size.x, box_half_size.y, box_center, 0.f);
 
-			bool ReportFixture(b2Fixture* fixture) override
-			{
-				uint32_t category_bits = fixture->GetFilterData().categoryBits;
-				if (!(category_bits & mask_bits)) return true;
+		b2QueryFilter query_filter = b2DefaultQueryFilter();
+		query_filter.maskBits = mask_bits;
+
+		std::vector<OverlapHit> hits;
+		b2World_OverlapPolygon(_physics_world, &box, b2Transform_identity, query_filter,
+			[](b2ShapeId shape_id, void* context) {
 				OverlapHit hit{};
-				hit.fixture = fixture;
-				hit.body = fixture->GetBody();
-				hit.entity = hit.b2Body_GetUserData().entity;
-				hits.push_back(hit);
+				hit.shape = shape_id;
+				hit.body = b2Shape_GetBody(shape_id);
+				hit.entity = (entt::entity)(uintptr_t)b2Body_GetUserData(hit.body);
+				((std::vector<OverlapHit>*)context)->push_back(hit);
 				return true;
-			}
-		};
+		}, &hits);
 
-		QueryCallback callback{};
-		callback.mask_bits = mask_bits;
-		_physics_world->QueryAABB(&callback, b2AABB{ box_min, box_max });
-
-		return callback.hits;
+		return hits;
 	}
 
 	std::vector<OverlapHit> overlap_circle(const Vector2f& center, float radius, uint32_t mask_bits)
 	{
-		// First, do a broad-phase query to get the potential hits.
-		Vector2f box_min = center - Vector2f(radius, radius);
-		Vector2f box_max = center + Vector2f(radius, radius);
-		std::vector<OverlapHit> hits = overlap_box(box_min, box_max, mask_bits);
+		b2Circle circle{};
+		circle.center = center;
+		circle.radius = radius;
 
-		// Then, do a narrow-phase query to filter out the actual hits.
-		b2CircleShape circle{};
-		circle.m_radius = radius;
-		b2Transform circle_transform{};
-		circle_transform.p.Set(center.x, center.y);
-		for (auto it = hits.begin(); it != hits.end();) {
-			bool overlap = b2TestOverlap(
-				it->fixture->GetShape(), 0,
-				&circle, 0,
-				it->fixture->GetBody()->GetTransform(),
-				circle_transform);
-			if (overlap) {
-				++it;
-			} else {
-				it = hits.erase(it);
-			}
-		}
+		b2QueryFilter query_filter = b2DefaultQueryFilter();
+		query_filter.maskBits = mask_bits;
+
+		std::vector<OverlapHit> hits;
+		b2World_OverlapCircle(_physics_world, &circle, b2Transform_identity, query_filter,
+			[](b2ShapeId shape_id, void* context) {
+				OverlapHit hit{};
+				hit.shape = shape_id;
+				hit.body = b2Shape_GetBody(shape_id);
+				hit.entity = (entt::entity)(uintptr_t)b2Body_GetUserData(hit.body);
+				((std::vector<OverlapHit>*)context)->push_back(hit);
+				return true;
+		}, &hits);
 
 		return hits;
 	}

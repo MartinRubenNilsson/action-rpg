@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#ifdef DEBUG_IMGUI
+#ifdef _DEBUG_IMGUI
 #include "imgui_backends.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
