@@ -184,43 +184,32 @@ namespace map
 
 						for (const tiled::Object& collider : tile.objects) {
 
-							float collider_x = collider.position.x;
-							float collider_y = collider.position.y;
-							float collider_hw = collider.size.x / 2.0f;
-							float collider_hh = collider.size.y / 2.0f;
-							Vector2f collider_center(collider_x + collider_hw, collider_y + collider_hh);
+							const float coll_x = collider.position.x;
+							const float coll_y = collider.position.y;
+							const float coll_hw = collider.size.x / 2.f;
+							const float coll_hh = collider.size.y / 2.f;
+							const Vector2f coll_center = { coll_x + coll_hw, coll_y + coll_hh };
 
-#if 0
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
 
-								b2PolygonShape shape{};
-								shape.SetAsBox(collider_hw, collider_hh, collider_center, 0.f);
-								b2FixtureDef fixture_def{};
-								fixture_def.shape = &shape;
-								fixture_def.density = 1.f;
-								if (!object.class_.empty()) {
-									fixture_def.filter = ecs::get_filter_for_class(object.class_);
-								}
-								body->CreateFixture(&fixture_def);
+								b2ShapeDef shape_def = b2DefaultShapeDef();
+								shape_def.filter = ecs::get_filter_for_class(object.class_);
+								b2Polygon box = b2MakeOffsetBox(coll_hw, coll_hh, coll_center, 0.f);
+								b2CreatePolygonShape(body, &shape_def, &box);
 
 							} break;
 							case tiled::ObjectType::Ellipse: {
 
-								b2CircleShape shape{};
-								shape.m_p = collider_center;
-								shape.m_radius = collider_hw;
-								b2FixtureDef fixture_def{};
-								fixture_def.shape = &shape;
-								fixture_def.density = 1.f;
-								if (!object.class_.empty()) {
-									fixture_def.filter = ecs::get_filter_for_class(object.class_);
-								}
-								body->CreateFixture(&fixture_def);
+								b2ShapeDef shape_def = b2DefaultShapeDef();
+								shape_def.filter = ecs::get_filter_for_class(object.class_);
+								b2Circle circle{};
+								circle.center = coll_center;
+								circle.radius = coll_hw;
+								b2CreateCircleShape(body, &shape_def, &circle);
 
 							} break;
 							}
-#endif
 						}
 					}
 
