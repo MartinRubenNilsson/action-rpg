@@ -3,6 +3,7 @@
 
 namespace ecs
 {
+	//TODO: make class into enum, make this into array
 	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
 		{ "player", make_filter(CC_Player, CM_Player) },
 		{ "slime", make_filter(CC_Enemy) },
@@ -21,7 +22,7 @@ namespace ecs
 	b2Filter get_filter_for_class(const std::string& class_)
 	{
 		auto it = _CLASS_TO_FILTER.find(class_);
-		if (it != _CLASS_TO_FILTER.end()) return it->second;
-		return make_filter();
+		if (it == _CLASS_TO_FILTER.end()) return make_filter();
+		return it->second;
 	}
 }
