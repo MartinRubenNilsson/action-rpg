@@ -3,17 +3,29 @@
  <image source="summer 16x32.png" width="96" height="32"/>
  <tile id="1" type="grass">
   <objectgroup draworder="index" id="6">
-   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182"/>
+   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="2" type="grass">
   <objectgroup draworder="index" id="4">
-   <object id="6" x="1.90909" y="21.9091" width="12.4545" height="6.90909"/>
+   <object id="6" x="1.90909" y="21.9091" width="12.4545" height="6.90909">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="3" type="grass">
   <objectgroup draworder="index" id="3">
-   <object id="5" x="1.27273" y="22.7273" width="13.1818" height="7.63636"/>
+   <object id="5" x="1.27273" y="22.7273" width="13.1818" height="7.63636">
+    <properties>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
 </tileset>

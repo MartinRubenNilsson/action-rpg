@@ -36,6 +36,8 @@ namespace ecs
 
 	b2ShapeDef get_shape_def(b2ShapeId shape);
 	b2BodyDef get_body_def(b2BodyId body);
+
+	void for_each_shape(b2BodyId body, void (*func)(b2ShapeId shape));
 	// Sets the category bits of all shapes attached to the body.
 	void set_category_bits(b2BodyId body, uint32_t category_bits);
 	// Returns the bitwise OR of all category bits of all shapes attached to the body.

@@ -327,6 +327,15 @@ namespace ecs
 		return def;
 	}
 
+	void for_each_shape(b2BodyId body, void(*func)(b2ShapeId shape))
+	{
+		b2ShapeId shapes[16]; // assume body has at most 16 shapes
+		int shape_count = b2Body_GetShapes(body, shapes, 16);
+		for (int i = 0; i < shape_count; ++i) {
+			func(shapes[i]);
+		}
+	}
+
 	void set_category_bits(b2BodyId body, uint32_t category_bits)
 	{
 #if 0

@@ -396,22 +396,15 @@ namespace map
 
 					const Vector2f pivot = { 16.f, 22.f };
 
-					if (ecs::Animation* tile = ecs::get_animation(entity)) {
-						//tile->pivot = pivot;
-						//tile->sorting_pivot = pivot;
-					}
-
 					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.position = position + pivot;
 					body_def.fixedRotation = true;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
-#if 0
-					b2PolygonShape shape{};
-					shape.SetAsBox(10.f, 6.f, b2Vec2_zero, 0.f);
-					body->CreateFixture(&shape, 0.f);
-#endif
+					b2ShapeDef shape_def = b2DefaultShapeDef();
+					b2Polygon box = b2MakeBox(10.f, 6.f);
+					b2CreatePolygonShape(body, &shape_def, &box);
 
 				} else if (object.class_ == "blade_trap") {
 
@@ -625,13 +618,6 @@ namespace map
 					if (tile.class_ == "grass") {
 						//TODO: set shader and uniform buffer
 						sprite.sorting_point = { 8.f, 20.f };
-#if 0
-						if (body) {
-							for (b2Fixture* fixture = body->GetFixtureList(); fixture; fixture = fixture->GetNext()) {
-								fixture->SetSensor(true);
-							}
-						}
-#endif
 					}
 				}
 			}
