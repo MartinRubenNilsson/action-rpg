@@ -2,12 +2,12 @@
 
 namespace ecs
 {
-	// Stores shader uniform block data for custom sprite shaders.
+	// Stores shader uniform data for custom sprite shaders.
 	struct UniformBlock
 	{
 		// The size of this data block (256 bytes = 64 floats = 4 mat4x4s)
-		// has been chosen to match the minimum alignment required when
-		// binding uniform buffers using glBindBufferRange. You don't have
+		// has been chosen to match the minimum alignment requirement when
+		// binding uniform buffers using glBindBufferRange(). You don't have
 		// to fill all bytes, just memcpy however much data the shader needs.
 		unsigned char data[256] = {};
 	};

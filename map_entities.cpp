@@ -281,23 +281,21 @@ namespace map
 					}
 
 					const Vector2f pivot = { 32.f, 42.f };
+					{
+						b2BodyDef body_def = b2DefaultBodyDef();
+						body_def.type = b2_dynamicBody;
+						body_def.position = position + pivot;
+						body_def.fixedRotation = true;
+						b2BodyId body = ecs::emplace_body(entity, body_def);
 
-					b2BodyDef body_def = b2DefaultBodyDef();
-					body_def.type = b2_dynamicBody;
-					body_def.position = position + pivot;
-					body_def.fixedRotation = true;
-					b2BodyId body = ecs::emplace_body(entity, body_def);
+						b2ShapeDef shape_def = b2DefaultShapeDef();
+						shape_def.filter = ecs::get_filter_for_class(object.class_);
 
-#if 0
-					b2CircleShape shape{};
-					shape.m_radius = 7.f;
+						b2Circle circle{};
+						circle.radius = 7.f;
 
-					b2FixtureDef fixture_def{};
-					fixture_def.shape = &shape;
-					fixture_def.density = 1.f;
-					fixture_def.filter = ecs::get_filter_for_class(object.class_);
-					body->CreateFixture(&fixture_def);
-#endif
+						b2CreateCircleShape(body, &shape_def, &circle);
+					}
 
 					ecs::Animation* tile = ecs::get_animation(entity);
 					if (tile) {
@@ -556,62 +554,69 @@ namespace map
 							const Vector2f collider_center = collider.position;
 							const Vector2f collider_half_size = collider.size / 2.f;
 
-#if 0
-							b2FixtureDef fixture_def{};
-							collider.properties.get_bool("sensor", fixture_def.isSensor);
+							b2ShapeDef shape_def = b2DefaultShapeDef();
+							collider.properties.get_bool("sensor", shape_def.isSensor);
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {
 
-								b2PolygonShape shape{};
-								shape.SetAsBox(
-									collider_half_size.x, collider_half_size.y,
+								b2Polygon box = b2MakeOffsetBox(
+									collider_half_size.x,
+									collider_half_size.y,
 									collider_center + collider_half_size, 0.f);
-								fixture_def.shape = &shape;
-								body->CreateFixture(&fixture_def);
+								b2CreatePolygonShape(body, &shape_def, &box);
 
 							} break;
 							case tiled::ObjectType::Ellipse: {
 
-								b2CircleShape shape{};
-								shape.m_p = collider_center;
-								shape.m_radius = collider_half_size.x;
-								fixture_def.shape = &shape;
-								body->CreateFixture(&fixture_def);
+								b2Circle circle{};
+								circle.center = collider_center;
+								circle.radius = collider_half_size.x;
+								b2CreateCircleShape(body, &shape_def, &circle);
 
 							} break;
 							case tiled::ObjectType::Polygon: {
 
-								const size_t count = collider.points.size();
+								const int32_t count = (int32_t)collider.points.size();
 								if (count < 3) {
 									console::log_error("Too few points in polygon collider! Got " +
 										std::to_string(count) + ", need >= 3.");
-								} else if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
+									break;
+								}
+
+								if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
+
 									b2Vec2 points[b2_maxPolygonVertices];
-									for (size_t i = 0; i < count; ++i) {
+									for (int32_t i = 0; i < count; ++i) {
 										points[i] = collider_center + collider.points[i];
 									}
-									b2PolygonShape shape{};
-									shape.Set(points, (int32)count);
-									fixture_def.shape = &shape;
-									body->CreateFixture(&fixture_def);
-								} else {
-									const std::vector<Vector2f> triangles = triangulate(collider.points);
-									for (size_t i = 0; i < triangles.size(); i += 3) {
-										b2Vec2 points[3];
-										for (size_t j = 0; j < 3; ++j) {
-											points[j] = collider_center + triangles[i + j];
-										}
-										b2PolygonShape shape{};
-										shape.Set(points, 3);
-										fixture_def.shape = &shape;
-										body->CreateFixture(&fixture_def);
+									b2Hull hull = b2ComputeHull(points, count);
+									if (!b2ValidateHull(&hull)) {
+										console::log_error("Invalid hull in polygon collider!");
+										break;
 									}
+									b2Polygon polygon = b2MakePolygon(&hull, 0.f);
+									b2CreatePolygonShape(body, &shape_def, &polygon);
+									break;
+								}
+
+								const std::vector<Vector2f> triangles = triangulate(collider.points);
+								for (size_t i = 0; i < triangles.size(); i += 3) {
+									b2Vec2 points[3];
+									for (size_t j = 0; j < 3; ++j) {
+										points[j] = collider_center + triangles[i + j];
+									}
+									b2Hull hull = b2ComputeHull(points, 3);
+									if (!b2ValidateHull(&hull)) {
+										console::log_error("Invalid hull in polygon collider!");
+										continue;
+									}
+									b2Polygon polygon = b2MakePolygon(&hull, 0.f);
+									b2CreatePolygonShape(body, &shape_def, &polygon);
 								}
 
 							} break;
 							}
-#endif
 						}
 					}
 
