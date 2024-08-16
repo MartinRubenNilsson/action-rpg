@@ -216,45 +216,40 @@ namespace map
 				} break;
 				default: { // Rectangle, Ellipse, Point, Polygon, Polyline
 
-					// LOAD COLLIDERS
+					// CREATE SENSORS
 
-#if 0
 					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
-					body_def.position.Set(position.x, position.y);
+					body_def.position = position;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
-					float hw = object.size.x / 2.f;
-					float hh = object.size.y / 2.f;
-					Vector2f center(hw, hh);
+					const float hw = object.size.x / 2.f;
+					const float hh = object.size.y / 2.f;
+					const Vector2f center = { hw, hh };
 
 					switch (object.type) {
 					case tiled::ObjectType::Rectangle: {
 
-						b2PolygonShape shape{};
-						shape.SetAsBox(hw, hh, center, 0.f);
-						b2FixtureDef fixture_def{};
-						fixture_def.shape = &shape;
-						fixture_def.isSensor = true;
-						fixture_def.filter = ecs::get_filter_for_class(object.class_);
-						body->CreateFixture(&fixture_def);
+						b2ShapeDef shape_def = b2DefaultShapeDef();
+						shape_def.isSensor = true;
+						shape_def.filter = ecs::get_filter_for_class(object.class_);
+						b2Polygon box = b2MakeOffsetBox(hw, hh, center, 0.f);
+						b2CreatePolygonShape(body, &shape_def, &box);
 
 					} break;
 					case tiled::ObjectType::Ellipse: {
 
-						b2CircleShape shape{};
-						shape.m_p = center;
-						shape.m_radius = hw;
-						b2FixtureDef fixture_def{};
-						fixture_def.shape = &shape;
-						fixture_def.isSensor = true;
-						fixture_def.filter = ecs::get_filter_for_class(object.class_);
-						body->CreateFixture(&fixture_def);
+						b2ShapeDef shape_def = b2DefaultShapeDef();
+						shape_def.isSensor = true;
+						shape_def.filter = ecs::get_filter_for_class(object.class_);
+						b2Circle circle{};
+						circle.center = center;
+						circle.radius = hw;
+						b2CreateCircleShape(body, &shape_def, &circle);	
 
 					} break;
 					}
-#endif
 
 				} break;
 				}
