@@ -260,6 +260,7 @@ namespace tiled
 			const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
 			layer.tiles.resize(layer.width * layer.height);
 			if (strcmp(encoding, "csv") == 0) {
+				//TODO: optimize parsing
 				std::istringstream ss(data_node.text().as_string());
 				std::string token;
 				size_t i = 0;
