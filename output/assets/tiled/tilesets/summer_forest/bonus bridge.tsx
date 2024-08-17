@@ -3,7 +3,7 @@
  <image source="bonus bridge.png" width="64" height="48"/>
  <tile id="0">
   <objectgroup draworder="index" id="2">
-   <object id="1" name="pivot" x="31.6364" y="1.27273">
+   <object id="1" x="31.6364" y="1.27273">
     <point/>
    </object>
   </objectgroup>

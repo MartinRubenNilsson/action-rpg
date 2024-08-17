@@ -567,6 +567,7 @@ namespace map
 									break;
 								}
 
+								//TODO: fix triangulate()
 								const std::vector<Vector2f> triangles = triangulate(collider.points);
 								for (size_t i = 0; i < triangles.size(); i += 3) {
 									b2Vec2 points[3];
@@ -581,6 +582,11 @@ namespace map
 									b2Polygon polygon = b2MakePolygon(&hull, 0.f);
 									b2CreatePolygonShape(body, &shape_def, &polygon);
 								}
+
+							} break;
+							case tiled::ObjectType::Point: {
+
+								sprite.sorting_point = collider.position;
 
 							} break;
 							}
