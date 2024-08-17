@@ -1,60 +1,63 @@
 #include "stdafx.h"
 #include "ecs_arrow.h"
 #include "ecs_common.h"
+#include "ecs_sprite.h"
 #include "ecs_animation.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "tile_ids.h"
 #include "audio.h"
+
+namespace map
+{
+	unsigned int get_object_layer_index();
+}
 
 namespace ecs
 {
 	extern entt::registry _registry;
 
+	Arrow& emplace_arrow(entt::entity entity, const Arrow& arrow)
+	{
+		return _registry.emplace_or_replace<Arrow>(entity, arrow);
+	}
+
 	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
 	{
 		entt::entity entity = _registry.create();
 		set_class(entity, "arrow");
-
-		// ARROW
 		{
-			Arrow& arrow = _registry.emplace<Arrow>(entity);
+			Arrow& arrow = emplace_arrow(entity);
 			arrow.damage = 1;
 			arrow.lifetime = 0.f; // unused right now
 		}
-
-#if 0
-		// PHYSICS
+		const Vector2f pivot = { 8.f, 8.f };
+		{
+			sprites::Sprite& sprite = emplace_sprite(entity);
+			sprite.sorting_layer = map::get_object_layer_index();
+			sprite.sorting_point = pivot;
+			sprite.position = position - pivot;
+			sprite.size = { 16.f, 16.f };
+		}
+		{
+			Animation& animation = emplace_animation(entity);
+			animation.tileset = get_tileset("items1");
+			animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
+		}
 		{
 			b2BodyDef body_def = b2DefaultBodyDef();
 			body_def.type = b2_dynamicBody;
-			body_def.position.Set(position.x, position.y);
+			body_def.position = position;
+			body_def.linearVelocity = velocity;
 			b2BodyId body = emplace_body(entity, body_def);
-
-			b2CircleShape shape{};
-			shape.m_radius = 6.f;
-			b2FixtureDef fixture_def{};
-			fixture_def.shape = &shape;
-			fixture_def.density = 1.f;
-			fixture_def.filter = get_filter_for_class("arrow");
-			body->CreateFixture(&fixture_def);
-
-			b2Body_SetLinearVelocity(body, b2Vec2(velocity.x, velocity.y));
+			b2ShapeDef shape_def = b2DefaultShapeDef();
+			shape_def.filter = get_filter_for_class("arrow");
+			b2Circle circle{};
+			circle.radius = 6.f;
+			b2CreateCircleShape(body, &shape_def, &circle);
 		}
-#endif
-
-#if 0
-		// GRAPHICS
-		{
-			Animation& tile = emplace_animation(entity);
-			tile.set_tileset("items1");
-			tile.set_tile(TILE_ID_ITEM_SPEAR); // placeholder
-			tile.pivot = Vector2f(6.f, 6.f);
-		}
-#endif
-
-		// AUDIO
+		emplace_sprite_body_attachment(entity, -pivot);
 		audio::create_event({ .path = "event:/snd_fire_arrow" });
-
 		return entity;
 	}
 }
