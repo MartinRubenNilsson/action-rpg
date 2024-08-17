@@ -103,15 +103,15 @@ namespace map
 					ecs::set_properties(entity, object.properties);
 				}
 
-				Vector2f position = object.position;
+				// In Tiled, objects are positioned by their top-left corner...
+				Vector2f position_top_left = object.position;
 
 				switch (object.type) {
 				case tiled::ObjectType::Tile: {
 
-					// In Tiled, objects are positioned by their top-left corner, unless it's a tile,
-					// in which case it's positioned by its bottom-left corner. This is confusing,
-					// so let's adjust the position here to make it consistent.
-					position.y -= object.size.y;
+					// ...unless it's a tile, in which case it's positioned by its bottom-left corner.
+					// This is confusing, so let's adjust the position here to make it consistent.
+					position_top_left.y -= object.size.y;
 
 					const tiled::Tileset* tileset = tiled::get_tileset(object.tileset_ref.tileset);
 					if (!tileset) {
@@ -134,7 +134,7 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.position = position;
+					sprite.position = position_top_left;
 					sprite.size = object.size;
 					sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
@@ -179,7 +179,7 @@ namespace map
 						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_dynamicBody;
 						body_def.fixedRotation = true;
-						body_def.position = position;
+						body_def.position = position_top_left;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
 
 						for (const tiled::Object& collider : tile.objects) {
@@ -221,7 +221,7 @@ namespace map
 					b2BodyDef body_def = b2DefaultBodyDef();
 					body_def.type = b2_staticBody;
 					body_def.fixedRotation = true;
-					body_def.position = position;
+					body_def.position = position_top_left;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
 					const float hw = object.size.x / 2.f;
@@ -272,7 +272,7 @@ namespace map
 					{
 						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_dynamicBody;
-						body_def.position = position + pivot;
+						body_def.position = position_top_left + pivot;
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
 						b2ShapeDef shape_def = b2DefaultShapeDef();
@@ -289,7 +289,7 @@ namespace map
 						if (const tiled::Object* target_point = map.get_object(last_active_portal->target_point)) {
 #if 0
 							if (body) {
-								body->SetTransform(target_point->position, 0.f);
+								body->SetTransform(target_point->position_top_left, 0.f);
 							}
 #endif
 						}
@@ -310,7 +310,7 @@ namespace map
 					ecs::emplace_player(entity, player);
 
 					ecs::Camera camera{};
-					camera.center = position;
+					camera.center = position_top_left;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					camera.entity_to_follow = entity;
@@ -346,7 +346,7 @@ namespace map
 				} else if (object.class_ == "camera") {
 
 					ecs::Camera& camera = ecs::emplace_camera(entity);
-					camera.center = position;
+					camera.center = position_top_left;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);
@@ -355,7 +355,7 @@ namespace map
 
 					if (std::string event_name; object.properties.get_string("event", event_name)) {
 						std::string path = "event:/" + event_name;
-						audio::create_event({ .path = path.c_str(), .position = position });
+						audio::create_event({ .path = path.c_str(), .position = position_top_left });
 					}
 
 				} else if (object.class_ == "chest") {
@@ -369,44 +369,38 @@ namespace map
 					ecs::emplace_chest(entity, chest);
 
 					const Vector2f pivot = { 16.f, 22.f };
-
-					b2BodyDef body_def = b2DefaultBodyDef();
-					body_def.type = b2_staticBody;
-					body_def.position = position + pivot;
-					body_def.fixedRotation = true;
-					b2BodyId body = ecs::emplace_body(entity, body_def);
-
-					b2ShapeDef shape_def = b2DefaultShapeDef();
-					b2Polygon box = b2MakeBox(10.f, 6.f);
-					b2CreatePolygonShape(body, &shape_def, &box);
+					{
+						b2BodyDef body_def = b2DefaultBodyDef();
+						body_def.type = b2_staticBody;
+						body_def.position = position_top_left + pivot;
+						body_def.fixedRotation = true;
+						b2BodyId body = ecs::emplace_body(entity, body_def);
+						b2ShapeDef shape_def = b2DefaultShapeDef();
+						b2Polygon box = b2MakeBox(10.f, 6.f);
+						b2CreatePolygonShape(body, &shape_def, &box);
+					}
 
 				} else if (object.class_ == "blade_trap") {
 
 					const Vector2f pivot = { 8.f, 8.f };
 
 					ecs::BladeTrap& blade_trap = ecs::emplace_blade_trap(entity);
-					blade_trap.start_position = position + pivot;
+					blade_trap.start_position = position_top_left + pivot;
 
-					if (ecs::Animation* tile = ecs::get_animation(entity)) {
-						//tile->pivot = pivot;
-						//tile->sorting_pivot = pivot;
+					if (sprites::Sprite* sprite = ecs::get_sprite(entity)) {
+						sprite->sorting_point = pivot;
 					}
-
-					b2BodyDef body_def = b2DefaultBodyDef();
-					body_def.type = b2_dynamicBody;
-					body_def.position = position + pivot;
-					body_def.fixedRotation = true;
-					b2BodyId body = ecs::emplace_body(entity, body_def);
-
-#if 0
-					b2CircleShape shape{};
-					shape.m_radius = 6.f;
-
-					b2FixtureDef fixture_def{};
-					fixture_def.shape = &shape;
-					fixture_def.isSensor = true;
-					body->CreateFixture(&fixture_def);
-#endif
+					{
+						b2BodyDef body_def = b2DefaultBodyDef();
+						body_def.type = b2_dynamicBody;
+						body_def.position = position_top_left + pivot;
+						body_def.fixedRotation = true;
+						b2BodyId body = ecs::emplace_body(entity, body_def);
+						b2ShapeDef shape_def = b2DefaultShapeDef();
+						b2Circle circle{};
+						circle.radius = 6.f;
+						b2CreateCircleShape(body, &shape_def, &circle);
+					}
 
 					ecs::emplace_sprite_body_attachment(entity, -pivot);
 				}
