@@ -82,7 +82,7 @@ namespace ecs
 			} break;
 			case AiActionType::Pursue: {
 				b2BodyId target_body = get_body(action.entity);
-				if (B2_IS_NON_NULL(target_body)) {
+				if (B2_IS_NULL(target_body)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
@@ -125,7 +125,7 @@ namespace ecs
 			} break;
 			case AiActionType::Flee: {
 				b2BodyId danger_body = get_body(action.entity);
-				if (B2_IS_NON_NULL(danger_body)) {
+				if (B2_IS_NULL(danger_body)) {
 					action.status = AiActionStatus::Failed;
 					break;
 				}
