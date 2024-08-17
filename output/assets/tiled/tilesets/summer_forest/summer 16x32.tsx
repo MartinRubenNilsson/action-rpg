@@ -3,7 +3,7 @@
  <image source="summer 16x32.png" width="96" height="32"/>
  <tile id="1" type="grass">
   <objectgroup draworder="index" id="6">
-   <object id="8" x="2.18182" y="20.3636" width="11.9091" height="9.18182">
+   <object id="8" x="2.26071" y="20.0481" width="11.9091" height="9.18182">
     <properties>
      <property name="sensor" type="bool" value="true"/>
     </properties>

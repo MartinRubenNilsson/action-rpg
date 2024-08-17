@@ -265,26 +265,21 @@ namespace map
 					}
 
 					const Vector2f pivot = { 32.f, 42.f };
+
+					if (sprites::Sprite* sprite = ecs::get_sprite(entity)) {
+						sprite->sorting_point = pivot;
+					}
 					{
 						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_dynamicBody;
 						body_def.position = position + pivot;
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
-
 						b2ShapeDef shape_def = b2DefaultShapeDef();
 						shape_def.filter = ecs::get_filter_for_class(object.class_);
-
 						b2Circle circle{};
 						circle.radius = 7.f;
-
 						b2CreateCircleShape(body, &shape_def, &circle);
-					}
-
-					ecs::Animation* tile = ecs::get_animation(entity);
-					if (tile) {
-						//tile->pivot = pivot;
-						//tile->sorting_pivot = pivot;
 					}
 
 					ecs::emplace_sprite_body_attachment(entity, -pivot);
@@ -297,9 +292,6 @@ namespace map
 								body->SetTransform(target_point->position, 0.f);
 							}
 #endif
-							if (tile) {
-								position = target_point->position;
-							}
 						}
 
 						if (last_active_portal->exit_direction == "up") {
@@ -346,20 +338,18 @@ namespace map
 
 				} else if (object.class_ == "portal") {
 
-					ecs::Portal portal{};
+					ecs::Portal& portal = ecs::emplace_portal(entity);
 					object.properties.get_string("target_map", portal.target_map);
 					object.properties.get_string("target_point", portal.target_point);
 					object.properties.get_string("exit_direction", portal.exit_direction);
-					ecs::emplace_portal(entity, portal);
 
 				} else if (object.class_ == "camera") {
 
-					ecs::Camera camera{};
+					ecs::Camera& camera = ecs::emplace_camera(entity);
 					camera.center = position;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);
-					ecs::emplace_camera(entity, camera);
 
 				} else if (object.class_ == "audio_source") {
 
@@ -601,7 +591,7 @@ namespace map
 
 					if (tile.class_ == "grass") {
 						//TODO: set shader and uniform buffer
-						sprite.sorting_point = { 8.f, 20.f };
+						sprite.sorting_point = { 8.f, 28.f };
 					}
 				}
 			}
