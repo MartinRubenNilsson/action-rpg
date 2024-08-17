@@ -146,6 +146,7 @@ namespace map
 						if (!layer.tiles[index].gid) continue;
 						const tiled::Tile* layer_tile = map.get_tile(layer.tiles[index].gid);
 						if (!layer_tile) continue;
+#if 0
 						if (layer_tile->wangtiles.empty()) continue;
 						const tiled::WangTile& wangtile = layer_tile->wangtiles[0];
 						Tile& grid_tile = _grid.tiles[index];
@@ -153,6 +154,7 @@ namespace map
 							if (!wangtile.wangcolors[i]) continue;
 							grid_tile.terrains[i] = _terrain_name_to_type(wangtile.wangcolors[i]->name);
 						}
+#endif
 					}
 				}
 			}

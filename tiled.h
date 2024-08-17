@@ -3,9 +3,6 @@
 
 namespace tiled
 {
-	struct Tile;
-	struct WangColor;
-
 	// A 32-bit integer that stores a tile GID in the lower 28 bits and flip flags in the upper 4 bits.
 	struct TileRef
 	{
@@ -57,7 +54,27 @@ namespace tiled
 	struct Frame
 	{
 		unsigned int duration_ms = 0; // in milliseconds
-		unsigned int tile_id = 0; // Index into Tileset::tiles
+		unsigned int tile_id = 0; // Index into Tileset::tiles[].
+	};
+
+	struct Tile
+	{
+		std::string class_;
+		Properties properties;
+		std::vector<Object>	objects;
+		std::vector<Frame> animation;
+	};
+
+	struct WangColor
+	{
+		std::string name;
+		std::string class_;
+		Properties properties;
+		// Index into Tileset::tiles[] of the tile representing this wangcolor,
+		// or UINT_MAX if no such tile has been chosen.
+		unsigned int tile_id = 0; 
+		float probability = 0.f;
+		Color color;
 	};
 
 	struct WangTile
@@ -75,27 +92,10 @@ namespace tiled
 			COUNT
 		};
 
-		// TODO: don't use pointers
-		const WangColor* wangcolors[COUNT] = {}; // null if uncolored
-	};
-
-	struct Tile
-	{
-		std::string class_;
-		Properties properties;
-		std::vector<Object>	objects;
-		std::vector<Frame> animation; // nonempty if tile is animated
-		std::vector<WangTile> wangtiles; // one for each wangset the tile is part of
-	};
-
-	struct WangColor
-	{
-		std::string name;
-		std::string class_;
-		Properties properties;
-		unsigned int tile_id = 0; // Index into Tileset::tiles, or UINT_MAX if no tile has been chosen to represent this color.
-		float probability = 0.f;
-		Color color;
+		// Index into Tileset::tiles[].
+		unsigned int tile_id = 0; 
+		// Indices into Tileset::wangsets[], or UNINT_MAX when the edge/corner is not assigned.
+		unsigned int wang_ids[COUNT] = {};
 	};
 
 	struct WangSet
@@ -103,8 +103,11 @@ namespace tiled
 		std::string name;
 		std::string class_;
 		Properties properties;
-		unsigned int tile_id = 0; // Index into Tileset::tiles, or UINT_MAX if no tile has been chosen to represent this set.
+		// Index into Tileset::tiles[] of the tile representing this wangset,
+		// or UINT_MAX if no such tile has been chosen.
+		unsigned int tile_id = 0;
 		std::vector<WangColor> colors;
+		std::vector<WangTile> tiles;
 	};
 
 	struct TextureRect

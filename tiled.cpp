@@ -459,25 +459,28 @@ namespace tiled
 				_load_properties(wangcolor_node, wangcolor.properties);
 				wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); // -1 in case of no tile
 				wangcolor.probability = wangcolor_node.attribute("probability").as_float();
-				std::string color_str = wangcolor_node.attribute("color").as_string();
-				color_str.erase(color_str.begin()); // remove leading '#'
-				color_str += "ff"; // add alpha channel
-				const unsigned long color = std::stoul(color_str, nullptr, 16);
-				wangcolor.color.r = (color >> 24) & 0xFF;
-				wangcolor.color.g = (color >> 16) & 0xFF;
-				wangcolor.color.b = (color >> 8) & 0xFF;
-				wangcolor.color.a = color & 0xFF;
+				//color_str has the format "#RRGGBB"
+				const char* color_str = wangcolor_node.attribute("color").as_string();
+				if (*color_str == '#') {
+					++color_str; // skip leading '#'
+				}
+				const unsigned long color_hex = strtoul(color_str, nullptr, 16);
+				wangcolor.color.r = (color_hex >> 16) & 0xFF;
+				wangcolor.color.g = (color_hex >> 8) & 0xFF;
+				wangcolor.color.b = color_hex & 0xFF;
+				wangcolor.color.a = 0xFF;
 			}
 			for (pugi::xml_node wangtile_node : wangset_node.children("wangtile")) {
-				Tile& tile = tileset->tiles.at(wangtile_node.attribute("tileid").as_uint());
-				WangTile& wangtile = tile.wangtiles.emplace_back();
+				WangTile& wangtile = wangset.tiles.emplace_back();
+				wangtile.tile_id = wangtile_node.attribute("tileid").as_uint();
+				memset(wangtile.wang_ids, 0xFF, sizeof(wangtile.wang_ids));
 				std::istringstream ss(wangtile_node.attribute("wangid").as_string());
 				std::string token;
 				size_t i = 0;
 				while (std::getline(ss, token, ',')) {
 					assert(i < WangTile::COUNT);
 					if (unsigned int wang_id = std::stoul(token)) { // 0 means unset, 1 means first color, etc.
-						wangtile.wangcolors[i] = &wangset.colors.at(wang_id - 1);
+						wangtile.wang_ids[i] = wang_id - 1;
 					}
 					++i;
 				}
