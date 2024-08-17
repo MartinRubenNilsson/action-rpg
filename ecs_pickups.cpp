@@ -14,26 +14,23 @@ namespace map
 namespace ecs
 {
 	extern entt::registry _registry;
-	float _pickup_elapsed_time = 0.f;
 
 	void update_pickups(float dt)
 	{
-		_pickup_elapsed_time += dt;
-
-		// Blinking effect
-		for (auto [entity, pickup, sprite] : _registry.view<Pickup, sprites::Sprite>().each()) {
-
+		for (auto [entity, pickup] : _registry.view<Pickup>().each()) {
 			pickup.pickup_timer.update(dt);
 			if (pickup.pickup_timer.finished()) {
 				destroy_at_end_of_frame(entity);
-				continue;
 			}
+		}
+
+		for (auto [entity, pickup, sprite] : _registry.view<const Pickup, sprites::Sprite>().each()) {
 
 			// Start blinking at >50% progress
 			if (pickup.pickup_timer.get_progress() < 0.5f) continue;
 
 			constexpr float BLINK_SPEED = 10.f;
-			float blink_fraction = 0.75f + 0.25f * std::sin(_pickup_elapsed_time * BLINK_SPEED);
+			float blink_fraction = 0.75f + 0.25f * sin(pickup.pickup_timer.get_time_left() * BLINK_SPEED);
 			sprite.color.a = (unsigned char)(255 * blink_fraction);
 		}
 	}
@@ -52,23 +49,18 @@ namespace ecs
 			body_def.type = b2_staticBody;
 			body_def.position = position;
 			b2BodyId body = emplace_body(entity, body_def);
-
-#if 0
-			b2CircleShape shape{};
-			shape.m_radius = 4.f;
-
-			b2FixtureDef fixture_def{};
-			fixture_def.shape = &shape;
-			fixture_def.isSensor = true;
-			body->CreateFixture(&fixture_def);
-#endif
+			b2ShapeDef shape_def = b2DefaultShapeDef();
+			shape_def.isSensor = true;
+			b2Circle circle{};
+			circle.radius = 4.f;
+			b2CreateCircleShape(body, &shape_def, &circle);
 		}
 		{
 			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.position = position - Vector2f(8.f, 8.f);
-			sprite.size = { 16.f, 16.f };
-			sprite.sorting_point = { 8.f, 8.f };
 			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();
+			sprite.sorting_point = { 8.f, 8.f };
+			sprite.position = position - sprite.sorting_point;
+			sprite.size = { 16.f, 16.f };
 		}
 		{
 			Animation& animation = emplace_animation(entity);

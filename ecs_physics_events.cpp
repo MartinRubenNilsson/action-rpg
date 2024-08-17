@@ -15,6 +15,46 @@ namespace ecs
 {
 	void process_sensor_begin_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
 	{
+		const b2BodyId sensor_body = b2Shape_GetBody(sensor_shape);
+		const b2BodyId visitor_body = b2Shape_GetBody(visitor_shape);
+		const entt::entity sensor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(sensor_body);
+		const entt::entity visitor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(visitor_body);
+		const std::string sensor_class = get_class(sensor_entity);
+		const std::string visitor_class = get_class(visitor_entity);
+
+		if (sensor_class.empty() && visitor_class.empty()) return;
+
+		if (sensor_class == "pickup") {
+			if (visitor_class == "player") {
+				//TODO: put somewehere else in a helper function
+				Pickup* pickup = get_pickup(sensor_entity);
+				assert(pickup);
+				Player* player = get_player(visitor_entity);
+				assert(player);
+
+				switch (pickup->type) {
+				case PickupType::Arrow: {
+					player->arrows++;
+					audio::create_event({ .path = "event:/snd_pickup" });
+				} break;
+				case PickupType::Rupee: {
+					player->rupees++;
+					audio::create_event({ .path = "event:/snd_pickup_rupee" });
+				} break;
+				case PickupType::Bomb: {
+					player->bombs++;
+					audio::create_event({ .path = "event:/snd_pickup" });
+				} break;
+				case PickupType::Heart: {
+					player->health = std::min(player->health + 1, player->max_health);
+					//TODO
+					//audio::play("event:/snd_pickup_heart");
+				} break;
+				}
+
+				destroy_at_end_of_frame(sensor_entity);
+			}
+		}
 	}
 
 	void process_sensor_end_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
@@ -54,37 +94,6 @@ namespace ecs
 		} else if (class_a == "blade_trap") {
 			if (class_b == "player") {
 				apply_damage(entity_b, { .amount = 1 });
-			}
-		} else if (class_a == "pickup") {
-			if (class_b == "player") {
-
-				//TODO: put somewehere else in a helper function
-				Player* player = get_player(entity_b);
-				assert(player);
-				Pickup* pickup = get_pickup(entity_a);
-				assert(pickup);
-
-				switch (pickup->type) {
-				case PickupType::Arrow: {
-					player->arrows++;
-					audio::create_event({ .path = "event:/snd_pickup" });
-				} break;
-				case PickupType::Rupee: {
-					player->rupees++;
-					audio::create_event({ .path = "event:/snd_pickup_rupee" });
-				} break;
-				case PickupType::Bomb: {
-					player->bombs++;
-					audio::create_event({ .path = "event:/snd_pickup" });
-				} break;
-				case PickupType::Heart: {
-					player->health = std::min(player->health + 1, player->max_health);
-					//TODO
-					//audio::play("event:/snd_pickup_heart");
-				} break;
-				}
-
-				destroy_at_end_of_frame(entity_a);
 			}
 		} else if (class_a == "player") {
 			if (class_b == "portal") {
