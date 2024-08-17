@@ -25,7 +25,7 @@ namespace ecs
 
 		switch (PAIR(sensor_class, visitor_class)) {
 
-		case PAIR(Class::Player, Class::Pickup): {
+		case PAIR(Class::Pickup, Class::Player): {
 			on_player_begin_touch_pickup(visitor_entity, sensor_entity);
 		} break;
 
