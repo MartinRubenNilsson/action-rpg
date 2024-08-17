@@ -51,7 +51,7 @@ namespace ecs
 			body_def.linearVelocity = velocity;
 			b2BodyId body = emplace_body(entity, body_def);
 			b2ShapeDef shape_def = b2DefaultShapeDef();
-			shape_def.filter = get_filter_for_tag(Tag::Arrow);
+			shape_def.filter = get_physics_filter_for_tag(Tag::Arrow);
 			b2Circle circle{};
 			circle.radius = 6.f;
 			b2CreateCircleShape(body, &shape_def, &circle);

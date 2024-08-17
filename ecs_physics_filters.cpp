@@ -4,26 +4,21 @@
 
 namespace ecs
 {
-	//TODO: make class into enum, make this into array
-	const std::unordered_map<Tag, b2Filter> _TAG_TO_FILTER = {
-		{ Tag::Player, make_filter(CC_Player, CM_Player) },
-		{ Tag::Slime, make_filter(CC_Enemy) },
-		{ Tag::Arrow, make_filter(CC_PlayerAttack) },
-	};
-
-	b2Filter make_filter(uint32_t category, uint32_t mask, int32_t group)
+	b2Filter get_physics_filter_for_tag(Tag tag)
 	{
-		b2Filter filter{};
-		filter.categoryBits = category;
-		filter.maskBits = mask;
-		filter.groupIndex = group;
+		b2Filter filter = b2DefaultFilter();
+		switch (tag) {
+		case Tag::Player:
+			filter.categoryBits = CC_Player;
+			filter.maskBits = CM_Player;
+			break;
+		case Tag::Slime:
+			filter.categoryBits = CC_Enemy;
+			break;
+		case Tag::Arrow:
+			filter.categoryBits = CC_PlayerAttack;
+			break;
+		}
 		return filter;
-	}
-
-	b2Filter get_filter_for_tag(Tag tag)
-	{
-		auto it = _TAG_TO_FILTER.find(tag);
-		if (it == _TAG_TO_FILTER.end()) return make_filter();
-		return it->second;
 	}
 }

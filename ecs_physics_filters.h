@@ -68,6 +68,5 @@ namespace ecs
 		CG_Default = 0,
 	};
 
-	b2Filter make_filter(uint32_t category = CC_Default, uint32_t mask = CM_Default, int32_t group = CG_Default);
-	b2Filter get_filter_for_tag(Tag tag);
+	b2Filter get_physics_filter_for_tag(Tag tag);
 }

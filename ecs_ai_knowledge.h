@@ -3,7 +3,7 @@
 
 namespace ecs
 {
-	struct AiEntityInfo
+	struct AiEntity
 	{
 		entt::entity entity = entt::null;
 		std::string name;
@@ -17,13 +17,13 @@ namespace ecs
 
 	struct AiWorld
 	{
-		AiEntityInfo player;
-		std::vector<AiEntityInfo> ais;
+		AiEntity player;
+		std::vector<AiEntity> ais;
 	};
 
 	struct AiKnowledge
 	{
-		AiEntityInfo me;
+		AiEntity me;
 		Vector2f initial_position;
 		Vector2f initial_velocity;
 	};

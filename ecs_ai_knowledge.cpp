@@ -8,10 +8,10 @@ namespace ecs
 	extern entt::registry _registry;
 	AiWorld _ai_world;
 
-	AiEntityInfo _get_ai_entity_info(entt::entity entity)
+	AiEntity _make_ai_entity(entt::entity entity)
 	{
-		if (!_registry.valid(entity)) return AiEntityInfo();
-		AiEntityInfo info{};
+		if (!_registry.valid(entity)) return AiEntity();
+		AiEntity info{};
 		info.entity = entity;
 		info.name = get_name(entity);
 		info.tag = get_tag(entity);
@@ -25,11 +25,11 @@ namespace ecs
 
 	void update_ai_knowledge_and_world(float dt)
 	{
-		_ai_world.player = _get_ai_entity_info(find_entity_by_tag(Tag::Player));
+		_ai_world.player = _make_ai_entity(find_entity_by_tag(Tag::Player));
 		_ai_world.ais.clear();
 
 		for (auto [entity, knowledge] : _registry.view<AiKnowledge>().each()) {
-			knowledge.me = _get_ai_entity_info(entity);
+			knowledge.me = _make_ai_entity(entity);
 			_ai_world.ais.push_back(knowledge.me);
 		}
 	}

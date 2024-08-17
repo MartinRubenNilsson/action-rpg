@@ -197,7 +197,7 @@ namespace map
 							case tiled::ObjectType::Rectangle: {
 
 								b2ShapeDef shape_def = b2DefaultShapeDef();
-								shape_def.filter = ecs::get_filter_for_tag(tag);
+								shape_def.filter = ecs::get_physics_filter_for_tag(tag);
 								b2Polygon box = b2MakeOffsetBox(coll_hw, coll_hh, coll_center, 0.f);
 								b2CreatePolygonShape(body, &shape_def, &box);
 
@@ -205,7 +205,7 @@ namespace map
 							case tiled::ObjectType::Ellipse: {
 
 								b2ShapeDef shape_def = b2DefaultShapeDef();
-								shape_def.filter = ecs::get_filter_for_tag(tag);
+								shape_def.filter = ecs::get_physics_filter_for_tag(tag);
 								b2Circle circle{};
 								circle.center = coll_center;
 								circle.radius = coll_hw;
@@ -236,7 +236,7 @@ namespace map
 
 						b2ShapeDef shape_def = b2DefaultShapeDef();
 						shape_def.isSensor = true;
-						shape_def.filter = ecs::get_filter_for_tag(tag);
+						shape_def.filter = ecs::get_physics_filter_for_tag(tag);
 						b2Polygon box = b2MakeOffsetBox(hw, hh, center, 0.f);
 						b2CreatePolygonShape(body, &shape_def, &box);
 
@@ -245,7 +245,7 @@ namespace map
 
 						b2ShapeDef shape_def = b2DefaultShapeDef();
 						shape_def.isSensor = true;
-						shape_def.filter = ecs::get_filter_for_tag(tag);
+						shape_def.filter = ecs::get_physics_filter_for_tag(tag);
 						b2Circle circle{};
 						circle.center = center;
 						circle.radius = hw;
@@ -280,7 +280,7 @@ namespace map
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
 						b2ShapeDef shape_def = b2DefaultShapeDef();
-						shape_def.filter = ecs::get_filter_for_tag(tag);
+						shape_def.filter = ecs::get_physics_filter_for_tag(tag);
 						b2Circle circle{};
 						circle.radius = 7.f;
 						b2CreateCircleShape(body, &shape_def, &circle);

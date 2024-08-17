@@ -18,8 +18,8 @@ namespace ecs
 	void update_pickups(float dt)
 	{
 		for (auto [entity, pickup] : _registry.view<Pickup>().each()) {
-			pickup.pickup_timer.update(dt);
-			if (pickup.pickup_timer.finished()) {
+			pickup.timer.update(dt);
+			if (pickup.timer.finished()) {
 				destroy_at_end_of_frame(entity);
 			}
 		}
@@ -27,10 +27,10 @@ namespace ecs
 		for (auto [entity, pickup, sprite] : _registry.view<const Pickup, sprites::Sprite>().each()) {
 
 			// Start blinking at >50% progress
-			if (pickup.pickup_timer.get_progress() < 0.5f) continue;
+			if (pickup.timer.get_progress() < 0.5f) continue;
 
 			constexpr float BLINK_SPEED = 10.f;
-			float blink_fraction = 0.75f + 0.25f * sin(pickup.pickup_timer.get_time_left() * BLINK_SPEED);
+			float blink_fraction = 0.75f + 0.25f * sin(pickup.timer.get_time_left() * BLINK_SPEED);
 			sprite.color.a = (unsigned char)(255 * blink_fraction);
 		}
 	}
@@ -42,7 +42,7 @@ namespace ecs
 		{
 			Pickup& pickup = emplace_pickup(entity);
 			pickup.type = type;
-			pickup.pickup_timer.start();
+			pickup.timer.start();
 		}
 		{
 			b2BodyDef body_def = b2DefaultBodyDef();

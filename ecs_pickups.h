@@ -15,7 +15,7 @@ namespace ecs
 	struct Pickup
 	{
 		PickupType type = PickupType::Arrow;
-		Timer pickup_timer = { 3.f };
+		Timer timer = { 3.f };
 
 	};
 
