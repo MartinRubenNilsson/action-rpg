@@ -230,7 +230,7 @@
     <None Include="fullscreen.vert" />
     <None Include="gaussian_blur_hor.frag" />
     <None Include="gaussian_blur_ver.frag" />
-    <None Include="grass.frag" />
+    <None Include="grass.vert" />
     <None Include="screen_transition.frag" />
     <None Include="shape.frag" />
     <None Include="shape.vert" />

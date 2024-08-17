@@ -4,6 +4,7 @@
 #include "console.h"
 #include "audio.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
@@ -591,8 +592,9 @@ namespace map
 					switch (tag) {
 					case ecs::Tag::Grass: {
 
-						//TODO: set shader and uniform buffer
+						sprite.shader = graphics::grass_shader;
 						sprite.sorting_point = { 8.f, 28.f };
+						//TODO: set uniform buffer
 
 					} break;
 					}

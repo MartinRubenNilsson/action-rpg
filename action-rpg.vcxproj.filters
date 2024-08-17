@@ -202,9 +202,6 @@
     <None Include="shockwave.frag">
       <Filter>graphics\shaders</Filter>
     </None>
-    <None Include="grass.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
     <None Include="darkness.frag">
       <Filter>graphics\shaders</Filter>
     </None>
@@ -249,6 +246,9 @@
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="text.frag">
+      <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="grass.vert">
       <Filter>graphics\shaders</Filter>
     </None>
   </ItemGroup>

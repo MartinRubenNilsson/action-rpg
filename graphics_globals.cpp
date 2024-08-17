@@ -4,9 +4,9 @@
 
 namespace graphics
 {
-	enum UNIFORM_BUFFER_BINDING
+	enum UNIFORM_BLOCK_BINDING
 	{
-		UNIFORM_BUFFER_BINDING_FRAME = 0,
+		UNIFORM_BLOCK_BINDING_FRAME = 0,
 	};
 
 	extern const float IDENTITY_MATRIX[16] = {
@@ -18,8 +18,9 @@ namespace graphics
 
 	eastl::vector<graphics::Vertex> temp_vertices;
 
-	Handle<Shader> sprite_shader;
 	Handle<Shader> fullscreen_shader;
+	Handle<Shader> grass_shader;
+	Handle<Shader> sprite_shader;
 	Handle<Shader> shape_shader;
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
@@ -31,12 +32,15 @@ namespace graphics
 
 	void initialize_globals()
 	{
-		sprite_shader = load_shader(
-			"assets/shaders/sprite.vert",
-			"assets/shaders/sprite.frag");
 		fullscreen_shader = load_shader(
 			"assets/shaders/fullscreen.vert",
 			"assets/shaders/fullscreen.frag");
+		sprite_shader = load_shader(
+			"assets/shaders/sprite.vert",
+			"assets/shaders/sprite.frag");
+		grass_shader = load_shader(
+			"assets/shaders/grass.vert",
+			"assets/shaders/sprite.frag");
 		shape_shader = load_shader(
 			"assets/shaders/shape.vert",
 			"assets/shaders/shape.frag");
@@ -62,11 +66,11 @@ namespace graphics
 
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
-			.size = sizeof(FrameUniforms),
+			.size = sizeof(FrameUniformBlock),
 			.dynamic = true });
 
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
-		bind_uniform_buffer(UNIFORM_BUFFER_BINDING_FRAME, frame_uniform_buffer);
+		bind_uniform_buffer(UNIFORM_BLOCK_BINDING_FRAME, frame_uniform_buffer);
 	}
 }

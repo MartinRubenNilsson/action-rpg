@@ -88,13 +88,14 @@ int main(int argc, char* argv[])
 
     // GAME LOOP
 
-    double last_elapsed_time = window::get_elapsed_time();
+    float app_time = (float)window::get_elapsed_time();
+	float game_time = 0.0;
 
     while (!window::should_close()) {
 
-        const double elapsed_time = window::get_elapsed_time();
-        const float main_delta_time = (float)(elapsed_time - last_elapsed_time);
-        last_elapsed_time = elapsed_time;
+        const float new_app_time = (float)window::get_elapsed_time();
+		const float app_delta_time = new_app_time - app_time;
+        app_time = new_app_time;
 
         steam::run_message_loop();
         window::poll_events();
@@ -172,25 +173,26 @@ int main(int argc, char* argv[])
         // UPDATE
 
         audio::update();
-        console::update(main_delta_time);
-        background::update(main_delta_time);
-        ui::update(main_delta_time);
-        map::update(main_delta_time);
+        console::update(app_delta_time);
+        background::update(app_delta_time);
+        ui::update(app_delta_time);
+        map::update(app_delta_time);
 
-        float game_delta_time = main_delta_time;
+        float game_delta_time = app_delta_time;
         if (steam::is_overlay_active()) {
-            game_delta_time = 0.f;
+            game_delta_time = 0.0;
         }
         if (ui::is_menu_or_textbox_visible()) {
-            game_delta_time = 0.f;
+            game_delta_time = 0.0;
+        }
+        if (map::get_transition_progress() != 0.f) {
+			game_delta_time = 0.0; // pause game while map is transitioning
         }
 
-        float game_world_delta_time = game_delta_time;
-        if (map::get_transition_progress() != 0.f) {
-			game_world_delta_time = 0.f; // pause game while map is transitioning
-        }
-        ecs::update(game_world_delta_time);
-        postprocessing::update(game_world_delta_time);
+		game_time += game_delta_time;
+
+        ecs::update(game_delta_time);
+        postprocessing::update(game_delta_time);
 
         // RENDER
 
@@ -237,9 +239,11 @@ int main(int argc, char* argv[])
 				a * tx + c, b * ty + d, 0.f, 1.f
 			};
 
-            graphics::FrameUniforms frame_uniforms{};
-            memcpy(frame_uniforms.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
-            graphics::update_buffer(graphics::frame_uniform_buffer, &frame_uniforms, sizeof(frame_uniforms));
+            graphics::FrameUniformBlock frame_ub{};
+            memcpy(frame_ub.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
+			frame_ub.app_time = app_time;
+			frame_ub.game_time = game_time;
+            graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));
         }
 
         Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(
@@ -268,7 +272,7 @@ int main(int argc, char* argv[])
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
         shapes::draw("ECS debug", camera_min, camera_max);
-        shapes::update_lifetimes(game_world_delta_time);
+        shapes::update_lifetimes(game_delta_time);
 #endif
         ui::render();
 
@@ -282,11 +286,11 @@ int main(int argc, char* argv[])
             static float dt_buffer[256] = { 0.f };
             static float fps_buffer[256] = { 0.f };
             static int buffer_offset = 0;
-            dt_buffer[buffer_offset] = main_delta_time;
-            fps_buffer[buffer_offset] = 1.f / main_delta_time;
+            dt_buffer[buffer_offset] = app_delta_time;
+            fps_buffer[buffer_offset] = 1.f / app_delta_time;
             buffer_offset = (buffer_offset + 1) % 256;
-            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * main_delta_time;
-            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / main_delta_time;
+            smoothed_dt = smoothing_factor * smoothed_dt + (1.f - smoothing_factor) * app_delta_time;
+            smoothed_fps = smoothing_factor * smoothed_fps + (1.f - smoothing_factor) / app_delta_time;
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("Stats", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize);
             char overlay_text[64];

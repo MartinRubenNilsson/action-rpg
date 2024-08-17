@@ -1,8 +1,10 @@
 #version 450
 
-layout(std140, binding = 0) uniform FrameUniforms
+layout(std140, binding = 0) uniform FrameUniformBlock
 {
 	mat4 view_proj_matrix;
+	float app_time;
+	float game_time;
 };
 
 layout(location = 0) in vec2 vertex_position;
