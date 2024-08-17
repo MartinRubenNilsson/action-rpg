@@ -97,9 +97,9 @@ namespace map
 					ecs::set_name(entity, object.name);
 				}
 
-				ecs::Class class_ = ecs::Class::None;
-				if (!object.class_.empty() && ecs::string_to_class(object.class_, class_)) {
-					ecs::set_class(entity, class_);
+				ecs::Tag tag = ecs::Tag::None;
+				if (!object.class_.empty() && ecs::string_to_tag(object.class_, tag)) {
+					ecs::set_tag(entity, tag);
 				}
 
 				if (!object.properties.empty()) {
@@ -197,7 +197,7 @@ namespace map
 							case tiled::ObjectType::Rectangle: {
 
 								b2ShapeDef shape_def = b2DefaultShapeDef();
-								shape_def.filter = ecs::get_filter_for_class(object.class_);
+								shape_def.filter = ecs::get_filter_for_tag(tag);
 								b2Polygon box = b2MakeOffsetBox(coll_hw, coll_hh, coll_center, 0.f);
 								b2CreatePolygonShape(body, &shape_def, &box);
 
@@ -205,7 +205,7 @@ namespace map
 							case tiled::ObjectType::Ellipse: {
 
 								b2ShapeDef shape_def = b2DefaultShapeDef();
-								shape_def.filter = ecs::get_filter_for_class(object.class_);
+								shape_def.filter = ecs::get_filter_for_tag(tag);
 								b2Circle circle{};
 								circle.center = coll_center;
 								circle.radius = coll_hw;
@@ -236,7 +236,7 @@ namespace map
 
 						b2ShapeDef shape_def = b2DefaultShapeDef();
 						shape_def.isSensor = true;
-						shape_def.filter = ecs::get_filter_for_class(object.class_);
+						shape_def.filter = ecs::get_filter_for_tag(tag);
 						b2Polygon box = b2MakeOffsetBox(hw, hh, center, 0.f);
 						b2CreatePolygonShape(body, &shape_def, &box);
 
@@ -245,7 +245,7 @@ namespace map
 
 						b2ShapeDef shape_def = b2DefaultShapeDef();
 						shape_def.isSensor = true;
-						shape_def.filter = ecs::get_filter_for_class(object.class_);
+						shape_def.filter = ecs::get_filter_for_tag(tag);
 						b2Circle circle{};
 						circle.center = center;
 						circle.radius = hw;
@@ -257,10 +257,10 @@ namespace map
 				} break;
 				}
 
-				// CLASS-SPECIFIC ENTITY SETUP
+				// TAG-SPECIFIC ENTITY SETUP
 
-				switch (class_) {
-				case ecs::Class::Player: {
+				switch (tag) {
+				case ecs::Tag::Player: {
 
 					ecs::Player player{};
 					if (last_player) {
@@ -280,7 +280,7 @@ namespace map
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
 						b2ShapeDef shape_def = b2DefaultShapeDef();
-						shape_def.filter = ecs::get_filter_for_class(object.class_);
+						shape_def.filter = ecs::get_filter_for_tag(tag);
 						b2Circle circle{};
 						circle.radius = 7.f;
 						b2CreateCircleShape(body, &shape_def, &circle);
@@ -337,12 +337,12 @@ namespace map
 #endif
 
 				} break;
-				case ecs::Class::Slime: {
+				case ecs::Tag::Slime: {
 
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 
 				} break;
-				case ecs::Class::Portal: {
+				case ecs::Tag::Portal: {
 
 					ecs::Portal& portal = ecs::emplace_portal(entity);
 					object.properties.get_string("target_map", portal.target_map);
@@ -350,7 +350,7 @@ namespace map
 					object.properties.get_string("exit_direction", portal.exit_direction);
 
 				} break;
-				case ecs::Class::Camera: {
+				case ecs::Tag::Camera: {
 
 					ecs::Camera& camera = ecs::emplace_camera(entity);
 					camera.center = position_top_left;
@@ -359,7 +359,7 @@ namespace map
 					object.properties.get_entity("follow", camera.entity_to_follow);
 
 				} break;
-				case ecs::Class::Chest: {
+				case ecs::Tag::Chest: {
 
 					ecs::Chest chest{};
 					if (std::string type; object.properties.get_string("type", type)) {
@@ -382,7 +382,7 @@ namespace map
 					}
 
 				} break;
-				case ecs::Class::BladeTrap: {
+				case ecs::Tag::BladeTrap: {
 
 					const Vector2f pivot = { 8.f, 8.f };
 
@@ -454,9 +454,9 @@ namespace map
 					const Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
-					ecs::Class class_ = ecs::Class::None;
-					if (!tile.class_.empty() && ecs::string_to_class(tile.class_, class_)) {
-						ecs::set_class(entity, class_);
+					ecs::Tag tag = ecs::Tag::None;
+					if (!tile.class_.empty() && ecs::string_to_tag(tile.class_, tag)) {
+						ecs::set_tag(entity, tag);
 					}
 					if (!tile.properties.empty()) {
 						ecs::set_properties(entity, tile.properties);
@@ -586,11 +586,10 @@ namespace map
 						}
 					}
 
-					// CLASS-SPECIFIC ENTITY SETUP
+					// TAG-SPECIFIC ENTITY SETUP
 
-
-					switch (class_) {
-					case ecs::Class::Grass: {
+					switch (tag) {
+					case ecs::Tag::Grass: {
 
 						//TODO: set shader and uniform buffer
 						sprite.sorting_point = { 8.f, 28.f };

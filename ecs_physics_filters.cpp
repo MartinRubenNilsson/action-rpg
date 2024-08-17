@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "ecs_physics_filters.h"
+#include "ecs_tags.h"
 
 namespace ecs
 {
 	//TODO: make class into enum, make this into array
-	const std::unordered_map<std::string, b2Filter> _CLASS_TO_FILTER = {
-		{ "player", make_filter(CC_Player, CM_Player) },
-		{ "slime", make_filter(CC_Enemy) },
-		{ "arrow", make_filter(CC_PlayerAttack) },
+	const std::unordered_map<Tag, b2Filter> _TAG_TO_FILTER = {
+		{ Tag::Player, make_filter(CC_Player, CM_Player) },
+		{ Tag::Slime, make_filter(CC_Enemy) },
+		{ Tag::Arrow, make_filter(CC_PlayerAttack) },
 	};
 
 	b2Filter make_filter(uint32_t category, uint32_t mask, int32_t group)
@@ -19,10 +20,10 @@ namespace ecs
 		return filter;
 	}
 
-	b2Filter get_filter_for_class(const std::string& class_)
+	b2Filter get_filter_for_tag(Tag tag)
 	{
-		auto it = _CLASS_TO_FILTER.find(class_);
-		if (it == _CLASS_TO_FILTER.end()) return make_filter();
+		auto it = _TAG_TO_FILTER.find(tag);
+		if (it == _TAG_TO_FILTER.end()) return make_filter();
 		return it->second;
 	}
 }

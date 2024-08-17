@@ -1,5 +1,5 @@
 #pragma once
-#include "ecs_classes.h"
+#include "ecs_tags.h"
 
 class Properties; // Forward declaration
 
@@ -17,14 +17,14 @@ namespace ecs
 	void destroy_at_end_of_frame(entt::entity entity);
 	bool valid(entt::entity entity);
 
-	// NAME AND CLASS
+	// NAME AND TAG
 
 	void set_name(entt::entity entity, const std::string& name);
-	void set_class(entt::entity entity, Class class_);
-	const std::string& get_name(entt::entity entity);
-	Class get_class(entt::entity entity);
+	void set_tag(entt::entity entity, Tag tag);
+	std::string_view get_name(entt::entity entity);
+	Tag get_tag(entt::entity entity);
 	entt::entity find_entity_by_name(const std::string& name);
-	entt::entity find_entity_by_class(Class class_);
+	entt::entity find_entity_by_tag(Tag tag);
 
 	// PROPERTIES
 

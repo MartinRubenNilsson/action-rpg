@@ -67,7 +67,7 @@ namespace ecs
     entt::entity create_bomb(const Vector2f& position)
     {
         entt::entity entity = _registry.create();
-        set_class(entity, Class::Bomb);
+        set_tag(entity, Tag::Bomb);
         emplace_bomb(entity);
         ignite_bomb(entity);
         {

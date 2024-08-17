@@ -40,14 +40,14 @@ namespace ecs
 
 	bool apply_damage(entt::entity entity, const Damage& damage)
 	{
-		switch (get_class(entity)) {
-		case Class::Player:
+		switch (get_tag(entity)) {
+		case Tag::Player:
 			return apply_damage_to_player(entity, damage);
-		case Class::Slime:
+		case Tag::Slime:
 			return apply_damage_to_slime(entity, damage);
-		case Class::Bomb:
+		case Tag::Bomb:
 			return apply_damage_to_bomb(entity, damage);
-		case Class::Grass:
+		case Tag::Grass:
 			return apply_damage_to_grass(entity, damage);
 		}
 		return false;

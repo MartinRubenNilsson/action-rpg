@@ -79,41 +79,38 @@ namespace ecs
 		_registry.emplace_or_replace<Name>(entity, name);
 	}
 
-	void set_class(entt::entity entity, Class class_)
+	void set_tag(entt::entity entity, Tag tag)
 	{
-		_registry.emplace_or_replace<Class>(entity, class_);
+		_registry.emplace_or_replace<Tag>(entity, tag);
 	}
 
-	const std::string _DUMMY_EMPTY_STRING;
-
-	const std::string& get_name(entt::entity entity)
+	std::string_view get_name(entt::entity entity)
 	{
-		if (auto name = _registry.try_get<const Name>(entity)) {
-			return name->value;
-		}
-		return _DUMMY_EMPTY_STRING;
+		const Name* name = _registry.try_get<const Name>(entity);
+		if (!name) return "";
+		return name->value;
 	}
 
-	Class get_class(entt::entity entity)
+	Tag get_tag(entt::entity entity)
 	{
-		Class* class_ = _registry.try_get<Class>(entity);
-		if (!class_) return Class::None;
-		return *class_;
+		const Tag* tag = _registry.try_get<const Tag>(entity);
+		if (!tag) return Tag::None;
+		return *tag;
 	}
 
 	entt::entity find_entity_by_name(const std::string& name)
 	{
 		if (name.empty()) return entt::null;
-		for (auto [entity, ecs_name] : _registry.view<const Name>().each()) {
-			if (ecs_name.value == name) return entity;
+		for (auto [entity, other_name] : _registry.view<const Name>().each()) {
+			if (other_name.value == name) return entity;
 		}
 		return entt::null;
 	}
 
-	entt::entity find_entity_by_class(Class class_)
+	entt::entity find_entity_by_tag(Tag tag)
 	{
-		for (auto [entity, other_class] : _registry.view<Class>().each()) {
-			if (other_class == class_) return entity;
+		for (auto [entity, other_tag] : _registry.view<Tag>().each()) {
+			if (other_tag == tag) return entity;
 		}
 		return entt::null;
 	}

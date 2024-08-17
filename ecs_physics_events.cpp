@@ -20,12 +20,12 @@ namespace ecs
 		const b2BodyId visitor_body = b2Shape_GetBody(visitor_shape);
 		const entt::entity sensor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(sensor_body);
 		const entt::entity visitor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(visitor_body);
-		const Class sensor_class = get_class(sensor_entity);
-		const Class visitor_class = get_class(visitor_entity);
+		const Tag sensor_tag = get_tag(sensor_entity);
+		const Tag visitor_tag = get_tag(visitor_entity);
 
-		switch (PAIR(sensor_class, visitor_class)) {
+		switch (PAIR(sensor_tag, visitor_tag)) {
 
-		case PAIR(Class::Pickup, Class::Player): {
+		case PAIR(Tag::Pickup, Tag::Player): {
 			on_player_begin_touch_pickup(visitor_entity, sensor_entity);
 		} break;
 
@@ -38,8 +38,8 @@ namespace ecs
 		const b2BodyId visitor_body = b2Shape_GetBody(visitor_shape);
 		const entt::entity sensor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(sensor_body);
 		const entt::entity visitor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(visitor_body);
-		const Class sensor_class = get_class(sensor_entity);
-		const Class visitor_class = get_class(visitor_entity);
+		const Tag sensor_tag = get_tag(sensor_entity);
+		const Tag visitor_tag = get_tag(visitor_entity);
 
 		//TODO
 	}
@@ -50,49 +50,49 @@ namespace ecs
 		b2BodyId body_b = b2Shape_GetBody(shape_b);
 		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
 		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
-		Class class_a = get_class(entity_a);
-		Class class_b = get_class(entity_b);
+		Tag tag_a = get_tag(entity_a);
+		Tag tag_b = get_tag(entity_b);
 
 		const auto swap = [&]() {
 			std::swap(shape_a, shape_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
-			std::swap(class_a, class_b);
+			std::swap(tag_a, tag_b);
 		};
 
-		switch (PAIR(class_a, class_b)) {
+		switch (PAIR(tag_a, tag_b)) {
 
-		BOTH_CASES(Class::Player, Class::Portal) {
+		BOTH_CASES(Tag::Player, Tag::Portal) {
 			activate_portal(entity_b);
 		} break;
 
-		BOTH_CASES(Class::Player, Class::PushableBlock) {
+		BOTH_CASES(Tag::Player, Tag::PushableBlock) {
 			on_player_begin_touch_pushable_block(entity_a);
 		} break;
 
-		BOTH_CASES(Class::Player, Class::Slime) {
+		BOTH_CASES(Tag::Player, Tag::Slime) {
 			apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
 		} break;
 
-		BOTH_CASES(Class::Player, Class::BladeTrap) {
+		BOTH_CASES(Tag::Player, Tag::BladeTrap) {
 			apply_damage_to_player(entity_a, { .amount = 1 });
 		} break;
 
-		BOTH_CASES(Class::Arrow, Class::None) {
+		BOTH_CASES(Tag::Arrow, Tag::None) {
 			destroy_at_end_of_frame(entity_a);
 		} break;
 
-		BOTH_CASES(Class::Arrow, Class::Slime) {
-			destroy_at_end_of_frame(entity_a);
-			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
-		} break;
-
-		BOTH_CASES(Class::Arrow, Class::Bomb) {
+		BOTH_CASES(Tag::Arrow, Tag::Slime) {
 			destroy_at_end_of_frame(entity_a);
 			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
 		} break;
 
-		BOTH_CASES(Class::BladeTrap, Class::None) {
+		BOTH_CASES(Tag::Arrow, Tag::Bomb) {
+			destroy_at_end_of_frame(entity_a);
+			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
+		} break;
+
+		BOTH_CASES(Tag::BladeTrap, Tag::None) {
 			retract_blade_trap(entity_a);
 		} break;
 
@@ -105,19 +105,19 @@ namespace ecs
 		b2BodyId body_b = b2Shape_GetBody(shape_b);
 		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
 		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
-		Class class_a = get_class(entity_a);
-		Class class_b = get_class(entity_b);
+		Tag tag_a = get_tag(entity_a);
+		Tag tag_b = get_tag(entity_b);
 
 		const auto swap = [&]() {
 			std::swap(shape_a, shape_b);
 			std::swap(body_a, body_b);
 			std::swap(entity_a, entity_b);
-			std::swap(class_a, class_b);
+			std::swap(tag_a, tag_b);
 		};
 
-		switch (PAIR(class_a, class_b)) {
+		switch (PAIR(tag_a, tag_b)) {
 
-		BOTH_CASES(Class::Player, Class::PushableBlock) {
+		BOTH_CASES(Tag::Player, Tag::PushableBlock) {
 			on_player_end_touch_pushable_block(entity_a);
 			b2Body_SetLinearVelocity(body_b, b2Vec2_zero);
 		} break;

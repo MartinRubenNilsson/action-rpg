@@ -1,14 +1,13 @@
 #pragma once
+#include "ecs_tags.h"
 
 namespace ecs
 {
-	enum class Class;
-
 	struct AiEntityInfo
 	{
 		entt::entity entity = entt::null;
 		std::string name;
-		Class class_;
+		Tag tag = Tag::None;
 		Vector2f position;
 		Vector2f velocity;
 

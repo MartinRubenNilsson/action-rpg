@@ -2,6 +2,8 @@
 
 namespace ecs
 {
+	enum class Tag;
+
 	// Collision filtering allows you to efficiently prevent collision between shapes.
 	// For example, say you make a character that rides a bicycle.
 	// You want the bicycle to collide with the terrain and the character to collide with the terrain,
@@ -67,5 +69,5 @@ namespace ecs
 	};
 
 	b2Filter make_filter(uint32_t category = CC_Default, uint32_t mask = CM_Default, int32_t group = CG_Default);
-	b2Filter get_filter_for_class(const std::string& class_);
+	b2Filter get_filter_for_tag(Tag tag);
 }

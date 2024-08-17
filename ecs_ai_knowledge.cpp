@@ -14,7 +14,7 @@ namespace ecs
 		AiEntityInfo info{};
 		info.entity = entity;
 		info.name = get_name(entity);
-		info.class_ = get_class(entity);
+		info.tag = get_tag(entity);
 		if (b2BodyId body = get_body(entity); B2_IS_NON_NULL(body)) {
 			info.position = b2Body_GetPosition(body);
 			info.velocity = b2Body_GetLinearVelocity(body);
@@ -25,7 +25,7 @@ namespace ecs
 
 	void update_ai_knowledge_and_world(float dt)
 	{
-		_ai_world.player = _get_ai_entity_info(find_entity_by_class(Class::Player));
+		_ai_world.player = _get_ai_entity_info(find_entity_by_tag(Tag::Player));
 		_ai_world.ais.clear();
 
 		for (auto [entity, knowledge] : _registry.view<AiKnowledge>().each()) {

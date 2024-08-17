@@ -28,8 +28,8 @@ namespace ecs
 
 	void interact(entt::entity entity)
 	{
-		switch (get_class(entity)) {
-		case Class::Chest:
+		switch (get_tag(entity)) {
+		case Tag::Chest:
 			interact_with_chest(entity);
 			break;
 		}

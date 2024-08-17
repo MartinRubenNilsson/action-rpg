@@ -154,7 +154,7 @@
     <ClCompile Include="eastl_allocator.cpp" />
     <ClCompile Include="ecs_blade_trap.cpp" />
     <ClCompile Include="ecs_chest.cpp" />
-    <ClCompile Include="ecs_classes.cpp" />
+    <ClCompile Include="ecs_tags.cpp" />
     <ClCompile Include="ecs_interact.cpp" />
     <ClCompile Include="ecs_sprite.cpp" />
     <ClCompile Include="ecs_uniform_block.cpp" />
@@ -258,7 +258,7 @@
     <ClInclude Include="dependencies\renderdoc\renderdoc_app.h" />
     <ClInclude Include="ecs_blade_trap.h" />
     <ClInclude Include="ecs_chest.h" />
-    <ClInclude Include="ecs_classes.h" />
+    <ClInclude Include="ecs_tags.h" />
     <ClInclude Include="ecs_interact.h" />
     <ClInclude Include="ecs_sprite.h" />
     <ClInclude Include="ecs_uniform_block.h" />

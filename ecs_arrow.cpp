@@ -25,7 +25,7 @@ namespace ecs
 	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
 	{
 		entt::entity entity = _registry.create();
-		set_class(entity, Class::Arrow);
+		set_tag(entity, Tag::Arrow);
 		{
 			Arrow& arrow = emplace_arrow(entity);
 			arrow.damage = 1;
@@ -51,7 +51,7 @@ namespace ecs
 			body_def.linearVelocity = velocity;
 			b2BodyId body = emplace_body(entity, body_def);
 			b2ShapeDef shape_def = b2DefaultShapeDef();
-			shape_def.filter = get_filter_for_class("arrow");
+			shape_def.filter = get_filter_for_tag(Tag::Arrow);
 			b2Circle circle{};
 			circle.radius = 6.f;
 			b2CreateCircleShape(body, &shape_def, &circle);

@@ -2,7 +2,7 @@
 
 namespace ecs
 {
-	enum class Class // aka "type" or "tag"
+	enum class Tag
 	{
 		None,
 		Player,
@@ -19,6 +19,6 @@ namespace ecs
 		AudioSource,
 	};
 
-	bool string_to_class(std::string_view string, Class& class_);
-	std::string_view class_to_string(Class class_);
+	bool string_to_tag(std::string_view string, Tag& tag);
+	std::string_view tag_to_string(Tag tag);
 }
