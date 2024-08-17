@@ -142,6 +142,7 @@ namespace tiled
 	std::vector<Vector2f> _load_points(const pugi::xml_node& node)
 	{
 		// Example: <polygon points="0,0 0,16 16,16"/>
+		//TODO: optimize
 		std::vector<Vector2f> points;
 		std::istringstream ss(node.attribute("points").as_string());
 		std::string token;
@@ -459,7 +460,7 @@ namespace tiled
 				_load_properties(wangcolor_node, wangcolor.properties);
 				wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); // -1 in case of no tile
 				wangcolor.probability = wangcolor_node.attribute("probability").as_float();
-				//color_str has the format "#RRGGBB"
+				// color_str has the format "#RRGGBB"
 				const char* color_str = wangcolor_node.attribute("color").as_string();
 				if (*color_str == '#') {
 					++color_str; // skip leading '#'
@@ -474,15 +475,20 @@ namespace tiled
 				WangTile& wangtile = wangset.tiles.emplace_back();
 				wangtile.tile_id = wangtile_node.attribute("tileid").as_uint();
 				memset(wangtile.wang_ids, 0xFF, sizeof(wangtile.wang_ids));
-				std::istringstream ss(wangtile_node.attribute("wangid").as_string());
-				std::string token;
-				size_t i = 0;
-				while (std::getline(ss, token, ',')) {
-					assert(i < WangTile::COUNT);
-					if (unsigned int wang_id = std::stoul(token)) { // 0 means unset, 1 means first color, etc.
+				// wangid_str is a comma-separated list of 8 integer tile IDs,
+				// one for each corner/edge of the tile.
+				const char* wangid_str = wangtile_node.attribute("wangid").as_string();
+				for (int i = 0; i < WangTile::COUNT && *wangid_str; ++i) {
+					// wang_id = 0 means unset, wang_id = 1 means first color, etc.
+					// Conveniently, wang_id = 0 is also the return value of strtoul() when parsing fails.
+					char* wangid_str_end;
+					if (unsigned int wang_id = strtoul(wangid_str, &wangid_str_end, 10)) {
 						wangtile.wang_ids[i] = wang_id - 1;
 					}
-					++i;
+					wangid_str = wangid_str_end;
+					while (*wangid_str && !isdigit(*wangid_str)) {
+						++wangid_str;
+					}
 				}
 			}
 		}
