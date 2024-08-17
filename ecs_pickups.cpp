@@ -8,7 +8,7 @@
 
 namespace map
 {
-	size_t get_object_layer_index();
+	unsigned int get_object_layer_index();
 }
 
 namespace ecs
@@ -65,7 +65,7 @@ namespace ecs
 		}
 		{
 			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.pos = position - Vector2f(8.f, 8.f);
+			sprite.position = position - Vector2f(8.f, 8.f);
 			sprite.size = { 16.f, 16.f };
 			sprite.sorting_point = { 8.f, 8.f };
 			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();

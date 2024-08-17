@@ -7,8 +7,14 @@
 #include "ecs_physics.h"
 #include "ecs_vfx.h"
 #include "ecs_damage.h"
+#include "tile_ids.h"
 #include "audio.h"
 #include "postprocessing.h"
+
+namespace map
+{
+    unsigned int get_object_layer_index();
+}
 
 namespace ecs
 {
@@ -33,7 +39,7 @@ namespace ecs
             destroy_at_end_of_frame(entity);
             audio::create_event({ .path = "event:/snd_bomb_explosion", .position = center });
             audio::stop_event(bomb.fuse_sound);
-            postprocessing::create_shockwave(center);
+            postprocessing::add_shockwave(center);
 		}
 
         for (auto [entity, bomb, sprite] : _registry.view<Bomb, sprites::Sprite>().each()) {
@@ -64,28 +70,29 @@ namespace ecs
         set_class(entity, "bomb");
         emplace_bomb(entity);
         ignite_bomb(entity);
-#if 0
+        {
+			sprites::Sprite& sprite = emplace_sprite(entity);
+            sprite.sorting_layer = map::get_object_layer_index();
+            sprite.sorting_point = { 8.f, 16.f };
+            sprite.position = position - sprite.sorting_point;
+			sprite.size = { 16.f, 16.f };
+        }
+        {
+            Animation& animation = emplace_animation(entity);
+            animation.tileset = get_tileset("items1");
+            animation.tile_id = TILE_ID_ITEM_POTION;
+        }
         {
             b2BodyDef body_def = b2DefaultBodyDef();
             body_def.type = b2_staticBody;
             body_def.position = position;
             body_def.fixedRotation = true;
             b2BodyId body = emplace_body(entity, body_def);
-            b2CircleShape shape{};
-            shape.m_radius = 4.f;
-            body->CreateFixture(&shape, 0.f);
+            b2ShapeDef shape_def = b2DefaultShapeDef();
+            b2Circle circle{};
+			circle.radius = 4.f;
+			b2CreateCircleShape(body, &shape_def, &circle);
         }
-#endif
-#if 0
-        {
-            Animation& sprite = emplace_animation(entity);
-            sprite.set_tileset("items1");
-            sprite.set_tile(TILE_ID_ITEM_POTION);
-            sprite.position = position;
-            sprite.pivot = Vector2f(8.f, 16.f);
-            sprite.sorting_pivot = sprite.pivot;
-        }
-#endif
         return entity;
     }
 

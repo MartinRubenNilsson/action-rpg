@@ -54,9 +54,8 @@ namespace ecs
 
 			if (!duration_ms) continue;
 
-			constexpr float MILLISECONDS_PER_SECOND = 1000.f;
 			// TODO: support for negative speed
-			const float delta_progress = std::max(animation.speed, 0.f) * dt * MILLISECONDS_PER_SECOND / duration_ms;
+			const float delta_progress = animation.speed * dt * 1000.f / duration_ms;
 
 			animation.progress += delta_progress;
 			if (animation.progress >= 1.f) {
@@ -101,12 +100,12 @@ namespace ecs
 			}
 
 			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation._animated_tile_id);
-			sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+			sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 
 			Vector2u texture_size;
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-			sprite.tex_pos /= Vector2f(texture_size);
+			sprite.tex_position /= Vector2f(texture_size);
 			sprite.tex_size /= Vector2f(texture_size);
 		}
 	}

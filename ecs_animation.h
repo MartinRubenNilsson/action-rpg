@@ -1,5 +1,7 @@
 #pragma once
 
+#define ANIMATION_INVALID_TILE_ID UINT_MAX
+
 namespace ecs
 {
 	Handle<tiled::Tileset> get_tileset(const std::string& name);
@@ -10,9 +12,9 @@ namespace ecs
 		// while _frame_id is an index into tiled::Tile::animation[].
 
 		Handle<tiled::Tileset> tileset;
-		unsigned int tile_id = 0;
-		unsigned int _previous_tile_id = 0;
-		unsigned int _animated_tile_id = 0;
+		unsigned int tile_id = ANIMATION_INVALID_TILE_ID;
+		unsigned int _previous_tile_id = ANIMATION_INVALID_TILE_ID;
+		unsigned int _animated_tile_id = ANIMATION_INVALID_TILE_ID;
 		unsigned int _frame_id = 0;
 		float progress = 0.f; // aka normalized time, in the range [0, 1]
 		float speed = 1.f;

@@ -69,7 +69,7 @@ namespace background
 			sprite.texture = layer.texture;
 			sprite.size = { (float)layer.texture_width, (float)layer.texture_height };
 			for (float x = camera_min.x - layer.offset_x; x < camera_max.x; x += layer.texture_width) {
-				sprite.pos = { x, camera_min.y };
+				sprite.position = { x, camera_min.y };
 				sprites::add(sprite);
 			}
 		}

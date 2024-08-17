@@ -19,7 +19,7 @@ namespace postprocessing
 	void render(Handle<graphics::Framebuffer>& framebuffer, const Vector2f &camera_min, const Vector2f& camera_max);
 
 	void set_pixel_scale(float scale);
-	void create_shockwave(const Vector2f& position_ws); // ws = world space
+	void add_shockwave(const Vector2f& position_ws); // ws = world space
 	void set_darkness_intensity(float intensity); // 0 <= intensity <= 1
 	void set_darkness_center(const Vector2f& position_ws); // ws = world space
 	void set_screen_transition_progress(float progress); // -1 <= progress <= 1

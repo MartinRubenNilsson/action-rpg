@@ -24,7 +24,7 @@
 
 namespace map
 {
-	size_t get_object_layer_index();
+	unsigned int get_object_layer_index();
 
 	void create_entities(const tiled::Map& map)
 	{
@@ -134,13 +134,13 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.pos = position;
+					sprite.position = position;
 					sprite.size = object.size;
-					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_position /= Vector2f(texture_size);
 					sprite.tex_size /= Vector2f(texture_size);
 					// PITFALL: We don't set the sorting layer to the layer index here.
 					// This is because we want all objects to be on the same layer, so they
@@ -480,13 +480,13 @@ namespace map
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
-					sprite.pos = position;
+					sprite.position = position;
 					sprite.size = size;
-					sprite.tex_pos = { (float)tex_rect.x, (float)tex_rect.y };
+					sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 					Vector2u texture_size;
 					graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
-					sprite.tex_pos /= Vector2f(texture_size);
+					sprite.tex_position /= Vector2f(texture_size);
 					sprite.tex_size /= Vector2f(texture_size);
 					sprite.sorting_layer = (uint8_t)layer_index;
 					sprite.sorting_point = sorting_point;

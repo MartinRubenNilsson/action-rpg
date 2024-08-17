@@ -9,6 +9,7 @@ namespace sprites
 	{
 		Handle<graphics::Shader> shader;
 		Handle<graphics::Texture> texture;
+		unsigned int sprite_count = 0; // not used for drawing, only for debugging
 		unsigned int vertex_count = 0;
 		unsigned int vertex_offset = 0; // offset into the vertex buffer
 	};
@@ -17,10 +18,10 @@ namespace sprites
 	{
 		if (left.sorting_layer != right.sorting_layer)
 			return left.sorting_layer < right.sorting_layer;
-		if (left.pos.y + left.sorting_point.y != right.pos.y + right.sorting_point.y)
-			return left.pos.y + left.sorting_point.y < right.pos.y + right.sorting_point.y;
-		if (left.pos.x + left.sorting_point.x != right.pos.x + right.sorting_point.x)
-			return left.pos.x + left.sorting_point.x < right.pos.x + right.sorting_point.x;
+		if (left.position.y + left.sorting_point.y != right.position.y + right.sorting_point.y)
+			return left.position.y + left.sorting_point.y < right.position.y + right.sorting_point.y;
+		if (left.position.x + left.sorting_point.x != right.position.x + right.sorting_point.x)
+			return left.position.x + left.sorting_point.x < right.position.x + right.sorting_point.x;
 		if (left.shader != right.shader)
 			return left.shader < right.shader;
 		if (left.texture != right.texture)
@@ -28,24 +29,12 @@ namespace sprites
 		return false;
 	}
 
-	constexpr unsigned int _calc_vertices_in_batch(unsigned int sprite_count)
-	{
-		return 6 * sprite_count - 2;
-	}
-
-	constexpr unsigned int _calc_sprites_in_batch(unsigned int vertex_count)
-	{
-		return (vertex_count + 2) / 6;
-	}
-
-	// Adding and rendering sprites is very hot code,
-	// so I'm gonna try using eastl::vector to get a performance boost in debug.
-
-	eastl::vector<Sprite> _sprites; // will be sorted by draw order
+	eastl::vector<Sprite> _sprites;
 	eastl::vector<Batch> _batches;
 
 	unsigned int _sprites_drawn = 0;
 	unsigned int _batches_drawn = 0;
+	unsigned int _largest_batch_sprite_count = 0;
 	unsigned int _largest_batch_vertex_count = 0;
 
 	void add(const Sprite& sprite)
@@ -87,13 +76,13 @@ namespace sprites
 
 		for (const Sprite& sprite : _sprites) {
 
-			Vector2f tl = sprite.pos; // top-left
-			Vector2f br = sprite.pos + sprite.size; // bottom-right
+			Vector2f tl = sprite.position; // top-left
+			Vector2f br = sprite.position + sprite.size; // bottom-right
 			Vector2f tr = { br.x, tl.y }; // top-right
 			Vector2f bl = { tl.x, br.y }; // bottom-left
 
-			const Vector2f tex_tl = sprite.tex_pos;
-			const Vector2f tex_br = sprite.tex_pos + sprite.tex_size;
+			const Vector2f tex_tl = sprite.tex_position;
+			const Vector2f tex_br = sprite.tex_position + sprite.tex_size;
 			const Vector2f tex_tr = { tex_br.x, tex_tl.y };
 			const Vector2f tex_bl = { tex_tl.x, tex_br.y };
 
@@ -115,7 +104,8 @@ namespace sprites
 				first_batch.texture = sprite.texture;
 			} else {
 				Batch& current_batch = _batches.back();
-				if (sprite.shader == current_batch.shader && sprite.texture == current_batch.texture) {
+				if (sprite.shader == current_batch.shader &&
+					sprite.texture == current_batch.texture) {
 					// Add degenerate triangles to separate the sprites
 					graphics::temp_vertices.emplace_back(graphics::temp_vertices.back()); // D
 					graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl); // E
@@ -133,9 +123,13 @@ namespace sprites
 			graphics::temp_vertices.emplace_back(bl, sprite.color, tex_bl);
 			graphics::temp_vertices.emplace_back(tr, sprite.color, tex_tr);
 			graphics::temp_vertices.emplace_back(br, sprite.color, tex_br);
+
+			// Update statistics
+			_batches.back().sprite_count += 1;
 			_batches.back().vertex_count += 4;
 		}
 
+		//TODO: hide this logic in wrapper functions
 		const unsigned int vertices_byte_size = (unsigned int)graphics::temp_vertices.size() * sizeof(graphics::Vertex);
 		if (vertices_byte_size <= graphics::get_buffer_size(graphics::dynamic_vertex_buffer)) {
 			graphics::update_buffer(graphics::dynamic_vertex_buffer, graphics::temp_vertices.data(), vertices_byte_size);
@@ -143,20 +137,21 @@ namespace sprites
 			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
 		}
 
-		Handle<graphics::Shader> currently_bound_shader;
-		Handle<graphics::Texture> currently_bound_texture;
+		Handle<graphics::Shader> last_bound_shader;
+		Handle<graphics::Texture> last_bound_texture;
 
 		for (const Batch& batch : _batches) {
-			if (batch.shader != currently_bound_shader) {
+			if (batch.shader != last_bound_shader) {
 				graphics::bind_shader(batch.shader);
-				currently_bound_shader = batch.shader;
+				last_bound_shader = batch.shader;
 			}
-			if (batch.texture != currently_bound_texture) {
+			if (batch.texture != last_bound_texture) {
 				graphics::bind_texture(0, batch.texture);
-				currently_bound_texture = batch.texture;
+				last_bound_texture = batch.texture;
 			}
 			//TODO: bind uniform buffer
 			graphics::draw(graphics::Primitives::TriangleStrip, batch.vertex_count, batch.vertex_offset);
+			_largest_batch_sprite_count = std::max(_largest_batch_sprite_count, batch.sprite_count);
 			_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, batch.vertex_count);
 		}
 
@@ -172,6 +167,7 @@ namespace sprites
 	{
 		_sprites_drawn = 0;
 		_batches_drawn = 0;
+		_largest_batch_sprite_count = 0;
 		_largest_batch_vertex_count = 0;
 	}
 
@@ -187,7 +183,7 @@ namespace sprites
 
 	unsigned int get_largest_batch_sprite_count()
 	{
-		return _calc_sprites_in_batch(_largest_batch_vertex_count);
+		return _largest_batch_sprite_count;
 	}
 
 	unsigned int get_largest_batch_vertex_count()

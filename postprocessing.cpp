@@ -232,7 +232,7 @@ namespace postprocessing
 		_pixel_scale = std::max(scale, 0.1f);
 	}
 
-	void create_shockwave(const Vector2f& position_ws)
+	void add_shockwave(const Vector2f& position_ws)
 	{
 		Shockwave shockwave{};
 		shockwave.position_ws = position_ws; // ws = world space

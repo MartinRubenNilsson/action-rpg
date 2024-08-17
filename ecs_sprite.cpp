@@ -9,7 +9,7 @@ namespace ecs
 	{
 		for (auto [entity, sprite, body, attachment]  :
 			_registry.view<sprites::Sprite, b2BodyId, SpriteBodyAttachment>().each()) {
-			sprite.pos = b2Body_GetPosition(body) + attachment.position;
+			sprite.position = b2Body_GetPosition(body) + attachment.position;
 		}
 	}
 

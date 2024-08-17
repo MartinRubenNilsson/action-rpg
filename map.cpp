@@ -14,8 +14,8 @@ namespace map
 	bool debug = false;
 	std::string _current_map_name;
 	std::string _next_map_name;
-	size_t _object_layer_index = 0;
-	size_t _next_free_layer_index = 0;
+	unsigned int _object_layer_index = 0;
+	unsigned int _next_free_layer_index = 0;
 	float _transition_duration = -1.f; // negative when not transitioning; zero when transitioning instantly; otherwise positive
 	float _transition_progress = 1.f; // -1 to 1
 	std::unordered_map<std::string, MapPatch> _map_name_to_patch;
@@ -109,7 +109,7 @@ namespace map
 		}
 
 		// Resolve the layer index on which to place objects/entities.
-		for (size_t layer_index = 0; layer_index < next_map->layers.size(); ++layer_index) {
+		for (unsigned int layer_index = 0; layer_index < next_map->layers.size(); ++layer_index) {
 			const tiled::Layer& layer = next_map->layers[layer_index];
 			if (layer.type == tiled::LayerType::Tile) {
 				if (layer.name.starts_with("object") || layer.name.starts_with("Object")) {
@@ -121,7 +121,7 @@ namespace map
 				break;
 			}
 		}
-		_next_free_layer_index = next_map->layers.size();
+		_next_free_layer_index = (unsigned int)next_map->layers.size();
 
 		create_tilegrid(*next_map);
 		create_entities(*next_map);
@@ -192,12 +192,12 @@ namespace map
 		return _current_map_name;
 	}
 
-	size_t get_object_layer_index()
+	unsigned int get_object_layer_index()
 	{
 		return _object_layer_index;
 	}
 
-	size_t get_next_free_layer_index()
+	unsigned int get_next_free_layer_index()
 	{
 		return _next_free_layer_index;
 	}

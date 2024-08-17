@@ -27,8 +27,8 @@ namespace map
 	bool reset(float transition_duration = DEFAULT_TRANSITION_DURATION);
 
 	const std::string& get_name();
-	size_t get_object_layer_index();
-	size_t get_next_free_layer_index(); // one past the last layer index
+	unsigned int get_object_layer_index();
+	unsigned int get_next_free_layer_index(); // one past the last layer index
 
 	// The transition progress is a value between -1 and 1. It is 0 when not transitioning,
 	// positive when transitioning out of a map, and negative when transitioning in to a map.

@@ -26,9 +26,9 @@ namespace sprites
 		Handle<graphics::Texture> texture; // TODO: default to error texture
 		Handle<graphics::Buffer> uniform_buffer;
 		uint32_t uniform_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
-		Vector2f pos; // top-left corner position in world space
+		Vector2f position; // top-left corner position in world space
 		Vector2f size; // width and height in world space
-		Vector2f tex_pos = { 0.f, 0.f }; // top-left corner in normalized texture coordinates
+		Vector2f tex_position = { 0.f, 0.f }; // top-left corner in normalized texture coordinates
 		Vector2f tex_size = { 1.f, 1.f }; // width and height in normalized texture coordinates
 		Vector2f sorting_point;
 		Color color = colors::WHITE;

@@ -6,7 +6,7 @@
 
 namespace map
 {
-    size_t get_next_free_layer_index();
+    unsigned int get_next_free_layer_index();
 }
 
 namespace ecs
@@ -40,14 +40,14 @@ namespace ecs
             const unsigned int frame_col = frame % vfx.frame_cols;
             Vector2u texture_size;
             graphics::get_texture_size(vfx.texture, texture_size.x, texture_size.y);
-            sprite.tex_pos = { (float)frame_col / vfx.frame_cols, (float)frame_row / vfx.frame_rows };
+            sprite.tex_position = { (float)frame_col / vfx.frame_cols, (float)frame_row / vfx.frame_rows };
             sprite.tex_size = { 1.f / vfx.frame_cols, 1.f / vfx.frame_rows };
             sprite.size = sprite.tex_size * Vector2f(texture_size);
-            sprite.pos = vfx.position - sprite.size / 2.f;
-            if (sprite.pos.x > camera_max.x) continue;
-            if (sprite.pos.y > camera_max.y) continue;
-            if (sprite.pos.x + sprite.size.x < camera_min.x) continue;
-            if (sprite.pos.y + sprite.size.y < camera_min.y) continue;
+            sprite.position = vfx.position - sprite.size / 2.f;
+            if (sprite.position.x > camera_max.x) continue;
+            if (sprite.position.y > camera_max.y) continue;
+            if (sprite.position.x + sprite.size.x < camera_min.x) continue;
+            if (sprite.position.y + sprite.size.y < camera_min.y) continue;
             sprite.texture = vfx.texture;
             sprite.sorting_layer = (uint8_t)map::get_next_free_layer_index();
             sprite.sorting_point = sprite.size / 2.f;
