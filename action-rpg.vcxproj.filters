@@ -194,6 +194,9 @@
     <ClCompile Include="ecs_uniform_block.cpp">
       <Filter>ecs\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_classes.cpp">
+      <Filter>ecs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shockwave.frag">
@@ -634,6 +637,9 @@
     </ClInclude>
     <ClInclude Include="ecs_uniform_block.h">
       <Filter>ecs\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_classes.h">
+      <Filter>ecs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
