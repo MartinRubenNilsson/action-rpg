@@ -1,4 +1,5 @@
 #pragma once
+#include "ecs_classes.h"
 
 class Properties; // Forward declaration
 
@@ -19,11 +20,11 @@ namespace ecs
 	// NAME AND CLASS
 
 	void set_name(entt::entity entity, const std::string& name);
-	void set_class(entt::entity entity, const std::string& class_);
+	void set_class(entt::entity entity, Class class_);
 	const std::string& get_name(entt::entity entity);
-	const std::string& get_class(entt::entity entity);
+	Class get_class(entt::entity entity);
 	entt::entity find_entity_by_name(const std::string& name);
-	entt::entity find_entity_by_class(const std::string& class_);
+	entt::entity find_entity_by_class(Class class_);
 
 	// PROPERTIES
 

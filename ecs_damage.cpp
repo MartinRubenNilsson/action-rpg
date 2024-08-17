@@ -40,15 +40,14 @@ namespace ecs
 
 	bool apply_damage(entt::entity entity, const Damage& damage)
 	{
-		const std::string& class_ = get_class(entity);
-		if (class_.empty()) return false;
-		if (class_ == "player") {
+		switch (get_class(entity)) {
+		case Class::Player:
 			return apply_damage_to_player(entity, damage);
-		} else if (class_ == "slime") {
+		case Class::Slime:
 			return apply_damage_to_slime(entity, damage);
-		} else if (class_ == "bomb") {
+		case Class::Bomb:
 			return apply_damage_to_bomb(entity, damage);
-		} else if (class_ == "grass") {
+		case Class::Grass:
 			return apply_damage_to_grass(entity, damage);
 		}
 		return false;

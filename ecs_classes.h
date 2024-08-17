@@ -9,8 +9,14 @@ namespace ecs
 		Slime,
 		PushableBlock,
 		Bomb,
+		Arrow,
 		Pickup,
 		Grass,
+		Portal,
+		BladeTrap,
+		Chest,
+		Camera,
+		AudioSource,
 	};
 
 	bool string_to_class(std::string_view string, Class& class_);

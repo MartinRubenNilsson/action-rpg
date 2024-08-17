@@ -96,9 +96,12 @@ namespace map
 				if (!object.name.empty()) {
 					ecs::set_name(entity, object.name);
 				}
-				if (!object.class_.empty()) {
-					ecs::set_class(entity, object.class_);
+
+				ecs::Class class_ = ecs::Class::None;
+				if (!object.class_.empty() && ecs::string_to_class(object.class_, class_)) {
+					ecs::set_class(entity, class_);
 				}
+
 				if (!object.properties.empty()) {
 					ecs::set_properties(entity, object.properties);
 				}
@@ -256,7 +259,8 @@ namespace map
 
 				// CLASS-SPECIFIC ENTITY SETUP
 
-				if (object.class_ == "player") {
+				switch (class_) {
+				case ecs::Class::Player: {
 
 					ecs::Player player{};
 					if (last_player) {
@@ -332,18 +336,21 @@ namespace map
 					}
 #endif
 
-				} else if (object.class_ == "slime") {
+				} break;
+				case ecs::Class::Slime: {
 
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
 
-				} else if (object.class_ == "portal") {
+				} break;
+				case ecs::Class::Portal: {
 
 					ecs::Portal& portal = ecs::emplace_portal(entity);
 					object.properties.get_string("target_map", portal.target_map);
 					object.properties.get_string("target_point", portal.target_point);
 					object.properties.get_string("exit_direction", portal.exit_direction);
 
-				} else if (object.class_ == "camera") {
+				} break;
+				case ecs::Class::Camera: {
 
 					ecs::Camera& camera = ecs::emplace_camera(entity);
 					camera.center = position_top_left;
@@ -351,14 +358,8 @@ namespace map
 					camera.confines_max = map_bounds_max;
 					object.properties.get_entity("follow", camera.entity_to_follow);
 
-				} else if (object.class_ == "audio_source") {
-
-					if (std::string event_name; object.properties.get_string("event", event_name)) {
-						std::string path = "event:/" + event_name;
-						audio::create_event({ .path = path.c_str(), .position = position_top_left });
-					}
-
-				} else if (object.class_ == "chest") {
+				} break;
+				case ecs::Class::Chest: {
 
 					ecs::Chest chest{};
 					if (std::string type; object.properties.get_string("type", type)) {
@@ -380,7 +381,8 @@ namespace map
 						b2CreatePolygonShape(body, &shape_def, &box);
 					}
 
-				} else if (object.class_ == "blade_trap") {
+				} break;
+				case ecs::Class::BladeTrap: {
 
 					const Vector2f pivot = { 8.f, 8.f };
 
@@ -403,6 +405,8 @@ namespace map
 					}
 
 					ecs::emplace_sprite_body_attachment(entity, -pivot);
+
+				} break;
 				}
 			}
 		}
@@ -450,8 +454,9 @@ namespace map
 					const Vector2f sorting_point = { size.x / 2.f, size.y - map.tile_height / 2.f };
 
 					entt::entity entity = ecs::create();
-					if (!tile.class_.empty()) {
-						ecs::set_class(entity, tile.class_);
+					ecs::Class class_ = ecs::Class::None;
+					if (!tile.class_.empty() && ecs::string_to_class(tile.class_, class_)) {
+						ecs::set_class(entity, class_);
 					}
 					if (!tile.properties.empty()) {
 						ecs::set_properties(entity, tile.properties);
@@ -583,9 +588,14 @@ namespace map
 
 					// CLASS-SPECIFIC ENTITY SETUP
 
-					if (tile.class_ == "grass") {
+
+					switch (class_) {
+					case ecs::Class::Grass: {
+
 						//TODO: set shader and uniform buffer
 						sprite.sorting_point = { 8.f, 28.f };
+
+					} break;
 					}
 				}
 			}

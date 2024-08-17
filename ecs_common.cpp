@@ -8,7 +8,6 @@
 namespace ecs
 {
 	struct Name { std::string value; };
-	struct Class { std::string value; };
 
 	extern entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy_at_end_of_frame;
@@ -80,7 +79,7 @@ namespace ecs
 		_registry.emplace_or_replace<Name>(entity, name);
 	}
 
-	void set_class(entt::entity entity, const std::string& class_)
+	void set_class(entt::entity entity, Class class_)
 	{
 		_registry.emplace_or_replace<Class>(entity, class_);
 	}
@@ -95,12 +94,11 @@ namespace ecs
 		return _DUMMY_EMPTY_STRING;
 	}
 
-	const std::string& get_class(entt::entity entity)
+	Class get_class(entt::entity entity)
 	{
-		if (auto class_ = _registry.try_get<const Class>(entity)) {
-			return class_->value;
-		}
-		return _DUMMY_EMPTY_STRING;
+		Class* class_ = _registry.try_get<Class>(entity);
+		if (!class_) return Class::None;
+		return *class_;
 	}
 
 	entt::entity find_entity_by_name(const std::string& name)
@@ -112,11 +110,10 @@ namespace ecs
 		return entt::null;
 	}
 
-	entt::entity find_entity_by_class(const std::string& class_)
+	entt::entity find_entity_by_class(Class class_)
 	{
-		if (class_.empty()) return entt::null;
-		for (auto [entity, ecs_class] : _registry.view<const Class>().each()) {
-			if (ecs_class.value == class_) return entity;
+		for (auto [entity, other_class] : _registry.view<Class>().each()) {
+			if (other_class == class_) return entity;
 		}
 		return entt::null;
 	}

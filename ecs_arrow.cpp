@@ -25,7 +25,7 @@ namespace ecs
 	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
 	{
 		entt::entity entity = _registry.create();
-		set_class(entity, "arrow");
+		set_class(entity, Class::Arrow);
 		{
 			Arrow& arrow = emplace_arrow(entity);
 			arrow.damage = 1;

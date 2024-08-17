@@ -28,10 +28,10 @@ namespace ecs
 
 	void interact(entt::entity entity)
 	{
-		const std::string& class_ = get_class(entity);
-		if (class_.empty()) return;
-		if (class_ == "chest") {
+		switch (get_class(entity)) {
+		case Class::Chest:
 			interact_with_chest(entity);
+			break;
 		}
 	}
 }

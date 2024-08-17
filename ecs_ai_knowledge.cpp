@@ -25,7 +25,7 @@ namespace ecs
 
 	void update_ai_knowledge_and_world(float dt)
 	{
-		_ai_world.player = _get_ai_entity_info(find_entity_by_class("player"));
+		_ai_world.player = _get_ai_entity_info(find_entity_by_class(Class::Player));
 		_ai_world.ais.clear();
 
 		for (auto [entity, knowledge] : _registry.view<AiKnowledge>().each()) {

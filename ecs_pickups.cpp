@@ -38,7 +38,7 @@ namespace ecs
 	entt::entity create_pickup(PickupType type, const Vector2f& position)
 	{
 		entt::entity entity = _registry.create();
-		set_class(entity, "pickup");
+		set_class(entity, Class::Pickup);
 		{
 			Pickup& pickup = emplace_pickup(entity);
 			pickup.type = type;

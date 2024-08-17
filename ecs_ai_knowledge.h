@@ -2,11 +2,13 @@
 
 namespace ecs
 {
+	enum class Class;
+
 	struct AiEntityInfo
 	{
 		entt::entity entity = entt::null;
 		std::string name;
-		std::string class_;
+		Class class_;
 		Vector2f position;
 		Vector2f velocity;
 

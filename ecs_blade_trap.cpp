@@ -30,7 +30,7 @@ namespace ecs
 				const Vector2f ray_end = ray_start + direction * 16.f * 10.f; // raycast 10 tiles
 				RaycastHit hit{};
 				if (!raycast_closest(ray_start, ray_end, CM_Default, &hit)) break;
-				if (get_class(hit.entity) != "player") break;
+				if (get_class(hit.entity) != Class::Player) break;
 
 				b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_EXTEND_SPEED);
 				blade_trap.state = BladeTrapState::Extending;

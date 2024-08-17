@@ -175,7 +175,7 @@ namespace console
 			cmd.name = "kill_player";
 			cmd.desc = "Kills the player";
 			cmd.callback = [](const Params&) {
-				ecs::kill_player(ecs::find_entity_by_class("player"));
+				ecs::kill_player(ecs::find_entity_by_class(ecs::Class::Player));
 			};
 		}
 		{
