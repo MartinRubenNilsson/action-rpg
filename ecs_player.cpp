@@ -23,6 +23,7 @@
 #include "postprocessing.h"
 #include "shapes.h"
 #include "tile_ids.h"
+#include "ecs_pickups.h"
 
 namespace ecs
 {
@@ -506,7 +507,7 @@ namespace ecs
 		}
 
 		ImGui::End();
-#endif
+#endif // _DEBUG_IMGUI
 	}
 
 	entt::entity find_player_entity()
@@ -546,7 +547,37 @@ namespace ecs
 		return true;
 	}
 
-	void on_player_begin_contact_pushable_block(entt::entity player_entity)
+	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity)
+	{
+		Player* player = get_player(player_entity);
+		if (!player) return;
+		Pickup* pickup = get_pickup(pickup_entity);
+		if (!pickup) return;
+
+		switch (pickup->type) {
+		case PickupType::Arrow: {
+			player->arrows++;
+			audio::create_event({ .path = "event:/snd_pickup" });
+		} break;
+		case PickupType::Rupee: {
+			player->rupees++;
+			audio::create_event({ .path = "event:/snd_pickup_rupee" });
+		} break;
+		case PickupType::Bomb: {
+			player->bombs++;
+			audio::create_event({ .path = "event:/snd_pickup" });
+		} break;
+		case PickupType::Heart: {
+			player->health = std::min(player->health + 1, player->max_health);
+			//TODO
+			//audio::play("event:/snd_pickup_heart");
+		} break;
+		}
+
+		destroy_at_end_of_frame(pickup_entity);
+	}
+
+	void on_player_begin_touch_pushable_block(entt::entity player_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;
@@ -555,7 +586,7 @@ namespace ecs
 		player->stone_sliding_sound = audio::create_event({ .path = "event:/props/stone_slide" });
 	}
 
-	void on_player_end_contact_pushable_block(entt::entity player_entity)
+	void on_player_end_touch_pushable_block(entt::entity player_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;

@@ -65,6 +65,7 @@ namespace ecs
 
 	bool kill_player(entt::entity entity);
 
-	void on_player_begin_contact_pushable_block(entt::entity player_entity);
-	void on_player_end_contact_pushable_block(entt::entity player_entity);
+	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity);
+	void on_player_begin_touch_pushable_block(entt::entity player_entity);
+	void on_player_end_touch_pushable_block(entt::entity player_entity);
 }

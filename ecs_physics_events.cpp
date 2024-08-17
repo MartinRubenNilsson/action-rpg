@@ -1,13 +1,11 @@
 #include "stdafx.h"
 #include "ecs_physics_events.h"
-
 #include "ecs_common.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"
 #include "ecs_damage.h"
 #include "ecs_portal.h"
 #include "ecs_blade_trap.h"
-
 #include "audio.h"
 #include "console.h"
 
@@ -26,33 +24,7 @@ namespace ecs
 
 		if (sensor_class == "pickup") {
 			if (visitor_class == "player") {
-				//TODO: put somewehere else in a helper function
-				Pickup* pickup = get_pickup(sensor_entity);
-				assert(pickup);
-				Player* player = get_player(visitor_entity);
-				assert(player);
-
-				switch (pickup->type) {
-				case PickupType::Arrow: {
-					player->arrows++;
-					audio::create_event({ .path = "event:/snd_pickup" });
-				} break;
-				case PickupType::Rupee: {
-					player->rupees++;
-					audio::create_event({ .path = "event:/snd_pickup_rupee" });
-				} break;
-				case PickupType::Bomb: {
-					player->bombs++;
-					audio::create_event({ .path = "event:/snd_pickup" });
-				} break;
-				case PickupType::Heart: {
-					player->health = std::min(player->health + 1, player->max_health);
-					//TODO
-					//audio::play("event:/snd_pickup_heart");
-				} break;
-				}
-
-				destroy_at_end_of_frame(sensor_entity);
+				on_player_begin_touch_pickup(visitor_entity, sensor_entity);
 			}
 		}
 	}
@@ -101,7 +73,7 @@ namespace ecs
 			} else if (class_b == "slime") {
 				apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
 			} else if (class_b == "pushable_block") {
-				on_player_begin_contact_pushable_block(entity_a);
+				on_player_begin_touch_pushable_block(entity_a);
 			}
 		}
 	}
@@ -127,7 +99,7 @@ namespace ecs
 		if (class_a == "player") {
 			if (class_b == "pushable_block") {
 				b2Body_SetLinearVelocity(body_b, b2Vec2_zero);
-				on_player_end_contact_pushable_block(entity_a);
+				on_player_end_touch_pushable_block(entity_a);
 			}
 		}
 	}
