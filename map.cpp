@@ -162,6 +162,11 @@ namespace map
 		return true;
 	}
 
+	bool is_open()
+	{
+		return !_current_map_name.empty();
+	}
+
 	bool open(const std::string& map_name, float transition_duration)
 	{
 		TransitionOptions options{};

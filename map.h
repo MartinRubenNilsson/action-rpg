@@ -22,6 +22,7 @@ namespace map
 	void update(float dt);
 
 	bool transition(const TransitionOptions& options);
+	bool is_open();
 	bool open(const std::string& map_name, float transition_duration = DEFAULT_TRANSITION_DURATION);
 	bool close(float transition_duration = DEFAULT_TRANSITION_DURATION);
 	bool reset(float transition_duration = DEFAULT_TRANSITION_DURATION);

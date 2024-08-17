@@ -5,6 +5,7 @@
 #include "window_events.h"
 #include "audio.h"
 #include "ui.h"
+#include "ui_hud.h"
 #include "ui_menus.h"
 #include "ui_textbox.h"
 #include "map.h"

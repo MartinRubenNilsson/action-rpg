@@ -9,6 +9,12 @@ namespace ecs
 		Vector2f position; // position of the sprite relative to the body
 	};
 
+	struct SpriteShake
+	{
+		float magnitude = 0.f;
+		float duration = 0.f;
+	};
+
 	void update_sprite_body_attachments();
 
 	sprites::Sprite& emplace_sprite(entt::entity entity);
@@ -16,4 +22,6 @@ namespace ecs
 
 	SpriteBodyAttachment& emplace_sprite_body_attachment(entt::entity entity, const Vector2f& position = { 0.f, 0.f });
 	SpriteBodyAttachment* get_sprite_body_attachment(entt::entity entity);
+
+	SpriteShake& emplace_sprite_shake(entt::entity entity);
 }

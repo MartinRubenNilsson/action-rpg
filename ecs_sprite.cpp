@@ -32,4 +32,9 @@ namespace ecs
 	{
 		return _registry.try_get<SpriteBodyAttachment>(entity);
 	}
+
+	SpriteShake& emplace_sprite_shake(entt::entity entity)
+	{
+		return _registry.emplace_or_replace<SpriteShake>(entity);
+	}
 }
