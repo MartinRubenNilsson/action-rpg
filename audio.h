@@ -29,7 +29,6 @@ namespace audio
 
 	// EVENTS
 
-	bool is_valid(const char* path);
 	bool is_any_playing(const char* path);
 
 	struct EventDesc
