@@ -15,6 +15,7 @@
 #include "ecs_ai.h"
 #include "ecs_portal.h"
 #include "ecs_chest.h"
+#include "ecs_grass.h"
 #include "ecs_blade_trap.h"
 #include "player_outfit.h"
 
@@ -49,6 +50,8 @@ namespace map
 		const Vector2f map_bounds_max = {
 			(float)map.width * map.tile_width,
 			(float)map.height * map.tile_height };
+
+		//TODO: clean this up
 
 		// Save some components to be carried over between maps,
 		// or that is needed in general when populating the new map.
@@ -596,6 +599,8 @@ namespace map
 
 						sprite.shader = graphics::grass_shader;
 						sprite.sorting_point = { 8.f, 28.f };
+
+						ecs::emplace_grass(entity);
 						//TODO: set uniform buffer
 
 					} break;

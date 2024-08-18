@@ -67,14 +67,8 @@
     <ClCompile Include="ui_menus.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_vfx.cpp">
-      <Filter>game\ecs</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_physics_events.cpp">
       <Filter>game\ecs\physics</Filter>
-    </ClCompile>
-    <ClCompile Include="ecs_bomb.cpp">
-      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_player.cpp">
       <Filter>game\ecs\player</Filter>
@@ -99,9 +93,6 @@
     </ClCompile>
     <ClCompile Include="console_commands_steam.cpp">
       <Filter>console</Filter>
-    </ClCompile>
-    <ClCompile Include="ecs_arrow.cpp">
-      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="map_entities.cpp">
       <Filter>game\map</Filter>
@@ -196,6 +187,18 @@
     </ClCompile>
     <ClCompile Include="player_outfit.cpp">
       <Filter>game\player</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_grass.cpp">
+      <Filter>game\ecs\environment</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_arrow.cpp">
+      <Filter>game\ecs\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_bomb.cpp">
+      <Filter>game\ecs\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="ecs_vfx.cpp">
+      <Filter>game\ecs\graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,9 +298,6 @@
     <ClInclude Include="ecs_ai_action.h">
       <Filter>game\ecs\ai</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_arrow.h">
-      <Filter>game\ecs</Filter>
-    </ClInclude>
     <ClInclude Include="ecs_pickups.h">
       <Filter>game\ecs</Filter>
     </ClInclude>
@@ -316,14 +316,8 @@
     <ClInclude Include="ui_menus.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_vfx.h">
-      <Filter>game\ecs</Filter>
-    </ClInclude>
     <ClInclude Include="ecs_physics_events.h">
       <Filter>game\ecs\physics</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_bomb.h">
-      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
       <Filter>game\ecs\player</Filter>
@@ -641,6 +635,18 @@
     <ClInclude Include="player_outfit.h">
       <Filter>game\player</Filter>
     </ClInclude>
+    <ClInclude Include="ecs_grass.h">
+      <Filter>game\ecs\environment</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_arrow.h">
+      <Filter>game\ecs\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_bomb.h">
+      <Filter>game\ecs\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_vfx.h">
+      <Filter>game\ecs\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -720,6 +726,12 @@
     </Filter>
     <Filter Include="game\player">
       <UniqueIdentifier>{03b5b10a-d728-4b19-a8d7-517a4b0f078d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\environment">
+      <UniqueIdentifier>{c33fa15c-3f56-47b1-95d9-eb50f33b01ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\weapons">
+      <UniqueIdentifier>{f5a887d6-c31f-4e53-9866-298d276906b5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -56,7 +56,7 @@ namespace sprites
 
 	void add(const Sprite& sprite); // Adds a sprite to be sorted and drawn later.
 	void sort(); // Sorts all added sprites by draw order.
-	void draw(std::string_view debug_group_name); // Draws all added sprites.
+	void draw(); // Draws all added sprites.
 
 	// DRAWING STATISTICS
 

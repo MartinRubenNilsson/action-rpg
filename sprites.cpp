@@ -60,10 +60,8 @@ namespace sprites
 		eastl::tim_sort_buffer(_sprites.begin(), _sprites.end(), _sprites.end());
 	}
 
-	void draw(std::string_view debug_group_name)
+	void draw()
 	{
-		graphics::ScopedDebugGroup debug_group(debug_group_name);
-
 		if (_sprites.empty()) return;
 
 		// Sprites sharing the same state (shader, texture, etc.) are batched together to reduce draw calls.

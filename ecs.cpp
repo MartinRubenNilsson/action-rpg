@@ -67,6 +67,8 @@ namespace ecs
 	 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		graphics::ScopedDebugGroup debug_group("ecs::draw_sprites()");
+
 		shake_sprites_before_drawing();
 
 		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
@@ -78,8 +80,9 @@ namespace ecs
 			sprites::add(sprite);
 		}
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
+
 		sprites::sort();
-		sprites::draw("ECS");
+		sprites::draw();
 
 		unshake_sprites_after_drawing();
 	}
