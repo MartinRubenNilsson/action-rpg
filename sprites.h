@@ -25,24 +25,25 @@ namespace sprites
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture; // TODO: default to error texture
 		Handle<graphics::Buffer> uniform_buffer;
-		uint32_t uniform_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
+		uint32_t uniform_block_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
+		uint16_t _unused;
+		uint8_t flags = SPRITE_VISIBLE;
+		uint8_t sorting_layer = 0;
+		Vector2f sorting_point;
 		Vector2f position; // top-left corner position in world space
 		Vector2f size; // width and height in world space
 		Vector2f tex_position = { 0.f, 0.f }; // top-left corner in normalized texture coordinates
 		Vector2f tex_size = { 1.f, 1.f }; // width and height in normalized texture coordinates
-		Vector2f sorting_point;
 		Color color = colors::WHITE;
-		uint8_t sorting_layer = 0;
-		uint8_t flags = SPRITE_VISIBLE;
 	};
 
-	static_assert(sizeof(Sprite) <= L1_CACHE_LINE_SIZE, "Sprite doesn't fit in a cache line!");
+	static_assert(sizeof(Sprite) == L1_CACHE_LINE_SIZE, "Sprite doesn't fit exactly in a cache line!");
 
 	// Orders sprites by draw order. Members are compared in a cascading fashion:
 	// 
 	// 1. sorting_layer
-	// 2. pos.y + sorting_point.y
-	// 3. pos.x + sorting_point.x
+	// 2. position.y + sorting_point.y
+	// 3. position.x + sorting_point.x
 	// 4. shader
 	// 5. texture
 	// 
