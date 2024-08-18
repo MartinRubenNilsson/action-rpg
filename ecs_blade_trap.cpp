@@ -14,18 +14,22 @@ namespace ecs
 	void update_blade_traps(float dt)
 	{
 		for (auto [entity, blade_trap, body] : _registry.view<BladeTrap, b2BodyId>().each()) {
+
 			blade_trap.update_count++;
+			blade_trap.state_timer.update(dt);
+			if (!blade_trap.state_timer.finished()) continue;
 
 			switch (blade_trap.state) {
 			case BladeTrapState::Idle: {
 
-				Vector2f direction = { 0.f, 0.f };
+				Vector2f direction;
 				switch (blade_trap.update_count % 4) {
 				case 0: direction = { 1.f, 0.f }; break;
 				case 1: direction = { 0.f, 1.f }; break;
 				case 2: direction = { -1.f, 0.f }; break;
 				case 3: direction = { 0.f, -1.f }; break;
 				}
+
 				const Vector2f ray_start = b2Body_GetPosition(body);
 				const Vector2f ray_end = ray_start + direction * 16.f * 10.f; // raycast 10 tiles
 				RaycastHit hit{};
@@ -53,6 +57,15 @@ namespace ecs
 				b2Body_SetLinearVelocity(body, b2Vec2_zero);
 				blade_trap.state = BladeTrapState::Idle;
 
+				blade_trap.state_timer = { 0.2f };
+				blade_trap.state_timer.start();
+				{
+					SpriteShake& shake = emplace_sprite_shake(entity);
+					shake.duration = 0.2f;
+					shake.magnitude = 4.f;
+					shake.exponent = 3.f;
+				}
+
 				// TODO: play sound
 
 			} break;
@@ -76,6 +89,8 @@ namespace ecs
 		if (!blade_trap) return;
 		if (blade_trap->state != BladeTrapState::Extending) return;
 		blade_trap->state = BladeTrapState::Retracting;
+		blade_trap->state_timer = { 0.4f };
+		blade_trap->state_timer.start();
 		{
 			SpriteShake& shake = emplace_sprite_shake(entity);
 			shake.duration = 0.4f;

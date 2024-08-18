@@ -1,4 +1,5 @@
 #pragma once
+#include "timer.h"
 
 namespace ecs
 {
@@ -13,6 +14,7 @@ namespace ecs
 	{
 		unsigned int update_count = 0;
 		BladeTrapState state = BladeTrapState::Idle;
+		Timer state_timer; // for pausing between state changes
 		Vector2f start_position;
 	};
 

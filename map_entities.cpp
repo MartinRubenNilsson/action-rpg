@@ -385,18 +385,18 @@ namespace map
 				} break;
 				case ecs::Tag::BladeTrap: {
 
-					const Vector2f pivot = { 8.f, 8.f };
+					const Vector2f center = { 8.f, 8.f };
 
 					ecs::BladeTrap& blade_trap = ecs::emplace_blade_trap(entity);
-					blade_trap.start_position = position_top_left + pivot;
+					blade_trap.start_position = position_top_left + center;
 
 					if (sprites::Sprite* sprite = ecs::get_sprite(entity)) {
-						sprite->sorting_point = pivot;
+						sprite->sorting_point = center;
 					}
 					{
 						b2BodyDef body_def = b2DefaultBodyDef();
 						body_def.type = b2_dynamicBody;
-						body_def.position = position_top_left + pivot;
+						body_def.position = position_top_left + center;
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);
 						b2ShapeDef shape_def = b2DefaultShapeDef();
@@ -405,7 +405,7 @@ namespace map
 						b2CreateCircleShape(body, &shape_def, &circle);
 					}
 
-					ecs::emplace_sprite_follow_body(entity, -pivot);
+					ecs::emplace_sprite_follow_body(entity, -center);
 
 				} break;
 				}
