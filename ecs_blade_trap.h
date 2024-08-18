@@ -6,8 +6,9 @@ namespace ecs
 	enum class BladeTrapState
 	{
 		Idle,
-		Extending,
-		Retracting,
+		Extend,
+		Impact,
+		Retract,
 	};
 
 	struct BladeTrap
@@ -16,6 +17,7 @@ namespace ecs
 		BladeTrapState state = BladeTrapState::Idle;
 		Timer state_timer; // for pausing between state changes
 		Vector2f start_position;
+		Handle<audio::Event> audio_event; // changed depending on state
 	};
 
 	void update_blade_traps(float dt);

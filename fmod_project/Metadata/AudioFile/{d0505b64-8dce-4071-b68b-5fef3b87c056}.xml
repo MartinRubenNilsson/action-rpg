@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{d0505b64-8dce-4071-b68b-5fef3b87c056}">
+		<property name="note">
+			<value>https://freesound.org/people/marb7e/sounds/653130/</value>
+		</property>
+		<property name="assetPath">
+			<value>653130__marb7e__spike_trap_activate.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>3.7149062499999999</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{4e61cbb7-ccd0-44ba-a9d9-fc01c676f119}</destination>
+		</relationship>
+	</object>
+</objects>

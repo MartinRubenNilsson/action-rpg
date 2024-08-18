@@ -4,6 +4,7 @@
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_damage.h"
+#include "audio.h"
 
 namespace ecs
 {
@@ -18,7 +19,10 @@ namespace ecs
 
 			blade_trap.update_count++;
 			blade_trap.state_timer.update(dt);
-			if (!blade_trap.state_timer.finished()) continue;
+			
+			if (blade_trap.audio_event != Handle<audio::Event>()) {
+				audio::set_event_position(blade_trap.audio_event, b2Body_GetPosition(body));
+			}
 
 			switch (blade_trap.state) {
 			case BladeTrapState::Idle: {
@@ -37,14 +41,25 @@ namespace ecs
 				if (!raycast_closest(ray_start, ray_end, CM_Default, &hit)) break;
 				if (is_zero(b2Body_GetLinearVelocity(hit.body))) break;
 
-				blade_trap.state = BladeTrapState::Extending;
+				blade_trap.state = BladeTrapState::Extend;
 				b2Body_SetType(body, b2_dynamicBody);
 				b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_EXTEND_SPEED);
 
-				// TODO: play sound
+				audio::stop_event(blade_trap.audio_event);
+				blade_trap.audio_event = audio::create_event({ .path = "event:/blade_trap/extend" });
 
 			} break;
-			case BladeTrapState::Retracting: {
+			case BladeTrapState::Impact: {
+
+				if (!blade_trap.state_timer.finished()) break;
+
+				blade_trap.state = BladeTrapState::Retract;
+
+				audio::stop_event(blade_trap.audio_event);
+				blade_trap.audio_event = audio::create_event({ .path = "event:/blade_trap/retract" });
+
+			} break;
+			case BladeTrapState::Retract: {
 
 				const Vector2f to_start = blade_trap.start_position - b2Body_GetPosition(body);
 				const float dist_to_start = length(to_start);
@@ -69,7 +84,8 @@ namespace ecs
 					shake.exponent = 3.f;
 				}
 
-				// TODO: play sound
+				audio::stop_event(blade_trap.audio_event);
+				blade_trap.audio_event = audio::create_event({ .path = "event:/blade_trap/reset" });
 
 			} break;
 			}
@@ -93,15 +109,19 @@ namespace ecs
 
 		apply_damage(other_entity, { .type = DamageType::Melee, .amount = 1 });
 
-		if (blade_trap->state != BladeTrapState::Extending) return;
-		blade_trap->state = BladeTrapState::Retracting;
+		if (blade_trap->state != BladeTrapState::Extend) return;
+		blade_trap->state = BladeTrapState::Impact;
 		blade_trap->state_timer = { 0.4f };
 		blade_trap->state_timer.start();
+
 		{
 			SpriteShake& shake = emplace_sprite_shake(blade_trap_entity);
 			shake.duration = 0.4f;
 			shake.magnitude = 6.f;
 			shake.exponent = 3.f;
 		}
+
+		audio::stop_event(blade_trap->audio_event);
+		blade_trap->audio_event = audio::create_event({ .path = "event:/blade_trap/impact" });
 	}
 }
