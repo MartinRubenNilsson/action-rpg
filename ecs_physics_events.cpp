@@ -69,7 +69,7 @@ namespace ecs
 		} break;
 
 		case PAIR(Tag::Player, Tag::PushableBlock): {
-			on_player_begin_touch_pushable_block(entity_a);
+			on_player_begin_touch_pushable_block(entity_a, entity_b);
 		} break;
 
 		case PAIR(Tag::Player, Tag::Slime): {
@@ -108,8 +108,7 @@ namespace ecs
 		switch (PAIR(tag_a, tag_b)) {
 
 		case PAIR(Tag::Player, Tag::PushableBlock): {
-			on_player_end_touch_pushable_block(entity_a);
-			b2Body_SetLinearVelocity(body_b, b2Vec2_zero);
+			on_player_end_touch_pushable_block(entity_a, entity_b);
 		} break;
 
 		}

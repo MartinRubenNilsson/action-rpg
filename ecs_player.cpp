@@ -170,7 +170,7 @@ namespace ecs
 					new_move_dir = normalize(new_move_dir);
 					if (player.input_flags & INPUT_STEALTH) {
 						new_move_speed = _PLAYER_STEALTH_SPEED;
-					} else if (player.contacting_pushable_block) {
+					} else if (player.touching_pushable_block) {
 						new_move_speed = _PLAYER_WALK_SPEED;
 					} else if (player.input_flags & INPUT_RUN) {
 						new_move_speed = _PLAYER_RUN_SPEED;
@@ -215,7 +215,7 @@ namespace ecs
 					create_bomb(position + player.look_dir * 16.f);
 					player.bombs--;
 
-				} else if (player.contacting_pushable_block && !is_zero(new_velocity)) {
+				} else if (player.touching_pushable_block && !is_zero(new_velocity)) {
 
 					switch (dir) {
 					case 'l':
@@ -577,21 +577,27 @@ namespace ecs
 		destroy_at_end_of_frame(pickup_entity);
 	}
 
-	void on_player_begin_touch_pushable_block(entt::entity player_entity)
+	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;
-		player->contacting_pushable_block = true;
+		player->touching_pushable_block = true;
 		audio::stop_event(player->stone_sliding_sound); // Stop any previously playing sound
 		player->stone_sliding_sound = audio::create_event({ .path = "event:/props/stone_slide" });
+		if (b2BodyId body = get_body(pushable_block_entity); B2_IS_NON_NULL(body)) {
+			b2Body_SetType(body, b2_dynamicBody);
+		}
 	}
 
-	void on_player_end_touch_pushable_block(entt::entity player_entity)
+	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity)
 	{
 		Player* player = get_player(player_entity);
 		if (!player) return;
-		player->contacting_pushable_block = false;
+		player->touching_pushable_block = false;
 		audio::stop_event(player->stone_sliding_sound);
+		if (b2BodyId body = get_body(pushable_block_entity); B2_IS_NON_NULL(body)) {
+			b2Body_SetType(body, b2_staticBody);
+		}
 	}
 
 	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
