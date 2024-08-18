@@ -57,9 +57,16 @@ namespace ecs
 		// of the shapes. This means we only need to make at most one switch case for any pair of tags.
 
 		switch (tag_a) {
+
+		case Tag::Arrow: {
+			destroy_at_end_of_frame(entity_a);
+			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
+		} break;
+
 		case Tag::BladeTrap: {
 			on_blade_trap_begin_touch(entity_a, entity_b);
 		} break;
+
 		}
 
 		switch (PAIR(tag_a, tag_b)) {
@@ -74,20 +81,6 @@ namespace ecs
 
 		case PAIR(Tag::Player, Tag::Slime): {
 			apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
-		} break;
-
-		case PAIR(Tag::Arrow, Tag::None): {
-			destroy_at_end_of_frame(entity_a);
-		} break;
-
-		case PAIR(Tag::Arrow, Tag::Slime): {
-			destroy_at_end_of_frame(entity_a);
-			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
-		} break;
-
-		case PAIR(Tag::Arrow, Tag::Bomb): {
-			destroy_at_end_of_frame(entity_a);
-			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
 		} break;
 
 		}
