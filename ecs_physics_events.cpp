@@ -11,7 +11,6 @@
 #include "console.h"
 
 #define PAIR(a, b) ((uint64_t)a << 32 | (uint64_t)b)
-#define BOTH_CASES(a, b) case PAIR(b, a): swap(); [[fallthrough]]; case PAIR(a, b):
 
 namespace ecs
 {
@@ -47,54 +46,48 @@ namespace ecs
 
 	void process_contact_begin_touch_event(b2ShapeId shape_a, b2ShapeId shape_b)
 	{
-		b2BodyId body_a = b2Shape_GetBody(shape_a);
-		b2BodyId body_b = b2Shape_GetBody(shape_b);
-		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
-		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
-		Tag tag_a = get_tag(entity_a);
-		Tag tag_b = get_tag(entity_b);
+		const b2BodyId body_a = b2Shape_GetBody(shape_a);
+		const b2BodyId body_b = b2Shape_GetBody(shape_b);
+		const entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
+		const entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
+		const Tag tag_a = get_tag(entity_a);
+		const Tag tag_b = get_tag(entity_b);
 
-		const auto swap = [&]() {
-			std::swap(shape_a, shape_b);
-			std::swap(body_a, body_b);
-			std::swap(entity_a, entity_b);
-			std::swap(tag_a, tag_b);
-		};
+		// IMPORTANT: When shape_a != shape_b, this function is called two times, once for each ordering
+		// of the shapes. This means we only need to make at most one switch case for any pair of tags.
+
+		switch (tag_a) {
+		case Tag::BladeTrap: {
+			on_blade_trap_begin_touch(entity_a, entity_b);
+		} break;
+		}
 
 		switch (PAIR(tag_a, tag_b)) {
 
-		BOTH_CASES(Tag::Player, Tag::Portal) {
+		case PAIR(Tag::Player, Tag::Portal): {
 			activate_portal(entity_b);
 		} break;
 
-		BOTH_CASES(Tag::Player, Tag::PushableBlock) {
+		case PAIR(Tag::Player, Tag::PushableBlock): {
 			on_player_begin_touch_pushable_block(entity_a);
 		} break;
 
-		BOTH_CASES(Tag::Player, Tag::Slime) {
+		case PAIR(Tag::Player, Tag::Slime): {
 			apply_damage_to_player(entity_a, { .type = DamageType::Melee, .amount = 1 });
 		} break;
 
-		BOTH_CASES(Tag::Player, Tag::BladeTrap) {
-			apply_damage_to_player(entity_a, { .amount = 1 });
-		} break;
-
-		BOTH_CASES(Tag::Arrow, Tag::None) {
+		case PAIR(Tag::Arrow, Tag::None): {
 			destroy_at_end_of_frame(entity_a);
 		} break;
 
-		BOTH_CASES(Tag::Arrow, Tag::Slime) {
+		case PAIR(Tag::Arrow, Tag::Slime): {
 			destroy_at_end_of_frame(entity_a);
 			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
 		} break;
 
-		BOTH_CASES(Tag::Arrow, Tag::Bomb) {
+		case PAIR(Tag::Arrow, Tag::Bomb): {
 			destroy_at_end_of_frame(entity_a);
 			apply_damage(entity_b, { .type = DamageType::Projectile, .amount = 1 });
-		} break;
-
-		BOTH_CASES(Tag::BladeTrap, Tag::None) {
-			retract_blade_trap(entity_a);
 		} break;
 
 		}
@@ -102,23 +95,19 @@ namespace ecs
 
 	void process_contact_end_touch_event(b2ShapeId shape_a, b2ShapeId shape_b)
 	{
-		b2BodyId body_a = b2Shape_GetBody(shape_a);
-		b2BodyId body_b = b2Shape_GetBody(shape_b);
-		entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
-		entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
-		Tag tag_a = get_tag(entity_a);
-		Tag tag_b = get_tag(entity_b);
+		const b2BodyId body_a = b2Shape_GetBody(shape_a);
+		const b2BodyId body_b = b2Shape_GetBody(shape_b);
+		const entt::entity entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(body_a);
+		const entt::entity entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(body_b);
+		const Tag tag_a = get_tag(entity_a);
+		const Tag tag_b = get_tag(entity_b);
 
-		const auto swap = [&]() {
-			std::swap(shape_a, shape_b);
-			std::swap(body_a, body_b);
-			std::swap(entity_a, entity_b);
-			std::swap(tag_a, tag_b);
-		};
+		// IMPORTANT: When shape_a != shape_b, this function is called two times, once for each ordering
+		// of the shapes. This means we only need to make at most one switch case for any pair of tags.
 
 		switch (PAIR(tag_a, tag_b)) {
 
-		BOTH_CASES(Tag::Player, Tag::PushableBlock) {
+		case PAIR(Tag::Player, Tag::PushableBlock): {
 			on_player_end_touch_pushable_block(entity_a);
 			b2Body_SetLinearVelocity(body_b, b2Vec2_zero);
 		} break;

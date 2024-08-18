@@ -3,6 +3,7 @@
 #include "ecs_sprites.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_damage.h"
 
 namespace ecs
 {
@@ -85,16 +86,19 @@ namespace ecs
 		return _registry.try_get<BladeTrap>(entity);
 	}
 
-	void retract_blade_trap(entt::entity entity)
+	void on_blade_trap_begin_touch(entt::entity blade_trap_entity, entt::entity other_entity)
 	{
-		BladeTrap* blade_trap = get_blade_trap(entity);
+		BladeTrap* blade_trap = get_blade_trap(blade_trap_entity);
 		if (!blade_trap) return;
+
+		apply_damage(other_entity, { .type = DamageType::Melee, .amount = 1 });
+
 		if (blade_trap->state != BladeTrapState::Extending) return;
 		blade_trap->state = BladeTrapState::Retracting;
 		blade_trap->state_timer = { 0.4f };
 		blade_trap->state_timer.start();
 		{
-			SpriteShake& shake = emplace_sprite_shake(entity);
+			SpriteShake& shake = emplace_sprite_shake(blade_trap_entity);
 			shake.duration = 0.4f;
 			shake.magnitude = 6.f;
 			shake.exponent = 3.f;

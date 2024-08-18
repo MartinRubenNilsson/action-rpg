@@ -73,10 +73,16 @@ namespace ecs
 				for (int32_t i = 0; i < contact_events.beginCount; ++i) {
 					const b2ContactBeginTouchEvent& ev = contact_events.beginEvents[i];
 					process_contact_begin_touch_event(ev.shapeIdA, ev.shapeIdB);
+					if (!B2_ID_EQUALS(ev.shapeIdA, ev.shapeIdB)) {
+						process_contact_begin_touch_event(ev.shapeIdB, ev.shapeIdA);
+					}
 				}
 				for (int32_t i = 0; i < contact_events.endCount; ++i) {
 					const b2ContactEndTouchEvent& ev = contact_events.endEvents[i];
 					process_contact_end_touch_event(ev.shapeIdA, ev.shapeIdB);
+					if (!B2_ID_EQUALS(ev.shapeIdA, ev.shapeIdB)) {
+						process_contact_end_touch_event(ev.shapeIdB, ev.shapeIdA);
+					}
 				}
 			}
 		}

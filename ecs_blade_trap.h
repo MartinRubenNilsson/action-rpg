@@ -23,5 +23,5 @@ namespace ecs
 	BladeTrap& emplace_blade_trap(entt::entity entity);
 	BladeTrap* get_blade_trap(entt::entity entity);
 
-	void retract_blade_trap(entt::entity entity);
+	void on_blade_trap_begin_touch(entt::entity blade_trap_entity, entt::entity other_entity);
 }
