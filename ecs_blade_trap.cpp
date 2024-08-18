@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "ecs_blade_trap.h"
+#include "ecs_sprite.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
-#include "ecs_common.h"
 
 namespace ecs
 {
@@ -30,7 +30,7 @@ namespace ecs
 				const Vector2f ray_end = ray_start + direction * 16.f * 10.f; // raycast 10 tiles
 				RaycastHit hit{};
 				if (!raycast_closest(ray_start, ray_end, CM_Default, &hit)) break;
-				if (get_tag(hit.entity) != Tag::Player) break;
+				if (is_zero(b2Body_GetLinearVelocity(hit.body))) break;
 
 				b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_EXTEND_SPEED);
 				blade_trap.state = BladeTrapState::Extending;
@@ -76,5 +76,11 @@ namespace ecs
 		if (!blade_trap) return;
 		if (blade_trap->state != BladeTrapState::Extending) return;
 		blade_trap->state = BladeTrapState::Retracting;
+		{
+			SpriteShake& shake = emplace_sprite_shake(entity);
+			shake.duration = 0.4f;
+			shake.magnitude = 5.f;
+			shake.exponent = 3.f;
+		}
 	}
 }

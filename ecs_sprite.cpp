@@ -17,12 +17,15 @@ namespace ecs
 	void update_sprite_shakes(float dt)
 	{
 		for (auto [entity, shake] : _registry.view<SpriteShake>().each()) {
+			const float last_duration = shake.duration;
 			if (shake.duration > 0.f) {
 				shake.duration -= dt;
 			}
 			if (shake.duration <= 0.f) {
 				_registry.erase<SpriteShake>(entity);
+				continue;
 			}
+			shake.magnitude *= pow(shake.duration / last_duration, std::max(shake.exponent, 0.f));
 		}
 	}
 
@@ -31,8 +34,10 @@ namespace ecs
 		for (auto [entity, sprites, shake] : _registry.view<sprites::Sprite, SpriteShake>().each()) {
 			shake._original_position = sprites.position;
 			//TODO: perlin noise
-			sprites.position.x += random::range_f(-shake.magnitude, shake.magnitude);
-			sprites.position.y += random::range_f(-shake.magnitude, shake.magnitude);
+			sprites.position.x += shake.magnitude * 
+				random::fractal_perlin_noise(10.f * shake.duration, 0.f, 0.f);
+			sprites.position.y += shake.magnitude *
+				random::fractal_perlin_noise(10.f * shake.duration, 10.f, 0.f);
 		}
 	}
 

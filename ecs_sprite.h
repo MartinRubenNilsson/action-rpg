@@ -11,8 +11,18 @@ namespace ecs
 
 	struct SpriteShake
 	{
-		float magnitude = 0.f;
+		// The duration decreases by dt each frame, while the magnitude decreases
+		// in such a way that the two values always satisfy the following power law:
+		// 
+		//     magnitude = initial_magnitude * pow(duration / initial_duration, exponent).
+		//
+		// The magnitude remains constant when exponent = 0, decreases linearly when exponent = 1,
+		// decreases faster at the end when 0 < exponent < 1, and decreases faster initially
+		// when exponent > 1. A natural choice for a shake that fades out is exponent = 2.
+
 		float duration = 0.f;
+		float magnitude = 0.f;
+		float exponent = 0.f;
 		Vector2f _original_position; // for internal use!
 	};
 
