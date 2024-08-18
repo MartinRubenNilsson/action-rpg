@@ -8,7 +8,7 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="map.cpp">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClCompile>
     <ClCompile Include="math.cpp">
       <Filter>math</Filter>
@@ -23,16 +23,16 @@
       <Filter>console</Filter>
     </ClCompile>
     <ClCompile Include="ecs.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_common.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ui_textbox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ecs_camera.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="tiled.cpp">
       <Filter>tiled</Filter>
@@ -44,22 +44,22 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ecs_ai_action.cpp">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClCompile>
     <ClCompile Include="ecs_ai_knowledge.cpp">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClCompile>
     <ClCompile Include="ecs_pickups.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_ai.cpp">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClCompile>
     <ClCompile Include="ecs_physics.cpp">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_physics_filters.cpp">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClCompile>
     <ClCompile Include="postprocessing.cpp">
       <Filter>graphics</Filter>
@@ -68,22 +68,22 @@
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="ecs_vfx.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_physics_events.cpp">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_bomb.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_player.cpp">
-      <Filter>ecs\player</Filter>
+      <Filter>game\ecs\player</Filter>
     </ClCompile>
     <ClCompile Include="background.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="map_tilegrid.cpp">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClCompile>
     <ClCompile Include="steam.cpp">
       <Filter>steam</Filter>
@@ -101,10 +101,10 @@
       <Filter>console</Filter>
     </ClCompile>
     <ClCompile Include="ecs_arrow.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="map_entities.cpp">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClCompile>
     <ClCompile Include="sprites.cpp">
       <Filter>graphics</Filter>
@@ -119,10 +119,7 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="ecs_portal.cpp">
-      <Filter>ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="ecs_character.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="dependencies\glad\glad.c">
       <Filter>graphics\glad</Filter>
@@ -165,13 +162,13 @@
       <Filter>application</Filter>
     </ClCompile>
     <ClCompile Include="ecs_chest.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClCompile>
     <ClCompile Include="ecs_interact.cpp">
-      <Filter>ecs\mechanics</Filter>
+      <Filter>game\ecs\mechanics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_damage.cpp">
-      <Filter>ecs\mechanics</Filter>
+      <Filter>game\ecs\mechanics</Filter>
     </ClCompile>
     <ClCompile Include="random.cpp">
       <Filter>utilities</Filter>
@@ -180,22 +177,25 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_blade_trap.cpp">
-      <Filter>ecs\enemies</Filter>
+      <Filter>game\ecs\enemies</Filter>
     </ClCompile>
     <ClCompile Include="eastl_allocator.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
     <ClCompile Include="ecs_sprites.cpp">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_animation.cpp">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_uniform_block.cpp">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_tags.cpp">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="player_outfit.cpp">
+      <Filter>game\player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -260,7 +260,7 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClInclude>
     <ClInclude Include="math.h">
       <Filter>math</Filter>
@@ -272,16 +272,16 @@
       <Filter>console</Filter>
     </ClInclude>
     <ClInclude Include="ecs.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_common.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ui_textbox.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ecs_camera.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="tiled.h">
       <Filter>tiled</Filter>
@@ -290,25 +290,25 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ecs_ai_knowledge.h">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClInclude>
     <ClInclude Include="ecs_ai_action.h">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClInclude>
     <ClInclude Include="ecs_arrow.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_pickups.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_ai.h">
-      <Filter>ecs\ai</Filter>
+      <Filter>game\ecs\ai</Filter>
     </ClInclude>
     <ClInclude Include="ecs_physics.h">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_physics_filters.h">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="postprocessing.h">
       <Filter>graphics</Filter>
@@ -317,22 +317,22 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ecs_vfx.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_physics_events.h">
-      <Filter>ecs\physics</Filter>
+      <Filter>game\ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_bomb.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
-      <Filter>ecs\player</Filter>
+      <Filter>game\ecs\player</Filter>
     </ClInclude>
     <ClInclude Include="background.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="map_tilegrid.h">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\steam\isteamapps.h">
       <Filter>steam\api</Filter>
@@ -512,7 +512,7 @@
       <Filter>steam</Filter>
     </ClInclude>
     <ClInclude Include="map_entities.h">
-      <Filter>map</Filter>
+      <Filter>game\map</Filter>
     </ClInclude>
     <ClInclude Include="sprites.h">
       <Filter>graphics</Filter>
@@ -527,10 +527,7 @@
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="ecs_portal.h">
-      <Filter>ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_character.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\glad\glad.h">
       <Filter>graphics\glad</Filter>
@@ -593,13 +590,13 @@
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="ecs_chest.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
     </ClInclude>
     <ClInclude Include="ecs_interact.h">
-      <Filter>ecs\mechanics</Filter>
+      <Filter>game\ecs\mechanics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_damage.h">
-      <Filter>ecs\mechanics</Filter>
+      <Filter>game\ecs\mechanics</Filter>
     </ClInclude>
     <ClInclude Include="random.h">
       <Filter>utilities</Filter>
@@ -608,47 +605,44 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_blade_trap.h">
-      <Filter>ecs\enemies</Filter>
+      <Filter>game\ecs\enemies</Filter>
     </ClInclude>
     <ClInclude Include="ecs_sprites.h">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_animation.h">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="tile_ids.h" />
     <ClInclude Include="dependencies\box2d\base.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\box2d.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\collision.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\id.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\math_functions.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\box2d\types.h">
-      <Filter>ecs\physics\box2d</Filter>
+      <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
     <ClInclude Include="ecs_uniform_block.h">
-      <Filter>ecs\graphics</Filter>
+      <Filter>game\ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_tags.h">
-      <Filter>ecs</Filter>
+      <Filter>game\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="player_outfit.h">
+      <Filter>game\player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="ecs">
-      <UniqueIdentifier>{f1d0e233-c8b6-45ea-9899-c05d6aa201d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="map">
-      <UniqueIdentifier>{7ff8c929-179f-49c5-bccc-7bcfd599952e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{fff1760b-f79a-4c10-886f-a39f2230c48d}</UniqueIdentifier>
     </Filter>
@@ -667,20 +661,11 @@
     <Filter Include="tiled">
       <UniqueIdentifier>{6b60417d-4b8d-484b-a07f-0ba1149de84b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\ai">
-      <UniqueIdentifier>{8d84feb1-0644-4d63-9c27-8bb43625fab1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ecs\physics">
-      <UniqueIdentifier>{bb288391-6986-45d7-944a-5e3ef8ad4dd0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="graphics">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
     </Filter>
     <Filter Include="graphics\shaders">
       <UniqueIdentifier>{fecc6edd-667c-49f6-adf9-57600b3c48af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ecs\player">
-      <UniqueIdentifier>{db0d950d-591f-470a-935b-0082a4e1b134}</UniqueIdentifier>
     </Filter>
     <Filter Include="steam">
       <UniqueIdentifier>{029569e4-8e84-4e37-99f3-3b57c5057e89}</UniqueIdentifier>
@@ -703,17 +688,38 @@
     <Filter Include="graphics\renderdoc">
       <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\mechanics">
+    <Filter Include="game">
+      <UniqueIdentifier>{5f4911be-b72a-4a81-bdf6-a53443597ca1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\map">
+      <UniqueIdentifier>{7ff8c929-179f-49c5-bccc-7bcfd599952e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs">
+      <UniqueIdentifier>{f1d0e233-c8b6-45ea-9899-c05d6aa201d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\ai">
+      <UniqueIdentifier>{8d84feb1-0644-4d63-9c27-8bb43625fab1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\physics">
+      <UniqueIdentifier>{bb288391-6986-45d7-944a-5e3ef8ad4dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\physics\box2d">
+      <UniqueIdentifier>{ffe6cfc6-66be-46cd-a885-5762aed4b6bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\player">
+      <UniqueIdentifier>{db0d950d-591f-470a-935b-0082a4e1b134}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\ecs\mechanics">
       <UniqueIdentifier>{bda05a2e-3455-426f-87f2-f5bcb303a363}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\enemies">
+    <Filter Include="game\ecs\enemies">
       <UniqueIdentifier>{c8484bdc-09b7-4b8c-ac87-16b2f0ccfaac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\graphics">
+    <Filter Include="game\ecs\graphics">
       <UniqueIdentifier>{a81c1375-587d-4f63-8d82-144aa9a48fe8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ecs\physics\box2d">
-      <UniqueIdentifier>{ffe6cfc6-66be-46cd-a885-5762aed4b6bf}</UniqueIdentifier>
+    <Filter Include="game\player">
+      <UniqueIdentifier>{03b5b10a-d728-4b19-a8d7-517a4b0f078d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

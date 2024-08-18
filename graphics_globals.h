@@ -28,5 +28,7 @@ namespace graphics
 
 	extern Handle<Buffer> frame_uniform_buffer;
 
+	extern Handle<Texture> player_outfit_texture;
+
 	void initialize_globals();
 }

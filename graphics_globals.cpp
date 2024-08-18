@@ -30,6 +30,8 @@ namespace graphics
 
 	Handle<Buffer> frame_uniform_buffer;
 
+	Handle<Texture> player_outfit_texture;
+
 	void initialize_globals()
 	{
 		fullscreen_shader = load_shader(

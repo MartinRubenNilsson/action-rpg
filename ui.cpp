@@ -281,10 +281,10 @@ namespace ui
 			_debugger_context->ProcessMouseLeave();
 			break;
 		case sf::Event::TextEntered: {
-			Rml::Character c = Rml::Character(ev.text.unicode);
-			if (c == Rml::Character('\r'))
-				c = Rml::Character('\n');
-			if (ev.text.unicode >= 32 || c == Rml::Character('\n')) {
+			Rml::Outfit c = Rml::Outfit(ev.text.unicode);
+			if (c == Rml::Outfit('\r'))
+				c = Rml::Outfit('\n');
+			if (ev.text.unicode >= 32 || c == Rml::Outfit('\n')) {
 				_context->ProcessTextInput(c);
 				_debugger_context->ProcessTextInput(c);
 			}

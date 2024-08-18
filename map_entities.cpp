@@ -14,9 +14,9 @@
 #include "ecs_camera.h"
 #include "ecs_ai.h"
 #include "ecs_portal.h"
-#include "ecs_character.h"
 #include "ecs_chest.h"
 #include "ecs_blade_trap.h"
+#include "player_outfit.h"
 
 // Precautionary measure so we don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
@@ -53,15 +53,11 @@ namespace map
 		// Save some components to be carried over between maps,
 		// or that is needed in general when populating the new map.
 		std::optional<ecs::Player> last_player;
-		std::optional<ecs::Character> last_player_character;
 		std::optional<ecs::Portal> last_active_portal;
 		{
 			entt::entity player_entity = ecs::find_player_entity();
 			if (ecs::Player* player = ecs::get_player(player_entity)) {
 				last_player = *player;
-			}
-			if (ecs::Character* character = ecs::get_character(player_entity)) {
-				last_player_character = *character;
 			}
 			entt::entity portal_entity = ecs::find_active_portal_entity();
 			if (ecs::Portal* portal = ecs::get_portal(portal_entity)) {
@@ -271,7 +267,15 @@ namespace map
 
 					const Vector2f pivot = { 32.f, 42.f };
 
+					{
+						player::Outfit outfit{};
+						player::randomize_outfit(outfit);
+						graphics::destroy_texture(graphics::player_outfit_texture);
+						graphics::player_outfit_texture = player::create_outfit_texture(outfit);
+					}
+
 					if (sprites::Sprite* sprite = ecs::get_sprite(entity)) {
+						sprite->texture = graphics::player_outfit_texture;
 						sprite->sorting_point = pivot;
 					}
 					{
@@ -321,21 +325,6 @@ namespace map
 					camera.entity_to_follow = entity;
 					ecs::emplace_camera(entity, camera);
 					ecs::activate_camera(entity, true);
-
-					ecs::Character character{};
-					if (last_player_character) {
-						character = *last_player_character;
-					} else {
-						ecs::randomize_character(character);
-					}
-					ecs::emplace_character(entity, character);
-					ecs::regenerate_character_texture(character);
-
-#if 0
-					if (tile) {
-						tile->texture = character.texture;
-					}
-#endif
 
 				} break;
 				case ecs::Tag::Slime: {

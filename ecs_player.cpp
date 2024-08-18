@@ -10,7 +10,7 @@
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
 #include "ecs_interact.h"
-#include "ecs_character.h"
+#include "player_outfit.h"
 #include "console.h"
 #include "audio.h"
 #include "window.h"
@@ -467,7 +467,7 @@ namespace ecs
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
-		for (auto [entity, player, body, animation, character] : _registry.view<Player, b2BodyId, Animation, Character>().each()) {
+		for (auto [entity, player, body, animation] : _registry.view<Player, b2BodyId, Animation>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
 			// For convenience, if there's just one player, open debug menu immediately. 
@@ -495,9 +495,9 @@ namespace ecs
 				player.rupees += 5;
 
 #if 0
-			if (ImGui::Button("Randomize Appearance")) {
-				randomize_character(character);
-				regenerate_character_texture(character);
+			if (ImGui::Button("Randomize Outfit")) {
+				randomize_outfit(character);
+				create_outfit_texture(character);
 				animation.texture = character.texture;
 			}
 #endif

@@ -182,7 +182,7 @@
     <ClCompile Include="ecs_physics_events.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
-    <ClCompile Include="ecs_character.cpp" />
+    <ClCompile Include="player_outfit.cpp" />
     <ClCompile Include="ecs_portal.cpp" />
     <ClCompile Include="ecs_vfx.cpp" />
     <ClCompile Include="map_entities.cpp" />
@@ -343,7 +343,7 @@
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_arrow.h" />
-    <ClInclude Include="ecs_character.h" />
+    <ClInclude Include="player_outfit.h" />
     <ClInclude Include="ecs_portal.h" />
     <ClInclude Include="ecs_vfx.h" />
     <ClInclude Include="map_entities.h" />

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace ecs
+namespace player
 {
-	struct Character
+	struct Outfit
 	{
 		enum class Body
 		{
@@ -152,15 +152,8 @@ namespace ecs
 		Hat hat = Hat::None;
 		int hat_color_1 = 0;
 		int hat_color_2 = 0;
-
-		Handle<graphics::Texture> texture;
 	};
 
-	Character& emplace_character(entt::entity entity, const Character& ch = {});
-	Character* get_character(entt::entity entity);
-	bool remove_character(entt::entity entity);
-	bool has_character(entt::entity entity);
-
-	void randomize_character(Character& ch);
-	void regenerate_character_texture(Character& ch);
+	void randomize_outfit(Outfit& outfit);
+	Handle<graphics::Texture> create_outfit_texture(Outfit& outfit);
 }
