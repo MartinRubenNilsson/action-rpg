@@ -17,7 +17,7 @@ namespace ecs
 		BladeTrapState state = BladeTrapState::Idle;
 		Timer state_timer; // for pausing between state changes
 		Vector2f start_position;
-		Handle<audio::Event> audio_event; // changed depending on state
+		Handle<audio::Event> audio_event; // changes depending on state
 	};
 
 	void update_blade_traps(float dt);
