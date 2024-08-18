@@ -56,7 +56,7 @@ namespace ecs
 			circle.radius = 6.f;
 			b2CreateCircleShape(body, &shape_def, &circle);
 		}
-		emplace_sprite_body_attachment(entity, -pivot);
+		emplace_sprite_follow_body(entity, -pivot);
 		audio::create_event({ .path = "event:/snd_fire_arrow" });
 		return entity;
 	}

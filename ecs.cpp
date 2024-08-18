@@ -19,7 +19,7 @@
 
 namespace ecs
 {
-	int debug_flags = DEBUG_NONE;
+	int debug_flags = 0;
 	entt::registry _registry;
 
 	void initialize()
@@ -51,7 +51,8 @@ namespace ecs
 		destroy_entities_to_be_destroyed_at_end_of_frame();
 		update_animations(dt);
 		update_animated_sprites(dt);
-		update_sprite_body_attachments();
+		update_sprites_following_bodies();
+		update_sprite_shakes(dt);
 		update_vfx(dt);
 		update_cameras(dt);
 	}
@@ -66,6 +67,8 @@ namespace ecs
 	 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		shake_sprites_before_drawing();
+
 		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
 			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
 			if (sprite.position.x > camera_max.x) continue;
@@ -77,6 +80,8 @@ namespace ecs
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
 		sprites::sort();
 		sprites::draw("ECS");
+
+		unshake_sprites_after_drawing();
 	}
 
 	void add_debug_shapes_to_render_queue()

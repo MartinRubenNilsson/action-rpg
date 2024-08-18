@@ -1,15 +1,9 @@
 #pragma once
 
-namespace window
-{
-	struct Event;
-}
-
 namespace ecs
 {
-	enum DebugFlags
+	enum DEBUG_FLAGS
 	{
-		DEBUG_NONE     = 0,
 		DEBUG_PHYSICS  = 1 << 1,
 		DEBUG_AI       = 1 << 2,
 		DEBUG_PLAYER   = 1 << 3,

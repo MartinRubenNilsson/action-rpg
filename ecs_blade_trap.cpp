@@ -40,11 +40,17 @@ namespace ecs
 			} break;
 			case BladeTrapState::Retracting: {
 
-				const float distance_to_start = length(blade_trap.start_position - b2Body_GetPosition(body));
-				if (distance_to_start >= 0.1f) break;
+				const Vector2f to_start = blade_trap.start_position - b2Body_GetPosition(body);
+				const float dist_to_start = length(to_start);
 
-				b2Body_SetTransform(body, blade_trap.start_position, { 0.f, 0.f });
-				b2Body_SetLinearVelocity(body, { 0.f, 0.f });
+				if (dist_to_start >= 1.f) {
+					const Vector2 dir_to_start = to_start / dist_to_start;
+					b2Body_SetLinearVelocity(body, dir_to_start * _BLADE_TRAP_RETRACT_SPEED);
+					break;
+				}
+
+				b2Body_SetTransform(body, blade_trap.start_position, b2Rot_identity);
+				b2Body_SetLinearVelocity(body, b2Vec2_zero);
 				blade_trap.state = BladeTrapState::Idle;
 
 				// TODO: play sound
@@ -70,10 +76,5 @@ namespace ecs
 		if (!blade_trap) return;
 		if (blade_trap->state != BladeTrapState::Extending) return;
 		blade_trap->state = BladeTrapState::Retracting;
-		
-		b2BodyId body = get_body(entity);
-		if (B2_IS_NULL(body)) return;
-		const Vector2f direction = normalize(blade_trap->start_position - b2Body_GetPosition(body));
-		b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_RETRACT_SPEED);
 	}
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ecs_physics_events.h"
 #include "ecs_common.h"
+#include "ecs_sprite.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"
 #include "ecs_damage.h"
@@ -94,6 +95,9 @@ namespace ecs
 
 		BOTH_CASES(Tag::BladeTrap, Tag::None) {
 			retract_blade_trap(entity_a);
+			SpriteShake& shake = emplace_sprite_shake(entity_a);
+			shake.duration = 0.2f;
+			shake.magnitude = 10.f;
 		} break;
 
 		}

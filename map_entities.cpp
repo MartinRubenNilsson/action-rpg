@@ -176,7 +176,7 @@ namespace map
 
 						// EMPLACE SPRITE-BODY ATTACHMENT
 
-						ecs::emplace_sprite_body_attachment(entity);
+						ecs::emplace_sprite_follow_body(entity);
 
 						// EMPLACE BODY
 
@@ -287,7 +287,7 @@ namespace map
 						b2CreateCircleShape(body, &shape_def, &circle);
 					}
 
-					ecs::emplace_sprite_body_attachment(entity, -pivot);
+					ecs::emplace_sprite_follow_body(entity, -pivot);
 
 					if (last_active_portal) {
 
@@ -405,7 +405,7 @@ namespace map
 						b2CreateCircleShape(body, &shape_def, &circle);
 					}
 
-					ecs::emplace_sprite_body_attachment(entity, -pivot);
+					ecs::emplace_sprite_follow_body(entity, -pivot);
 
 				} break;
 				}
