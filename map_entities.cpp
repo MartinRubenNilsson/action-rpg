@@ -395,7 +395,7 @@ namespace map
 					}
 					{
 						b2BodyDef body_def = b2DefaultBodyDef();
-						body_def.type = b2_dynamicBody;
+						body_def.type = b2_staticBody;
 						body_def.position = position_top_left + center;
 						body_def.fixedRotation = true;
 						b2BodyId body = ecs::emplace_body(entity, body_def);

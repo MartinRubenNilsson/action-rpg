@@ -36,8 +36,9 @@ namespace ecs
 				if (!raycast_closest(ray_start, ray_end, CM_Default, &hit)) break;
 				if (is_zero(b2Body_GetLinearVelocity(hit.body))) break;
 
-				b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_EXTEND_SPEED);
 				blade_trap.state = BladeTrapState::Extending;
+				b2Body_SetType(body, b2_dynamicBody);
+				b2Body_SetLinearVelocity(body, direction * _BLADE_TRAP_EXTEND_SPEED);
 
 				// TODO: play sound
 
@@ -53,12 +54,13 @@ namespace ecs
 					break;
 				}
 
-				b2Body_SetTransform(body, blade_trap.start_position, b2Rot_identity);
-				b2Body_SetLinearVelocity(body, b2Vec2_zero);
 				blade_trap.state = BladeTrapState::Idle;
-
 				blade_trap.state_timer = { 0.2f };
 				blade_trap.state_timer.start();
+
+				b2Body_SetType(body, b2_staticBody);
+				b2Body_SetTransform(body, blade_trap.start_position, b2Rot_identity);
+
 				{
 					SpriteShake& shake = emplace_sprite_shake(entity);
 					shake.duration = 0.2f;

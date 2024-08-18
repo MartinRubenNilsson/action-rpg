@@ -20,8 +20,8 @@ namespace ecs
 		// decreases faster at the end when 0 < exponent < 1, and decreases faster initially
 		// when exponent > 1. A natural choice for a shake that fades out is exponent = 2.
 
-		float duration = 0.f;
-		float magnitude = 0.f;
+		float duration = 0.f; // in seconds
+		float magnitude = 0.f; // in pixels
 		float exponent = 0.f;
 		Vector2f _original_position; // for internal use!
 	};

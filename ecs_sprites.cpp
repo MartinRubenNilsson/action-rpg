@@ -33,7 +33,6 @@ namespace ecs
 	{
 		for (auto [entity, sprites, shake] : _registry.view<sprites::Sprite, SpriteShake>().each()) {
 			shake._original_position = sprites.position;
-			//TODO: perlin noise
 			sprites.position.x += shake.magnitude * 
 				random::fractal_perlin_noise(10.f * shake.duration, 0.f, 0.f);
 			sprites.position.y += shake.magnitude *
