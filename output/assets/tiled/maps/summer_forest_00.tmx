@@ -129,7 +129,7 @@
   <object id="21" template="../templates/player.tx" x="349.833" y="286.333"/>
   <object id="22" name="waterfall_audio_source" type="audio_source" x="118" y="125.5">
    <properties>
-    <property name="event" value="snd_waterfall"/>
+    <property name="event" value="event:/snd_waterfall"/>
    </properties>
    <point/>
   </object>

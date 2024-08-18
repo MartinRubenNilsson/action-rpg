@@ -257,6 +257,13 @@ namespace map
 				// TAG-SPECIFIC ENTITY SETUP
 
 				switch (tag) {
+				case ecs::Tag::AudioSource: {
+
+					if (std::string ev; object.properties.get_string("event", ev)) {
+						audio::create_event({ .path = ev.c_str(), .position = position_top_left });
+					}
+
+				} break;
 				case ecs::Tag::Player: {
 
 					ecs::Player player{};
