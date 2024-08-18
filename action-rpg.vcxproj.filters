@@ -185,7 +185,7 @@
     <ClCompile Include="eastl_allocator.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_sprite.cpp">
+    <ClCompile Include="ecs_sprites.cpp">
       <Filter>ecs\graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_animation.cpp">
@@ -610,7 +610,7 @@
     <ClInclude Include="ecs_blade_trap.h">
       <Filter>ecs\enemies</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_sprite.h">
+    <ClInclude Include="ecs_sprites.h">
       <Filter>ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_animation.h">

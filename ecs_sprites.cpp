@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ecs_sprite.h"
+#include "ecs_sprites.h"
 #include "random.h"
 
 namespace ecs

@@ -8,7 +8,7 @@
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
-#include "ecs_sprite.h"
+#include "ecs_sprites.h"
 #include "ecs_animation.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"

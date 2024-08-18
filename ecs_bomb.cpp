@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ecs_bomb.h"
-#include "ecs_sprite.h"
+#include "ecs_sprites.h"
 #include "ecs_animation.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"

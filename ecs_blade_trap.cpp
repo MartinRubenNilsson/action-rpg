@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ecs_blade_trap.h"
-#include "ecs_sprite.h"
+#include "ecs_sprites.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ecs_physics_events.h"
 #include "ecs_common.h"
-#include "ecs_sprite.h"
+#include "ecs_sprites.h"
 #include "ecs_player.h"
 #include "ecs_pickups.h"
 #include "ecs_damage.h"
