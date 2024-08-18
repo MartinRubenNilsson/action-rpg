@@ -5,15 +5,6 @@
 
 namespace sprites
 {
-	struct Batch
-	{
-		Handle<graphics::Shader> shader;
-		Handle<graphics::Texture> texture;
-		unsigned int sprite_count = 0; // not used for drawing, only for debugging
-		unsigned int vertex_count = 0;
-		unsigned int vertex_offset = 0; // offset into the vertex buffer
-	};
-
 	bool operator<(const Sprite& left, const Sprite& right)
 	{
 		if (left.sorting_layer != right.sorting_layer)
@@ -28,6 +19,15 @@ namespace sprites
 			return left.texture < right.texture;
 		return false;
 	}
+
+	struct Batch
+	{
+		Handle<graphics::Shader> shader;
+		Handle<graphics::Texture> texture;
+		unsigned int sprite_count = 0; // not used for drawing, only for debugging
+		unsigned int vertex_count = 0;
+		unsigned int vertex_offset = 0; // offset into the vertex buffer
+	};
 
 	eastl::vector<Sprite> _sprites;
 	eastl::vector<Batch> _batches;
