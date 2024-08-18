@@ -79,7 +79,7 @@ namespace ecs
 		{
 			SpriteShake& shake = emplace_sprite_shake(entity);
 			shake.duration = 0.4f;
-			shake.magnitude = 5.f;
+			shake.magnitude = 6.f;
 			shake.exponent = 3.f;
 		}
 	}
