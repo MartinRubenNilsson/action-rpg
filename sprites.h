@@ -25,7 +25,8 @@ namespace sprites
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
 		Handle<graphics::Texture> texture; // TODO: default to error texture
 		Handle<graphics::Buffer> uniform_buffer;
-		uint32_t uniform_buffer_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
+		uint16_t uniform_buffer_size = 0; // size in bytes of the uniform buffer
+		uint16_t uniform_buffer_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256
 		uint16_t _unused;
 		uint8_t flags = SPRITE_VISIBLE;
 		uint8_t sorting_layer = 0;

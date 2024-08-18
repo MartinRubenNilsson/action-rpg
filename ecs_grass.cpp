@@ -9,4 +9,9 @@ namespace ecs
 	{
 		return _registry.emplace_or_replace<Grass>(entity);
 	}
+
+	GrassUniformBlock& emplace_grass_uniform_block(entt::entity entity)
+	{
+		return _registry.emplace_or_replace<GrassUniformBlock>(entity);
+	}
 }

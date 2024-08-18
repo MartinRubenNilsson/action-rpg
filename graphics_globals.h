@@ -27,6 +27,7 @@ namespace graphics
 	extern Handle<Buffer> dynamic_index_buffer;
 
 	extern Handle<Buffer> frame_uniform_buffer;
+	extern Handle<Buffer> sprite_uniform_buffer;
 
 	extern Handle<Texture> player_outfit_texture;
 

@@ -1,14 +1,11 @@
 #include "stdafx.h"
 #include "map_entities.h"
-#include "tiled.h"
-#include "console.h"
-#include "audio.h"
-#include "graphics.h"
-#include "graphics_globals.h"
+
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_sprites.h"
+#include "ecs_uniform_block.h"
 #include "ecs_animation.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
@@ -17,7 +14,13 @@
 #include "ecs_chest.h"
 #include "ecs_grass.h"
 #include "ecs_blade_trap.h"
+
 #include "player_outfit.h"
+#include "tiled.h"
+#include "console.h"
+#include "audio.h"
+#include "graphics.h"
+#include "graphics_globals.h"
 
 // Precautionary measure so we don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
@@ -601,7 +604,12 @@ namespace map
 						sprite.sorting_point = { 8.f, 28.f };
 
 						ecs::emplace_grass(entity);
-						//TODO: set uniform buffer
+						{
+							ecs::GrassUniformBlock& block = ecs::emplace_grass_uniform_block(entity);
+							block.tex_min = sprite.tex_position;
+							block.tex_max = sprite.tex_position + sprite.tex_size;
+							ecs::emplace_uniform_block(entity, &block, sizeof(ecs::GrassUniformBlock));
+						}
 
 					} break;
 					}

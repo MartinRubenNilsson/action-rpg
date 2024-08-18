@@ -1,7 +1,9 @@
 #include "stdafx.h"
+
 #include "ecs.h"
 #include "ecs_common.h"
 #include "ecs_physics.h"
+#include "ecs_uniform_block.h"
 #include "ecs_sprites.h"
 #include "ecs_player.h"
 #include "ecs_ai.h"
@@ -12,10 +14,12 @@
 #include "ecs_bomb.h"
 #include "ecs_portal.h"
 #include "ecs_blade_trap.h"
+
 #include "console.h"
 #include "sprites.h"
 #include "shapes.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 namespace ecs
 {
@@ -64,12 +68,34 @@ namespace ecs
 		min = center - size / 2.f;
 		max = center + size / 2.f;
 	}
+
+	std::vector<UniformBlock> _uniform_blocks;
 	 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group("ecs::draw_sprites()");
 
 		shake_sprites_before_drawing();
+
+		//TODO: don't to frustum culling twice, store ptrs in a vector or something
+		//or maybe emplace a tag?
+
+		_uniform_blocks.clear();
+
+		for (auto [entity, sprite, block] :_registry.view<sprites::Sprite, const UniformBlock>().each()) {
+			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
+			if (sprite.position.x > camera_max.x) continue;
+			if (sprite.position.y > camera_max.y) continue;
+			if (sprite.position.x + sprite.size.x < camera_min.x) continue;
+			if (sprite.position.y + sprite.size.y < camera_min.y) continue;
+			sprite.uniform_buffer = graphics::sprite_uniform_buffer;
+			sprite.uniform_buffer_size = (uint32_t)sizeof(UniformBlock);
+			sprite.uniform_buffer_offset = (uint32_t)(_uniform_blocks.size() * sizeof(UniformBlock));
+			_uniform_blocks.push_back(block);
+		}
+
+		graphics::update_buffer(graphics::sprite_uniform_buffer,
+			_uniform_blocks.data(), (unsigned int)_uniform_blocks.size() * sizeof(UniformBlock));
 
 		for (auto [entity, sprite] : _registry.view<const sprites::Sprite>().each()) {
 			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
@@ -79,6 +105,8 @@ namespace ecs
 			if (sprite.position.y + sprite.size.y < camera_min.y) continue;
 			sprites::add(sprite);
 		}
+
+		//TODO: refactor so that we don't need to call this function
 		add_vfx_sprites_for_drawing(camera_min, camera_max);
 
 		sprites::sort();

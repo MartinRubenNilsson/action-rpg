@@ -4,11 +4,6 @@
 
 namespace graphics
 {
-	enum UNIFORM_BLOCK_BINDING
-	{
-		UNIFORM_BLOCK_BINDING_FRAME = 0,
-	};
-
 	extern const float IDENTITY_MATRIX[16] = {
 		1.f, 0.f, 0.f, 0.f,
 		0.f, 1.f, 0.f, 0.f,
@@ -29,6 +24,7 @@ namespace graphics
 	Handle<Buffer> dynamic_index_buffer;
 
 	Handle<Buffer> frame_uniform_buffer;
+	Handle<Buffer> sprite_uniform_buffer;
 
 	Handle<Texture> player_outfit_texture;
 
@@ -53,26 +49,27 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
-		constexpr unsigned int MAX_VERTICES = 8192;
-		constexpr unsigned int MAX_INDICES = 8192;
-
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
-			.size = MAX_VERTICES * sizeof(Vertex),
+			.size = 8192 * sizeof(Vertex), // 8192 is an initial estimate
 			.dynamic = true });
 
 		dynamic_index_buffer = create_buffer({
 			.debug_name = "dynamic index buffer",
-			.size = MAX_INDICES * sizeof(unsigned int),
+			.size = 8192 * sizeof(unsigned int), // 8192 is an initial estimate
 			.dynamic = true });
 
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
 			.size = sizeof(FrameUniformBlock),
 			.dynamic = true });
+		sprite_uniform_buffer = create_buffer({
+			.debug_name = "sprite uniform buffer",
+			.size = 256 * 256, // estimate we won't need more than 256 custom blocks on screen at same time
+			.dynamic = true });
 
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
-		bind_uniform_buffer(UNIFORM_BLOCK_BINDING_FRAME, frame_uniform_buffer);
+		bind_uniform_buffer(0, frame_uniform_buffer);
 	}
 }

@@ -9,8 +9,11 @@ namespace ecs
 
 	struct GrassUniformBlock
 	{
-		//TODO
+		Vector2f tex_min;
+		Vector2f tex_max;
 	};
 
 	Grass& emplace_grass(entt::entity entity);
+
+	GrassUniformBlock& emplace_grass_uniform_block(entt::entity entity);
 }

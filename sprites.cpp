@@ -17,6 +17,12 @@ namespace sprites
 			return left.shader < right.shader;
 		if (left.texture != right.texture)
 			return left.texture < right.texture;
+		if (left.uniform_buffer != right.uniform_buffer)
+			return left.uniform_buffer < right.uniform_buffer;
+		if (left.uniform_buffer_size != right.uniform_buffer_size)
+			return left.uniform_buffer_size < right.uniform_buffer_size;
+		if (left.uniform_buffer_offset != right.uniform_buffer_offset)
+			return left.uniform_buffer_offset < right.uniform_buffer_offset;
 		return false;
 	}
 
@@ -24,6 +30,9 @@ namespace sprites
 	{
 		Handle<graphics::Shader> shader;
 		Handle<graphics::Texture> texture;
+		Handle<graphics::Buffer> uniform_buffer;
+		unsigned int uniform_buffer_size = 0;
+		unsigned int uniform_buffer_offset = 0;
 		unsigned int sprite_count = 0; // not used for drawing, only for debugging
 		unsigned int vertex_count = 0;
 		unsigned int vertex_offset = 0; // offset into the vertex buffer
@@ -100,10 +109,16 @@ namespace sprites
 				Batch& first_batch = _batches.emplace_back();
 				first_batch.shader = sprite.shader;
 				first_batch.texture = sprite.texture;
+				first_batch.uniform_buffer = sprite.uniform_buffer;
+				first_batch.uniform_buffer_size = sprite.uniform_buffer_size;
+				first_batch.uniform_buffer_offset = sprite.uniform_buffer_offset;
 			} else {
 				Batch& current_batch = _batches.back();
 				if (sprite.shader == current_batch.shader &&
-					sprite.texture == current_batch.texture) {
+					sprite.texture == current_batch.texture &&
+					sprite.uniform_buffer == current_batch.uniform_buffer &&
+					sprite.uniform_buffer_size == current_batch.uniform_buffer_size &&
+					sprite.uniform_buffer_offset == current_batch.uniform_buffer_offset) {
 					// Add degenerate triangles to separate the sprites
 					graphics::temp_vertices.emplace_back(graphics::temp_vertices.back()); // D
 					graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl); // E
@@ -112,6 +127,9 @@ namespace sprites
 					Batch& new_batch = _batches.emplace_back();
 					new_batch.shader = sprite.shader;
 					new_batch.texture = sprite.texture;
+					new_batch.uniform_buffer = sprite.uniform_buffer;
+					new_batch.uniform_buffer_size = sprite.uniform_buffer_size;
+					new_batch.uniform_buffer_offset = sprite.uniform_buffer_offset;
 					new_batch.vertex_offset = (unsigned int)graphics::temp_vertices.size();
 				}
 			}
@@ -137,6 +155,9 @@ namespace sprites
 
 		Handle<graphics::Shader> last_bound_shader;
 		Handle<graphics::Texture> last_bound_texture;
+		Handle<graphics::Buffer> last_bound_uniform_buffer;
+		unsigned int last_bound_uniform_buffer_size = 0;
+		unsigned int last_bound_uniform_buffer_offset = 0;
 
 		for (const Batch& batch : _batches) {
 			if (batch.shader != last_bound_shader) {
@@ -147,7 +168,13 @@ namespace sprites
 				graphics::bind_texture(0, batch.texture);
 				last_bound_texture = batch.texture;
 			}
-			//TODO: bind uniform buffer
+			if (batch.uniform_buffer != last_bound_uniform_buffer ||
+				batch.uniform_buffer_size != last_bound_uniform_buffer_size ||
+				batch.uniform_buffer_offset != last_bound_uniform_buffer_offset) {
+				graphics::bind_uniform_buffer_range(1, batch.uniform_buffer,
+					batch.uniform_buffer_size, batch.uniform_buffer_offset);
+				last_bound_uniform_buffer = batch.uniform_buffer;
+			}
 			graphics::draw(graphics::Primitives::TriangleStrip, batch.vertex_count, batch.vertex_offset);
 			_largest_batch_sprite_count = std::max(_largest_batch_sprite_count, batch.sprite_count);
 			_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, batch.vertex_count);
