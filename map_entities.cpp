@@ -606,6 +606,7 @@ namespace map
 						ecs::emplace_grass(entity);
 						{
 							ecs::GrassUniformBlock& block = ecs::emplace_grass_uniform_block(entity);
+							block.position = position;
 							block.tex_min = sprite.tex_position;
 							block.tex_max = sprite.tex_position + sprite.tex_size;
 							ecs::emplace_uniform_block(entity, &block, sizeof(ecs::GrassUniformBlock));

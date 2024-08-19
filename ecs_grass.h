@@ -9,6 +9,7 @@ namespace ecs
 
 	struct GrassUniformBlock
 	{
+		Vector2f position;
 		Vector2f tex_min;
 		Vector2f tex_max;
 	};
