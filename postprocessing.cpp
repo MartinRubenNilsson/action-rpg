@@ -15,7 +15,6 @@ namespace postprocessing
 
 	const size_t MAX_GAUSSIAN_BLUR_ITERATIONS = 5;
 
-	float _pixel_scale = 1.f;
 	std::vector<Shockwave> _shockwaves;
 	float _darkness_intensity = 0.f;
 	Vector2f _darkness_center_ws; // ws = world space
@@ -121,7 +120,6 @@ namespace postprocessing
 		if (shader == Handle<graphics::Shader>()) return;
 
 		graphics::bind_shader(shader);
-		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
 		graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
@@ -151,9 +149,6 @@ namespace postprocessing
 		graphics::set_texture_filter(source_texture, graphics::Filter::Linear);
 		graphics::set_texture_filter(target_texture, graphics::Filter::Linear);
 
-		graphics::set_uniform_2f(shader_hor, "tex_size", GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
-		graphics::set_uniform_2f(shader_ver, "tex_size", GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
-
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 
@@ -178,15 +173,12 @@ namespace postprocessing
 	void render(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group("postprocessing::render()");
+		std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 		_render_shockwaves(camera_min, camera_max);
 		_render_darkness(camera_min, camera_max);
 		_render_screen_transition();
 		_render_gaussian_blur();
-	}
-
-	void set_pixel_scale(float scale)
-	{
-		_pixel_scale = std::max(scale, 0.1f);
+		std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 	}
 
 	void add_shockwave(const Vector2f& position_ws)

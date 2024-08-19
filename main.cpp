@@ -248,16 +248,33 @@ int main(int argc, char* argv[])
         case ui::MenuType::Pause:
         case ui::MenuType::Settings:
         case ui::MenuType::Credits: {
-            postprocessing::set_gaussian_blur_iterations(3);
+            postprocessing::set_gaussian_blur_iterations(2);
         } break;
         default: {
             postprocessing::set_gaussian_blur_iterations(0);
         } break;
         }
+
         postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
-        postprocessing::set_pixel_scale(pixel_scale);
         postprocessing::render(camera_min, camera_max);
+
+        {
+            graphics::ScopedDebugGroup debug_group("Upscale to window");
+            graphics::bind_default_framebuffer();
+            graphics::bind_shader(graphics::fullscreen_shader);
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target));
+            int window_framebuffer_width = 0;
+            int window_framebuffer_height = 0;
+            window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
+            if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
+                // HACK: So we don't get spammed with errors when the window is minimized.
+                window_framebuffer_width = 1;
+                window_framebuffer_height = 1;
+            }
+            graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
+            graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+        }
 
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
@@ -309,22 +326,6 @@ int main(int argc, char* argv[])
             imgui_backends::render();
         }
 #endif
-        {
-            graphics::ScopedDebugGroup debug_group("Window");
-            graphics::bind_default_framebuffer();
-            graphics::bind_shader(graphics::fullscreen_shader);
-            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target));
-            int window_framebuffer_width = 0;
-            int window_framebuffer_height = 0;
-            window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
-            if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
-                // HACK: So we don't get spammed with errors when the window is minimized.
-                window_framebuffer_width = 1;
-                window_framebuffer_height = 1;
-            }
-			graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
-            graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-        }
 
         window::swap_buffers();
 

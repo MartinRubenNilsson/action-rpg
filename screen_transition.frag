@@ -1,7 +1,6 @@
 #version 450
 
 uniform sampler2D tex;
-uniform float pixel_scale;
 uniform float progress;
 out vec4 frag_color;
 
@@ -12,11 +11,10 @@ void main()
     const float DIAMOND_SIZE_IN_PIXELS = 20.0;
 
     vec2 tex_size = textureSize(tex, 0);
-    vec2 pixel = floor(vec2(gl_FragCoord.x, tex_size.y - gl_FragCoord.y) / pixel_scale);
+    vec2 pixel = floor(vec2(gl_FragCoord.x, tex_size.y - gl_FragCoord.y));
     vec2 pixel_fractions = fract(pixel / DIAMOND_SIZE_IN_PIXELS);
     vec2 pixel_distances = abs(pixel_fractions - 0.5);
-    vec2 tex_size_in_pixels = tex_size / pixel_scale;
-    vec2 tex_size_in_diamonds = tex_size_in_pixels / DIAMOND_SIZE_IN_PIXELS;
+    vec2 tex_size_in_diamonds = tex_size / DIAMOND_SIZE_IN_PIXELS;
     float max_diamond_distance = tex_size_in_diamonds.x + tex_size_in_diamonds.y;
     vec2 diamond = floor(pixel / DIAMOND_SIZE_IN_PIXELS);
     vec2 diamond_distances = diamond / max_diamond_distance;

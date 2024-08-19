@@ -61,9 +61,9 @@ namespace background
 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+		if (_type == Type::None) return;
 		graphics::ScopedDebugGroup debug_group("background::draw_sprites()");
 
-		if (_type == Type::None) return;
 		sprites::Sprite sprite{};
 		for (const Layer& layer : _layers) {
 			if (layer.texture == Handle<graphics::Texture>()) continue;
@@ -75,6 +75,7 @@ namespace background
 				sprites::add(sprite);
 			}
 		}
+
 		// We don't have to sort before drawing, since the sprites were added in draw order.
 		sprites::draw();
 	}
