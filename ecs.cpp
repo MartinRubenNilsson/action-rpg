@@ -56,6 +56,7 @@ namespace ecs
 		update_animations(dt);
 		update_animated_sprites(dt);
 		update_sprites_following_bodies();
+		update_sprite_blinks(dt);
 		update_sprite_shakes(dt);
 		update_vfx(dt);
 		update_cameras(dt);
@@ -69,12 +70,14 @@ namespace ecs
 		max = center + size / 2.f;
 	}
 
+	//TODO: move this to a separate file
 	std::vector<UniformBlock> _uniform_blocks;
 	 
 	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		graphics::ScopedDebugGroup debug_group("ecs::draw_sprites()");
 
+		blink_sprites_before_drawing();
 		shake_sprites_before_drawing();
 
 		//TODO: don't to frustum culling twice, store ptrs in a vector or something
@@ -112,6 +115,7 @@ namespace ecs
 		sprites::sort();
 		sprites::draw();
 
+		unblink_sprites_after_drawing();
 		unshake_sprites_after_drawing();
 	}
 

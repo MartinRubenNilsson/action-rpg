@@ -3,12 +3,22 @@
 
 namespace ecs
 {
-	// Causes the sprites::Sprite's position to follow the b2BodyId's position.
+	// Makes the Sprite follow along a b2BodyId as the latter moves.
 	struct SpriteFollowBody
 	{
 		Vector2f offset; // the sprite's position relative to the body's position
 	};
 
+	// Makes the Sprite's color blink.
+	struct SpriteBlink
+	{
+		float duration = 0.f; // in seconds
+		float interval = 0.f; // in seconds
+		Color color = colors::WHITE;
+		Color _original_color; // for internal use only!
+	};
+
+	// Makes the Sprite shake.
 	struct SpriteShake
 	{
 		// The duration decreases by dt each frame, while the magnitude decreases
@@ -23,11 +33,15 @@ namespace ecs
 		float duration = 0.f; // in seconds
 		float magnitude = 0.f; // in pixels
 		float exponent = 0.f;
-		Vector2f _original_position; // for internal use!
+		Vector2f _original_position; // for internal use only!
 	};
 
 	void update_sprites_following_bodies();
+	void update_sprite_blinks(float dt);
 	void update_sprite_shakes(float dt);
+
+	void blink_sprites_before_drawing();
+	void unblink_sprites_after_drawing();
 	void shake_sprites_before_drawing();
 	void unshake_sprites_after_drawing();
 
@@ -36,6 +50,8 @@ namespace ecs
 
 	SpriteFollowBody& emplace_sprite_follow_body(entt::entity entity, const Vector2f& offset = { 0.f, 0.f });
 	SpriteFollowBody* get_sprite_follow_body(entt::entity entity);
+
+	SpriteBlink& emplace_sprite_blink(entt::entity entity);
 
 	SpriteShake& emplace_sprite_shake(entt::entity entity);
 }

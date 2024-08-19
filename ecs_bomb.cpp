@@ -25,7 +25,17 @@ namespace ecs
         for (auto [entity, bomb, body] : _registry.view<Bomb, b2BodyId>().each()) {
 
             if (!bomb.ignited) continue;
+
+			const float progress_before = bomb.explosion_timer.get_progress();
             bomb.explosion_timer.update(dt);
+			const float progress_after = bomb.explosion_timer.get_progress();
+
+			if (progress_before < 0.5f && progress_after >= 0.5f) {
+                SpriteBlink& blink = emplace_sprite_blink(entity);
+				blink.duration = bomb.explosion_timer.get_time_left();
+				blink.interval = 0.2f;
+				blink.color = { 255, 0, 0, 255 };
+			}
 
             const Vector2f center = b2Body_GetPosition(body);
             audio::set_event_position(bomb.fuse_sound, center);
@@ -41,17 +51,6 @@ namespace ecs
             audio::stop_event(bomb.fuse_sound);
             postprocessing::add_shockwave(center);
 		}
-
-        for (auto [entity, bomb, sprite] : _registry.view<Bomb, sprites::Sprite>().each()) {
-
-            // Start blinking at >50% progress 
-            if (bomb.explosion_timer.get_progress() <= 0.5f) continue;
-
-            constexpr float BLINK_FREQUENCY = 6.f; // in Hz
-            float blink_fraction = 0.75f + 0.25f * sin(bomb.explosion_timer.get_time_left() * BLINK_FREQUENCY * M_2PI);
-            sprite.color.g = (unsigned char)(255 * blink_fraction);
-            sprite.color.b = (unsigned char)(255 * blink_fraction);
-        }
     }
 
     Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb)
@@ -80,7 +79,7 @@ namespace ecs
         {
             Animation& animation = emplace_animation(entity);
             animation.tileset = get_tileset("items1");
-            animation.tile_id = TILE_ID_ITEM_POTION;
+            animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
         }
         {
             b2BodyDef body_def = b2DefaultBodyDef();

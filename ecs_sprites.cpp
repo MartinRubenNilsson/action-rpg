@@ -14,6 +14,19 @@ namespace ecs
 		}
 	}
 
+	void update_sprite_blinks(float dt)
+	{
+		for (auto [entity, blink] : _registry.view<SpriteBlink>().each()) {
+			if (blink.duration > 0.f) {
+				blink.duration -= dt;
+			}
+			if (blink.duration <= 0.f || blink.interval <= 0.f) {
+				_registry.erase<SpriteBlink>(entity);
+				continue;
+			}
+		}
+	}
+
 	void update_sprite_shakes(float dt)
 	{
 		for (auto [entity, shake] : _registry.view<SpriteShake>().each()) {
@@ -26,6 +39,22 @@ namespace ecs
 				continue;
 			}
 			shake.magnitude *= pow(shake.duration / last_duration, std::max(shake.exponent, 0.f));
+		}
+	}
+
+	void blink_sprites_before_drawing()
+	{
+		for (auto [entity, sprites, blink] : _registry.view<sprites::Sprite, SpriteBlink>().each()) {
+			blink._original_color = sprites.color;
+			const float t = fmod(blink.duration, blink.interval);
+			sprites.color = (t < blink.interval / 2.f) ? blink.color : blink._original_color;
+		}
+	}
+
+	void unblink_sprites_after_drawing()
+	{
+		for (auto [entity, sprites, blink] : _registry.view<sprites::Sprite, SpriteBlink>().each()) {
+			sprites.color = blink._original_color;
 		}
 	}
 
@@ -65,6 +94,11 @@ namespace ecs
 	SpriteFollowBody* get_sprite_follow_body(entt::entity entity)
 	{
 		return _registry.try_get<SpriteFollowBody>(entity);
+	}
+
+	SpriteBlink& emplace_sprite_blink(entt::entity entity)
+	{
+		return _registry.emplace_or_replace<SpriteBlink>(entity);
 	}
 
 	SpriteShake& emplace_sprite_shake(entt::entity entity)
