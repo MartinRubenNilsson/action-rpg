@@ -33,6 +33,7 @@ namespace ecs
 		float duration = 0.f; // in seconds
 		float magnitude = 0.f; // in pixels
 		float exponent = 0.f;
+		unsigned int _random_seed = 0; // auto-generated at emplace time
 		Vector2f _original_position; // for internal use only!
 	};
 

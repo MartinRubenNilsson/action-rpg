@@ -30,6 +30,12 @@ namespace random
 		return dist(_engine);
 	}
 
+	unsigned int range_ui(unsigned int min, unsigned int max)
+	{
+		std::uniform_int_distribution<unsigned int> dist(min, max);
+		return dist(_engine);
+	}
+
 	Color color()
 	{
 		std::uniform_int_distribution <int> dist(0, 255);

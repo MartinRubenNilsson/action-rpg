@@ -80,8 +80,8 @@ namespace ecs
 				{
 					SpriteShake& shake = emplace_sprite_shake(entity);
 					shake.duration = 0.2f;
-					shake.magnitude = 4.f;
-					shake.exponent = 3.f;
+					shake.magnitude = 6.f;
+					shake.exponent = 2.f;
 				}
 
 				audio::stop_event(blade_trap.audio_event);
@@ -117,7 +117,7 @@ namespace ecs
 		{
 			SpriteShake& shake = emplace_sprite_shake(blade_trap_entity);
 			shake.duration = 0.4f;
-			shake.magnitude = 6.f;
+			shake.magnitude = 7.f;
 			shake.exponent = 3.f;
 		}
 

@@ -63,9 +63,9 @@ namespace ecs
 		for (auto [entity, sprites, shake] : _registry.view<sprites::Sprite, SpriteShake>().each()) {
 			shake._original_position = sprites.position;
 			sprites.position.x += shake.magnitude * 
-				random::fractal_perlin_noise(10.f * shake.duration, 0.f, 0.f);
+				random::fractal_perlin_noise(10.f * shake.duration, (float)shake._random_seed, 0.f);
 			sprites.position.y += shake.magnitude *
-				random::fractal_perlin_noise(10.f * shake.duration, 10.f, 0.f);
+				random::fractal_perlin_noise(10.f * shake.duration, (float)shake._random_seed, 1.f);
 		}
 	}
 
@@ -103,6 +103,8 @@ namespace ecs
 
 	SpriteShake& emplace_sprite_shake(entt::entity entity)
 	{
-		return _registry.emplace_or_replace<SpriteShake>(entity);
+		SpriteShake& shake = _registry.emplace_or_replace<SpriteShake>(entity);
+		shake._random_seed = random::range_ui(0, 128);
+		return shake;
 	}
 }
