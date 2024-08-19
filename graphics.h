@@ -125,9 +125,6 @@ namespace graphics
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
 
-	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height);
-	void release_temporary_framebuffer(Handle<Framebuffer> handle);
-
 	// The default framebuffer is the window framebuffer.
 	void bind_default_framebuffer();
 	void bind_framebuffer(Handle<Framebuffer> handle);

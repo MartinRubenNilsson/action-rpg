@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "player_outfit.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 #include "random.h"
 
 namespace player
@@ -344,16 +345,12 @@ namespace player
 			"assets/shaders/bake_character.frag");
 		if (shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
 
-		// Aquire framebuffer
-		const Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(1024, 1024);
-		if (framebuffer == Handle<graphics::Framebuffer>()) return Handle<graphics::Texture>();
-
 		int viewport[4];
 		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		graphics::set_viewport(0, 0, 1024, 1024);
 
-		graphics::clear_framebuffer(framebuffer, 0.f, 0.f, 0.f, 0.f);
-		graphics::bind_framebuffer(framebuffer);
+		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, 0.f, 0.f, 0.f, 0.f);
+		graphics::bind_framebuffer(graphics::player_outfit_framebuffer);
 		graphics::bind_shader(shader);
 
 		for (const Layer& layer : layers) {
@@ -411,9 +408,9 @@ namespace player
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
 
-		Handle<graphics::Texture> texture = graphics::copy_texture(graphics::get_framebuffer_texture(framebuffer));
-		graphics::release_temporary_framebuffer(framebuffer);
+		Handle<graphics::Texture> player_outfit_texture =
+			graphics::get_framebuffer_texture(graphics::player_outfit_framebuffer);
 		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		return texture;
+		return player_outfit_texture;
 	}
 }

@@ -110,7 +110,6 @@ namespace graphics
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
 	Pool<Framebuffer> _framebuffer_pool;
-	std::vector<Handle<Framebuffer>> _temporary_framebuffers;
 	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
@@ -227,7 +226,6 @@ namespace graphics
 			glDeleteFramebuffers(1, &framebuffer.framebuffer_object);
 		}
 		_framebuffer_pool.clear();
-		_temporary_framebuffers.clear();
 	}
 
 	unsigned int get_uniform_buffer_offset_alignment()
@@ -844,29 +842,6 @@ namespace graphics
 		framebuffer.texture = texture_handle;
 
 		return _framebuffer_pool.emplace(std::move(framebuffer));
-	}
-
-	Handle<Framebuffer> get_temporary_framebuffer(unsigned int width, unsigned int height)
-	{
-		for (size_t i = 0; i < _temporary_framebuffers.size(); ++i) {
-			const Handle<Framebuffer> handle = _temporary_framebuffers[i];
-			const Framebuffer* framebuffer = _framebuffer_pool.get(handle);
-			if (!framebuffer) continue;
-			const Texture* texture = _texture_pool.get(framebuffer->texture);
-			if (!texture) continue;
-			if (texture->width != width) continue;
-			if (texture->height != height) continue;
-			std::swap(_temporary_framebuffers[i], _temporary_framebuffers.back());
-			_temporary_framebuffers.pop_back();
-			return handle;
-		}
-		std::string debug_name = "temporary framebuffer " + std::to_string(width) + "x" + std::to_string(height);
-		return create_framebuffer({ .debug_name = debug_name, .width = width, .height = height });
-	}
-
-	void release_temporary_framebuffer(Handle<Framebuffer> handle)
-	{
-		_temporary_framebuffers.push_back(handle);
 	}
 
 	void bind_default_framebuffer()

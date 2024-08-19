@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "postprocessing.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 namespace postprocessing
 {
@@ -52,10 +53,10 @@ namespace postprocessing
 		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
-		graphics::ScopedDebugGroup debug_group("Shockwaves");
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_shockwaves()");
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
@@ -63,43 +64,31 @@ namespace postprocessing
 			"assets/shaders/shockwave.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
-		// Get texture
-		Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
-		unsigned int width, height;
-		graphics::get_texture_size(texture, width, height);
-
 		// Bind some shader uniforms
 		graphics::bind_shader(shader);
-		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
+		graphics::set_uniform_2f(shader, "resolution",
+			GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 
 		for (const Shockwave& shockwave : _shockwaves) {
 
-			// Aquire temporary framebuffer
-			const Handle<graphics::Framebuffer> temporary_framebuffer =
-				graphics::get_temporary_framebuffer(width, height);
-
-			// Render shockwave
 			const Vector2f position_ts = _map_world_to_target(
-				shockwave.position_ws, camera_min, camera_max, width, height);
+				shockwave.position_ws, camera_min, camera_max,
+				GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 			graphics::set_uniform_2f(shader, "center", position_ts.x, position_ts.y);
 			graphics::set_uniform_1f(shader, "force", shockwave.force);
 			graphics::set_uniform_1f(shader, "size", shockwave.size);
 			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
-			graphics::bind_texture(0, texture);
-			graphics::bind_framebuffer(temporary_framebuffer);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
+			graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-
-			// Interchange framebuffers
-			graphics::release_temporary_framebuffer(framebuffer);
-			framebuffer = temporary_framebuffer;
-			texture = graphics::get_framebuffer_texture(framebuffer);
+			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 		}
 	}
 
-	void _render_darkness(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_darkness(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
-		graphics::ScopedDebugGroup debug_group("Darkness");
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_darkness()");
 
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
@@ -107,67 +96,43 @@ namespace postprocessing
 			"assets/shaders/darkness.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
-		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
-		unsigned int width, height;
-		graphics::get_texture_size(texture, width, height);
-
-		// Aquire temporary framebuffer
-		const Handle<graphics::Framebuffer> temporary_framebuffer =
-			graphics::get_temporary_framebuffer(width, height);
-
 		const Vector2f center_ts = _map_world_to_target(
-			_darkness_center_ws, camera_min, camera_max, width, height);
+			_darkness_center_ws, camera_min, camera_max,
+			GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 		graphics::bind_shader(shader);
-		graphics::set_uniform_2f(shader, "resolution", (float)width, (float)height);
+		graphics::set_uniform_2f(shader, "resolution",
+			GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
-		graphics::bind_texture(0, texture);
-		graphics::bind_framebuffer(temporary_framebuffer);
+		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
+		graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-
-		// Cleanup
-		graphics::release_temporary_framebuffer(framebuffer);
-		framebuffer = temporary_framebuffer;
+		std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 	}
 
-	void _render_screen_transition(Handle<graphics::Framebuffer>& framebuffer)
+	void _render_screen_transition()
 	{
 		if (_screen_transition_progress == 0.f) return;
-		graphics::ScopedDebugGroup debug_group("Screen transition");
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_screen_transition()");
 
-		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert",
 			"assets/shaders/screen_transition.frag");
 		if (shader == Handle<graphics::Shader>()) return;
 
-		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
-		unsigned int width, height;
-		graphics::get_texture_size(texture, width, height);
-
-		// Aquire temporary framebuffer
-		const Handle<graphics::Framebuffer> temporary_framebuffer =
-			graphics::get_temporary_framebuffer(width, height);
-
-		// Render screen transition
 		graphics::bind_shader(shader);
 		graphics::set_uniform_1f(shader, "pixel_scale", _pixel_scale);
 		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
-		graphics::bind_texture(0, texture);
-		graphics::bind_framebuffer(temporary_framebuffer);
+		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
+		graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-
-		// Cleanup
-		graphics::release_temporary_framebuffer(framebuffer);
-		framebuffer = temporary_framebuffer;
+		std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 	}
 
-	void _render_gaussian_blur(Handle<graphics::Framebuffer>& framebuffer)
+	void _render_gaussian_blur()
 	{
 		if (_gaussian_blur_iterations == 0) return;
-		graphics::ScopedDebugGroup debug_group("Gaussian blur");
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
 
 		// Load shaders
 		const Handle<graphics::Shader> shader_hor = graphics::load_shader(
@@ -179,52 +144,44 @@ namespace postprocessing
 			"assets/shaders/gaussian_blur_ver.frag");
 		if (shader_ver == Handle<graphics::Shader>()) return;
 
-		// Get texture
-		const Handle<graphics::Texture> texture = graphics::get_framebuffer_texture(framebuffer);
-		unsigned int width, height;
-		graphics::get_texture_size(texture, width, height);
-
-		// Aquire temporary framebuffer
-		const Handle<graphics::Framebuffer> temporary_framebuffer =
-			graphics::get_temporary_framebuffer(width, height);
-		const Handle<graphics::Texture> temporary_texture =
-			graphics::get_framebuffer_texture(temporary_framebuffer);
+		Handle<graphics::Texture> source_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source);
+		Handle<graphics::Texture> target_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target);
 
 		// Set linear filtering
-		graphics::set_texture_filter(texture, graphics::Filter::Linear);
-		graphics::set_texture_filter(temporary_texture, graphics::Filter::Linear);
+		graphics::set_texture_filter(source_texture, graphics::Filter::Linear);
+		graphics::set_texture_filter(target_texture, graphics::Filter::Linear);
+
+		graphics::set_uniform_2f(shader_hor, "tex_size", GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
+		graphics::set_uniform_2f(shader_ver, "tex_size", GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 
 		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 
 			// Horizontal pass
 			graphics::bind_shader(shader_hor);
-			graphics::set_uniform_2f(shader_hor, "tex_size", (float)width, (float)height);
-			graphics::bind_texture(0, texture);
-			graphics::bind_framebuffer(temporary_framebuffer);
+			graphics::bind_texture(0, source_texture);
+			graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			graphics::bind_shader(shader_ver);
-			graphics::set_uniform_2f(shader_ver, "tex_size", (float)width, (float)height);
-			graphics::bind_texture(0, temporary_texture);
-			graphics::bind_framebuffer(framebuffer);
+			graphics::bind_texture(0, target_texture);
+			graphics::bind_framebuffer(graphics::gameworld_framebuffer_source);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
 
-		// Cleanup
-		graphics::set_texture_filter(texture, graphics::Filter::Nearest);
-		graphics::set_texture_filter(temporary_texture, graphics::Filter::Nearest);
-		graphics::release_temporary_framebuffer(temporary_framebuffer);
+		// Restore nearest filtering
+		graphics::set_texture_filter(source_texture, graphics::Filter::Nearest);
+		graphics::set_texture_filter(target_texture, graphics::Filter::Nearest);
 	}
 
-	void render(Handle<graphics::Framebuffer>& framebuffer, const Vector2f& camera_min, const Vector2f& camera_max)
+	void render(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
-		graphics::ScopedDebugGroup debug_group("Postprocessing");
-		_render_shockwaves(framebuffer, camera_min, camera_max);
-		_render_darkness(framebuffer, camera_min, camera_max);
-		_render_screen_transition(framebuffer);
-		_render_gaussian_blur(framebuffer);
+		graphics::ScopedDebugGroup debug_group("postprocessing::render()");
+		_render_shockwaves(camera_min, camera_max);
+		_render_darkness(camera_min, camera_max);
+		_render_screen_transition();
+		_render_gaussian_blur();
 	}
 
 	void set_pixel_scale(float scale)

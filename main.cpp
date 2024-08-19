@@ -197,23 +197,13 @@ int main(int argc, char* argv[])
 
         // RENDER
 
-        int window_framebuffer_width = 0;
-        int window_framebuffer_height = 0;
-        window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
-        if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
-            // HACK: So we don't get spammed with errors when the window is minimized.
-            window_framebuffer_width = 1;
-            window_framebuffer_height = 1;
-		}
-
-        const float pixel_scale = (float)window_framebuffer_width / WINDOW_MIN_WIDTH;
+        const float pixel_scale = 1.f;
 		
         sprites::clear_drawing_statistics();
 
         Vector2f camera_min;
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
-
 
         {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
@@ -247,11 +237,10 @@ int main(int argc, char* argv[])
             graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));
         }
 
-        Handle<graphics::Framebuffer> framebuffer = graphics::get_temporary_framebuffer(
-            window_framebuffer_width, window_framebuffer_height);
-        graphics::bind_framebuffer(framebuffer);
-        graphics::clear_framebuffer(framebuffer, 0.f, 0.f, 0.f, 1.f);
-        graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
+        graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
+        graphics::clear_framebuffer(graphics::gameworld_framebuffer_target, 0.f, 0.f, 0.f, 1.f);
+        graphics::set_viewport(0, 0, GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
+
         background::draw_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
 
@@ -268,7 +257,7 @@ int main(int argc, char* argv[])
         postprocessing::set_darkness_intensity(map::is_dark() ? 0.95f : 0.f);
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
         postprocessing::set_pixel_scale(pixel_scale);
-        postprocessing::render(framebuffer, camera_min, camera_max);
+        postprocessing::render(camera_min, camera_max);
 
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
@@ -324,9 +313,17 @@ int main(int argc, char* argv[])
             graphics::ScopedDebugGroup debug_group("Window");
             graphics::bind_default_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
-            graphics::bind_texture(0, graphics::get_framebuffer_texture(framebuffer));
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target));
+            int window_framebuffer_width = 0;
+            int window_framebuffer_height = 0;
+            window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
+            if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
+                // HACK: So we don't get spammed with errors when the window is minimized.
+                window_framebuffer_width = 1;
+                window_framebuffer_height = 1;
+            }
+			graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
             graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-            graphics::release_temporary_framebuffer(framebuffer);
         }
 
         window::swap_buffers();

@@ -109,7 +109,10 @@ namespace window
 #endif
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until we're ready to show it.
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		_glfw_window = glfwCreateWindow(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT, "Action RPG", nullptr, nullptr);
+		_glfw_window = glfwCreateWindow(
+			GAMEWORLD_FRAMEBUFFER_WIDTH,
+			GAMEWORLD_FRAMEBUFFER_HEIGHT,
+			"Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
 
 		glfwMakeContextCurrent(_glfw_window);

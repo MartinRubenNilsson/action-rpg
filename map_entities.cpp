@@ -283,12 +283,11 @@ namespace map
 					{
 						player::Outfit outfit{};
 						player::randomize_outfit(outfit);
-						graphics::destroy_texture(graphics::player_outfit_texture);
-						graphics::player_outfit_texture = player::create_outfit_texture(outfit);
+						player::create_outfit_texture(outfit);
 					}
 
 					if (sprites::Sprite* sprite = ecs::get_sprite(entity)) {
-						sprite->texture = graphics::player_outfit_texture;
+						sprite->texture = graphics::get_framebuffer_texture(graphics::player_outfit_framebuffer);
 						sprite->sorting_point = pivot;
 					}
 					{

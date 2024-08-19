@@ -19,7 +19,7 @@ namespace settings
 	{
 		window::set_fullscreen(fullscreen);
 		if (!fullscreen) {
-			window::set_size(WINDOW_MIN_WIDTH * window_scale, WINDOW_MIN_HEIGHT * window_scale);
+			window::set_size(GAMEWORLD_FRAMEBUFFER_WIDTH * window_scale, GAMEWORLD_FRAMEBUFFER_HEIGHT * window_scale);
 		}
 		window::set_swap_interval(vsync ? 1 : 0);
 		audio::set_bus_volume(audio::BUS_MASTER, volume_master);

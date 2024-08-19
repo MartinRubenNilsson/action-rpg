@@ -6,7 +6,7 @@
 
 namespace ecs
 {
-	const Vector2f DEFAULT_CAMERA_SIZE = { WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT };
+	const Vector2f DEFAULT_CAMERA_SIZE = { GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT };
 	const float _CAMERA_BLEND_DURATION = 1.f;
 
 	extern entt::registry _registry;
