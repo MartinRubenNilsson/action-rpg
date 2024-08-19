@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "ecs_chest.h"
 #include "ecs_animation.h"
-#include "map.h"
-#include "ui_textbox.h"
 #include "ecs_bomb.h"
 #include "ecs_physics.h"
+#include "ui_textbox.h"
+#include "map.h"
+#include "audio.h"
 
 namespace ecs
 {
@@ -56,6 +57,8 @@ namespace ecs
             map::mark_entity_as_destroyed(entity);
         } break;
         }
+
+        audio::create_event({ .path = "event:/props/chest/open" });
     }
 
     void interact_with_chest(entt::entity entity)
