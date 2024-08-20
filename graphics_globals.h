@@ -25,7 +25,16 @@ namespace graphics
 	extern Handle<Buffer> frame_uniform_buffer;
 	extern Handle<Buffer> sprite_uniform_buffer;
 
-	extern Handle<Shader> fullscreen_shader;
+	// FULLSCREEN SHADERS
+
+	extern Handle<Shader> fullscreen_shader; // just a simple passthrough shader
+	extern Handle<Shader> gaussian_blur_hor_shader;
+	extern Handle<Shader> gaussian_blur_ver_shader;
+	extern Handle<Shader> screen_transition_shader;
+	extern Handle<Shader> shockwave_shader;
+
+	/// SPRITE SHADERS
+
 	extern Handle<Shader> sprite_shader;
 	extern Handle<Shader> grass_shader;
 	extern Handle<Shader> shape_shader;

@@ -55,27 +55,23 @@ namespace postprocessing
 	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_shockwaves.empty()) return;
+		if (graphics::shockwave_shader == Handle<graphics::Shader>()) return;
+
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_shockwaves()");
 
-		// Load shader
-		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/shockwave.frag");
-		if (shader == Handle<graphics::Shader>()) return;
-
 		// Bind some shader uniforms
-		graphics::bind_shader(shader);
-		graphics::set_uniform_2f(shader, "resolution",
+		graphics::bind_shader(graphics::shockwave_shader);
+		graphics::set_uniform_2f(graphics::shockwave_shader, "resolution",
 			GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
 
 		for (const Shockwave& shockwave : _shockwaves) {
 			const Vector2f position_ts = _map_world_to_target(
 				shockwave.position_ws, camera_min, camera_max,
 				GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
-			graphics::set_uniform_2f(shader, "center", position_ts.x, position_ts.y);
-			graphics::set_uniform_1f(shader, "force", shockwave.force);
-			graphics::set_uniform_1f(shader, "size", shockwave.size);
-			graphics::set_uniform_1f(shader, "thickness", shockwave.thickness);
+			graphics::set_uniform_2f(graphics::shockwave_shader, "center", position_ts.x, position_ts.y);
+			graphics::set_uniform_1f(graphics::shockwave_shader, "force", shockwave.force);
+			graphics::set_uniform_1f(graphics::shockwave_shader, "size", shockwave.size);
+			graphics::set_uniform_1f(graphics::shockwave_shader, "thickness", shockwave.thickness);
 			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
 			graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
@@ -111,15 +107,12 @@ namespace postprocessing
 	void _render_screen_transition()
 	{
 		if (_screen_transition_progress == 0.f) return;
+		if (graphics::screen_transition_shader == Handle<graphics::Shader>()) return;
+
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_screen_transition()");
 
-		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/screen_transition.frag");
-		if (shader == Handle<graphics::Shader>()) return;
-
-		graphics::bind_shader(shader);
-		graphics::set_uniform_1f(shader, "progress", _screen_transition_progress);
+		graphics::bind_shader(graphics::screen_transition_shader);
+		graphics::set_uniform_1f(graphics::screen_transition_shader, "progress", _screen_transition_progress);
 		std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
 		graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
@@ -129,22 +122,16 @@ namespace postprocessing
 	void _render_gaussian_blur()
 	{
 		if (_gaussian_blur_iterations == 0) return;
-		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
+		if (graphics::gaussian_blur_hor_shader == Handle<graphics::Shader>()) return;
+		if (graphics::gaussian_blur_ver_shader == Handle<graphics::Shader>()) return;
 
-		// Load shaders
-		const Handle<graphics::Shader> shader_hor = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/gaussian_blur_hor.frag");
-		if (shader_hor == Handle<graphics::Shader>()) return;
-		const Handle<graphics::Shader> shader_ver = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/gaussian_blur_ver.frag");
-		if (shader_ver == Handle<graphics::Shader>()) return;
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
 
 		Handle<graphics::Texture> source_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source);
 		Handle<graphics::Texture> target_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target);
 
 		// Set linear filtering
+		//TODO: Samplers separate from textures
 		graphics::set_texture_filter(source_texture, graphics::Filter::Linear);
 		graphics::set_texture_filter(target_texture, graphics::Filter::Linear);
 
@@ -152,7 +139,7 @@ namespace postprocessing
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 
 			// Horizontal pass
-			graphics::bind_shader(shader_hor);
+			graphics::bind_shader(graphics::gaussian_blur_hor_shader);
 			std::swap(source_texture, target_texture);
 			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 			graphics::bind_texture(0, source_texture);
@@ -160,7 +147,7 @@ namespace postprocessing
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
-			graphics::bind_shader(shader_ver);
+			graphics::bind_shader(graphics::gaussian_blur_ver_shader);
 			std::swap(source_texture, target_texture);
 			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
 			graphics::bind_texture(0, source_texture);

@@ -23,6 +23,11 @@ namespace graphics
 	Handle<Buffer> sprite_uniform_buffer;
 
 	Handle<Shader> fullscreen_shader;
+	Handle<Shader> gaussian_blur_hor_shader;
+	Handle<Shader> gaussian_blur_ver_shader;
+	Handle<Shader> screen_transition_shader;
+	Handle<Shader> shockwave_shader;
+
 	Handle<Shader> grass_shader;
 	Handle<Shader> sprite_shader;
 	Handle<Shader> shape_shader;
@@ -64,6 +69,19 @@ namespace graphics
 		fullscreen_shader = load_shader(
 			"assets/shaders/fullscreen.vert",
 			"assets/shaders/fullscreen.frag");
+		gaussian_blur_hor_shader = load_shader(
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/gaussian_blur_hor.frag");
+		gaussian_blur_ver_shader = load_shader(
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/gaussian_blur_ver.frag");
+		screen_transition_shader = load_shader(
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/screen_transition.frag");
+		shockwave_shader = load_shader(
+			"assets/shaders/fullscreen.vert",
+			"assets/shaders/shockwave.frag");
+
 		sprite_shader = load_shader(
 			"assets/shaders/sprite.vert",
 			"assets/shaders/sprite.frag");

@@ -202,28 +202,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shockwave.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="darkness.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
     <None Include="bake_character.frag">
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="checkerboard.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="gaussian_blur_hor.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="gaussian_blur_ver.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="screen_transition.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="fullscreen.vert">
       <Filter>graphics\shaders</Filter>
     </None>
     <None Include="vcpkg.json" />
@@ -239,9 +221,6 @@
     <None Include="sprite.frag">
       <Filter>graphics\shaders</Filter>
     </None>
-    <None Include="fullscreen.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
     <None Include="shape.vert">
       <Filter>graphics\shaders</Filter>
     </None>
@@ -253,6 +232,27 @@
     </None>
     <None Include="grass.vert">
       <Filter>graphics\shaders</Filter>
+    </None>
+    <None Include="shockwave.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="screen_transition.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="gaussian_blur_ver.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="gaussian_blur_hor.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="fullscreen.vert">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="darkness.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
+    </None>
+    <None Include="fullscreen.frag">
+      <Filter>graphics\shaders\fullscreen</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -732,6 +732,9 @@
     </Filter>
     <Filter Include="game\ecs\weapons">
       <UniqueIdentifier>{f5a887d6-c31f-4e53-9866-298d276906b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\shaders\fullscreen">
+      <UniqueIdentifier>{5d5bfacf-4b1b-42e0-975b-b637e78161bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
