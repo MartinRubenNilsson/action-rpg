@@ -78,10 +78,8 @@ namespace graphics
 
 	struct Buffer
 	{
-		std::string debug_name;
 		GLuint buffer_object = 0;
-		unsigned int size = 0; // in bytes
-		bool dynamic = false;
+		BufferDesc desc{};
 	};
 
 	struct Texture
@@ -485,13 +483,7 @@ namespace graphics
 		}
 		glNamedBufferStorage(buffer_object, desc.size, desc.initial_data, flags);
 
-		Buffer buffer{};
-		buffer.debug_name = desc.debug_name;
-		buffer.buffer_object = buffer_object;
-		buffer.size = desc.size;
-		buffer.dynamic = desc.dynamic;
-
-		return _buffer_pool.emplace(std::move(buffer));
+		return _buffer_pool.emplace(buffer_object, desc);
 	}
 
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data)
@@ -500,13 +492,13 @@ namespace graphics
 		if (!buffer) return;
 		glDeleteBuffers(1, &buffer->buffer_object);
 		glCreateBuffers(1, &buffer->buffer_object);
-		_set_debug_label(GL_BUFFER, buffer->buffer_object, buffer->debug_name);
+		_set_debug_label(GL_BUFFER, buffer->buffer_object, buffer->desc.debug_name);
 		GLbitfield flags = 0;
-		if (buffer->dynamic) {
+		if (buffer->desc.dynamic) {
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 		}
 		glNamedBufferStorage(buffer->buffer_object, size, initial_data, flags);
-		buffer->size = size;
+		buffer->desc.size = size;
 	}
 
 	void destroy_buffer(Handle<Buffer> handle)
@@ -523,15 +515,15 @@ namespace graphics
 		if (!data || !size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (!buffer->dynamic) return;
-		if (offset + size > buffer->size) return;
+		if (!buffer->desc.dynamic) return;
+		if (offset + size > buffer->desc.size) return;
 		glNamedBufferSubData(buffer->buffer_object, offset, size, data);
 	}
 
 	size_t get_buffer_size(Handle<Buffer> handle)
 	{
 		if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			return buffer->size;
+			return buffer->desc.size;
 		}
 		return 0;
 	}
@@ -572,7 +564,7 @@ namespace graphics
 		if (size % _uniform_buffer_offset_alignment != 0) return; // must be a multiple of alignment
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		if (offset + size > buffer->size) return;
+		if (offset + size > buffer->desc.size) return;
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, offset, size);
 	}
 
@@ -778,27 +770,6 @@ namespace graphics
 			height = 0;
 		}
 	}
-
-#if 0
-	void set_texture_filter(Handle<Texture> handle, Filter filter)
-	{
-		Texture* texture = _texture_pool.get(handle);
-		if (!texture) return;
-		if (texture->filter == filter) return;
-		texture->filter = filter;
-		const GLint gl_filter = _to_gl_filter(filter);
-		glTextureParameteri(texture->texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
-		glTextureParameteri(texture->texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
-	}
-
-	Filter get_texture_filter(Handle<Texture> handle)
-	{
-		if (const Texture* texture = _texture_pool.get(handle)) {
-			return texture->filter;
-		}
-		return Filter();
-	}
-#endif
 
 	GLint _to_gl_filter(Filter filter)
 	{
