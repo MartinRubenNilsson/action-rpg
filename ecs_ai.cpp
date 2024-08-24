@@ -2,7 +2,7 @@
 #include "ecs_ai.h"
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "map_tilegrid.h"
 #include "random.h"
 #include "shapes.h"
@@ -59,7 +59,7 @@ namespace ecs
     void update_ai_graphics(float dt)
     {
         for (auto [entity, animation, ai_type, body] :
-            _registry.view<Animation, const AiType, b2BodyId>().each()) {
+            _registry.view<TileAnimation, const AiType, b2BodyId>().each()) {
             switch (ai_type) {
             case AiType::Slime: {
                 Vector2f velocity = b2Body_GetLinearVelocity(body);

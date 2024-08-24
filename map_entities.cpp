@@ -6,7 +6,7 @@
 #include "ecs_physics_filters.h"
 #include "ecs_sprites.h"
 #include "ecs_uniform_block.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "ecs_player.h"
 #include "ecs_camera.h"
 #include "ecs_ai.h"
@@ -170,7 +170,7 @@ namespace map
 
 					// EMPLACE ANIMATION
 
-					ecs::Animation& animation = ecs::emplace_animation(entity);
+					ecs::TileAnimation& animation = ecs::emplace_tile_animation(entity);
 					animation.tileset = object.tileset_ref.tileset;
 					animation.tile_id = tile_id;
 
@@ -327,7 +327,7 @@ namespace map
 					}
 
 					player.held_item = ecs::create();
-					ecs::emplace_animation(player.held_item);
+					ecs::emplace_tile_animation(player.held_item);
 					ecs::emplace_player(entity, player);
 
 					ecs::Camera camera{};
@@ -499,7 +499,7 @@ namespace map
 					// The majority of tiles are not animated and don't change during gameplay,
 					// so let's only add an animation component if the tile is actually animated.
 					if (!tile.animation.empty()) {
-						ecs::Animation& animation = ecs::emplace_animation(entity);
+						ecs::TileAnimation& animation = ecs::emplace_tile_animation(entity);
 						animation.tileset = tileset_ref.tileset;
 						animation.tile_id = tile_id;
 					}

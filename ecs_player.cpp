@@ -5,7 +5,7 @@
 #include "ecs_physics_filters.h"
 #include "ecs_arrow.h"
 #include "ecs_sprites.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "ecs_camera.h"
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
@@ -107,7 +107,7 @@ namespace ecs
 		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
 		for (auto [player_entity, player, body, sprite, animation] :
-			_registry.view<Player, b2BodyId, sprites::Sprite, Animation>().each()) {
+			_registry.view<Player, b2BodyId, sprites::Sprite, TileAnimation>().each()) {
 
 			if (player_accepts_input) {
 				player.input_flags |= _input_flags_to_enable;
@@ -344,7 +344,7 @@ namespace ecs
 			// UPDATE HELD ITEM GRAPHICS
 
 #if 0
-			if (Animation* held_item_tile = get_animation(player.held_item)) {
+			if (TileAnimation* held_item_tile = get_tile_animation(player.held_item)) {
 				held_item_tile->set_flag(TILE_VISIBLE, held_item_type != HeldItemType::None);
 				Vector2f player_tile_sorting_pos = animation.offset - animation.pivot + animation.sorting_pivot;
 				switch (held_item_type) {
@@ -467,7 +467,7 @@ namespace ecs
 		const size_t player_count = _registry.view<Player>().size();
 
 		ImGui::Begin("Players"); 
-		for (auto [entity, player, body, animation] : _registry.view<Player, b2BodyId, Animation>().each()) {
+		for (auto [entity, player, body, animation] : _registry.view<Player, b2BodyId, TileAnimation>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
 			// For convenience, if there's just one player, open debug menu immediately. 

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "tiled.h"
 #include "graphics.h"
 #include "sprites.h"
@@ -9,7 +9,7 @@ namespace ecs
 	extern entt::registry _registry;
 
 #if 0
-	void Animation::set_rotation(int clockwise_quarter_turns)
+	void TileAnimation::set_rotation(int clockwise_quarter_turns)
 	{
 		bool bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
 		bool bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
@@ -24,9 +24,9 @@ namespace ecs
 		return tiled::find_tileset_by_name(name);
 	}
 
-	void update_animations(float dt)
+	void update_tile_animations(float dt)
 	{
-		for (auto [entity, animation] : _registry.view<Animation>().each()) {
+		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
 
 			animation._dirty = false;
 			animation._looped = false;
@@ -87,7 +87,7 @@ namespace ecs
 
 	void update_animated_sprites(float dt)
 	{
-		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const Animation>().each()) {
+		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const TileAnimation>().each()) {
 
 			if (!animation._dirty) continue;
 
@@ -110,18 +110,18 @@ namespace ecs
 		}
 	}
 
-	Animation& emplace_animation(entt::entity entity)
+	TileAnimation& emplace_tile_animation(entt::entity entity)
 	{
-		return _registry.emplace_or_replace<Animation>(entity);
+		return _registry.emplace_or_replace<TileAnimation>(entity);
 	}
 
-	Animation* get_animation(entt::entity entity)
+	TileAnimation* get_tile_animation(entt::entity entity)
 	{
-		return _registry.try_get<Animation>(entity);
+		return _registry.try_get<TileAnimation>(entity);
 	}
 
-	bool remove_animation(entt::entity entity)
+	bool remove_tile_animation(entt::entity entity)
 	{
-		return _registry.remove<Animation>(entity);
+		return _registry.remove<TileAnimation>(entity);
 	}
 }

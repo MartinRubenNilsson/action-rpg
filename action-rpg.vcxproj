@@ -214,7 +214,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ecs_animation.cpp" />
+    <ClCompile Include="ecs_animations.cpp" />
     <ClCompile Include="ui_hud.cpp" />
     <ClCompile Include="ui_menus.cpp" />
     <ClCompile Include="ui_rmlui_system_interface.cpp" />
@@ -372,7 +372,7 @@
     <ClInclude Include="ui_rmlui_render_interface.h" />
     <ClInclude Include="ui_bindings.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ecs_animation.h" />
+    <ClInclude Include="ecs_animations.h" />
     <ClInclude Include="ui_hud.h" />
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />

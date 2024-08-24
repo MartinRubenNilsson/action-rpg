@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ecs_chest.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "ecs_bomb.h"
 #include "ecs_physics.h"
 #include "ui_textbox.h"
@@ -28,7 +28,7 @@ namespace ecs
         if (chest->opened) return;
         chest->opened = true;
 
-        if (Animation* animation = get_animation(entity)) {
+        if (TileAnimation* animation = get_tile_animation(entity)) {
             // At the time I'm writing this code, the treasure chest tileset has 6 rows and 5 columns. 
             // Each chest's closed sprite is on an even row and its corresponding open sprite is right below it.
             constexpr unsigned int COLUMNS = 5;

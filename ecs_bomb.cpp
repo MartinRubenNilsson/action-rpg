@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ecs_bomb.h"
 #include "ecs_sprites.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "ecs_common.h"
 #include "ecs_camera.h"
 #include "ecs_physics.h"
@@ -77,7 +77,7 @@ namespace ecs
 			sprite.size = { 16.f, 16.f };
         }
         {
-            Animation& animation = emplace_animation(entity);
+            TileAnimation& animation = emplace_tile_animation(entity);
             animation.tileset = get_tileset("items1");
             animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
         }

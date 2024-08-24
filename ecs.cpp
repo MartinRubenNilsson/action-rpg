@@ -7,7 +7,7 @@
 #include "ecs_sprites.h"
 #include "ecs_player.h"
 #include "ecs_ai.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "ecs_camera.h"
 #include "ecs_vfx.h"
 #include "ecs_pickups.h"
@@ -53,7 +53,7 @@ namespace ecs
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
 		destroy_entities_to_be_destroyed_at_end_of_frame();
-		update_animations(dt);
+		update_tile_animations(dt);
 		update_animated_sprites(dt);
 		update_sprites_following_bodies();
 		update_sprite_blinks(dt);

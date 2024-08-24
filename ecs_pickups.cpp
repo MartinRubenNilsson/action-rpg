@@ -3,7 +3,7 @@
 #include "ecs_common.h"
 #include "ecs_sprites.h"
 #include "ecs_physics.h"
-#include "ecs_animation.h"
+#include "ecs_animations.h"
 #include "tile_ids.h"
 
 namespace map
@@ -63,7 +63,7 @@ namespace ecs
 			sprite.size = { 16.f, 16.f };
 		}
 		{
-			Animation& animation = emplace_animation(entity);
+			TileAnimation& animation = emplace_tile_animation(entity);
 			animation.tileset = get_tileset("items1");
 			switch (type) {
 			case PickupType::Arrow:

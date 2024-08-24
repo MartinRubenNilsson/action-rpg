@@ -176,7 +176,7 @@
     <ClCompile Include="ecs_sprites.cpp">
       <Filter>game\ecs\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_animation.cpp">
+    <ClCompile Include="ecs_animations.cpp">
       <Filter>game\ecs\graphics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_uniform_block.cpp">
@@ -604,7 +604,7 @@
     <ClInclude Include="ecs_sprites.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_animation.h">
+    <ClInclude Include="ecs_animations.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="tile_ids.h" />
