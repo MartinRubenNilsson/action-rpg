@@ -21,10 +21,20 @@ namespace ecs
 		bool _looped = false;
 	};
 
+	struct FlipbookAnimation
+	{
+		unsigned int rows = 0;
+		unsigned int columns = 0;
+		float fps = 0.f;
+		float time = 0.f;
+	};
+
 	void update_tile_animations(float dt);
+	void update_flipbook_animations(float dt);
 	void update_animated_sprites(float dt);
 
 	TileAnimation& emplace_tile_animation(entt::entity entity);
 	TileAnimation* get_tile_animation(entt::entity entity);
-	bool remove_tile_animation(entt::entity entity);
+
+	FlipbookAnimation& emplace_flipbook_animation(entt::entity entity);
 }

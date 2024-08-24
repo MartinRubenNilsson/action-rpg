@@ -49,7 +49,7 @@ namespace ecs
             destroy_at_end_of_frame(entity);
             audio::create_event({ .path = "event:/snd_bomb_explosion", .position = center });
             audio::stop_event(bomb.fuse_sound);
-            postprocessing::add_shockwave(center);
+            //postprocessing::add_shockwave(center);
 		}
     }
 

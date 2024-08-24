@@ -52,13 +52,14 @@ namespace ecs
 		update_blade_traps(dt);
 		update_ai_logic(dt);
 		update_ai_graphics(dt);
+		update_lifetimes(dt);
 		destroy_entities_to_be_destroyed_at_end_of_frame();
 		update_tile_animations(dt);
+		update_flipbook_animations(dt);
 		update_animated_sprites(dt);
 		update_sprites_following_bodies();
 		update_sprite_blinks(dt);
 		update_sprite_shakes(dt);
-		update_vfx(dt);
 		update_cameras(dt);
 	}
 
@@ -108,9 +109,6 @@ namespace ecs
 			if (sprite.position.y + sprite.size.y < camera_min.y) continue;
 			sprites::add(sprite);
 		}
-
-		//TODO: refactor so that we don't need to call this function
-		add_vfx_sprites_for_drawing(camera_min, camera_max);
 
 		sprites::sort();
 		sprites::draw();

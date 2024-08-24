@@ -85,6 +85,20 @@ namespace ecs
 		}
 	}
 
+	void update_flipbook_animations(float dt)
+	{
+		for (auto [entity, animation] : _registry.view<FlipbookAnimation>().each()) {
+			if (animation.rows <= 0) continue;
+			if (animation.columns <= 0) continue;
+			if (animation.fps <= 0.f) continue;
+			const float duration = animation.rows * animation.columns / animation.fps;
+			animation.time += dt;
+			if (animation.time >= duration) {
+				animation.time = fmodf(animation.time, duration);
+			}
+		}
+	}
+
 	void update_animated_sprites(float dt)
 	{
 		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const TileAnimation>().each()) {
@@ -108,6 +122,18 @@ namespace ecs
 			sprite.tex_position /= Vector2f(texture_size);
 			sprite.tex_size /= Vector2f(texture_size);
 		}
+
+		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const FlipbookAnimation>().each()) {
+			if (animation.rows <= 0) continue;
+			if (animation.columns <= 0) continue;
+			const unsigned int frame = (unsigned int)(animation.time * animation.fps);
+			const unsigned int row = frame / animation.columns;
+			const unsigned int col = frame % animation.columns;
+			const float frame_width = 1.f / animation.columns;
+			const float frame_height = 1.f / animation.rows;
+			sprite.tex_position = { col * frame_width, row * frame_height };
+			sprite.tex_size = { frame_width, frame_height };
+		}
 	}
 
 	TileAnimation& emplace_tile_animation(entt::entity entity)
@@ -120,8 +146,8 @@ namespace ecs
 		return _registry.try_get<TileAnimation>(entity);
 	}
 
-	bool remove_tile_animation(entt::entity entity)
+	FlipbookAnimation& emplace_flipbook_animation(entt::entity entity)
 	{
-		return _registry.remove<TileAnimation>(entity);
+		return _registry.emplace_or_replace<FlipbookAnimation>(entity);
 	}
 }

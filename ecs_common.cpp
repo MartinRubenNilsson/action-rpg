@@ -12,6 +12,16 @@ namespace ecs
 	extern entt::registry _registry;
 	std::unordered_set<entt::entity> _entities_to_destroy_at_end_of_frame;
 
+	void update_lifetimes(float dt)
+	{
+		for (auto [entity, lifetime] : _registry.view<Lifetime>().each()) {
+			lifetime.time -= dt;
+			if (lifetime.time <= 0.f) {
+				destroy_at_end_of_frame(entity);
+			}
+		}
+	}
+
 	void destroy_entities_to_be_destroyed_at_end_of_frame()
 	{
 		for (entt::entity entity : _entities_to_destroy_at_end_of_frame) {
@@ -53,6 +63,11 @@ namespace ecs
 			}
 		}
 		return copied_entity;
+	}
+
+	void set_lifetime(entt::entity entity, float time)
+	{
+		_registry.emplace_or_replace<Lifetime>(entity, time);
 	}
 
 	void destroy_immediately(entt::entity entity)

@@ -5,6 +5,12 @@ class Properties; // Forward declaration
 
 namespace ecs
 {
+	struct Lifetime
+	{
+		float time = 0.f;
+	};
+
+	void update_lifetimes(float dt);
 	void destroy_entities_to_be_destroyed_at_end_of_frame();
 
 	// ENTITY CREATION/DESTRUCTION
@@ -13,6 +19,7 @@ namespace ecs
 	entt::entity create();
 	entt::entity create(entt::entity hint);
 	entt::entity deep_copy(entt::entity entity);
+	void set_lifetime(entt::entity entity, float time);
 	void destroy_immediately(entt::entity entity);
 	void destroy_at_end_of_frame(entt::entity entity);
 	bool valid(entt::entity entity);
