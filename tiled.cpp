@@ -9,11 +9,11 @@
 namespace tiled
 {
 	Pool<Map> _maps;
-	std::unordered_map<std::string, Handle<Map>> _path_to_map;
 	Pool<Tileset> _tilesets;
+	Pool<Object> _templates;
+	std::unordered_map<std::string, Handle<Map>> _path_to_map;
 	std::unordered_map<std::string, Handle<Tileset>> _path_to_tileset;
 	std::unordered_map<std::string, Handle<Tileset>> _name_to_tileset;
-	Pool<Object> _templates;
 	std::unordered_map<std::string, Handle<Object>> _path_to_template;
 
 	std::span<const Map> get_maps()
@@ -190,6 +190,9 @@ namespace tiled
 		} else if (pugi::xml_node polyline = node.child("polyline")) {
 			object.type = ObjectType::Polyline;
 			object.points = _load_points(polyline);
+		} else if (pugi::xml_node text = node.child("text")) {
+			object.type = ObjectType::Text;
+			//TODO
 		}
 		if (pugi::xml_attribute gid = node.attribute("gid")) {
 			object.type = ObjectType::Tile;

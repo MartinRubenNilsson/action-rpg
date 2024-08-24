@@ -34,6 +34,7 @@ namespace tiled
 		Polygon,
 		Polyline,
 		Tile,
+		Text, // not supported
 	};
 
 	struct Object
