@@ -18,6 +18,7 @@ namespace graphics
 	struct Shader;
 	struct Buffer;
 	struct Texture;
+	struct Sampler;
 	struct Framebuffer;
 }
 

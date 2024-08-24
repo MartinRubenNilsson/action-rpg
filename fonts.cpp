@@ -59,7 +59,10 @@ namespace fonts
 			.width = ATLAS_TEXTURE_SIZE,
 			.height = ATLAS_TEXTURE_SIZE,
 			.format = graphics::Format::R8_UNORM });
+
+#if 0
 		graphics::set_texture_filter(font.atlas_texture, graphics::Filter::Linear);
+#endif
 
 		// IMPORTANT: We must move construct the font, otherwise
 		// font.data/font.atlas_pixels are reallocated and

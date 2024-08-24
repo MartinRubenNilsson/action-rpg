@@ -83,11 +83,6 @@ namespace graphics
 		R8G8B8A8_UNORM,
 	};
 
-	enum class Filter
-	{
-		Nearest, // Sample nearest texel
-		Linear, // Linear interpolation between texels
-	};
 
 	struct TextureDesc
 	{
@@ -96,7 +91,6 @@ namespace graphics
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
 		const unsigned char* initial_data = nullptr;
-		Filter filter = Filter::Nearest;
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);
@@ -111,8 +105,37 @@ namespace graphics
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src);
 
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
-	void set_texture_filter(Handle<Texture> handle, Filter filter);
-	Filter get_texture_filter(Handle<Texture> handle);
+
+	// SAMPLERS
+
+	enum class Filter
+	{
+		Nearest, // Sample nearest texel
+		Linear, // Linear interpolation between texels
+	};
+
+	enum class Wrap
+	{
+		Repeat, // Repeat the texture
+		MirroredRepeat, // Repeat with mirroring
+		ClampToEdge, // Clamp to the edge
+		ClampToBorder, // Clamp to a border color
+		MirrorClampToEdge, // Mirror the texture once and then clamp to the edge
+	};
+
+	struct SamplerDesc
+	{
+		std::string_view debug_name = "sampler";
+		Filter filter = Filter::Nearest;
+		Wrap wrap = Wrap::Repeat;
+		float border_color[4] = {};
+	};
+
+	Handle<Sampler> create_sampler(const SamplerDesc&& desc);
+	void destroy_sampler(Handle<Sampler> handle);
+
+	void bind_sampler(unsigned int binding, Handle<Sampler> handle);
+	void unbind_sampler(unsigned int binding);
 
 	// FRAMEBUFFERS
 

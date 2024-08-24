@@ -16,9 +16,13 @@ namespace graphics
 	// when building a list of vertices to eventually upload to a buffer.
 	extern eastl::vector<graphics::Vertex> temp_vertices;
 
+	// FRAMEBUFFERS
+
 	extern Handle<Framebuffer> gameworld_framebuffer_target; // GAMEWORLD_FRAMEBUFFER_WIDTH x GAMEWORLD_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> gameworld_framebuffer_source; // GAMEWORLD_FRAMEBUFFER_WIDTH x GAMEWORLD_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
+
+	// BUFFERS
 
 	extern Handle<Buffer> dynamic_vertex_buffer;
 	extern Handle<Buffer> dynamic_index_buffer;
@@ -33,13 +37,18 @@ namespace graphics
 	extern Handle<Shader> screen_transition_shader;
 	extern Handle<Shader> shockwave_shader;
 
-	/// SPRITE SHADERS
+	// SPRITE SHADERS
 
 	extern Handle<Shader> sprite_shader;
 	extern Handle<Shader> grass_shader;
 	extern Handle<Shader> shape_shader;
 	extern Handle<Shader> text_shader;
 	extern Handle<Shader> ui_shader;
+
+	// SAMPLERS
+
+	extern Handle<Sampler> nearest_sampler; // nearest filtering, wrap
+	extern Handle<Sampler> linear_sampler; // linear filtering, wrap
 
 	void initialize_globals();
 }

@@ -127,37 +127,26 @@ namespace postprocessing
 
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
 
-		Handle<graphics::Texture> source_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source);
-		Handle<graphics::Texture> target_texture = graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target);
+		graphics::bind_sampler(0, graphics::linear_sampler);
 
-		// Set linear filtering
-		//TODO: Samplers separate from textures
-		graphics::set_texture_filter(source_texture, graphics::Filter::Linear);
-		graphics::set_texture_filter(target_texture, graphics::Filter::Linear);
-
-		// Apply blur
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 
 			// Horizontal pass
 			graphics::bind_shader(graphics::gaussian_blur_hor_shader);
-			std::swap(source_texture, target_texture);
 			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
-			graphics::bind_texture(0, source_texture);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
 			graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			graphics::bind_shader(graphics::gaussian_blur_ver_shader);
-			std::swap(source_texture, target_texture);
 			std::swap(graphics::gameworld_framebuffer_source, graphics::gameworld_framebuffer_target);
-			graphics::bind_texture(0, source_texture);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_source));
 			graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
 
-		// Restore nearest filtering
-		graphics::set_texture_filter(source_texture, graphics::Filter::Nearest);
-		graphics::set_texture_filter(target_texture, graphics::Filter::Nearest);
+		graphics::bind_sampler(0, graphics::nearest_sampler);
 	}
 
 	void render(const Vector2f& camera_min, const Vector2f& camera_max)

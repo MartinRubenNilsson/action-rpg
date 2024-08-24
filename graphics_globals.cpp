@@ -34,6 +34,9 @@ namespace graphics
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
+	Handle<Sampler> nearest_sampler; // nearest filtering, wrap
+	Handle<Sampler> linear_sampler; // linear filtering, clamp to edge
+
 	void initialize_globals()
 	{
 		gameworld_framebuffer_target = create_framebuffer({
@@ -98,8 +101,19 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
+		nearest_sampler = create_sampler({
+			.debug_name = "nearest sampler",
+			.filter = Filter::Nearest });
+		linear_sampler = create_sampler({
+			.debug_name = "linear sampler",
+			.filter = Filter::Linear,
+			.wrap = Wrap::ClampToEdge });
+
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
+
 		bind_uniform_buffer(0, frame_uniform_buffer);
+
+		bind_sampler(0, nearest_sampler);
 	}
 }

@@ -92,7 +92,12 @@ namespace graphics
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
 		unsigned int size = 0; // in bytes
-		Filter filter = Filter::Nearest;
+	};
+
+	struct Sampler
+	{
+		GLuint sampler_object = 0;
+		SamplerDesc desc{};
 	};
 
 	struct Framebuffer
@@ -109,6 +114,7 @@ namespace graphics
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
+	Pool<Sampler> _sampler_pool;
 	Pool<Framebuffer> _framebuffer_pool;
 	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
@@ -608,24 +614,11 @@ namespace graphics
 		}
 	}
 
-	GLint _to_gl_filter(Filter filter)
-	{
-		switch (filter) {
-		case Filter::Nearest: return GL_NEAREST;
-		case Filter::Linear:  return GL_LINEAR;
-		default:			  return 0;
-		}
-	}
-
 	Handle<Texture> create_texture(const TextureDesc&& desc)
 	{
 		GLuint texture_object = 0;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
 		_set_debug_label(GL_TEXTURE, texture_object, desc.debug_name);
-
-		const GLint gl_filter = _to_gl_filter(desc.filter);
-		glTextureParameteri(texture_object, GL_TEXTURE_MIN_FILTER, gl_filter);
-		glTextureParameteri(texture_object, GL_TEXTURE_MAG_FILTER, gl_filter);
 
 		const GLenum gl_sized_format = _to_gl_sized_format(desc.format);
 		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
@@ -642,7 +635,6 @@ namespace graphics
 		texture.height = desc.height;
 		texture.format = desc.format;
 		texture.size = desc.width * desc.height * _get_size(desc.format);
-		texture.filter = desc.filter;
 
 		_total_texture_memory_usage_in_bytes += texture.size;
 
@@ -725,8 +717,7 @@ namespace graphics
 				.debug_name = debug_name,
 				.width = src_texture->width,
 				.height = src_texture->height,
-				.format = src_texture->format,
-				.filter = src_texture->filter });
+				.format = src_texture->format });
 			copy_texture(dest, src);
 		}
 		return dest;
@@ -788,6 +779,7 @@ namespace graphics
 		}
 	}
 
+#if 0
 	void set_texture_filter(Handle<Texture> handle, Filter filter)
 	{
 		Texture* texture = _texture_pool.get(handle);
@@ -805,6 +797,68 @@ namespace graphics
 			return texture->filter;
 		}
 		return Filter();
+	}
+#endif
+
+	GLint _to_gl_filter(Filter filter)
+	{
+		switch (filter) {
+		case Filter::Nearest: return GL_NEAREST;
+		case Filter::Linear:  return GL_LINEAR;
+		default:			  return 0;
+		}
+	}
+
+	GLint _to_gl_wrap(Wrap wrap)
+	{
+		switch (wrap) {
+		case Wrap::Repeat:            return GL_REPEAT;
+		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
+		case Wrap::ClampToEdge:       return GL_CLAMP_TO_EDGE;
+		case Wrap::ClampToBorder:     return GL_CLAMP_TO_BORDER;
+		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
+		default:				      return 0;
+		}
+	}
+
+	Handle<Sampler> create_sampler(const SamplerDesc&& desc)
+	{
+		GLuint sampler_object = 0;
+		glCreateSamplers(1, &sampler_object);
+		_set_debug_label(GL_SAMPLER, sampler_object, desc.debug_name);
+
+		const GLint gl_filter = _to_gl_filter(desc.filter);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_MAG_FILTER, gl_filter);
+
+		const GLint gl_wrap = _to_gl_wrap(desc.wrap);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_S, gl_wrap);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_T, gl_wrap);
+
+		glSamplerParameterfv(sampler_object, GL_TEXTURE_BORDER_COLOR, desc.border_color);
+
+		return _sampler_pool.emplace(sampler_object, desc);
+	}
+
+	void destroy_sampler(Handle<Sampler> handle)
+	{
+		Sampler* sampler = _sampler_pool.get(handle);
+		if (!sampler) return;
+		glDeleteSamplers(1, &sampler->sampler_object);
+		*sampler = Sampler();
+		_sampler_pool.free(handle);
+	}
+
+	void bind_sampler(unsigned int binding, Handle<Sampler> handle)
+	{
+		if (const Sampler* sampler = _sampler_pool.get(handle)) {
+			glBindSampler(binding, sampler->sampler_object);
+		}
+	}
+
+	void unbind_sampler(unsigned int binding)
+	{
+		glBindSampler(binding, 0);
 	}
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
