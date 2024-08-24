@@ -215,6 +215,7 @@ namespace ecs
 					const Vector2f bomb_position = position + player.look_dir * 16.f;
 					if (create_bomb(bomb_position) != entt::null) {
 						player.bombs--;
+						audio::create_event({ .path = "event:/player/place_bomb" });
 					}
 
 				} else if (player.touching_pushable_block && !is_zero(new_velocity)) {
