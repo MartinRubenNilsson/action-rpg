@@ -16,6 +16,7 @@ namespace ecs
     Bomb& emplace_bomb(entt::entity entity, const Bomb& bomb = {});
     Bomb* get_bomb(entt::entity entity);
 
+	// Fails (returns entt::null) if the bomb would be created inside a wall.
     entt::entity create_bomb(const Vector2f& position);
 
     void ignite_bomb(entt::entity entity);

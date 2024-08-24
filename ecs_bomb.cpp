@@ -65,6 +65,10 @@ namespace ecs
 
     entt::entity create_bomb(const Vector2f& position)
     {
+        if (!overlap_circle(position, 4.f).empty()) {
+			return entt::null;
+        }
+
         entt::entity entity = _registry.create();
         set_tag(entity, Tag::Bomb);
         emplace_bomb(entity);
