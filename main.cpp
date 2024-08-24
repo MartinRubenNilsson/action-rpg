@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
         postprocessing::render(camera_min, camera_max);
 
-        {
+		if (!window::get_minimized()) {
             graphics::ScopedDebugGroup debug_group("Upscale to window");
             graphics::bind_default_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
@@ -267,11 +267,6 @@ int main(int argc, char* argv[])
             int window_framebuffer_width = 0;
             int window_framebuffer_height = 0;
             window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
-            if (window_framebuffer_width <= 0 || window_framebuffer_height <= 0) {
-                // HACK: So we don't get spammed with errors when the window is minimized.
-                window_framebuffer_width = 1;
-                window_framebuffer_height = 1;
-            }
             graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
             graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
         }

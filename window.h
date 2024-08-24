@@ -46,6 +46,8 @@ namespace window
 	bool has_focus();
 	void set_visible(bool visible);
 	bool get_visible();
+	void set_minimized(bool minimized);
+	bool get_minimized();
 	void set_fullscreen(bool fullscreen);
 	bool get_fullscreen();
 	void set_size(int width, int height);

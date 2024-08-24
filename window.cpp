@@ -240,6 +240,20 @@ namespace window
 		return glfwGetWindowAttrib(_glfw_window, GLFW_VISIBLE);
 	}
 
+	void set_minimized(bool minimized)
+	{
+		if (minimized) {
+			glfwIconifyWindow(_glfw_window);
+		} else {
+			glfwRestoreWindow(_glfw_window);
+		}
+	}
+
+	bool get_minimized()
+	{
+		return glfwGetWindowAttrib(_glfw_window, GLFW_ICONIFIED);
+	}
+
 	void set_fullscreen(bool fullscreen)
 	{
 		if (fullscreen == get_fullscreen()) return;
