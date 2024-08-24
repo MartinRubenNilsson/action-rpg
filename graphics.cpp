@@ -224,6 +224,11 @@ namespace graphics
 		_texture_pool.clear();
 		_path_to_texture.clear();
 
+		// DELETE SAMPLERS
+		for (const Sampler& sampler : _sampler_pool.span()) {
+			glDeleteSamplers(1, &sampler.sampler_object);
+		}
+
 		// DELETE FRAMEBUFFERS
 
 		for (const Framebuffer& framebuffer : _framebuffer_pool.span()) {

@@ -83,7 +83,6 @@ namespace graphics
 		R8G8B8A8_UNORM,
 	};
 
-
 	struct TextureDesc
 	{
 		std::string_view debug_name = "texture";
