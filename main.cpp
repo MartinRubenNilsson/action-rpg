@@ -237,9 +237,9 @@ int main(int argc, char* argv[])
             graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));
         }
 
-        graphics::bind_framebuffer(graphics::gameworld_framebuffer_target);
-        graphics::clear_framebuffer(graphics::gameworld_framebuffer_target, 0.f, 0.f, 0.f, 1.f);
-        graphics::set_viewport(0, 0, GAMEWORLD_FRAMEBUFFER_WIDTH, GAMEWORLD_FRAMEBUFFER_HEIGHT);
+        graphics::clear_framebuffer(graphics::game_framebuffer_0, 0.f, 0.f, 0.f, 1.f);
+        graphics::bind_framebuffer(graphics::game_framebuffer_0);
+        graphics::set_viewport(0, 0, GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
 
         background::draw_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
             graphics::ScopedDebugGroup debug_group("Upscale to window");
             graphics::bind_default_framebuffer();
             graphics::bind_shader(graphics::fullscreen_shader);
-            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::gameworld_framebuffer_target));
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_0));
             int window_framebuffer_width = 0;
             int window_framebuffer_height = 0;
             window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);

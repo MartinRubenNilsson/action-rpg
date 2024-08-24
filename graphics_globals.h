@@ -18,8 +18,8 @@ namespace graphics
 
 	// FRAMEBUFFERS
 
-	extern Handle<Framebuffer> gameworld_framebuffer_target; // GAMEWORLD_FRAMEBUFFER_WIDTH x GAMEWORLD_FRAMEBUFFER_HEIGHT
-	extern Handle<Framebuffer> gameworld_framebuffer_source; // GAMEWORLD_FRAMEBUFFER_WIDTH x GAMEWORLD_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> game_framebuffer_0; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> game_framebuffer_1; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
 
 	// BUFFERS

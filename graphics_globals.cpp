@@ -13,8 +13,8 @@ namespace graphics
 
 	eastl::vector<graphics::Vertex> temp_vertices;
 
-	Handle<Framebuffer> gameworld_framebuffer_target;
-	Handle<Framebuffer> gameworld_framebuffer_source;
+	Handle<Framebuffer> game_framebuffer_0;
+	Handle<Framebuffer> game_framebuffer_1;
 	Handle<Framebuffer> player_outfit_framebuffer;
 
 	Handle<Buffer> dynamic_vertex_buffer;
@@ -39,14 +39,14 @@ namespace graphics
 
 	void initialize_globals()
 	{
-		gameworld_framebuffer_target = create_framebuffer({
+		game_framebuffer_0 = create_framebuffer({
 			.debug_name = "gameworld framebuffer 0",
-			.width = GAMEWORLD_FRAMEBUFFER_WIDTH,
-			.height = GAMEWORLD_FRAMEBUFFER_HEIGHT });
-		gameworld_framebuffer_source = create_framebuffer({
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT });
+		game_framebuffer_1 = create_framebuffer({
 			.debug_name = "gameworld framebuffer 1",
-			.width = GAMEWORLD_FRAMEBUFFER_WIDTH,
-			.height = GAMEWORLD_FRAMEBUFFER_HEIGHT });
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT });
 		player_outfit_framebuffer = create_framebuffer({
 			.debug_name = "player outfit framebuffer",
 			.width = 1024, // size of player tileset

@@ -228,8 +228,8 @@ namespace ui
 			set_viewport(ev.size.width, ev.size.height);
 			_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
 			_debugger_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
-			float dp_ratio_x = (float)ev.size.width / GAMEWORLD_FRAMEBUFFER_WIDTH;
-			float dp_ratio_y = (float)ev.size.height / GAMEWORLD_FRAMEBUFFER_HEIGHT;
+			float dp_ratio_x = (float)ev.size.width / GAME_FRAMEBUFFER_WIDTH;
+			float dp_ratio_y = (float)ev.size.height / GAME_FRAMEBUFFER_HEIGHT;
 			float dp_ratio = std::min(dp_ratio_x, dp_ratio_y);
 			_context->SetDensityIndependentPixelRatio(dp_ratio);
 			// Don't set density independent pixel ratio for the debugger context!
