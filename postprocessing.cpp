@@ -80,11 +80,12 @@ namespace postprocessing
 		}
 	}
 
-	void _render_darkness(const Vector2f& camera_min, const Vector2f& camera_max)
+	void _render_lighting(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
 		if (_darkness_intensity == 0.f) return;
-		graphics::ScopedDebugGroup debug_group("postprocessing::_render_darkness()");
+		graphics::ScopedDebugGroup debug_group("postprocessing::_render_lighting()");
 
+#if 0
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert",
@@ -103,6 +104,7 @@ namespace postprocessing
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 		graphics::bind_framebuffer(graphics::game_framebuffer_0);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+#endif
 	}
 
 	void _render_screen_transition()
@@ -154,7 +156,7 @@ namespace postprocessing
 	{
 		graphics::ScopedDebugGroup debug_group("postprocessing::render()");
 		_render_shockwaves(camera_min, camera_max);
-		_render_darkness(camera_min, camera_max);
+		_render_lighting(camera_min, camera_max);
 		_render_screen_transition();
 		_render_gaussian_blur();
 	}

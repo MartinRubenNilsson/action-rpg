@@ -200,6 +200,9 @@
     <ClCompile Include="ecs_vfx.cpp">
       <Filter>game\ecs\graphics</Filter>
     </ClCompile>
+    <ClCompile Include="ecs_lighting.cpp">
+      <Filter>game\ecs\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="bake_character.frag">
@@ -645,6 +648,9 @@
       <Filter>game\ecs\weapons</Filter>
     </ClInclude>
     <ClInclude Include="ecs_vfx.h">
+      <Filter>game\ecs\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs_lighting.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
   </ItemGroup>

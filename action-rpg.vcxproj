@@ -155,6 +155,7 @@
     <ClCompile Include="ecs_blade_trap.cpp" />
     <ClCompile Include="ecs_chest.cpp" />
     <ClCompile Include="ecs_grass.cpp" />
+    <ClCompile Include="ecs_lighting.cpp" />
     <ClCompile Include="ecs_tags.cpp" />
     <ClCompile Include="ecs_interact.cpp" />
     <ClCompile Include="ecs_sprites.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="ecs_blade_trap.h" />
     <ClInclude Include="ecs_chest.h" />
     <ClInclude Include="ecs_grass.h" />
+    <ClInclude Include="ecs_lighting.h" />
     <ClInclude Include="ecs_tags.h" />
     <ClInclude Include="ecs_interact.h" />
     <ClInclude Include="ecs_sprites.h" />

@@ -5,7 +5,7 @@ namespace postprocessing
 	// Calling render() applies the following effects in order:
 	// 
 	// 1. Shockwaves
-	// 2. Darkness
+	// 2. Lighting
 	// 3. Screen transition
 	// 4. Gaussian blur
 
