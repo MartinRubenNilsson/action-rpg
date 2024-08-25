@@ -83,6 +83,8 @@ namespace ui
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
 		graphics::update_buffer(graphics::dynamic_vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
 		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
+		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
+		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
 	}
 

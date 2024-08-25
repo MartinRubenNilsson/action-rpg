@@ -271,11 +271,14 @@ namespace ui
 			// when we move the mouse around a lot. I dropped from 350 FPS to 230 FPS!
 			// Hence, let's only call ProcessMouseMove() when we're in a menu,
 			// since it's only then that we're using the mouse position (to press buttons).
-			if (get_top_menu() == MenuType::Count) break;
 			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
-			_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
+			if (debug || get_top_menu() != MenuType::Count) {
+				_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
+			}
 #ifdef _DEBUG_UI
-			_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
+			if (debug) {
+				_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
+			}
 #endif
 		} break;
 		case window::EventType::MouseButtonPress: {
