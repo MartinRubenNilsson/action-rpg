@@ -225,7 +225,7 @@
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bake_character.frag" />
+    <None Include="player_outfit.frag" />
     <None Include="checkerboard.frag" />
     <None Include="darkness.frag" />
     <None Include="fullscreen.frag" />

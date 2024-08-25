@@ -342,7 +342,7 @@ namespace player
 		// Load shader
 		const Handle<graphics::Shader> shader = graphics::load_shader(
 			"assets/shaders/fullscreen.vert",
-			"assets/shaders/bake_character.frag");
+			"assets/shaders/player_outfit.frag");
 		if (shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
 
 		int viewport[4];
