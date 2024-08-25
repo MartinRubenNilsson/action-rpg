@@ -24,6 +24,13 @@ namespace ecs
 		return tiled::find_tileset_by_name(name);
 	}
 
+	Handle<graphics::Texture> get_tileset_texture(Handle<tiled::Tileset> tileset)
+	{
+		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+		if (!tileset_ptr) return Handle<graphics::Texture>();
+		return graphics::load_texture(tileset_ptr->image_path);
+	}
+
 	void update_tile_animations(float dt)
 	{
 		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
@@ -109,16 +116,13 @@ namespace ecs
 			if (!tileset) continue;
 			if (animation._animated_tile_id >= tileset->tiles.size()) continue;
 
-			if (sprite.texture == Handle<graphics::Texture>()) {
-				sprite.texture = graphics::load_texture(tileset->image_path);
-			}
+			Vector2u texture_size;
+			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
+			if (!texture_size.x || !texture_size.y) continue;
 
 			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation._animated_tile_id);
 			sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
-
-			Vector2u texture_size;
-			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			sprite.tex_position /= Vector2f(texture_size);
 			sprite.tex_size /= Vector2f(texture_size);
 		}

@@ -33,16 +33,16 @@ namespace ecs
 		}
 		const Vector2f pivot = { 8.f, 8.f };
 		{
+			TileAnimation& animation = emplace_tile_animation(entity);
+			animation.tileset = get_tileset("items1");
+			animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
+
 			sprites::Sprite& sprite = emplace_sprite(entity);
+			sprite.texture = get_tileset_texture(animation.tileset);
 			sprite.sorting_layer = map::get_object_layer_index();
 			sprite.sorting_point = pivot;
 			sprite.position = position - pivot;
 			sprite.size = { 16.f, 16.f };
-		}
-		{
-			TileAnimation& animation = emplace_tile_animation(entity);
-			animation.tileset = get_tileset("items1");
-			animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
 		}
 		{
 			b2BodyDef body_def = b2DefaultBodyDef();

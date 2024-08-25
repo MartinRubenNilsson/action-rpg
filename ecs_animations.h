@@ -3,6 +3,7 @@
 namespace ecs
 {
 	Handle<tiled::Tileset> get_tileset(const std::string& name);
+	Handle<graphics::Texture> get_tileset_texture(Handle<tiled::Tileset> tileset);
 
 	struct TileAnimation
 	{

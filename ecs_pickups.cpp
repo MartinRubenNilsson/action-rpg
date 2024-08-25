@@ -56,13 +56,6 @@ namespace ecs
 			b2CreateCircleShape(body, &shape_def, &circle);
 		}
 		{
-			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();
-			sprite.sorting_point = { 8.f, 8.f };
-			sprite.position = position - sprite.sorting_point;
-			sprite.size = { 16.f, 16.f };
-		}
-		{
 			TileAnimation& animation = emplace_tile_animation(entity);
 			animation.tileset = get_tileset("items1");
 			switch (type) {
@@ -79,6 +72,13 @@ namespace ecs
 				animation.tile_id = TILE_ID_ITEM_BERRIES; // placeholder
 				break;
 			}
+
+			sprites::Sprite& sprite = emplace_sprite(entity);
+			sprite.texture = get_tileset_texture(animation.tileset);
+			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();
+			sprite.sorting_point = { 8.f, 8.f };
+			sprite.position = position - sprite.sorting_point;
+			sprite.size = { 16.f, 16.f };
 		}
 		return entity;
 	}

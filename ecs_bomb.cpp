@@ -74,16 +74,16 @@ namespace ecs
         emplace_bomb(entity);
         ignite_bomb(entity);
         {
+            TileAnimation& animation = emplace_tile_animation(entity);
+            animation.tileset = get_tileset("items1");
+            animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
+
 			sprites::Sprite& sprite = emplace_sprite(entity);
+			sprite.texture = get_tileset_texture(animation.tileset);
             sprite.sorting_layer = map::get_object_layer_index();
             sprite.sorting_point = { 8.f, 16.f };
             sprite.position = position - sprite.sorting_point;
 			sprite.size = { 16.f, 16.f };
-        }
-        {
-            TileAnimation& animation = emplace_tile_animation(entity);
-            animation.tileset = get_tileset("items1");
-            animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
         }
         {
             b2BodyDef body_def = b2DefaultBodyDef();
