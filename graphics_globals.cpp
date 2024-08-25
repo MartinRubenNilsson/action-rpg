@@ -42,11 +42,11 @@ namespace graphics
 	void initialize_globals()
 	{
 		game_framebuffer_0 = create_framebuffer({
-			.debug_name = "gameworld framebuffer 0",
+			.debug_name = "game framebuffer 0",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT });
 		game_framebuffer_1 = create_framebuffer({
-			.debug_name = "gameworld framebuffer 1",
+			.debug_name = "game framebuffer 1",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT });
 		player_outfit_framebuffer = create_framebuffer({
