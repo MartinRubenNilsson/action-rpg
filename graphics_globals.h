@@ -45,6 +45,10 @@ namespace graphics
 	extern Handle<Shader> text_shader;
 	extern Handle<Shader> ui_shader;
 
+	// TEXTURES
+
+	extern Handle<Texture> error_texture;
+
 	// SAMPLERS
 
 	extern Handle<Sampler> nearest_sampler; // nearest filtering, wrap

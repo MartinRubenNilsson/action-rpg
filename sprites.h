@@ -3,6 +3,7 @@
 namespace graphics
 {
 	extern Handle<Shader> sprite_shader;
+	extern Handle<Texture> error_texture;
 }
 
 namespace sprites
@@ -23,7 +24,7 @@ namespace sprites
 	struct alignas(L1_CACHE_LINE_SIZE) Sprite
 	{
 		Handle<graphics::Shader> shader = graphics::sprite_shader;
-		Handle<graphics::Texture> texture; // TODO: default to error texture
+		Handle<graphics::Texture> texture = graphics::error_texture;
 		Handle<graphics::Buffer> uniform_buffer;
 		uint16_t uniform_buffer_size = 0; // size in bytes of the uniform buffer
 		uint16_t uniform_buffer_offset = 0; // offset in bytes into the uniform buffer; must be a multiple of 256

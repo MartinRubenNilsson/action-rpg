@@ -226,7 +226,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="player_outfit.frag" />
-    <None Include="checkerboard.frag" />
     <None Include="darkness.frag" />
     <None Include="fullscreen.frag" />
     <None Include="fullscreen.vert" />

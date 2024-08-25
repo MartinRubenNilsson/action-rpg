@@ -34,8 +34,10 @@ namespace graphics
 	Handle<Shader> text_shader;
 	Handle<Shader> ui_shader;
 
-	Handle<Sampler> nearest_sampler; // nearest filtering, wrap
-	Handle<Sampler> linear_sampler; // linear filtering, clamp to edge
+	Handle<Texture> error_texture; // 32x32 magenta-black checkerboard
+
+	Handle<Sampler> nearest_sampler;
+	Handle<Sampler> linear_sampler;
 
 	void initialize_globals()
 	{
@@ -101,6 +103,28 @@ namespace graphics
 			"assets/shaders/ui.vert",
 			"assets/shaders/ui.frag");
 
+		{
+			constexpr unsigned int ERROR_TEXTURE_SIZE = 32;
+			unsigned char error_texture_data[ERROR_TEXTURE_SIZE * ERROR_TEXTURE_SIZE * 4];
+			//Make a magenta-and-black checkerboard pattern
+			for (unsigned int i = 0; i < ERROR_TEXTURE_SIZE; ++i) {
+				for (unsigned int j = 0; j < ERROR_TEXTURE_SIZE; ++j) {
+					unsigned int k = (i * ERROR_TEXTURE_SIZE + j) * 4;
+					unsigned char value = (i + j) % 2 == 0 ? 255 : 0;
+					error_texture_data[k + 0] = value;
+					error_texture_data[k + 1] = 0;
+					error_texture_data[k + 2] = value;
+					error_texture_data[k + 3] = 255;
+				}
+			}
+			error_texture = create_texture({
+				.debug_name = "error texture",
+				.width = ERROR_TEXTURE_SIZE,
+				.height = ERROR_TEXTURE_SIZE,
+				.format = Format::R8G8B8A8_UNORM,
+				.initial_data = error_texture_data });
+		}
+
 		nearest_sampler = create_sampler({
 			.debug_name = "nearest sampler",
 			.filter = Filter::Nearest });
@@ -111,9 +135,7 @@ namespace graphics
 
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
-
 		bind_uniform_buffer(0, frame_uniform_buffer);
-
 		bind_sampler(0, nearest_sampler);
 	}
 }

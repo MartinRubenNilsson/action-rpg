@@ -89,7 +89,7 @@ namespace graphics
 		unsigned int width = 0;
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
-		const unsigned char* initial_data = nullptr;
+		const void* initial_data = nullptr;
 	};
 
 	Handle<Texture> create_texture(const TextureDesc&& desc);

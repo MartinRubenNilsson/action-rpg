@@ -251,9 +251,6 @@
     <None Include="fullscreen.frag">
       <Filter>graphics\shaders\fullscreen</Filter>
     </None>
-    <None Include="checkerboard.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
     <None Include="player_outfit.frag">
       <Filter>graphics\shaders\fullscreen</Filter>
     </None>
