@@ -43,6 +43,15 @@ int main(int argc, char* argv[])
     ui::initialize();
     ecs::initialize();
 
+#ifdef _DEBUG_GRAPHICS
+    // HACK: We should be using a post-build event to copy the shaders,
+    // but then it doesn't run when only debugging and not recompiling,
+    // which is annoying when you've changed a shader but not the code,
+    // because then the new shader doesn't get copied.
+    system("copy /Y ..\\*.vert .\\assets\\shaders\\");
+    system("copy /Y ..\\*.frag .\\assets\\shaders\\");
+#endif
+
     for (const filesystem::File& file : filesystem::get_files_in_directory("assets/audio/banks")) {
         if (file.format != filesystem::FileFormat::FmodStudioBank) continue;
         audio::load_bank_from_file(file.path);

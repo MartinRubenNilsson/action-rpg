@@ -153,13 +153,6 @@ namespace graphics
 	void initialize()
 	{
 #ifdef _DEBUG_GRAPHICS
-		// HACK: We should be using a post-build event to copy the shaders,
-		// but then it doesn't run when only debugging and not recompiling,
-		// which is annoying when you've changed a shader but not the code,
-		// because then the new shader doesn't get copied.
-		system("copy /Y ..\\*.vert .\\assets\\shaders\\");
-		system("copy /Y ..\\*.frag .\\assets\\shaders\\");
-
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_debug_message_callback, 0);
 #endif
