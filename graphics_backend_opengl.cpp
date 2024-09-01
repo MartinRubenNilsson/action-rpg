@@ -1,0 +1,163 @@
+#include "stdafx.h"
+#include "graphics_backend.h"
+#include <glad/glad.h>
+
+#pragma comment(lib, "opengl32")
+
+// Undefine pre-DSA functions to force the use of DSA whenever possible.
+
+#undef glGenTextures
+#undef glBindTexture
+#undef glTexParameterf
+#undef glTexParameteri
+#undef glTexParameterfv
+#undef glTexParameteriv
+#undef glTexParameterIiv
+#undef glTexParameterIuiv
+#undef glTexImage2D
+#undef glTexStorage2D
+#undef glTexSubImage2D
+#undef glGenerateMipmap
+#undef glActiveTexture
+
+#undef glGenFramebuffers
+#undef glFramebufferTexture2D 
+#undef glCheckFramebufferStatus
+#undef glBlitFramebuffer
+#undef glClearColor
+#undef glClearDepth
+#undef glClearStencil
+#undef glClear
+#undef glClearBufferiv
+#undef glClearBufferuiv
+#undef glClearBufferfv
+#undef glClearBufferfi
+
+#undef glGenBuffer
+#undef glBufferData
+#undef glBufferSubData
+#undef glBufferStorage
+#undef glNamedBufferData
+
+#undef glGenVertexArrays
+#undef glEnableVertexAttribArray
+#undef glDisableVertexAttribArray
+#undef glVertexAttribPointer
+#undef glVertexAttribFormat
+#undef glVertexAttribIFormat
+#undef glVertexAttribLFormat
+#undef glVertexAttribBinding
+#undef glVertexBindingDivisor
+#undef glBindVertexBuffer
+
+namespace graphics_backend
+{
+	GLenum _to_gl_base_format(Format format)
+	{
+		switch (format) {
+		case Format::R8_UNORM:       return GL_RED;
+		case Format::R8G8_UNORM:     return GL_RG;
+		case Format::R8G8B8_UNORM:   return GL_RGB;
+		case Format::R8G8B8A8_UNORM: return GL_RGBA;
+		default: return 0;
+		}
+	}
+
+	GLenum _to_gl_sized_format(Format format)
+	{
+		switch (format) {
+		case Format::R8_UNORM:       return GL_R8;
+		case Format::R8G8_UNORM:     return GL_RG8;
+		case Format::R8G8B8_UNORM:   return GL_RGB8;
+		case Format::R8G8B8A8_UNORM: return GL_RGBA8;
+		default: return 0;
+		}
+	}
+
+	GLint _to_gl_filter(Filter filter)
+	{
+		switch (filter) {
+		case Filter::Nearest: return GL_NEAREST;
+		case Filter::Linear:  return GL_LINEAR;
+		default:			  return 0;
+		}
+	}
+
+	GLint _to_gl_wrap(Wrap wrap)
+	{
+		switch (wrap) {
+		case Wrap::Repeat:            return GL_REPEAT;
+		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
+		case Wrap::ClampToEdge:       return GL_CLAMP_TO_EDGE;
+		case Wrap::ClampToBorder:     return GL_CLAMP_TO_BORDER;
+		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
+		default:				      return 0;
+		}
+	}
+
+	uintptr_t create_texture(const TextureDesc& desc)
+	{
+		GLuint texture_object = 0;
+		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_TEXTURE, texture_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		const GLenum gl_sized_format = _to_gl_sized_format(desc.format);
+		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
+		if (desc.initial_data) {
+			const GLenum gl_base_format = _to_gl_base_format(desc.format);
+			glTextureSubImage2D(
+				texture_object,
+				0, // level
+				0, // xoffset
+				0, // yoffset
+				desc.width,
+				desc.height,
+				gl_base_format,
+				GL_UNSIGNED_BYTE,
+				desc.initial_data);
+		}
+		return texture_object;
+	}
+
+	void destroy_texture(uintptr_t texture)
+	{
+		glDeleteTextures(1, (GLuint*)&texture);
+	}
+
+	void bind_texture(unsigned int binding, uintptr_t texture)
+	{
+		glBindTextureUnit(binding, (GLuint)texture);
+	}
+
+	uintptr_t create_sampler(const SamplerDesc& desc)
+	{
+		GLuint sampler_object = 0;
+		glCreateSamplers(1, &sampler_object);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_SAMPLER, sampler_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		const GLint gl_filter = _to_gl_filter(desc.filter);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_MIN_FILTER, gl_filter);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_MAG_FILTER, gl_filter);
+		const GLint gl_wrap = _to_gl_wrap(desc.wrap);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_S, gl_wrap);
+		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_T, gl_wrap);
+		glSamplerParameterfv(sampler_object, GL_TEXTURE_BORDER_COLOR, desc.border_color);
+		return sampler_object;
+	}
+
+	void destroy_sampler(uintptr_t sampler)
+	{
+		glDeleteSamplers(1, (GLuint*)&sampler);
+	}
+
+	void bind_sampler(unsigned int binding, uintptr_t sampler)
+	{
+		glBindSampler(binding, (GLuint)sampler);
+	}
+}

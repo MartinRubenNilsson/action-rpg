@@ -3,6 +3,7 @@
 #include "pool.h"
 #include "console.h"
 #include "filesystem.h"
+#include "graphics_backend.h"
 
 #include <glad/glad.h>
 #define KHRONOS_STATIC
@@ -85,7 +86,7 @@ namespace graphics
 	struct Texture
 	{
 		std::string debug_name;
-		GLuint texture_object = 0;
+		uintptr_t texture_object = 0;
 		unsigned int width = 0;
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
@@ -94,7 +95,7 @@ namespace graphics
 
 	struct Sampler
 	{
-		GLuint sampler_object = 0;
+		uintptr_t sampler_object = 0;
 		SamplerDesc desc{};
 	};
 
@@ -143,13 +144,6 @@ namespace graphics
 	}
 #endif
 
-	void _set_debug_label(GLenum identifier, GLuint name, std::string_view label)
-	{
-#ifdef _DEBUG_GRAPHICS
-		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
-#endif
-	}
-
 	void initialize()
 	{
 #ifdef _DEBUG_GRAPHICS
@@ -163,7 +157,9 @@ namespace graphics
 		// CREATE AND BIND VERTEX ARRAY
 
 		glCreateVertexArrays(1, &_vertex_array_object);
-		_set_debug_label(GL_VERTEX_ARRAY, _vertex_array_object, "vertex array");
+#ifdef _DEBUG_GRAPHICS
+		glObjectLabel(GL_VERTEX_ARRAY, _vertex_array_object, 0, "vertex array object");
+#endif
 		glBindVertexArray(_vertex_array_object);
 
 		// SETUP VERTEX ARRAY ATTRIBUTES
@@ -211,15 +207,18 @@ namespace graphics
 
 		for (const Texture& texture : _texture_pool.span()) {
 			if (texture.texture_object) {
-				glDeleteTextures(1, &texture.texture_object);
+				graphics_backend::destroy_texture(texture.texture_object);
 			}
 		}
 		_texture_pool.clear();
 		_path_to_texture.clear();
 
 		// DELETE SAMPLERS
+
 		for (const Sampler& sampler : _sampler_pool.span()) {
-			glDeleteSamplers(1, &sampler.sampler_object);
+			if (sampler.sampler_object) {
+				graphics_backend::destroy_sampler(sampler.sampler_object);
+			}
 		}
 
 		// DELETE FRAMEBUFFERS
@@ -330,7 +329,11 @@ namespace graphics
 		shader.debug_name = desc.debug_name;
 		shader.uniforms = std::move(uniform_locations);
 		shader.program_object = program_object;
-		_set_debug_label(GL_PROGRAM, program_object, desc.debug_name);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
 
 		return _shader_pool.emplace(std::move(shader));
 	}
@@ -473,7 +476,11 @@ namespace graphics
 	{
 		GLuint buffer_object = 0;
 		glCreateBuffers(1, &buffer_object);
-		_set_debug_label(GL_BUFFER, buffer_object, desc.debug_name);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_BUFFER, buffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
 
 		GLbitfield flags = 0;
 		if (desc.dynamic) {
@@ -490,7 +497,11 @@ namespace graphics
 		if (!buffer) return;
 		glDeleteBuffers(1, &buffer->buffer_object);
 		glCreateBuffers(1, &buffer->buffer_object);
-		_set_debug_label(GL_BUFFER, buffer->buffer_object, buffer->desc.debug_name);
+#ifdef _DEBUG_GRAPHICS
+		if (!buffer->desc.debug_name.empty()) {
+			glObjectLabel(GL_BUFFER, buffer->buffer_object, (GLsizei)buffer->desc.debug_name.size(), buffer->desc.debug_name.data());
+		}
+#endif
 		GLbitfield flags = 0;
 		if (buffer->desc.dynamic) {
 			flags |= GL_DYNAMIC_STORAGE_BIT;
@@ -582,17 +593,6 @@ namespace graphics
 		}
 	}
 
-	GLenum _to_gl_sized_format(Format format)
-	{
-		switch (format) {
-		case Format::R8_UNORM:       return GL_R8;
-		case Format::R8G8_UNORM:     return GL_RG8;
-		case Format::R8G8B8_UNORM:   return GL_RGB8;
-		case Format::R8G8B8A8_UNORM: return GL_RGBA8;
-		default: return 0;
-		}
-	}
-
 	unsigned _get_size(Format format)
 	{
 		switch (format) {
@@ -606,17 +606,8 @@ namespace graphics
 
 	Handle<Texture> create_texture(const TextureDesc&& desc)
 	{
-		GLuint texture_object = 0;
-		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
-		_set_debug_label(GL_TEXTURE, texture_object, desc.debug_name);
-
-		const GLenum gl_sized_format = _to_gl_sized_format(desc.format);
-		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
-
-		if (desc.initial_data) {
-			const GLenum gl_base_format = _to_gl_base_format(desc.format);
-			glTextureSubImage2D(texture_object, 0, 0, 0, desc.width, desc.height, gl_base_format, GL_UNSIGNED_BYTE, desc.initial_data);
-		}
+		uintptr_t texture_object = graphics_backend::create_texture(desc);
+		if (!texture_object) return Handle<Texture>();
 
 		Texture texture{};
 		texture.debug_name = desc.debug_name;
@@ -717,7 +708,7 @@ namespace graphics
 	{
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		glDeleteTextures(1, &texture->texture_object);
+		graphics_backend::destroy_texture(texture->texture_object);
 		_total_texture_memory_usage_in_bytes -= texture->size;
 		// HACK: When a texture is loaded, its debug_name is set to the path.
 		_path_to_texture.erase(texture->debug_name);
@@ -727,14 +718,13 @@ namespace graphics
 
 	void bind_texture(unsigned int binding, Handle<Texture> handle)
 	{
-		if (const Texture* texture = _texture_pool.get(handle)) {
-			glBindTextureUnit(binding, texture->texture_object);
+		if (handle == Handle<Texture>()) {
+			graphics_backend::bind_texture(binding, 0);
+			return;
 		}
-	}
-
-	void unbind_texture(unsigned int binding)
-	{
-		glBindTextureUnit(binding, 0);
+		if (const Texture* texture = _texture_pool.get(handle)) {
+			graphics_backend::bind_texture(binding, texture->texture_object);
+		}
 	}
 
 	void update_texture(Handle<Texture> handle, const unsigned char* data)
@@ -769,43 +759,10 @@ namespace graphics
 		}
 	}
 
-	GLint _to_gl_filter(Filter filter)
-	{
-		switch (filter) {
-		case Filter::Nearest: return GL_NEAREST;
-		case Filter::Linear:  return GL_LINEAR;
-		default:			  return 0;
-		}
-	}
-
-	GLint _to_gl_wrap(Wrap wrap)
-	{
-		switch (wrap) {
-		case Wrap::Repeat:            return GL_REPEAT;
-		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
-		case Wrap::ClampToEdge:       return GL_CLAMP_TO_EDGE;
-		case Wrap::ClampToBorder:     return GL_CLAMP_TO_BORDER;
-		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
-		default:				      return 0;
-		}
-	}
-
 	Handle<Sampler> create_sampler(const SamplerDesc&& desc)
 	{
-		GLuint sampler_object = 0;
-		glCreateSamplers(1, &sampler_object);
-		_set_debug_label(GL_SAMPLER, sampler_object, desc.debug_name);
-
-		const GLint gl_filter = _to_gl_filter(desc.filter);
-		glSamplerParameteri(sampler_object, GL_TEXTURE_MIN_FILTER, gl_filter);
-		glSamplerParameteri(sampler_object, GL_TEXTURE_MAG_FILTER, gl_filter);
-
-		const GLint gl_wrap = _to_gl_wrap(desc.wrap);
-		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_S, gl_wrap);
-		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_T, gl_wrap);
-
-		glSamplerParameterfv(sampler_object, GL_TEXTURE_BORDER_COLOR, desc.border_color);
-
+		uintptr_t sampler_object = graphics_backend::create_sampler(desc);
+		if (!sampler_object) return Handle<Sampler>();
 		return _sampler_pool.emplace(sampler_object, desc);
 	}
 
@@ -813,21 +770,20 @@ namespace graphics
 	{
 		Sampler* sampler = _sampler_pool.get(handle);
 		if (!sampler) return;
-		glDeleteSamplers(1, &sampler->sampler_object);
+		graphics_backend::destroy_sampler(sampler->sampler_object);
 		*sampler = Sampler();
 		_sampler_pool.free(handle);
 	}
 
 	void bind_sampler(unsigned int binding, Handle<Sampler> handle)
 	{
-		if (const Sampler* sampler = _sampler_pool.get(handle)) {
-			glBindSampler(binding, sampler->sampler_object);
+		if (handle == Handle<Sampler>()) {
+			graphics_backend::bind_sampler(binding, 0);
+			return;
 		}
-	}
-
-	void unbind_sampler(unsigned int binding)
-	{
-		glBindSampler(binding, 0);
+		if (const Sampler* sampler = _sampler_pool.get(handle)) {
+			graphics_backend::bind_sampler(binding, sampler->sampler_object);
+		}
 	}
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
@@ -848,7 +804,11 @@ namespace graphics
 
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
-		_set_debug_label(GL_FRAMEBUFFER, framebuffer_object, desc.debug_name);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
 
 		glNamedFramebufferTexture(framebuffer_object, GL_COLOR_ATTACHMENT0, texture->texture_object, 0);
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "graphics_types.h"
 
 namespace graphics
 {
@@ -21,13 +22,6 @@ namespace graphics
 
 	// SHADERS
 
-	struct ShaderDesc
-	{
-		std::string_view debug_name = "shader";
-		std::string_view vs_source; // vertex shader source code
-		std::string_view fs_source; // fragment shader source code
-	};
-
 	Handle<Shader> create_shader(const ShaderDesc&& desc);
 	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path);
 
@@ -45,14 +39,6 @@ namespace graphics
 	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16]);
 
 	// BUFFERS
-
-	struct BufferDesc
-	{
-		std::string_view debug_name = "buffer";
-		unsigned int size = 0; // in bytes
-		const void* initial_data = nullptr;
-		bool dynamic = false; // If true, the buffer can be updated with update_buffer().
-	};
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc);
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);
@@ -74,76 +60,24 @@ namespace graphics
 
 	// TEXTURES
 
-	enum class Format
-	{
-		UNKNOWN,
-		R8_UNORM,
-		R8G8_UNORM,
-		R8G8B8_UNORM,
-		R8G8B8A8_UNORM,
-	};
-
-	struct TextureDesc
-	{
-		std::string_view debug_name = "texture";
-		unsigned int width = 0;
-		unsigned int height = 0;
-		Format format = Format::UNKNOWN;
-		const void* initial_data = nullptr;
-	};
-
 	Handle<Texture> create_texture(const TextureDesc&& desc);
 	Handle<Texture> load_texture(const std::string& path);
 	Handle<Texture> copy_texture(Handle<Texture> src);
 	void destroy_texture(Handle<Texture> handle);
-
+	// Pass an empty handle to unbind any currently bound texture.
 	void bind_texture(unsigned int binding, Handle<Texture> handle);
-	void unbind_texture(unsigned int binding);
-
 	void update_texture(Handle<Texture> handle, const unsigned char* data);
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src);
-
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
 
 	// SAMPLERS
 
-	enum class Filter
-	{
-		Nearest, // Sample nearest texel
-		Linear, // Linear interpolation between texels
-	};
-
-	enum class Wrap
-	{
-		Repeat, // Repeat the texture
-		MirroredRepeat, // Repeat with mirroring
-		ClampToEdge, // Clamp to the edge
-		ClampToBorder, // Clamp to a border color
-		MirrorClampToEdge, // Mirror the texture once and then clamp to the edge
-	};
-
-	struct SamplerDesc
-	{
-		std::string_view debug_name = "sampler";
-		Filter filter = Filter::Nearest;
-		Wrap wrap = Wrap::Repeat;
-		float border_color[4] = {};
-	};
-
 	Handle<Sampler> create_sampler(const SamplerDesc&& desc);
 	void destroy_sampler(Handle<Sampler> handle);
-
+	// Pass an empty handle to unbind any currently bound sampler.
 	void bind_sampler(unsigned int binding, Handle<Sampler> handle);
-	void unbind_sampler(unsigned int binding);
 
 	// FRAMEBUFFERS
-
-	struct FramebufferDesc
-	{
-		std::string_view debug_name = "framebuffer";
-		unsigned int width = 0;
-		unsigned int height = 0;
-	};
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
 
@@ -165,15 +99,6 @@ namespace graphics
 	void get_scissor_box(int& x, int& y, int& width, int& height);
 
 	// DRAWING
-
-	enum class Primitives
-	{
-		PointList,
-		LineList,
-		LineStrip,
-		TriangleList,
-		TriangleStrip,
-	};
 
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
 	void draw_indexed(Primitives primitives, unsigned int index_count);

@@ -206,6 +206,9 @@
     <ClCompile Include="graphics_backend_vulkan.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="graphics_backend_opengl.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -654,6 +657,9 @@
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
     <ClInclude Include="graphics_backend.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics_types.h">
       <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
