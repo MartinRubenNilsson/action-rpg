@@ -36,6 +36,7 @@ namespace graphics
 	Handle<Shader> ui_shader;
 
 	Handle<Texture> error_texture; // 32x32 magenta-black checkerboard
+	Handle<Texture> white_texture; // 1x1 white texture
 
 	Handle<Sampler> nearest_sampler;
 	Handle<Sampler> linear_sampler;
@@ -128,6 +129,15 @@ namespace graphics
 				.height = ERROR_TEXTURE_SIZE,
 				.format = Format::R8G8B8A8_UNORM,
 				.initial_data = error_texture_data });
+		}
+		{
+			unsigned char white_texture_data[4] = { 255, 255, 255, 255 };
+			white_texture = create_texture({
+				.debug_name = "white texture",
+				.width = 1,
+				.height = 1,
+				.format = Format::R8G8B8A8_UNORM,
+				.initial_data = white_texture_data });
 		}
 
 		nearest_sampler = create_sampler({

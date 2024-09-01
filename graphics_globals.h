@@ -56,6 +56,7 @@ namespace graphics
 	// TEXTURES
 
 	extern Handle<Texture> error_texture;
+	extern Handle<Texture> white_texture; // 1x1 white texture
 
 	// SAMPLERS
 

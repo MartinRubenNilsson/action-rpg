@@ -60,20 +60,19 @@ namespace ui
 		const Rml::TextureHandle texture,
 		const Rml::Vector2f& translation)
 	{
-#if 0
 		if (texture) {
 			graphics::bind_texture(0, _texture_handle_from_rml(texture));
-			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 1);
 		} else {
-			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
+			graphics::bind_texture(0, graphics::white_texture);
 		}
+#if 0
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
+#endif
 		graphics::update_buffer(graphics::dynamic_vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
 		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
-#endif
 	}
 
 	struct CompiledGeometry
@@ -102,19 +101,18 @@ namespace ui
 
 	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation)
 	{
-#if 0
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
-		if (compiled_geometry->texture != Handle<graphics::Texture>()) {
+		if (compiled_geometry->texture == Handle<graphics::Texture>()) {
 			graphics::bind_texture(0, compiled_geometry->texture);
-			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 1);
 		} else {
-			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 0);
+			graphics::bind_texture(0, graphics::white_texture);
 		}
+#if 0
 		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
+#endif
 		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(compiled_geometry->index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, compiled_geometry->index_count);
-#endif
 	}
 
 	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry)

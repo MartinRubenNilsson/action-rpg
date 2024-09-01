@@ -1,5 +1,6 @@
 #version 450
 
+//TODO: all of these can be combined into a single matrix
 uniform mat4 transform;
 uniform vec2 translation;
 uniform vec2 viewport_size;
