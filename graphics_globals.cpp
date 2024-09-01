@@ -1,10 +1,23 @@
 #include "stdafx.h"
 #include "graphics_globals.h"
 #include "graphics.h"
+#include "filesystem.h"
 
 namespace graphics
 {
 	eastl::vector<graphics::Vertex> temp_vertices;
+
+	Handle<Shader> fullscreen_shader;
+	Handle<Shader> gaussian_blur_hor_shader;
+	Handle<Shader> gaussian_blur_ver_shader;
+	Handle<Shader> screen_transition_shader;
+	Handle<Shader> shockwave_shader;
+	Handle<Shader> grass_shader;
+	Handle<Shader> sprite_shader;
+	Handle<Shader> shape_shader;
+	Handle<Shader> text_shader;
+	Handle<Shader> ui_shader;
+	Handle<Shader> player_outfit_shader;
 
 	Handle<Framebuffer> game_framebuffer_0;
 	Handle<Framebuffer> game_framebuffer_1;
@@ -17,26 +30,96 @@ namespace graphics
 	Handle<Buffer> sprite_uniform_buffer;
 	Handle<Buffer> player_outfit_uniform_buffer;
 
-	Handle<Shader> fullscreen_shader;
-	Handle<Shader> gaussian_blur_hor_shader;
-	Handle<Shader> gaussian_blur_ver_shader;
-	Handle<Shader> screen_transition_shader;
-	Handle<Shader> shockwave_shader;
-
-	Handle<Shader> grass_shader;
-	Handle<Shader> sprite_shader;
-	Handle<Shader> shape_shader;
-	Handle<Shader> text_shader;
-	Handle<Shader> ui_shader;
-
 	Handle<Texture> error_texture; // 32x32 magenta-black checkerboard
 	Handle<Texture> white_texture; // 1x1 white texture
 
 	Handle<Sampler> nearest_sampler;
 	Handle<Sampler> linear_sampler;
 
+	void _initialize_shaders()
+	{
+		std::string fullscreen_vert;
+		std::string fullscreen_frag;
+		std::string gaussian_blur_hor_frag;
+		std::string gaussian_blur_ver_frag;
+		std::string screen_transition_frag;
+		std::string shockwave_frag;
+		std::string sprite_vert;
+		std::string sprite_frag;
+		std::string grass_vert;
+		std::string shape_vert;
+		std::string shape_frag;
+		std::string text_frag;
+		std::string ui_vert;
+		std::string ui_frag;
+		std::string player_outfit_frag;
+
+		filesystem::read_text("assets/shaders/fullscreen.vert", fullscreen_vert);
+		filesystem::read_text("assets/shaders/fullscreen.frag", fullscreen_frag);
+		filesystem::read_text("assets/shaders/gaussian_blur_hor.frag", gaussian_blur_hor_frag);
+		filesystem::read_text("assets/shaders/gaussian_blur_ver.frag", gaussian_blur_ver_frag);
+		filesystem::read_text("assets/shaders/screen_transition.frag", screen_transition_frag);
+		filesystem::read_text("assets/shaders/shockwave.frag", shockwave_frag);
+		filesystem::read_text("assets/shaders/sprite.vert", sprite_vert);
+		filesystem::read_text("assets/shaders/sprite.frag", sprite_frag);
+		filesystem::read_text("assets/shaders/grass.vert", grass_vert);
+		filesystem::read_text("assets/shaders/shape.vert", shape_vert);
+		filesystem::read_text("assets/shaders/shape.frag", shape_frag);
+		filesystem::read_text("assets/shaders/text.frag", text_frag);
+		filesystem::read_text("assets/shaders/ui.vert", ui_vert);
+		filesystem::read_text("assets/shaders/ui.frag", ui_frag);
+		filesystem::read_text("assets/shaders/player_outfit.frag", player_outfit_frag);
+
+		fullscreen_shader = create_shader({
+			.debug_name = "fullscreen shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = fullscreen_frag });
+		gaussian_blur_hor_shader = create_shader({
+			.debug_name = "gaussian blur horizontal shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = gaussian_blur_hor_frag });
+		gaussian_blur_ver_shader = create_shader({
+			.debug_name = "gaussian blur vertical shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = gaussian_blur_ver_frag });
+		screen_transition_shader = create_shader({
+			.debug_name = "screen transition shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = screen_transition_frag });
+		shockwave_shader = create_shader({
+			.debug_name = "shockwave shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = shockwave_frag });
+		sprite_shader = create_shader({
+			.debug_name = "sprite shader",
+			.vs_source = sprite_vert,
+			.fs_source = sprite_frag });
+		grass_shader = create_shader({
+			.debug_name = "grass shader",
+			.vs_source = grass_vert,
+			.fs_source = sprite_frag });
+		shape_shader = create_shader({
+			.debug_name = "shape shader",
+			.vs_source = shape_vert,
+			.fs_source = shape_frag });
+		text_shader = create_shader({
+			.debug_name = "text shader",
+			.vs_source = sprite_vert,
+			.fs_source = text_frag });
+		ui_shader = create_shader({
+			.debug_name = "ui shader",
+			.vs_source = ui_vert,
+			.fs_source = ui_frag });
+		player_outfit_shader = create_shader({
+			.debug_name = "player outfit shader",
+			.vs_source = fullscreen_vert,
+			.fs_source = player_outfit_frag });
+	}
+
 	void initialize_globals()
 	{
+		_initialize_shaders();
+
 		game_framebuffer_0 = create_framebuffer({
 			.debug_name = "game framebuffer 0",
 			.width = GAME_FRAMEBUFFER_WIDTH,
@@ -75,37 +158,6 @@ namespace graphics
 			.size = sizeof(PlayerOutfitUniformBlock),
 			.dynamic = true });
 
-		fullscreen_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/fullscreen.frag");
-		gaussian_blur_hor_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/gaussian_blur_hor.frag");
-		gaussian_blur_ver_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/gaussian_blur_ver.frag");
-		screen_transition_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/screen_transition.frag");
-		shockwave_shader = load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/shockwave.frag");
-
-		sprite_shader = load_shader(
-			"assets/shaders/sprite.vert",
-			"assets/shaders/sprite.frag");
-		grass_shader = load_shader(
-			"assets/shaders/grass.vert",
-			"assets/shaders/sprite.frag");
-		shape_shader = load_shader(
-			"assets/shaders/shape.vert",
-			"assets/shaders/shape.frag");
-		text_shader = load_shader(
-			"assets/shaders/sprite.vert",
-			"assets/shaders/text.frag");
-		ui_shader = load_shader(
-			"assets/shaders/ui.vert",
-			"assets/shaders/ui.frag");
 
 		{
 			constexpr unsigned int ERROR_TEXTURE_SIZE = 32;

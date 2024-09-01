@@ -26,6 +26,20 @@ namespace graphics
 	// when building a list of vertices to eventually upload to a buffer.
 	extern eastl::vector<graphics::Vertex> temp_vertices;
 
+	// SHADERS
+
+	extern Handle<Shader> fullscreen_shader; // just a simple passthrough shader
+	extern Handle<Shader> gaussian_blur_hor_shader;
+	extern Handle<Shader> gaussian_blur_ver_shader;
+	extern Handle<Shader> screen_transition_shader;
+	extern Handle<Shader> shockwave_shader;
+	extern Handle<Shader> sprite_shader;
+	extern Handle<Shader> grass_shader;
+	extern Handle<Shader> shape_shader;
+	extern Handle<Shader> text_shader;
+	extern Handle<Shader> ui_shader;
+	extern Handle<Shader> player_outfit_shader;
+
 	// FRAMEBUFFERS
 
 	extern Handle<Framebuffer> game_framebuffer_0; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
@@ -40,22 +54,6 @@ namespace graphics
 	extern Handle<Buffer> ui_uniform_buffer;
 	extern Handle<Buffer> sprite_uniform_buffer;
 	extern Handle<Buffer> player_outfit_uniform_buffer;
-
-	// FULLSCREEN SHADERS
-
-	extern Handle<Shader> fullscreen_shader; // just a simple passthrough shader
-	extern Handle<Shader> gaussian_blur_hor_shader;
-	extern Handle<Shader> gaussian_blur_ver_shader;
-	extern Handle<Shader> screen_transition_shader;
-	extern Handle<Shader> shockwave_shader;
-
-	// SPRITE SHADERS
-
-	extern Handle<Shader> sprite_shader;
-	extern Handle<Shader> grass_shader;
-	extern Handle<Shader> shape_shader;
-	extern Handle<Shader> text_shader;
-	extern Handle<Shader> ui_shader;
 
 	// TEXTURES
 

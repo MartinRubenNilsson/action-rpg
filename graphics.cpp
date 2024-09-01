@@ -97,7 +97,6 @@ namespace graphics
 	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
-	std::unordered_map<std::string, Handle<Shader>> _path_to_shader;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
@@ -173,7 +172,6 @@ namespace graphics
 			glDeleteProgram(shader.program_object);
 		}
 		_shader_pool.clear();
-		_path_to_shader.clear();
 
 		// DELETE BUFFERS
 
@@ -295,38 +293,6 @@ namespace graphics
 #endif
 
 		return _shader_pool.emplace(program_object);
-	}
-
-	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path)
-	{
-		const std::string normalized_vs_path = filesystem::get_normalized_path(vs_path);
-		const std::string normalized_fs_path = filesystem::get_normalized_path(fs_path);
-		const std::string paths = normalized_vs_path + ":" + normalized_fs_path;
-
-		if (const auto it = _path_to_shader.find(paths); it != _path_to_shader.end()) {
-			return it->second;
-		}
-
-		std::string vs_source;
-		if (!filesystem::read_text(normalized_vs_path, vs_source)) {
-			console::log_error("Failed to open vertex shader file: " + normalized_vs_path);
-			return Handle<Shader>();
-		}
-
-		std::string fs_source;
-		if (!filesystem::read_text(normalized_fs_path, fs_source)) {
-			console::log_error("Failed to open fragment shader file: " + normalized_fs_path);
-			return Handle<Shader>();
-		}
-
-		const Handle<Shader> handle = create_shader({
-			.debug_name = paths,
-			.vs_source = vs_source,
-			.fs_source = fs_source });
-
-		_path_to_shader[paths] = handle;
-
-		return handle;
 	}
 
 	void _bind_program_if_not_already_bound(GLuint program_object)

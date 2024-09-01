@@ -337,13 +337,7 @@ namespace player
 			break;
 		}
 
-		const std::string base_dir = "assets/textures/character/";
-
-		// Load shader
-		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/player_outfit.frag");
-		if (shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
+		if (graphics::player_outfit_shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
 
 		graphics::Viewport viewport{};
 		graphics::get_viewport(viewport);
@@ -351,7 +345,9 @@ namespace player
 
 		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, 0.f, 0.f, 0.f, 0.f);
 		graphics::bind_framebuffer(graphics::player_outfit_framebuffer);
-		graphics::bind_shader(shader);
+		graphics::bind_shader(graphics::player_outfit_shader);
+
+		const std::string base_dir = "assets/textures/character/";
 
 		for (const Layer& layer : layers) {
 			const Handle<graphics::Texture> texture = graphics::load_texture(base_dir + layer.texture_path);
