@@ -104,6 +104,7 @@ namespace graphics
 
 	Viewport _viewport;
 	Rect _scissor;
+	bool _scissor_test_enabled = false;
 	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
@@ -849,16 +850,13 @@ namespace graphics
 
 	void set_scissor_test_enabled(bool enable)
 	{
-		if (enable) {
-			glEnable(GL_SCISSOR_TEST);
-		} else {
-			glDisable(GL_SCISSOR_TEST);
-		}
+		graphics_backend::set_scissor_test_enabled(enable);
+		_scissor_test_enabled = enable;
 	}
 
 	bool get_scissor_test_enabled()
 	{
-		return glIsEnabled(GL_SCISSOR_TEST);
+		return _scissor_test_enabled;
 	}
 
 	void set_scissor(const Rect& scissor)

@@ -227,6 +227,15 @@ namespace graphics_backend
 		glScissorArrayv(0, count, gl_scissors);
 	}
 
+	void set_scissor_test_enabled(bool enable)
+	{
+		if (enable) {
+			glEnable(GL_SCISSOR_TEST);
+		} else {
+			glDisable(GL_SCISSOR_TEST);
+		}
+	}
+
 	void push_debug_group(std::string_view name)
 	{
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
