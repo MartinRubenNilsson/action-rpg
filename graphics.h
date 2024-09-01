@@ -87,8 +87,8 @@ namespace graphics
 
 	// FIXED-FUNCTION PIPELINE
 
-	void set_viewport(int x, int y, int width, int height);
-	void get_viewport(int& x, int& y, int& width, int& height);
+	void set_viewport(const Viewport& viewport);
+	void get_viewport(Viewport& viewport);
 	void set_scissor_test_enabled(bool enable);
 	bool get_scissor_test_enabled();
 	void set_scissor_box(int x, int y, int width, int height);

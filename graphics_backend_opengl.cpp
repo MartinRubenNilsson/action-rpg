@@ -50,6 +50,13 @@
 #undef glVertexBindingDivisor
 #undef glBindVertexBuffer
 
+#undef glViewport
+#undef glViewportIndexedf
+#undef glViewportIndexedfv
+#undef glDepthRange
+#undef glDepthRangef
+#undef glDepthRangeIndexed
+
 namespace graphics_backend
 {
 	GLenum _to_gl_base_format(Format format)
@@ -181,6 +188,26 @@ namespace graphics_backend
 	void bind_sampler(unsigned int binding, uintptr_t sampler)
 	{
 		glBindSampler(binding, (GLuint)sampler);
+	}
+
+	void set_viewports(const Viewport* viewports, unsigned int count)
+	{
+		constexpr unsigned int MAX_VIEWPORTS = 8;
+		count = std::min(count, MAX_VIEWPORTS);
+		GLfloat gl_viewports[MAX_VIEWPORTS * 4];
+		for (unsigned int i = 0; i < count; ++i) {
+			gl_viewports[i * 4 + 0] = (GLfloat)viewports[i].x;
+			gl_viewports[i * 4 + 1] = (GLfloat)viewports[i].y;
+			gl_viewports[i * 4 + 2] = (GLfloat)viewports[i].width;
+			gl_viewports[i * 4 + 3] = (GLfloat)viewports[i].height;
+		}
+		glViewportArrayv(0, count, gl_viewports);
+		GLdouble gl_depth_ranges[MAX_VIEWPORTS * 2];
+		for (unsigned int i = 0; i < count; ++i) {
+			gl_depth_ranges[i * 2 + 0] = (GLdouble)viewports[i].min_depth;
+			gl_depth_ranges[i * 2 + 1] = (GLdouble)viewports[i].max_depth;
+		}
+		glDepthRangeArrayv(0, count, gl_depth_ranges);
 	}
 
 	void push_debug_group(std::string_view name)

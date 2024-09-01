@@ -102,6 +102,7 @@ namespace graphics
 		Handle<Texture> texture;
 	};
 
+	Viewport _viewport;
 	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
@@ -834,19 +835,15 @@ namespace graphics
 		return Handle<Texture>();
 	}
 
-	void set_viewport(int x, int y, int width, int height)
+	void set_viewport(const Viewport& viewport)
 	{
-		glViewport(x, y, width, height);
+		graphics_backend::set_viewports(&viewport, 1);
+		_viewport = viewport;
 	}
 
-	void get_viewport(int& x, int& y, int& width, int& height)
+	void get_viewport(Viewport& viewport)
 	{
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		x = viewport[0];
-		y = viewport[1];
-		width = viewport[2];
-		height = viewport[3];
+		viewport = _viewport;
 	}
 
 	void set_scissor_test_enabled(bool enable)

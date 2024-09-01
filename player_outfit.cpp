@@ -345,9 +345,9 @@ namespace player
 			"assets/shaders/player_outfit.frag");
 		if (shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
 
-		int viewport[4];
-		graphics::get_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-		graphics::set_viewport(0, 0, 1024, 1024);
+		graphics::Viewport viewport{};
+		graphics::get_viewport(viewport);
+		graphics::set_viewport({ .width = 1024.f, .height = 1024.f });
 
 		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, 0.f, 0.f, 0.f, 0.f);
 		graphics::bind_framebuffer(graphics::player_outfit_framebuffer);
@@ -410,7 +410,7 @@ namespace player
 
 		Handle<graphics::Texture> player_outfit_texture =
 			graphics::get_framebuffer_texture(graphics::player_outfit_framebuffer);
-		graphics::set_viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		graphics::set_viewport(viewport);
 		return player_outfit_texture;
 	}
 }

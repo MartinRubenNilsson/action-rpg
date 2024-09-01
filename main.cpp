@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 
         graphics::clear_framebuffer(graphics::game_framebuffer_0, 0.f, 0.f, 0.f, 1.f);
         graphics::bind_framebuffer(graphics::game_framebuffer_0);
-        graphics::set_viewport(0, 0, GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
+        graphics::set_viewport({ .width = GAME_FRAMEBUFFER_WIDTH, .height = GAME_FRAMEBUFFER_HEIGHT });
 
         background::draw_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
             int window_framebuffer_width = 0;
             int window_framebuffer_height = 0;
             window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
-            graphics::set_viewport(0, 0, window_framebuffer_width, window_framebuffer_height);
+            graphics::set_viewport({ .width = (float)window_framebuffer_width, .height = (float)window_framebuffer_height });
             graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
         }
 

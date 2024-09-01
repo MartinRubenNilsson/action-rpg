@@ -73,4 +73,14 @@ namespace graphics
 		TriangleList,
 		TriangleStrip,
 	};
+
+	struct Viewport
+	{
+		float x = 0.f;
+		float y = 0.f;
+		float width = 0.f;
+		float height = 0.f;
+		float min_depth = 0.f;
+		float max_depth = 1.f;
+	};
 }

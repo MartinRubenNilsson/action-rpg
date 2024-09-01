@@ -8,7 +8,7 @@ namespace ui
 {
 	int _viewport_width = 0;
 	int _viewport_height = 0;
-	int _previous_viewport[4] = { 0 };
+	graphics::Viewport _previous_viewport{};
 	bool _previous_scissor_test_enabled = false;
 	int _previous_scissor_box[4] = { 0 };
 
@@ -33,18 +33,14 @@ namespace ui
 	void prepare_render_state()
 	{
 		graphics::push_debug_group("UI");
-		graphics::get_viewport(
-			_previous_viewport[0],
-			_previous_viewport[1],
-			_previous_viewport[2],
-			_previous_viewport[3]);
+		graphics::get_viewport(_previous_viewport);
 		_previous_scissor_test_enabled = graphics::get_scissor_test_enabled();
 		graphics::get_scissor_box(
 			_previous_scissor_box[0],
 			_previous_scissor_box[1],
 			_previous_scissor_box[2],
 			_previous_scissor_box[3]);
-		graphics::set_viewport(0, 0, _viewport_width, _viewport_height);
+		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
 		graphics::bind_shader(graphics::ui_shader);
 		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
 		graphics::set_uniform_2f(graphics::ui_shader, "viewport_size", (float)_viewport_width, (float)_viewport_height);
@@ -52,11 +48,7 @@ namespace ui
 
 	void restore_render_state()
 	{
-		graphics::set_viewport(
-			_previous_viewport[0],
-			_previous_viewport[1],
-			_previous_viewport[2],
-			_previous_viewport[3]);
+		graphics::set_viewport(_previous_viewport);
 		graphics::set_scissor_test_enabled(_previous_scissor_test_enabled);
 		graphics::set_scissor_box(
 			_previous_scissor_box[0],
