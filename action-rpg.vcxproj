@@ -162,6 +162,7 @@
     <ClCompile Include="ecs_uniform_block.cpp" />
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
+    <ClCompile Include="graphics_backend_vulkan.cpp" />
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
     <ClCompile Include="renderdoc.cpp" />
@@ -267,6 +268,7 @@
     <ClInclude Include="ecs_uniform_block.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
+    <ClInclude Include="graphics_backend.h" />
     <ClInclude Include="graphics_globals.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="fwd.h" />
