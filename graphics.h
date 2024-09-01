@@ -76,11 +76,9 @@ namespace graphics
 	// FRAMEBUFFERS
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
-
 	// The default framebuffer is the window framebuffer.
 	void bind_default_framebuffer();
 	void bind_framebuffer(Handle<Framebuffer> handle);
-
 	void clear_default_framebuffer(float r, float g, float b, float a);
 	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
@@ -89,10 +87,10 @@ namespace graphics
 
 	void set_viewport(const Viewport& viewport);
 	void get_viewport(Viewport& viewport);
-	void set_scissor_test_enabled(bool enable);
-	bool get_scissor_test_enabled();
 	void set_scissor(const Rect& scissor);
 	void get_scissor(Rect& scissor);
+	void set_scissor_test_enabled(bool enable);
+	bool get_scissor_test_enabled();
 
 	// DRAWING
 

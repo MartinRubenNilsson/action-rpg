@@ -848,6 +848,12 @@ namespace graphics
 		viewport = _viewport;
 	}
 
+	void set_scissor(const Rect& scissor)
+	{
+		graphics_backend::set_scissors(&scissor, 1);
+		_scissor = scissor;
+	}
+
 	void set_scissor_test_enabled(bool enable)
 	{
 		graphics_backend::set_scissor_test_enabled(enable);
@@ -857,12 +863,6 @@ namespace graphics
 	bool get_scissor_test_enabled()
 	{
 		return _scissor_test_enabled;
-	}
-
-	void set_scissor(const Rect& scissor)
-	{
-		graphics_backend::set_scissors(&scissor, 1);
-		_scissor = scissor;
 	}
 
 	void get_scissor(Rect& scissor)
