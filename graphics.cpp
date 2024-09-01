@@ -103,6 +103,7 @@ namespace graphics
 	};
 
 	Viewport _viewport;
+	Rect _scissor;
 	GLint _uniform_buffer_offset_alignment = 0;
 	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
@@ -860,19 +861,15 @@ namespace graphics
 		return glIsEnabled(GL_SCISSOR_TEST);
 	}
 
-	void set_scissor_box(int x, int y, int width, int height)
+	void set_scissor(const Rect& scissor)
 	{
-		glScissor(x, y, width, height);
+		graphics_backend::set_scissors(&scissor, 1);
+		_scissor = scissor;
 	}
 
-	void get_scissor_box(int& x, int& y, int& width, int& height)
+	void get_scissor(Rect& scissor)
 	{
-		GLint scissor_box[4];
-		glGetIntegerv(GL_SCISSOR_BOX, scissor_box);
-		x = scissor_box[0];
-		y = scissor_box[1];
-		width = scissor_box[2];
-		height = scissor_box[3];
+		scissor = _scissor;
 	}
 
 	GLenum _to_gl_primitives(Primitives primitives)

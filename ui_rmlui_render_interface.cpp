@@ -10,7 +10,7 @@ namespace ui
 	int _viewport_height = 0;
 	graphics::Viewport _previous_viewport{};
 	bool _previous_scissor_test_enabled = false;
-	int _previous_scissor_box[4] = { 0 };
+	graphics::Rect _previous_scissor{};
 
 	Rml::TextureHandle _texture_handle_to_rml(Handle<graphics::Texture> handle)
 	{
@@ -35,11 +35,7 @@ namespace ui
 		graphics::push_debug_group("UI");
 		graphics::get_viewport(_previous_viewport);
 		_previous_scissor_test_enabled = graphics::get_scissor_test_enabled();
-		graphics::get_scissor_box(
-			_previous_scissor_box[0],
-			_previous_scissor_box[1],
-			_previous_scissor_box[2],
-			_previous_scissor_box[3]);
+		graphics::get_scissor(_previous_scissor);
 		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
 		graphics::bind_shader(graphics::ui_shader);
 		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
@@ -50,11 +46,7 @@ namespace ui
 	{
 		graphics::set_viewport(_previous_viewport);
 		graphics::set_scissor_test_enabled(_previous_scissor_test_enabled);
-		graphics::set_scissor_box(
-			_previous_scissor_box[0],
-			_previous_scissor_box[1],
-			_previous_scissor_box[2],
-			_previous_scissor_box[3]);
+		graphics::set_scissor(_previous_scissor);
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
 		graphics::pop_debug_group();
@@ -134,7 +126,11 @@ namespace ui
 
 	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
 	{
-		graphics::set_scissor_box(x, _viewport_height - (y + height), width, height);
+		graphics::set_scissor({
+			.x = x,
+			.y = _viewport_height - (y + height),
+			.width = width,
+			.height = height });
 	}
 
 	bool RmlUiRenderInterface::LoadTexture(

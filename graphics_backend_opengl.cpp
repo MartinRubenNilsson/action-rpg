@@ -56,6 +56,9 @@
 #undef glDepthRange
 #undef glDepthRangef
 #undef glDepthRangeIndexed
+#undef glScissor
+#undef glScissorIndexed
+#undef glScissorIndexedv
 
 namespace graphics_backend
 {
@@ -209,6 +212,19 @@ namespace graphics_backend
 			gl_depth_ranges[i * 2 + 1] = (GLdouble)viewports[i].max_depth;
 		}
 		glDepthRangeArrayv(0, count, gl_depth_ranges);
+	}
+
+	void set_scissors(const Rect* scissors, unsigned int count)
+	{
+		count = std::min(count, MAX_VIEWPORTS);
+		GLint gl_scissors[MAX_VIEWPORTS * 4];
+		for (unsigned int i = 0; i < count; ++i) {
+			gl_scissors[i * 4 + 0] = scissors[i].x;
+			gl_scissors[i * 4 + 1] = scissors[i].y;
+			gl_scissors[i * 4 + 2] = scissors[i].width;
+			gl_scissors[i * 4 + 3] = scissors[i].height;
+		}
+		glScissorArrayv(0, count, gl_scissors);
 	}
 
 	void push_debug_group(std::string_view name)

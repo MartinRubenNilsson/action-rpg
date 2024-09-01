@@ -83,4 +83,12 @@ namespace graphics
 		float min_depth = 0.f;
 		float max_depth = 1.f;
 	};
+
+	struct Rect
+	{
+		int x = 0;
+		int y = 0;
+		int width = 0;
+		int height = 0;
+	};
 }

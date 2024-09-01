@@ -91,8 +91,8 @@ namespace graphics
 	void get_viewport(Viewport& viewport);
 	void set_scissor_test_enabled(bool enable);
 	bool get_scissor_test_enabled();
-	void set_scissor_box(int x, int y, int width, int height);
-	void get_scissor_box(int& x, int& y, int& width, int& height);
+	void set_scissor(const Rect& scissor);
+	void get_scissor(Rect& scissor);
 
 	// DRAWING
 
