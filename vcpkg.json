@@ -2,6 +2,7 @@
   "dependencies": [
     "zlib",
     "glfw3",
+    "vulkan",
     {
       "name": "imgui",
       "features": [ "glfw-binding", "opengl3-binding" ]
