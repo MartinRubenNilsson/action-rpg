@@ -24,10 +24,8 @@ namespace graphics
 
 	Handle<Shader> create_shader(const ShaderDesc&& desc);
 	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path);
-
+	// Pass an empty handle to unbind any currently bound shader.
 	void bind_shader(Handle<Shader> handle);
-	void unbind_shader();
-
 	void set_uniform_1f(Handle<Shader> handle, std::string_view name, float x);
 	void set_uniform_2f(Handle<Shader> handle, std::string_view name, float x, float y);
 	void set_uniform_3f(Handle<Shader> handle, std::string_view name, float x, float y, float z);
@@ -40,14 +38,12 @@ namespace graphics
 
 	// BUFFERS
 
-	Handle<Buffer> create_buffer(const BufferDesc&& desc);
+	Handle<Buffer> create_buffer(BufferDesc&& desc);
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);
 	void destroy_buffer(Handle<Buffer> handle);
-
 	// Fails if the buffer is not dynamic, or if offset + size exceeds the buffer size.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset = 0);
 	size_t get_buffer_size(Handle<Buffer> handle);
-
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset = 0);
 	void unbind_vertex_buffer(unsigned int binding);
 	void bind_index_buffer(Handle<Buffer> handle);
@@ -60,7 +56,7 @@ namespace graphics
 
 	// TEXTURES
 
-	Handle<Texture> create_texture(const TextureDesc&& desc);
+	Handle<Texture> create_texture(TextureDesc&& desc);
 	Handle<Texture> load_texture(const std::string& path);
 	Handle<Texture> copy_texture(Handle<Texture> src);
 	void destroy_texture(Handle<Texture> handle);

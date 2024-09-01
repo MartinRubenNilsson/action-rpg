@@ -15,4 +15,7 @@ namespace graphics_backend
 	uintptr_t create_sampler(const SamplerDesc& desc);
 	void destroy_sampler(uintptr_t sampler);
 	void bind_sampler(unsigned int binding, uintptr_t sampler);
+
+	void push_debug_group(std::string_view name);
+	void pop_debug_group();
 }

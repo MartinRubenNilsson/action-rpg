@@ -85,12 +85,8 @@ namespace graphics
 
 	struct Texture
 	{
-		std::string debug_name;
 		uintptr_t texture_object = 0;
-		unsigned int width = 0;
-		unsigned int height = 0;
-		Format format = Format::UNKNOWN;
-		unsigned int size = 0; // in bytes
+		TextureDesc desc{};
 	};
 
 	struct Sampler
@@ -383,14 +379,13 @@ namespace graphics
 
 	void bind_shader(Handle<Shader> handle)
 	{
+		if (handle == Handle<Shader>()) {
+			_bind_program_if_not_already_bound(0);
+			return;
+		}
 		if (const Shader* shader = _shader_pool.get(handle)) {
 			_bind_program_if_not_already_bound(shader->program_object);
 		}
-	}
-
-	void unbind_shader()
-	{
-		_bind_program_if_not_already_bound(0);
 	}
 
 	void set_uniform_1f(Handle<Shader> handle, std::string_view name, float x)
@@ -474,10 +469,11 @@ namespace graphics
 		}
 	}
 
-	Handle<Buffer> create_buffer(const BufferDesc&& desc)
+	Handle<Buffer> create_buffer(BufferDesc&& desc)
 	{
 		uintptr_t buffer_object = graphics_backend::create_buffer(desc);
 		if (!buffer_object) return Handle<Buffer>();
+		desc.initial_data = nullptr;
 		return _buffer_pool.emplace(buffer_object, desc);
 	}
 
@@ -585,22 +581,13 @@ namespace graphics
 		}
 	}
 
-	Handle<Texture> create_texture(const TextureDesc&& desc)
+	Handle<Texture> create_texture(TextureDesc&& desc)
 	{
 		uintptr_t texture_object = graphics_backend::create_texture(desc);
 		if (!texture_object) return Handle<Texture>();
-
-		Texture texture{};
-		texture.debug_name = desc.debug_name;
-		texture.texture_object = texture_object;
-		texture.width = desc.width;
-		texture.height = desc.height;
-		texture.format = desc.format;
-		texture.size = desc.width * desc.height * _get_size(desc.format);
-
-		_total_texture_memory_usage_in_bytes += texture.size;
-
-		return _texture_pool.emplace(std::move(texture));
+		desc.initial_data = nullptr;
+		_total_texture_memory_usage_in_bytes += desc.width * desc.height * _get_size(desc.format);
+		return _texture_pool.emplace(texture_object, desc);
 	}
 
 	Handle<Texture> load_texture(const std::string& path)
@@ -674,12 +661,7 @@ namespace graphics
 	{
 		Handle<Texture> dest;
 		if (const Texture* src_texture = _texture_pool.get(src)) {
-			const std::string debug_name = src_texture->debug_name + " (copy)";
-			dest = create_texture({
-				.debug_name = debug_name,
-				.width = src_texture->width,
-				.height = src_texture->height,
-				.format = src_texture->format });
+			dest = create_texture(TextureDesc(src_texture->desc));
 			copy_texture(dest, src);
 		}
 		return dest;
@@ -690,9 +672,10 @@ namespace graphics
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		graphics_backend::destroy_texture(texture->texture_object);
-		_total_texture_memory_usage_in_bytes -= texture->size;
+		_total_texture_memory_usage_in_bytes -=
+			texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
 		// HACK: When a texture is loaded, its debug_name is set to the path.
-		_path_to_texture.erase(texture->debug_name);
+		_path_to_texture.erase(std::string(texture->desc.debug_name));
 		*texture = Texture();
 		_texture_pool.free(handle);
 	}
@@ -712,8 +695,17 @@ namespace graphics
 	{
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		const GLenum gl_base_format = _to_gl_base_format(texture->format);
-		glTextureSubImage2D(texture->texture_object, 0, 0, 0, texture->width, texture->height, gl_base_format, GL_UNSIGNED_BYTE, data);
+		const GLenum gl_base_format = _to_gl_base_format(texture->desc.format);
+		glTextureSubImage2D(
+			texture->texture_object,
+			0, // level
+			0, // xoffset
+			0, // yoffset
+			texture->desc.width,
+			texture->desc.height,
+			gl_base_format,
+			GL_UNSIGNED_BYTE,
+			data);
 	}
 
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
@@ -721,19 +713,19 @@ namespace graphics
 		Texture* dest_texture = _texture_pool.get(dest);
 		const Texture* src_texture = _texture_pool.get(src);
 		if (!dest_texture || !src_texture) return;
-		if (dest_texture->width != src_texture->width) return;
-		if (dest_texture->height != src_texture->height) return;
+		if (dest_texture->desc.width != src_texture->desc.width) return;
+		if (dest_texture->desc.height != src_texture->desc.height) return;
 		glCopyImageSubData(
 			src_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
 			dest_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			dest_texture->width, dest_texture->height, 1);
+			dest_texture->desc.width, dest_texture->desc.height, 1);
 	}
 
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)
 	{
 		if (const Texture* texture = _texture_pool.get(handle)) {
-			width = texture->width;
-			height = texture->height;
+			width = texture->desc.width;
+			height = texture->desc.height;
 		} else {
 			width = 0;
 			height = 0;
@@ -913,14 +905,14 @@ namespace graphics
 	void push_debug_group(std::string_view name)
 	{
 #ifdef _DEBUG_GRAPHICS
-		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
+		graphics_backend::push_debug_group(name);
 #endif
 	}
 
 	void pop_debug_group()
 	{
 #ifdef _DEBUG_GRAPHICS
-		glPopDebugGroup();
+		graphics_backend::pop_debug_group();
 #endif
 	}
 
@@ -932,10 +924,11 @@ namespace graphics
 		for (size_t i = 0; i < _texture_pool.size(); ++i) {
 			const Texture& texture = _texture_pool.data()[i];
 			if (texture.texture_object == 0) continue;
-			if (ImGui::TreeNode(texture.debug_name.c_str())) {
-				ImGui::Text("Dimensions: %dx%dx", texture.width, texture.height);
-				ImGui::Text("Format: %s", magic_enum::enum_name(texture.format).data());
-				unsigned int kb = texture.size / 1024;
+			if (ImGui::TreeNode(texture.desc.debug_name.data())) {
+				ImGui::Text("Dimensions: %dx%dx", texture.desc.width, texture.desc.height);
+				ImGui::Text("Format: %s", magic_enum::enum_name(texture.desc.format).data());
+				unsigned int size = texture.desc.width * texture.desc.height * _get_size(texture.desc.format);
+				unsigned int kb = size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
 					ImGui::Text("Memory: %d MB", mb);
@@ -943,7 +936,7 @@ namespace graphics
 					ImGui::Text("Memory: %d KB", kb);
 				}
 				ImGui::Image((ImTextureID)(uintptr_t)texture.texture_object,
-					ImVec2((float)texture.width, (float)texture.height));
+					ImVec2((float)texture.desc.width, (float)texture.desc.height));
 				ImGui::TreePop();
 			}
 		}

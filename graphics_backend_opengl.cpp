@@ -182,4 +182,14 @@ namespace graphics_backend
 	{
 		glBindSampler(binding, (GLuint)sampler);
 	}
+
+	void push_debug_group(std::string_view name)
+	{
+		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
+	}
+
+	void pop_debug_group()
+	{
+		glPopDebugGroup();
+	}
 }
