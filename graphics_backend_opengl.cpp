@@ -95,6 +95,28 @@ namespace graphics_backend
 		}
 	}
 
+	uintptr_t create_buffer(const BufferDesc& desc)
+	{
+		GLuint buffer_object = 0;
+		glCreateBuffers(1, &buffer_object);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_BUFFER, buffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		GLbitfield flags = 0;
+		if (desc.dynamic) {
+			flags |= GL_DYNAMIC_STORAGE_BIT;
+		}
+		glNamedBufferStorage(buffer_object, desc.size, desc.initial_data, flags);
+		return buffer_object;
+	}
+
+	void destroy_buffer(uintptr_t buffer)
+	{
+		glDeleteBuffers(1, (GLuint*)&buffer);
+	}
+
 	uintptr_t create_texture(const TextureDesc& desc)
 	{
 		GLuint texture_object = 0;

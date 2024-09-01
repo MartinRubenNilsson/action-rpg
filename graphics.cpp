@@ -79,7 +79,7 @@ namespace graphics
 
 	struct Buffer
 	{
-		GLuint buffer_object = 0;
+		uintptr_t buffer_object = 0;
 		BufferDesc desc{};
 	};
 
@@ -200,7 +200,9 @@ namespace graphics
 		// DELETE BUFFERS
 
 		for (const Buffer& buffer : _buffer_pool.span()) {
-			glDeleteBuffers(1, &buffer.buffer_object);
+			if (buffer.buffer_object) {
+				graphics_backend::destroy_buffer(buffer.buffer_object);
+			}
 		}
 
 		// DELETE TEXTURES
@@ -474,20 +476,8 @@ namespace graphics
 
 	Handle<Buffer> create_buffer(const BufferDesc&& desc)
 	{
-		GLuint buffer_object = 0;
-		glCreateBuffers(1, &buffer_object);
-#ifdef _DEBUG_GRAPHICS
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_BUFFER, buffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
-
-		GLbitfield flags = 0;
-		if (desc.dynamic) {
-			flags |= GL_DYNAMIC_STORAGE_BIT;
-		}
-		glNamedBufferStorage(buffer_object, desc.size, desc.initial_data, flags);
-
+		uintptr_t buffer_object = graphics_backend::create_buffer(desc);
+		if (!buffer_object) return Handle<Buffer>();
 		return _buffer_pool.emplace(buffer_object, desc);
 	}
 
@@ -495,26 +485,17 @@ namespace graphics
 	{
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glDeleteBuffers(1, &buffer->buffer_object);
-		glCreateBuffers(1, &buffer->buffer_object);
-#ifdef _DEBUG_GRAPHICS
-		if (!buffer->desc.debug_name.empty()) {
-			glObjectLabel(GL_BUFFER, buffer->buffer_object, (GLsizei)buffer->desc.debug_name.size(), buffer->desc.debug_name.data());
-		}
-#endif
-		GLbitfield flags = 0;
-		if (buffer->desc.dynamic) {
-			flags |= GL_DYNAMIC_STORAGE_BIT;
-		}
-		glNamedBufferStorage(buffer->buffer_object, size, initial_data, flags);
+		graphics_backend::destroy_buffer(buffer->buffer_object);
 		buffer->desc.size = size;
+		buffer->desc.initial_data = initial_data;
+		buffer->buffer_object = graphics_backend::create_buffer(buffer->desc);
 	}
 
 	void destroy_buffer(Handle<Buffer> handle)
 	{
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		glDeleteBuffers(1, &buffer->buffer_object);
+		graphics_backend::destroy_buffer(buffer->buffer_object);
 		*buffer = Buffer();
 		_buffer_pool.free(handle);
 	}
