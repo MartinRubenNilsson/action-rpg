@@ -38,11 +38,11 @@ namespace graphics
 	void unbind_vertex_buffer(unsigned int binding);
 	void bind_index_buffer(Handle<Buffer> handle);
 	void unbind_index_buffer();
+	// Pass an empty handle to unbind any currently bound buffer.
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
 	// Fails if offset + size exceeds the buffer size, or if offset
 	// is not a multiple of get_uniform_buffer_offset_alignment().
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset = 0);
-	void unbind_uniform_buffer(unsigned int binding);
 
 	// TEXTURES
 

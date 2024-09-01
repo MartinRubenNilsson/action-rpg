@@ -386,9 +386,13 @@ namespace graphics
 
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
 	{
-		const Buffer* buffer = _buffer_pool.get(handle);
-		if (!buffer) return;
-		glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
+		if (handle == Handle<Buffer>()) {
+			glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
+			return;
+		}
+		if (const Buffer* buffer = _buffer_pool.get(handle)) {
+			glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
+		}
 	}
 
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset)
@@ -398,11 +402,6 @@ namespace graphics
 		if (!buffer) return;
 		if (offset + size > buffer->desc.size) return;
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, offset, size);
-	}
-
-	void unbind_uniform_buffer(unsigned int binding)
-	{
-		glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
 	}
 
 	GLenum _to_gl_base_format(Format format)
