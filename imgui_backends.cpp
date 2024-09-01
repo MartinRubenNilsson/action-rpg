@@ -3,7 +3,9 @@
 #include "imgui_backends.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
+#ifdef GRAPHICS_BACKEND_OPENGL
 #include <imgui_impl_opengl3.h>
+#endif
 
 namespace imgui_backends
 {
@@ -11,10 +13,13 @@ namespace imgui_backends
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+
+#ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
-        ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
+#endif
 
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
         // So Dear ImGui doesn't interfere with the mouse cursor.
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
@@ -60,14 +65,18 @@ namespace imgui_backends
 
 	void shutdown()
 	{
+#ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_Shutdown();
+#endif
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 	}
 
 	void new_frame()
 	{
+#ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_NewFrame();
+#endif
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 	}
@@ -75,7 +84,9 @@ namespace imgui_backends
 	void render()
 	{
         ImGui::Render();
+#ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
 	}
 }
 

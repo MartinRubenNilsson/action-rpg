@@ -16,8 +16,7 @@ in vec2 tex_coord;
 out vec4 frag_color;
 
 #define LUT_SKIN 0
-#define LUT_HAIR 1sdfs
-
+#define LUT_HAIR 1
 #define LUT_C3 2
 #define LUT_C4 3
 

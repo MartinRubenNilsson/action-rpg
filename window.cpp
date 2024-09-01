@@ -1,10 +1,14 @@
 #include "stdafx.h"
 #include "window.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <stb_image.h>
 #include "window_events.h"
 #include "console.h"
+
+#ifdef GRAPHICS_BACKEND_OPENGL
+#include <glad/glad.h>
+#endif
+
+#include <GLFW/glfw3.h>
 
 namespace window
 {
@@ -119,8 +123,10 @@ namespace window
 			"Action RPG", nullptr, nullptr);
 		if (!_glfw_window) return false;
 
+#ifdef GRAPHICS_BACKEND_OPENGL
 		glfwMakeContextCurrent(_glfw_window);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
+#endif
 
 		glfwSetWindowCloseCallback(_glfw_window, _window_close_callback);
 		glfwSetKeyCallback(_glfw_window, _key_callback);
