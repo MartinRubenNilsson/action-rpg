@@ -59,6 +59,8 @@
 
 namespace graphics_backend
 {
+	const unsigned int MAX_VIEWPORTS = 8;
+
 	GLenum _to_gl_base_format(Format format)
 	{
 		switch (format) {
@@ -192,7 +194,6 @@ namespace graphics_backend
 
 	void set_viewports(const Viewport* viewports, unsigned int count)
 	{
-		constexpr unsigned int MAX_VIEWPORTS = 8;
 		count = std::min(count, MAX_VIEWPORTS);
 		GLfloat gl_viewports[MAX_VIEWPORTS * 4];
 		for (unsigned int i = 0; i < count; ++i) {

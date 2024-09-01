@@ -5,6 +5,8 @@ namespace graphics_backend
 {
 	using namespace graphics;
 
+	extern const unsigned int MAX_VIEWPORTS;
+
 	uintptr_t create_buffer(const BufferDesc& desc);
 	void destroy_buffer(uintptr_t buffer);
 
