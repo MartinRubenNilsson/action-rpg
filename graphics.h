@@ -26,15 +26,6 @@ namespace graphics
 	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path);
 	// Pass an empty handle to unbind any currently bound shader.
 	void bind_shader(Handle<Shader> handle);
-	void set_uniform_1f(Handle<Shader> handle, std::string_view name, float x);
-	void set_uniform_2f(Handle<Shader> handle, std::string_view name, float x, float y);
-	void set_uniform_3f(Handle<Shader> handle, std::string_view name, float x, float y, float z);
-	void set_uniform_4f(Handle<Shader> handle, std::string_view name, float x, float y, float z, float w);
-	void set_uniform_1i(Handle<Shader> handle, std::string_view name, int x);
-	void set_uniform_2i(Handle<Shader> handle, std::string_view name, int x, int y);
-	void set_uniform_3i(Handle<Shader> handle, std::string_view name, int x, int y, int z);
-	void set_uniform_4i(Handle<Shader> handle, std::string_view name, int x, int y, int z, int w);
-	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16]);
 
 	// BUFFERS
 

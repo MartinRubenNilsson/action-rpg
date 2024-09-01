@@ -2,12 +2,19 @@
 
 namespace graphics
 {
-	// Stores uniform data that only changes once per frame.
 	struct FrameUniformBlock
 	{
 		float view_proj_matrix[16] = {};
 		float app_time = 0.f;
 		float game_time = 0.f;
+	};
+
+	struct PlayerOutfitUniformBlock
+	{
+		int lut1_type = -1;
+		int lut1_y = -1;
+		int lut2_type = -1;
+		int lut2_y = -1;
 	};
 
 	extern const float IDENTITY_MATRIX[16];
@@ -28,6 +35,7 @@ namespace graphics
 	extern Handle<Buffer> dynamic_index_buffer;
 	extern Handle<Buffer> frame_uniform_buffer;
 	extern Handle<Buffer> sprite_uniform_buffer;
+	extern Handle<Buffer> player_outfit_uniform_buffer;
 
 	// FULLSCREEN SHADERS
 

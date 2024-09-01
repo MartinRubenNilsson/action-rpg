@@ -11,7 +11,7 @@ namespace player
 			Count,
 		};
 
-		enum class Sock
+		enum class Socks
 		{
 			None,
 			SocksHigh,
@@ -20,7 +20,7 @@ namespace player
 			Count,
 		};
 
-		enum class Shoe
+		enum class Shoes
 		{
 			None,
 			Boots,
@@ -130,10 +130,10 @@ namespace player
 
 		Body body = Body::Human;
 		int skin_color = 0;
-		Sock sock = Sock::None;
-		int sock_color = 0;
-		Shoe shoe = Shoe::None;
-		int shoe_color = 0;
+		Socks socks = Socks::None;
+		int socks_color = 0;
+		Shoes shoes = Shoes::None;
+		int shoes_color = 0;
 		Lowerwear lowerwear = Lowerwear::None;
 		int lowerwear_color = 0;
 		Shirt shirt = Shirt::None;

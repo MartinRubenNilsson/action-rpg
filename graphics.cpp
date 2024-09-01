@@ -61,19 +61,8 @@
 
 namespace graphics
 {
-	constexpr GLsizei _UNIFORM_NAME_MAX_SIZE = 64;
-
-	struct ShaderUniform
-	{
-		char name[_UNIFORM_NAME_MAX_SIZE] = { 0 };
-		GLsizei name_size = 0;
-		GLint location = -1;
-	};
-
 	struct Shader
 	{
-		std::string debug_name;
-		std::vector<ShaderUniform> uniforms;
 		GLuint program_object = 0;
 	};
 
@@ -116,16 +105,6 @@ namespace graphics
 	Pool<Framebuffer> _framebuffer_pool;
 	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
-
-	const ShaderUniform* _get_shader_uniform(const std::vector<ShaderUniform> &uniforms, std::string_view name)
-	{
-		for (const ShaderUniform& uniform : uniforms) {
-			if (name.size() != uniform.name_size) continue;
-			if (memcmp(name.data(), uniform.name, uniform.name_size)) continue;
-			return &uniform;
-		}
-		return nullptr;
-	}
 
 #ifdef _DEBUG_GRAPHICS
 	void GLAPIENTRY _debug_message_callback(
@@ -307,36 +286,15 @@ namespace graphics
 			}
 		}
 
-		// GET UNIFORM LOCATIONS
-
-		std::vector<ShaderUniform> uniform_locations;
-		{
-			GLint uniform_count;
-			glGetProgramiv(program_object, GL_ACTIVE_UNIFORMS, &uniform_count);
-			uniform_locations.resize(uniform_count);
-			for (GLint i = 0; i < uniform_count; i++) {
-				int uniform_size;
-				unsigned int uniform_type;
-				ShaderUniform& uniform = uniform_locations[i];
-				glGetActiveUniform(program_object, i, _UNIFORM_NAME_MAX_SIZE,
-					&uniform.name_size, &uniform_size, &uniform_type, uniform.name);
-				uniform.location = glGetUniformLocation(program_object, uniform.name);
-			}
-		}
-
 		// STORE SHADER
 
-		Shader shader{};
-		shader.debug_name = desc.debug_name;
-		shader.uniforms = std::move(uniform_locations);
-		shader.program_object = program_object;
 #ifdef _DEBUG_GRAPHICS
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
 
-		return _shader_pool.emplace(std::move(shader));
+		return _shader_pool.emplace(program_object);
 	}
 
 	Handle<Shader> load_shader(const std::string& vs_path, const std::string& fs_path)
@@ -388,87 +346,6 @@ namespace graphics
 		}
 		if (const Shader* shader = _shader_pool.get(handle)) {
 			_bind_program_if_not_already_bound(shader->program_object);
-		}
-	}
-
-	void set_uniform_1f(Handle<Shader> handle, std::string_view name, float x)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform1f(shader->program_object, uniform->location, x);
-			}
-		}
-	}
-
-	void set_uniform_2f(Handle<Shader> handle, std::string_view name, float x, float y)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform2f(shader->program_object, uniform->location, x, y);
-			}
-		}
-	}
-
-	void set_uniform_3f(Handle<Shader> handle, std::string_view name, float x, float y, float z)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform3f(shader->program_object, uniform->location, x, y, z);
-			}
-		}
-	}
-
-	void set_uniform_4f(Handle<Shader> handle, std::string_view name, float x, float y, float z, float w)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform4f(shader->program_object, uniform->location, x, y, z, w);
-			}
-		}
-	}
-
-	void set_uniform_1i(Handle<Shader> handle, std::string_view name, int x)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform1i(shader->program_object, uniform->location, x);
-			}
-		}
-	}
-
-	void set_uniform_2i(Handle<Shader> handle, std::string_view name, int x, int y)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform2i(shader->program_object, uniform->location, x, y);
-			}
-		}
-	}
-
-	void set_uniform_3i(Handle<Shader> handle, std::string_view name, int x, int y, int z)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform3i(shader->program_object, uniform->location, x, y, z);
-			}
-		}
-	}
-
-	void set_uniform_4i(Handle<Shader> handle, std::string_view name, int x, int y, int z, int w)
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniform4i(shader->program_object, uniform->location, x, y, z, w);
-			}
-		}
-	}
-
-	void set_uniform_mat4(Handle<Shader> handle, std::string_view name, const float matrix[16])
-	{
-		if (Shader* shader = _shader_pool.get(handle)) {
-			if (const ShaderUniform* uniform = _get_shader_uniform(shader->uniforms, name)) {
-				glProgramUniformMatrix4fv(shader->program_object, uniform->location, 1, GL_FALSE, matrix);
-			}
 		}
 	}
 

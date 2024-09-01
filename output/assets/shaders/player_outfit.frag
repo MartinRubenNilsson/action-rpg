@@ -1,13 +1,16 @@
 #version 450
 
+layout(std140, binding = 1) uniform PlayerOutfitUniformBlock
+{
+	int lut1_type;
+    int lut1_y;
+    int lut2_type;
+    int lut2_y;
+};
+
 layout(binding = 0) uniform sampler2D tex;
 layout(binding = 1) uniform sampler2D lut1;
 layout(binding = 2) uniform sampler2D lut2;
-
-uniform int lut1_type;
-uniform int lut1_y;
-uniform int lut2_type;
-uniform int lut2_y;
 
 in vec2 tex_coord;
 out vec4 frag_color;

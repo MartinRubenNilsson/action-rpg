@@ -55,6 +55,7 @@ namespace postprocessing
 
 	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max)
 	{
+#if 0
 		if (_shockwaves.empty()) return;
 		if (graphics::shockwave_shader == Handle<graphics::Shader>()) return;
 
@@ -78,6 +79,7 @@ namespace postprocessing
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
+#endif
 	}
 
 	void _render_lighting(const Vector2f& camera_min, const Vector2f& camera_max)
@@ -109,6 +111,7 @@ namespace postprocessing
 
 	void _render_screen_transition()
 	{
+#if 0
 		if (_screen_transition_progress == 0.f) return;
 		if (graphics::screen_transition_shader == Handle<graphics::Shader>()) return;
 
@@ -120,6 +123,7 @@ namespace postprocessing
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 		graphics::bind_framebuffer(graphics::game_framebuffer_0);
 		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+#endif
 	}
 
 	void _render_gaussian_blur()

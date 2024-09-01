@@ -21,6 +21,7 @@ namespace graphics
 	Handle<Buffer> dynamic_index_buffer;
 	Handle<Buffer> frame_uniform_buffer;
 	Handle<Buffer> sprite_uniform_buffer;
+	Handle<Buffer> player_outfit_uniform_buffer;
 
 	Handle<Shader> fullscreen_shader;
 	Handle<Shader> gaussian_blur_hor_shader;
@@ -69,6 +70,10 @@ namespace graphics
 		sprite_uniform_buffer = create_buffer({
 			.debug_name = "sprite uniform buffer",
 			.size = 256 * 256, // estimate we won't need more than 256 custom blocks on screen at same time
+			.dynamic = true });
+		player_outfit_uniform_buffer = create_buffer({
+			.debug_name = "player outfit uniform buffer",
+			.size = sizeof(PlayerOutfitUniformBlock),
 			.dynamic = true });
 
 		fullscreen_shader = load_shader(

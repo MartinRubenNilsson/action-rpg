@@ -38,8 +38,10 @@ namespace ui
 		graphics::get_scissor(_previous_scissor);
 		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
 		graphics::bind_shader(graphics::ui_shader);
+#if 0
 		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
 		graphics::set_uniform_2f(graphics::ui_shader, "viewport_size", (float)_viewport_width, (float)_viewport_height);
+#endif
 	}
 
 	void restore_render_state()
@@ -58,6 +60,7 @@ namespace ui
 		const Rml::TextureHandle texture,
 		const Rml::Vector2f& translation)
 	{
+#if 0
 		if (texture) {
 			graphics::bind_texture(0, _texture_handle_from_rml(texture));
 			graphics::set_uniform_1i(graphics::ui_shader, "has_tex", 1);
@@ -70,6 +73,7 @@ namespace ui
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
+#endif
 	}
 
 	struct CompiledGeometry
@@ -98,6 +102,7 @@ namespace ui
 
 	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation)
 	{
+#if 0
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
 		if (compiled_geometry->texture != Handle<graphics::Texture>()) {
 			graphics::bind_texture(0, compiled_geometry->texture);
@@ -109,6 +114,7 @@ namespace ui
 		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(compiled_geometry->index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, compiled_geometry->index_count);
+#endif
 	}
 
 	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry)
@@ -171,6 +177,7 @@ namespace ui
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
 	{
+#if 0
 		if (!transform) {
 			graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
@@ -178,5 +185,6 @@ namespace ui
 		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
 			graphics::set_uniform_mat4(graphics::ui_shader, "transform", transform->Transpose().data());
 		}
+#endif
 	}
 }

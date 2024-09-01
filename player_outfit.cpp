@@ -27,10 +27,10 @@ namespace player
 	{
 		outfit.body = (Outfit::Body)(random::range_i(1, (int)Outfit::Body::Count - 1));
 		outfit.skin_color = random::range_i(0, SKIN_COLORS - 1);
-		outfit.sock = (Outfit::Sock)(random::range_i(0, (int)Outfit::Sock::Count - 1));
-		outfit.sock_color = random::range_i(0, SOCK_COLORS - 1);
-		outfit.shoe = (Outfit::Shoe)(random::range_i(0, (int)Outfit::Shoe::Count - 1));
-		outfit.shoe_color = random::range_i(0, SHOE_COLORS - 1);
+		outfit.socks = (Outfit::Socks)(random::range_i(0, (int)Outfit::Socks::Count - 1));
+		outfit.socks_color = random::range_i(0, SOCK_COLORS - 1);
+		outfit.shoes = (Outfit::Shoes)(random::range_i(0, (int)Outfit::Shoes::Count - 1));
+		outfit.shoes_color = random::range_i(0, SHOE_COLORS - 1);
 		outfit.lowerwear = (Outfit::Lowerwear)(random::range_i(0, (int)Outfit::Lowerwear::Count - 1));
 		outfit.lowerwear_color = random::range_i(0, LOWERWEAR_COLORS - 1);
 		outfit.shirt = (Outfit::Shirt)(random::range_i(0, (int)Outfit::Shirt::Count - 1));
@@ -93,29 +93,29 @@ namespace player
 
 		// 02sock
 
-		switch (outfit.sock) {
-		case Outfit::Sock::SocksHigh:
-			layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_C3, outfit.sock_color);
+		switch (outfit.socks) {
+		case Outfit::Socks::SocksHigh:
+			layers.emplace_back("02sock/fbas_02sock_sockshigh_00a.png", LUT_C3, outfit.socks_color);
 			break;
-		case Outfit::Sock::SocksLow:
-			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, outfit.sock_color);
+		case Outfit::Socks::SocksLow:
+			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, outfit.socks_color);
 			break;
-		case Outfit::Sock::Stockings:
-			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, outfit.sock_color);
+		case Outfit::Socks::Stockings:
+			layers.emplace_back("02sock/fbas_02sock_sockslow_00a.png", LUT_C3, outfit.socks_color);
 			break;
 		}
 
 		// 03fot1
 
-		switch (outfit.shoe) {
-		case Outfit::Shoe::Boots:
-			layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3, outfit.shoe_color);
+		switch (outfit.shoes) {
+		case Outfit::Shoes::Boots:
+			layers.emplace_back("03fot1/fbas_03fot1_boots_00a.png", LUT_C3, outfit.shoes_color);
 			break;
-		case Outfit::Shoe::Sandals:
-			layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3, outfit.shoe_color);
+		case Outfit::Shoes::Sandals:
+			layers.emplace_back("03fot1/fbas_03fot1_sandals_00a.png", LUT_C3, outfit.shoes_color);
 			break;
-		case Outfit::Shoe::Shoes:
-			layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3, outfit.shoe_color);
+		case Outfit::Shoes::Shoes:
+			layers.emplace_back("03fot1/fbas_03fot1_shoes_00a.png", LUT_C3, outfit.shoes_color);
 			break;
 		}
 
@@ -184,12 +184,12 @@ namespace player
 
 		// 07fot2
 
-		switch (outfit.shoe) {
-		case Outfit::Shoe::CuffedBoots:
-			layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3, outfit.shoe_color);
+		switch (outfit.shoes) {
+		case Outfit::Shoes::CuffedBoots:
+			layers.emplace_back("07fot2/fbas_07fot2_cuffedboots_00a.png", LUT_C3, outfit.shoes_color);
 			break;
-		case Outfit::Shoe::CurlyToeShoes:
-			layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3, outfit.shoe_color);
+		case Outfit::Shoes::CurlyToeShoes:
+			layers.emplace_back("07fot2/fbas_07fot2_curlytoeshoes_00a.png", LUT_C3, outfit.shoes_color);
 			break;
 		}
 
@@ -372,12 +372,6 @@ namespace player
 				lut1_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut1_texture != Handle<graphics::Texture>()) {
-				graphics::set_uniform_1i(shader, "lut1_type", layer.lut1_type);
-				graphics::set_uniform_1i(shader, "lut1_y", layer.lut1_y);
-			} else {
-				graphics::set_uniform_1i(shader, "lut1_type", -1);
-			}
 
 			Handle<graphics::Texture> lut2_texture;
 			switch (layer.lut2_type) {
@@ -394,23 +388,23 @@ namespace player
 				lut2_texture = graphics::load_texture(base_dir + "palettes/mana seed 4-color ramps.png");
 				break;
 			}
-			if (lut2_texture != Handle<graphics::Texture>()) {
-				graphics::set_uniform_1i(shader, "lut2_type", layer.lut2_type);
-				graphics::set_uniform_1i(shader, "lut2_y", layer.lut2_y);
-			} else {
-				graphics::set_uniform_1i(shader, "lut2_type", -1);
-			}
 
+			graphics::PlayerOutfitUniformBlock uniform_block{};
+			uniform_block.lut1_type = layer.lut1_type;
+			uniform_block.lut1_y = layer.lut1_y;
+			uniform_block.lut2_type = layer.lut2_type;
+			uniform_block.lut2_y = layer.lut2_y;
+
+			graphics::update_buffer(graphics::player_outfit_uniform_buffer, &uniform_block, sizeof(uniform_block));
+			graphics::bind_uniform_buffer(1, graphics::player_outfit_uniform_buffer);
 			graphics::bind_texture(0, texture);
 			graphics::bind_texture(1, lut1_texture);
 			graphics::bind_texture(2, lut2_texture);
-
 			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
 		}
 
-		Handle<graphics::Texture> player_outfit_texture =
-			graphics::get_framebuffer_texture(graphics::player_outfit_framebuffer);
 		graphics::set_viewport(viewport);
-		return player_outfit_texture;
+
+		return graphics::get_framebuffer_texture(graphics::player_outfit_framebuffer);
 	}
 }
