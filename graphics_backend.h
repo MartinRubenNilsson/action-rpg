@@ -7,6 +7,9 @@ namespace graphics_backend
 
 	extern const unsigned int MAX_VIEWPORTS;
 
+	void initialize();
+	void shutdown();
+
 	uintptr_t create_buffer(const BufferDesc& desc);
 	void destroy_buffer(uintptr_t buffer);
 

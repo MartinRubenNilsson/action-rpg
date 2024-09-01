@@ -101,11 +101,15 @@ namespace window
 		glfwSetErrorCallback(_error_callback);
 		if (!glfwInit()) return false;
 
+#ifdef GRAPHICS_BACKEND_OPENGL
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef _DEBUG_GRAPHICS
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
+#else
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until we're ready to show it.
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

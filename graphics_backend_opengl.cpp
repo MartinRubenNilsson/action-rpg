@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#ifdef GRAPHICS_BACKEND_OPENGL
 #include "graphics_backend.h"
 #include <glad/glad.h>
 
@@ -105,6 +106,16 @@ namespace graphics_backend
 		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
 		default:				      return 0;
 		}
+	}
+
+	void initialize()
+	{
+
+	}
+
+	void shutdown()
+	{
+
 	}
 
 	uintptr_t create_buffer(const BufferDesc& desc)
@@ -246,3 +257,4 @@ namespace graphics_backend
 		glPopDebugGroup();
 	}
 }
+#endif // GRAPHICS_BACKEND_OPENGL
