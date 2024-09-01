@@ -9,6 +9,11 @@ namespace graphics
 		float game_time = 0.f;
 	};
 
+	struct UiUniformBlock
+	{
+		float transform[16] = {};
+	};
+
 	struct PlayerOutfitUniformBlock
 	{
 		int lut1_type = -1;
@@ -16,8 +21,6 @@ namespace graphics
 		int lut2_type = -1;
 		int lut2_y = -1;
 	};
-
-	extern const float IDENTITY_MATRIX[16];
 
 	// You may use this as a temporary scratch buffer for vertices, for example
 	// when building a list of vertices to eventually upload to a buffer.
@@ -34,6 +37,7 @@ namespace graphics
 	extern Handle<Buffer> dynamic_vertex_buffer;
 	extern Handle<Buffer> dynamic_index_buffer;
 	extern Handle<Buffer> frame_uniform_buffer;
+	extern Handle<Buffer> ui_uniform_buffer;
 	extern Handle<Buffer> sprite_uniform_buffer;
 	extern Handle<Buffer> player_outfit_uniform_buffer;
 

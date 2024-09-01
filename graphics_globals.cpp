@@ -4,13 +4,6 @@
 
 namespace graphics
 {
-	extern const float IDENTITY_MATRIX[16] = {
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f,
-	};
-
 	eastl::vector<graphics::Vertex> temp_vertices;
 
 	Handle<Framebuffer> game_framebuffer_0;
@@ -20,6 +13,7 @@ namespace graphics
 	Handle<Buffer> dynamic_vertex_buffer;
 	Handle<Buffer> dynamic_index_buffer;
 	Handle<Buffer> frame_uniform_buffer;
+	Handle<Buffer> ui_uniform_buffer;
 	Handle<Buffer> sprite_uniform_buffer;
 	Handle<Buffer> player_outfit_uniform_buffer;
 
@@ -67,6 +61,10 @@ namespace graphics
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
 			.size = sizeof(FrameUniformBlock),
+			.dynamic = true });
+		ui_uniform_buffer = create_buffer({
+			.debug_name = "ui uniform buffer",
+			.size = sizeof(UiUniformBlock),
 			.dynamic = true });
 		sprite_uniform_buffer = create_buffer({
 			.debug_name = "sprite uniform buffer",

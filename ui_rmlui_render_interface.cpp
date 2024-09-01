@@ -6,11 +6,15 @@
 
 namespace ui
 {
+	static_assert(std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>);
+
 	int _viewport_width = 0;
 	int _viewport_height = 0;
 	graphics::Viewport _previous_viewport{};
 	bool _previous_scissor_test_enabled = false;
 	graphics::Rect _previous_scissor{};
+	Rml::Matrix4f _transform = Rml::Matrix4f::Identity();
+	Rml::Matrix4f _view_proj_matrix = Rml::Matrix4f::Identity();
 
 	Rml::TextureHandle _texture_handle_to_rml(Handle<graphics::Texture> handle)
 	{
@@ -28,6 +32,9 @@ namespace ui
 	{
 		_viewport_width = viewport_width;
 		_viewport_height = viewport_height;
+		_view_proj_matrix =
+			Rml::Matrix4f::Scale(1.f, -1.f, 1.f) *
+			Rml::Matrix4f::ProjectOrtho(0.0f, (float)viewport_width, 0.f, (float)viewport_height, -1.f, 1.f);
 	}
 
 	void prepare_render_state()
@@ -38,10 +45,7 @@ namespace ui
 		graphics::get_scissor(_previous_scissor);
 		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
 		graphics::bind_shader(graphics::ui_shader);
-#if 0
-		graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
-		graphics::set_uniform_2f(graphics::ui_shader, "viewport_size", (float)_viewport_width, (float)_viewport_height);
-#endif
+		graphics::bind_uniform_buffer(1, graphics::ui_uniform_buffer);
 	}
 
 	void restore_render_state()
@@ -65,9 +69,8 @@ namespace ui
 		} else {
 			graphics::bind_texture(0, graphics::white_texture);
 		}
-#if 0
-		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
-#endif
+		Rml::Matrix4f transform = _view_proj_matrix * _transform * Rml::Matrix4f::Translate(translation.x, translation.y, 0.0f);
+		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
 		graphics::update_buffer(graphics::dynamic_vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
 		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
@@ -102,14 +105,13 @@ namespace ui
 	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation)
 	{
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
-		if (compiled_geometry->texture == Handle<graphics::Texture>()) {
+		if (compiled_geometry->texture != Handle<graphics::Texture>()) {
 			graphics::bind_texture(0, compiled_geometry->texture);
 		} else {
 			graphics::bind_texture(0, graphics::white_texture);
 		}
-#if 0
-		graphics::set_uniform_2f(graphics::ui_shader, "translation", translation.x, translation.y);
-#endif
+		Rml::Matrix4f transform = _view_proj_matrix * _transform * Rml::Matrix4f::Translate(translation.x, translation.y, 0.0f);
+		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
 		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(compiled_geometry->index_buffer);
 		graphics::draw_indexed(graphics::Primitives::TriangleList, compiled_geometry->index_count);
@@ -175,14 +177,6 @@ namespace ui
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
 	{
-#if 0
-		if (!transform) {
-			graphics::set_uniform_mat4(graphics::ui_shader, "transform", graphics::IDENTITY_MATRIX);
-		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>) {
-			graphics::set_uniform_mat4(graphics::ui_shader, "transform", transform->data());
-		} else if constexpr (std::is_same_v<Rml::Matrix4f, Rml::RowMajorMatrix4f>) {
-			graphics::set_uniform_mat4(graphics::ui_shader, "transform", transform->Transpose().data());
-		}
-#endif
+		_transform = transform ? *transform : Rml::Matrix4f::Identity();
 	}
 }
