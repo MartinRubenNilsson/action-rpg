@@ -11,54 +11,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-#pragma comment(lib, "opengl32")
-
-// Undefine pre-DSA functions to force the use of DSA whenever possible.
-
-#undef glGenTextures
-#undef glBindTexture
-#undef glTexParameterf
-#undef glTexParameteri
-#undef glTexParameterfv
-#undef glTexParameteriv
-#undef glTexParameterIiv
-#undef glTexParameterIuiv
-#undef glTexImage2D
-#undef glTexStorage2D
-#undef glTexSubImage2D
-#undef glGenerateMipmap
-#undef glActiveTexture
-
-#undef glGenFramebuffers
-#undef glFramebufferTexture2D 
-#undef glCheckFramebufferStatus
-#undef glBlitFramebuffer
-#undef glClearColor
-#undef glClearDepth
-#undef glClearStencil
-#undef glClear
-#undef glClearBufferiv
-#undef glClearBufferuiv
-#undef glClearBufferfv
-#undef glClearBufferfi
-
-#undef glGenBuffer
-#undef glBufferData
-#undef glBufferSubData
-#undef glBufferStorage
-#undef glNamedBufferData
-
-#undef glGenVertexArrays
-#undef glEnableVertexAttribArray
-#undef glDisableVertexAttribArray
-#undef glVertexAttribPointer
-#undef glVertexAttribFormat
-#undef glVertexAttribIFormat
-#undef glVertexAttribLFormat
-#undef glVertexAttribBinding
-#undef glVertexBindingDivisor
-#undef glBindVertexBuffer
-
 namespace graphics
 {
 	struct Shader
@@ -551,10 +503,10 @@ namespace graphics
 		if (!dest_texture || !src_texture) return;
 		if (dest_texture->desc.width != src_texture->desc.width) return;
 		if (dest_texture->desc.height != src_texture->desc.height) return;
-		glCopyImageSubData(
-			src_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			dest_texture->texture_object, GL_TEXTURE_2D, 0, 0, 0, 0,
-			dest_texture->desc.width, dest_texture->desc.height, 1);
+		graphics_backend::copy_texture_region(
+			dest_texture->texture_object, 0, 0, 0, 0,
+			src_texture->texture_object, 0, 0, 0, 0,
+			src_texture->desc.width, src_texture->desc.height, 1);
 	}
 
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)

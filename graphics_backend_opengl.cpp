@@ -177,6 +177,17 @@ namespace graphics_backend
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer, offset, size);
 	}
 
+	void copy_texture_region(
+		uintptr_t dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
+		uintptr_t src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
+		unsigned int src_width, unsigned int src_height, unsigned int src_depth)
+	{
+		glCopyImageSubData(
+			(GLuint)src_texture, GL_TEXTURE_2D, src_level, src_x, src_y, src_z,
+			(GLuint)dst_texture, GL_TEXTURE_2D, dst_level, dst_x, dst_y, dst_z,
+			src_width, src_height, src_depth);
+	}
+
 	uintptr_t create_texture(const TextureDesc& desc)
 	{
 		GLuint texture_object = 0;
