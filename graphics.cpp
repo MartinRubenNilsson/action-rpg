@@ -198,6 +198,7 @@ namespace graphics
 				graphics_backend::destroy_sampler(sampler.sampler_object);
 			}
 		}
+		_sampler_pool.clear();
 
 		// DELETE FRAMEBUFFERS
 
