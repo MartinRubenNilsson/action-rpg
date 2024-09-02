@@ -357,9 +357,9 @@ namespace graphics_backend
 		glDeleteFramebuffers(1, (GLuint*)&framebuffer);
 	}
 
-	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture, unsigned int level, unsigned int layer)
+	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture)
 	{
-		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, level);
+		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, 0)
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
