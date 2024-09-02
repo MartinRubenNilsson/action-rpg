@@ -21,9 +21,9 @@ namespace graphics
 	{
 		UNKNOWN,
 		R8_UNORM,
-		R8G8_UNORM,
-		R8G8B8_UNORM,
-		R8G8B8A8_UNORM,
+		RG8_UNORM,
+		RGB8_UNORM,
+		RGBA8_UNORM,
 	};
 
 	struct TextureDesc

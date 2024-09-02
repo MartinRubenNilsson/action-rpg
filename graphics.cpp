@@ -308,9 +308,7 @@ namespace graphics
 	{
 		if (handle == Handle<Shader>()) {
 			_bind_program_if_not_already_bound(0);
-			return;
-		}
-		if (const Shader* shader = _shader_pool.get(handle)) {
+		} else if (const Shader* shader = _shader_pool.get(handle)) {
 			_bind_program_if_not_already_bound(shader->program_object);
 		}
 	}
@@ -381,11 +379,9 @@ namespace graphics
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
 	{
 		if (handle == Handle<Buffer>()) {
-			glBindBufferBase(GL_UNIFORM_BUFFER, binding, 0);
-			return;
-		}
-		if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer->buffer_object);
+			graphics_backend::bind_uniform_buffer(binding, 0);
+		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
+			graphics_backend::bind_uniform_buffer(binding, buffer->buffer_object);
 		}
 	}
 
@@ -395,16 +391,16 @@ namespace graphics
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (offset + size > buffer->desc.size) return;
-		glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer->buffer_object, offset, size);
+		graphics_backend::bind_uniform_buffer_range(binding, buffer->buffer_object, size, offset);
 	}
 
 	GLenum _to_gl_base_format(Format format)
 	{
 		switch (format) {
-		case Format::R8_UNORM:       return GL_RED;
-		case Format::R8G8_UNORM:     return GL_RG;
-		case Format::R8G8B8_UNORM:   return GL_RGB;
-		case Format::R8G8B8A8_UNORM: return GL_RGBA;
+		case Format::R8_UNORM:    return GL_RED;
+		case Format::RG8_UNORM:   return GL_RG;
+		case Format::RGB8_UNORM:  return GL_RGB;
+		case Format::RGBA8_UNORM: return GL_RGBA;
 		default: return 0;
 		}
 	}
@@ -412,10 +408,10 @@ namespace graphics
 	unsigned _get_size(Format format)
 	{
 		switch (format) {
-		case Format::R8_UNORM:       return 1;
-		case Format::R8G8_UNORM:     return 2;
-		case Format::R8G8B8_UNORM:   return 3;
-		case Format::R8G8B8A8_UNORM: return 4;
+		case Format::R8_UNORM:    return 1;
+		case Format::RG8_UNORM:   return 2;
+		case Format::RGB8_UNORM:  return 3;
+		case Format::RGBA8_UNORM: return 4;
 		default: return 0;
 		}
 	}
@@ -457,7 +453,7 @@ namespace graphics
 				.debug_name = normalized_path_ktx2,
 				.width = ktx_texture->baseWidth,
 				.height = ktx_texture->baseHeight,
-				.format = Format::R8G8B8A8_UNORM, // we assume this format for now
+				.format = Format::RGBA8_UNORM, // we assume this format for now
 				.initial_data = ktx_texture->pData });
 
 			ktxTexture_Destroy(ktxTexture(ktx_texture));
@@ -480,9 +476,9 @@ namespace graphics
 
 		Format format = Format::UNKNOWN;
 		if      (channels == 1) format = Format::R8_UNORM;
-		else if (channels == 2) format = Format::R8G8_UNORM;
-		else if (channels == 3) format = Format::R8G8B8_UNORM;
-		else if (channels == 4) format = Format::R8G8B8A8_UNORM;
+		else if (channels == 2) format = Format::RG8_UNORM;
+		else if (channels == 3) format = Format::RGB8_UNORM;
+		else if (channels == 4) format = Format::RGBA8_UNORM;
 
 		const Handle<Texture> handle = create_texture({
 			.debug_name = normalized_path,
@@ -603,7 +599,7 @@ namespace graphics
 			.debug_name = texture_debug_name,
 			.width = desc.width,
 			.height = desc.height,
-			.format = Format::R8G8B8A8_UNORM });
+			.format = Format::RGBA8_UNORM });
 		if (texture_handle == Handle<Texture>()) {
 			console::log_error("Failed to create framebuffer texture: " + std::string(desc.debug_name));
 			return Handle<Framebuffer>();
@@ -704,28 +700,14 @@ namespace graphics
 		scissor = _scissor;
 	}
 
-	GLenum _to_gl_primitives(Primitives primitives)
-	{
-		switch (primitives) {
-		case Primitives::PointList:     return GL_POINTS;
-		case Primitives::LineList:      return GL_LINES;
-		case Primitives::LineStrip:     return GL_LINE_STRIP;
-		case Primitives::TriangleList:  return GL_TRIANGLES;
-		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
-		default:						return 0; // should never happen
-		}
-	}
-
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
 	{
-		if (!vertex_count) return;
-		glDrawArrays(_to_gl_primitives(primitives), vertex_offset, vertex_count);
+		graphics_backend::draw(primitives, vertex_count, vertex_offset);
 	}
 
 	void draw_indexed(Primitives primitives, unsigned int index_count)
 	{
-		if (!index_count) return;
-		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, 0);
+		graphics_backend::draw_indexed(primitives, index_count);
 	}
 
 	void push_debug_group(std::string_view name)

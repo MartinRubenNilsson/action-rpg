@@ -10,9 +10,14 @@ namespace graphics_backend
 	void initialize();
 	void shutdown();
 
+	void push_debug_group(std::string_view name);
+	void pop_debug_group();
+
 	uintptr_t create_buffer(const BufferDesc& desc);
 	void destroy_buffer(uintptr_t buffer);
 	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset);
+	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer);
+	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset);
 
 	uintptr_t create_texture(const TextureDesc& desc);
 	void destroy_texture(uintptr_t texture);
@@ -26,6 +31,6 @@ namespace graphics_backend
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);
 
-	void push_debug_group(std::string_view name);
-	void pop_debug_group();
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
+	void draw_indexed(Primitives primitives, unsigned int index_count);
 }

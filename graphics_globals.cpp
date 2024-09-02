@@ -177,7 +177,7 @@ namespace graphics
 				.debug_name = "error texture",
 				.width = ERROR_TEXTURE_SIZE,
 				.height = ERROR_TEXTURE_SIZE,
-				.format = Format::R8G8B8A8_UNORM,
+				.format = Format::RGBA8_UNORM,
 				.initial_data = error_texture_data });
 		}
 		{
@@ -186,7 +186,7 @@ namespace graphics
 				.debug_name = "white texture",
 				.width = 1,
 				.height = 1,
-				.format = Format::R8G8B8A8_UNORM,
+				.format = Format::RGBA8_UNORM,
 				.initial_data = white_texture_data });
 		}
 

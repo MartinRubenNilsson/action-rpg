@@ -68,10 +68,10 @@ namespace graphics_backend
 	GLenum _to_gl_base_format(Format format)
 	{
 		switch (format) {
-		case Format::R8_UNORM:       return GL_RED;
-		case Format::R8G8_UNORM:     return GL_RG;
-		case Format::R8G8B8_UNORM:   return GL_RGB;
-		case Format::R8G8B8A8_UNORM: return GL_RGBA;
+		case Format::R8_UNORM:    return GL_RED;
+		case Format::RG8_UNORM:   return GL_RG;
+		case Format::RGB8_UNORM:  return GL_RGB;
+		case Format::RGBA8_UNORM: return GL_RGBA;
 		default: return 0;
 		}
 	}
@@ -79,10 +79,10 @@ namespace graphics_backend
 	GLenum _to_gl_sized_format(Format format)
 	{
 		switch (format) {
-		case Format::R8_UNORM:       return GL_R8;
-		case Format::R8G8_UNORM:     return GL_RG8;
-		case Format::R8G8B8_UNORM:   return GL_RGB8;
-		case Format::R8G8B8A8_UNORM: return GL_RGBA8;
+		case Format::R8_UNORM:    return GL_R8;
+		case Format::RG8_UNORM:   return GL_RG8;
+		case Format::RGB8_UNORM:  return GL_RGB8;
+		case Format::RGBA8_UNORM: return GL_RGBA8;
 		default: return 0;
 		}
 	}
@@ -108,6 +108,18 @@ namespace graphics_backend
 		}
 	}
 
+	GLenum _to_gl_primitives(Primitives primitives)
+	{
+		switch (primitives) {
+		case Primitives::PointList:     return GL_POINTS;
+		case Primitives::LineList:      return GL_LINES;
+		case Primitives::LineStrip:     return GL_LINE_STRIP;
+		case Primitives::TriangleList:  return GL_TRIANGLES;
+		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
+		default:						return 0; // should never happen
+		}
+	}
+
 	void initialize()
 	{
 
@@ -116,6 +128,16 @@ namespace graphics_backend
 	void shutdown()
 	{
 
+	}
+
+	void push_debug_group(std::string_view name)
+	{
+		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
+	}
+
+	void pop_debug_group()
+	{
+		glPopDebugGroup();
 	}
 
 	uintptr_t create_buffer(const BufferDesc& desc)
@@ -145,6 +167,16 @@ namespace graphics_backend
 		glNamedBufferSubData((GLuint)buffer, offset, size, data);
 	}
 
+	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer)
+	{
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, (GLuint)buffer);
+	}
+
+	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset)
+	{
+		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer, offset, size);
+	}
+
 	uintptr_t create_texture(const TextureDesc& desc)
 	{
 		GLuint texture_object = 0;
@@ -154,10 +186,8 @@ namespace graphics_backend
 			glObjectLabel(GL_TEXTURE, texture_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
-		const GLenum gl_sized_format = _to_gl_sized_format(desc.format);
-		glTextureStorage2D(texture_object, 1, gl_sized_format, desc.width, desc.height);
+		glTextureStorage2D(texture_object, 1, _to_gl_sized_format(desc.format), desc.width, desc.height);
 		if (desc.initial_data) {
-			const GLenum gl_base_format = _to_gl_base_format(desc.format);
 			glTextureSubImage2D(
 				texture_object,
 				0, // level
@@ -165,7 +195,7 @@ namespace graphics_backend
 				0, // yoffset
 				desc.width,
 				desc.height,
-				gl_base_format,
+				_to_gl_base_format(desc.format),
 				GL_UNSIGNED_BYTE,
 				desc.initial_data);
 		}
@@ -252,14 +282,14 @@ namespace graphics_backend
 		}
 	}
 
-	void push_debug_group(std::string_view name)
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
 	{
-		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
+		glDrawArrays(_to_gl_primitives(primitives), vertex_offset, vertex_count);
 	}
 
-	void pop_debug_group()
+	void draw_indexed(Primitives primitives, unsigned int index_count)
 	{
-		glPopDebugGroup();
+		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 }
 #endif // GRAPHICS_BACKEND_OPENGL
