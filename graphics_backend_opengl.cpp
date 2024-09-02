@@ -340,6 +340,39 @@ namespace graphics_backend
 		glBindSampler(binding, (GLuint)sampler);
 	}
 
+	uintptr_t create_framebuffer(const FramebufferDesc& desc)
+	{
+		GLuint framebuffer_object = 0;
+		glCreateFramebuffers(1, &framebuffer_object);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		return framebuffer_object;
+	}
+
+	void destroy_framebuffer(uintptr_t framebuffer)
+	{
+		glDeleteFramebuffers(1, (GLuint*)&framebuffer);
+	}
+
+	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture, unsigned int level, unsigned int layer)
+	{
+		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, level);
+		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	}
+
+	void clear_framebuffer(uintptr_t framebuffer, float color[4])
+	{
+		glClearNamedFramebufferfv((GLuint)framebuffer, GL_COLOR, 0, color);
+	}
+
+	void bind_framebuffer(uintptr_t framebuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
+	}
+
 	void set_viewports(const Viewport* viewports, unsigned int count)
 	{
 		count = std::min(count, MAX_VIEWPORTS);

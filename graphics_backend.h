@@ -37,6 +37,12 @@ namespace graphics_backend
 	void destroy_sampler(uintptr_t sampler);
 	void bind_sampler(unsigned int binding, uintptr_t sampler);
 
+	uintptr_t create_framebuffer(const FramebufferDesc& desc);
+	void destroy_framebuffer(uintptr_t framebuffer);
+	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture, unsigned int level = 0, unsigned int layer = 0);
+	void clear_framebuffer(uintptr_t framebuffer, float color[4]);
+	void bind_framebuffer(uintptr_t framebuffer);
+
 	void set_viewports(const Viewport* viewports, unsigned int count);
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);

@@ -38,7 +38,7 @@ namespace graphics
 
 	struct Framebuffer
 	{
-		GLuint framebuffer_object = 0;
+		uintptr_t framebuffer_object = 0;
 		FramebufferDesc desc{};
 		Handle<Texture> texture;
 	};
@@ -109,7 +109,9 @@ namespace graphics
 		// DELETE FRAMEBUFFERS
 
 		for (const Framebuffer& framebuffer : _framebuffer_pool.span()) {
-			glDeleteFramebuffers(1, &framebuffer.framebuffer_object);
+			if (framebuffer.framebuffer_object) {
+				graphics_backend::destroy_framebuffer(framebuffer.framebuffer_object);
+			}
 		}
 		_framebuffer_pool.clear();
 
@@ -477,13 +479,8 @@ namespace graphics
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
 	{
-		GLuint framebuffer_object = 0;
-		glCreateFramebuffers(1, &framebuffer_object);
-#ifdef _DEBUG_GRAPHICS
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		uintptr_t framebuffer_object = graphics_backend::create_framebuffer(desc);
+		if (!framebuffer_object) return Handle<Framebuffer>();
 		return _framebuffer_pool.emplace(framebuffer_object, desc);
 	}
 
@@ -493,8 +490,7 @@ namespace graphics
 		if (!framebuffer) return;
 		Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) return;
-		glNamedFramebufferTexture(framebuffer->framebuffer_object, GL_COLOR_ATTACHMENT0, texture->texture_object, 0);
-		if (glCheckNamedFramebufferStatus(framebuffer->framebuffer_object, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		if (!graphics_backend::attach_framebuffer_texture(framebuffer->framebuffer_object, texture->texture_object)) {
 			console::log_error(
 				"Failed to attach texture " +
 				std::string(texture->desc.debug_name) +
@@ -507,27 +503,27 @@ namespace graphics
 
 	void bind_default_framebuffer()
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		graphics_backend::bind_framebuffer(0);
 	}
 
 	void bind_framebuffer(Handle<Framebuffer> handle)
 	{
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->framebuffer_object);
+			graphics_backend::bind_framebuffer(framebuffer->framebuffer_object);
 		}
 	}
 
 	void clear_default_framebuffer(float r, float g, float b, float a)
 	{
 		float color[4] = { r, g, b, a };
-		glClearNamedFramebufferfv(0, GL_COLOR, 0, color);
+		graphics_backend::clear_framebuffer(0, color);
 	}
 
 	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a)
 	{
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
 			float color[4] = { r, g, b, a };
-			glClearNamedFramebufferfv(framebuffer->framebuffer_object, GL_COLOR, 0, color);
+			graphics_backend::clear_framebuffer(framebuffer->framebuffer_object, color);
 		}
 	}
 
