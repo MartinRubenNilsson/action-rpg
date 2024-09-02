@@ -120,18 +120,36 @@ namespace graphics
 	{
 		_initialize_shaders();
 
-		game_framebuffer_0 = create_framebuffer({
-			.debug_name = "game framebuffer 0",
-			.width = GAME_FRAMEBUFFER_WIDTH,
-			.height = GAME_FRAMEBUFFER_HEIGHT });
-		game_framebuffer_1 = create_framebuffer({
-			.debug_name = "game framebuffer 1",
-			.width = GAME_FRAMEBUFFER_WIDTH,
-			.height = GAME_FRAMEBUFFER_HEIGHT });
-		player_outfit_framebuffer = create_framebuffer({
-			.debug_name = "player outfit framebuffer",
-			.width = 1024, // size of player tileset
-			.height = 1024 });
+		{
+			game_framebuffer_0 = create_framebuffer({
+				.debug_name = "game framebuffer 0" });
+			Handle<Texture> game_framebuffer_texture_0 = create_texture({
+				.debug_name = "game framebuffer texture 0",
+				.width = GAME_FRAMEBUFFER_WIDTH,
+				.height = GAME_FRAMEBUFFER_HEIGHT,
+				.format = Format::RGBA8_UNORM });
+			attach_framebuffer_texture(game_framebuffer_0, game_framebuffer_texture_0);
+		}
+		{
+			game_framebuffer_1 = create_framebuffer({
+				.debug_name = "game framebuffer 1" });
+			Handle<Texture> game_framebuffer_texture_1 = create_texture({
+				.debug_name = "game framebuffer texture 1",
+				.width = GAME_FRAMEBUFFER_WIDTH,
+				.height = GAME_FRAMEBUFFER_HEIGHT,
+				.format = Format::RGBA8_UNORM });
+			attach_framebuffer_texture(game_framebuffer_1, game_framebuffer_texture_1);
+		}
+		{
+			player_outfit_framebuffer = create_framebuffer({
+				.debug_name = "player outfit framebuffer" });
+			Handle<Texture> player_outfit_texture = create_texture({
+				.debug_name = "player outfit texture",
+				.width = 1024, // size of player tileset
+				.height = 1024, // size of player tileset
+				.format = Format::RGBA8_UNORM });
+			attach_framebuffer_texture(player_outfit_framebuffer, player_outfit_texture);
+		}
 
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",

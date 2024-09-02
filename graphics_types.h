@@ -61,8 +61,6 @@ namespace graphics
 	struct FramebufferDesc
 	{
 		std::string_view debug_name = "framebuffer";
-		unsigned int width = 0;
-		unsigned int height = 0;
 	};
 
 	enum class Primitives

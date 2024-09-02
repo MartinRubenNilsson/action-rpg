@@ -57,6 +57,7 @@ namespace graphics
 	// FRAMEBUFFERS
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
+	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle);
 	// The default framebuffer is the window framebuffer.
 	void bind_default_framebuffer();
 	void bind_framebuffer(Handle<Framebuffer> handle);

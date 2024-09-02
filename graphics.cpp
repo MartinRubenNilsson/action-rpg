@@ -38,8 +38,8 @@ namespace graphics
 
 	struct Framebuffer
 	{
-		std::string debug_name;
 		GLuint framebuffer_object = 0;
+		FramebufferDesc desc{};
 		Handle<Texture> texture;
 	};
 
@@ -477,20 +477,6 @@ namespace graphics
 
 	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
 	{
-		const std::string texture_debug_name = std::string(desc.debug_name) + " texture";
-		const Handle<Texture> texture_handle = create_texture({
-			.debug_name = texture_debug_name,
-			.width = desc.width,
-			.height = desc.height,
-			.format = Format::RGBA8_UNORM });
-		if (texture_handle == Handle<Texture>()) {
-			console::log_error("Failed to create framebuffer texture: " + std::string(desc.debug_name));
-			return Handle<Framebuffer>();
-		}
-
-		const Texture* texture = _texture_pool.get(texture_handle);
-		assert(texture);
-
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
 #ifdef _DEBUG_GRAPHICS
@@ -498,22 +484,25 @@ namespace graphics
 			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
+		return _framebuffer_pool.emplace(framebuffer_object, desc);
+	}
 
-		glNamedFramebufferTexture(framebuffer_object, GL_COLOR_ATTACHMENT0, texture->texture_object, 0);
-
-		if (glCheckNamedFramebufferStatus(framebuffer_object, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			console::log_error("Failed to create framebuffer: " + std::string(desc.debug_name));
-			glDeleteFramebuffers(1, &framebuffer_object);
-			destroy_texture(texture_handle);
-			return Handle<Framebuffer>();
+	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle)
+	{
+		Framebuffer* framebuffer = _framebuffer_pool.get(framebuffer_handle);
+		if (!framebuffer) return;
+		Texture* texture = _texture_pool.get(texture_handle);
+		if (!texture) return;
+		glNamedFramebufferTexture(framebuffer->framebuffer_object, GL_COLOR_ATTACHMENT0, texture->texture_object, 0);
+		if (glCheckNamedFramebufferStatus(framebuffer->framebuffer_object, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			console::log_error(
+				"Failed to attach texture " +
+				std::string(texture->desc.debug_name) +
+				" to framebuffer " +
+				std::string(framebuffer->desc.debug_name));
+			return;
 		}
-
-		Framebuffer framebuffer{};
-		framebuffer.debug_name = desc.debug_name;
-		framebuffer.framebuffer_object = framebuffer_object;
-		framebuffer.texture = texture_handle;
-
-		return _framebuffer_pool.emplace(std::move(framebuffer));
+		framebuffer->texture = texture_handle;
 	}
 
 	void bind_default_framebuffer()
