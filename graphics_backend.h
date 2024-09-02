@@ -4,7 +4,7 @@
 namespace graphics_backend
 {
 	using namespace graphics;
-	using DebugMessageCallback = void(*)(const char* message);
+	using DebugMessageCallback = void(*)(std::string_view message);
 
 	extern const unsigned int MAX_VIEWPORTS;
 
@@ -14,6 +14,10 @@ namespace graphics_backend
 	void set_debug_message_callback(DebugMessageCallback callback);
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
+
+	uintptr_t create_shader(const ShaderDesc& desc);
+	void destroy_shader(uintptr_t shader);
+	void bind_shader(uintptr_t shader);
 
 	uintptr_t create_buffer(const BufferDesc& desc);
 	void destroy_buffer(uintptr_t buffer);

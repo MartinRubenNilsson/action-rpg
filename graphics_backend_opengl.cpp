@@ -202,6 +202,98 @@ namespace graphics_backend
 		glPopDebugGroup();
 	}
 
+	uintptr_t create_shader(const ShaderDesc& desc)
+	{
+		if (desc.vs_source.empty()) {
+			if (_debug_message_callback) {
+				_debug_message_callback("Vertex shader source code is empty: " + std::string(desc.debug_name));
+			}
+			return 0;
+		}
+		if (desc.fs_source.empty()) {
+			if (_debug_message_callback) {
+				_debug_message_callback("Fragment shader source code is empty: " + std::string(desc.debug_name));
+			}
+			return 0;
+		}
+		const GLuint program_object = glCreateProgram();
+		{
+			const char* vs_string = desc.vs_source.data();
+			const GLint vs_length = (GLint)desc.vs_source.size();
+			const GLuint vs_object = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vs_object, 1, &vs_string, &vs_length);
+			glCompileShader(vs_object);
+			int success;
+			glGetShaderiv(vs_object, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				if (_debug_message_callback) {
+					char info_log[512];
+					glGetShaderInfoLog(vs_object, sizeof(info_log), nullptr, info_log);
+					_debug_message_callback("Failed to compile vertex shader: " + std::string(desc.debug_name));
+					_debug_message_callback(info_log);
+				}
+				glDeleteShader(vs_object);
+				glDeleteProgram(program_object);
+				return 0;
+			}
+			glAttachShader(program_object, vs_object);
+			glDeleteShader(vs_object);
+		}
+		{
+			const char* fs_string = desc.fs_source.data();
+			const GLint fs_length = (GLint)desc.fs_source.size();
+			const GLuint fs_object = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fs_object, 1, &fs_string, &fs_length);
+			glCompileShader(fs_object);
+			int success;
+			glGetShaderiv(fs_object, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				if (_debug_message_callback) {
+					char info_log[512];
+					glGetShaderInfoLog(fs_object, sizeof(info_log), nullptr, info_log);
+					_debug_message_callback("Failed to compile fragment shader: " + std::string(desc.debug_name));
+					_debug_message_callback(info_log);
+				}
+				glDeleteShader(fs_object);
+				glDeleteProgram(program_object);
+				return 0;
+			}
+			glAttachShader(program_object, fs_object);
+			glDeleteShader(fs_object);
+		}
+		{
+			glLinkProgram(program_object);
+			int success;
+			glGetProgramiv(program_object, GL_LINK_STATUS, &success);
+			if (!success) {
+				if (_debug_message_callback) {
+					char info_log[512];
+					glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
+					_debug_message_callback("Failed to link program object: " + std::string(desc.debug_name));
+					_debug_message_callback(info_log);
+				}
+				glDeleteProgram(program_object);
+				return 0;
+			}
+		}
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		return program_object;
+	}
+
+	void destroy_shader(uintptr_t shader)
+	{
+		glDeleteProgram((GLuint)shader);
+	}
+
+	void bind_shader(uintptr_t shader)
+	{
+		glUseProgram((GLuint)shader);
+	}
+
 	uintptr_t create_buffer(const BufferDesc& desc)
 	{
 		GLuint buffer_object = 0;

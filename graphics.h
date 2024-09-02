@@ -13,7 +13,7 @@ namespace graphics
 
 	// SHADERS
 
-	Handle<Shader> create_shader(const ShaderDesc&& desc);
+	Handle<Shader> create_shader(ShaderDesc&& desc);
 	// Pass an empty handle to unbind any currently bound shader.
 	void bind_shader(Handle<Shader> handle);
 

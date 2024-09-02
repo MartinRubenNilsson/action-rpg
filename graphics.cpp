@@ -5,7 +5,6 @@
 #include "filesystem.h"
 #include "graphics_backend.h"
 
-#include <glad/glad.h>
 #define KHRONOS_STATIC
 #include <ktx.h>
 #define STB_IMAGE_IMPLEMENTATION
@@ -15,7 +14,8 @@ namespace graphics
 {
 	struct Shader
 	{
-		GLuint program_object = 0;
+		uintptr_t shader_object = 0;
+		ShaderDesc desc{};
 	};
 
 	struct Buffer
@@ -52,13 +52,12 @@ namespace graphics
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
 	Pool<Sampler> _sampler_pool;
 	Pool<Framebuffer> _framebuffer_pool;
-	GLuint _last_bound_program_object = 0;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
 #ifdef _DEBUG_GRAPHICS
-	void _debug_message_callback(const char* message)
+	void _debug_message_callback(std::string_view message)
 	{
-		console::log_error("OpenGL: "s + message);
+		console::log_error(std::string(message));
 	}
 #endif
 
@@ -75,7 +74,9 @@ namespace graphics
 		// DELETE SHADERS
 
 		for (const Shader& shader : _shader_pool.span()) {
-			glDeleteProgram(shader.program_object);
+			if (shader.shader_object) {
+				graphics_backend::destroy_shader(shader.shader_object);
+			}
 		}
 		_shader_pool.clear();
 
@@ -118,104 +119,21 @@ namespace graphics
 		graphics_backend::shutdown();
 	}
 
-	Handle<Shader> create_shader(const ShaderDesc&& desc)
+	Handle<Shader> create_shader(ShaderDesc&& desc)
 	{
-		if (desc.vs_source.empty()) {
-			console::log_error("Vertex shader source code is empty: " + std::string(desc.debug_name));
-			return Handle<Shader>();
-		}
-		if (desc.fs_source.empty()) {
-			console::log_error("Fragment shader source code is empty: " + std::string(desc.debug_name));
-			return Handle<Shader>();
-		}
-
-		const GLuint program_object = glCreateProgram();
-
-		// COMPILE AND ATTACH VERTEX SHADER
-		{
-			const char* vs_string = desc.vs_source.data();
-			const GLint vs_length = (GLint)desc.vs_source.size();
-			const GLuint vs_object = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vs_object, 1, &vs_string, &vs_length);
-			glCompileShader(vs_object);
-			int success;
-			glGetShaderiv(vs_object, GL_COMPILE_STATUS, &success);
-			if (!success) {
-				char info_log[512];
-				glGetShaderInfoLog(vs_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile vertex shader: " + std::string(desc.debug_name));
-				console::log_error(info_log);
-				glDeleteShader(vs_object);
-				glDeleteProgram(program_object);
-				return Handle<Shader>();
-			}
-			glAttachShader(program_object, vs_object);
-			glDeleteShader(vs_object);
-		}
-
-		// COMPILE AND ATTACH FRAGMENT SHADER
-		{
-			const char* fs_string = desc.fs_source.data();
-			const GLint fs_length = (GLint)desc.fs_source.size();
-			const GLuint fs_object = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fs_object, 1, &fs_string, &fs_length);
-			glCompileShader(fs_object);
-			int success;
-			glGetShaderiv(fs_object, GL_COMPILE_STATUS, &success);
-			if (!success) {
-				char info_log[512];
-				glGetShaderInfoLog(fs_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to compile fragment shader: " + std::string(desc.debug_name));
-				console::log_error(info_log);
-				glDeleteShader(fs_object);
-				glDeleteProgram(program_object);
-				return Handle<Shader>();
-			}
-			glAttachShader(program_object, fs_object);
-			glDeleteShader(fs_object);
-		}
-
-		// LINK PROGRAM OBJECT
-		{
-			glLinkProgram(program_object);
-			int success;
-			glGetProgramiv(program_object, GL_LINK_STATUS, &success);
-			if (!success) {
-				char info_log[512];
-				glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
-				console::log_error("Failed to link program object: " + std::string(desc.debug_name));
-				console::log_error(info_log);
-				glDeleteProgram(program_object);
-				return Handle<Shader>();
-			}
-		}
-
-		// STORE SHADER
-
-#ifdef _DEBUG_GRAPHICS
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
-
-		return _shader_pool.emplace(program_object);
-	}
-
-	void _bind_program_if_not_already_bound(GLuint program_object)
-	{
-		// OpenGL does not guard agains redundant state changes,
-		// so if we do it ourselves we get a performance boost.
-		if (_last_bound_program_object == program_object) return;
-		glUseProgram(program_object);
-		_last_bound_program_object = program_object;
+		uintptr_t shader_object = graphics_backend::create_shader(desc);
+		if (!shader_object) return Handle<Shader>();
+		desc.fs_source = "";
+		desc.vs_source = "";
+		return _shader_pool.emplace(shader_object, desc);
 	}
 
 	void bind_shader(Handle<Shader> handle)
 	{
 		if (handle == Handle<Shader>()) {
-			_bind_program_if_not_already_bound(0);
+			graphics_backend::bind_shader(0);
 		} else if (const Shader* shader = _shader_pool.get(handle)) {
-			_bind_program_if_not_already_bound(shader->program_object);
+			graphics_backend::bind_shader(shader->shader_object);
 		}
 	}
 
