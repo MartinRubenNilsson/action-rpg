@@ -347,17 +347,6 @@ namespace graphics
 		graphics_backend::bind_uniform_buffer_range(binding, buffer->buffer_object, size, offset);
 	}
 
-	GLenum _to_gl_base_format(Format format)
-	{
-		switch (format) {
-		case Format::R8_UNORM:    return GL_RED;
-		case Format::RG8_UNORM:   return GL_RG;
-		case Format::RGB8_UNORM:  return GL_RGB;
-		case Format::RGBA8_UNORM: return GL_RGBA;
-		default: return 0;
-		}
-	}
-
 	unsigned _get_size(Format format)
 	{
 		switch (format) {
