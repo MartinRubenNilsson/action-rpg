@@ -21,5 +21,9 @@
 #define OPENGL_VERSION_MINOR 5
 #endif
 
+#if !defined(GRAPHICS_BACKEND_OPENGL) && !defined(GRAPHICS_BACKEND_VULKAN)
+#error No graphics backend defined!
+#endif
+
 #define GAME_FRAMEBUFFER_WIDTH 320
 #define GAME_FRAMEBUFFER_HEIGHT 180

@@ -6,6 +6,9 @@
 #ifdef GRAPHICS_BACKEND_OPENGL
 #include <imgui_impl_opengl3.h>
 #endif
+#ifdef GRAPHICS_BACKEND_VULKAN
+#include <imgui_impl_vulkan.h>
+#endif
 
 namespace imgui_backends
 {
@@ -17,12 +20,19 @@ namespace imgui_backends
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
 #endif
+#ifdef GRAPHICS_BACKEND_VULKAN
+		ImGui_ImplGlfw_InitForVulkan(window, true);
+		ImGui_ImplVulkan_Init(); //TODO
+#endif
 	}
 
 	void shutdown()
 	{
 #ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_Shutdown();
+#endif
+#ifdef GRAPHICS_BACKEND_VULKAN
+		ImGui_ImplVulkan_Shutdown();
 #endif
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -33,6 +43,9 @@ namespace imgui_backends
 #ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_NewFrame();
 #endif
+#ifdef GRAPHICS_BACKEND_VULKAN
+		ImGui_ImplVulkan_NewFrame();
+#endif
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 	}
@@ -42,6 +55,9 @@ namespace imgui_backends
         ImGui::Render();
 #ifdef GRAPHICS_BACKEND_OPENGL
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+#ifdef GRAPHICS_BACKEND_VULKAN
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData()); //TODO
 #endif
 	}
 }
