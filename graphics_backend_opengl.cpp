@@ -359,7 +359,7 @@ namespace graphics_backend
 
 	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture)
 	{
-		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, 0)
+		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, 0);
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
