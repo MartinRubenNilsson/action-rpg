@@ -34,10 +34,10 @@ namespace graphics
 	// Fails if the buffer is not dynamic, or if offset + size exceeds the buffer size.
 	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset = 0);
 	size_t get_buffer_size(Handle<Buffer> handle);
+	// Pass an empty handle to unbind any currently bound buffer.
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset = 0);
-	void unbind_vertex_buffer(unsigned int binding);
+	// Pass an empty handle to unbind any currently bound buffer.
 	void bind_index_buffer(Handle<Buffer> handle);
-	void unbind_index_buffer();
 	// Pass an empty handle to unbind any currently bound buffer.
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle);
 	// Fails if offset + size exceeds the buffer size, or if offset

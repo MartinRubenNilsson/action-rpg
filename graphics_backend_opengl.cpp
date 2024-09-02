@@ -140,6 +140,11 @@ namespace graphics_backend
 		glDeleteBuffers(1, (GLuint*)&buffer);
 	}
 
+	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset)
+	{
+		glNamedBufferSubData((GLuint)buffer, offset, size, data);
+	}
+
 	uintptr_t create_texture(const TextureDesc& desc)
 	{
 		GLuint texture_object = 0;

@@ -12,6 +12,7 @@ namespace graphics_backend
 
 	uintptr_t create_buffer(const BufferDesc& desc);
 	void destroy_buffer(uintptr_t buffer);
+	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset);
 
 	uintptr_t create_texture(const TextureDesc& desc);
 	void destroy_texture(uintptr_t texture);

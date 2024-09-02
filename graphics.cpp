@@ -349,7 +349,7 @@ namespace graphics
 		if (!buffer) return;
 		if (!buffer->desc.dynamic) return;
 		if (offset + size > buffer->desc.size) return;
-		glNamedBufferSubData(buffer->buffer_object, offset, size, data);
+		graphics_backend::update_buffer(buffer->buffer_object, data, size, offset);
 	}
 
 	size_t get_buffer_size(Handle<Buffer> handle)
@@ -362,26 +362,20 @@ namespace graphics
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset)
 	{
-		const Buffer* buffer = _buffer_pool.get(handle);
-		if (!buffer) return;
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, offset, stride);
-	}
-
-	void unbind_vertex_buffer(unsigned int binding)
-	{
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, 0, 0, 0);
+		if (handle == Handle<Buffer>()) {
+			glVertexArrayVertexBuffer(_vertex_array_object, binding, 0, 0, 0);
+		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
+			glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, offset, stride);
+		}
 	}
 
 	void bind_index_buffer(Handle<Buffer> handle)
 	{
-		const Buffer* buffer = _buffer_pool.get(handle);
-		if (!buffer) return;
-		glVertexArrayElementBuffer(_vertex_array_object, buffer->buffer_object);
-	}
-
-	void unbind_index_buffer()
-	{
-		glVertexArrayElementBuffer(_vertex_array_object, 0);
+		if (handle == Handle<Buffer>()) {
+			glVertexArrayElementBuffer(_vertex_array_object, 0);
+		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
+			glVertexArrayElementBuffer(_vertex_array_object, buffer->buffer_object);
+		}
 	}
 
 	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
@@ -597,9 +591,7 @@ namespace graphics
 	{
 		if (handle == Handle<Sampler>()) {
 			graphics_backend::bind_sampler(binding, 0);
-			return;
-		}
-		if (const Sampler* sampler = _sampler_pool.get(handle)) {
+		} else if (const Sampler* sampler = _sampler_pool.get(handle)) {
 			graphics_backend::bind_sampler(binding, sampler->sampler_object);
 		}
 	}
