@@ -91,4 +91,12 @@ namespace graphics
 		int width = 0;
 		int height = 0;
 	};
+
+	//TODO: this should not be here
+	struct Vertex
+	{
+		Vector2f position;
+		Color color;
+		Vector2f tex_coord;
+	};
 }

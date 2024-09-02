@@ -46,8 +46,6 @@ namespace graphics
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
-	GLint _uniform_buffer_offset_alignment = 0;
-	GLuint _vertex_array_object = 0;
 	Pool<Shader> _shader_pool;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
@@ -58,66 +56,22 @@ namespace graphics
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
 #ifdef _DEBUG_GRAPHICS
-	void GLAPIENTRY _debug_message_callback(
-		GLenum source,
-		GLenum type,
-		GLuint id,
-		GLenum severity,
-		GLsizei length,
-		const GLchar* message,
-		const void* userParam)
+	void _debug_message_callback(const char* message)
 	{
-		if (type == GL_DEBUG_TYPE_PUSH_GROUP) return;
-		if (type == GL_DEBUG_TYPE_POP_GROUP) return;
 		console::log_error("OpenGL: "s + message);
 	}
 #endif
 
 	void initialize()
 	{
+		graphics_backend::initialize();
 #ifdef _DEBUG_GRAPHICS
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(_debug_message_callback, 0);
+		graphics_backend::set_debug_message_callback(_debug_message_callback);
 #endif
-		// GET UNIFORM BUFFER OFFSET ALIGNMENT
-
-		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &_uniform_buffer_offset_alignment);
-
-		// CREATE AND BIND VERTEX ARRAY
-
-		glCreateVertexArrays(1, &_vertex_array_object);
-#ifdef _DEBUG_GRAPHICS
-		glObjectLabel(GL_VERTEX_ARRAY, _vertex_array_object, 0, "vertex array object");
-#endif
-		glBindVertexArray(_vertex_array_object);
-
-		// SETUP VERTEX ARRAY ATTRIBUTES
-
-		glEnableVertexArrayAttrib(_vertex_array_object, 0);
-		glEnableVertexArrayAttrib(_vertex_array_object, 1);
-		glEnableVertexArrayAttrib(_vertex_array_object, 2);
-		glVertexArrayAttribFormat(_vertex_array_object, 0, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
-		glVertexArrayAttribFormat(_vertex_array_object, 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
-		glVertexArrayAttribFormat(_vertex_array_object, 2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
-		glVertexArrayAttribBinding(_vertex_array_object, 0, 0);
-		glVertexArrayAttribBinding(_vertex_array_object, 1, 0);
-		glVertexArrayAttribBinding(_vertex_array_object, 2, 0);
-
-		// SETUP BLENDING
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void shutdown()
 	{
-		// DELETE VERTEX ARRAY OBJECT
-
-		if (_vertex_array_object) {
-			glDeleteVertexArrays(1, &_vertex_array_object);
-			_vertex_array_object = 0;
-		}
-
 		// DELETE SHADERS
 
 		for (const Shader& shader : _shader_pool.span()) {
@@ -158,11 +112,8 @@ namespace graphics
 			glDeleteFramebuffers(1, &framebuffer.framebuffer_object);
 		}
 		_framebuffer_pool.clear();
-	}
 
-	unsigned int get_uniform_buffer_offset_alignment()
-	{
-		return _uniform_buffer_offset_alignment;
+		graphics_backend::shutdown();
 	}
 
 	Handle<Shader> create_shader(const ShaderDesc&& desc)
@@ -314,18 +265,18 @@ namespace graphics
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset)
 	{
 		if (handle == Handle<Buffer>()) {
-			glVertexArrayVertexBuffer(_vertex_array_object, binding, 0, 0, 0);
+			graphics_backend::bind_vertex_buffer(binding, 0, 0, 0);
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			glVertexArrayVertexBuffer(_vertex_array_object, binding, buffer->buffer_object, offset, stride);
+			graphics_backend::bind_vertex_buffer(binding, buffer->buffer_object, stride, offset);
 		}
 	}
 
 	void bind_index_buffer(Handle<Buffer> handle)
 	{
 		if (handle == Handle<Buffer>()) {
-			glVertexArrayElementBuffer(_vertex_array_object, 0);
+			graphics_backend::bind_index_buffer(0);
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			glVertexArrayElementBuffer(_vertex_array_object, buffer->buffer_object);
+			graphics_backend::bind_index_buffer(buffer->buffer_object);
 		}
 	}
 
@@ -340,7 +291,6 @@ namespace graphics
 
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset)
 	{
-		if (size % _uniform_buffer_offset_alignment != 0) return; // must be a multiple of alignment
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (offset + size > buffer->desc.size) return;

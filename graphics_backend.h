@@ -4,12 +4,14 @@
 namespace graphics_backend
 {
 	using namespace graphics;
+	using DebugMessageCallback = void(*)(const char* message);
 
 	extern const unsigned int MAX_VIEWPORTS;
 
 	void initialize();
 	void shutdown();
 
+	void set_debug_message_callback(DebugMessageCallback callback);
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
@@ -18,6 +20,8 @@ namespace graphics_backend
 	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset);
 	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer);
 	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset);
+	void bind_vertex_buffer(unsigned int binding, uintptr_t buffer, unsigned int stride, unsigned int offset);
+	void bind_index_buffer(uintptr_t buffer);
 
 	uintptr_t create_texture(const TextureDesc& desc);
 	void destroy_texture(uintptr_t texture);

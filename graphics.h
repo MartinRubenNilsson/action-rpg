@@ -8,17 +8,8 @@ namespace graphics
 	struct Texture;
 	struct Framebuffer;
 
-	struct Vertex
-	{
-		Vector2f position;
-		Color color;
-		Vector2f tex_coord;
-	};
-
 	void initialize();
 	void shutdown();
-
-	unsigned int get_uniform_buffer_offset_alignment();
 
 	// SHADERS
 
