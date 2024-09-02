@@ -21,7 +21,9 @@ namespace graphics_backend
 
 	uintptr_t create_texture(const TextureDesc& desc);
 	void destroy_texture(uintptr_t texture);
-	void copy_texture_region(
+	void update_texture(uintptr_t texture, unsigned int level, unsigned int x, unsigned int y,
+		unsigned int width, unsigned int height, Format pixel_format, const void* pixels);
+	void copy_texture(
 		uintptr_t dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
 		uintptr_t src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
 		unsigned int src_width, unsigned int src_height, unsigned int src_depth);

@@ -483,17 +483,8 @@ namespace graphics
 	{
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		const GLenum gl_base_format = _to_gl_base_format(texture->desc.format);
-		glTextureSubImage2D(
-			texture->texture_object,
-			0, // level
-			0, // xoffset
-			0, // yoffset
-			texture->desc.width,
-			texture->desc.height,
-			gl_base_format,
-			GL_UNSIGNED_BYTE,
-			data);
+		graphics_backend::update_texture(texture->texture_object, 0, 0, 0,
+			texture->desc.width, texture->desc.height, texture->desc.format, data);
 	}
 
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
@@ -503,7 +494,7 @@ namespace graphics
 		if (!dest_texture || !src_texture) return;
 		if (dest_texture->desc.width != src_texture->desc.width) return;
 		if (dest_texture->desc.height != src_texture->desc.height) return;
-		graphics_backend::copy_texture_region(
+		graphics_backend::copy_texture(
 			dest_texture->texture_object, 0, 0, 0, 0,
 			src_texture->texture_object, 0, 0, 0, 0,
 			src_texture->desc.width, src_texture->desc.height, 1);
