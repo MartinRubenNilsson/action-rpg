@@ -10,18 +10,23 @@
 #include <imgui_impl_vulkan.h>
 #endif
 
+namespace window
+{
+	extern GLFWwindow* _glfw_window;
+}
+
 namespace imgui_backends
 {
-	void initialize(GLFWwindow* window)
+	void initialize()
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 #ifdef GRAPHICS_BACKEND_OPENGL
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplGlfw_InitForOpenGL(window::_glfw_window, true);
         ImGui_ImplOpenGL3_Init();
 #endif
 #ifdef GRAPHICS_BACKEND_VULKAN
-		ImGui_ImplGlfw_InitForVulkan(window, true);
+		ImGui_ImplGlfw_InitForVulkan(window::_glfw_window, true);
 		ImGui_ImplVulkan_Init(); //TODO
 #endif
 	}

@@ -34,10 +34,9 @@ int main(int argc, char* argv[])
 #endif
     window::initialize();
 #ifdef _DEBUG_IMGUI
-    imgui_backends::initialize(window::get_glfw_window());
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
-    // So Dear ImGui doesn't interfere with the mouse cursor.
+    imgui_backends::initialize();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
     {
         // https://github.com/ocornut/imgui/issues/707#issuecomment-252413954
         ImGuiStyle& style = ImGui::GetStyle();

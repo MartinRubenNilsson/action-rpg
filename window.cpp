@@ -193,11 +193,6 @@ namespace window
 		glfwTerminate();
 	}
 
-	GLFWwindow* get_glfw_window()
-	{
-		return _glfw_window;
-	}
-
 	double get_elapsed_time()
 	{
 		return glfwGetTime();

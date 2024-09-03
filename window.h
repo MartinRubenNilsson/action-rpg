@@ -1,7 +1,5 @@
 #pragma once
 
-struct GLFWwindow;
-
 namespace window
 {
 	struct Event;
@@ -30,7 +28,6 @@ namespace window
 	bool initialize();
 	void shutdown();
 
-	GLFWwindow* get_glfw_window();
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 
 	bool should_close();
