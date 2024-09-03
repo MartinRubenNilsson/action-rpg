@@ -51,14 +51,14 @@ namespace graphics
 
 	// SAMPLERS
 
-	Handle<Sampler> create_sampler(const SamplerDesc&& desc);
+	Handle<Sampler> create_sampler(SamplerDesc&& desc);
 	void destroy_sampler(Handle<Sampler> handle);
 	// Pass an empty handle to unbind any currently bound sampler.
 	void bind_sampler(unsigned int binding, Handle<Sampler> handle);
 
 	// FRAMEBUFFERS
 
-	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc);
+	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc);
 	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle);
 	// The default framebuffer is the window framebuffer.
 	void bind_default_framebuffer();

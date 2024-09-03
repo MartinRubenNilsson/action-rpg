@@ -153,6 +153,7 @@ namespace graphics
 		buffer->desc.size = size;
 		buffer->desc.initial_data = initial_data;
 		buffer->buffer_object = graphics_backend::create_buffer(buffer->desc);
+		buffer->desc.initial_data = nullptr;
 	}
 
 	void destroy_buffer(Handle<Buffer> handle)
@@ -331,9 +332,7 @@ namespace graphics
 	{
 		if (handle == Handle<Texture>()) {
 			graphics_backend::bind_texture(binding, 0);
-			return;
-		}
-		if (const Texture* texture = _texture_pool.get(handle)) {
+		} else if (const Texture* texture = _texture_pool.get(handle)) {
 			graphics_backend::bind_texture(binding, texture->texture_object);
 		}
 	}
@@ -370,7 +369,7 @@ namespace graphics
 		}
 	}
 
-	Handle<Sampler> create_sampler(const SamplerDesc&& desc)
+	Handle<Sampler> create_sampler(SamplerDesc&& desc)
 	{
 		uintptr_t sampler_object = graphics_backend::create_sampler(desc);
 		if (!sampler_object) return Handle<Sampler>();
@@ -395,7 +394,7 @@ namespace graphics
 		}
 	}
 
-	Handle<Framebuffer> create_framebuffer(const FramebufferDesc&& desc)
+	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc)
 	{
 		uintptr_t framebuffer_object = graphics_backend::create_framebuffer(desc);
 		if (!framebuffer_object) return Handle<Framebuffer>();
@@ -529,8 +528,8 @@ namespace graphics
 				} else {
 					ImGui::Text("Memory: %d KB", kb);
 				}
-				ImGui::Image((ImTextureID)(uintptr_t)texture.texture_object,
-					ImVec2((float)texture.desc.width, (float)texture.desc.height));
+				ImVec2 texture_size = ImVec2((float)texture.desc.width, (float)texture.desc.height);
+				ImGui::Image((ImTextureID)texture.texture_object, texture_size);
 				ImGui::TreePop();
 			}
 		}
