@@ -1,6 +1,8 @@
 #pragma once
 #include "graphics_types.h"
 
+// graphics.h - High-level graphics API
+
 namespace graphics
 {
 	struct Shader;

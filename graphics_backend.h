@@ -1,6 +1,8 @@
 #pragma once
 #include "graphics_types.h"
 
+// graphics_backend.h - Low-level graphics API
+
 namespace graphics_backend
 {
 	using namespace graphics;
