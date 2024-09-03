@@ -63,8 +63,8 @@ namespace graphics
 	// The default framebuffer is the window framebuffer.
 	void bind_default_framebuffer();
 	void bind_framebuffer(Handle<Framebuffer> handle);
-	void clear_default_framebuffer(float r, float g, float b, float a);
-	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a);
+	void clear_default_framebuffer(const float color[4]);
+	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
 	// FIXED-FUNCTION PIPELINE

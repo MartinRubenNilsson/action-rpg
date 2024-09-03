@@ -455,7 +455,7 @@ namespace graphics_backend
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer(uintptr_t framebuffer, float color[4])
+	void clear_framebuffer(uintptr_t framebuffer, const float color[4])
 	{
 		glClearNamedFramebufferfv((GLuint)framebuffer, GL_COLOR, 0, color);
 	}

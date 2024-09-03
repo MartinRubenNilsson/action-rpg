@@ -46,7 +46,7 @@ namespace graphics_backend
 	uintptr_t create_framebuffer(const FramebufferDesc& desc);
 	void destroy_framebuffer(uintptr_t framebuffer);
 	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture);
-	void clear_framebuffer(uintptr_t framebuffer, float color[4]);
+	void clear_framebuffer(uintptr_t framebuffer, const float color[4]);
 	void bind_framebuffer(uintptr_t framebuffer);
 
 	void set_viewports(const Viewport* viewports, unsigned int count);

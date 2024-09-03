@@ -343,7 +343,8 @@ namespace player
 		graphics::get_viewport(viewport);
 		graphics::set_viewport({ .width = 1024.f, .height = 1024.f });
 
-		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, 0.f, 0.f, 0.f, 0.f);
+		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 0.f };
+		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, CLEAR_COLOR);
 		graphics::bind_framebuffer(graphics::player_outfit_framebuffer);
 		graphics::bind_shader(graphics::player_outfit_shader);
 

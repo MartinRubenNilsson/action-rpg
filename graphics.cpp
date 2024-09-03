@@ -430,16 +430,14 @@ namespace graphics
 		}
 	}
 
-	void clear_default_framebuffer(float r, float g, float b, float a)
+	void clear_default_framebuffer(const float color[4])
 	{
-		float color[4] = { r, g, b, a };
 		graphics_backend::clear_framebuffer(0, color);
 	}
 
-	void clear_framebuffer(Handle<Framebuffer> handle, float r, float g, float b, float a)
+	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4])
 	{
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			float color[4] = { r, g, b, a };
 			graphics_backend::clear_framebuffer(framebuffer->framebuffer_object, color);
 		}
 	}

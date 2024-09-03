@@ -288,7 +288,8 @@ int main(int argc, char* argv[])
             graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));
         }
 
-        graphics::clear_framebuffer(graphics::game_framebuffer_0, 0.f, 0.f, 0.f, 1.f);
+		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 1.f };
+        graphics::clear_framebuffer(graphics::game_framebuffer_0, CLEAR_COLOR);
         graphics::bind_framebuffer(graphics::game_framebuffer_0);
         graphics::set_viewport({ .width = GAME_FRAMEBUFFER_WIDTH, .height = GAME_FRAMEBUFFER_HEIGHT });
 
