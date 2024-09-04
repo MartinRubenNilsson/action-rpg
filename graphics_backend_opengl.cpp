@@ -139,6 +139,11 @@ namespace graphics_backend
 	}
 #endif
 
+	void set_debug_message_callback(DebugMessageCallback callback)
+	{
+		_debug_message_callback = callback;
+	}
+
 	void initialize()
 	{
 		// ENABLE DEBUG OUTPUT
@@ -185,11 +190,6 @@ namespace graphics_backend
 			glDeleteVertexArrays(1, &_vertex_array_object);
 			_vertex_array_object = 0;
 		}
-	}
-
-	void set_debug_message_callback(DebugMessageCallback callback)
-	{
-		_debug_message_callback = callback;
 	}
 
 	void push_debug_group(std::string_view name)

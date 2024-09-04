@@ -10,10 +10,11 @@ namespace graphics_backend
 
 	extern const unsigned int MAX_VIEWPORTS;
 
+	void set_debug_message_callback(DebugMessageCallback callback);
+
 	void initialize();
 	void shutdown();
 
-	void set_debug_message_callback(DebugMessageCallback callback);
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 

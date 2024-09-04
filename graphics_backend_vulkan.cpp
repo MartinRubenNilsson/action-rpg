@@ -12,59 +12,120 @@ namespace graphics_backend
 {
 	const unsigned int MAX_VIEWPORTS = 0;
 
+	DebugMessageCallback _debug_message_callback = nullptr;
 	VkInstance _instance = VK_NULL_HANDLE;
+#ifdef _DEBUG_GRAPHICS
+	VkDebugUtilsMessengerEXT _debug_messenger = VK_NULL_HANDLE;
+#endif
+
+#ifdef _DEBUG_GRAPHICS
+	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
+		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+		VkDebugUtilsMessageTypeFlagsEXT messageType,
+		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+		void* pUserData)
+	{
+		if (_debug_message_callback) {
+			_debug_message_callback(pCallbackData->pMessage);
+		}
+		return VK_FALSE;
+	}
+#endif
+
+	void set_debug_message_callback(DebugMessageCallback callback)
+	{
+		_debug_message_callback = callback;
+	}
 
 	void initialize()
 	{
-		VkApplicationInfo app_info{};
-		app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		app_info.pApplicationName = APPLICATION_NAME;
-		app_info.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
-		app_info.pEngineName = ENGINE_NAME;
-		app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
-		app_info.apiVersion = VK_API_VERSION_1_0;
+		{
+			VkApplicationInfo app_info{};
+			app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+			app_info.pApplicationName = APPLICATION_NAME;
+			app_info.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
+			app_info.pEngineName = ENGINE_NAME;
+			app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
+			app_info.apiVersion = VK_API_VERSION_1_0;
 
-		uint32_t layer_count = 0;
-		vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-		std::vector<VkLayerProperties> layer_properties(layer_count);
-		vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data());
+			uint32_t layer_count = 0;
+			vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+			std::vector<VkLayerProperties> layer_properties(layer_count);
+			vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data());
 
-		std::vector<const char*> layers;
-		for (const auto& layer : layer_properties) {
+			std::vector<const char*> layers;
+			for (const auto& layer : layer_properties) {
 #ifdef _DEBUG_GRAPHICS
-			if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
-				layers.push_back("VK_LAYER_KHRONOS_validation");
-			}
+				if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
+					layers.push_back("VK_LAYER_KHRONOS_validation");
+				}
 #endif
+			}
+
+			std::vector<const char*> extensions;
+			for (const char* extension : window::get_required_vulkan_instance_extensions()) {
+				extensions.push_back(extension);
+			}
+#ifdef _DEBUG_GRAPHICS
+			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+			VkInstanceCreateInfo create_info{};
+			create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			create_info.pApplicationInfo = &app_info;
+			create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+			create_info.ppEnabledLayerNames = layers.data();
+			create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+			create_info.ppEnabledExtensionNames = extensions.data();
+
+			if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to create Vulkan instance");
+				}
+				return;
+			}
 		}
 
-		std::vector<const char*> extensions;
-		for (const char* extension : window::get_required_vulkan_instance_extensions()) {
-			extensions.push_back(extension);
-		}
+#ifdef _DEBUG_GRAPHICS
+		if (auto create_func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkCreateDebugUtilsMessengerEXT")) {
 
-		VkInstanceCreateInfo create_info{};
-		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		create_info.pApplicationInfo = &app_info;
-		create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
-		create_info.ppEnabledLayerNames = layers.data();
-		create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-		create_info.ppEnabledExtensionNames = extensions.data();
+			VkDebugUtilsMessengerCreateInfoEXT create_info{};
+			create_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+			create_info.messageSeverity =
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+			create_info.messageType =
+				VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+				VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+			create_info.pfnUserCallback = _vulkan_debug_message_callback;
 
-		if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
-			return;
+			if (create_func(_instance, &create_info, nullptr, &_debug_messenger) != VK_SUCCESS) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to create Vulkan debug messenger");
+				}
+			}
 		}
+#endif
 	}
 
 	void shutdown()
 	{
+#ifdef _DEBUG_GRAPHICS
+		if (_debug_messenger != VK_NULL_HANDLE) {
+			if (auto destroy_func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugUtilsMessengerEXT")) {
+				destroy_func(_instance, _debug_messenger, nullptr);
+			}
+			_debug_messenger = VK_NULL_HANDLE;
+		}
+#endif
 		if (_instance != VK_NULL_HANDLE) {
 			vkDestroyInstance(_instance, nullptr);
 			_instance = VK_NULL_HANDLE;
 		}
 	}
-
-	void set_debug_message_callback(DebugMessageCallback callback) {}
+	
 	void push_debug_group(std::string_view name) {}
 	void pop_debug_group() {}
 
