@@ -28,6 +28,8 @@ namespace window
 	bool initialize();
 	void shutdown();
 
+	const char** get_required_vulkan_instance_extensions(uint32_t* count);
+
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 
 	bool should_close();

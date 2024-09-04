@@ -3,6 +3,11 @@
 #include "graphics_backend.h"
 #include <vulkan/vulkan.h>
 
+namespace window
+{
+	const char** get_required_vulkan_instance_extensions(uint32_t* count);
+}
+
 namespace graphics_backend
 {
 	const unsigned int MAX_VIEWPORTS = 0;
@@ -22,6 +27,7 @@ namespace graphics_backend
 		VkInstanceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		create_info.pApplicationInfo = &app_info;
+		create_info.ppEnabledExtensionNames = window::get_required_vulkan_instance_extensions(&create_info.enabledExtensionCount);
 
 		if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
 			return;

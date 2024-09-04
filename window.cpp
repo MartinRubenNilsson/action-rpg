@@ -1,19 +1,17 @@
 #include "stdafx.h"
 #include "window.h"
-#include <stb_image.h>
 #include "window_events.h"
 #include "console.h"
-
 #ifdef GRAPHICS_BACKEND_OPENGL
 #include <glad/glad.h>
 #endif
-
 #include <GLFW/glfw3.h>
+#include <stb_image.h>
 
 namespace window
 {
-	GLFWwindow* _glfw_window = nullptr;
-	GLFWcursor* _glfw_cursors[(int)CursorShape::Count] = { nullptr };
+	GLFWwindow* _window = nullptr;
+	GLFWcursor* _cursors[(int)CursorShape::Count] = { nullptr };
 	std::queue<Event> _event_queue;
 	
 	void _error_callback(int error, const char* description)
@@ -47,7 +45,8 @@ namespace window
 		_event_queue.push(ev);
 	}
 
-	int _translate_modifier_key_flags_from_glfw(int glfw_modifier_key_flags) {
+	int _translate_modifier_key_flags_from_glfw(int glfw_modifier_key_flags)
+	{
 		int modifier_key_flags = 0;
 		if (glfw_modifier_key_flags & GLFW_MOD_SHIFT)     modifier_key_flags |= MODIFIER_KEY_SHIFT;
 		if (glfw_modifier_key_flags & GLFW_MOD_CONTROL)   modifier_key_flags |= MODIFIER_KEY_CONTROL;
@@ -117,41 +116,41 @@ namespace window
 #endif
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // Hide the window until we're ready to show it.
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-		_glfw_window = glfwCreateWindow(
+		_window = glfwCreateWindow(
 			GAME_FRAMEBUFFER_WIDTH,
 			GAME_FRAMEBUFFER_HEIGHT,
 			"Action RPG", nullptr, nullptr);
-		if (!_glfw_window) return false;
+		if (!_window) return false;
 
 #ifdef GRAPHICS_BACKEND_OPENGL
-		glfwMakeContextCurrent(_glfw_window);
+		glfwMakeContextCurrent(_window);
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
 #endif
 
-		glfwSetWindowCloseCallback(_glfw_window, _window_close_callback);
-		glfwSetKeyCallback(_glfw_window, _key_callback);
-		glfwSetWindowSizeCallback(_glfw_window, _window_size_callback);
-		glfwSetFramebufferSizeCallback(_glfw_window, _framebuffer_size_callback);
-		glfwSetMouseButtonCallback(_glfw_window, _mouse_button_callback);
-		glfwSetCursorPosCallback(_glfw_window, _cursor_pos_callback);
+		glfwSetWindowCloseCallback(_window, _window_close_callback);
+		glfwSetKeyCallback(_window, _key_callback);
+		glfwSetWindowSizeCallback(_window, _window_size_callback);
+		glfwSetFramebufferSizeCallback(_window, _framebuffer_size_callback);
+		glfwSetMouseButtonCallback(_window, _mouse_button_callback);
+		glfwSetCursorPosCallback(_window, _cursor_pos_callback);
 
 		// Spoof resize events to ensure that other systems are aware of the window/framebuffer size.
 		{
 			int width, height;
-			glfwGetWindowSize(_glfw_window, &width, &height);
-			_window_size_callback(_glfw_window, width, height);
-			glfwGetFramebufferSize(_glfw_window, &width, &height);
-			_framebuffer_size_callback(_glfw_window, width, height);
+			glfwGetWindowSize(_window, &width, &height);
+			_window_size_callback(_window, width, height);
+			glfwGetFramebufferSize(_window, &width, &height);
+			_framebuffer_size_callback(_window, width, height);
 		}
 
 		// CREATE STANDARD CURSORS
 
-		_glfw_cursors[(int)CursorShape::Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-		_glfw_cursors[(int)CursorShape::IBeam] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-		_glfw_cursors[(int)CursorShape::Crosshair] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
-		_glfw_cursors[(int)CursorShape::Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-		_glfw_cursors[(int)CursorShape::HResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-		_glfw_cursors[(int)CursorShape::VResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+		_cursors[(int)CursorShape::Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+		_cursors[(int)CursorShape::IBeam] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+		_cursors[(int)CursorShape::Crosshair] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+		_cursors[(int)CursorShape::Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+		_cursors[(int)CursorShape::HResize] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+		_cursors[(int)CursorShape::VResize] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
 
 		// LOAD AND CREATE CUSTOM CURSORS
 
@@ -164,13 +163,13 @@ namespace window
 			image.height = CURSOR_SIZE;
 			image.width = CURSOR_SIZE;
 			image.pixels = pixels;
-			_glfw_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
+			_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
 			image.pixels += CURSOR_SIZE_BYTES;
-			_glfw_cursors[(int)CursorShape::HandPointUp] = glfwCreateCursor(&image, 0, 0);
+			_cursors[(int)CursorShape::HandPointUp] = glfwCreateCursor(&image, 0, 0);
 			image.pixels += CURSOR_SIZE_BYTES;
-			_glfw_cursors[(int)CursorShape::HandGrab] = glfwCreateCursor(&image, 0, 0);
+			_cursors[(int)CursorShape::HandGrab] = glfwCreateCursor(&image, 0, 0);
 			image.pixels += CURSOR_SIZE_BYTES;
-			_glfw_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
+			_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
 		}
 		stbi_image_free(pixels);
 
@@ -185,12 +184,17 @@ namespace window
 
 	void shutdown()
 	{
-		for (GLFWcursor* cursor : _glfw_cursors) {
+		for (GLFWcursor* cursor : _cursors) {
 			glfwDestroyCursor(cursor);
 		}
-		memset(_glfw_cursors, 0, sizeof(_glfw_cursors));
-		glfwDestroyWindow(_glfw_window);
+		memset(_cursors, 0, sizeof(_cursors));
+		glfwDestroyWindow(_window);
 		glfwTerminate();
+	}
+
+	const char** get_required_vulkan_instance_extensions(uint32_t* count)
+	{
+		return glfwGetRequiredInstanceExtensions(count);
 	}
 
 	double get_elapsed_time()
@@ -200,12 +204,12 @@ namespace window
 
 	bool should_close()
 	{
-		return glfwWindowShouldClose(_glfw_window);
+		return glfwWindowShouldClose(_window);
 	}
 
 	void set_should_close(bool should_close)
 	{
-		glfwSetWindowShouldClose(_glfw_window, should_close);
+		glfwSetWindowShouldClose(_window, should_close);
 	}
 
 	void poll_events()
@@ -223,40 +227,40 @@ namespace window
 
 	void swap_buffers()
 	{
-		glfwSwapBuffers(_glfw_window);
+		glfwSwapBuffers(_window);
 	}
 
 	bool has_focus()
 	{
-		return glfwGetWindowAttrib(_glfw_window, GLFW_FOCUSED);
+		return glfwGetWindowAttrib(_window, GLFW_FOCUSED);
 	}
 
 	void set_visible(bool visible)
 	{
 		if (visible) {
-			glfwShowWindow(_glfw_window);
+			glfwShowWindow(_window);
 		} else {
-			glfwHideWindow(_glfw_window);
+			glfwHideWindow(_window);
 		}
 	}
 
 	bool get_visible()
 	{
-		return glfwGetWindowAttrib(_glfw_window, GLFW_VISIBLE);
+		return glfwGetWindowAttrib(_window, GLFW_VISIBLE);
 	}
 
 	void set_minimized(bool minimized)
 	{
 		if (minimized) {
-			glfwIconifyWindow(_glfw_window);
+			glfwIconifyWindow(_window);
 		} else {
-			glfwRestoreWindow(_glfw_window);
+			glfwRestoreWindow(_window);
 		}
 	}
 
 	bool get_minimized()
 	{
-		return glfwGetWindowAttrib(_glfw_window, GLFW_ICONIFIED);
+		return glfwGetWindowAttrib(_window, GLFW_ICONIFIED);
 	}
 
 	void set_fullscreen(bool fullscreen)
@@ -271,12 +275,12 @@ namespace window
 			if (!primary_monitor) return;
 			const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
 			if (!video_mode) return;
-			glfwGetWindowPos(_glfw_window, &last_windowed_xpos, &last_windowed_ypos);
-			glfwGetWindowSize(_glfw_window, &last_windowed_width, &last_windowed_height);
-			glfwSetWindowMonitor(_glfw_window, primary_monitor,
+			glfwGetWindowPos(_window, &last_windowed_xpos, &last_windowed_ypos);
+			glfwGetWindowSize(_window, &last_windowed_width, &last_windowed_height);
+			glfwSetWindowMonitor(_window, primary_monitor,
 				0, 0, video_mode->width, video_mode->height, video_mode->refreshRate);
 		} else {
-			glfwSetWindowMonitor(_glfw_window, nullptr,
+			glfwSetWindowMonitor(_window, nullptr,
 				last_windowed_xpos, last_windowed_ypos,
 				last_windowed_width, last_windowed_height, GLFW_DONT_CARE);
 		}
@@ -284,22 +288,22 @@ namespace window
 
 	bool get_fullscreen()
 	{
-		return glfwGetWindowMonitor(_glfw_window) != nullptr;
+		return glfwGetWindowMonitor(_window) != nullptr;
 	}
 
 	void set_size(int width, int height)
 	{
-		glfwSetWindowSize(_glfw_window, width, height);
+		glfwSetWindowSize(_window, width, height);
 	}
 
 	void get_size(int& width, int& height)
 	{
-		glfwGetWindowSize(_glfw_window, &width, &height);
+		glfwGetWindowSize(_window, &width, &height);
 	}
 
 	void get_framebuffer_size(int& width, int& height)
 	{
-		glfwGetFramebufferSize(_glfw_window, &width, &height);
+		glfwGetFramebufferSize(_window, &width, &height);
 	}
 
 	void set_swap_interval(int interval)
@@ -312,7 +316,7 @@ namespace window
 
 	void set_title(const std::string& title)
 	{
-		glfwSetWindowTitle(_glfw_window, title.c_str());
+		glfwSetWindowTitle(_window, title.c_str());
 	}
 
 	void set_icon_from_memory(int width, int height, unsigned char* pixels)
@@ -321,7 +325,7 @@ namespace window
 		image.width = width;
 		image.height = height;
 		image.pixels = pixels;
-		glfwSetWindowIcon(_glfw_window, 1, &image);
+		glfwSetWindowIcon(_window, 1, &image);
 	}
 
 	void set_icon_from_file(const std::string& path)
@@ -338,37 +342,37 @@ namespace window
 
 	void set_cursor_visible(bool visible)
 	{
-		glfwSetInputMode(_glfw_window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+		glfwSetInputMode(_window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 	}
 
 	bool get_cursor_visible()
 	{
-		return glfwGetInputMode(_glfw_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
+		return glfwGetInputMode(_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
 	void set_cursor_pos(double x, double y)
 	{
-		glfwSetCursorPos(_glfw_window, x, y);
+		glfwSetCursorPos(_window, x, y);
 	}
 
 	void get_cursor_pos(double& x, double& y)
 	{
-		glfwGetCursorPos(_glfw_window, &x, &y);
+		glfwGetCursorPos(_window, &x, &y);
 	}
 
 	void set_cursor_shape(CursorShape shape)
 	{
-		glfwSetCursor(_glfw_window, _glfw_cursors[(int)shape]);
+		glfwSetCursor(_window, _cursors[(int)shape]);
 	}
 
 	void set_clipboard_string(const std::string& string)
 	{
-		glfwSetClipboardString(_glfw_window, string.c_str());
+		glfwSetClipboardString(_window, string.c_str());
 	}
 
 	std::string get_clipboard_string()
 	{
-		const char* string = glfwGetClipboardString(_glfw_window);
+		const char* string = glfwGetClipboardString(_window);
 		return string ? string : "";
 	}
 }

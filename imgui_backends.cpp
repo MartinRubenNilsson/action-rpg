@@ -12,7 +12,7 @@
 
 namespace window
 {
-	extern GLFWwindow* _glfw_window;
+	extern GLFWwindow* _window;
 }
 
 namespace imgui_backends
@@ -22,11 +22,11 @@ namespace imgui_backends
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 #ifdef GRAPHICS_BACKEND_OPENGL
-        ImGui_ImplGlfw_InitForOpenGL(window::_glfw_window, true);
+        ImGui_ImplGlfw_InitForOpenGL(window::_window, true);
         ImGui_ImplOpenGL3_Init();
 #endif
 #ifdef GRAPHICS_BACKEND_VULKAN
-		ImGui_ImplGlfw_InitForVulkan(window::_glfw_window, true);
+		ImGui_ImplGlfw_InitForVulkan(window::_window, true);
 		ImGui_ImplVulkan_Init(); //TODO
 #endif
 	}
