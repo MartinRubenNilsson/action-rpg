@@ -18,9 +18,9 @@ namespace graphics_backend
 	{
 		VkApplicationInfo app_info{};
 		app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		app_info.pApplicationName = "Action RPG";
+		app_info.pApplicationName = APPLICATION_NAME;
 		app_info.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
-		app_info.pEngineName = "No Engine";
+		app_info.pEngineName = ENGINE_NAME;
 		app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
 		app_info.apiVersion = VK_API_VERSION_1_0;
 

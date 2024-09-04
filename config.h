@@ -25,5 +25,8 @@
 #error No graphics backend defined!
 #endif
 
+#define APPLICATION_NAME "Action RPG"
+#define ENGINE_NAME "No Engine"
+#define WINDOW_TITLE "Action RPG"
 #define GAME_FRAMEBUFFER_WIDTH 320
 #define GAME_FRAMEBUFFER_HEIGHT 180

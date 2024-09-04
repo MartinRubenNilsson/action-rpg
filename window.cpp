@@ -119,7 +119,9 @@ namespace window
 		_window = glfwCreateWindow(
 			GAME_FRAMEBUFFER_WIDTH,
 			GAME_FRAMEBUFFER_HEIGHT,
-			"Action RPG", nullptr, nullptr);
+			WINDOW_TITLE,
+			nullptr,
+			nullptr);
 		if (!_window) return false;
 
 #ifdef GRAPHICS_BACKEND_OPENGL
