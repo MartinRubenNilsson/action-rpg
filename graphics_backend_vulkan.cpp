@@ -7,8 +7,34 @@ namespace graphics_backend
 {
 	const unsigned int MAX_VIEWPORTS = 0;
 
-	void initialize() {}
-	void shutdown() {}
+	VkInstance _instance = VK_NULL_HANDLE;
+
+	void initialize()
+	{
+		VkApplicationInfo app_info{};
+		app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		app_info.pApplicationName = "Action RPG";
+		app_info.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
+		app_info.pEngineName = "No Engine";
+		app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
+		app_info.apiVersion = VK_API_VERSION_1_0;
+
+		VkInstanceCreateInfo create_info{};
+		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		create_info.pApplicationInfo = &app_info;
+
+		if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
+			return;
+		}
+	}
+
+	void shutdown()
+	{
+		if (_instance != VK_NULL_HANDLE) {
+			vkDestroyInstance(_instance, nullptr);
+			_instance = VK_NULL_HANDLE;
+		}
+	}
 
 	void set_debug_message_callback(DebugMessageCallback callback) {}
 	void push_debug_group(std::string_view name) {}
@@ -43,7 +69,7 @@ namespace graphics_backend
 	uintptr_t create_framebuffer(const FramebufferDesc& desc) { return 0; }
 	void destroy_framebuffer(uintptr_t framebuffer) {}
 	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture) { return false; }
-	void clear_framebuffer(uintptr_t framebuffer, float color[4]) {}
+	void clear_framebuffer(uintptr_t framebuffer, const float color[4]) {}
 	void bind_framebuffer(uintptr_t framebuffer) {}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {}
