@@ -28,7 +28,7 @@ namespace window
 	bool initialize();
 	void shutdown();
 
-	const char** get_required_vulkan_instance_extensions(uint32_t* count);
+	std::span<const char*> get_required_vulkan_instance_extensions();
 
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 

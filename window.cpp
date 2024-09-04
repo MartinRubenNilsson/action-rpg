@@ -194,9 +194,11 @@ namespace window
 		glfwTerminate();
 	}
 
-	const char** get_required_vulkan_instance_extensions(uint32_t* count)
+	std::span<const char*> get_required_vulkan_instance_extensions()
 	{
-		return glfwGetRequiredInstanceExtensions(count);
+		uint32_t count = 0;
+		const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+		return { extensions, count };
 	}
 
 	double get_elapsed_time()

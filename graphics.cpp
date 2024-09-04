@@ -63,10 +63,10 @@ namespace graphics
 
 	void initialize()
 	{
-		graphics_backend::initialize();
 #ifdef _DEBUG_GRAPHICS
 		graphics_backend::set_debug_message_callback(_debug_message_callback);
 #endif
+		graphics_backend::initialize();
 	}
 
 	void shutdown()

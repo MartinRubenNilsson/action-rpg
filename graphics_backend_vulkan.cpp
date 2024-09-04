@@ -5,7 +5,7 @@
 
 namespace window
 {
-	const char** get_required_vulkan_instance_extensions(uint32_t* count);
+	std::span<const char*> get_required_vulkan_instance_extensions();
 }
 
 namespace graphics_backend
@@ -24,10 +24,32 @@ namespace graphics_backend
 		app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
 		app_info.apiVersion = VK_API_VERSION_1_0;
 
+		uint32_t layer_count = 0;
+		vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
+		std::vector<VkLayerProperties> layer_properties(layer_count);
+		vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data());
+
+		std::vector<const char*> layers;
+		for (const auto& layer : layer_properties) {
+#ifdef _DEBUG_GRAPHICS
+			if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
+				layers.push_back("VK_LAYER_KHRONOS_validation");
+			}
+#endif
+		}
+
+		std::vector<const char*> extensions;
+		for (const char* extension : window::get_required_vulkan_instance_extensions()) {
+			extensions.push_back(extension);
+		}
+
 		VkInstanceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		create_info.pApplicationInfo = &app_info;
-		create_info.ppEnabledExtensionNames = window::get_required_vulkan_instance_extensions(&create_info.enabledExtensionCount);
+		create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+		create_info.ppEnabledLayerNames = layers.data();
+		create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+		create_info.ppEnabledExtensionNames = extensions.data();
 
 		if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
 			return;
