@@ -2,10 +2,11 @@
 #ifdef GRAPHICS_BACKEND_VULKAN
 #include "graphics_backend.h"
 #include <vulkan/vulkan.h>
+#include "platform.h"
 
 namespace window
 {
-	std::span<const char*> get_required_vulkan_instance_extensions();
+	extern std::span<const char*> get_required_vulkan_instance_extensions();
 }
 
 namespace graphics_backend
@@ -17,6 +18,7 @@ namespace graphics_backend
 #ifdef _DEBUG_GRAPHICS
 	VkDebugUtilsMessengerEXT _debug_messenger = VK_NULL_HANDLE;
 #endif
+	VkPhysicalDevice _physical_device = VK_NULL_HANDLE;
 
 #ifdef _DEBUG_GRAPHICS
 	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
@@ -39,6 +41,7 @@ namespace graphics_backend
 
 	void initialize()
 	{
+		// CREATE INSTANCE
 		{
 			VkApplicationInfo app_info{};
 			app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -54,10 +57,24 @@ namespace graphics_backend
 			vkEnumerateInstanceLayerProperties(&layer_count, layer_properties.data());
 
 			std::vector<const char*> layers;
-			for (const auto& layer : layer_properties) {
+			for (const VkLayerProperties& layer : layer_properties) {
 #ifdef _DEBUG_GRAPHICS
 				if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
 					layers.push_back("VK_LAYER_KHRONOS_validation");
+				} else if (strcmp(layer.layerName, "VK_LAYER_AMD_switchable_graphics") == 0) {
+					// PITFALL: On my laptop (ROG Zephyrus), there's a cross-reaction between these two
+					// layers that causes vkEnumeratePhysicalDevices() to return 0 devices:
+					// 
+					// "VK_LAYER_NV_optimus"
+					// "VK_LAYER_AMD_switchable_graphics"
+					//
+					// The first NVIDIA-provided layer filters out my integrated AMD GPU, while the second
+					// AMD-provided layer filters out my dedicated NVIDIA GPU. I had to disable the second
+					// layer to get the dedicated GPU to show up.
+					//
+					// https://stackoverflow.com/questions/68109171/vkenumeratephysicaldevices-not-finding-all-gpus
+
+					platform::set_environment_variable("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
 				}
 #endif
 			}
@@ -73,9 +90,9 @@ namespace graphics_backend
 			VkInstanceCreateInfo create_info{};
 			create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			create_info.pApplicationInfo = &app_info;
-			create_info.enabledLayerCount = static_cast<uint32_t>(layers.size());
+			create_info.enabledLayerCount = (uint32_t)layers.size();
 			create_info.ppEnabledLayerNames = layers.data();
-			create_info.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+			create_info.enabledExtensionCount = (uint32_t)extensions.size();
 			create_info.ppEnabledExtensionNames = extensions.data();
 
 			if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
@@ -85,6 +102,8 @@ namespace graphics_backend
 				return;
 			}
 		}
+
+		// CREATE DEBUG MESSENGER
 
 #ifdef _DEBUG_GRAPHICS
 		if (auto create_func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkCreateDebugUtilsMessengerEXT")) {
@@ -108,6 +127,37 @@ namespace graphics_backend
 			}
 		}
 #endif
+
+		// CREATE PHYSICAL DEVICE
+		{
+			uint32_t device_count = 0;
+			vkEnumeratePhysicalDevices(_instance, &device_count, nullptr);
+			if (device_count == 0) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to find GPUs with Vulkan support");
+				}
+				return;
+			}
+
+			std::vector<VkPhysicalDevice> devices(device_count);
+			vkEnumeratePhysicalDevices(_instance, &device_count, devices.data());
+
+			for (const VkPhysicalDevice& device : devices) {
+				VkPhysicalDeviceProperties properties;
+				vkGetPhysicalDeviceProperties(device, &properties);
+				if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+					_physical_device = device;
+					break;
+				}
+			}
+
+			if (_physical_device == VK_NULL_HANDLE) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to find a discrete GPU; using the first available GPU instead");
+				}
+				_physical_device = devices[0];
+			}
+		}
 	}
 
 	void shutdown()

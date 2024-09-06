@@ -131,7 +131,7 @@
     <ClCompile Include="imgui_backends.cpp">
       <Filter>application</Filter>
     </ClCompile>
-    <ClCompile Include="winmain.cpp">
+    <ClCompile Include="main_windows.cpp">
       <Filter>application</Filter>
     </ClCompile>
     <ClCompile Include="ui_rmlui_system_interface.cpp">
@@ -208,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="graphics_backend_opengl.cpp">
       <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="platform_windows.cpp">
+      <Filter>application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -661,6 +664,9 @@
     </ClInclude>
     <ClInclude Include="graphics_types.h">
       <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

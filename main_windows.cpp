@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#define WIN32_LEAN_AND_MEAN
+#ifdef PLATFORM_WINDOWS
 #include <Windows.h>
 
 extern int main(int argc, char* argv[]);
@@ -12,3 +12,5 @@ int WINAPI WinMain(
 {
 	return main(__argc, __argv);
 }
+
+#endif // PLATFORM_WINDOWS

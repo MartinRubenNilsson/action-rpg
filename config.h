@@ -4,12 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 
-#ifdef _DEBUG
-//#define _DEBUG_RENDERDOC
-//#define _DEBUG_IMGUI
-#define _DEBUG_GRAPHICS
-#define _DEBUG_PHYSICS
-#define _DEBUG_UI
+#ifdef _WIN32
+#define PLATFORM_WINDOWS
 #endif
 
 //#define GRAPHICS_BACKEND_OPENGL
@@ -30,3 +26,11 @@
 #define WINDOW_TITLE "Action RPG"
 #define GAME_FRAMEBUFFER_WIDTH 320
 #define GAME_FRAMEBUFFER_HEIGHT 180
+
+#ifdef _DEBUG
+//#define _DEBUG_RENDERDOC
+//#define _DEBUG_IMGUI
+#define _DEBUG_GRAPHICS
+#define _DEBUG_PHYSICS
+#define _DEBUG_UI
+#endif

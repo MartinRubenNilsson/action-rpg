@@ -70,7 +70,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -109,7 +109,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -166,6 +166,7 @@
     <ClCompile Include="graphics_backend_vulkan.cpp" />
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
+    <ClCompile Include="platform_windows.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
     <ClCompile Include="dependencies\glad\glad.c">
@@ -224,7 +225,7 @@
     <ClCompile Include="ui_textbox.cpp" />
     <ClCompile Include="ui_textbox_presets.cpp" />
     <ClCompile Include="window.cpp" />
-    <ClCompile Include="winmain.cpp" />
+    <ClCompile Include="main_windows.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="player_outfit.frag" />
@@ -275,6 +276,7 @@
     <ClInclude Include="handle.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="platform.h" />
     <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />
     <ClInclude Include="text.h" />
