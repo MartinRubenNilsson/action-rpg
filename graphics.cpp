@@ -57,6 +57,7 @@ namespace graphics
 #ifdef _DEBUG_GRAPHICS
 	void _debug_message_callback(std::string_view message)
 	{
+		__debugbreak();
 		console::log_error(std::string(message));
 	}
 #endif
