@@ -203,4 +203,7 @@ namespace window
 			MouseMoveEvent mouse_move;
 		};
 	};
+
+	void push_event(const Event& ev);
+	bool pop_event(Event& ev);
 }

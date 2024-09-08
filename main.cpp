@@ -158,8 +158,8 @@ int main(int argc, char* argv[])
 
         // PROCESS WINDOW EVENTS
         {
-            window::Event ev;
-            while (window::get_next_event(ev)) {
+            window::Event ev{};
+            while (window::pop_event(ev)) {
                 if (ev.type == window::EventType::WindowClose) {
                     window::set_should_close(true);
                 }  else if (ev.type == window::EventType::KeyPress) {

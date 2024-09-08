@@ -215,6 +215,9 @@
     <ClCompile Include="images.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="window_events.cpp">
+      <Filter>application</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

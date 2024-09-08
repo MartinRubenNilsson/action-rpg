@@ -33,8 +33,6 @@ namespace window
 	void set_should_close(bool should_close);
 	// Processes all pending events and populates the event queue. Call at the start of each frame.
 	void poll_events(); 
-	// Get the next event in the event queue. Returns false if there are no more events.
-	bool get_next_event(Event& ev);
 	// Swaps the front and back buffers. Call at the end of each frame.
 	void swap_buffers(); 
 	bool has_focus();
