@@ -2,9 +2,6 @@
 #include "window.h"
 #include "window_events.h"
 #include "console.h"
-#ifdef GRAPHICS_BACKEND_OPENGL
-#include <glad/glad.h>
-#endif
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
@@ -124,11 +121,6 @@ namespace window
 			nullptr,
 			nullptr);
 		if (!_window) return false;
-
-#ifdef GRAPHICS_BACKEND_OPENGL
-		glfwMakeContextCurrent(_window);
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return false;
-#endif
 
 		glfwSetWindowCloseCallback(_window, _window_close_callback);
 		glfwSetKeyCallback(_window, _key_callback);

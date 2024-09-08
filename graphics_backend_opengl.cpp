@@ -2,6 +2,7 @@
 #ifdef GRAPHICS_BACKEND_OPENGL
 #include "graphics_backend.h"
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #pragma comment(lib, "opengl32")
 
@@ -60,6 +61,11 @@
 #undef glScissor
 #undef glScissorIndexed
 #undef glScissorIndexedv
+
+namespace window
+{
+	extern GLFWwindow* _window;
+}
 
 namespace graphics_backend
 {
@@ -146,6 +152,9 @@ namespace graphics_backend
 
 	void initialize()
 	{
+		glfwMakeContextCurrent(window::_window);
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return;
+
 		// ENABLE DEBUG OUTPUT
 
 #ifdef _DEBUG_GRAPHICS
