@@ -19,6 +19,7 @@ namespace graphics_backend
 	VkDebugUtilsMessengerEXT _debug_messenger = VK_NULL_HANDLE;
 #endif
 	VkPhysicalDevice _physical_device = VK_NULL_HANDLE;
+	VkDevice _device = VK_NULL_HANDLE;
 
 #ifdef _DEBUG_GRAPHICS
 	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
@@ -158,10 +159,59 @@ namespace graphics_backend
 				_physical_device = devices[0];
 			}
 		}
+
+		// CREATE LOGICAL DEVICE
+		{
+			uint32_t queue_family_count = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(_physical_device, &queue_family_count, nullptr);
+			std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
+			vkGetPhysicalDeviceQueueFamilyProperties(_physical_device, &queue_family_count, queue_families.data());
+
+			uint32_t queue_family_index = 0;
+			for (; queue_family_index < queue_family_count; queue_family_index++) {
+				if (queue_families[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+					break;
+				}
+			}
+
+			if (queue_family_index == queue_family_count) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to find a queue family that supports graphics operations");
+				}
+				return;
+			}
+
+			VkDeviceQueueCreateInfo queue_create_info{};
+			queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			queue_create_info.queueFamilyIndex = queue_family_index;
+			queue_create_info.queueCount = 1;
+			float queue_priority = 1.0f;
+			queue_create_info.pQueuePriorities = &queue_priority;
+
+			VkPhysicalDeviceFeatures device_features{};
+
+			VkDeviceCreateInfo create_info{};
+			create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+			create_info.queueCreateInfoCount = 1;
+			create_info.pQueueCreateInfos = &queue_create_info;
+			create_info.pEnabledFeatures = &device_features;
+
+			if (vkCreateDevice(_physical_device, &create_info, nullptr, &_device) != VK_SUCCESS) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to create logical device");
+				}
+				return;
+			}
+		}
 	}
 
 	void shutdown()
 	{
+		if (_device != VK_NULL_HANDLE) {
+			vkDestroyDevice(_device, nullptr);
+			_device = VK_NULL_HANDLE;
+		}
+		_physical_device = VK_NULL_HANDLE;
 #ifdef _DEBUG_GRAPHICS
 		if (_debug_messenger != VK_NULL_HANDLE) {
 			if (auto destroy_func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugUtilsMessengerEXT")) {
