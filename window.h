@@ -50,7 +50,7 @@ namespace window
 	void set_swap_interval(int interval);
 	void set_title(const std::string& title);
 	void set_icon_from_memory(int width, int height, unsigned char* pixels);
-	void set_icon_from_file(const std::string& path); // uses stb_image internally
+	void set_icon_from_file(const std::string& path);
 	void set_cursor_visible(bool visible);
 	bool get_cursor_visible();
 	void set_cursor_pos(double x, double y);

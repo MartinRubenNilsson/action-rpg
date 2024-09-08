@@ -1,14 +1,12 @@
 #include "stdafx.h"
 #include "graphics.h"
+#include "graphics_backend.h"
 #include "pool.h"
 #include "console.h"
 #include "filesystem.h"
-#include "graphics_backend.h"
-
+#include "images.h"
 #define KHRONOS_STATIC
 #include <ktx.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
 
 namespace graphics
 {
@@ -281,10 +279,10 @@ namespace graphics
 		}
 
 		int width, height, channels;
-		unsigned char* data = stbi_load(normalized_path.c_str(), &width, &height, &channels, 0);
+		unsigned char* data = images::load(normalized_path.c_str(), &width, &height, &channels, 0);
 		if (!data) {
 			console::log_error("Failed to load texture: " + normalized_path);
-			console::log_error(stbi_failure_reason());
+			console::log_error(images::failure_reason());
 			return Handle<Texture>();
 		}
 
@@ -301,7 +299,7 @@ namespace graphics
 			.format = format,
 			.initial_data = data });
 
-		stbi_image_free(data);
+		images::free(data);
 		_path_to_texture[normalized_path] = handle;
 		return handle;
 	}

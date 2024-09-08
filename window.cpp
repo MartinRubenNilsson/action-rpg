@@ -2,8 +2,8 @@
 #include "window.h"
 #include "window_events.h"
 #include "console.h"
+#include "images.h"
 #include <GLFW/glfw3.h>
-#include <stb_image.h>
 
 namespace window
 {
@@ -150,7 +150,7 @@ namespace window
 		// LOAD AND CREATE CUSTOM CURSORS
 
 		int width, height, channels;
-		unsigned char* pixels = stbi_load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
+		unsigned char* pixels = images::load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
 		constexpr int CURSOR_SIZE = 32;
 		constexpr int CURSOR_SIZE_BYTES = CURSOR_SIZE * CURSOR_SIZE * 4;
 		if (width == CURSOR_SIZE && height == CURSOR_SIZE * 10 && pixels) {
@@ -166,7 +166,7 @@ namespace window
 			image.pixels += CURSOR_SIZE_BYTES;
 			_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
 		}
-		stbi_image_free(pixels);
+		images::free(pixels);
 
 		// FINAL SETUP
 
@@ -323,13 +323,13 @@ namespace window
 	void set_icon_from_file(const std::string& path)
 	{
 		int width, height, channels;
-		unsigned char* pixels = stbi_load(path.c_str(), &width, &height, &channels, 4);
+		unsigned char* pixels = images::load(path.c_str(), &width, &height, &channels, 4);
 		if (!pixels) {
 			console::log_error("Failed to load icon: " + path);
 			return;
 		}
 		set_icon_from_memory(width, height, pixels);
-		stbi_image_free(pixels);
+		images::free(pixels);
 	}
 
 	void set_cursor_visible(bool visible)
