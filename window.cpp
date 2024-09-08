@@ -149,7 +149,7 @@ namespace window
 
 		// LOAD AND CREATE CUSTOM CURSORS
 
-		int width, height, channels;
+		unsigned int width, height, channels;
 		unsigned char* pixels = images::load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
 		constexpr int CURSOR_SIZE = 32;
 		constexpr int CURSOR_SIZE_BYTES = CURSOR_SIZE * CURSOR_SIZE * 4;
@@ -322,7 +322,7 @@ namespace window
 
 	void set_icon_from_file(const std::string& path)
 	{
-		int width, height, channels;
+		unsigned int width, height, channels;
 		unsigned char* pixels = images::load(path.c_str(), &width, &height, &channels, 4);
 		if (!pixels) {
 			console::log_error("Failed to load icon: " + path);

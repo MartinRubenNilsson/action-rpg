@@ -278,7 +278,7 @@ namespace graphics
 			return it->second;
 		}
 
-		int width, height, channels;
+		unsigned int width, height, channels;
 		unsigned char* data = images::load(normalized_path.c_str(), &width, &height, &channels, 0);
 		if (!data) {
 			console::log_error("Failed to load texture: " + normalized_path);
@@ -294,8 +294,8 @@ namespace graphics
 
 		const Handle<Texture> handle = create_texture({
 			.debug_name = normalized_path,
-			.width = (unsigned int)width,
-			.height = (unsigned int)height,
+			.width = width,
+			.height = height,
 			.format = format,
 			.initial_data = data });
 
