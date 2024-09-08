@@ -20,6 +20,7 @@ namespace graphics_backend
 #endif
 	VkPhysicalDevice _physical_device = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
+	VkQueue _graphics_queue = VK_NULL_HANDLE;
 
 #ifdef _DEBUG_GRAPHICS
 	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
@@ -160,7 +161,7 @@ namespace graphics_backend
 			}
 		}
 
-		// CREATE LOGICAL DEVICE
+		// CREATE LOGICAL DEVICE AND GRAPHICS QUEUE
 		{
 			uint32_t queue_family_count = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(_physical_device, &queue_family_count, nullptr);
@@ -202,11 +203,14 @@ namespace graphics_backend
 				}
 				return;
 			}
+
+			vkGetDeviceQueue(_device, queue_family_index, 0, &_graphics_queue);
 		}
 	}
 
 	void shutdown()
 	{
+		_graphics_queue = VK_NULL_HANDLE;
 		if (_device != VK_NULL_HANDLE) {
 			vkDestroyDevice(_device, nullptr);
 			_device = VK_NULL_HANDLE;
