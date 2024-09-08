@@ -16,6 +16,7 @@ namespace window
 	
 	void _error_callback(int error, const char* description)
 	{
+		__debugbreak();
 		console::log_error("GLFW error: "s + description);
 	}
 
@@ -194,13 +195,6 @@ namespace window
 		glfwTerminate();
 	}
 
-	std::span<const char*> get_required_vulkan_instance_extensions()
-	{
-		uint32_t count = 0;
-		const char** extensions = glfwGetRequiredInstanceExtensions(&count);
-		return { extensions, count };
-	}
-
 	double get_elapsed_time()
 	{
 		return glfwGetTime();
@@ -231,7 +225,9 @@ namespace window
 
 	void swap_buffers()
 	{
+#ifdef GRAPHICS_BACKEND_OPENGL
 		glfwSwapBuffers(_window);
+#endif
 	}
 
 	bool has_focus()

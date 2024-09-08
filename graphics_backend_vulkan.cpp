@@ -2,11 +2,12 @@
 #ifdef GRAPHICS_BACKEND_VULKAN
 #include "graphics_backend.h"
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 #include "platform.h"
 
 namespace window
 {
-	extern std::span<const char*> get_required_vulkan_instance_extensions();
+	extern GLFWwindow* _window;
 }
 
 namespace graphics_backend
@@ -18,6 +19,7 @@ namespace graphics_backend
 #ifdef _DEBUG_GRAPHICS
 	VkDebugUtilsMessengerEXT _debug_messenger = VK_NULL_HANDLE;
 #endif
+	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physical_device = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
 	VkQueue _graphics_queue = VK_NULL_HANDLE;
@@ -82,8 +84,10 @@ namespace graphics_backend
 			}
 
 			std::vector<const char*> extensions;
-			for (const char* extension : window::get_required_vulkan_instance_extensions()) {
-				extensions.push_back(extension);
+			{
+				uint32_t extension_count = 0;
+				const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&extension_count);
+				extensions.assign(glfw_extensions, glfw_extensions + extension_count);
 			}
 #ifdef _DEBUG_GRAPHICS
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -100,6 +104,16 @@ namespace graphics_backend
 			if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
 				if (_debug_message_callback) {
 					_debug_message_callback("Failed to create Vulkan instance");
+				}
+				return;
+			}
+		}
+
+		// CREATE SURFACE
+		{
+			if (glfwCreateWindowSurface(_instance, window::_window, nullptr, &_surface) != VK_SUCCESS) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to create Vulkan surface");
 				}
 				return;
 			}
@@ -216,6 +230,10 @@ namespace graphics_backend
 			_device = VK_NULL_HANDLE;
 		}
 		_physical_device = VK_NULL_HANDLE;
+		if (_surface != VK_NULL_HANDLE) {
+			vkDestroySurfaceKHR(_instance, _surface, nullptr);
+			_surface = VK_NULL_HANDLE;
+		}
 #ifdef _DEBUG_GRAPHICS
 		if (_debug_messenger != VK_NULL_HANDLE) {
 			if (auto destroy_func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugUtilsMessengerEXT")) {
