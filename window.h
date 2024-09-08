@@ -2,8 +2,6 @@
 
 namespace window
 {
-	struct Event;
-
 	enum class CursorShape
 	{
 		// STANDARD CURSORS
