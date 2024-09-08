@@ -15,6 +15,17 @@ namespace window
 	extern GLFWwindow* _window;
 }
 
+namespace graphics
+{
+#ifdef GRAPHICS_BACKEND_VULKAN
+	extern VkInstance _instance;
+	extern VkPhysicalDevice _physical_device;
+	extern VkDevice _device;
+	extern uint32_t _queue_family;
+	extern VkQueue _queue;
+#endif
+}
+
 namespace imgui_backends
 {
 	void initialize()
@@ -27,7 +38,14 @@ namespace imgui_backends
 #endif
 #ifdef GRAPHICS_BACKEND_VULKAN
 		ImGui_ImplGlfw_InitForVulkan(window::_window, true);
-		ImGui_ImplVulkan_Init(); //TODO
+		ImGui_ImplVulkan_InitInfo init_info{};
+		init_info.Instance = graphics::_instance;
+		init_info.PhysicalDevice = graphics::_physical_device;
+		init_info.Device = graphics::_device;
+		init_info.QueueFamily = graphics::_queue_family;
+		init_info.Queue = graphics::_queue;
+		//TODO: rest
+		ImGui_ImplVulkan_Init(&init_info);
 #endif
 	}
 

@@ -22,7 +22,8 @@ namespace graphics_backend
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
 	VkPhysicalDevice _physical_device = VK_NULL_HANDLE;
 	VkDevice _device = VK_NULL_HANDLE;
-	VkQueue _graphics_queue = VK_NULL_HANDLE;
+	uint32_t _queue_family = 0;
+	VkQueue _queue = VK_NULL_HANDLE;
 
 #ifdef _DEBUG_GRAPHICS
 	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
@@ -45,6 +46,13 @@ namespace graphics_backend
 
 	void initialize()
 	{
+		if (!glfwVulkanSupported()) {
+			if (_debug_message_callback) {
+				_debug_message_callback("Vulkan not supported by GLFW");
+			}
+			return;
+		}
+
 		// CREATE INSTANCE
 		{
 			VkApplicationInfo app_info{};
@@ -85,9 +93,9 @@ namespace graphics_backend
 
 			std::vector<const char*> extensions;
 			{
-				uint32_t extension_count = 0;
-				const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&extension_count);
-				extensions.assign(glfw_extensions, glfw_extensions + extension_count);
+				uint32_t glfw_extension_count = 0;
+				const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
+				extensions.assign(glfw_extensions, glfw_extensions + glfw_extension_count);
 			}
 #ifdef _DEBUG_GRAPHICS
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -104,16 +112,6 @@ namespace graphics_backend
 			if (vkCreateInstance(&create_info, nullptr, &_instance) != VK_SUCCESS) {
 				if (_debug_message_callback) {
 					_debug_message_callback("Failed to create Vulkan instance");
-				}
-				return;
-			}
-		}
-
-		// CREATE SURFACE
-		{
-			if (glfwCreateWindowSurface(_instance, window::_window, nullptr, &_surface) != VK_SUCCESS) {
-				if (_debug_message_callback) {
-					_debug_message_callback("Failed to create Vulkan surface");
 				}
 				return;
 			}
@@ -144,6 +142,16 @@ namespace graphics_backend
 		}
 #endif
 
+		// CREATE SURFACE
+		{
+			if (glfwCreateWindowSurface(_instance, window::_window, nullptr, &_surface) != VK_SUCCESS) {
+				if (_debug_message_callback) {
+					_debug_message_callback("Failed to create Vulkan surface");
+				}
+				return;
+			}
+		}
+
 		// CREATE PHYSICAL DEVICE
 		{
 			uint32_t device_count = 0;
@@ -159,7 +167,7 @@ namespace graphics_backend
 			vkEnumeratePhysicalDevices(_instance, &device_count, devices.data());
 
 			for (const VkPhysicalDevice& device : devices) {
-				VkPhysicalDeviceProperties properties;
+				VkPhysicalDeviceProperties properties{};
 				vkGetPhysicalDeviceProperties(device, &properties);
 				if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
 					_physical_device = device;
@@ -184,14 +192,16 @@ namespace graphics_backend
 
 			uint32_t queue_family_index = 0;
 			for (; queue_family_index < queue_family_count; queue_family_index++) {
-				if (queue_families[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-					break;
-				}
+				if (!(queue_families[queue_family_index].queueFlags & VK_QUEUE_GRAPHICS_BIT)) continue;
+				VkBool32 present_support = false;
+				vkGetPhysicalDeviceSurfaceSupportKHR(_physical_device, queue_family_index, _surface, &present_support);
+				if (!present_support) continue;
+				break;
 			}
 
 			if (queue_family_index == queue_family_count) {
 				if (_debug_message_callback) {
-					_debug_message_callback("Failed to find a queue family that supports graphics operations");
+					_debug_message_callback("Failed to find a queue family that supports both graphics and present operations");
 				}
 				return;
 			}
@@ -205,10 +215,37 @@ namespace graphics_backend
 
 			VkPhysicalDeviceFeatures device_features{};
 
+			std::vector<const char*> extensions;
+			extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+			{
+				uint32_t availible_extension_count = 0;
+				vkEnumerateDeviceExtensionProperties(_physical_device, nullptr, &availible_extension_count, nullptr);
+				std::vector<VkExtensionProperties> available_extensions(availible_extension_count);
+				vkEnumerateDeviceExtensionProperties(_physical_device, nullptr, &availible_extension_count, available_extensions.data());
+				for (const char* extension : extensions) {
+					bool found = false;
+					for (const VkExtensionProperties& available_extension : available_extensions) {
+						if (strcmp(extension, available_extension.extensionName) == 0) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						if (_debug_message_callback) {
+							_debug_message_callback("Failed to find a required device extension");
+						}
+						return;
+					}
+				}
+			}
+
 			VkDeviceCreateInfo create_info{};
 			create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 			create_info.queueCreateInfoCount = 1;
 			create_info.pQueueCreateInfos = &queue_create_info;
+			create_info.enabledExtensionCount = (uint32_t)extensions.size();
+			create_info.ppEnabledExtensionNames = extensions.data();
 			create_info.pEnabledFeatures = &device_features;
 
 			if (vkCreateDevice(_physical_device, &create_info, nullptr, &_device) != VK_SUCCESS) {
@@ -218,13 +255,15 @@ namespace graphics_backend
 				return;
 			}
 
-			vkGetDeviceQueue(_device, queue_family_index, 0, &_graphics_queue);
+			_queue_family = queue_family_index;
+			vkGetDeviceQueue(_device, queue_family_index, 0, &_queue);
 		}
 	}
 
 	void shutdown()
 	{
-		_graphics_queue = VK_NULL_HANDLE;
+		_queue = VK_NULL_HANDLE;
+		_queue_family = 0;
 		if (_device != VK_NULL_HANDLE) {
 			vkDestroyDevice(_device, nullptr);
 			_device = VK_NULL_HANDLE;
