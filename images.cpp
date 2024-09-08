@@ -5,14 +5,14 @@
 
 namespace images
 {
-	unsigned char* load(const char* filename, int* width, int* height, int* channels, int desired_channels)
+	unsigned char* load(const char* filename, int* width, int* height, int* channels_in_file, int desired_channels)
 	{
-		return stbi_load(filename, width, height, channels, desired_channels);
+		return stbi_load(filename, width, height, channels_in_file, desired_channels);
 	}
 
-	void free(unsigned char* data)
+	void free(unsigned char* retval_from_load)
 	{
-		stbi_image_free(data);
+		stbi_image_free(retval_from_load);
 	}
 
 	const char* failure_reason()
