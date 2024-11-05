@@ -8,8 +8,8 @@
 #define PLATFORM_WINDOWS
 #endif
 
-//#define GRAPHICS_BACKEND_OPENGL
-#define GRAPHICS_BACKEND_VULKAN
+#define GRAPHICS_BACKEND_OPENGL
+//#define GRAPHICS_BACKEND_VULKAN
 
 #ifdef GRAPHICS_BACKEND_OPENGL
 // If you change the OpenGL version, make sure to change the GLSL version in the shader files!
@@ -29,7 +29,7 @@
 
 #ifdef _DEBUG
 //#define _DEBUG_RENDERDOC
-//#define _DEBUG_IMGUI
+#define _DEBUG_IMGUI
 #define _DEBUG_GRAPHICS
 #define _DEBUG_PHYSICS
 #define _DEBUG_UI

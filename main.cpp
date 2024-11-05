@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
 #endif
     window::initialize();
 #ifdef _DEBUG_IMGUI
+    graphics::initialize();
+    graphics::initialize_globals();
     imgui_backends::initialize();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
@@ -78,8 +80,6 @@ int main(int argc, char* argv[])
         style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
     }
 #endif
-    graphics::initialize();
-    graphics::initialize_globals();
     console::initialize();
     audio::initialize();
     ui::initialize();
