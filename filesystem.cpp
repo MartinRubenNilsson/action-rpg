@@ -16,8 +16,8 @@ namespace filesystem
 		if (path.ends_with(".tsx"))  return FileFormat::TiledTileset;
 		if (path.ends_with(".tx"))   return FileFormat::TiledTemplate;
 		if (path.ends_with(".ttf"))  return FileFormat::TrueTypeFont;
-		if (path.ends_with(".vert")) return FileFormat::VertexShader;
-		if (path.ends_with(".frag")) return FileFormat::FragmentShader;
+		if (path.ends_with(".vert")) return FileFormat::GLSLVertexShader;
+		if (path.ends_with(".frag")) return FileFormat::GLSLFragmentShader;
 		if (path.ends_with(".rml"))  return FileFormat::RmlUiDocument;
 		if (path.ends_with(".rcss")) return FileFormat::RmlUiStyleSheet;
 		if (path.ends_with(".bank")) return FileFormat::FmodStudioBank;

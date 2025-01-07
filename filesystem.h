@@ -12,8 +12,8 @@ namespace filesystem
 		TiledTileset, // .tsx
 		TiledTemplate, // .tx
 		TrueTypeFont, // .ttf
-		VertexShader, // .vert
-		FragmentShader, // .frag
+		GLSLVertexShader, // .vert
+		GLSLFragmentShader, // .frag
 		RmlUiDocument, // .rml
 		RmlUiStyleSheet, // .rcss
 		FmodStudioBank, // .bank
