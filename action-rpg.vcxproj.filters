@@ -218,6 +218,9 @@
     <ClCompile Include="window_events.cpp">
       <Filter>application</Filter>
     </ClCompile>
+    <ClCompile Include="networking.cpp">
+      <Filter>networking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -677,6 +680,9 @@
     <ClInclude Include="images.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="networking.h">
+      <Filter>networking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -765,6 +771,9 @@
     </Filter>
     <Filter Include="graphics\shaders\fullscreen">
       <UniqueIdentifier>{5d5bfacf-4b1b-42e0-975b-b637e78161bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="networking">
+      <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

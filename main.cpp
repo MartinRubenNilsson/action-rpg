@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "steam.h"
 #include "filesystem.h"
+#include "networking.h"
 #include "window.h"
 #include "window_events.h"
 #include "audio.h"
@@ -29,6 +30,7 @@ int main(int argc, char* argv[])
     }
     steam::initialize(); // Fails silently if Steam is not running.
     filesystem::initialize();
+	networking::initialize();
 #ifdef _DEBUG_RENDERDOC
     renderdoc::initialize();
 #endif
@@ -391,6 +393,7 @@ int main(int argc, char* argv[])
     imgui_backends::shutdown();
 #endif
     window::shutdown();
+	networking::shutdown();
     steam::shutdown();
 
     return EXIT_SUCCESS;

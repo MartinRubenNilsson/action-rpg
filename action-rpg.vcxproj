@@ -167,6 +167,7 @@
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="images.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
+    <ClCompile Include="networking.cpp" />
     <ClCompile Include="platform_windows.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
@@ -279,6 +280,7 @@
     <ClInclude Include="fwd.h" />
     <ClInclude Include="images.h" />
     <ClInclude Include="imgui_backends.h" />
+    <ClInclude Include="networking.h" />
     <ClInclude Include="platform.h" />
     <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />
