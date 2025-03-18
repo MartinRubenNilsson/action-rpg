@@ -64,13 +64,13 @@ namespace settings
 	{
 		std::ostringstream oss;
 		save_to_stream(oss);
-		return filesystem::write_text(path, oss.str());
+		return filesystem::write_text_file(path, oss.str());
 	}
 
 	bool load_from_file(const std::string& path)
 	{
 		std::string text;
-		if (!filesystem::read_text(path, text)) return false;
+		if (!filesystem::read_text_file(path, text)) return false;
 		std::istringstream iss(std::move(text));
 		load_from_stream(iss);
 		return true;

@@ -9,23 +9,20 @@ namespace window
 {
 	GLFWwindow* _window = nullptr;
 	GLFWcursor* _cursors[(int)CursorShape::Count] = { nullptr };
-	
-	void _error_callback(int error, const char* description)
-	{
+
+	void _error_callback(int error, const char* description) {
 		__debugbreak();
 		console::log_error("GLFW error: "s + description);
 	}
 
-	void _window_close_callback(GLFWwindow* window)
-	{
+	void _window_close_callback(GLFWwindow* window) {
 		// GLFW sets the close flag before invoking this callback,
 		// so we need to unset it so the window doesn't immediately close.
 		glfwSetWindowShouldClose(window, GLFW_FALSE);
 		push_event({ .type = EventType::WindowClose });
 	}
 
-	void _window_size_callback(GLFWwindow* window, int width, int height)
-	{
+	void _window_size_callback(GLFWwindow* window, int width, int height) {
 		Event ev{};
 		ev.type = EventType::WindowSize;
 		ev.size.width = width;
@@ -33,8 +30,7 @@ namespace window
 		push_event(ev);
 	}
 
-	void _framebuffer_size_callback(GLFWwindow* window, int width, int height)
-	{
+	void _framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 		Event ev{};
 		ev.type = EventType::FramebufferSize;
 		ev.size.width = width;
@@ -42,8 +38,7 @@ namespace window
 		push_event(ev);
 	}
 
-	int _translate_modifier_key_flags_from_glfw(int glfw_modifier_key_flags)
-	{
+	int _translate_modifier_key_flags_from_glfw(int glfw_modifier_key_flags) {
 		int modifier_key_flags = 0;
 		if (glfw_modifier_key_flags & GLFW_MOD_SHIFT)     modifier_key_flags |= MODIFIER_KEY_SHIFT;
 		if (glfw_modifier_key_flags & GLFW_MOD_CONTROL)   modifier_key_flags |= MODIFIER_KEY_CONTROL;
@@ -54,8 +49,7 @@ namespace window
 		return modifier_key_flags;
 	}
 
-	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
+	void _key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 		Event ev{};
 		if (action == GLFW_PRESS) {
 			ev.type = EventType::KeyPress;
@@ -72,8 +66,7 @@ namespace window
 		push_event(ev);
 	}
 
-	void _mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-	{
+	void _mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		Event ev{};
 		if (action == GLFW_PRESS) {
 			ev.type = EventType::MouseButtonPress;
@@ -87,8 +80,7 @@ namespace window
 		push_event(ev);
 	}
 
-	void _cursor_pos_callback(GLFWwindow* window, double x, double y)
-	{
+	void _cursor_pos_callback(GLFWwindow* window, double x, double y) {
 		Event ev{};
 		ev.type = EventType::MouseMove;
 		ev.mouse_move.x = x;
@@ -96,8 +88,7 @@ namespace window
 		push_event(ev);
 	}
 
-	bool initialize()
-	{
+	bool initialize() {
 		glfwSetErrorCallback(_error_callback);
 		if (!glfwInit()) return false;
 
@@ -176,8 +167,7 @@ namespace window
 		return true;
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		for (GLFWcursor* cursor : _cursors) {
 			glfwDestroyCursor(cursor);
 		}
@@ -186,40 +176,43 @@ namespace window
 		glfwTerminate();
 	}
 
-	double get_elapsed_time()
-	{
+#ifdef GRAPHICS_BACKEND_OPENGL
+	void make_opengl_context_current() {
+		glfwMakeContextCurrent(window::_window);
+	}
+
+	GLADloadproc get_glad_load_proc() {
+		return (GLADloadproc)glfwGetProcAddress;
+	}
+#endif
+
+	double get_elapsed_time() {
 		return glfwGetTime();
 	}
 
-	bool should_close()
-	{
+	bool should_close() {
 		return glfwWindowShouldClose(_window);
 	}
 
-	void set_should_close(bool should_close)
-	{
+	void set_should_close(bool should_close) {
 		glfwSetWindowShouldClose(_window, should_close);
 	}
 
-	void poll_events()
-	{
+	void poll_events() {
 		glfwPollEvents();
 	}
 
-	void swap_buffers()
-	{
+	void swap_buffers() {
 #ifdef GRAPHICS_BACKEND_OPENGL
 		glfwSwapBuffers(_window);
 #endif
 	}
 
-	bool has_focus()
-	{
+	bool has_focus() {
 		return glfwGetWindowAttrib(_window, GLFW_FOCUSED);
 	}
 
-	void set_visible(bool visible)
-	{
+	void set_visible(bool visible) {
 		if (visible) {
 			glfwShowWindow(_window);
 		} else {
@@ -227,13 +220,11 @@ namespace window
 		}
 	}
 
-	bool get_visible()
-	{
+	bool get_visible() {
 		return glfwGetWindowAttrib(_window, GLFW_VISIBLE);
 	}
 
-	void set_minimized(bool minimized)
-	{
+	void set_minimized(bool minimized) {
 		if (minimized) {
 			glfwIconifyWindow(_window);
 		} else {
@@ -241,13 +232,11 @@ namespace window
 		}
 	}
 
-	bool get_minimized()
-	{
+	bool get_minimized() {
 		return glfwGetWindowAttrib(_window, GLFW_ICONIFIED);
 	}
 
-	void set_fullscreen(bool fullscreen)
-	{
+	void set_fullscreen(bool fullscreen) {
 		if (fullscreen == get_fullscreen()) return;
 		static int last_windowed_xpos = 0;
 		static int last_windowed_ypos = 0;
@@ -269,41 +258,34 @@ namespace window
 		}
 	}
 
-	bool get_fullscreen()
-	{
+	bool get_fullscreen() {
 		return glfwGetWindowMonitor(_window) != nullptr;
 	}
 
-	void set_size(int width, int height)
-	{
+	void set_size(int width, int height) {
 		glfwSetWindowSize(_window, width, height);
 	}
 
-	void get_size(int& width, int& height)
-	{
+	void get_size(int& width, int& height) {
 		glfwGetWindowSize(_window, &width, &height);
 	}
 
-	void get_framebuffer_size(int& width, int& height)
-	{
+	void get_framebuffer_size(int& width, int& height) {
 		glfwGetFramebufferSize(_window, &width, &height);
 	}
 
-	void set_swap_interval(int interval)
-	{
+	void set_swap_interval(int interval) {
 		static int last_interval = 0;
 		if (interval == last_interval) return;
 		last_interval = interval;
 		glfwSwapInterval(interval);
 	}
 
-	void set_title(const std::string& title)
-	{
+	void set_title(const std::string& title) {
 		glfwSetWindowTitle(_window, title.c_str());
 	}
 
-	void set_icon_from_memory(int width, int height, unsigned char* pixels)
-	{
+	void set_icon_from_memory(int width, int height, unsigned char* pixels) {
 		GLFWimage image{};
 		image.width = width;
 		image.height = height;
@@ -311,8 +293,7 @@ namespace window
 		glfwSetWindowIcon(_window, 1, &image);
 	}
 
-	void set_icon_from_file(const std::string& path)
-	{
+	void set_icon_from_file(const std::string& path) {
 		unsigned int width, height, channels;
 		unsigned char* pixels = images::load(path.c_str(), &width, &height, &channels, 4);
 		if (!pixels) {
@@ -323,40 +304,32 @@ namespace window
 		images::free(pixels);
 	}
 
-	void set_cursor_visible(bool visible)
-	{
+	void set_cursor_visible(bool visible) {
 		glfwSetInputMode(_window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
 	}
 
-	bool get_cursor_visible()
-	{
+	bool get_cursor_visible() {
 		return glfwGetInputMode(_window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
 
-	void set_cursor_pos(double x, double y)
-	{
+	void set_cursor_pos(double x, double y) {
 		glfwSetCursorPos(_window, x, y);
 	}
 
-	void get_cursor_pos(double& x, double& y)
-	{
+	void get_cursor_pos(double& x, double& y) {
 		glfwGetCursorPos(_window, &x, &y);
 	}
 
-	void set_cursor_shape(CursorShape shape)
-	{
+	void set_cursor_shape(CursorShape shape) {
 		glfwSetCursor(_window, _cursors[(int)shape]);
 	}
 
-	void set_clipboard_string(const std::string& string)
-	{
+	void set_clipboard_string(const std::string& string) {
 		glfwSetClipboardString(_window, string.c_str());
 	}
 
-	std::string get_clipboard_string()
-	{
+	std::string get_clipboard_string() {
 		const char* string = glfwGetClipboardString(_window);
 		return string ? string : "";
 	}
 }
-

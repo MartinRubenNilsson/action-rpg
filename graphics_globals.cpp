@@ -54,21 +54,21 @@ namespace graphics
 		std::string ui_frag;
 		std::string player_outfit_frag;
 
-		filesystem::read_text("assets/shaders/fullscreen.vert", fullscreen_vert);
-		filesystem::read_text("assets/shaders/fullscreen.frag", fullscreen_frag);
-		filesystem::read_text("assets/shaders/gaussian_blur_hor.frag", gaussian_blur_hor_frag);
-		filesystem::read_text("assets/shaders/gaussian_blur_ver.frag", gaussian_blur_ver_frag);
-		filesystem::read_text("assets/shaders/screen_transition.frag", screen_transition_frag);
-		filesystem::read_text("assets/shaders/shockwave.frag", shockwave_frag);
-		filesystem::read_text("assets/shaders/sprite.vert", sprite_vert);
-		filesystem::read_text("assets/shaders/sprite.frag", sprite_frag);
-		filesystem::read_text("assets/shaders/grass.vert", grass_vert);
-		filesystem::read_text("assets/shaders/shape.vert", shape_vert);
-		filesystem::read_text("assets/shaders/shape.frag", shape_frag);
-		filesystem::read_text("assets/shaders/text.frag", text_frag);
-		filesystem::read_text("assets/shaders/ui.vert", ui_vert);
-		filesystem::read_text("assets/shaders/ui.frag", ui_frag);
-		filesystem::read_text("assets/shaders/player_outfit.frag", player_outfit_frag);
+		filesystem::read_text_file("assets/shaders/fullscreen.vert", fullscreen_vert);
+		filesystem::read_text_file("assets/shaders/fullscreen.frag", fullscreen_frag);
+		filesystem::read_text_file("assets/shaders/gaussian_blur_hor.frag", gaussian_blur_hor_frag);
+		filesystem::read_text_file("assets/shaders/gaussian_blur_ver.frag", gaussian_blur_ver_frag);
+		filesystem::read_text_file("assets/shaders/screen_transition.frag", screen_transition_frag);
+		filesystem::read_text_file("assets/shaders/shockwave.frag", shockwave_frag);
+		filesystem::read_text_file("assets/shaders/sprite.vert", sprite_vert);
+		filesystem::read_text_file("assets/shaders/sprite.frag", sprite_frag);
+		filesystem::read_text_file("assets/shaders/grass.vert", grass_vert);
+		filesystem::read_text_file("assets/shaders/shape.vert", shape_vert);
+		filesystem::read_text_file("assets/shaders/shape.frag", shape_frag);
+		filesystem::read_text_file("assets/shaders/text.frag", text_frag);
+		filesystem::read_text_file("assets/shaders/ui.vert", ui_vert);
+		filesystem::read_text_file("assets/shaders/ui.frag", ui_frag);
+		filesystem::read_text_file("assets/shaders/player_outfit.frag", player_outfit_frag);
 
 		fullscreen_shader = create_shader({
 			.debug_name = "fullscreen shader",

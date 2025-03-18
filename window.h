@@ -26,6 +26,11 @@ namespace window
 	bool initialize();
 	void shutdown();
 
+#ifdef GRAPHICS_BACKEND_OPENGL
+	void make_opengl_context_current();
+	GLADloadproc get_glad_load_proc();
+#endif
+
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 	bool should_close();
 	void set_should_close(bool should_close);

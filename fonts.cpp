@@ -39,7 +39,7 @@ namespace fonts
 
 		Font font{};
 		font.data;
-		if (!filesystem::read_binary(path, font.data)) {
+		if (!filesystem::read_binary_file(path, font.data)) {
 			console::log_error("Failed to open font file: " + normalized_path);
 			return Handle<Font>();
 		}

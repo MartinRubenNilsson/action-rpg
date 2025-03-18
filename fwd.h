@@ -2,6 +2,8 @@
 
 // fwd.h - forward declarations
 
+typedef void* (*GLADloadproc)(const char* name);
+
 namespace window
 {
 	struct Event;

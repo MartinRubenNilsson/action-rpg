@@ -203,12 +203,6 @@
     <ClCompile Include="ecs_lighting.cpp">
       <Filter>game\ecs\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="graphics_backend_vulkan.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics_backend_opengl.cpp">
-      <Filter>graphics</Filter>
-    </ClCompile>
     <ClCompile Include="platform_windows.cpp">
       <Filter>application</Filter>
     </ClCompile>
@@ -220,6 +214,12 @@
     </ClCompile>
     <ClCompile Include="networking.cpp">
       <Filter>networking</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics_backend_vulkan.cpp">
+      <Filter>graphics\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics_backend_opengl.cpp">
+      <Filter>graphics\backend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -668,9 +668,6 @@
     <ClInclude Include="ecs_lighting.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="graphics_backend.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="graphics_types.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -682,6 +679,9 @@
     </ClInclude>
     <ClInclude Include="networking.h">
       <Filter>networking</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics_backend.h">
+      <Filter>graphics\backend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -774,6 +774,9 @@
     </Filter>
     <Filter Include="networking">
       <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\backend">
+      <UniqueIdentifier>{21b20e13-50d3-4c11-a761-8984af8fc563}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

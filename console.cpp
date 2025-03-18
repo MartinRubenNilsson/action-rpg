@@ -279,7 +279,7 @@ namespace console
 	void execute_script_from_file(const std::string& path)
 	{
 		std::string script;
-		if (!filesystem::read_text(path, script)) {
+		if (!filesystem::read_text_file(path, script)) {
 			log_error("Failed to open console script: " + path);
 			return;
 		}

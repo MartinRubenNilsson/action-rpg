@@ -12,6 +12,10 @@ namespace graphics_backend
 
 	void set_debug_message_callback(DebugMessageCallback callback);
 
+#ifdef GRAPHICS_BACKEND_OPENGL
+	bool glad_load_gll_loader(GLADloadproc glad_load_proc);
+#endif
+
 	void initialize();
 	void shutdown();
 

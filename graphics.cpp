@@ -5,6 +5,7 @@
 #include "console.h"
 #include "filesystem.h"
 #include "images.h"
+#include "window.h"
 #define KHRONOS_STATIC
 #include <ktx.h>
 
@@ -64,6 +65,10 @@ namespace graphics
 	{
 #ifdef _DEBUG_GRAPHICS
 		graphics_backend::set_debug_message_callback(_debug_message_callback);
+#endif
+#ifdef GRAPHICS_BACKEND_OPENGL
+		window::make_opengl_context_current();
+		graphics_backend::glad_load_gll_loader(window::get_glad_load_proc());
 #endif
 		graphics_backend::initialize();
 	}

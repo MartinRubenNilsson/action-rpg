@@ -2,7 +2,6 @@
 #ifdef GRAPHICS_BACKEND_OPENGL
 #include "graphics_backend.h"
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #pragma comment(lib, "opengl32")
 
@@ -62,15 +61,9 @@
 #undef glScissorIndexed
 #undef glScissorIndexedv
 
-namespace window
-{
-	extern GLFWwindow* _window;
-}
-
 namespace graphics_backend
 {
-	GLenum _to_gl_base_format(Format format)
-	{
+	GLenum _to_gl_base_format(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return GL_RED;
 		case Format::RG8_UNORM:   return GL_RG;
@@ -80,8 +73,7 @@ namespace graphics_backend
 		}
 	}
 
-	GLenum _to_gl_sized_format(Format format)
-	{
+	GLenum _to_gl_sized_format(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return GL_R8;
 		case Format::RG8_UNORM:   return GL_RG8;
@@ -91,8 +83,7 @@ namespace graphics_backend
 		}
 	}
 
-	GLint _to_gl_filter(Filter filter)
-	{
+	GLint _to_gl_filter(Filter filter) {
 		switch (filter) {
 		case Filter::Nearest: return GL_NEAREST;
 		case Filter::Linear:  return GL_LINEAR;
@@ -100,8 +91,7 @@ namespace graphics_backend
 		}
 	}
 
-	GLint _to_gl_wrap(Wrap wrap)
-	{
+	GLint _to_gl_wrap(Wrap wrap) {
 		switch (wrap) {
 		case Wrap::Repeat:            return GL_REPEAT;
 		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
@@ -112,8 +102,7 @@ namespace graphics_backend
 		}
 	}
 
-	GLenum _to_gl_primitives(Primitives primitives)
-	{
+	GLenum _to_gl_primitives(Primitives primitives) {
 		switch (primitives) {
 		case Primitives::PointList:     return GL_POINTS;
 		case Primitives::LineList:      return GL_LINES;
@@ -137,24 +126,24 @@ namespace graphics_backend
 		GLenum severity,
 		GLsizei length,
 		const GLchar* message,
-		const void* userParam)
-	{
+		const void* userParam) {
 		if (_debug_message_callback) {
 			_debug_message_callback(message);
 		}
 	}
 #endif
 
-	void set_debug_message_callback(DebugMessageCallback callback)
-	{
+	void set_debug_message_callback(DebugMessageCallback callback) {
 		_debug_message_callback = callback;
 	}
 
-	void initialize()
-	{
-		glfwMakeContextCurrent(window::_window);
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) return;
+#ifdef GRAPHICS_BACKEND_OPENGL
+	bool glad_load_gll_loader(GLADloadproc glad_load_proc) {
+		return gladLoadGLLoader((GLADloadproc)glad_load_proc);
+	}
+#endif
 
+	void initialize() {
 		// ENABLE DEBUG OUTPUT
 
 #ifdef _DEBUG_GRAPHICS
@@ -191,8 +180,7 @@ namespace graphics_backend
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		// DELETE VERTEX ARRAY OBJECT
 
 		if (_vertex_array_object) {
@@ -201,18 +189,15 @@ namespace graphics_backend
 		}
 	}
 
-	void push_debug_group(std::string_view name)
-	{
+	void push_debug_group(std::string_view name) {
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
 	}
 
-	void pop_debug_group()
-	{
+	void pop_debug_group() {
 		glPopDebugGroup();
 	}
 
-	uintptr_t create_shader(const ShaderDesc& desc)
-	{
+	uintptr_t create_shader(const ShaderDesc& desc) {
 		if (desc.vs_source.empty()) {
 			if (_debug_message_callback) {
 				_debug_message_callback("Vertex shader source code is empty: " + std::string(desc.debug_name));
@@ -293,18 +278,15 @@ namespace graphics_backend
 		return program_object;
 	}
 
-	void destroy_shader(uintptr_t shader)
-	{
+	void destroy_shader(uintptr_t shader) {
 		glDeleteProgram((GLuint)shader);
 	}
 
-	void bind_shader(uintptr_t shader)
-	{
+	void bind_shader(uintptr_t shader) {
 		glUseProgram((GLuint)shader);
 	}
 
-	uintptr_t create_buffer(const BufferDesc& desc)
-	{
+	uintptr_t create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;
 		glCreateBuffers(1, &buffer_object);
 #ifdef _DEBUG_GRAPHICS
@@ -320,39 +302,32 @@ namespace graphics_backend
 		return buffer_object;
 	}
 
-	void destroy_buffer(uintptr_t buffer)
-	{
+	void destroy_buffer(uintptr_t buffer) {
 		glDeleteBuffers(1, (GLuint*)&buffer);
 	}
 
-	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset)
-	{
+	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset) {
 		glNamedBufferSubData((GLuint)buffer, offset, size, data);
 	}
 
-	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer)
-	{
+	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer) {
 		glBindBufferBase(GL_UNIFORM_BUFFER, binding, (GLuint)buffer);
 	}
 
-	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset)
-	{
+	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset) {
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer, offset, size);
 	}
 
-	void bind_vertex_buffer(unsigned int binding, uintptr_t buffer, unsigned int stride, unsigned int offset)
-	{
+	void bind_vertex_buffer(unsigned int binding, uintptr_t buffer, unsigned int stride, unsigned int offset) {
 		glVertexArrayVertexBuffer(_vertex_array_object, binding, (GLuint)buffer, offset, stride);
 	}
 
-	void bind_index_buffer(uintptr_t buffer)
-	{
+	void bind_index_buffer(uintptr_t buffer) {
 		glVertexArrayElementBuffer(_vertex_array_object, (GLuint)buffer);
 	}
 
 	void update_texture(uintptr_t texture, unsigned int level, unsigned int x, unsigned int y,
-		unsigned int width, unsigned int height, Format pixel_format, const void* pixels)
-	{
+		unsigned int width, unsigned int height, Format pixel_format, const void* pixels) {
 		glTextureSubImage2D(
 			(GLuint)texture,
 			level,
@@ -369,16 +344,14 @@ namespace graphics_backend
 	void copy_texture(
 		uintptr_t dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
 		uintptr_t src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
-		unsigned int src_width, unsigned int src_height, unsigned int src_depth)
-	{
+		unsigned int src_width, unsigned int src_height, unsigned int src_depth) {
 		glCopyImageSubData(
 			(GLuint)src_texture, GL_TEXTURE_2D, src_level, src_x, src_y, src_z,
 			(GLuint)dst_texture, GL_TEXTURE_2D, dst_level, dst_x, dst_y, dst_z,
 			src_width, src_height, src_depth);
 	}
 
-	uintptr_t create_texture(const TextureDesc& desc)
-	{
+	uintptr_t create_texture(const TextureDesc& desc) {
 		GLuint texture_object = 0;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
 #ifdef _DEBUG_GRAPHICS
@@ -402,18 +375,15 @@ namespace graphics_backend
 		return texture_object;
 	}
 
-	void destroy_texture(uintptr_t texture)
-	{
+	void destroy_texture(uintptr_t texture) {
 		glDeleteTextures(1, (GLuint*)&texture);
 	}
 
-	void bind_texture(unsigned int binding, uintptr_t texture)
-	{
+	void bind_texture(unsigned int binding, uintptr_t texture) {
 		glBindTextureUnit(binding, (GLuint)texture);
 	}
 
-	uintptr_t create_sampler(const SamplerDesc& desc)
-	{
+	uintptr_t create_sampler(const SamplerDesc& desc) {
 		GLuint sampler_object = 0;
 		glCreateSamplers(1, &sampler_object);
 #ifdef _DEBUG_GRAPHICS
@@ -431,18 +401,15 @@ namespace graphics_backend
 		return sampler_object;
 	}
 
-	void destroy_sampler(uintptr_t sampler)
-	{
+	void destroy_sampler(uintptr_t sampler) {
 		glDeleteSamplers(1, (GLuint*)&sampler);
 	}
 
-	void bind_sampler(unsigned int binding, uintptr_t sampler)
-	{
+	void bind_sampler(unsigned int binding, uintptr_t sampler) {
 		glBindSampler(binding, (GLuint)sampler);
 	}
 
-	uintptr_t create_framebuffer(const FramebufferDesc& desc)
-	{
+	uintptr_t create_framebuffer(const FramebufferDesc& desc) {
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
 #ifdef _DEBUG_GRAPHICS
@@ -453,29 +420,24 @@ namespace graphics_backend
 		return framebuffer_object;
 	}
 
-	void destroy_framebuffer(uintptr_t framebuffer)
-	{
+	void destroy_framebuffer(uintptr_t framebuffer) {
 		glDeleteFramebuffers(1, (GLuint*)&framebuffer);
 	}
 
-	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture)
-	{
+	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture) {
 		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, 0);
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer(uintptr_t framebuffer, const float color[4])
-	{
+	void clear_framebuffer(uintptr_t framebuffer, const float color[4]) {
 		glClearNamedFramebufferfv((GLuint)framebuffer, GL_COLOR, 0, color);
 	}
 
-	void bind_framebuffer(uintptr_t framebuffer)
-	{
+	void bind_framebuffer(uintptr_t framebuffer) {
 		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
 	}
 
-	void set_viewports(const Viewport* viewports, unsigned int count)
-	{
+	void set_viewports(const Viewport* viewports, unsigned int count) {
 		count = std::min(count, MAX_VIEWPORTS);
 		GLfloat gl_viewports[MAX_VIEWPORTS * 4];
 		for (unsigned int i = 0; i < count; ++i) {
@@ -493,8 +455,7 @@ namespace graphics_backend
 		glDepthRangeArrayv(0, count, gl_depth_ranges);
 	}
 
-	void set_scissors(const Rect* scissors, unsigned int count)
-	{
+	void set_scissors(const Rect* scissors, unsigned int count) {
 		count = std::min(count, MAX_VIEWPORTS);
 		GLint gl_scissors[MAX_VIEWPORTS * 4];
 		for (unsigned int i = 0; i < count; ++i) {
@@ -506,8 +467,7 @@ namespace graphics_backend
 		glScissorArrayv(0, count, gl_scissors);
 	}
 
-	void set_scissor_test_enabled(bool enable)
-	{
+	void set_scissor_test_enabled(bool enable) {
 		if (enable) {
 			glEnable(GL_SCISSOR_TEST);
 		} else {
@@ -515,13 +475,11 @@ namespace graphics_backend
 		}
 	}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
-	{
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {
 		glDrawArrays(_to_gl_primitives(primitives), vertex_offset, vertex_count);
 	}
 
-	void draw_indexed(Primitives primitives, unsigned int index_count)
-	{
+	void draw_indexed(Primitives primitives, unsigned int index_count) {
 		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 }

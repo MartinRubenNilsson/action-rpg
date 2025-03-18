@@ -35,9 +35,9 @@ int main(int argc, char* argv[])
     renderdoc::initialize();
 #endif
     window::initialize();
-#ifdef _DEBUG_IMGUI
     graphics::initialize();
     graphics::initialize_globals();
+#ifdef _DEBUG_IMGUI
     imgui_backends::initialize();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);

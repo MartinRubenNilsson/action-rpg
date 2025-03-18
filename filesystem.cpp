@@ -63,7 +63,7 @@ namespace filesystem
 		return std::ranges::binary_search(_files, path, {}, &File::path);
 	}
 
-	bool read_text(const std::string& path, std::string& text)
+	bool read_text_file(const std::string& path, std::string& text)
 	{
 		std::ifstream file(path, std::ios::ate);
 		if (!file) return false;
@@ -76,7 +76,7 @@ namespace filesystem
 		return true;
 	}
 
-	bool write_text(const std::string& path, const std::string& text)
+	bool write_text_file(const std::string& path, std::string_view text)
 	{
 		std::ofstream file(path);
 		if (!file) return false;
@@ -84,7 +84,7 @@ namespace filesystem
 		return true;
 	}
 
-	bool read_binary(const std::string& path, std::vector<unsigned char>& data)
+	bool read_binary_file(const std::string& path, std::vector<unsigned char>& data)
 	{
 		std::ifstream file(path, std::ios::ate | std::ios::binary);
 		if (!file) return false;
@@ -94,7 +94,7 @@ namespace filesystem
 		return true;
 	}
 
-	bool write_binary(const std::string& path, const std::vector<unsigned char>& data)
+	bool write_binary_file(const std::string& path, std::span<const unsigned char> data)
 	{
 		std::ofstream file(path, std::ios::binary);
 		if (!file) return false;
