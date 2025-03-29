@@ -14,35 +14,6 @@
 
 namespace ecs
 {
-	void process_sensor_begin_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
-	{
-		const b2BodyId sensor_body = b2Shape_GetBody(sensor_shape);
-		const b2BodyId visitor_body = b2Shape_GetBody(visitor_shape);
-		const entt::entity sensor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(sensor_body);
-		const entt::entity visitor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(visitor_body);
-		const Tag sensor_tag = get_tag(sensor_entity);
-		const Tag visitor_tag = get_tag(visitor_entity);
-
-		switch (PAIR(sensor_tag, visitor_tag)) {
-
-		case PAIR(Tag::Pickup, Tag::Player): {
-			on_player_begin_touch_pickup(visitor_entity, sensor_entity);
-		} break;
-
-		}
-	}
-
-	void process_sensor_end_touch_event(b2ShapeId sensor_shape, b2ShapeId visitor_shape)
-	{
-		const b2BodyId sensor_body = b2Shape_GetBody(sensor_shape);
-		const b2BodyId visitor_body = b2Shape_GetBody(visitor_shape);
-		const entt::entity sensor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(sensor_body);
-		const entt::entity visitor_entity = (entt::entity)(uintptr_t)b2Body_GetUserData(visitor_body);
-		const Tag sensor_tag = get_tag(sensor_entity);
-		const Tag visitor_tag = get_tag(visitor_entity);
-
-		//TODO
-	}
 
 	void process_contact_begin_touch_event(b2ShapeId shape_a, b2ShapeId shape_b)
 	{

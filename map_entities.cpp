@@ -330,6 +330,8 @@ namespace map
 					ecs::emplace_tile_animation(player.held_item);
 					ecs::emplace_player(entity, player);
 
+					ecs::set_physics_event_callback(entity, ecs::on_player_physics_event);
+
 					ecs::Camera camera{};
 					camera.center = position_top_left;
 					camera.confines_min = map_bounds_min;

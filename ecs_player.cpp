@@ -25,8 +25,7 @@
 #include "tile_ids.h"
 #include "ecs_pickups.h"
 
-namespace ecs
-{
+namespace ecs {
 	const float _PLAYER_WALK_SPEED = 60.f;
 	const float _PLAYER_RUN_SPEED = 136.f;
 	const float _PLAYER_STEALTH_SPEED = 36.f;
@@ -36,8 +35,7 @@ namespace ecs
 	unsigned int _input_flags_to_enable = 0;
 	unsigned int _input_flags_to_disable = 0;
 
-	void process_window_event_for_players(const window::Event& ev)
-	{
+	void process_window_event_for_players(const window::Event& ev) {
 		if (ev.type == window::EventType::KeyPress) {
 			switch (ev.key.code) {
 			case window::Key::Left:
@@ -95,15 +93,13 @@ namespace ecs
 		}
 	}
 
-	void _player_attack(entt::entity entity, const Vector2f& position)
-	{
+	void _player_attack(entt::entity entity, const Vector2f& position) {
 		Vector2f box_min = position - Vector2f(6.f, 6.f);
 		Vector2f box_max = position + Vector2f(6.f, 6.f);
 		apply_damage_in_box({ DamageType::Melee, 1, entity }, box_min, box_max, ~CC_Player);
 	}
 
-	void update_players(float dt)
-	{
+	void update_players(float dt) {
 		const bool player_accepts_input = (dt > 0.f && window::has_focus() && !console::has_focus());
 
 		for (auto [player_entity, player, body, sprite, animation] :
@@ -126,8 +122,7 @@ namespace ecs
 			const Vector2f velocity = b2Body_GetLinearVelocity(body);
 			Vector2f new_velocity; // will be modified differently depending on the state
 
-			enum class HeldItemType
-			{
+			enum class HeldItemType {
 				None,
 				Sword,
 				Bow,
@@ -251,7 +246,7 @@ namespace ecs
 				} else if (new_move_speed >= _PLAYER_WALK_SPEED) {
 
 					switch (dir) {
-					case 'l': 
+					case 'l':
 					case 'r': animation.tile_id = TILE_ID_PLAYER_WALK_RIGHT; break;
 					case 'u': animation.tile_id = TILE_ID_PLAYER_WALK_UP; break;
 					case 'd': animation.tile_id = TILE_ID_PLAYER_WALK_DOWN; break;
@@ -433,7 +428,7 @@ namespace ecs
 						break;
 					}
 				} break;
-				} 
+				}
 			}
 #endif
 
@@ -466,12 +461,11 @@ namespace ecs
 		_input_flags_to_disable = 0;
 	}
 
-	void show_player_debug_window()
-	{
+	void show_player_debug_window() {
 #ifdef _DEBUG_IMGUI
 		const size_t player_count = _registry.view<Player>().size();
 
-		ImGui::Begin("Players"); 
+		ImGui::Begin("Players");
 		for (auto [entity, player, body, animation] : _registry.view<Player, b2BodyId, TileAnimation>().each()) {
 			const std::string tree_node_label = "Player " + std::to_string((uint32_t)entity);
 
@@ -486,7 +480,7 @@ namespace ecs
 			ImGui::Text("Health: %d", player.health);
 			ImGui::Text("Arrows: %d", player.arrows);
 			ImGui::Text("Rupees: %d", player.rupees);
-			
+
 			if (ImGui::Button("Apply 1 Damage"))
 				apply_damage_to_player(entity, { DamageType::Default, 1 });
 			if (ImGui::Button("Kill"))
@@ -515,33 +509,27 @@ namespace ecs
 #endif // _DEBUG_IMGUI
 	}
 
-	entt::entity find_player_entity()
-	{
+	entt::entity find_player_entity() {
 		return _registry.view<Player>().front();
 	}
 
-	Player& emplace_player(entt::entity entity, const Player& player)
-	{
+	Player& emplace_player(entt::entity entity, const Player& player) {
 		return _registry.emplace_or_replace<Player>(entity, player);
 	}
 
-	Player* get_player(entt::entity entity)
-	{
+	Player* get_player(entt::entity entity) {
 		return _registry.try_get<Player>(entity);
 	}
 
-	bool remove_player(entt::entity entity)
-	{
+	bool remove_player(entt::entity entity) {
 		return _registry.remove<Player>(entity);
 	}
 
-	bool has_player(entt::entity entity)
-	{
+	bool has_player(entt::entity entity) {
 		return _registry.all_of<Player>(entity);
 	}
 
-	bool kill_player(entt::entity entity)
-	{
+	bool kill_player(entt::entity entity) {
 		if (!_registry.all_of<Player>(entity)) return false;
 		detach_camera(entity);
 		audio::stop_all_in_bus();
@@ -552,8 +540,7 @@ namespace ecs
 		return true;
 	}
 
-	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity)
-	{
+	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		Pickup* pickup = get_pickup(pickup_entity);
@@ -582,8 +569,7 @@ namespace ecs
 		destroy_at_end_of_frame(pickup_entity);
 	}
 
-	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity)
-	{
+	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->touching_pushable_block = true;
@@ -594,8 +580,7 @@ namespace ecs
 		}
 	}
 
-	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity)
-	{
+	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->touching_pushable_block = false;
@@ -605,8 +590,15 @@ namespace ecs
 		}
 	}
 
-	bool apply_damage_to_player(entt::entity entity, const Damage& damage)
-	{
+	void on_player_physics_event(const PhysicsEvent& ev) {
+		if (ev.type == PhysicsEventType::SensorBeginTouch) {
+			if (ev.tag_b == Tag::Pickup) {
+				on_player_begin_touch_pickup(ev.entity_a, ev.entity_b);
+			}
+		}
+	}
+
+	bool apply_damage_to_player(entt::entity entity, const Damage& damage) {
 		if (damage.amount <= 0) return false;
 		Player* player = get_player(entity);
 		if (!player) return false;

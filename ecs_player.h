@@ -1,29 +1,28 @@
 #pragma once
 #include "timer.h"
 
-namespace ecs
-{
-	enum INPUT_FLAGS : unsigned int
-	{
+namespace ecs {
+	struct PhysicsEvent;
+
+	enum INPUT_FLAGS : unsigned int {
 		// Continuous actions
 
-		INPUT_LEFT        = (1 << 0),
-		INPUT_RIGHT       = (1 << 1),
-		INPUT_UP          = (1 << 2),
-		INPUT_DOWN        = (1 << 3),
-		INPUT_RUN         = (1 << 4),
-		INPUT_STEALTH     = (1 << 5),
+		INPUT_LEFT = (1 << 0),
+		INPUT_RIGHT = (1 << 1),
+		INPUT_UP = (1 << 2),
+		INPUT_DOWN = (1 << 3),
+		INPUT_RUN = (1 << 4),
+		INPUT_STEALTH = (1 << 5),
 
 		// One-shot actions
 
-		INPUT_INTERACT    = (1 << 6),
+		INPUT_INTERACT = (1 << 6),
 		INPUT_SWING_SWORD = (1 << 7),
-		INPUT_SHOOT_BOW   = (1 << 8),
-		INPUT_DROP_BOMB   = (1 << 9),
+		INPUT_SHOOT_BOW = (1 << 8),
+		INPUT_DROP_BOMB = (1 << 9),
 	};
 
-	enum class PlayerState
-	{
+	enum class PlayerState {
 		Normal,
 		SwingingSword,
 		ShootingBow,
@@ -31,8 +30,7 @@ namespace ecs
 		Dead
 	};
 
-	struct Player
-	{
+	struct Player {
 		unsigned int input_flags = 0;
 		PlayerState state = PlayerState::Normal;
 		Vector2f look_dir = { 0.f, 1.f };
@@ -68,4 +66,5 @@ namespace ecs
 	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity);
 	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity);
 	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity);
+	void on_player_physics_event(const PhysicsEvent& ev);
 }
