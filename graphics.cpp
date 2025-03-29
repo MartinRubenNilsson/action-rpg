@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "graphics.h"
-#include "graphics_backend.h"
+#include "graphics_api.h"
 #include "pool.h"
 #include "console.h"
 #include "filesystem.h"
@@ -11,33 +11,28 @@
 
 namespace graphics
 {
-	struct Shader
-	{
-		uintptr_t shader_object = 0;
+	struct Shader {
+		api::ShaderHandle api_handle{};
 		ShaderDesc desc{};
 	};
 
-	struct Buffer
-	{
-		uintptr_t buffer_object = 0;
+	struct Buffer {
+		api::BufferHandle api_handle{};
 		BufferDesc desc{};
 	};
 
-	struct Texture
-	{
-		uintptr_t texture_object = 0;
+	struct Texture {
+		api::TextureHandle api_handle{};
 		TextureDesc desc{};
 	};
 
-	struct Sampler
-	{
-		uintptr_t sampler_object = 0;
+	struct Sampler {
+		api::SamplerHandle api_handle{};
 		SamplerDesc desc{};
 	};
 
-	struct Framebuffer
-	{
-		uintptr_t framebuffer_object = 0;
+	struct Framebuffer {
+		api::FramebufferHandle api_handle{};
 		FramebufferDesc desc{};
 		Handle<Texture> texture;
 	};
@@ -54,32 +49,29 @@ namespace graphics
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
 #ifdef _DEBUG_GRAPHICS
-	void _debug_message_callback(std::string_view message)
-	{
+	void _debug_message_callback(std::string_view message) {
 		__debugbreak();
 		console::log_error(std::string(message));
 	}
 #endif
 
-	void initialize()
-	{
+	void initialize() {
 #ifdef _DEBUG_GRAPHICS
-		graphics_backend::set_debug_message_callback(_debug_message_callback);
+		api::set_debug_message_callback(_debug_message_callback);
 #endif
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 		window::make_opengl_context_current();
-		graphics_backend::glad_load_gll_loader(window::get_glad_load_proc());
+		api::glad_load_gll_loader(window::get_glad_load_proc());
 #endif
-		graphics_backend::initialize();
+		api::initialize();
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		// DELETE SHADERS
 
 		for (const Shader& shader : _shader_pool.span()) {
-			if (shader.shader_object) {
-				graphics_backend::destroy_shader(shader.shader_object);
+			if (shader.api_handle.object) {
+				api::destroy_shader(shader.api_handle);
 			}
 		}
 		_shader_pool.clear();
@@ -87,16 +79,16 @@ namespace graphics
 		// DELETE BUFFERS
 
 		for (const Buffer& buffer : _buffer_pool.span()) {
-			if (buffer.buffer_object) {
-				graphics_backend::destroy_buffer(buffer.buffer_object);
+			if (buffer.api_handle.object) {
+				api::destroy_buffer(buffer.api_handle);
 			}
 		}
 
 		// DELETE TEXTURES
 
 		for (const Texture& texture : _texture_pool.span()) {
-			if (texture.texture_object) {
-				graphics_backend::destroy_texture(texture.texture_object);
+			if (texture.api_handle.object) {
+				api::destroy_texture(texture.api_handle);
 			}
 		}
 		_texture_pool.clear();
@@ -105,8 +97,8 @@ namespace graphics
 		// DELETE SAMPLERS
 
 		for (const Sampler& sampler : _sampler_pool.span()) {
-			if (sampler.sampler_object) {
-				graphics_backend::destroy_sampler(sampler.sampler_object);
+			if (sampler.api_handle.object) {
+				api::destroy_sampler(sampler.api_handle);
 			}
 		}
 		_sampler_pool.clear();
@@ -114,116 +106,104 @@ namespace graphics
 		// DELETE FRAMEBUFFERS
 
 		for (const Framebuffer& framebuffer : _framebuffer_pool.span()) {
-			if (framebuffer.framebuffer_object) {
-				graphics_backend::destroy_framebuffer(framebuffer.framebuffer_object);
+			if (framebuffer.api_handle.object) {
+				api::destroy_framebuffer(framebuffer.api_handle);
 			}
 		}
 		_framebuffer_pool.clear();
 
-		graphics_backend::shutdown();
+		api::shutdown();
 	}
 
-	Handle<Shader> create_shader(ShaderDesc&& desc)
-	{
-		uintptr_t shader_object = graphics_backend::create_shader(desc);
-		if (!shader_object) return Handle<Shader>();
+	Handle<Shader> create_shader(ShaderDesc&& desc) {
+		api::ShaderHandle api_handle = api::create_shader(desc);
+		if (!api_handle.object) return Handle<Shader>();
 		desc.fs_source = "";
 		desc.vs_source = "";
-		return _shader_pool.emplace(shader_object, desc);
+		return _shader_pool.emplace(api_handle, desc);
 	}
 
-	void bind_shader(Handle<Shader> handle)
-	{
+	void bind_shader(Handle<Shader> handle) {
 		if (handle == Handle<Shader>()) {
-			graphics_backend::bind_shader(0);
+			api::bind_shader(api::ShaderHandle());
 		} else if (const Shader* shader = _shader_pool.get(handle)) {
-			graphics_backend::bind_shader(shader->shader_object);
+			api::bind_shader(shader->api_handle);
 		}
 	}
 
-	Handle<Buffer> create_buffer(BufferDesc&& desc)
-	{
-		uintptr_t buffer_object = graphics_backend::create_buffer(desc);
-		if (!buffer_object) return Handle<Buffer>();
+	Handle<Buffer> create_buffer(BufferDesc&& desc) {
+		api::BufferHandle api_handle = api::create_buffer(desc);
+		if (!api_handle.object) return Handle<Buffer>();
 		desc.initial_data = nullptr;
-		return _buffer_pool.emplace(buffer_object, desc);
+		return _buffer_pool.emplace(api_handle, desc);
 	}
 
-	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data)
-	{
+	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data) {
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		graphics_backend::destroy_buffer(buffer->buffer_object);
+		api::destroy_buffer(buffer->api_handle);
 		buffer->desc.size = size;
 		buffer->desc.initial_data = initial_data;
-		buffer->buffer_object = graphics_backend::create_buffer(buffer->desc);
+		buffer->api_handle = api::create_buffer(buffer->desc);
 		buffer->desc.initial_data = nullptr;
 	}
 
-	void destroy_buffer(Handle<Buffer> handle)
-	{
+	void destroy_buffer(Handle<Buffer> handle) {
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
-		graphics_backend::destroy_buffer(buffer->buffer_object);
+		api::destroy_buffer(buffer->api_handle);
 		*buffer = Buffer();
 		_buffer_pool.free(handle);
 	}
 
-	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset)
-	{
+	void update_buffer(Handle<Buffer> handle, const void* data, unsigned int size, unsigned int offset) {
 		if (!data || !size) return;
 		Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (!buffer->desc.dynamic) return;
 		if (offset + size > buffer->desc.size) return;
-		graphics_backend::update_buffer(buffer->buffer_object, data, size, offset);
+		api::update_buffer(buffer->api_handle, data, size, offset);
 	}
 
-	size_t get_buffer_size(Handle<Buffer> handle)
-	{
+	size_t get_buffer_size(Handle<Buffer> handle) {
 		if (const Buffer* buffer = _buffer_pool.get(handle)) {
 			return buffer->desc.size;
 		}
 		return 0;
 	}
 
-	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset)
-	{
+	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset) {
 		if (handle == Handle<Buffer>()) {
-			graphics_backend::bind_vertex_buffer(binding, 0, 0, 0);
+			api::bind_vertex_buffer(binding, api::BufferHandle(), 0, 0);
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			graphics_backend::bind_vertex_buffer(binding, buffer->buffer_object, stride, offset);
+			api::bind_vertex_buffer(binding, buffer->api_handle, stride, offset);
 		}
 	}
 
-	void bind_index_buffer(Handle<Buffer> handle)
-	{
+	void bind_index_buffer(Handle<Buffer> handle) {
 		if (handle == Handle<Buffer>()) {
-			graphics_backend::bind_index_buffer(0);
+			api::bind_index_buffer(api::BufferHandle());
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			graphics_backend::bind_index_buffer(buffer->buffer_object);
+			api::bind_index_buffer(buffer->api_handle);
 		}
 	}
 
-	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle)
-	{
+	void bind_uniform_buffer(unsigned int binding, Handle<Buffer> handle) {
 		if (handle == Handle<Buffer>()) {
-			graphics_backend::bind_uniform_buffer(binding, 0);
+			api::bind_uniform_buffer(binding, api::BufferHandle());
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			graphics_backend::bind_uniform_buffer(binding, buffer->buffer_object);
+			api::bind_uniform_buffer(binding, buffer->api_handle);
 		}
 	}
 
-	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset)
-	{
+	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset) {
 		const Buffer* buffer = _buffer_pool.get(handle);
 		if (!buffer) return;
 		if (offset + size > buffer->desc.size) return;
-		graphics_backend::bind_uniform_buffer_range(binding, buffer->buffer_object, size, offset);
+		api::bind_uniform_buffer_range(binding, buffer->api_handle, size, offset);
 	}
 
-	unsigned _get_size(Format format)
-	{
+	unsigned _get_size(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return 1;
 		case Format::RG8_UNORM:   return 2;
@@ -233,17 +213,15 @@ namespace graphics
 		}
 	}
 
-	Handle<Texture> create_texture(TextureDesc&& desc)
-	{
-		uintptr_t texture_object = graphics_backend::create_texture(desc);
-		if (!texture_object) return Handle<Texture>();
+	Handle<Texture> create_texture(TextureDesc&& desc) {
+		api::TextureHandle api_handle = api::create_texture(desc);
+		if (!api_handle.object) return Handle<Texture>();
 		desc.initial_data = nullptr;
 		_total_texture_memory_usage_in_bytes += desc.width * desc.height * _get_size(desc.format);
-		return _texture_pool.emplace(texture_object, desc);
+		return _texture_pool.emplace(api_handle, desc);
 	}
 
-	Handle<Texture> load_texture(const std::string& path)
-	{
+	Handle<Texture> load_texture(const std::string& path) {
 		const std::string normalized_path = filesystem::get_normalized_path(path);
 
 #if 1
@@ -292,7 +270,7 @@ namespace graphics
 		}
 
 		Format format = Format::UNKNOWN;
-		if      (channels == 1) format = Format::R8_UNORM;
+		if (channels == 1) format = Format::R8_UNORM;
 		else if (channels == 2) format = Format::RG8_UNORM;
 		else if (channels == 3) format = Format::RGB8_UNORM;
 		else if (channels == 4) format = Format::RGBA8_UNORM;
@@ -309,8 +287,7 @@ namespace graphics
 		return handle;
 	}
 
-	Handle<Texture> copy_texture(Handle<Texture> src)
-	{
+	Handle<Texture> copy_texture(Handle<Texture> src) {
 		Handle<Texture> dest;
 		if (const Texture* src_texture = _texture_pool.get(src)) {
 			dest = create_texture(TextureDesc(src_texture->desc));
@@ -319,11 +296,10 @@ namespace graphics
 		return dest;
 	}
 
-	void destroy_texture(Handle<Texture> handle)
-	{
+	void destroy_texture(Handle<Texture> handle) {
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		graphics_backend::destroy_texture(texture->texture_object);
+		api::destroy_texture(texture->api_handle);
 		_total_texture_memory_usage_in_bytes -=
 			texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
 		// HACK: When a texture is loaded, its debug_name is set to the path.
@@ -332,38 +308,34 @@ namespace graphics
 		_texture_pool.free(handle);
 	}
 
-	void bind_texture(unsigned int binding, Handle<Texture> handle)
-	{
+	void bind_texture(unsigned int binding, Handle<Texture> handle) {
 		if (handle == Handle<Texture>()) {
-			graphics_backend::bind_texture(binding, 0);
+			api::bind_texture(binding, api::TextureHandle());
 		} else if (const Texture* texture = _texture_pool.get(handle)) {
-			graphics_backend::bind_texture(binding, texture->texture_object);
+			api::bind_texture(binding, texture->api_handle);
 		}
 	}
 
-	void update_texture(Handle<Texture> handle, const unsigned char* data)
-	{
+	void update_texture(Handle<Texture> handle, const unsigned char* data) {
 		const Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
-		graphics_backend::update_texture(texture->texture_object, 0, 0, 0,
+		api::update_texture(texture->api_handle, 0, 0, 0,
 			texture->desc.width, texture->desc.height, texture->desc.format, data);
 	}
 
-	void copy_texture(Handle<Texture> dest, Handle<Texture> src)
-	{
+	void copy_texture(Handle<Texture> dest, Handle<Texture> src) {
 		Texture* dest_texture = _texture_pool.get(dest);
 		const Texture* src_texture = _texture_pool.get(src);
 		if (!dest_texture || !src_texture) return;
 		if (dest_texture->desc.width != src_texture->desc.width) return;
 		if (dest_texture->desc.height != src_texture->desc.height) return;
-		graphics_backend::copy_texture(
-			dest_texture->texture_object, 0, 0, 0, 0,
-			src_texture->texture_object, 0, 0, 0, 0,
+		api::copy_texture(
+			dest_texture->api_handle, 0, 0, 0, 0,
+			src_texture->api_handle, 0, 0, 0, 0,
 			src_texture->desc.width, src_texture->desc.height, 1);
 	}
 
-	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height)
-	{
+	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height) {
 		if (const Texture* texture = _texture_pool.get(handle)) {
 			width = texture->desc.width;
 			height = texture->desc.height;
@@ -373,45 +345,40 @@ namespace graphics
 		}
 	}
 
-	Handle<Sampler> create_sampler(SamplerDesc&& desc)
-	{
-		uintptr_t sampler_object = graphics_backend::create_sampler(desc);
-		if (!sampler_object) return Handle<Sampler>();
-		return _sampler_pool.emplace(sampler_object, desc);
+	Handle<Sampler> create_sampler(SamplerDesc&& desc) {
+		api::SamplerHandle api_handle = api::create_sampler(desc);
+		if (!api_handle.object) return Handle<Sampler>();
+		return _sampler_pool.emplace(api_handle, desc);
 	}
 
-	void destroy_sampler(Handle<Sampler> handle)
-	{
+	void destroy_sampler(Handle<Sampler> handle) {
 		Sampler* sampler = _sampler_pool.get(handle);
 		if (!sampler) return;
-		graphics_backend::destroy_sampler(sampler->sampler_object);
+		api::destroy_sampler(sampler->api_handle);
 		*sampler = Sampler();
 		_sampler_pool.free(handle);
 	}
 
-	void bind_sampler(unsigned int binding, Handle<Sampler> handle)
-	{
+	void bind_sampler(unsigned int binding, Handle<Sampler> handle) {
 		if (handle == Handle<Sampler>()) {
-			graphics_backend::bind_sampler(binding, 0);
+			api::bind_sampler(binding, api::SamplerHandle());
 		} else if (const Sampler* sampler = _sampler_pool.get(handle)) {
-			graphics_backend::bind_sampler(binding, sampler->sampler_object);
+			api::bind_sampler(binding, sampler->api_handle);
 		}
 	}
 
-	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc)
-	{
-		uintptr_t framebuffer_object = graphics_backend::create_framebuffer(desc);
-		if (!framebuffer_object) return Handle<Framebuffer>();
-		return _framebuffer_pool.emplace(framebuffer_object, desc);
+	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc) {
+		api::FramebufferHandle api_handle = api::create_framebuffer(desc);
+		if (!api_handle.object) return Handle<Framebuffer>();
+		return _framebuffer_pool.emplace(api_handle, desc);
 	}
 
-	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle)
-	{
+	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle) {
 		Framebuffer* framebuffer = _framebuffer_pool.get(framebuffer_handle);
 		if (!framebuffer) return;
 		Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) return;
-		if (!graphics_backend::attach_framebuffer_texture(framebuffer->framebuffer_object, texture->texture_object)) {
+		if (!api::attach_framebuffer_texture(framebuffer->api_handle, texture->api_handle)) {
 			console::log_error(
 				"Failed to attach texture " +
 				std::string(texture->desc.debug_name) +
@@ -422,103 +389,87 @@ namespace graphics
 		framebuffer->texture = texture_handle;
 	}
 
-	void bind_default_framebuffer()
-	{
-		graphics_backend::bind_framebuffer(0);
+	void bind_default_framebuffer() {
+		api::bind_framebuffer(api::FramebufferHandle());
 	}
 
-	void bind_framebuffer(Handle<Framebuffer> handle)
-	{
+	void bind_framebuffer(Handle<Framebuffer> handle) {
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			graphics_backend::bind_framebuffer(framebuffer->framebuffer_object);
+			api::bind_framebuffer(framebuffer->api_handle);
 		}
 	}
 
-	void clear_default_framebuffer(const float color[4])
-	{
-		graphics_backend::clear_framebuffer(0, color);
+	void clear_default_framebuffer(const float color[4]) {
+		api::clear_framebuffer(api::FramebufferHandle(), color);
 	}
 
-	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4])
-	{
+	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]) {
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			graphics_backend::clear_framebuffer(framebuffer->framebuffer_object, color);
+			api::clear_framebuffer(framebuffer->api_handle, color);
 		}
 	}
 
-	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle)
-	{
+	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle) {
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
 			return framebuffer->texture;
 		}
 		return Handle<Texture>();
 	}
 
-	void set_viewport(const Viewport& viewport)
-	{
-		graphics_backend::set_viewports(&viewport, 1);
+	void set_viewport(const Viewport& viewport) {
+		api::set_viewports(&viewport, 1);
 		_viewport = viewport;
 	}
 
-	void get_viewport(Viewport& viewport)
-	{
+	void get_viewport(Viewport& viewport) {
 		viewport = _viewport;
 	}
 
-	void set_scissor(const Rect& scissor)
-	{
-		graphics_backend::set_scissors(&scissor, 1);
+	void set_scissor(const Rect& scissor) {
+		api::set_scissors(&scissor, 1);
 		_scissor = scissor;
 	}
 
-	void set_scissor_test_enabled(bool enable)
-	{
-		graphics_backend::set_scissor_test_enabled(enable);
+	void set_scissor_test_enabled(bool enable) {
+		api::set_scissor_test_enabled(enable);
 		_scissor_test_enabled = enable;
 	}
 
-	bool get_scissor_test_enabled()
-	{
+	bool get_scissor_test_enabled() {
 		return _scissor_test_enabled;
 	}
 
-	void get_scissor(Rect& scissor)
-	{
+	void get_scissor(Rect& scissor) {
 		scissor = _scissor;
 	}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset)
-	{
-		graphics_backend::draw(primitives, vertex_count, vertex_offset);
+	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {
+		api::draw(primitives, vertex_count, vertex_offset);
 	}
 
-	void draw_indexed(Primitives primitives, unsigned int index_count)
-	{
-		graphics_backend::draw_indexed(primitives, index_count);
+	void draw_indexed(Primitives primitives, unsigned int index_count) {
+		api::draw_indexed(primitives, index_count);
 	}
 
-	void push_debug_group(std::string_view name)
-	{
+	void push_debug_group(std::string_view name) {
 #ifdef _DEBUG_GRAPHICS
-		graphics_backend::push_debug_group(name);
+		api::push_debug_group(name);
 #endif
 	}
 
-	void pop_debug_group()
-	{
+	void pop_debug_group() {
 #ifdef _DEBUG_GRAPHICS
-		graphics_backend::pop_debug_group();
+		api::pop_debug_group();
 #endif
 	}
 
-	void show_texture_debug_window()
-	{
+	void show_texture_debug_window() {
 #ifdef _DEBUG_IMGUI
 		ImGui::Begin("Textures");
 		ImGui::Text("Total memory usage: %d MB", _total_texture_memory_usage_in_bytes / 1024 / 1024);
 		for (size_t i = 0; i < _texture_pool.size(); ++i) {
 			const Texture& texture = _texture_pool.data()[i];
-			if (texture.texture_object == 0) continue;
+			if (!texture.api_handle.object) continue;
 			if (ImGui::TreeNode(texture.desc.debug_name.data())) {
 				ImGui::Text("Dimensions: %dx%dx", texture.desc.width, texture.desc.height);
 				ImGui::Text("Format: %s", magic_enum::enum_name(texture.desc.format).data());
@@ -531,7 +482,7 @@ namespace graphics
 					ImGui::Text("Memory: %d KB", kb);
 				}
 				ImVec2 texture_size = ImVec2((float)texture.desc.width, (float)texture.desc.height);
-				ImGui::Image((ImTextureID)texture.texture_object, texture_size);
+				ImGui::Image((ImTextureID)texture.api_handle.object, texture_size);
 				ImGui::TreePop();
 			}
 		}

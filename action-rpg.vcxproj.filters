@@ -215,11 +215,11 @@
     <ClCompile Include="networking.cpp">
       <Filter>networking</Filter>
     </ClCompile>
-    <ClCompile Include="graphics_backend_vulkan.cpp">
-      <Filter>graphics\backend</Filter>
+    <ClCompile Include="graphics_api_vulkan.cpp">
+      <Filter>graphics\api</Filter>
     </ClCompile>
-    <ClCompile Include="graphics_backend_opengl.cpp">
-      <Filter>graphics\backend</Filter>
+    <ClCompile Include="graphics_api_opengl.cpp">
+      <Filter>graphics\api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -680,8 +680,8 @@
     <ClInclude Include="networking.h">
       <Filter>networking</Filter>
     </ClInclude>
-    <ClInclude Include="graphics_backend.h">
-      <Filter>graphics\backend</Filter>
+    <ClInclude Include="graphics_api.h">
+      <Filter>graphics\api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -775,7 +775,7 @@
     <Filter Include="networking">
       <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
     </Filter>
-    <Filter Include="graphics\backend">
+    <Filter Include="graphics\api">
       <UniqueIdentifier>{21b20e13-50d3-4c11-a761-8984af8fc563}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

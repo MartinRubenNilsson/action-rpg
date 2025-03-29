@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#ifdef GRAPHICS_BACKEND_OPENGL
-#include "graphics_backend.h"
+#ifdef GRAPHICS_API_OPENGL
+#include "graphics_api.h"
 #include <glad/glad.h>
 
 #pragma comment(lib, "opengl32")
@@ -61,8 +61,9 @@
 #undef glScissorIndexed
 #undef glScissorIndexedv
 
-namespace graphics_backend
-{
+namespace graphics {
+namespace api {
+
 	GLenum _to_gl_base_format(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return GL_RED;
@@ -137,7 +138,7 @@ namespace graphics_backend
 		_debug_message_callback = callback;
 	}
 
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 	bool glad_load_gll_loader(GLADloadproc glad_load_proc) {
 		return gladLoadGLLoader((GLADloadproc)glad_load_proc);
 	}
@@ -197,18 +198,18 @@ namespace graphics_backend
 		glPopDebugGroup();
 	}
 
-	uintptr_t create_shader(const ShaderDesc& desc) {
+	ShaderHandle create_shader(const ShaderDesc& desc) {
 		if (desc.vs_source.empty()) {
 			if (_debug_message_callback) {
 				_debug_message_callback("Vertex shader source code is empty: " + std::string(desc.debug_name));
 			}
-			return 0;
+			return ShaderHandle();
 		}
 		if (desc.fs_source.empty()) {
 			if (_debug_message_callback) {
 				_debug_message_callback("Fragment shader source code is empty: " + std::string(desc.debug_name));
 			}
-			return 0;
+			return ShaderHandle();
 		}
 		const GLuint program_object = glCreateProgram();
 		{
@@ -228,7 +229,7 @@ namespace graphics_backend
 				}
 				glDeleteShader(vs_object);
 				glDeleteProgram(program_object);
-				return 0;
+				return ShaderHandle();
 			}
 			glAttachShader(program_object, vs_object);
 			glDeleteShader(vs_object);
@@ -250,7 +251,7 @@ namespace graphics_backend
 				}
 				glDeleteShader(fs_object);
 				glDeleteProgram(program_object);
-				return 0;
+				return ShaderHandle();
 			}
 			glAttachShader(program_object, fs_object);
 			glDeleteShader(fs_object);
@@ -267,7 +268,7 @@ namespace graphics_backend
 					_debug_message_callback(info_log);
 				}
 				glDeleteProgram(program_object);
-				return 0;
+				return ShaderHandle();
 			}
 		}
 #ifdef _DEBUG_GRAPHICS
@@ -275,18 +276,18 @@ namespace graphics_backend
 			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
-		return program_object;
+		return ShaderHandle{ .object = program_object };
 	}
 
-	void destroy_shader(uintptr_t shader) {
-		glDeleteProgram((GLuint)shader);
+	void destroy_shader(ShaderHandle shader) {
+		glDeleteProgram((GLuint)shader.object);
 	}
 
-	void bind_shader(uintptr_t shader) {
-		glUseProgram((GLuint)shader);
+	void bind_shader(ShaderHandle shader) {
+		glUseProgram((GLuint)shader.object);
 	}
 
-	uintptr_t create_buffer(const BufferDesc& desc) {
+	BufferHandle create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;
 		glCreateBuffers(1, &buffer_object);
 #ifdef _DEBUG_GRAPHICS
@@ -299,37 +300,38 @@ namespace graphics_backend
 			flags |= GL_DYNAMIC_STORAGE_BIT;
 		}
 		glNamedBufferStorage(buffer_object, desc.size, desc.initial_data, flags);
-		return buffer_object;
+		return BufferHandle{ buffer_object };
 	}
 
-	void destroy_buffer(uintptr_t buffer) {
+	void destroy_buffer(BufferHandle buffer) {
 		glDeleteBuffers(1, (GLuint*)&buffer);
 	}
 
-	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset) {
-		glNamedBufferSubData((GLuint)buffer, offset, size, data);
+	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {
+		glNamedBufferSubData((GLuint)buffer.object, offset, size, data);
 	}
 
-	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer) {
-		glBindBufferBase(GL_UNIFORM_BUFFER, binding, (GLuint)buffer);
+	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object);
 	}
 
-	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset) {
-		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer, offset, size);
+	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {
+		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object, offset, size);
 	}
 
-	void bind_vertex_buffer(unsigned int binding, uintptr_t buffer, unsigned int stride, unsigned int offset) {
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, (GLuint)buffer, offset, stride);
+	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		glVertexArrayVertexBuffer(_vertex_array_object, binding, (GLuint)buffer.object, offset, stride);
 	}
 
-	void bind_index_buffer(uintptr_t buffer) {
-		glVertexArrayElementBuffer(_vertex_array_object, (GLuint)buffer);
+	void bind_index_buffer(BufferHandle buffer) {
+		glVertexArrayElementBuffer(_vertex_array_object, (GLuint)buffer.object);
 	}
 
-	void update_texture(uintptr_t texture, unsigned int level, unsigned int x, unsigned int y,
-		unsigned int width, unsigned int height, Format pixel_format, const void* pixels) {
+	void update_texture(TextureHandle texture, unsigned int level, unsigned int x, unsigned int y,
+		unsigned int width, unsigned int height, Format pixel_format, const void* pixels
+	) {
 		glTextureSubImage2D(
-			(GLuint)texture,
+			(GLuint)texture.object,
 			level,
 			x,
 			y,
@@ -342,16 +344,17 @@ namespace graphics_backend
 	}
 
 	void copy_texture(
-		uintptr_t dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
-		uintptr_t src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
-		unsigned int src_width, unsigned int src_height, unsigned int src_depth) {
+		TextureHandle dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
+		TextureHandle src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
+		unsigned int src_width, unsigned int src_height, unsigned int src_depth
+	) {
 		glCopyImageSubData(
-			(GLuint)src_texture, GL_TEXTURE_2D, src_level, src_x, src_y, src_z,
-			(GLuint)dst_texture, GL_TEXTURE_2D, dst_level, dst_x, dst_y, dst_z,
+			(GLuint)src_texture.object, GL_TEXTURE_2D, src_level, src_x, src_y, src_z,
+			(GLuint)dst_texture.object, GL_TEXTURE_2D, dst_level, dst_x, dst_y, dst_z,
 			src_width, src_height, src_depth);
 	}
 
-	uintptr_t create_texture(const TextureDesc& desc) {
+	TextureHandle create_texture(const TextureDesc& desc) {
 		GLuint texture_object = 0;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
 #ifdef _DEBUG_GRAPHICS
@@ -372,18 +375,18 @@ namespace graphics_backend
 				GL_UNSIGNED_BYTE,
 				desc.initial_data);
 		}
-		return texture_object;
+		return TextureHandle{ texture_object };
 	}
 
-	void destroy_texture(uintptr_t texture) {
-		glDeleteTextures(1, (GLuint*)&texture);
+	void destroy_texture(TextureHandle texture) {
+		glDeleteTextures(1, (GLuint*)&texture.object);
 	}
 
-	void bind_texture(unsigned int binding, uintptr_t texture) {
-		glBindTextureUnit(binding, (GLuint)texture);
+	void bind_texture(unsigned int binding, TextureHandle texture) {
+		glBindTextureUnit(binding, (GLuint)texture.object);
 	}
 
-	uintptr_t create_sampler(const SamplerDesc& desc) {
+	SamplerHandle create_sampler(const SamplerDesc& desc) {
 		GLuint sampler_object = 0;
 		glCreateSamplers(1, &sampler_object);
 #ifdef _DEBUG_GRAPHICS
@@ -398,18 +401,18 @@ namespace graphics_backend
 		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_S, gl_wrap);
 		glSamplerParameteri(sampler_object, GL_TEXTURE_WRAP_T, gl_wrap);
 		glSamplerParameterfv(sampler_object, GL_TEXTURE_BORDER_COLOR, desc.border_color);
-		return sampler_object;
+		return SamplerHandle{ sampler_object };
 	}
 
-	void destroy_sampler(uintptr_t sampler) {
-		glDeleteSamplers(1, (GLuint*)&sampler);
+	void destroy_sampler(SamplerHandle sampler) {
+		glDeleteSamplers(1, (GLuint*)&sampler.object);
 	}
 
-	void bind_sampler(unsigned int binding, uintptr_t sampler) {
-		glBindSampler(binding, (GLuint)sampler);
+	void bind_sampler(unsigned int binding, SamplerHandle sampler) {
+		glBindSampler(binding, (GLuint)sampler.object);
 	}
 
-	uintptr_t create_framebuffer(const FramebufferDesc& desc) {
+	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) {
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
 #ifdef _DEBUG_GRAPHICS
@@ -417,24 +420,24 @@ namespace graphics_backend
 			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
-		return framebuffer_object;
+		return FramebufferHandle{ framebuffer_object };
 	}
 
-	void destroy_framebuffer(uintptr_t framebuffer) {
-		glDeleteFramebuffers(1, (GLuint*)&framebuffer);
+	void destroy_framebuffer(FramebufferHandle framebuffer) {
+		glDeleteFramebuffers(1, (GLuint*)&framebuffer.object);
 	}
 
-	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture) {
-		glNamedFramebufferTexture((GLuint)framebuffer, GL_COLOR_ATTACHMENT0, (GLuint)texture, 0);
-		return glCheckNamedFramebufferStatus((GLuint)framebuffer, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture) {
+		glNamedFramebufferTexture((GLuint)framebuffer.object, GL_COLOR_ATTACHMENT0, (GLuint)texture.object, 0);
+		return glCheckNamedFramebufferStatus((GLuint)framebuffer.object, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer(uintptr_t framebuffer, const float color[4]) {
-		glClearNamedFramebufferfv((GLuint)framebuffer, GL_COLOR, 0, color);
+	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {
+		glClearNamedFramebufferfv((GLuint)framebuffer.object, GL_COLOR, 0, color);
 	}
 
-	void bind_framebuffer(uintptr_t framebuffer) {
-		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer);
+	void bind_framebuffer(FramebufferHandle framebuffer) {
+		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer.object);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
@@ -482,5 +485,8 @@ namespace graphics_backend
 	void draw_indexed(Primitives primitives, unsigned int index_count) {
 		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
-}
-#endif // GRAPHICS_BACKEND_OPENGL
+
+} // namespace api
+} // namespace graphics
+
+#endif // GRAPHICS_API_OPENGL

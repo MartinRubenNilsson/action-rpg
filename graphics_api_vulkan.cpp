@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#ifdef GRAPHICS_BACKEND_VULKAN
-#include "graphics_backend.h"
+#ifdef GRAPHICS_API_VULKAN
+#include "graphics_api.h"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include "platform.h"
@@ -10,7 +10,7 @@ namespace window
 	extern GLFWwindow* _window;
 }
 
-namespace graphics_backend
+namespace graphics
 {
 	const unsigned int MAX_VIEWPORTS = 0;
 
@@ -329,4 +329,4 @@ namespace graphics_backend
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {}
 	void draw_indexed(Primitives primitives, unsigned int index_count) {}
 }
-#endif // GRAPHICS_BACKEND_VULKAN
+#endif // GRAPHICS_API_VULKAN

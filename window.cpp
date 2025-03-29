@@ -92,7 +92,7 @@ namespace window
 		glfwSetErrorCallback(_error_callback);
 		if (!glfwInit()) return false;
 
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_VERSION_MAJOR);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_VERSION_MINOR);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -176,7 +176,7 @@ namespace window
 		glfwTerminate();
 	}
 
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 	void make_opengl_context_current() {
 		glfwMakeContextCurrent(window::_window);
 	}
@@ -203,7 +203,7 @@ namespace window
 	}
 
 	void swap_buffers() {
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 		glfwSwapBuffers(_window);
 #endif
 	}

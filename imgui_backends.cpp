@@ -3,10 +3,10 @@
 #include "imgui_backends.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 #include <imgui_impl_opengl3.h>
 #endif
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 #include <imgui_impl_vulkan.h>
 #endif
 
@@ -17,7 +17,7 @@ namespace window
 
 namespace graphics
 {
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 	extern VkInstance _instance;
 	extern VkPhysicalDevice _physical_device;
 	extern VkDevice _device;
@@ -32,11 +32,11 @@ namespace imgui_backends
 	{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
         ImGui_ImplGlfw_InitForOpenGL(window::_window, true);
         ImGui_ImplOpenGL3_Init();
 #endif
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 		ImGui_ImplGlfw_InitForVulkan(window::_window, true);
 		ImGui_ImplVulkan_InitInfo init_info{};
 		init_info.Instance = graphics::_instance;
@@ -51,10 +51,10 @@ namespace imgui_backends
 
 	void shutdown()
 	{
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
         ImGui_ImplOpenGL3_Shutdown();
 #endif
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 		ImGui_ImplVulkan_Shutdown();
 #endif
         ImGui_ImplGlfw_Shutdown();
@@ -63,10 +63,10 @@ namespace imgui_backends
 
 	void new_frame()
 	{
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
         ImGui_ImplOpenGL3_NewFrame();
 #endif
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 		ImGui_ImplVulkan_NewFrame();
 #endif
         ImGui_ImplGlfw_NewFrame();
@@ -76,10 +76,10 @@ namespace imgui_backends
 	void render()
 	{
         ImGui::Render();
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #endif
-#ifdef GRAPHICS_BACKEND_VULKAN
+#ifdef GRAPHICS_API_VULKAN
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData()); //TODO
 #endif
 	}

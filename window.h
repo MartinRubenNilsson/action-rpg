@@ -26,7 +26,7 @@ namespace window
 	bool initialize();
 	void shutdown();
 
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 	void make_opengl_context_current();
 	GLADloadproc get_glad_load_proc();
 #endif

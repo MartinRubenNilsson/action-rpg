@@ -8,16 +8,16 @@
 #define PLATFORM_WINDOWS
 #endif
 
-#define GRAPHICS_BACKEND_OPENGL
-//#define GRAPHICS_BACKEND_VULKAN
+#define GRAPHICS_API_OPENGL
+//#define GRAPHICS_API_VULKAN
 
-#ifdef GRAPHICS_BACKEND_OPENGL
+#ifdef GRAPHICS_API_OPENGL
 // If you change the OpenGL version, make sure to change the GLSL version in the shader files!
 #define OPENGL_VERSION_MAJOR 4
 #define OPENGL_VERSION_MINOR 5
 #endif
 
-#if !defined(GRAPHICS_BACKEND_OPENGL) && !defined(GRAPHICS_BACKEND_VULKAN)
+#if !defined(GRAPHICS_API_OPENGL) && !defined(GRAPHICS_API_VULKAN)
 #error No graphics backend defined!
 #endif
 
