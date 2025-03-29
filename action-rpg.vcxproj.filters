@@ -112,9 +112,6 @@
     <ClCompile Include="ecs_portal.cpp">
       <Filter>game\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="dependencies\glad\glad.c">
-      <Filter>graphics\glad</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>application</Filter>
     </ClCompile>
@@ -214,12 +211,6 @@
     </ClCompile>
     <ClCompile Include="networking.cpp">
       <Filter>networking</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics_api_vulkan.cpp">
-      <Filter>graphics\api</Filter>
-    </ClCompile>
-    <ClCompile Include="graphics_api_opengl.cpp">
-      <Filter>graphics\api</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -541,12 +532,6 @@
     <ClInclude Include="ecs_portal.h">
       <Filter>game\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\glad\glad.h">
-      <Filter>graphics\glad</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\glad\khrplatform.h">
-      <Filter>graphics\glad</Filter>
-    </ClInclude>
     <ClInclude Include="window.h">
       <Filter>application</Filter>
     </ClInclude>
@@ -677,14 +662,8 @@
     <ClInclude Include="networking.h">
       <Filter>networking</Filter>
     </ClInclude>
-    <ClInclude Include="graphics_api.h">
-      <Filter>graphics\api</Filter>
-    </ClInclude>
     <ClInclude Include="vertices.h">
       <Filter>graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="graphics_types.h">
-      <Filter>graphics\api</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -717,9 +696,6 @@
     </Filter>
     <Filter Include="steam\api">
       <UniqueIdentifier>{d3ef2347-9886-432b-9205-5a7bb0ae438e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\glad">
-      <UniqueIdentifier>{cd7f8e4f-c12d-4cba-a8fe-9d0810bc25d5}</UniqueIdentifier>
     </Filter>
     <Filter Include="application">
       <UniqueIdentifier>{11af7b6c-13f6-4f3d-9d96-435780a3cff7}</UniqueIdentifier>
@@ -777,9 +753,6 @@
     </Filter>
     <Filter Include="networking">
       <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\api">
-      <UniqueIdentifier>{21b20e13-50d3-4c11-a761-8984af8fc563}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

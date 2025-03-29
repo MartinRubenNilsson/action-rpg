@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="graphics_api.h" />
+    <ClInclude Include="graphics_config.h" />
+    <ClInclude Include="graphics_types.h" />
+    <ClInclude Include="dependencies\glad\glad.h">
+      <Filter>glad</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glad\khrplatform.h">
+      <Filter>glad</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="graphics_api_opengl.cpp" />
+    <ClCompile Include="graphics_api_vulkan.cpp" />
+    <ClCompile Include="dependencies\glad\glad.c">
+      <Filter>glad</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="glad">
+      <UniqueIdentifier>{3e82f377-462a-4404-8ee7-d2ee41b85c14}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -45,13 +45,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>intermediate\$(Configuration)\</IntDir>
-    <TargetName>$(Configuration)</TargetName>
+    <IntDir>intermediate\action-rpg\$(Configuration)\</IntDir>
+    <TargetName>action-rpg_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>intermediate\$(Configuration)\</IntDir>
-    <TargetName>$(Configuration)</TargetName>
+    <IntDir>intermediate\action-rpg\$(Configuration)\</IntDir>
+    <TargetName>action-rpg_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -87,7 +87,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\x64-windows\x64-windows\lib\manual-link;$(SolutionDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib;$(SolutionDir)vcpkg_installed\x64-windows\x64-windows\lib\manual-link;$(SolutionDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -128,7 +128,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vcpkg_installed\x64-windows\x64-windows\lib\manual-link;$(SolutionDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib;$(SolutionDir)vcpkg_installed\x64-windows\x64-windows\lib\manual-link;$(SolutionDir)dependencies\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -162,8 +162,6 @@
     <ClCompile Include="ecs_uniform_block.cpp" />
     <ClCompile Include="filesystem.cpp" />
     <ClCompile Include="fonts.cpp" />
-    <ClCompile Include="graphics_api_opengl.cpp" />
-    <ClCompile Include="graphics_api_vulkan.cpp" />
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="images.cpp" />
     <ClCompile Include="imgui_backends.cpp" />
@@ -171,14 +169,6 @@
     <ClCompile Include="platform_windows.cpp" />
     <ClCompile Include="renderdoc.cpp" />
     <ClCompile Include="shapes.cpp" />
-    <ClCompile Include="dependencies\glad\glad.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsCpp</CompileAs>
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsCpp</CompileAs>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdafx.h</PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="ecs_ai_action.cpp" />
     <ClCompile Include="ecs_ai.cpp" />
     <ClCompile Include="ecs_ai_knowledge.cpp" />
@@ -273,9 +263,7 @@
     <ClInclude Include="ecs_uniform_block.h" />
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
-    <ClInclude Include="graphics_api.h" />
     <ClInclude Include="graphics_globals.h" />
-    <ClInclude Include="graphics_types.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="images.h" />
@@ -302,8 +290,6 @@
     <ClInclude Include="dependencies\fmod\fmod_studio.h" />
     <ClInclude Include="dependencies\fmod\fmod_studio.hpp" />
     <ClInclude Include="dependencies\fmod\fmod_studio_common.h" />
-    <ClInclude Include="dependencies\glad\glad.h" />
-    <ClInclude Include="dependencies\glad\khrplatform.h" />
     <ClInclude Include="dependencies\steam\isteamapps.h" />
     <ClInclude Include="dependencies\steam\isteamappticket.h" />
     <ClInclude Include="dependencies\steam\isteamclient.h" />

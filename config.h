@@ -1,4 +1,5 @@
 #pragma once
+#include "graphics_config.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN
@@ -6,19 +7,6 @@
 
 #ifdef _WIN32
 #define PLATFORM_WINDOWS
-#endif
-
-#define GRAPHICS_API_OPENGL
-//#define GRAPHICS_API_VULKAN
-
-#ifdef GRAPHICS_API_OPENGL
-// If you change the OpenGL version, make sure to change the GLSL version in the shader files!
-#define OPENGL_VERSION_MAJOR 4
-#define OPENGL_VERSION_MINOR 5
-#endif
-
-#if !defined(GRAPHICS_API_OPENGL) && !defined(GRAPHICS_API_VULKAN)
-#error No graphics backend defined!
 #endif
 
 #define APPLICATION_NAME "Action RPG"

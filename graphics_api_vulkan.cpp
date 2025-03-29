@@ -1,9 +1,8 @@
-#include "stdafx.h"
-#ifdef GRAPHICS_API_VULKAN
 #include "graphics_api.h"
+#ifdef GRAPHICS_API_VULKAN
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
-#include "platform.h"
+#include <GLFW/glfw3.h> // FIXME: remove this dependency
+#include "platform.h" // FIXME: remove this dependency
 
 namespace window
 {
@@ -16,7 +15,7 @@ namespace graphics
 
 	DebugMessageCallback _debug_message_callback = nullptr;
 	VkInstance _instance = VK_NULL_HANDLE;
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 	VkDebugUtilsMessengerEXT _debug_messenger = VK_NULL_HANDLE;
 #endif
 	VkSurfaceKHR _surface = VK_NULL_HANDLE;
@@ -25,7 +24,7 @@ namespace graphics
 	uint32_t _queue_family = 0;
 	VkQueue _queue = VK_NULL_HANDLE;
 
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 	static VKAPI_ATTR VkBool32 VKAPI_CALL _vulkan_debug_message_callback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -70,7 +69,7 @@ namespace graphics
 
 			std::vector<const char*> layers;
 			for (const VkLayerProperties& layer : layer_properties) {
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 				if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
 					layers.push_back("VK_LAYER_KHRONOS_validation");
 				} else if (strcmp(layer.layerName, "VK_LAYER_AMD_switchable_graphics") == 0) {
@@ -97,7 +96,7 @@ namespace graphics
 				const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 				extensions.assign(glfw_extensions, glfw_extensions + glfw_extension_count);
 			}
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
 
@@ -119,7 +118,7 @@ namespace graphics
 
 		// CREATE DEBUG MESSENGER
 
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (auto create_func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkCreateDebugUtilsMessengerEXT")) {
 
 			VkDebugUtilsMessengerCreateInfoEXT create_info{};
@@ -273,7 +272,7 @@ namespace graphics
 			vkDestroySurfaceKHR(_instance, _surface, nullptr);
 			_surface = VK_NULL_HANDLE;
 		}
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (_debug_messenger != VK_NULL_HANDLE) {
 			if (auto destroy_func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_instance, "vkDestroyDebugUtilsMessengerEXT")) {
 				destroy_func(_instance, _debug_messenger, nullptr);

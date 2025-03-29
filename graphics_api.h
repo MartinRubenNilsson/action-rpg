@@ -1,7 +1,13 @@
 #pragma once
-#include "graphics_types.h"
 
 // graphics_api.h - Low-level graphics API
+
+#include "graphics_config.h"
+#include "graphics_types.h"
+
+#ifdef GRAPHICS_API_OPENGL
+typedef void* (*GLADloadproc)(const char* name);
+#endif
 
 namespace graphics {
 namespace api {

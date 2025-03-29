@@ -1,4 +1,6 @@
 #pragma once
+#include <span>
+#include <string_view>
 
 namespace graphics {
 

@@ -1,7 +1,7 @@
-#include "stdafx.h"
-#ifdef GRAPHICS_API_OPENGL
 #include "graphics_api.h"
+#ifdef GRAPHICS_API_OPENGL
 #include <glad/glad.h>
+#include <string>
 
 #pragma comment(lib, "opengl32")
 
@@ -147,7 +147,7 @@ namespace api {
 
 	DebugMessageCallback _debug_message_callback = nullptr;
 
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 	void GLAPIENTRY _gl_debug_message_callback(
 		GLenum source,
 		GLenum type,
@@ -155,7 +155,8 @@ namespace api {
 		GLenum severity,
 		GLsizei length,
 		const GLchar* message,
-		const void* userParam) {
+		const void* userParam
+	) {
 		if (_debug_message_callback) {
 			_debug_message_callback(message);
 		}
@@ -175,7 +176,7 @@ namespace api {
 	void initialize() {
 		// ENABLE DEBUG OUTPUT
 
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glDebugMessageCallback(_gl_debug_message_callback, 0);
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
@@ -203,7 +204,7 @@ namespace api {
 	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) {
 		GLuint vertex_array_object = 0;
 		glCreateVertexArrays(1, &vertex_array_object);
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_VERTEX_ARRAY, vertex_array_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
@@ -303,7 +304,7 @@ namespace api {
 				return ShaderHandle();
 			}
 		}
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
@@ -322,7 +323,7 @@ namespace api {
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;
 		glCreateBuffers(1, &buffer_object);
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_BUFFER, buffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
@@ -388,7 +389,7 @@ namespace api {
 	TextureHandle create_texture(const TextureDesc& desc) {
 		GLuint texture_object = 0;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_TEXTURE, texture_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
@@ -420,7 +421,7 @@ namespace api {
 	SamplerHandle create_sampler(const SamplerDesc& desc) {
 		GLuint sampler_object = 0;
 		glCreateSamplers(1, &sampler_object);
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_SAMPLER, sampler_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
@@ -446,7 +447,7 @@ namespace api {
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) {
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		if (!desc.debug_name.empty()) {
 			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}

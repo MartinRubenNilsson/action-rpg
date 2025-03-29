@@ -9,6 +9,12 @@
 #define KHRONOS_STATIC
 #include <ktx.h>
 
+#ifdef _DEBUG
+#pragma comment(lib, "GraphicsAPI_Debug")
+#else
+#pragma comment(lib, "GraphicsAPI_Release")
+#endif
+
 namespace graphics
 {
 	struct Shader {
@@ -49,7 +55,7 @@ namespace graphics
 	Pool<Framebuffer> _framebuffer_pool;
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 	void _debug_message_callback(std::string_view message) {
 		__debugbreak();
 		console::log_error(std::string(message));
@@ -57,7 +63,7 @@ namespace graphics
 #endif
 
 	void initialize() {
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		api::set_debug_message_callback(_debug_message_callback);
 #endif
 #ifdef GRAPHICS_API_OPENGL
@@ -465,13 +471,13 @@ namespace graphics
 	}
 
 	void push_debug_group(std::string_view name) {
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		api::push_debug_group(name);
 #endif
 	}
 
 	void pop_debug_group() {
-#ifdef _DEBUG_GRAPHICS
+#ifdef GRAPHICS_API_DEBUG
 		api::pop_debug_group();
 #endif
 	}
