@@ -1,9 +1,10 @@
 #pragma once
 
-namespace ecs
-{
-    struct Arrow
-    {
+namespace ecs {
+
+    struct PhysicsEvent;
+
+    struct Arrow {
         int damage = 0;
         float lifetime = 0.f; // unused right now
     };

@@ -6,20 +6,18 @@
 #include "ecs_damage.h"
 #include "audio.h"
 
-namespace ecs
-{
+namespace ecs {
 	constexpr float _BLADE_TRAP_EXTEND_SPEED = 16.f * 6.f; // 6 tiles per second
 	constexpr float _BLADE_TRAP_RETRACT_SPEED = 16.f * 2.f; // 2 tiles per second
 
 	extern entt::registry _registry;
 
-	void update_blade_traps(float dt)
-	{
+	void update_blade_traps(float dt) {
 		for (auto [entity, blade_trap, body] : _registry.view<BladeTrap, b2BodyId>().each()) {
 
 			blade_trap.update_count++;
 			blade_trap.state_timer.update(dt);
-			
+
 			if (blade_trap.audio_event != Handle<audio::Event>()) {
 				audio::set_event_position(blade_trap.audio_event, b2Body_GetPosition(body));
 			}
@@ -92,18 +90,15 @@ namespace ecs
 		}
 	}
 
-	BladeTrap& emplace_blade_trap(entt::entity entity)
-	{
+	BladeTrap& emplace_blade_trap(entt::entity entity) {
 		return _registry.emplace_or_replace<BladeTrap>(entity);
 	}
 
-	BladeTrap* get_blade_trap(entt::entity entity)
-	{
+	BladeTrap* get_blade_trap(entt::entity entity) {
 		return _registry.try_get<BladeTrap>(entity);
 	}
 
-	void on_blade_trap_begin_touch(entt::entity blade_trap_entity, entt::entity other_entity)
-	{
+	void on_blade_trap_begin_touch(entt::entity blade_trap_entity, entt::entity other_entity) {
 		BladeTrap* blade_trap = get_blade_trap(blade_trap_entity);
 		if (!blade_trap) return;
 
@@ -123,5 +118,11 @@ namespace ecs
 
 		audio::stop_event(blade_trap->audio_event);
 		blade_trap->audio_event = audio::create_event({ .path = "event:/blade_trap/impact" });
+	}
+
+	void on_blade_trap_physics_event(const PhysicsEvent& ev) {
+		if (ev.type == PhysicsEventType::ContactBeginTouch) {
+			on_blade_trap_begin_touch(ev.entity_a, ev.entity_b);
+		}
 	}
 }

@@ -10,6 +10,7 @@
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
 #include "ecs_interact.h"
+#include "ecs_portal.h"
 #include "player_outfit.h"
 #include "console.h"
 #include "audio.h"
@@ -594,6 +595,18 @@ namespace ecs {
 		if (ev.type == PhysicsEventType::SensorBeginTouch) {
 			if (ev.tag_b == Tag::Pickup) {
 				on_player_begin_touch_pickup(ev.entity_a, ev.entity_b);
+			} else if (ev.tag_b == Tag::Portal) {
+				activate_portal(ev.entity_b);
+			}
+		} else if (ev.type == PhysicsEventType::ContactBeginTouch) {
+			if (ev.tag_b == Tag::PushableBlock) {
+				on_player_begin_touch_pushable_block(ev.entity_a, ev.entity_b);
+			} else if (ev.tag_b == Tag::Slime) {
+				apply_damage_to_player(ev.entity_a, { DamageType::Melee, 1 });
+			} 
+		} else if (ev.type == PhysicsEventType::ContactEndTouch) {
+			if (ev.tag_b == Tag::PushableBlock) {
+				on_player_end_touch_pushable_block(ev.entity_a, ev.entity_b);
 			}
 		}
 	}

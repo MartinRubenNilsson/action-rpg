@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ecs_physics.h"
-#include "ecs_physics_events.h"
 #include "ecs_physics_filters.h"
 #include "ecs_common.h"
 
@@ -106,17 +105,51 @@ namespace ecs {
 			{
 				const b2ContactEvents contact_events = b2World_GetContactEvents(_physics_world);
 				for (int32_t i = 0; i < contact_events.beginCount; ++i) {
-					const b2ContactBeginTouchEvent& ev = contact_events.beginEvents[i];
-					process_contact_begin_touch_event(ev.shapeIdA, ev.shapeIdB);
-					if (!B2_ID_EQUALS(ev.shapeIdA, ev.shapeIdB)) {
-						process_contact_begin_touch_event(ev.shapeIdB, ev.shapeIdA);
+					const b2ContactBeginTouchEvent& b2_ev = contact_events.beginEvents[i];
+					PhysicsEvent ev{};
+					ev.type = PhysicsEventType::ContactBeginTouch;
+					ev.shape_a = b2_ev.shapeIdA;
+					ev.shape_b = b2_ev.shapeIdB;
+					ev.body_a = b2Shape_GetBody(b2_ev.shapeIdA);
+					ev.body_b = b2Shape_GetBody(b2_ev.shapeIdB);
+					ev.entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(ev.body_a);
+					ev.entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(ev.body_b);
+					ev.tag_a = get_tag(ev.entity_a);
+					ev.tag_b = get_tag(ev.entity_b);
+					if (PhysicsEventCallback callback = get_physics_event_callback(ev.entity_a)) {
+						callback(ev);
+					}
+					if (B2_ID_EQUALS(b2_ev.shapeIdA, b2_ev.shapeIdB)) continue; // PITFALL: Avoid duplicate calls
+					std::swap(ev.shape_a, ev.shape_b);
+					std::swap(ev.body_a, ev.body_b);
+					std::swap(ev.entity_a, ev.entity_b);
+					std::swap(ev.tag_a, ev.tag_b);
+					if (PhysicsEventCallback callback = get_physics_event_callback(ev.entity_a)) { // SIC: ev.entity_a since we swapped
+						callback(ev);
 					}
 				}
 				for (int32_t i = 0; i < contact_events.endCount; ++i) {
-					const b2ContactEndTouchEvent& ev = contact_events.endEvents[i];
-					process_contact_end_touch_event(ev.shapeIdA, ev.shapeIdB);
-					if (!B2_ID_EQUALS(ev.shapeIdA, ev.shapeIdB)) {
-						process_contact_end_touch_event(ev.shapeIdB, ev.shapeIdA);
+					const b2ContactEndTouchEvent& b2_ev = contact_events.endEvents[i];
+					PhysicsEvent ev{};
+					ev.type = PhysicsEventType::ContactEndTouch;
+					ev.shape_a = b2_ev.shapeIdA;
+					ev.shape_b = b2_ev.shapeIdB;
+					ev.body_a = b2Shape_GetBody(b2_ev.shapeIdA);
+					ev.body_b = b2Shape_GetBody(b2_ev.shapeIdB);
+					ev.entity_a = (entt::entity)(uintptr_t)b2Body_GetUserData(ev.body_a);
+					ev.entity_b = (entt::entity)(uintptr_t)b2Body_GetUserData(ev.body_b);
+					ev.tag_a = get_tag(ev.entity_a);
+					ev.tag_b = get_tag(ev.entity_b);
+					if (PhysicsEventCallback callback = get_physics_event_callback(ev.entity_a)) {
+						callback(ev);
+					}
+					if (B2_ID_EQUALS(b2_ev.shapeIdA, b2_ev.shapeIdB)) continue; // PITFALL: Avoid duplicate calls
+					std::swap(ev.shape_a, ev.shape_b);
+					std::swap(ev.body_a, ev.body_b);
+					std::swap(ev.entity_a, ev.entity_b);
+					std::swap(ev.tag_a, ev.tag_b);
+					if (PhysicsEventCallback callback = get_physics_event_callback(ev.entity_a)) { // SIC: ev.entity_a since we swapped
+						callback(ev);
 					}
 				}
 			}

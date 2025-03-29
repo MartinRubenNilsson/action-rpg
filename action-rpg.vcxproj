@@ -176,7 +176,6 @@
     <ClCompile Include="ecs_bomb.cpp" />
     <ClCompile Include="ecs_camera.cpp" />
     <ClCompile Include="ecs_damage.cpp" />
-    <ClCompile Include="ecs_physics_events.cpp" />
     <ClCompile Include="ecs_physics_filters.cpp" />
     <ClCompile Include="ecs_pickups.cpp" />
     <ClCompile Include="player_outfit.cpp" />
@@ -340,7 +339,6 @@
     <ClInclude Include="ecs_bomb.h" />
     <ClInclude Include="ecs_camera.h" />
     <ClInclude Include="ecs_damage.h" />
-    <ClInclude Include="ecs_physics_events.h" />
     <ClInclude Include="ecs_physics_filters.h" />
     <ClInclude Include="ecs_pickups.h" />
     <ClInclude Include="ecs_arrow.h" />

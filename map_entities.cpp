@@ -407,6 +407,7 @@ namespace map
 						circle.radius = 6.f;
 						b2CreateCircleShape(body, &shape_def, &circle);
 					}
+					ecs::set_physics_event_callback(entity, ecs::on_blade_trap_physics_event);
 
 					ecs::emplace_sprite_follow_body(entity, -center);
 

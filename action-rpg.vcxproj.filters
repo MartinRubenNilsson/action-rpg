@@ -67,9 +67,6 @@
     <ClCompile Include="ui_menus.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_physics_events.cpp">
-      <Filter>game\ecs\physics</Filter>
-    </ClCompile>
     <ClCompile Include="ecs_player.cpp">
       <Filter>game\ecs\player</Filter>
     </ClCompile>
@@ -324,9 +321,6 @@
     </ClInclude>
     <ClInclude Include="ui_menus.h">
       <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ecs_physics_events.h">
-      <Filter>game\ecs\physics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_player.h">
       <Filter>game\ecs\player</Filter>

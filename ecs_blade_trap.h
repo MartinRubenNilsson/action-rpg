@@ -1,18 +1,17 @@
 #pragma once
 #include "timer.h"
 
-namespace ecs
-{
-	enum class BladeTrapState
-	{
+namespace ecs {
+	struct PhysicsEvent;
+
+	enum class BladeTrapState {
 		Idle,
 		Extend,
 		Impact,
 		Retract,
 	};
 
-	struct BladeTrap
-	{
+	struct BladeTrap {
 		unsigned int update_count = 0;
 		BladeTrapState state = BladeTrapState::Idle;
 		Timer state_timer; // for pausing between state changes
@@ -26,4 +25,5 @@ namespace ecs
 	BladeTrap* get_blade_trap(entt::entity entity);
 
 	void on_blade_trap_begin_touch(entt::entity blade_trap_entity, entt::entity other_entity);
+	void on_blade_trap_physics_event(const PhysicsEvent& ev);
 }

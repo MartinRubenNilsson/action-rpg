@@ -5,25 +5,30 @@
 #include "ecs_animations.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_damage.h"
 #include "tile_ids.h"
 #include "audio.h"
 
-namespace map
-{
+namespace map {
 	unsigned int get_object_layer_index();
 }
 
-namespace ecs
-{
+namespace ecs {
 	extern entt::registry _registry;
 
-	Arrow& emplace_arrow(entt::entity entity, const Arrow& arrow)
-	{
+	void _on_arrow_physics_event(const PhysicsEvent& ev) {
+		if (ev.type == PhysicsEventType::ContactBeginTouch) {
+			// Destroy the arrow and apply damage to the other entity
+			destroy_at_end_of_frame(ev.entity_a);
+			apply_damage(ev.entity_b, { .type = DamageType::Projectile, .amount = 1 });
+		}
+	}
+
+	Arrow& emplace_arrow(entt::entity entity, const Arrow& arrow) {
 		return _registry.emplace_or_replace<Arrow>(entity, arrow);
 	}
 
-	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity)
-	{
+	entt::entity create_arrow(const Vector2f& position, const Vector2f& velocity) {
 		entt::entity entity = _registry.create();
 		set_tag(entity, Tag::Arrow);
 		{
@@ -56,6 +61,7 @@ namespace ecs
 			circle.radius = 6.f;
 			b2CreateCircleShape(body, &shape_def, &circle);
 		}
+		set_physics_event_callback(entity, _on_arrow_physics_event);
 		emplace_sprite_follow_body(entity, -pivot);
 		audio::create_event({ .path = "event:/snd_fire_arrow" });
 		return entity;
