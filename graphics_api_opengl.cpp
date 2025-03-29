@@ -173,7 +173,8 @@ namespace api {
 	}
 #endif
 
-	void initialize() {
+	void initialize(const InitializeOptions& options) {
+
 		// ENABLE DEBUG OUTPUT
 
 #ifdef GRAPHICS_API_DEBUG

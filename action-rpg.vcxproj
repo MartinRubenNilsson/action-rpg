@@ -376,6 +376,7 @@
     <ClInclude Include="ui_menus.h" />
     <ClInclude Include="ui_textbox.h" />
     <ClInclude Include="window.h" />
+    <ClInclude Include="window_graphics_api.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

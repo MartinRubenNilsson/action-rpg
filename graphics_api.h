@@ -4,6 +4,7 @@
 
 #include "graphics_config.h"
 #include "graphics_types.h"
+#include <span>
 
 #ifdef GRAPHICS_API_OPENGL
 typedef void* (*GLADloadproc)(const char* name);
@@ -22,7 +23,16 @@ namespace api {
 	bool glad_load_gll_loader(GLADloadproc glad_load_proc);
 #endif
 
-	void initialize();
+
+	struct InitializeOptions {
+		const char* application_name = "Application";
+		const char* engine_name = "Engine";
+#ifdef GRAPHICS_API_VULKAN
+		std::span<const char*> vulkan_instance_extensions;
+#endif
+	};
+
+	void initialize(const InitializeOptions &options);
 	void shutdown();
 
 	void push_debug_group(std::string_view name);

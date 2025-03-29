@@ -1,5 +1,9 @@
 #pragma once
 #include "graphics_types.h"
+#include "fwd.h"
+#include "vector2.h"
+#include "color.h"
+#include <string_view>
 
 // graphics.h - High-level graphics API
 

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "window.h"
+#include "window_graphics_api.h"
 #include "window_events.h"
 #include "console.h"
 #include "images.h"
@@ -176,16 +177,6 @@ namespace window
 		glfwTerminate();
 	}
 
-#ifdef GRAPHICS_API_OPENGL
-	void make_opengl_context_current() {
-		glfwMakeContextCurrent(window::_window);
-	}
-
-	GLADloadproc get_glad_load_proc() {
-		return (GLADloadproc)glfwGetProcAddress;
-	}
-#endif
-
 	double get_elapsed_time() {
 		return glfwGetTime();
 	}
@@ -332,4 +323,27 @@ namespace window
 		const char* string = glfwGetClipboardString(_window);
 		return string ? string : "";
 	}
+
+
+#ifdef GRAPHICS_API_OPENGL
+	void make_opengl_context_current() {
+		glfwMakeContextCurrent(window::_window);
+	}
+
+	GLADloadproc get_glad_load_proc() {
+		return (GLADloadproc)glfwGetProcAddress;
+	}
+#endif
+
+#ifdef GRAPHICS_API_VULKAN
+	bool is_vulkan_supported() {
+		return glfwVulkanSupported();
+	}
+
+	std::span<const char*> get_required_vulkan_instance_extensions() {
+		uint32_t count = 0;
+		const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+		return { extensions, count };
+	}
+#endif
 }

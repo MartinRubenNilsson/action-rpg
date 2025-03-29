@@ -7,6 +7,7 @@
 #include <imgui_impl_opengl3.h>
 #endif
 #ifdef GRAPHICS_API_VULKAN
+#include <vulkan/vulkan.h>
 #include <imgui_impl_vulkan.h>
 #endif
 

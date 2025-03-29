@@ -1,16 +1,11 @@
 #include "graphics_api.h"
 #ifdef GRAPHICS_API_VULKAN
 #include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h> // FIXME: remove this dependency
-#include "platform.h" // FIXME: remove this dependency
+#include <vector>
 
-namespace window
-{
-	extern GLFWwindow* _window;
-}
+namespace graphics {
+namespace api {
 
-namespace graphics
-{
 	const unsigned int MAX_VIEWPORTS = 0;
 
 	DebugMessageCallback _debug_message_callback = nullptr;
@@ -29,8 +24,7 @@ namespace graphics
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData)
-	{
+		void* pUserData) {
 		if (_debug_message_callback) {
 			_debug_message_callback(pCallbackData->pMessage);
 		}
@@ -38,27 +32,19 @@ namespace graphics
 	}
 #endif
 
-	void set_debug_message_callback(DebugMessageCallback callback)
-	{
+	void set_debug_message_callback(DebugMessageCallback callback) {
 		_debug_message_callback = callback;
 	}
 
-	void initialize()
-	{
-		if (!glfwVulkanSupported()) {
-			if (_debug_message_callback) {
-				_debug_message_callback("Vulkan not supported by GLFW");
-			}
-			return;
-		}
+	void initialize(const InitializeOptions& options) {
 
 		// CREATE INSTANCE
 		{
 			VkApplicationInfo app_info{};
 			app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-			app_info.pApplicationName = APPLICATION_NAME;
+			app_info.pApplicationName = options.application_name;
 			app_info.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
-			app_info.pEngineName = ENGINE_NAME;
+			app_info.pEngineName = options.engine_name;
 			app_info.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0); // TODO: add config macros for major, minor, patch
 			app_info.apiVersion = VK_API_VERSION_1_0;
 
@@ -72,29 +58,13 @@ namespace graphics
 #ifdef GRAPHICS_API_DEBUG
 				if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
 					layers.push_back("VK_LAYER_KHRONOS_validation");
-				} else if (strcmp(layer.layerName, "VK_LAYER_AMD_switchable_graphics") == 0) {
-					// PITFALL: On my laptop (ROG Zephyrus), there's a cross-reaction between these two
-					// layers that causes vkEnumeratePhysicalDevices() to return 0 devices:
-					// 
-					// "VK_LAYER_NV_optimus"
-					// "VK_LAYER_AMD_switchable_graphics"
-					//
-					// The first NVIDIA-provided layer filters out my integrated AMD GPU, while the second
-					// AMD-provided layer filters out my dedicated NVIDIA GPU. I had to disable the second
-					// layer to get the dedicated GPU to show up.
-					//
-					// https://stackoverflow.com/questions/68109171/vkenumeratephysicaldevices-not-finding-all-gpus
-
-					platform::set_environment_variable("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
 				}
 #endif
 			}
 
 			std::vector<const char*> extensions;
-			{
-				uint32_t glfw_extension_count = 0;
-				const char** glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
-				extensions.assign(glfw_extensions, glfw_extensions + glfw_extension_count);
+			for (const char* extension : options.vulkan_instance_extensions) {
+				extensions.push_back(extension);
 			}
 #ifdef GRAPHICS_API_DEBUG
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -141,6 +111,7 @@ namespace graphics
 		}
 #endif
 
+#if 0
 		// CREATE SURFACE
 		{
 			if (glfwCreateWindowSurface(_instance, window::_window, nullptr, &_surface) != VK_SUCCESS) {
@@ -150,6 +121,7 @@ namespace graphics
 				return;
 			}
 		}
+#endif
 
 		// CREATE PHYSICAL DEVICE
 		{
@@ -259,8 +231,7 @@ namespace graphics
 		}
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		_queue = VK_NULL_HANDLE;
 		_queue_family = 0;
 		if (_device != VK_NULL_HANDLE) {
@@ -285,41 +256,45 @@ namespace graphics
 			_instance = VK_NULL_HANDLE;
 		}
 	}
-	
+
 	void push_debug_group(std::string_view name) {}
 	void pop_debug_group() {}
 
-	uintptr_t create_shader(const ShaderDesc& desc) { return 0; }
-	void destroy_shader(uintptr_t shader) {}
-	void bind_shader(uintptr_t shader) {}
+	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) { return VertexArrayHandle(); }
+	void destroy_vertex_array(VertexArrayHandle vertex_array) {}
+	void bind_vertex_array(VertexArrayHandle vertex_array) {}
 
-	uintptr_t create_buffer(const BufferDesc& desc) { return 0; }
-	void destroy_buffer(uintptr_t buffer) {}
-	void update_buffer(uintptr_t buffer, const void* data, unsigned int size, unsigned int offset) {}
-	void bind_uniform_buffer(unsigned int binding, uintptr_t buffer) {}
-	void bind_uniform_buffer_range(unsigned int binding, uintptr_t buffer, unsigned int size, unsigned int offset) {}
-	void bind_vertex_buffer(unsigned int binding, uintptr_t buffer, unsigned int stride, unsigned int offset) {}
-	void bind_index_buffer(uintptr_t buffer) {}
+	ShaderHandle create_shader(const ShaderDesc& desc) { return ShaderHandle(); }
+	void destroy_shader(ShaderHandle shader) {}
+	void bind_shader(ShaderHandle shader) {}
 
-	uintptr_t create_texture(const TextureDesc& desc) { return 0; }
-	void destroy_texture(uintptr_t texture) {}
-	void update_texture(uintptr_t texture, unsigned int level, unsigned int x, unsigned int y,
+	BufferHandle create_buffer(const BufferDesc& desc) { return BufferHandle(); }
+	void destroy_buffer(BufferHandle buffer) {}
+	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {}
+	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
+	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
+	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
+	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer) {}
+
+	TextureHandle create_texture(const TextureDesc& desc) { return TextureHandle(); }
+	void destroy_texture(TextureHandle texture) {}
+	void update_texture(TextureHandle texture, unsigned int level, unsigned int x, unsigned int y,
 		unsigned int width, unsigned int height, Format pixel_format, const void* pixels) {}
 	void copy_texture(
-		uintptr_t dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
-		uintptr_t src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
+		TextureHandle dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
+		TextureHandle src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
 		unsigned int src_width, unsigned int src_height, unsigned int src_depth) {}
-	void bind_texture(unsigned int binding, uintptr_t texture) {}
+	void bind_texture(unsigned int binding, TextureHandle texture) {}
 
-	uintptr_t create_sampler(const SamplerDesc& desc) { return 0; }
-	void destroy_sampler(uintptr_t sampler) {}
-	void bind_sampler(unsigned int binding, uintptr_t sampler) {}
+	SamplerHandle create_sampler(const SamplerDesc& desc) { return SamplerHandle(); }
+	void destroy_sampler(SamplerHandle sampler) {}
+	void bind_sampler(unsigned int binding, SamplerHandle sampler) {}
 
-	uintptr_t create_framebuffer(const FramebufferDesc& desc) { return 0; }
-	void destroy_framebuffer(uintptr_t framebuffer) {}
-	bool attach_framebuffer_texture(uintptr_t framebuffer, uintptr_t texture) { return false; }
-	void clear_framebuffer(uintptr_t framebuffer, const float color[4]) {}
-	void bind_framebuffer(uintptr_t framebuffer) {}
+	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) { return FramebufferHandle(); }
+	void destroy_framebuffer(FramebufferHandle framebuffer) {}
+	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture) { return true; }
+	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {}
+	void bind_framebuffer(FramebufferHandle framebuffer) {}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {}
 	void set_scissors(const Rect* scissors, unsigned int count) {}
@@ -327,5 +302,8 @@ namespace graphics
 
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {}
 	void draw_indexed(Primitives primitives, unsigned int index_count) {}
-}
+
+} // namespace api
+} // namespace graphics
+
 #endif // GRAPHICS_API_VULKAN

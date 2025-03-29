@@ -115,9 +115,6 @@
     <ClCompile Include="main.cpp">
       <Filter>application</Filter>
     </ClCompile>
-    <ClCompile Include="window.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="settings.cpp">
       <Filter>application</Filter>
     </ClCompile>
@@ -206,11 +203,14 @@
     <ClCompile Include="images.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="window_events.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="networking.cpp">
       <Filter>networking</Filter>
+    </ClCompile>
+    <ClCompile Include="window.cpp">
+      <Filter>application\window</Filter>
+    </ClCompile>
+    <ClCompile Include="window_events.cpp">
+      <Filter>application\window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -532,9 +532,6 @@
     <ClInclude Include="ecs_portal.h">
       <Filter>game\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="window.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="settings.h">
       <Filter>application</Filter>
     </ClInclude>
@@ -544,9 +541,6 @@
     </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="window_events.h">
-      <Filter>application</Filter>
     </ClInclude>
     <ClInclude Include="config.h" />
     <ClInclude Include="imgui_backends.h">
@@ -665,6 +659,15 @@
     <ClInclude Include="vertices.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="window.h">
+      <Filter>application\window</Filter>
+    </ClInclude>
+    <ClInclude Include="window_events.h">
+      <Filter>application\window</Filter>
+    </ClInclude>
+    <ClInclude Include="window_graphics_api.h">
+      <Filter>application\window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -753,6 +756,9 @@
     </Filter>
     <Filter Include="networking">
       <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\window">
+      <UniqueIdentifier>{c9d5b9b0-c7e4-4d67-bceb-a9d4aa431794}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

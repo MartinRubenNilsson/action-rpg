@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "graphics.h"
 #include "graphics_api.h"
+#include "window_graphics_api.h"
 #include "pool.h"
 #include "console.h"
 #include "filesystem.h"
 #include "images.h"
-#include "window.h"
+#include "platform.h"
 #define KHRONOS_STATIC
 #include <ktx.h>
 
@@ -70,7 +71,37 @@ namespace graphics
 		window::make_opengl_context_current();
 		api::glad_load_gll_loader(window::get_glad_load_proc());
 #endif
-		api::initialize();
+#ifdef GRAPHICS_API_VULKAN
+		if (!window::is_vulkan_supported()) {
+			console::log_error("Vulkan is not supported on this system.");
+			return;
+		}
+
+		// PITFALL: On my laptop (ROG Zephyrus), there's a cross-reaction between these two
+		// layers that causes vkEnumeratePhysicalDevices() to return 0 devices:
+		// 
+		// "VK_LAYER_NV_optimus"
+		// "VK_LAYER_AMD_switchable_graphics"
+		//
+		// The first NVIDIA-provided layer filters out my integrated AMD GPU, while the second
+		// AMD-provided layer filters out my dedicated NVIDIA GPU. I had to disable the second
+		// layer to get the dedicated GPU to show up.
+		//
+		// https://stackoverflow.com/questions/68109171/vkenumeratephysicaldevices-not-finding-all-gpus
+
+		platform::set_environment_variable("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
+#endif
+
+		// INITIALIZE GRAPHICS API
+		{
+			api::InitializeOptions options{};
+			options.application_name = APPLICATION_NAME;
+			options.engine_name = ENGINE_NAME;
+#ifdef GRAPHICS_API_VULKAN
+			options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
+#endif
+			api::initialize(options);
+		}
 
 		// CREATE VERTEX ARRAY
 		{
