@@ -1,33 +1,46 @@
 #pragma once
 
-namespace graphics
-{
-	struct ShaderDesc
-	{
+namespace graphics {
+
+	enum class Format {
+		UNKNOWN,
+		R8_UNORM,
+		RG8_UNORM,
+		RGB8_UNORM,
+		RGBA8_UNORM,
+		R32_FLOAT,
+		RG32_FLOAT,
+		RGB32_FLOAT,
+		RGBA32_FLOAT,
+	};
+
+	struct VertexArrayAttribDesc {
+		unsigned int location = 0;
+		unsigned int binding = 0;
+		Format format = Format::UNKNOWN;
+		unsigned int offset = 0;
+		bool normalized = false;
+	};
+
+	struct VertexArrayDesc {
+		std::string_view debug_name = "vertex_array";
+		std::span<VertexArrayAttribDesc> attributes;
+	};
+
+	struct ShaderDesc {
 		std::string_view debug_name = "shader";
 		std::string_view vs_source; // vertex shader source code
 		std::string_view fs_source; // fragment shader source code
 	};
 
-	struct BufferDesc
-	{
+	struct BufferDesc {
 		std::string_view debug_name = "buffer";
 		unsigned int size = 0; // in bytes
 		const void* initial_data = nullptr;
 		bool dynamic = false; // If true, the buffer can be updated with update_buffer().
 	};
 
-	enum class Format
-	{
-		UNKNOWN,
-		R8_UNORM,
-		RG8_UNORM,
-		RGB8_UNORM,
-		RGBA8_UNORM,
-	};
-
-	struct TextureDesc
-	{
+	struct TextureDesc {
 		std::string_view debug_name = "texture";
 		unsigned int width = 0;
 		unsigned int height = 0;
@@ -35,14 +48,12 @@ namespace graphics
 		const void* initial_data = nullptr;
 	};
 
-	enum class Filter
-	{
+	enum class Filter {
 		Nearest, // Sample nearest texel
 		Linear, // Linear interpolation between texels
 	};
 
-	enum class Wrap
-	{
+	enum class Wrap {
 		Repeat, // Repeat the texture
 		MirroredRepeat, // Repeat with mirroring
 		ClampToEdge, // Clamp to the edge
@@ -50,21 +61,18 @@ namespace graphics
 		MirrorClampToEdge, // Mirror the texture once and then clamp to the edge
 	};
 
-	struct SamplerDesc
-	{
+	struct SamplerDesc {
 		std::string_view debug_name = "sampler";
 		Filter filter = Filter::Nearest;
 		Wrap wrap = Wrap::Repeat;
 		float border_color[4] = {};
 	};
 
-	struct FramebufferDesc
-	{
+	struct FramebufferDesc {
 		std::string_view debug_name = "framebuffer";
 	};
 
-	enum class Primitives
-	{
+	enum class Primitives {
 		PointList,
 		LineList,
 		LineStrip,
@@ -72,8 +80,7 @@ namespace graphics
 		TriangleStrip,
 	};
 
-	struct Viewport
-	{
+	struct Viewport {
 		float x = 0.f;
 		float y = 0.f;
 		float width = 0.f;
@@ -82,19 +89,10 @@ namespace graphics
 		float max_depth = 1.f;
 	};
 
-	struct Rect
-	{
+	struct Rect {
 		int x = 0;
 		int y = 0;
 		int width = 0;
 		int height = 0;
-	};
-
-	//TODO: this should not be here
-	struct Vertex
-	{
-		Vector2f position;
-		Color color;
-		Vector2f tex_coord;
 	};
 }

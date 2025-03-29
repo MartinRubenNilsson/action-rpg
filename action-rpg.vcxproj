@@ -288,6 +288,7 @@
     <ClInclude Include="tile_ids.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
+    <ClInclude Include="vertices.h" />
     <ClInclude Include="window_events.h" />
     <ClInclude Include="shapes.h" />
     <ClInclude Include="dependencies\fmod\fmod.h" />

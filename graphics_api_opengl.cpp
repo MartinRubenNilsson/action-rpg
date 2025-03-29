@@ -64,6 +64,35 @@
 namespace graphics {
 namespace api {
 
+	GLuint _get_vertex_attribute_component_count(Format format) {
+		// must be 1, 2, 3, 4, or GL_BGRA
+		switch (format) {
+		case Format::R8_UNORM:     return 1;
+		case Format::RG8_UNORM:    return 2;
+		case Format::RGB8_UNORM:   return 3;
+		case Format::RGBA8_UNORM:  return 4;
+		case Format::R32_FLOAT:    return 1;
+		case Format::RG32_FLOAT:   return 2;
+		case Format::RGB32_FLOAT:  return 3;
+		case Format::RGBA32_FLOAT: return 4;
+		default: return 0;
+		}
+	}
+
+	GLenum _get_vertex_attribute_component_type(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:     return GL_UNSIGNED_BYTE;
+		case Format::RG8_UNORM:    return GL_UNSIGNED_BYTE;
+		case Format::RGB8_UNORM:   return GL_UNSIGNED_BYTE;
+		case Format::RGBA8_UNORM:  return GL_UNSIGNED_BYTE;
+		case Format::R32_FLOAT:    return GL_FLOAT;
+		case Format::RG32_FLOAT:   return GL_FLOAT;
+		case Format::RGB32_FLOAT:  return GL_FLOAT;
+		case Format::RGBA32_FLOAT: return GL_FLOAT;
+		default: return 0;
+		}
+	}
+
 	GLenum _to_gl_base_format(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return GL_RED;
@@ -116,7 +145,6 @@ namespace api {
 
 	const unsigned int MAX_VIEWPORTS = 8;
 
-	GLuint _vertex_array_object = 0;
 	DebugMessageCallback _debug_message_callback = nullptr;
 
 #ifdef _DEBUG_GRAPHICS
@@ -155,26 +183,6 @@ namespace api {
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 #endif
 
-		// CREATE AND BIND VERTEX ARRAY
-
-		glCreateVertexArrays(1, &_vertex_array_object);
-#ifdef _DEBUG_GRAPHICS
-		glObjectLabel(GL_VERTEX_ARRAY, _vertex_array_object, 0, "vertex array object");
-#endif
-		glBindVertexArray(_vertex_array_object);
-
-		// SETUP VERTEX ARRAY ATTRIBUTES
-
-		glEnableVertexArrayAttrib(_vertex_array_object, 0);
-		glEnableVertexArrayAttrib(_vertex_array_object, 1);
-		glEnableVertexArrayAttrib(_vertex_array_object, 2);
-		glVertexArrayAttribFormat(_vertex_array_object, 0, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, position));
-		glVertexArrayAttribFormat(_vertex_array_object, 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex, color));
-		glVertexArrayAttribFormat(_vertex_array_object, 2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, tex_coord));
-		glVertexArrayAttribBinding(_vertex_array_object, 0, 0);
-		glVertexArrayAttribBinding(_vertex_array_object, 1, 0);
-		glVertexArrayAttribBinding(_vertex_array_object, 2, 0);
-
 		// SETUP BLENDING
 
 		glEnable(GL_BLEND);
@@ -182,12 +190,6 @@ namespace api {
 	}
 
 	void shutdown() {
-		// DELETE VERTEX ARRAY OBJECT
-
-		if (_vertex_array_object) {
-			glDeleteVertexArrays(1, &_vertex_array_object);
-			_vertex_array_object = 0;
-		}
 	}
 
 	void push_debug_group(std::string_view name) {
@@ -196,6 +198,36 @@ namespace api {
 
 	void pop_debug_group() {
 		glPopDebugGroup();
+	}
+
+	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) {
+		GLuint vertex_array_object = 0;
+		glCreateVertexArrays(1, &vertex_array_object);
+#ifdef _DEBUG_GRAPHICS
+		if (!desc.debug_name.empty()) {
+			glObjectLabel(GL_VERTEX_ARRAY, vertex_array_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
+		}
+#endif
+		glBindVertexArray(vertex_array_object);
+		for (unsigned int i = 0; i < desc.attributes.size(); ++i) {
+			const VertexArrayAttribDesc& attrib = desc.attributes[i];
+			glEnableVertexArrayAttrib(vertex_array_object, i);
+			glVertexArrayAttribFormat(vertex_array_object, i,
+				_get_vertex_attribute_component_count(attrib.format),
+				_get_vertex_attribute_component_type(attrib.format),
+				attrib.normalized ? GL_TRUE : GL_FALSE,
+				attrib.offset);
+			glVertexArrayAttribBinding(vertex_array_object, i, attrib.binding);
+		}
+		return VertexArrayHandle{ vertex_array_object };
+	}
+
+	void destroy_vertex_array(VertexArrayHandle vertex_array) {
+		glDeleteVertexArrays(1, (GLuint*)&vertex_array.object);
+	}
+
+	void bind_vertex_array(VertexArrayHandle vertex_array) {
+		glBindVertexArray((GLuint)vertex_array.object);
 	}
 
 	ShaderHandle create_shader(const ShaderDesc& desc) {
@@ -319,12 +351,12 @@ namespace api {
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object, offset, size);
 	}
 
-	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
-		glVertexArrayVertexBuffer(_vertex_array_object, binding, (GLuint)buffer.object, offset, stride);
+	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		glVertexArrayVertexBuffer((GLuint)vertex_array.object, binding, (GLuint)buffer.object, offset, stride);
 	}
 
-	void bind_index_buffer(BufferHandle buffer) {
-		glVertexArrayElementBuffer(_vertex_array_object, (GLuint)buffer.object);
+	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer) {
+		glVertexArrayElementBuffer((GLuint)vertex_array.object, (GLuint)buffer.object);
 	}
 
 	void update_texture(TextureHandle texture, unsigned int level, unsigned int x, unsigned int y,
@@ -340,7 +372,6 @@ namespace api {
 			_to_gl_base_format(pixel_format),
 			GL_UNSIGNED_BYTE,
 			pixels);
-
 	}
 
 	void copy_texture(

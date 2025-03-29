@@ -10,6 +10,12 @@ namespace graphics
 	struct Texture;
 	struct Framebuffer;
 
+	struct Vertex {
+		Vector2f position;
+		Color color;
+		Vector2f tex_coord;
+	};
+
 	void initialize();
 	void shutdown();
 
@@ -86,8 +92,7 @@ namespace graphics
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
-	struct ScopedDebugGroup
-	{
+	struct ScopedDebugGroup {
 		ScopedDebugGroup(std::string_view name) { push_debug_group(name); }
 		~ScopedDebugGroup() { pop_debug_group(); }
 	};

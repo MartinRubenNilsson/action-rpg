@@ -668,9 +668,6 @@
     <ClInclude Include="ecs_lighting.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="graphics_types.h">
-      <Filter>graphics</Filter>
-    </ClInclude>
     <ClInclude Include="platform.h">
       <Filter>application</Filter>
     </ClInclude>
@@ -681,6 +678,12 @@
       <Filter>networking</Filter>
     </ClInclude>
     <ClInclude Include="graphics_api.h">
+      <Filter>graphics\api</Filter>
+    </ClInclude>
+    <ClInclude Include="vertices.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics_types.h">
       <Filter>graphics\api</Filter>
     </ClInclude>
   </ItemGroup>

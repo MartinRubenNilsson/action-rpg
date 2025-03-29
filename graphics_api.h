@@ -22,6 +22,12 @@ namespace api {
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
+	struct VertexArrayHandle { uintptr_t object = 0; };
+
+	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc);
+	void destroy_vertex_array(VertexArrayHandle vertex_array);
+	void bind_vertex_array(VertexArrayHandle vertex_array);
+
 	struct ShaderHandle { uintptr_t object = 0; };
 
 	ShaderHandle create_shader(const ShaderDesc& desc);
@@ -35,8 +41,8 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset);
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer);
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset);
-	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
-	void bind_index_buffer(BufferHandle buffer);
+	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
+	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer);
 
 	struct TextureHandle { uintptr_t object = 0; };
 
