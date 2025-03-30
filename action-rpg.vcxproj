@@ -272,6 +272,7 @@
     <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />
     <ClInclude Include="text.h" />
+    <ClInclude Include="tiled_types.h" />
     <ClInclude Include="tile_ids.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
@@ -349,7 +350,6 @@
     <ClInclude Include="map_tilegrid.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="postprocessing.h" />
-    <ClInclude Include="properties.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="ecs.h" />
     <ClInclude Include="ecs_common.h" />

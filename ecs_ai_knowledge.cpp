@@ -19,7 +19,7 @@ namespace ecs
 			info.position = b2Body_GetPosition(body);
 			info.velocity = b2Body_GetLinearVelocity(body);
 		}
-		get_float(entity, "speed", info.p_speed);
+		get_float_property(entity, "speed", info.p_speed);
 		return info;
 	} 
 

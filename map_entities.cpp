@@ -81,7 +81,7 @@ namespace map
 		for (const tiled::Layer& layer : map.layers) {
 			if (layer.type != tiled::LayerType::Object) continue;
 			for (const tiled::Object& object : layer.objects) {
-				ecs::create(object.id);
+				ecs::create((entt::entity)object.id);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace map
 
 				// At this point, a corresponding entity should have been created
 				// that reuses the object UID from Tiled. If not, something went wrong.
-				entt::entity entity = object.id;
+				entt::entity entity = (entt::entity)object.id;
 				assert(ecs::valid(entity));
 
 				if (!object.name.empty()) {
@@ -119,13 +119,13 @@ namespace map
 					// This is confusing, so let's adjust the position here to make it consistent.
 					position_top_left.y -= object.size.y;
 
-					const tiled::Tileset* tileset = tiled::get_tileset(object.tileset_ref.tileset);
+					const tiled::Tileset* tileset = get_tileset(object.tileset_ref.tileset);
 					if (!tileset) {
 						console::log_error("Tileset not found for object " + object.name);
 						continue;
 					}
 
-					const unsigned int tile_id = object.tile_ref.gid - object.tileset_ref.first_gid;
+					const unsigned int tile_id = object.tile_gid.gid - object.tileset_ref.first_gid;
 					if (tile_id >= tileset->tiles.size()) {
 						console::log_error("Tile not found for object " + object.name);
 						continue;
@@ -158,13 +158,13 @@ namespace map
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
-					if (object.tile_ref.flipped_horizontally) {
+					if (object.tile_gid.flipped_horizontally) {
 						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
-					if (object.tile_ref.flipped_vertically) {
+					if (object.tile_gid.flipped_vertically) {
 						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
 					}
-					if (object.tile_ref.flipped_diagonally) {
+					if (object.tile_gid.flipped_diagonally) {
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
@@ -265,7 +265,7 @@ namespace map
 				switch (tag) {
 				case ecs::Tag::AudioSource: {
 
-					if (std::string ev; object.properties.get_string("event", ev)) {
+					if (std::string ev; get<tiled::PropertyType::String>(object.properties, "event", ev)) {
 						audio::create_event({ .path = ev.c_str(), .position = position_top_left });
 					}
 
@@ -349,9 +349,9 @@ namespace map
 				case ecs::Tag::Portal: {
 
 					ecs::Portal& portal = ecs::emplace_portal(entity);
-					object.properties.get_string("target_map", portal.target_map);
-					object.properties.get_string("target_point", portal.target_point);
-					object.properties.get_string("exit_direction", portal.exit_direction);
+					get<tiled::PropertyType::String>(object.properties, "target_map", portal.target_map);
+					get<tiled::PropertyType::String>(object.properties, "target_point", portal.target_point);
+					get<tiled::PropertyType::String>(object.properties, "exit_direction", portal.exit_direction);
 
 				} break;
 				case ecs::Tag::Camera: {
@@ -360,13 +360,13 @@ namespace map
 					camera.center = position_top_left;
 					camera.confines_min = map_bounds_min;
 					camera.confines_max = map_bounds_max;
-					object.properties.get_entity("follow", camera.entity_to_follow);
+					get<tiled::PropertyType::Object>(object.properties, "follow", (unsigned int&)camera.entity_to_follow);
 
 				} break;
 				case ecs::Tag::Chest: {
 
 					ecs::Chest chest{};
-					if (std::string type; object.properties.get_string("type", type)) {
+					if (std::string type; get<tiled::PropertyType::String>(object.properties, "type", type)) {
 						if (type == "bomb") {
 							chest.type = ecs::ChestType::Bomb;
 						}
@@ -431,13 +431,13 @@ namespace map
 			for (unsigned int y = layer.height; y--;) {
 				for (unsigned int x = layer.width; x--;) {
 
-					const tiled::TileRef tile_ref = layer.tiles[x + y * layer.width];
+					const tiled::TileGID tile_ref = layer.tiles[x + y * layer.width];
 					if (!tile_ref.gid) continue; // Skip empty tiles
 
 					const tiled::TilesetRef tileset_ref = map.get_tileset_ref(tile_ref.gid);
 					if (!tileset_ref.first_gid) continue; // Valid GIDs start at 1
 
-					const tiled::Tileset* tileset = tiled::get_tileset(tileset_ref.tileset);
+					const tiled::Tileset* tileset = get_tileset(tileset_ref.tileset);
 					if (!tileset) {
 						console::log_error("Tileset not found for GID " + std::to_string(tile_ref.gid));
 						continue;
@@ -526,7 +526,7 @@ namespace map
 							const Vector2f collider_half_size = collider.size / 2.f;
 
 							b2ShapeDef shape_def = b2DefaultShapeDef();
-							collider.properties.get_bool("sensor", shape_def.isSensor);
+							get<tiled::PropertyType::Bool>(collider.properties, "sensor", shape_def.isSensor);
 
 							switch (collider.type) {
 							case tiled::ObjectType::Rectangle: {

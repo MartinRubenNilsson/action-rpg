@@ -7,6 +7,26 @@
 #include "filesystem.h"
 
 namespace tiled {
+
+	Property* find_property_by_name(std::vector<Property>& properties, std::string_view name) {
+		for (Property& prop : properties) {
+			if (prop.name == name) {
+				return &prop;
+			}
+		}
+		return nullptr;
+	}
+
+	const Property* find_property_by_name(const std::vector<Property>& properties, std::string_view name) {
+		for (const Property& prop : properties) {
+			if (prop.name == name) {
+				return &prop;
+			}
+		}
+		return nullptr;
+	}
+
+
 	Pool<Map> _maps;
 	Pool<Tileset> _tilesets;
 	Pool<Object> _templates;
@@ -96,37 +116,40 @@ namespace tiled {
 		return nullptr;
 	}
 
-	void _load_properties(const pugi::xml_node& node, Properties& properties) {
+	void _load_property(const pugi::xml_node& node, Property& prop) {
+		prop.name = node.attribute("name").as_string();
+		const pugi::char_t* type = node.attribute("type").as_string("string"); // default type is string
+		pugi::xml_attribute value = node.attribute("value");
+		if (strcmp(type, "string") == 0) {
+			prop.value.emplace<(size_t)PropertyType::String>(value.as_string());
+		} else if (strcmp(type, "int") == 0) {
+			prop.value.emplace<(size_t)PropertyType::Int>(value.as_int());
+		} else if (strcmp(type, "float") == 0) {
+			prop.value.emplace<(size_t)PropertyType::Float>(value.as_float());
+		} else if (strcmp(type, "bool") == 0) {
+			prop.value.emplace<(size_t)PropertyType::Bool>(value.as_bool());
+		} else if (strcmp(type, "color") == 0) {
+			// TODO
+		} else if (strcmp(type, "file") == 0) {
+			prop.value.emplace<(size_t)PropertyType::File>(value.as_string());
+		} else if (strcmp(type, "object") == 0) {
+			prop.value.emplace<(size_t)PropertyType::Object>(value.as_uint());
+		} else if (strcmp(type, "class") == 0) {
+			// TODO
+		} else {
+			assert(false);
+		}
+	}
+
+	void _load_properties(const pugi::xml_node& node, std::vector<Property>& properties) {
 		for (pugi::xml_node prop_node : node.child("properties").children("property")) {
-			const pugi::char_t* name = prop_node.attribute("name").as_string();
-			const pugi::char_t* type = prop_node.attribute("type").as_string("string"); // default type is string
-			pugi::xml_attribute value = prop_node.attribute("value");
-			if (strcmp(type, "string") == 0) {
-				properties.set_string(name, value.as_string());
-			} else if (strcmp(type, "int") == 0) {
-				properties.set_int(name, value.as_int());
-			} else if (strcmp(type, "float") == 0) {
-				properties.set_float(name, value.as_float());
-			} else if (strcmp(type, "bool") == 0) {
-				properties.set_bool(name, value.as_bool());
-			} else if (strcmp(type, "color") == 0) {
-				// TODO
-			} else if (strcmp(type, "file") == 0) {
-				// TODO
-			} else if (strcmp(type, "object") == 0) {
-				unsigned int id = value.as_uint(); // 0 when no object is referenced
-				properties.set_entity(name, id ? (entt::entity)id : entt::null);
-			} else if (strcmp(type, "class") == 0) {
-				// TODO
-			} else {
-				assert(false);
-			}
+			_load_property(prop_node, properties.emplace_back());
 		}
 	}
 
 	std::vector<Vector2f> _load_points(const pugi::xml_node& node) {
 		// Example: <polygon points="0,0 0,16 16,16"/>
-		//TODO: optimize
+		//TODO: optimize, don't use slow stringstream
 		std::vector<Vector2f> points;
 		std::istringstream ss(node.attribute("points").as_string());
 		std::string token;
@@ -143,7 +166,7 @@ namespace tiled {
 	void _load_object(const pugi::xml_node& node, Object& object) {
 		_load_properties(node, object.properties);
 		if (pugi::xml_attribute id = node.attribute("id")) {
-			object.id = (entt::entity)id.as_uint();
+			object.id = id.as_uint();
 		}
 		if (pugi::xml_attribute name = node.attribute("name")) {
 			object.name = name.as_string();
@@ -179,7 +202,7 @@ namespace tiled {
 		}
 		if (pugi::xml_attribute gid = node.attribute("gid")) {
 			object.type = ObjectType::Tile;
-			object.tile_ref.value = gid.as_uint();
+			object.tile_gid.value = gid.as_uint();
 		}
 	}
 
@@ -243,7 +266,7 @@ namespace tiled {
 			const pugi::char_t* encoding = data_node.attribute("encoding").as_string();
 			layer.tiles.resize(layer.width * layer.height);
 			if (strcmp(encoding, "csv") == 0) {
-				//TODO: optimize parsing
+				//TODO: optimize parsing, don't use slow stringstream
 				std::istringstream ss(data_node.text().as_string());
 				std::string token;
 				size_t i = 0;
@@ -312,10 +335,10 @@ namespace tiled {
 				}
 				// By loading the object after copying the template, we can override properties.
 				_load_object(object_node, object);
-				if (object.tile_ref.gid != 0 && object.tileset_ref.first_gid == 0) {
+				if (object.tile_gid.gid != 0 && object.tileset_ref.first_gid == 0) {
 					// This happens when the object is not a template and has a tile, in which case
 					// we need to resolve its tileset. (For templates this is done at load time.)
-					object.tileset_ref = _get_tileset_for_gid(map.tilesets, object.tile_ref.gid);
+					object.tileset_ref = _get_tileset_for_gid(map.tilesets, object.tile_gid.gid);
 				}
 			}
 		} break;

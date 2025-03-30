@@ -530,9 +530,6 @@
       <Filter>application</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="properties.h">
-      <Filter>utilities</Filter>
-    </ClInclude>
     <ClInclude Include="timer.h">
       <Filter>utilities</Filter>
     </ClInclude>
@@ -661,6 +658,9 @@
     </ClInclude>
     <ClInclude Include="window_graphics_api.h">
       <Filter>application\window</Filter>
+    </ClInclude>
+    <ClInclude Include="tiled_types.h">
+      <Filter>tiled</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
