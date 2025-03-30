@@ -6,27 +6,21 @@
 #include "graphics_types.h"
 #include <span>
 
-#ifdef GRAPHICS_API_OPENGL
-typedef void* (*GLADloadproc)(const char* name);
-#endif
-
 namespace graphics {
 namespace api {
 
-	using DebugMessageCallback = void(*)(std::string_view message);
-
 	extern const unsigned int MAX_VIEWPORTS;
 
+	using DebugMessageCallback = void(*)(std::string_view message);
+
 	void set_debug_message_callback(DebugMessageCallback callback);
-
-#ifdef GRAPHICS_API_OPENGL
-	bool glad_load_gll_loader(GLADloadproc glad_load_proc);
-#endif
-
 
 	struct InitializeOptions {
 		const char* application_name = "Application";
 		const char* engine_name = "Engine";
+#ifdef GRAPHICS_API_OPENGL
+		void* (*glad_load_proc)(const char* name) = nullptr;
+#endif
 #ifdef GRAPHICS_API_VULKAN
 		std::span<const char*> vulkan_instance_extensions;
 #endif

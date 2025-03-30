@@ -1,16 +1,13 @@
 #pragma once
 #include "properties.h"
 
-namespace tiled
-{
+namespace tiled {
+
 	// A 32-bit integer that stores a tile GID in the lower 28 bits and flip flags in the upper 4 bits.
-	struct TileRef
-	{
-		union
-		{
+	struct TileRef {
+		union {
 			unsigned int value = 0;
-			struct
-			{
+			struct {
 				unsigned int gid : 28; // global tile ID
 				unsigned int rotated_hexagonal_120 : 1; // only for hexagonal maps
 				unsigned int flipped_diagonally : 1;
@@ -20,14 +17,12 @@ namespace tiled
 		};
 	};
 
-	struct TilesetRef
-	{
+	struct TilesetRef {
 		unsigned int first_gid = 0;
 		Handle<Tileset> tileset;
 	};
 
-	enum class ObjectType
-	{
+	enum class ObjectType {
 		Rectangle,
 		Ellipse,
 		Point,
@@ -37,8 +32,7 @@ namespace tiled
 		Text, // not supported
 	};
 
-	struct Object
-	{
+	struct Object {
 		entt::entity id = entt::null;
 		ObjectType type{};
 		std::string template_path;
@@ -52,34 +46,30 @@ namespace tiled
 		Vector2f size; // in pixels
 	};
 
-	struct Frame
-	{
+	struct Frame {
 		unsigned int duration_ms = 0; // in milliseconds
 		unsigned int tile_id = 0; // Index into Tileset::tiles[].
 	};
 
-	struct Tile
-	{
+	struct Tile {
 		std::string class_;
 		Properties properties;
 		std::vector<Object>	objects;
 		std::vector<Frame> animation;
 	};
 
-	struct WangColor
-	{
+	struct WangColor {
 		std::string name;
 		std::string class_;
 		Properties properties;
 		// Index into Tileset::tiles[] of the tile representing this wangcolor,
 		// or UINT_MAX if no such tile has been chosen.
-		unsigned int tile_id = 0; 
+		unsigned int tile_id = 0;
 		float probability = 0.f;
 		Color color;
 	};
 
-	struct WangTile
-	{
+	struct WangTile {
 		enum // Enumerates the edges and corners of the tile.
 		{
 			TOP = 0,	  // top edge
@@ -94,13 +84,12 @@ namespace tiled
 		};
 
 		// Index into Tileset::tiles[].
-		unsigned int tile_id = 0; 
+		unsigned int tile_id = 0;
 		// Indices into Tileset::wangsets[], or UNINT_MAX when the edge/corner is not assigned.
 		unsigned int wang_ids[COUNT] = {};
 	};
 
-	struct WangSet
-	{
+	struct WangSet {
 		std::string name;
 		std::string class_;
 		Properties properties;
@@ -111,16 +100,14 @@ namespace tiled
 		std::vector<WangTile> tiles;
 	};
 
-	struct TextureRect
-	{
+	struct TextureRect {
 		unsigned int x = 0; // in pixels
 		unsigned int y = 0; // in pixels
 		unsigned int w = 0; // in pixels
 		unsigned int h = 0; // in pixels
 	};
 
-	struct Tileset
-	{
+	struct Tileset {
 		std::string path;
 		std::string image_path;
 		std::string name;
@@ -138,16 +125,14 @@ namespace tiled
 		TextureRect get_texture_rect(unsigned int id) const;
 	};
 
-	enum class LayerType
-	{
+	enum class LayerType {
 		Tile,
 		Object,
 		Image,
 		Group,
 	};
 
-	struct Layer
-	{
+	struct Layer {
 		LayerType type{};
 		std::string name;
 		std::string class_;
@@ -159,8 +144,7 @@ namespace tiled
 		bool visible = true;
 	};
 
-	struct Map
-	{
+	struct Map {
 		std::string path;
 		std::string name; // filename without extension
 		std::string class_;
@@ -193,4 +177,3 @@ namespace tiled
 	Handle<Tileset> load_tileset_from_file(const std::string& path);
 	Handle<Object> load_template_from_file(const std::string& path);
 }
-

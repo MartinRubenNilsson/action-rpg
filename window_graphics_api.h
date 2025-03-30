@@ -17,4 +17,5 @@ namespace window {
 	bool is_vulkan_supported();
 	std::span<const char*> get_required_vulkan_instance_extensions();
 #endif
+
 }

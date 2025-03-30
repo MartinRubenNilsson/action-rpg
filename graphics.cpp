@@ -69,7 +69,6 @@ namespace graphics
 #endif
 #ifdef GRAPHICS_API_OPENGL
 		window::make_opengl_context_current();
-		api::glad_load_gll_loader(window::get_glad_load_proc());
 #endif
 #ifdef GRAPHICS_API_VULKAN
 		if (!window::is_vulkan_supported()) {
@@ -97,6 +96,9 @@ namespace graphics
 			api::InitializeOptions options{};
 			options.application_name = APPLICATION_NAME;
 			options.engine_name = ENGINE_NAME;
+#ifdef GRAPHICS_API_OPENGL
+			options.glad_load_proc = window::get_glad_load_proc();
+#endif
 #ifdef GRAPHICS_API_VULKAN
 			options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
 #endif

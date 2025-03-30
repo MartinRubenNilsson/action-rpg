@@ -167,13 +167,16 @@ namespace api {
 		_debug_message_callback = callback;
 	}
 
-#ifdef GRAPHICS_API_OPENGL
-	bool glad_load_gll_loader(GLADloadproc glad_load_proc) {
-		return gladLoadGLLoader((GLADloadproc)glad_load_proc);
-	}
-#endif
-
 	void initialize(const InitializeOptions& options) {
+
+		// INITIALIZE GLAD
+
+		if (!gladLoadGLLoader((GLADloadproc)options.glad_load_proc)) {
+			if (_debug_message_callback) {
+				_debug_message_callback("Failed to initialize GLAD");
+			}
+			return;
+		}
 
 		// ENABLE DEBUG OUTPUT
 
@@ -310,7 +313,7 @@ namespace api {
 			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
 		}
 #endif
-		return ShaderHandle{ .object = program_object };
+		return ShaderHandle{ program_object };
 	}
 
 	void destroy_shader(ShaderHandle shader) {
