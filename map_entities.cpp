@@ -135,7 +135,7 @@ namespace map
 
 					// EMPLACE SPRITE
 
-					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
+					tiled::TextureRect tex_rect = tiled::get_tile_texture_rect(*tileset, tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;
@@ -469,7 +469,7 @@ namespace map
 
 					// EMPLACE SPRITE
 
-					tiled::TextureRect tex_rect = tileset->get_texture_rect(tile_id);
+					tiled::TextureRect tex_rect = tiled::get_tile_texture_rect(*tileset, tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
 					sprite.shader = graphics::sprite_shader;

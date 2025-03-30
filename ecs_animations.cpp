@@ -120,7 +120,7 @@ namespace ecs
 			graphics::get_texture_size(sprite.texture, texture_size.x, texture_size.y);
 			if (!texture_size.x || !texture_size.y) continue;
 
-			const tiled::TextureRect tex_rect = tileset->get_texture_rect(animation._animated_tile_id);
+			const tiled::TextureRect tex_rect = tiled::get_tile_texture_rect(*tileset, animation._animated_tile_id);
 			sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 			sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 			sprite.tex_position /= Vector2f(texture_size);

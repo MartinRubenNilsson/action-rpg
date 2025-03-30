@@ -26,6 +26,15 @@ namespace tiled {
 		return nullptr;
 	}
 
+	TextureRect get_tile_texture_rect(const Tileset& tileset, unsigned int tile_id) {
+		TextureRect rect{};
+		rect.x = (tile_id % tileset.columns) * (tileset.tile_width + tileset.spacing) + tileset.margin;
+		rect.y = (tile_id / tileset.columns) * (tileset.tile_height + tileset.spacing) + tileset.margin;
+		rect.w = tileset.tile_width;
+		rect.h = tileset.tile_height;
+		return rect;
+	}
+
 
 	Pool<Map> _maps;
 	Pool<Tileset> _tilesets;
@@ -71,15 +80,6 @@ namespace tiled {
 		auto it = _name_to_tileset.find(name);
 		if (it == _name_to_tileset.end()) return Handle<Tileset>();
 		return it->second;
-	}
-
-	TextureRect Tileset::get_texture_rect(unsigned int id) const {
-		TextureRect rect{};
-		rect.x = (id % columns) * (tile_width + spacing) + margin;
-		rect.y = (id / columns) * (tile_height + spacing) + margin;
-		rect.w = tile_width;
-		rect.h = tile_height;
-		return rect;
 	}
 
 	TilesetRef _get_tileset_for_gid(const std::vector<TilesetRef>& tilesets, unsigned int gid) {

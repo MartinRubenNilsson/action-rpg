@@ -35,8 +35,10 @@ namespace ecs {
 
 	// TILED PROPERTIES
 
-	void set_properties(entt::entity entity, const std::vector<tiled::Property>& properties);
-	bool get_properties(entt::entity entity, std::vector<tiled::Property>& properties);
+	using TiledProperties = std::vector<tiled::Property>;
+
+	void set_properties(entt::entity entity, const TiledProperties& properties);
+	bool get_properties(entt::entity entity, TiledProperties& properties);
 	bool get_string_property(entt::entity entity, std::string_view name, std::string& value);
 	bool get_bool_property(entt::entity entity, std::string_view name, bool& value);
 	bool get_int_property(entt::entity entity, std::string_view name, int& value);

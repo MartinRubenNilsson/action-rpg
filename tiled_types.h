@@ -169,9 +169,9 @@ namespace tiled {
 		unsigned int tile_height = 0; // in pixels
 		unsigned int spacing = 0; // in pixels
 		unsigned int margin = 0; // in pixels
-
-		TextureRect get_texture_rect(unsigned int id) const;
 	};
+
+	TextureRect get_tile_texture_rect(const Tileset& tileset, unsigned int tile_id);
 
 	enum class LayerType {
 		Tile,

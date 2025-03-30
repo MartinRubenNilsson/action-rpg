@@ -112,13 +112,11 @@ namespace ecs {
 		return entt::null;
 	}
 
-	using TiledProperties = std::vector<tiled::Property>;
-
-	void set_properties(entt::entity entity, const std::vector<tiled::Property>& properties) {
+	void set_properties(entt::entity entity, const TiledProperties& properties) {
 		_registry.emplace_or_replace<TiledProperties>(entity, properties);
 	}
 
-	bool get_properties(entt::entity entity, std::vector<tiled::Property>& properties) {
+	bool get_properties(entt::entity entity, TiledProperties& properties) {
 		if (!_registry.all_of<TiledProperties>(entity)) return false;
 		properties = _registry.get<TiledProperties>(entity);
 		return true;
