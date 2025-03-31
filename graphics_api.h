@@ -9,8 +9,6 @@
 namespace graphics {
 namespace api {
 
-	extern const unsigned int MAX_VIEWPORTS;
-
 	using DebugMessageCallback = void(*)(std::string_view message);
 
 	void set_debug_message_callback(DebugMessageCallback callback);
@@ -58,12 +56,29 @@ namespace api {
 
 	TextureHandle create_texture(const TextureDesc& desc);
 	void destroy_texture(TextureHandle texture);
-	void update_texture(TextureHandle texture, unsigned int level, unsigned int x, unsigned int y,
-		unsigned int width, unsigned int height, Format pixel_format, const void* pixels);
+	void update_texture(
+		TextureHandle texture,
+		unsigned int level,
+		unsigned int x,
+		unsigned int y,
+		unsigned int width,
+		unsigned int height,
+		Format pixel_format,
+		const void* pixels);
 	void copy_texture(
-		TextureHandle dst_texture, unsigned int dst_level, unsigned int dst_x, unsigned int dst_y, unsigned int dst_z,
-		TextureHandle src_texture, unsigned int src_level, unsigned int src_x, unsigned int src_y, unsigned int src_z,
-		unsigned int src_width, unsigned int src_height, unsigned int src_depth);
+		TextureHandle dst_texture,
+		unsigned int dst_level,
+		unsigned int dst_x,
+		unsigned int dst_y,
+		unsigned int dst_z,
+		TextureHandle src_texture,
+		unsigned int src_level,
+		unsigned int src_x,
+		unsigned int src_y,
+		unsigned int src_z,
+		unsigned int src_width,
+		unsigned int src_height,
+		unsigned int src_depth);
 	void bind_texture(unsigned int binding, TextureHandle texture);
 
 	struct SamplerHandle { uintptr_t object = 0; };
