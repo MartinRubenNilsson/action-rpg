@@ -45,12 +45,17 @@ namespace map {
 #endif
 	}
 
+	bool _tiled_file_load_callback(std::string_view path, std::string& contents) {
+		return filesystem::read_text_file(path, contents);
+	}
+
 	void _tiled_debug_message_callback(std::string_view message) {
 		__debugbreak();
 		console::log_error(message);
 	}
 
 	void initialize() {
+		_tiled_context.file_load_callback = _tiled_file_load_callback;
 		_tiled_context.debug_message_callback = _tiled_debug_message_callback;
 
 		// Preload all Tiled assets.
