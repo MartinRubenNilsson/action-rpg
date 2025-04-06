@@ -9,12 +9,6 @@
 #include "audio.h"
 #include "ui_textbox.h"
 
-#ifdef _DEBUG
-#pragma comment(lib, "TiledLoader_Debug")
-#else
-#pragma comment(lib, "TiledLoader_Release")
-#endif
-
 namespace map {
 	const float DEFAULT_TRANSITION_DURATION = 0.6f; // seconds
 
@@ -34,8 +28,9 @@ namespace map {
 		if (ImGui::BeginCombo("Map", _current_map_path.c_str())) {
 			for (const tiled::Map& map : _tiled_context.maps) {
 				bool is_selected = (_current_map_path == map.path);
-				if (ImGui::Selectable(filesystem::get_stem(map.path).c_str(), is_selected)) {
-					open(map.path);
+				const std::string stem = filesystem::get_stem(map.path);
+				if (ImGui::Selectable(stem.c_str(), is_selected)) {
+					open(stem);
 				}
 				if (is_selected) {
 					ImGui::SetItemDefaultFocus();

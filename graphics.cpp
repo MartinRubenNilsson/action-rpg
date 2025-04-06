@@ -10,12 +10,6 @@
 #define KHRONOS_STATIC
 #include <ktx.h>
 
-#ifdef _DEBUG
-#pragma comment(lib, "GraphicsAPI_Debug")
-#else
-#pragma comment(lib, "GraphicsAPI_Release")
-#endif
-
 namespace graphics
 {
 	struct Shader {

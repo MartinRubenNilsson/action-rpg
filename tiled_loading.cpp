@@ -4,9 +4,31 @@
 #include <zlib.h>
 #include <algorithm>
 #include <filesystem> //TODO: remove
-#include <cassert> //TODO: remove
+#include <cstdlib>
 
 namespace tiled {
+
+	// Loads a color from a string in the format "#RRGGBB" or "#AARRGGBB"
+	Color _load_color(const char* str) {
+		Color color{ .r = 0, .g = 0, .b = 0, .a = 0xFF };
+		if (!str) {
+			return color;
+		}
+		if (*str == '#') {
+			++str; // skip leading '#'
+		}
+		const size_t len = strlen(str);
+		if (len < 2) return color;
+		const unsigned long color_hex = strtoul(str, nullptr, 16);
+		color.b = color_hex & 0xFF;
+		if (len < 4) return color;
+		color.g = (color_hex >> 8) & 0xFF;
+		if (len < 6) return color;
+		color.r = (color_hex >> 16) & 0xFF;
+		if (len < 8) return color;
+		color.a = (color_hex >> 24) & 0xFF;
+		return color;
+	}
 
 	void _load_property(const pugi::xml_node& node, Property& prop) {
 		prop.name = node.attribute("name").as_string();
@@ -21,7 +43,7 @@ namespace tiled {
 		} else if (type == "bool") {
 			prop.value.emplace<(size_t)PropertyType::Bool>(value.as_bool());
 		} else if (type == "color") {
-			// TODO
+			prop.value.emplace<(size_t)PropertyType::Color>(_load_color(value.as_string()));
 		} else if (type == "file") {
 			prop.value.emplace<(size_t)PropertyType::File>(value.as_string());
 		} else if (type == "object") {
@@ -29,7 +51,7 @@ namespace tiled {
 		} else if (type == "class") {
 			// TODO
 		} else {
-			assert(false);
+			// Unknown property type
 		}
 	}
 
@@ -39,20 +61,21 @@ namespace tiled {
 		}
 	}
 
-	std::vector<Point> _load_points(const pugi::xml_node& node) {
+	void _load_points(const pugi::xml_node& node, std::vector<Point>& points) {
 		// Example: <polygon points="0,0 0,16 16,16"/>
-		//TODO: optimize, don't use slow stringstream
-		std::vector<Point> points;
-		std::istringstream ss(node.attribute("points").as_string());
-		std::string token;
-		while (std::getline(ss, token, ' ')) {
-			size_t comma = token.find(',');
-			assert(comma != std::string::npos);
-			float x = std::stof(token.substr(0, comma));
-			float y = std::stof(token.substr(comma + 1));
-			points.emplace_back(x, y);
+		const char* str = node.attribute("points").as_string();
+		if (!str) return;
+		while (*str) { // loop until end of string
+			Point& point = points.emplace_back();
+			int num_chars_read = 0;
+			if (sscanf_s(str, "%f,%f%n", &point.x, &point.y, &num_chars_read) != 2) {
+				break; // error reading point
+			}
+			str += num_chars_read;
+			if (*str == ' ') {
+				++str; // skip space
+			}
 		}
-		return points;
 	}
 
 	void _load_object(const pugi::xml_node& node, Object& object) {
@@ -84,10 +107,10 @@ namespace tiled {
 			object.type = ObjectType::Point;
 		} else if (pugi::xml_node polygon = node.child("polygon")) {
 			object.type = ObjectType::Polygon;
-			object.points = _load_points(polygon);
+			_load_points(polygon, object.points);
 		} else if (pugi::xml_node polyline = node.child("polyline")) {
 			object.type = ObjectType::Polyline;
-			object.points = _load_points(polyline);
+			_load_points(polyline, object.points);
 		} else if (pugi::xml_node text = node.child("text")) {
 			object.type = ObjectType::Text;
 			//TODO
@@ -178,16 +201,7 @@ namespace tiled {
 				_load_properties(wangcolor_node, wangcolor.properties);
 				wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); // -1 in case of no tile
 				wangcolor.probability = wangcolor_node.attribute("probability").as_float();
-				// color_str has the format "#RRGGBB"
-				const char* color_str = wangcolor_node.attribute("color").as_string();
-				if (*color_str == '#') {
-					++color_str; // skip leading '#'
-				}
-				const unsigned long color_hex = strtoul(color_str, nullptr, 16);
-				wangcolor.color.r = (color_hex >> 16) & 0xFF;
-				wangcolor.color.g = (color_hex >> 8) & 0xFF;
-				wangcolor.color.b = color_hex & 0xFF;
-				wangcolor.color.a = 0xFF;
+				wangcolor.color = _load_color(wangcolor_node.attribute("color").as_string());
 			}
 			for (pugi::xml_node wangtile_node : wangset_node.children("wangtile")) {
 				WangTile& wangtile = wangset.tiles.emplace_back();
@@ -322,12 +336,23 @@ namespace tiled {
 			const std::string_view encoding = data_node.attribute("encoding").as_string();
 			layer.tiles.resize(layer.width * layer.height);
 			if (encoding == "csv") {
-				//TODO: optimize parsing, don't use slow stringstream
-				std::istringstream ss(data_node.text().as_string());
-				std::string token;
-				size_t i = 0;
-				while (i < layer.tiles.size() && std::getline(ss, token, ',')) {
-					layer.tiles[i++].value = std::stoul(token);
+				const char* csv_str = data_node.text().as_string();
+				if (!csv_str) break; // error reading CSV string
+				int t = 0; // current tile index
+				while (*csv_str) {
+					if (t >= layer.tiles.size()) break; // too many tiles
+					while (!isdigit(*csv_str)) {
+						++csv_str; // skip non-digit characters
+					}
+					if (!*csv_str) break; // end of string
+					// Read a tile GID from the CSV string
+					unsigned int gid = 0;
+					int num_chars_read = 0;
+					if (sscanf_s(csv_str, "%u%n", &gid, &num_chars_read) != 1) {
+						break; // error reading tile GID
+					}
+					layer.tiles[t++].value = gid;
+					csv_str += num_chars_read;
 				}
 			} else if (encoding == "base64") {
 
@@ -345,7 +370,15 @@ namespace tiled {
 						base64_string.remove_suffix(1);
 					}
 					// Base64 string length must be a multiple of 4
-					assert(base64_string.size() % 4 == 0);
+					if (base64_string.size() % 4 != 0) {
+						if (context.debug_message_callback) {
+							context.debug_message_callback(
+								"Invalid Base64 string length: " + std::to_string(base64_string.size()) + "\n"
+								"  Map: " + map.path + "\n"
+								"  Layer: " + layer.name);
+						}
+						break;
+					}
 					compressed_data.resize((base64_string.size() / 4) * 3);
 					_base64_decode(compressed_data.data(), compressed_data.size(),
 						(const unsigned char*)base64_string.data(), base64_string.size());
@@ -361,7 +394,15 @@ namespace tiled {
 				} else if (compression.empty()) { // No compression
 					// We may have up to 3 bytes of padding at the end of compressed_data
 					// as a result of the Base64 decoding process; these can be discarded.
-					assert(compressed_data.size() >= layer.tiles.size() * sizeof(unsigned int));
+					if (compressed_data.size() < layer.tiles.size() * sizeof(unsigned int)) {
+						if (context.debug_message_callback) {
+							context.debug_message_callback(
+								"Base64-decoded data is too small: " + std::to_string(compressed_data.size()) + "\n"
+								"  Map: " + map.path + "\n"
+								"  Layer: " + layer.name);
+						}
+						break;
+					}
 					memcpy(layer.tiles.data(), compressed_data.data(), layer.tiles.size() * sizeof(unsigned int));
 				} else {
 					// Unknown compression type
