@@ -80,6 +80,11 @@ namespace tiled {
 		Text, // not supported right now
 	};
 
+	struct Point {
+		float x = 0.f;
+		float y = 0.f;
+	};
+
 	struct Object {
 		unsigned int id = 0; // valid IDs are >= 1
 		ObjectType type = ObjectType::Rectangle;
@@ -87,11 +92,13 @@ namespace tiled {
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<Vector2f> points; // in pixels; relative to position; only relevant if type = Polygon/Polyline
+		std::vector<Point> points; // in pixels; relative to position; only relevant if type = Polygon/Polyline
 		TileGid tile; // only relevant if type = Tile
 		TilesetLink tileset; // only relevant if type = Tile
-		Vector2f position; // in pixels
-		Vector2f size; // in pixels
+		float x = 0.f; // in pixels
+		float y = 0.f; // in pixels
+		float width = 0.f; // in pixels
+		float height = 0.f; // in pixels
 	};
 
 	struct Frame {

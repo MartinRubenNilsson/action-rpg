@@ -9,6 +9,12 @@
 #include "audio.h"
 #include "ui_textbox.h"
 
+#ifdef _DEBUG
+#pragma comment(lib, "TiledLoader_Debug")
+#else
+#pragma comment(lib, "TiledLoader_Release")
+#endif
+
 namespace map {
 	const float DEFAULT_TRANSITION_DURATION = 0.6f; // seconds
 
@@ -45,6 +51,7 @@ namespace map {
 	}
 
 	void _tiled_debug_message_callback(std::string_view message) {
+		__debugbreak();
 		console::log_error(message);
 	}
 

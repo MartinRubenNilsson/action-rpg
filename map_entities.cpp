@@ -114,14 +114,14 @@ namespace map {
 				}
 
 				// In Tiled, objects are positioned by their top-left corner...
-				Vector2f position_top_left = object.position;
+				Vector2f position_top_left = Vector2f(object.x, object.y);
 
 				switch (object.type) {
 				case tiled::ObjectType::Tile: {
 
 					// ...unless it's a tile, in which case it's positioned by its bottom-left corner.
 					// This is confusing, so let's adjust the position here to make it consistent.
-					position_top_left.y -= object.size.y;
+					position_top_left.y -= object.height;
 
 					const tiled::Tileset* tileset = get_tileset(object.tileset.tileset_id);
 					if (!tileset) {
@@ -145,7 +145,8 @@ namespace map {
 					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
 					sprite.position = position_top_left;
-					sprite.size = object.size;
+					sprite.size.x = object.width;
+					sprite.size.y = object.height;
 					sprite.tex_position = { (float)tex_rect.x, (float)tex_rect.y };
 					sprite.tex_size = { (float)tex_rect.w, (float)tex_rect.h };
 					Vector2u texture_size;
@@ -158,7 +159,7 @@ namespace map {
 					// index of a tile layer so that certain static tiles are rendered as if
 					// they were objects, e.g. trees and other props.
 					sprite.sorting_layer = (uint8_t)get_object_layer_index();
-					sprite.sorting_point = object.size / 2.f;
+					sprite.sorting_point = Vector2f(object.width / 2.f, object.height / 2.f);
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
@@ -194,10 +195,10 @@ namespace map {
 
 						for (const tiled::Object& collider : tile.objects) {
 
-							const float coll_x = collider.position.x;
-							const float coll_y = collider.position.y;
-							const float coll_hw = collider.size.x / 2.f;
-							const float coll_hh = collider.size.y / 2.f;
+							const float coll_x = collider.x;
+							const float coll_y = collider.y;
+							const float coll_hw = collider.width / 2.f;
+							const float coll_hh = collider.height / 2.f;
 							const Vector2f coll_center = { coll_x + coll_hw, coll_y + coll_hh };
 
 							switch (collider.type) {
@@ -234,8 +235,8 @@ namespace map {
 					body_def.position = position_top_left;
 					b2BodyId body = ecs::emplace_body(entity, body_def);
 
-					const float hw = object.size.x / 2.f;
-					const float hh = object.size.y / 2.f;
+					const float hw = object.width / 2.f;
+					const float hh = object.height / 2.f;
 					const Vector2f center = { hw, hh };
 
 					switch (object.type) {
@@ -526,8 +527,8 @@ namespace map {
 
 						for (const tiled::Object& collider : tile.objects) {
 
-							const Vector2f collider_center = collider.position;
-							const Vector2f collider_half_size = collider.size / 2.f;
+							const Vector2f collider_center(collider.x, collider.y);
+							const Vector2f collider_half_size(collider.width / 2.f, collider.height / 2.f);
 
 							b2ShapeDef shape_def = b2DefaultShapeDef();
 							get<tiled::PropertyType::Bool>(collider.properties, "sensor", shape_def.isSensor);
@@ -552,20 +553,20 @@ namespace map {
 							} break;
 							case tiled::ObjectType::Polygon: {
 
-								const int32_t count = (int32_t)collider.points.size();
+								const std::span<const Vector2f> points{ (const Vector2f*)collider.points.data(), collider.points.size() };
+								const int32_t count = (int32_t)points.size();
 								if (count < 3) {
-									console::log_error("Too few points in polygon collider! Got " +
-										std::to_string(count) + ", need >= 3.");
+									console::log_error("Too few points in polygon collider! Got " + std::to_string(count) + ", need >= 3.");
 									break;
 								}
 
-								if (count <= b2_maxPolygonVertices && is_convex(collider.points)) {
+								if (count <= b2_maxPolygonVertices && is_convex(points)) {
 
-									b2Vec2 points[b2_maxPolygonVertices];
+									b2Vec2 polygon_points[b2_maxPolygonVertices];
 									for (int32_t i = 0; i < count; ++i) {
-										points[i] = collider_center + collider.points[i];
+										polygon_points[i] = collider_center + points[i];
 									}
-									b2Hull hull = b2ComputeHull(points, count);
+									b2Hull hull = b2ComputeHull(polygon_points, count);
 									if (!b2ValidateHull(&hull)) {
 										console::log_error("Invalid hull in polygon collider!");
 										break;
@@ -576,13 +577,13 @@ namespace map {
 								}
 
 								//TODO: fix triangulate()
-								const std::vector<Vector2f> triangles = triangulate(collider.points);
+								const std::vector<Vector2f> triangles = triangulate(points);
 								for (size_t i = 0; i < triangles.size(); i += 3) {
-									b2Vec2 points[3];
+									b2Vec2 triangle_points[3];
 									for (size_t j = 0; j < 3; ++j) {
-										points[j] = collider_center + triangles[i + j];
+										triangle_points[j] = collider_center + triangles[i + j];
 									}
-									b2Hull hull = b2ComputeHull(points, 3);
+									b2Hull hull = b2ComputeHull(triangle_points, 3);
 									if (!b2ValidateHull(&hull)) {
 										console::log_error("Invalid hull in polygon collider!");
 										continue;
@@ -594,7 +595,7 @@ namespace map {
 							} break;
 							case tiled::ObjectType::Point: {
 
-								sprite.sorting_point = collider.position;
+								sprite.sorting_point = Vector2f(collider.x, collider.y);
 
 							} break;
 							}

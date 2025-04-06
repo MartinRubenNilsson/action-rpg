@@ -1,9 +1,10 @@
-#include "stdafx.h" //TODO: remove
 #include "tiled.h"
 #include "tiled_types.h"
 #include <pugixml.hpp>
 #include <zlib.h>
-#include "filesystem.h" //TODO: remove
+#include <algorithm>
+#include <filesystem> //TODO: remove
+#include <cassert> //TODO: remove
 
 namespace tiled {
 
@@ -38,10 +39,10 @@ namespace tiled {
 		}
 	}
 
-	std::vector<Vector2f> _load_points(const pugi::xml_node& node) {
+	std::vector<Point> _load_points(const pugi::xml_node& node) {
 		// Example: <polygon points="0,0 0,16 16,16"/>
 		//TODO: optimize, don't use slow stringstream
-		std::vector<Vector2f> points;
+		std::vector<Point> points;
 		std::istringstream ss(node.attribute("points").as_string());
 		std::string token;
 		while (std::getline(ss, token, ' ')) {
@@ -66,16 +67,16 @@ namespace tiled {
 			object.class_ = type.as_string();
 		}
 		if (pugi::xml_attribute x = node.attribute("x")) {
-			object.position.x = x.as_float();
+			object.x = x.as_float();
 		}
 		if (pugi::xml_attribute y = node.attribute("y")) {
-			object.position.y = y.as_float();
+			object.y = y.as_float();
 		}
 		if (pugi::xml_attribute width = node.attribute("width")) {
-			object.size.x = width.as_float();
+			object.width = width.as_float();
 		}
 		if (pugi::xml_attribute height = node.attribute("height")) {
-			object.size.y = height.as_float();
+			object.height = height.as_float();
 		}
 		if (node.child("ellipse")) {
 			object.type = ObjectType::Ellipse;
@@ -97,8 +98,16 @@ namespace tiled {
 		}
 	}
 
+	std::string _get_normalized_path(const std::string& path) {
+		return std::filesystem::path(path).lexically_normal().string();
+	}
+
+	std::string _get_parent_path(const std::string& path) {
+		return std::filesystem::path(path).parent_path().string();
+	}
+
 	unsigned int load_tileset_from_file(Context& context, const std::string& path) {
-		std::string normalized_path = filesystem::get_normalized_path(path);
+		std::string normalized_path = _get_normalized_path(path);
 
 		// Check if the tileset is already loaded
 		for (unsigned int tileset_id = 0; tileset_id < context.tilesets.size(); ++tileset_id) {
@@ -126,10 +135,10 @@ namespace tiled {
 		tileset.columns = tileset_node.attribute("columns").as_uint();
 		tileset.spacing = tileset_node.attribute("spacing").as_uint();
 		tileset.margin = tileset_node.attribute("margin").as_uint();
-		tileset.image_path = filesystem::get_parent_path(tileset.path);
+		tileset.image_path = _get_parent_path(tileset.path);
 		tileset.image_path += '/';
 		tileset.image_path += tileset_node.child("image").attribute("source").as_string();
-		tileset.image_path = filesystem::get_normalized_path(tileset.image_path);
+		tileset.image_path = _get_normalized_path(tileset.image_path);
 		_load_properties(tileset_node, tileset.properties);
 		tileset.tiles.resize(tileset.tile_count);
 
@@ -208,7 +217,7 @@ namespace tiled {
 	}
 
 	unsigned int load_template_from_file(Context& context, const std::string& path) {
-		const std::string normalized_path = filesystem::get_normalized_path(path);
+		std::string normalized_path = _get_normalized_path(path);
 
 		// Check if the template is already loaded
 		for (unsigned int template_id = 0; template_id < context.templates.size(); ++template_id) {
@@ -241,10 +250,10 @@ namespace tiled {
 				return UINT_MAX;
 			}
 			object.tileset.first_gid = tileset_node.attribute("firstgid").as_uint();
-			std::string tileset_path = filesystem::get_parent_path(object.template_path);
+			std::string tileset_path = _get_parent_path(object.template_path);
 			tileset_path += '/';
 			tileset_path += source_attribute.as_string();
-			tileset_path = filesystem::get_normalized_path(tileset_path);
+			tileset_path = _get_normalized_path(tileset_path);
 			object.tileset.tileset_id = load_tileset_from_file(context, tileset_path); // TODO: handle errors
 		}
 
@@ -291,7 +300,7 @@ namespace tiled {
 		}
 	}
 
-	void _load_layer_recursive(Context& context, Map& map, pugi::xml_node node) {
+	void _load_layer_recursive(Context& context, Map& map, const pugi::xml_node& node) {
 		// PITFALL: node may be of type <tileset>, and we are only interested in layers,
 		// hence we have an early return if we fail to convert the node name to a LayerType.
 
@@ -358,7 +367,7 @@ namespace tiled {
 					// Unknown compression type
 					if (context.debug_message_callback) {
 						context.debug_message_callback(
-							"Unknown Tiled map tile layer compression: "s + std::string(compression) + "\n"
+							"Unknown Tiled map tile layer compression: " + std::string(compression) + "\n"
 							"  Map: " + map.path + "\n"
 							"  Layer: " + layer.name);
 					}
@@ -368,7 +377,7 @@ namespace tiled {
 				// Unknown encoding type
 				if (context.debug_message_callback) {
 					context.debug_message_callback(
-						"Unknown Tiled map tile layer encoding: "s + std::string(encoding) + "\n"
+						"Unknown Tiled map tile layer encoding: " + std::string(encoding) + "\n"
 						"  Map: " + map.path + "\n"
 						"  Layer: " + layer.name);
 				}
@@ -379,10 +388,10 @@ namespace tiled {
 				Object& object = layer.objects.emplace_back();
 				// If the object is connected to a template, we need to load and apply it first.
 				if (pugi::xml_attribute template_attribute = object_node.attribute("template")) {
-					std::string template_path = filesystem::get_parent_path(map.path);
+					std::string template_path = _get_parent_path(map.path);
 					template_path += '/';
 					template_path += template_attribute.as_string();
-					template_path = filesystem::get_normalized_path(template_path);
+					template_path = _get_normalized_path(template_path);
 					const unsigned int template_id = load_template_from_file(context, template_path);
 					if (template_id < context.templates.size()) {
 						object = context.templates[template_id];
@@ -409,7 +418,7 @@ namespace tiled {
 	}
 
 	unsigned int load_map_from_file(Context& context, const std::string& path) {
-		std::string normalized_path = filesystem::get_normalized_path(path);
+		std::string normalized_path = _get_normalized_path(path);
 
 		// Check if the map is already loaded
 		for (unsigned int map_id = 0; map_id < context.maps.size(); ++map_id) {
@@ -446,10 +455,10 @@ namespace tiled {
 				}
 				continue;
 			}
-			std::string tileset_path = filesystem::get_parent_path(map.path);
+			std::string tileset_path = _get_parent_path(map.path);
 			tileset_path += '/';
 			tileset_path += source_attribute.as_string();
-			tileset_path = filesystem::get_normalized_path(tileset_path);
+			tileset_path = _get_normalized_path(tileset_path);
 			TilesetLink& tileset_id = map.tilesets.emplace_back();
 			tileset_id.tileset_id = load_tileset_from_file(context, tileset_path); // TODO: handle errors
 			tileset_id.first_gid = tileset_node.attribute("firstgid").as_uint();

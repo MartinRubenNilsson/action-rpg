@@ -5,10 +5,13 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "action-rpg", "action-rpg.vcxproj", "{0E37F4EC-F122-4BA3-B411-881D28C62C87}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C} = {6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}
 		{F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238} = {F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GraphicsAPI", "GraphicsAPI.vcxproj", "{F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TiledLoader", "TiledLoader.vcxproj", "{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +27,10 @@ Global
 		{F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238}.Debug|x64.Build.0 = Debug|x64
 		{F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238}.Release|x64.ActiveCfg = Release|x64
 		{F6FE9B9E-1D82-4AE2-BFC5-F00EC33C0238}.Release|x64.Build.0 = Release|x64
+		{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}.Debug|x64.ActiveCfg = Debug|x64
+		{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}.Debug|x64.Build.0 = Debug|x64
+		{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}.Release|x64.ActiveCfg = Release|x64
+		{6865FA4F-BB6A-46CA-9A17-20ECB68CC43C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

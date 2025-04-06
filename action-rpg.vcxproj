@@ -45,13 +45,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>intermediate\action-rpg\$(Configuration)\</IntDir>
-    <TargetName>action-rpg_$(Configuration)</TargetName>
+    <IntDir>intermediate\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>intermediate\action-rpg\$(Configuration)\</IntDir>
-    <TargetName>action-rpg_$(Configuration)</TargetName>
+    <IntDir>intermediate\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\</OutDir>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
@@ -115,7 +115,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
-      <AdditionalIncludeDirectories>$(SolutionDir)dependencies;$(SolutionDir)dependencies\box2d\include;$(SolutionDir)dependencies\box2d\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>false</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <ForcedUsingFiles>
@@ -197,8 +197,6 @@
     <ClCompile Include="steam_client.cpp" />
     <ClCompile Include="steam_server.cpp" />
     <ClCompile Include="text.cpp" />
-    <ClCompile Include="tiled_loading.cpp" />
-    <ClCompile Include="tiled_utils.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="easings.cpp" />
     <ClCompile Include="ui.cpp" />
@@ -273,7 +271,6 @@
     <ClInclude Include="pool.h" />
     <ClInclude Include="renderdoc.h" />
     <ClInclude Include="text.h" />
-    <ClInclude Include="tiled_types.h" />
     <ClInclude Include="tile_ids.h" />
     <ClInclude Include="ui_rmlui_system_interface.h" />
     <ClInclude Include="vector2.h" />
@@ -362,7 +359,6 @@
     <ClInclude Include="steam.h" />
     <ClInclude Include="steam_client.h" />
     <ClInclude Include="steam_server.h" />
-    <ClInclude Include="tiled.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="easings.h" />
     <ClInclude Include="ui.h" />

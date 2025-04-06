@@ -31,9 +31,6 @@
     <ClCompile Include="ecs_camera.cpp">
       <Filter>game\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="tiled_loading.cpp">
-      <Filter>tiled</Filter>
-    </ClCompile>
     <ClCompile Include="ui_hud.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -197,9 +194,6 @@
     <ClCompile Include="window_events.cpp">
       <Filter>application\window</Filter>
     </ClCompile>
-    <ClCompile Include="tiled_utils.cpp">
-      <Filter>tiled</Filter>
-    </ClCompile>
     <ClCompile Include="filesystem.cpp">
       <Filter>application\filesystem</Filter>
     </ClCompile>
@@ -294,9 +288,6 @@
     </ClInclude>
     <ClInclude Include="ecs_camera.h">
       <Filter>game\ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="tiled.h">
-      <Filter>tiled</Filter>
     </ClInclude>
     <ClInclude Include="ui_hud.h">
       <Filter>ui</Filter>
@@ -655,9 +646,6 @@
     <ClInclude Include="window_graphics_api.h">
       <Filter>application\window</Filter>
     </ClInclude>
-    <ClInclude Include="tiled_types.h">
-      <Filter>tiled</Filter>
-    </ClInclude>
     <ClInclude Include="filesystem.h">
       <Filter>application\filesystem</Filter>
     </ClInclude>
@@ -680,9 +668,6 @@
     </Filter>
     <Filter Include="audio\fmod">
       <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tiled">
-      <UniqueIdentifier>{6b60417d-4b8d-484b-a07f-0ba1149de84b}</UniqueIdentifier>
     </Filter>
     <Filter Include="graphics">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "tiled.h"
 #include "tiled_types.h"
 
