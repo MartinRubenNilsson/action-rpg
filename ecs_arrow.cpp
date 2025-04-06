@@ -39,11 +39,11 @@ namespace ecs {
 		const Vector2f pivot = { 8.f, 8.f };
 		{
 			TileAnimation& animation = emplace_tile_animation(entity);
-			animation.tileset = get_tileset("items1");
+			animation.tileset_id = get_tileset_id("items1");
 			animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
 
 			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.texture = get_tileset_texture(animation.tileset);
+			sprite.texture = get_tileset_texture(animation.tileset_id);
 			sprite.sorting_layer = map::get_object_layer_index();
 			sprite.sorting_point = pivot;
 			sprite.position = position - pivot;

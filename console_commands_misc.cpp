@@ -11,198 +11,223 @@
 #include "ecs_camera.h"
 #include "ecs_vfx.h"
 
-namespace console
-{
-	void register_commands_misc(std::vector<Command>& commands)
-	{
-		// CONSOLE
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "help";
-			cmd.desc = "Shows help for a command";
-			cmd.params[0] = { "", "command", "The command to show help for" };
-			cmd.callback = [](const Params& params) {
-				auto it = find_command(std::get<std::string>(params[0].arg));
-				if (it != commands_end())
-					log(format_help_message(*it));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "clear";
-			cmd.desc = "Clears the console";
-			cmd.callback = [](const Params&) { clear(); };
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "sleep";
-			cmd.desc = "Defers incoming commands, executing them later";
-			cmd.params[0] = { 0.f, "seconds", "The number of seconds to sleep" };
-			cmd.callback = [](const Params& params) {
-				sleep(std::get<float>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "log";
-			cmd.desc = "Logs a message to the console";
-			cmd.params[0] = { "", "message", "The message to log" };
-			cmd.callback = [](const Params& params) {
-				log(std::get<std::string>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "log_error";
-			cmd.desc = "Logs an error message to the console";
-			cmd.params[0] = { "", "message", "The message to log" };
-			cmd.callback = [](const Params& params) {
-				log_error(std::get<std::string>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "execute";
-			cmd.desc = "Executes a console command";
-			cmd.params[0] = { "", "command_line", "The command to execute" };
-			cmd.callback = [](const Params& params) {
-				execute(std::get<std::string>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "execute_script";
-			cmd.desc = "Executes a console script";
-			cmd.params[0] = { "", "script_name", "The name of the script" };
-			cmd.callback = [](const Params& params) {
-				execute_script_from_file(std::get<std::string>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "bind";
-			cmd.desc = "Binds a console command to a key";
-			cmd.params[0] = { "", "key", "The key to bind" };
-			cmd.params[1] = { "", "command_line", "The command to execute" };
-			cmd.callback = [](const Params& params) {
-				bind(std::get<std::string>(params[0].arg), std::get<std::string>(params[1].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "unbind";
-			cmd.desc = "Unbinds a key";
-			cmd.params[0] = { "", "key", "The key to unbind" };
-			cmd.callback = [](const Params& params) {
-				unbind(std::get<std::string>(params[0].arg));
-			};
-		}
+namespace console {
+	void _add_misc_commands() {
 
-		//// SHADERS
-		//{
-		//	Command& cmd = commands.emplace_back();
-		//	cmd.name = "reload_shaders";
-		//	cmd.desc = "Reloads all shaders";
-		//	cmd.callback = [](const Params& params) { shaders::reload_assets(); };
-		//}
+		// CONSOLE
+
+		add_command({
+			.name = "help",
+			.desc = "Shows help for a command",
+			.params = {
+				Param{ ParamType::String, "command", "The command to show help for" },
+			},
+			.callback = [](const ArgList& args) {
+				if (const Command* command = find_command_with_name(get_string(args[0]))) {
+					log(format_command_help_message(*command));
+				}
+			}
+		});
+		add_command({
+			.name = "clear",
+			.desc = "Clears the console",
+			.callback = [](const ArgList& args) {
+				clear();
+			}
+		});
+		add_command({
+			.name = "sleep",
+			.desc = "Defers incoming commands, executing them later",
+			.params = {
+				Param{ ParamType::Float, "seconds", "The number of seconds to sleep" },
+			},
+			.callback = [](const ArgList& args) {
+				sleep(get_float(args[0]));
+			}
+		});
+		add_command({
+			.name = "log",
+			.desc = "Logs a message to the console",
+			.params = {
+				Param{ ParamType::String, "message", "The message to log" },
+			},
+			.callback = [](const ArgList& args) {
+				log(get_string(args[0]));
+			}
+		});
+		add_command({
+			.name = "log_error",
+			.desc = "Logs an error message to the console",
+			.params = {
+				Param{ ParamType::String, "message", "The message to log" },
+			},
+			.callback = [](const ArgList& args) {
+				log_error(get_string(args[0]));
+			}
+		});
+		add_command({
+			.name = "execute",
+			.desc = "Executes a console command",
+			.params = {
+				Param{ ParamType::String, "command_line", "The command to execute" },
+			},
+			.callback = [](const ArgList& args) {
+				execute(get_string(args[0]));
+			}
+		});
+		add_command({
+			.name = "execute_script",
+			.desc = "Executes a console script",
+			.params = {
+				Param{ ParamType::String, "script_name", "The name of the script" },
+			},
+			.callback = [](const ArgList& args) {
+				execute_script_from_file(get_string(args[0]));
+			}
+		});
+		add_command({
+			.name = "bind",
+			.desc = "Binds a console command to a key",
+			.params = {
+				Param{ ParamType::String, "key", "The key to bind" },
+				Param{ ParamType::String, "command_line", "The command to execute" },
+			},
+			.callback = [](const ArgList& args) {
+				console::bind(get_string(args[0]), get_string(args[1]));
+			}
+		});
+		add_command({
+			.name = "unbind",
+			.desc = "Unbinds a key",
+			.params = {
+				Param{ ParamType::String, "key", "The key to unbind" },
+			},
+			.callback = [](const ArgList& args) {
+				console::unbind(get_string(args[0]));
+			}
+		});
+
+		// SHADERS
+
+#if 0
+		add_command({
+			.name = "reload_shaders",
+			.desc = "Reloads all shaders",
+			.callback = [](const ArgList& args) {
+				shaders::reload_assets();
+			}
+		});
+#endif
 
 		// AUDIO
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "audio_play";
-			cmd.desc = "Plays an audio event";
-			cmd.params[0] = { "", "event_path", "The full path of the event" };
-			cmd.callback = [](const Params& params) {
-				audio::create_event({ .path = std::get<std::string>(params[0].arg).c_str() });
-			};
-		}
+
+		add_command({
+			.name = "audio_play",
+			.desc = "Plays an audio event",
+			.params = {
+				Param{ ParamType::String, "event_path", "The full path of the event" },
+			},
+			.callback = [](const ArgList& args) {
+				audio::create_event({ .path = get_string(args[0]) });
+			}
+		});
 
 		// MAP
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "map_open";
-			cmd.desc = "Opens a map";
-			cmd.params[0] = { "", "name", "The name of the map" };
-			cmd.callback = [](const Params& params) {
-				map::open(std::get<std::string>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "map_close";
-			cmd.desc = "Closes the current map";
-			cmd.callback = [](const Params& params) { map::close(); };
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "map_reset";
-			cmd.desc = "Resets the current map";
-			cmd.callback = [](const Params& params) { map::reset(); };
-		}
+
+		add_command({
+			.name = "map_open",
+			.desc = "Opens a map",
+			.params = {
+				Param{ ParamType::String, "name", "The name of the map" },
+			},
+			.callback = [](const ArgList& args) {
+				map::open(get_string(args[0]));
+			}
+		});
+		add_command({
+			.name = "map_close",
+			.desc = "Closes the current map",
+			.callback = [](const ArgList& args) {
+				map::close();
+			}
+		});
+		add_command({
+			.name = "map_reset",
+			.desc = "Resets the current map",
+			.callback = [](const ArgList& args) {
+				map::reset();
+			}
+		});
 
 		// UI
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "ui_show";
-			cmd.desc = "Shows an RML document";
-			cmd.params[0] = { "", "name", "The name of the document" };
-			cmd.callback = [](const Params& params) {
-				ui::show_document(std::get<std::string>(params[0].arg));
-			};
-		}
+
+		add_command({
+			.name = "ui_show",
+			.desc = "Shows an RML document",
+			.params = {
+				Param{ ParamType::String, "name", "The name of the document" },
+			},
+			.callback = [](const ArgList& args) {
+				ui::show_document(get_string(args[0]));
+			}
+		});
 
 		// GAME
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "destroy";
-			cmd.desc = "Destroy an entity";
-			cmd.params[0] = { 0, "entity", "The ID of the entity to destroy" };
-			cmd.callback = [](const Params& params) {
-				ecs::destroy_at_end_of_frame((entt::entity)std::get<int>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "clone";
-			cmd.desc = "Clone an entity";
-			cmd.params[0] = { 0, "entity", "The ID of the entity to clone" };
-			cmd.callback = [](const Params& params) {
-				ecs::deep_copy((entt::entity)std::get<int>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "kill_player";
-			cmd.desc = "Kills the player";
-			cmd.callback = [](const Params&) {
+
+		add_command({
+			.name = "destroy",
+			.desc = "Destroy an entity",
+			.params = {
+				Param{ ParamType::Int, "entity", "The ID of the entity to destroy" },
+			},
+			.callback = [](const ArgList& args) {
+				ecs::destroy_at_end_of_frame((entt::entity)get_int(args[0]));
+			}
+		});
+		add_command({
+			.name = "clone",
+			.desc = "Clone an entity",
+			.params = {
+				Param{ ParamType::Int, "entity", "The ID of the entity to clone" },
+			},
+			.callback = [](const ArgList& args) {
+				ecs::deep_copy((entt::entity)get_int(args[0]));
+			}
+		});
+		add_command({
+			.name = "kill_player",
+			.desc = "Kills the player",
+			.callback = [](const ArgList& args) {
 				ecs::kill_player(ecs::find_entity_by_tag(ecs::Tag::Player));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "add_camera_shake";
-			cmd.desc = "Adds trauma to the active camera to make it shake";
-			cmd.params[0] = { 0.f, "trauma", "The amount of trauma to add" };
-			cmd.callback = [](const Params& params) {
-				ecs::add_trauma_to_active_camera(std::get<float>(params[0].arg));
-			};
-		}
-		{
-			Command& cmd = commands.emplace_back();
-			cmd.name = "create_vfx";
-			cmd.desc = "Spawns a VFX in the game world";
-			cmd.params[0] = { "", "type", "The type of VFX" };
-			cmd.params[1] = { Vector2f(), "position", "The position to spawn the VFX at" };
-			cmd.callback = [](const Params& params) {
-				const std::string& type_str = std::get<std::string>(params[0].arg);
-				const Vector2f& position = std::get<Vector2f>(params[1].arg);
+			}
+		});
+		add_command({
+			.name = "add_camera_shake",
+			.desc = "Adds trauma to the active camera to make it shake",
+			.params = {
+				Param{ ParamType::Float, "trauma", "The amount of trauma to add" },
+			},
+			.callback = [](const ArgList& args) {
+				ecs::add_trauma_to_active_camera(get_float(args[0]));
+			}
+		});
+		add_command({
+			.name = "create_vfx",
+			.desc = "Spawns a VFX in the game world",
+			.params = {
+				Param{ ParamType::String, "type", "The type of VFX" },
+				Param{ ParamType::Vector2f, "position", "The position to spawn the VFX at" },
+			},
+			.callback = [](const ArgList& args) {
+				std::string type_str = get_string(args[0]);
+				Vector2f position = get_vector2f(args[1]);
 				auto type = magic_enum::enum_cast<ecs::VfxType>(type_str, magic_enum::case_insensitive);
 				if (type.has_value()) {
 					create_vfx(type.value(), position);
 				} else {
 					log_error("Unknown VFX type: " + type_str);
 				}
-			};
-		}
+			}
+		});
 	}
 }

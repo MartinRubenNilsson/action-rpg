@@ -75,11 +75,11 @@ namespace ecs
         ignite_bomb(entity);
         {
             TileAnimation& animation = emplace_tile_animation(entity);
-            animation.tileset = get_tileset("items1");
+            animation.tileset_id = get_tileset_id("items1");
             animation.tile_id = TILE_ID_ITEM_POTION; // placeholder
 
 			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.texture = get_tileset_texture(animation.tileset);
+			sprite.texture = get_tileset_texture(animation.tileset_id);
             sprite.sorting_layer = map::get_object_layer_index();
             sprite.sorting_point = { 8.f, 16.f };
             sprite.position = position - sprite.sorting_point;

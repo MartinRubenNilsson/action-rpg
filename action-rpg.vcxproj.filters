@@ -17,10 +17,7 @@
       <Filter>audio</Filter>
     </ClCompile>
     <ClCompile Include="console.cpp">
-      <Filter>console</Filter>
-    </ClCompile>
-    <ClCompile Include="console_commands.cpp">
-      <Filter>console</Filter>
+      <Filter>application\console</Filter>
     </ClCompile>
     <ClCompile Include="ecs.cpp">
       <Filter>game\ecs</Filter>
@@ -34,7 +31,7 @@
     <ClCompile Include="ecs_camera.cpp">
       <Filter>game\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="tiled.cpp">
+    <ClCompile Include="tiled_loading.cpp">
       <Filter>tiled</Filter>
     </ClCompile>
     <ClCompile Include="ui_hud.cpp">
@@ -79,17 +76,11 @@
     <ClCompile Include="steam.cpp">
       <Filter>steam</Filter>
     </ClCompile>
-    <ClCompile Include="console_commands_misc.cpp">
-      <Filter>console</Filter>
-    </ClCompile>
     <ClCompile Include="shapes.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="steam_server.cpp">
       <Filter>steam</Filter>
-    </ClCompile>
-    <ClCompile Include="console_commands_steam.cpp">
-      <Filter>console</Filter>
     </ClCompile>
     <ClCompile Include="map_entities.cpp">
       <Filter>game\map</Filter>
@@ -139,9 +130,6 @@
     </ClCompile>
     <ClCompile Include="text.cpp">
       <Filter>graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="filesystem.cpp">
-      <Filter>application</Filter>
     </ClCompile>
     <ClCompile Include="ecs_chest.cpp">
       <Filter>game\ecs</Filter>
@@ -208,6 +196,21 @@
     </ClCompile>
     <ClCompile Include="window_events.cpp">
       <Filter>application\window</Filter>
+    </ClCompile>
+    <ClCompile Include="tiled_utils.cpp">
+      <Filter>tiled</Filter>
+    </ClCompile>
+    <ClCompile Include="filesystem.cpp">
+      <Filter>application\filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_misc.cpp">
+      <Filter>application\console\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_steam.cpp">
+      <Filter>application\console\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands.cpp">
+      <Filter>application\console\commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -278,7 +281,7 @@
       <Filter>audio</Filter>
     </ClInclude>
     <ClInclude Include="console.h">
-      <Filter>console</Filter>
+      <Filter>application\console</Filter>
     </ClInclude>
     <ClInclude Include="ecs.h">
       <Filter>game\ecs</Filter>
@@ -499,9 +502,6 @@
     <ClInclude Include="dependencies\fmod\fmod_studio_common.h">
       <Filter>audio\fmod</Filter>
     </ClInclude>
-    <ClInclude Include="console_commands.h">
-      <Filter>console</Filter>
-    </ClInclude>
     <ClInclude Include="shapes.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -562,9 +562,6 @@
     <ClInclude Include="text.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="filesystem.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="pool.h">
       <Filter>utilities</Filter>
     </ClInclude>
@@ -595,7 +592,6 @@
     <ClInclude Include="ecs_animations.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="tile_ids.h" />
     <ClInclude Include="dependencies\box2d\base.h">
       <Filter>game\ecs\physics\box2d</Filter>
     </ClInclude>
@@ -662,6 +658,15 @@
     <ClInclude Include="tiled_types.h">
       <Filter>tiled</Filter>
     </ClInclude>
+    <ClInclude Include="filesystem.h">
+      <Filter>application\filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="console_commands.h">
+      <Filter>application\console\commands</Filter>
+    </ClInclude>
+    <ClInclude Include="tile_ids.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -669,9 +674,6 @@
     </Filter>
     <Filter Include="audio">
       <UniqueIdentifier>{1da6159c-bc5a-43d9-9e98-d5e1e32a5579}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="console">
-      <UniqueIdentifier>{c1397a93-51e2-4458-ab20-242be6dbecef}</UniqueIdentifier>
     </Filter>
     <Filter Include="ui">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
@@ -753,6 +755,15 @@
     </Filter>
     <Filter Include="application\window">
       <UniqueIdentifier>{c9d5b9b0-c7e4-4d67-bceb-a9d4aa431794}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\console">
+      <UniqueIdentifier>{c1397a93-51e2-4458-ab20-242be6dbecef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\filesystem">
+      <UniqueIdentifier>{15fbe91b-35fe-4b00-82c9-5703cdcb0e04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\console\commands">
+      <UniqueIdentifier>{c632e66c-526e-4e77-b232-5abc64cf46ec}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

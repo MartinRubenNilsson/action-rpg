@@ -29,11 +29,10 @@ namespace audio
 
 	// EVENTS
 
-	bool is_any_playing(const char* path);
+	bool is_any_playing(const std::string &event_path);
 
-	struct EventDesc
-	{
-		const char* path = nullptr;
+	struct EventDesc {
+		std::string path;
 		float volume = 1.f;
 		Vector2f position;
 		bool start = true;

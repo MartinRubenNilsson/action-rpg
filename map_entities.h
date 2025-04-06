@@ -1,14 +1,11 @@
 #pragma once
 
-namespace tiled
-{
+namespace tiled {
 	struct Map;
 }
 
-namespace map
-{
-	struct MapPatch
-	{
+namespace map {
+	struct MapPatch {
 		std::vector<entt::entity> destroyed_entities;
 		std::vector<entt::entity> opened_chests;
 	};
@@ -17,4 +14,3 @@ namespace map
 	void patch_entities(const MapPatch& patch);
 	void destroy_entities();
 }
-

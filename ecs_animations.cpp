@@ -3,14 +3,13 @@
 #include "tiled.h"
 #include "graphics.h"
 #include "sprites.h"
+#include "map.h"
 
-namespace ecs
-{
+namespace ecs {
 	extern entt::registry _registry;
 
 #if 0
-	void TileAnimation::set_rotation(int clockwise_quarter_turns)
-	{
+	void TileAnimation::set_rotation(int clockwise_quarter_turns) {
 		bool bit_0 = _get_nth_bit(clockwise_quarter_turns, 0);
 		bool bit_1 = _get_nth_bit(clockwise_quarter_turns, 1);
 		set_flag(TILE_FLIP_X, bit_0 != bit_1); // XOR
@@ -19,20 +18,17 @@ namespace ecs
 	}
 #endif
 
-	Handle<tiled::Tileset> get_tileset(const std::string& name)
-	{
-		return tiled::find_tileset_by_name(name);
+	unsigned int get_tileset_id(std::string_view name) {
+		return map::find_tileset_by_name(name);
 	}
 
-	Handle<graphics::Texture> get_tileset_texture(Handle<tiled::Tileset> tileset)
-	{
-		const tiled::Tileset* tileset_ptr = tiled::get_tileset(tileset);
+	Handle<graphics::Texture> get_tileset_texture(unsigned int tileset_id) {
+		const tiled::Tileset* tileset_ptr = map::get_tileset(tileset_id);
 		if (!tileset_ptr) return Handle<graphics::Texture>();
 		return graphics::load_texture(tileset_ptr->image_path);
 	}
 
-	void update_tile_animations(float dt)
-	{
+	void update_tile_animations(float dt) {
 		for (auto [entity, animation] : _registry.view<TileAnimation>().each()) {
 
 			animation._dirty = false;
@@ -47,7 +43,7 @@ namespace ecs
 				animation._dirty = true;
 			}
 
-			const tiled::Tileset* tileset = tiled::get_tileset(animation.tileset);
+			const tiled::Tileset* tileset = map::get_tileset(animation.tileset_id);
 			if (!tileset) continue;
 			if (animation.tile_id >= tileset->tiles.size()) continue;
 			const tiled::Tile& tile = tileset->tiles[animation.tile_id];
@@ -92,8 +88,7 @@ namespace ecs
 		}
 	}
 
-	void update_flipbook_animations(float dt)
-	{
+	void update_flipbook_animations(float dt) {
 		for (auto [entity, animation] : _registry.view<FlipbookAnimation>().each()) {
 			if (animation.rows <= 0) continue;
 			if (animation.columns <= 0) continue;
@@ -106,13 +101,12 @@ namespace ecs
 		}
 	}
 
-	void update_animated_sprites(float dt)
-	{
+	void update_animated_sprites(float dt) {
 		for (auto [entity, sprite, animation] : _registry.view<sprites::Sprite, const TileAnimation>().each()) {
 
 			if (!animation._dirty) continue;
 
-			const tiled::Tileset* tileset = tiled::get_tileset(animation.tileset);
+			const tiled::Tileset* tileset = map::get_tileset(animation.tileset_id);
 			if (!tileset) continue;
 			if (animation._animated_tile_id >= tileset->tiles.size()) continue;
 
@@ -140,18 +134,15 @@ namespace ecs
 		}
 	}
 
-	TileAnimation& emplace_tile_animation(entt::entity entity)
-	{
+	TileAnimation& emplace_tile_animation(entt::entity entity) {
 		return _registry.emplace_or_replace<TileAnimation>(entity);
 	}
 
-	TileAnimation* get_tile_animation(entt::entity entity)
-	{
+	TileAnimation* get_tile_animation(entt::entity entity) {
 		return _registry.try_get<TileAnimation>(entity);
 	}
 
-	FlipbookAnimation& emplace_flipbook_animation(entt::entity entity)
-	{
+	FlipbookAnimation& emplace_flipbook_animation(entt::entity entity) {
 		return _registry.emplace_or_replace<FlipbookAnimation>(entity);
 	}
 }

@@ -5,8 +5,7 @@
 #include "filesystem.h"
 #include <deque> // TODO: use a ringbuffer instead
 
-namespace console
-{
+namespace console {
 	const Color _COLOR_COMMAND = Color(230, 230, 230, 255);
 	const Color _COLOR_LOG = Color(252, 191, 73, 255);
 	const Color _COLOR_LOG_ERROR = Color(220, 50, 47, 255);
@@ -26,21 +25,22 @@ namespace console
 	std::unordered_map<window::Key, std::string> _key_bindings;
 
 #ifdef _DEBUG_IMGUI
-	int _input_text_callback(ImGuiInputTextCallbackData* data)
-	{
+	int _input_text_callback(ImGuiInputTextCallbackData* data) {
 		// COMPLETE COMMANDS
 
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
-			std::string prefix(data->Buf, data->Buf + data->BufTextLen);
-			auto [begin, end] = find_commands_starting_with(prefix);
-			if (begin == commands_end()) return 0;
-			if (begin + 1 == end) {
+			const std::string_view prefix(data->Buf, data->Buf + data->BufTextLen);
+			const std::span<const Command> commands = find_commands_whose_name_starts_with(prefix);
+			if (commands.empty()) return 0;
+			if (commands.size() == 1) {
+				const std::string_view command_name = commands.front().name;
 				data->DeleteChars(0, data->BufTextLen);
-				data->InsertChars(0, begin->name);
+				data->InsertChars(0, command_name.data(), command_name.data() + command_name.size());
 				return 0;
 			}
-			for (CommandIt it = begin; it != end; ++it)
-				log(it->name);
+			for (const Command& command : commands) {
+				log(command.name);
+			}
 			return 0;
 		}
 
@@ -67,8 +67,7 @@ namespace console
 	}
 #endif
 
-	void initialize()
-	{
+	void initialize() {
 #if 0
 		// REDIRECT COUT AND CERR
 
@@ -81,8 +80,7 @@ namespace console
 		register_commands();
 	}
 
-	void update(float dt)
-	{
+	void update(float dt) {
 		// LOG COUT AND CERR
 		{
 			std::string line;
@@ -178,8 +176,7 @@ namespace console
 #endif
 	}
 
-	void process_window_event(const window::Event& ev)
-	{
+	void process_window_event(const window::Event& ev) {
 		if (ev.type == window::EventType::KeyPress) {
 			auto it = _key_bindings.find(ev.key.code);
 			if (it != _key_bindings.end())
@@ -187,13 +184,11 @@ namespace console
 		}
 	}
 
-	bool is_visible()
-	{
+	bool is_visible() {
 		return _visible;
 	}
 
-	void set_visible(bool visible)
-	{
+	void set_visible(bool visible) {
 		_visible = visible;
 		if (_visible) {
 			_reclaim_focus = true;
@@ -202,8 +197,7 @@ namespace console
 		}
 	}
 
-	void toggle_visible()
-	{
+	void toggle_visible() {
 		_visible = !_visible;
 		if (_visible) {
 			_reclaim_focus = true;
@@ -212,31 +206,26 @@ namespace console
 		}
 	}
 
-	bool has_focus()
-	{
+	bool has_focus() {
 		return _has_focus;
 	}
 
-	void clear()
-	{
+	void clear() {
 		_history.clear();
 	}
 
-	void sleep(float seconds)
-	{
+	void sleep(float seconds) {
 		_sleep_timer = std::max(0.f, seconds);
 	}
 
-	void log(const std::string& message)
-	{
+	void log(std::string_view message) {
 		_history.emplace_back(message, _COLOR_LOG);
 		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
 		}
 	}
 
-	void log_error(const std::string& message, bool show_console)
-	{
+	void log_error(std::string_view message, bool show_console) {
 		_history.emplace_back(message, _COLOR_LOG_ERROR);
 		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
@@ -244,14 +233,13 @@ namespace console
 		if (show_console) _visible = true;
 	}
 
-	void execute(const std::string& command_line, bool defer)
-	{
+	void execute(std::string_view command_line, bool defer) {
 		if (command_line.starts_with("//")) return; // ignore comments
 		if (defer) {
-			_command_queue.push_back(command_line);
+			_command_queue.emplace_back(command_line);
 			return;
 		}
-		_command_history.push_back(command_line);
+		_command_history.emplace_back(command_line);
 		if (_command_history.size() > _MAX_HISTORY) {
 			_command_history.pop_front();
 		}
@@ -263,8 +251,7 @@ namespace console
 		parse_and_execute_command(command_line);
 	}
 
-	void execute(int argc, char* argv[])
-	{
+	void execute(int argc, char* argv[]) {
 		if (argc == 1) return;
 		std::string command_line;
 		for (int i = 1; i < argc; ++i) {
@@ -276,11 +263,10 @@ namespace console
 		execute(command_line);
 	}
 
-	void execute_script_from_file(const std::string& path)
-	{
+	void execute_script_from_file(std::string_view path) {
 		std::string script;
 		if (!filesystem::read_text_file(path, script)) {
-			log_error("Failed to open console script: " + path);
+			log_error("Failed to open console script: " + std::string(path));
 			return;
 		}
 		std::istringstream script_stream(std::move(script));
@@ -289,27 +275,29 @@ namespace console
 		}
 	}
 
-	void bind(window::Key key, const std::string& command_line)
-	{
+	void bind(window::Key key, std::string_view command_line) {
 		_key_bindings[key] = command_line;
 	}
 
-	void bind(const std::string& key_string, const std::string& command_line)
-	{
+	void bind(std::string_view key_string, std::string_view command_line) {
 		auto key = magic_enum::enum_cast<window::Key>(key_string, magic_enum::case_insensitive);
-		if (key.has_value()) bind(key.value(), command_line);
-		else log_error("Failed to bind key: " + key_string);
+		if (key.has_value()) {
+			bind(key.value(), command_line);
+		} else {
+			log_error("Failed to bind key: " + std::string(key_string));
+		}
 	}
 
-	void unbind(window::Key key)
-	{
+	void unbind(window::Key key) {
 		_key_bindings.erase(key);
 	}
 
-	void unbind(const std::string& key_string)
-	{
+	void unbind(std::string_view key_string) {
 		auto key = magic_enum::enum_cast<window::Key>(key_string, magic_enum::case_insensitive);
-		if (key.has_value()) unbind(key.value());
-		else log_error("Failed to unbind key: " + key_string);
+		if (key.has_value()) {
+			unbind(key.value());
+		} else {
+			log_error("Failed to unbind key: " + std::string(key_string));
+		}
 	}
 }

@@ -1,39 +1,64 @@
 #pragma once
 
-namespace console
-{
-	using Arg = std::variant<std::monostate, bool, int, float, std::string, Vector2f>;
+namespace console {
 
-	struct Param
-	{
-		Arg arg{};
-		const char* name = "";
-		const char* desc = "";
+	enum class ParamType {
+		None,
+		Bool,
+		Int,
+		Float,
+		String,
+		Vector2f
 	};
 
-	using Params = std::array<Param, 8>;
-
-	struct Command
-	{
-		const char* name = "";
-		const char* desc = "";
-		Params params{};
-		void (*callback)(const Params& params) = nullptr;
+	struct Param {
+		ParamType type = ParamType::None;
+		std::string_view name;
+		std::string_view desc;
 	};
 
-	using CommandIt = std::vector<Command>::const_iterator;
+	using Arg = std::variant<
+		std::monostate, // None
+		bool,
+		int,
+		float,
+		std::string,
+		Vector2f
+	>;
 
-	std::string format_type_and_name(const Param& param);
-	std::string format_help_message(const Command& command);
+	// Please use these instead of std::get<> so we can avoid exceptions.
 
+	bool get_bool(const Arg& arg);
+	bool get_int(const Arg& arg);
+	bool get_float(const Arg& arg);
+	std::string get_string(const Arg& arg);
+	Vector2f get_vector2f(const Arg& arg);
+
+	constexpr size_t MAX_PARAMS = 8; // Maximum number of parameters for a command
+	using ParamList = std::array<Param, MAX_PARAMS>;
+	using ArgList = std::array<Arg, MAX_PARAMS>;
+
+	struct Command {
+		std::string_view name;
+		std::string_view desc;
+		ParamList params{};
+		void (*callback)(const ArgList& args) = nullptr;
+	};
+
+	std::string format_command_help_message(const Command& command);
+
+	void clear_commands();
+	void add_command(const Command&& command);
+	// Needs to be called after adding commands but before searching.
+	void sort_commands_by_name();
+
+	const Command* find_command_with_name(std::string_view name);
+	std::span<const Command> find_commands_whose_name_starts_with(std::string_view prefix);
+
+	void parse_and_execute_command(std::string_view command_line);
+
+	// Call once at engine startup.
 	void register_commands();
-	void register_commands_misc(std::vector<Command>& commands);
-	void register_commands_steam(std::vector<Command>& commands);
-
-	void parse_and_execute_command(const std::string& command_line);
-	CommandIt commands_begin();
-	CommandIt commands_end();
-	CommandIt find_command(const std::string& name);
-	// Returns a consecutive range of commands starting with the given prefix.
-	std::pair<CommandIt, CommandIt> find_commands_starting_with(const std::string& prefix);
+	void _add_misc_commands(); // console_commands_misc.cpp
+	void _add_steam_commands(); // console_commands_steam.cpp
 }

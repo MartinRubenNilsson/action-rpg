@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -11,6 +10,13 @@ namespace tiled {
 		unsigned char g = 0;
 		unsigned char b = 0;
 		unsigned char a = 0;
+	};
+
+	struct TextureRect {
+		unsigned int x = 0; // in pixels
+		unsigned int y = 0; // in pixels
+		unsigned int w = 0; // in pixels
+		unsigned int h = 0; // in pixels
 	};
 
 	enum class PropertyType {
@@ -40,35 +46,28 @@ namespace tiled {
 		PropertyValue value;
 	};
 
-	Property*       find_property_by_name(std::vector<Property>& properties, std::string_view name);
-	const Property* find_property_by_name(const std::vector<Property>& properties, std::string_view name);
-
-	template <PropertyType type>
-	bool get(const std::vector<Property>& properties, std::string_view name, std::variant_alternative_t<(size_t)type, PropertyValue>& value) {
-		const Property* prop = find_property_by_name(properties, name);
-		if (!prop) return false;
-		if (prop->value.index() != (size_t)type) return false;
-		value = std::get<(size_t)type>(prop->value);
-		return true;
-	}
-
 	// A 32-bit integer that stores a tile GID in the lower 28 bits and flip flags in the upper 4 bits.
-	struct TileGID {
+	// 
+	// These GIDs are "global" because they may refer to a tile from any of the tilesets used by a map,
+	// rather than being local to a specific tileset. To get at a specific tile from a GID, you will
+	// need to determine which tileset the tile belongs to, and which tile within the tileset it is.
+	//
+	struct TileGid {
 		union {
-			unsigned int value = 0;
+			uint32_t value = 0;
 			struct {
-				unsigned int gid : 28; // global tile ID
-				unsigned int rotated_hexagonal_120 : 1; // only for hexagonal maps
-				unsigned int flipped_diagonally : 1;
-				unsigned int flipped_vertically : 1;
-				unsigned int flipped_horizontally : 1;
+				uint32_t gid : 28; // global tile ID
+				uint32_t rotated_hexagonal_120 : 1; // only for hexagonal maps
+				uint32_t flipped_diagonally : 1;
+				uint32_t flipped_vertically : 1;
+				uint32_t flipped_horizontally : 1;
 			};
 		};
 	};
 
-	struct TilesetRef {
-		unsigned int first_gid = 0;
-		Handle<Tileset> tileset; // FIXME: don't use Handle
+	struct TilesetLink {
+		unsigned int first_gid = 0; // the global tile ID of the first tile in the tileset
+		unsigned int tileset_id = 0; // index into Context::tilesets[]
 	};
 
 	enum class ObjectType {
@@ -84,20 +83,20 @@ namespace tiled {
 	struct Object {
 		unsigned int id = 0; // valid IDs are >= 1
 		ObjectType type = ObjectType::Rectangle;
-		std::string template_path;
+		std::string template_path; //TODO: remove
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<Vector2f> points; // in pixels; relative to position; only relevant if type = ObjectType::Polygon/Polyline
-		TileGID tile_gid; // only relevant if type = ObjectType::Tile
-		TilesetRef tileset_ref; // only relevant if type = ObjectType::Tile
+		std::vector<Vector2f> points; // in pixels; relative to position; only relevant if type = Polygon/Polyline
+		TileGid tile; // only relevant if type = Tile
+		TilesetLink tileset; // only relevant if type = Tile
 		Vector2f position; // in pixels
 		Vector2f size; // in pixels
 	};
 
 	struct Frame {
 		unsigned int duration_ms = 0; // in milliseconds
-		unsigned int tile_id = 0; // Index into Tileset::tiles[].
+		unsigned int tile_id = 0; // index into Tileset::tiles[].
 	};
 
 	struct Tile {
@@ -131,7 +130,7 @@ namespace tiled {
 			COUNT
 		};
 
-		// Index into Tileset::tiles[].
+		// index into Tileset::tiles[].
 		unsigned int tile_id = 0;
 		// Indices into Tileset::wangsets[], or UNINT_MAX when the edge/corner is not assigned.
 		unsigned int wang_ids[COUNT] = {};
@@ -148,15 +147,8 @@ namespace tiled {
 		std::vector<WangTile> tiles;
 	};
 
-	struct TextureRect {
-		unsigned int x = 0; // in pixels
-		unsigned int y = 0; // in pixels
-		unsigned int w = 0; // in pixels
-		unsigned int h = 0; // in pixels
-	};
-
 	struct Tileset {
-		std::string path;
+		std::string path; // empty if embedded in map
 		std::string image_path;
 		std::string name;
 		std::string class_;
@@ -171,8 +163,6 @@ namespace tiled {
 		unsigned int margin = 0; // in pixels
 	};
 
-	TextureRect get_tile_texture_rect(const Tileset& tileset, unsigned int tile_id);
-
 	enum class LayerType {
 		Tile,
 		Object,
@@ -181,12 +171,12 @@ namespace tiled {
 	};
 
 	struct Layer {
-		LayerType type{};
+		LayerType type = LayerType::Tile;
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<TileGID> tiles; // nonempty if type = LayerType::Tile; size = width * height
-		std::vector<Object> objects; // nonempty if type = LayerType::Object 
+		std::vector<TileGid> tiles; // nonempty if type = Tile; in that case size = width * height
+		std::vector<Object> objects; // (possibly) nonempty if type = Object 
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
 		bool visible = true;
@@ -194,18 +184,20 @@ namespace tiled {
 
 	struct Map {
 		std::string path;
-		std::string name; // filename without extension
 		std::string class_;
 		std::vector<Property> properties;
-		std::vector<TilesetRef> tilesets; // sorted by first_gid
+		std::vector<TilesetLink> tilesets; // sorted by first_gid in ascending order
 		std::vector<Layer> layers;
 		unsigned int width = 0; // in tiles
 		unsigned int height = 0; // in tiles
 		unsigned int tile_width = 0; // in pixels
 		unsigned int tile_height = 0; // in pixels
+	};
 
-		TilesetRef get_tileset_ref(unsigned int gid) const;
-		const Tile* get_tile(unsigned int gid) const;
-		const Object* get_object(const std::string& name) const;
+	struct Context {
+		void (*debug_message_callback)(std::string_view message) = nullptr;
+		std::vector<Tileset> tilesets;
+		std::vector<Object> templates;
+		std::vector<Map> maps;
 	};
 }

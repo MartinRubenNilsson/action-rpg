@@ -1,20 +1,16 @@
 #pragma once
 
-namespace ecs
-{
-	Handle<tiled::Tileset> get_tileset(const std::string& name);
-	Handle<graphics::Texture> get_tileset_texture(Handle<tiled::Tileset> tileset);
+namespace ecs {
 
-	struct TileAnimation
-	{
-		// Members ending in tile_id are indices into tiled::Tileset::tiles[],
-		// while _frame_id is an index into tiled::Tile::animation[].
+	unsigned int get_tileset_id(std::string_view name);
+	Handle<graphics::Texture> get_tileset_texture(unsigned int tileset_id);
 
-		Handle<tiled::Tileset> tileset;
-		unsigned int tile_id = UINT_MAX;
+	struct TileAnimation {
+		unsigned int tileset_id = UINT_MAX; // index into tiled::Context::tilesets[]
+		unsigned int tile_id = UINT_MAX; // index into tiled::Tileset::tiles[]
 		unsigned int _previous_tile_id = UINT_MAX;
 		unsigned int _animated_tile_id = UINT_MAX;
-		unsigned int _frame_id = 0;
+		unsigned int _frame_id = 0; // index into tiled::Tile::animation[]
 		float progress = 0.f; // aka normalized time, in the range [0, 1]
 		float speed = 1.f;
 		bool loop = true;
@@ -22,8 +18,7 @@ namespace ecs
 		bool _looped = false;
 	};
 
-	struct FlipbookAnimation
-	{
+	struct FlipbookAnimation {
 		unsigned int rows = 0;
 		unsigned int columns = 0;
 		float fps = 0.f;

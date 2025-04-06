@@ -4,18 +4,15 @@
 
 typedef void* (*GLADloadproc)(const char* name);
 
-namespace window
-{
+namespace window {
 	struct Event;
 }
 
-namespace audio
-{
+namespace audio {
 	struct Event;
 }
 
-namespace graphics
-{
+namespace graphics {
 	struct Vertex;
 	struct Shader;
 	struct Buffer;
@@ -24,13 +21,11 @@ namespace graphics
 	struct Framebuffer;
 }
 
-namespace fonts
-{
+namespace fonts {
 	struct Font;
 }
 
-namespace tiled
-{
+namespace tiled {
 	struct Map;
 	struct Tileset;
 	struct Object;

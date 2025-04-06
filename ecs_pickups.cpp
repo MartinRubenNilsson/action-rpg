@@ -57,7 +57,7 @@ namespace ecs
 		}
 		{
 			TileAnimation& animation = emplace_tile_animation(entity);
-			animation.tileset = get_tileset("items1");
+			animation.tileset_id = get_tileset_id("items1");
 			switch (type) {
 			case PickupType::Arrow:
 				animation.tile_id = TILE_ID_ITEM_SPEAR; // placeholder
@@ -74,7 +74,7 @@ namespace ecs
 			}
 
 			sprites::Sprite& sprite = emplace_sprite(entity);
-			sprite.texture = get_tileset_texture(animation.tileset);
+			sprite.texture = get_tileset_texture(animation.tileset_id);
 			sprite.sorting_layer = (uint8_t)map::get_object_layer_index();
 			sprite.sorting_point = { 8.f, 8.f };
 			sprite.position = position - sprite.sorting_point;

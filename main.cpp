@@ -12,7 +12,6 @@
 #include "map.h"
 #include "ecs.h"
 #include "console.h"
-#include "tiled.h"
 #include "background.h"
 #include "postprocessing.h"
 #include "settings.h"
@@ -85,6 +84,7 @@ int main(int argc, char* argv[])
     console::initialize();
     audio::initialize();
     ui::initialize();
+    map::initialize();
     ecs::initialize();
 
 #ifdef _DEBUG_GRAPHICS
@@ -96,29 +96,17 @@ int main(int argc, char* argv[])
     system("copy /Y ..\\*.frag .\\assets\\shaders\\");
 #endif
 
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/audio/banks")) {
+    for (const filesystem::File& file : filesystem::get_all_files_in_directory("assets/audio/banks")) {
         if (file.format != filesystem::FileFormat::FmodStudioBank) continue;
         audio::load_bank_from_file(file.path);
     }
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/fonts")) {
+    for (const filesystem::File& file : filesystem::get_all_files_in_directory("assets/fonts")) {
         if (file.format != filesystem::FileFormat::TrueTypeFont) continue;
         ui::load_font_from_file(file.path);
     }
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/ui")) {
+    for (const filesystem::File& file : filesystem::get_all_files_in_directory("assets/ui")) {
         if (file.format != filesystem::FileFormat::RmlUiDocument) continue;
         ui::load_document_from_file(file.path);
-    }
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
-        if (file.format != filesystem::FileFormat::TiledTileset) continue;
-        tiled::load_tileset_from_file(file.path);
-    }
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
-        if (file.format != filesystem::FileFormat::TiledTemplate) continue;
-        tiled::load_template_from_file(file.path);
-    }
-    for (const filesystem::File& file : filesystem::get_files_in_directory("assets/tiled")) {
-        if (file.format != filesystem::FileFormat::TiledMap) continue;
-        tiled::load_map_from_file(file.path);
     }
 
     ui::add_event_listeners(); // Must come after loading RML documents.

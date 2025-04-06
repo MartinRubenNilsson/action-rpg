@@ -1,5 +1,14 @@
 #include "stdafx.h"
+#include "map.h"
 #include "map_entities.h"
+
+#include "tiled.h"
+#include "tiled_types.h"
+
+#include "console.h"
+#include "audio.h"
+#include "graphics.h"
+#include "graphics_globals.h"
 
 #include "ecs_common.h"
 #include "ecs_physics.h"
@@ -16,23 +25,18 @@
 #include "ecs_blade_trap.h"
 
 #include "player_outfit.h"
-#include "tiled.h"
-#include "console.h"
-#include "audio.h"
-#include "graphics.h"
-#include "graphics_globals.h"
 
 // Precautionary measure so we don't access entt::registry directly in this file.
 #define DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
 #define registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
 #define _registry DONT_ACCESS_REGISTRY_DIRECTLY_IN_MAP_ENTITIES_USE_HELPER_FUNCTIONS_INSTEAD
 
-namespace map
-{
+namespace map {
 	unsigned int get_object_layer_index();
 
-	void create_entities(const tiled::Map& map)
-	{
+	extern tiled::Context _tiled_context;
+
+	void create_entities(const tiled::Map& map) {
 		//
 		// IMPORTANT:
 		// 
@@ -119,13 +123,13 @@ namespace map
 					// This is confusing, so let's adjust the position here to make it consistent.
 					position_top_left.y -= object.size.y;
 
-					const tiled::Tileset* tileset = get_tileset(object.tileset_ref.tileset);
+					const tiled::Tileset* tileset = get_tileset(object.tileset.tileset_id);
 					if (!tileset) {
 						console::log_error("Tileset not found for object " + object.name);
 						continue;
 					}
 
-					const unsigned int tile_id = object.tile_gid.gid - object.tileset_ref.first_gid;
+					const unsigned int tile_id = object.tile.gid - object.tileset.first_gid;
 					if (tile_id >= tileset->tiles.size()) {
 						console::log_error("Tile not found for object " + object.name);
 						continue;
@@ -158,20 +162,20 @@ namespace map
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
-					if (object.tile_gid.flipped_horizontally) {
+					if (object.tile.flipped_horizontally) {
 						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
-					if (object.tile_gid.flipped_vertically) {
+					if (object.tile.flipped_vertically) {
 						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
 					}
-					if (object.tile_gid.flipped_diagonally) {
+					if (object.tile.flipped_diagonally) {
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
 					// EMPLACE ANIMATION
 
 					ecs::TileAnimation& animation = ecs::emplace_tile_animation(entity);
-					animation.tileset = object.tileset_ref.tileset;
+					animation.tileset_id = object.tileset.tileset_id;
 					animation.tile_id = tile_id;
 
 					if (!tile.objects.empty()) {
@@ -252,7 +256,7 @@ namespace map
 						b2Circle circle{};
 						circle.center = center;
 						circle.radius = hw;
-						b2CreateCircleShape(body, &shape_def, &circle);	
+						b2CreateCircleShape(body, &shape_def, &circle);
 
 					} break;
 					}
@@ -307,7 +311,7 @@ namespace map
 
 					if (last_active_portal) {
 
-						if (const tiled::Object* target_point = map.get_object(last_active_portal->target_point)) {
+						if (const tiled::Object* target_point = tiled::find_object_with_name(map, last_active_portal->target_point)) {
 #if 0
 							if (body) {
 								body->SetTransform(target_point->position_top_left, 0.f);
@@ -431,21 +435,21 @@ namespace map
 			for (unsigned int y = layer.height; y--;) {
 				for (unsigned int x = layer.width; x--;) {
 
-					const tiled::TileGID tile_ref = layer.tiles[x + y * layer.width];
-					if (!tile_ref.gid) continue; // Skip empty tiles
+					const tiled::TileGid tile_gid = layer.tiles[x + y * layer.width];
+					if (!tile_gid.gid) continue; // Skip empty tiles
 
-					const tiled::TilesetRef tileset_ref = map.get_tileset_ref(tile_ref.gid);
-					if (!tileset_ref.first_gid) continue; // Valid GIDs start at 1
+					const tiled::TilesetLink tileset_link = tiled::find_tileset_link_for_tile_gid(map.tilesets, tile_gid.gid);
+					if (!tileset_link.first_gid) continue; // Valid GIDs start at 1
 
-					const tiled::Tileset* tileset = get_tileset(tileset_ref.tileset);
+					const tiled::Tileset* tileset = get_tileset(tileset_link.tileset_id);
 					if (!tileset) {
-						console::log_error("Tileset not found for GID " + std::to_string(tile_ref.gid));
+						console::log_error("Tileset not found for GID " + std::to_string(tile_gid.gid));
 						continue;
 					}
 
-					const unsigned int tile_id = tile_ref.gid - tileset_ref.first_gid;
+					const unsigned int tile_id = tile_gid.gid - tileset_link.first_gid;
 					if (tile_id >= tileset->tiles.size()) {
-						console::log_error("Tile not found for GID " + std::to_string(tile_ref.gid));
+						console::log_error("Tile not found for GID " + std::to_string(tile_gid.gid));
 						continue;
 					}
 
@@ -487,13 +491,13 @@ namespace map
 					if (!layer.visible) {
 						sprite.flags &= ~sprites::SPRITE_VISIBLE;
 					}
-					if (tile_ref.flipped_horizontally) {
+					if (tile_gid.flipped_horizontally) {
 						sprite.flags |= sprites::SPRITE_FLIP_HORIZONTALLY;
 					}
-					if (tile_ref.flipped_vertically) {
+					if (tile_gid.flipped_vertically) {
 						sprite.flags |= sprites::SPRITE_FLIP_VERTICALLY;
 					}
-					if (tile_ref.flipped_diagonally) {
+					if (tile_gid.flipped_diagonally) {
 						sprite.flags |= sprites::SPRITE_FLIP_DIAGONALLY;
 					}
 
@@ -503,7 +507,7 @@ namespace map
 					// so let's only add an animation component if the tile is actually animated.
 					if (!tile.animation.empty()) {
 						ecs::TileAnimation& animation = ecs::emplace_tile_animation(entity);
-						animation.tileset = tileset_ref.tileset;
+						animation.tileset_id = tileset_link.tileset_id;
 						animation.tile_id = tile_id;
 					}
 
@@ -621,8 +625,7 @@ namespace map
 		}
 	}
 
-	void patch_entities(const MapPatch& patch)
-	{
+	void patch_entities(const MapPatch& patch) {
 		// Patching is a way to modify the state of the map after it has been created.
 
 		for (entt::entity entity : patch.destroyed_entities) {
@@ -633,8 +636,7 @@ namespace map
 		}
 	}
 
-	void destroy_entities()
-	{
+	void destroy_entities() {
 		ecs::clear();
 	}
 }
