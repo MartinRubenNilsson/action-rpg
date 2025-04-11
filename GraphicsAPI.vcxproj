@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dependencies\glad\glad.c" />
+    <ClCompile Include="graphics_api_d3d11.cpp" />
     <ClCompile Include="graphics_api_opengl.cpp" />
     <ClCompile Include="graphics_api_vulkan.cpp" />
   </ItemGroup>

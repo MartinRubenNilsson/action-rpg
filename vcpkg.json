@@ -5,7 +5,12 @@
     "vulkan",
     {
       "name": "imgui",
-      "features": [ "glfw-binding", "opengl3-binding", "vulkan-binding" ]
+      "features": [
+        "glfw-binding",
+        "opengl3-binding",
+        "vulkan-binding",
+        "dx11-binding"
+      ]
     },
     "eastl",
     "stb",

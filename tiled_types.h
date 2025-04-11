@@ -88,7 +88,7 @@ namespace tiled {
 	struct Object {
 		unsigned int id = 0; // valid IDs are >= 1
 		ObjectType type = ObjectType::Rectangle;
-		std::string template_path; //TODO: remove
+		std::string template_path;
 		std::string name;
 		std::string class_;
 		std::vector<Property> properties;

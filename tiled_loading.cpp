@@ -208,13 +208,19 @@ namespace tiled {
 			wangset.name = wangset_node.attribute("name").as_string();
 			wangset.class_ = wangset_node.attribute("class").as_string();
 			_load_properties(wangset_node, wangset.properties);
-			wangset.tile_id = (unsigned int)wangset_node.attribute("tile").as_int(); // -1 in case of no tile
+			// PITFALL: The "tile" attribute is stored as an int, so if we try to use as_uint(),
+			// we find that it returns 0 for negative values. This is a problem because -1 is used
+			// to indicate that no tile is set. Hence we use as_int() and cast to unsigned int.
+			wangset.tile_id = (unsigned int)wangset_node.attribute("tile").as_int(); // UINT_MAX in case of no tile
 			for (pugi::xml_node wangcolor_node : wangset_node.children("wangcolor")) {
 				WangColor& wangcolor = wangset.colors.emplace_back();
 				wangcolor.name = wangcolor_node.attribute("name").as_string();
 				wangcolor.class_ = wangcolor_node.attribute("class").as_string();
 				_load_properties(wangcolor_node, wangcolor.properties);
-				wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); // -1 in case of no tile
+				// PITFALL: The "tile" attribute is stored as an int, so if we try to use as_uint(),
+				// we find that it returns 0 for negative values. This is a problem because -1 is used
+				// to indicate that no tile is set. Hence we use as_int() and cast to unsigned int.
+				wangcolor.tile_id = (unsigned int)wangcolor_node.attribute("tile").as_int(); // UINT_MAX in case of no tile
 				wangcolor.probability = wangcolor_node.attribute("probability").as_float();
 				wangcolor.color = _load_color(wangcolor_node.attribute("color").as_string());
 			}
@@ -222,9 +228,9 @@ namespace tiled {
 				WangTile& wangtile = wangset.tiles.emplace_back();
 				wangtile.tile_id = wangtile_node.attribute("tileid").as_uint();
 				memset(wangtile.wang_ids, 0xFF, sizeof(wangtile.wang_ids));
-				// wangid_str is a comma-separated list of 8 integer tile IDs,
-				// one for each corner/edge of the tile.
+				// wangid_str is a comma-separated list of 8 integer tile IDs, one for each corner/edge of the tile.
 				const char* wangid_str = wangtile_node.attribute("wangid").as_string();
+				if (!wangid_str) continue;
 				for (int i = 0; i < WangTile::COUNT && *wangid_str; ++i) {
 					// wang_id = 0 means unset, wang_id = 1 means first color, etc.
 					// Conveniently, wang_id = 0 is also the return value of strtoul() when parsing fails.
@@ -357,7 +363,7 @@ namespace tiled {
 		layer.class_ = node.attribute("class").as_string();
 		layer.width = node.attribute("width").as_uint();
 		layer.height = node.attribute("height").as_uint();
-		layer.visible = node.attribute("visible").as_bool(true);
+		layer.visible = node.attribute("visible").as_bool(true); // default is true
 		_load_properties(node, layer.properties);
 
 		switch (layer.type) {
@@ -556,6 +562,7 @@ namespace tiled {
 			return a.first_gid < b.first_gid;
 		});
 
+		// Load layers
 		for (pugi::xml_node child_node : map_node.children()) {
 			_load_layer_recursive(context, map, child_node);
 		}

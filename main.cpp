@@ -20,7 +20,7 @@
 #include "shapes.h"
 #include "sprites.h"
 #include "renderdoc.h"
-#include "imgui_backends.h"
+#include "imgui_impl.h"
 
 int main(int argc, char* argv[])
 {
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     graphics::initialize();
     graphics::initialize_globals();
 #ifdef _DEBUG_IMGUI
-    imgui_backends::initialize();
+    imgui_impl::initialize();
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     ImGui::GetIO().Fonts->AddFontFromFileTTF("assets/fonts/Consolas.ttf", 18);
     {
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
         window::poll_events();
 
 #ifdef _DEBUG_IMGUI
-        imgui_backends::new_frame();
+        imgui_impl::new_frame();
 #endif
 
         // PROCESS WINDOW EVENTS
@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
 #ifdef _DEBUG_IMGUI
         {
             graphics::ScopedDebugGroup debug_group("ImGui");
-            imgui_backends::render();
+            imgui_impl::render();
         }
 #endif
 
@@ -378,7 +378,7 @@ int main(int argc, char* argv[])
     audio::shutdown();
     graphics::shutdown();
 #ifdef _DEBUG_IMGUI
-    imgui_backends::shutdown();
+    imgui_impl::shutdown();
 #endif
     window::shutdown();
 	networking::shutdown();

@@ -107,9 +107,6 @@
     <ClCompile Include="timer.cpp">
       <Filter>utilities</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_backends.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="main_windows.cpp">
       <Filter>application</Filter>
     </ClCompile>
@@ -179,9 +176,6 @@
     <ClCompile Include="ecs_lighting.cpp">
       <Filter>game\ecs\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="platform_windows.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="images.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
@@ -205,6 +199,12 @@
     </ClCompile>
     <ClCompile Include="console_commands.cpp">
       <Filter>application\console\commands</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl.cpp">
+      <Filter>application\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="platform_windows.cpp">
+      <Filter>application\platform</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -525,9 +525,6 @@
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="config.h" />
-    <ClInclude Include="imgui_backends.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="vector2.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -625,9 +622,6 @@
     <ClInclude Include="ecs_lighting.h">
       <Filter>game\ecs\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="platform.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="images.h">
       <Filter>graphics</Filter>
     </ClInclude>
@@ -654,6 +648,12 @@
     </ClInclude>
     <ClInclude Include="tile_ids.h">
       <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl.h">
+      <Filter>application\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>application\platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -749,6 +749,12 @@
     </Filter>
     <Filter Include="application\console\commands">
       <UniqueIdentifier>{c632e66c-526e-4e77-b232-5abc64cf46ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\imgui">
+      <UniqueIdentifier>{5dd64d01-ed82-4fc9-8e06-3e968066e017}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\platform">
+      <UniqueIdentifier>{17beda9f-e4af-44d4-8299-f467bbcb1756}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

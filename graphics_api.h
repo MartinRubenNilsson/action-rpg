@@ -6,6 +6,11 @@
 #include "graphics_types.h"
 #include <span>
 
+#ifdef GRAPHICS_API_D3D11
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+#endif
+
 namespace graphics {
 namespace api {
 
@@ -26,6 +31,11 @@ namespace api {
 
 	void initialize(const InitializeOptions &options);
 	void shutdown();
+
+#ifdef GRAPHICS_API_D3D11
+	ID3D11Device* get_d3d11_device();
+	ID3D11DeviceContext* get_d3d11_device_context();
+#endif
 
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
