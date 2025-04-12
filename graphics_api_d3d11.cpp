@@ -283,7 +283,9 @@ namespace api {
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer) {
-		_device_context->OMSetRenderTargets(1, &_swap_chain_back_buffer_rtv, nullptr);
+		if (!framebuffer.object) return;
+		ID3D11RenderTargetView* d3d11_rtv = (ID3D11RenderTargetView*)framebuffer.object;
+		_device_context->OMSetRenderTargets(1, &d3d11_rtv, nullptr);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
