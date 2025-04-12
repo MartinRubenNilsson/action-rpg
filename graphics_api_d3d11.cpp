@@ -227,7 +227,13 @@ namespace api {
 		_device_context->Unmap(d3d11_buffer, 0);
 	}
 
-	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
+	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {
+		if (!buffer.object) return;
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		_device_context->VSSetConstantBuffers(binding, 1, &d3d11_buffer);
+		_device_context->PSSetConstantBuffers(binding, 1, &d3d11_buffer);
+	}
+
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
 	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
 	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {}
