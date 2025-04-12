@@ -92,7 +92,7 @@ namespace api {
 			swap_chain_desc.OutputWindow = (HWND)options.hwnd;
 			swap_chain_desc.SampleDesc.Count = 1;
 			swap_chain_desc.Windowed = TRUE;
-			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 			result = factory->CreateSwapChain(_device, &swap_chain_desc, &_swap_chain);
 			if (FAILED(result)) {
 				_output_debug_message("Failed to create swap chain");
@@ -137,6 +137,7 @@ namespace api {
 	ID3D11Device* get_d3d11_device() {
 		return _device;
 	}
+
 	ID3D11DeviceContext* get_d3d11_device_context() {
 		return _device_context;
 	}
@@ -209,14 +210,21 @@ namespace api {
 	void destroy_sampler(SamplerHandle sampler) {}
 	void bind_sampler(unsigned int binding, SamplerHandle sampler) {}
 
+	FramebufferHandle get_default_framebuffer() {
+		return FramebufferHandle{ .object = (uintptr_t)_swap_chain_back_buffer_rtv };
+	}
+
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) { return FramebufferHandle(); }
 	void destroy_framebuffer(FramebufferHandle framebuffer) {}
 	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture) { return true; }
-	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {}
+
+	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {
+		if (!framebuffer.object) return;
+		_device_context->ClearRenderTargetView((ID3D11RenderTargetView*)framebuffer.object, color);
+	}
+
 	void bind_framebuffer(FramebufferHandle framebuffer) {
-		if (!framebuffer.object) {
-			_device_context->OMSetRenderTargets(1, &_swap_chain_back_buffer_rtv, nullptr);
-		}
+		_device_context->OMSetRenderTargets(1, &_swap_chain_back_buffer_rtv, nullptr);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {}

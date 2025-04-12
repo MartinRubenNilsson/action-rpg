@@ -304,6 +304,7 @@ int main(int argc, char* argv[])
 		if (!window::get_minimized()) {
             graphics::ScopedDebugGroup debug_group("Upscale to window");
             graphics::bind_default_framebuffer();
+			graphics::clear_default_framebuffer(CLEAR_COLOR);
             graphics::bind_shader(graphics::fullscreen_shader);
             graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_0));
             int window_framebuffer_width = 0;

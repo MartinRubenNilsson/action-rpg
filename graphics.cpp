@@ -441,7 +441,7 @@ namespace graphics
 	}
 
 	void bind_default_framebuffer() {
-		api::bind_framebuffer(api::FramebufferHandle());
+		api::bind_framebuffer(api::get_default_framebuffer());
 	}
 
 	void bind_framebuffer(Handle<Framebuffer> handle) {
@@ -451,7 +451,7 @@ namespace graphics
 	}
 
 	void clear_default_framebuffer(const float color[4]) {
-		api::clear_framebuffer(api::FramebufferHandle(), color);
+		api::clear_framebuffer(api::get_default_framebuffer(), color);
 	}
 
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]) {

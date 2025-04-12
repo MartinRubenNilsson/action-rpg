@@ -103,6 +103,7 @@ namespace api {
 
 	struct FramebufferHandle { uintptr_t object = 0; };
 
+	FramebufferHandle get_default_framebuffer(); // aka the swap chain back buffer
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc);
 	void destroy_framebuffer(FramebufferHandle framebuffer);
 	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture);
