@@ -1,5 +1,6 @@
 #include "graphics_api.h"
 #ifdef GRAPHICS_API_D3D11
+#define NOMINMAX
 #include <dxgi.h>
 #include <d3d11_1.h>
 #ifdef GRAPHICS_API_DEBUG
@@ -227,7 +228,22 @@ namespace api {
 		_device_context->OMSetRenderTargets(1, &_swap_chain_back_buffer_rtv, nullptr);
 	}
 
-	void set_viewports(const Viewport* viewports, unsigned int count) {}
+	void set_viewports(const Viewport* viewports, unsigned int count) {
+		if (count > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) {
+			count = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+		}
+		D3D11_VIEWPORT d3d11_viewports[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT];
+		for (unsigned int i = 0; i < count; ++i) {
+			d3d11_viewports[i].TopLeftX = viewports[i].x;
+			d3d11_viewports[i].TopLeftY = viewports[i].y;
+			d3d11_viewports[i].Width = viewports[i].width;
+			d3d11_viewports[i].Height = viewports[i].height;
+			d3d11_viewports[i].MinDepth = 0.f;
+			d3d11_viewports[i].MaxDepth = 1.f;
+		}
+		_device_context->RSSetViewports(count, d3d11_viewports);
+	}
+
 	void set_scissors(const Rect* scissors, unsigned int count) {}
 	void set_scissor_test_enabled(bool enable) {}
 
