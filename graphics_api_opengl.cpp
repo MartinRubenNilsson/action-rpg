@@ -134,17 +134,6 @@ namespace api {
 		}
 	}
 
-	GLenum _to_gl_primitives(Primitives primitives) {
-		switch (primitives) {
-		case Primitives::PointList:     return GL_POINTS;
-		case Primitives::LineList:      return GL_LINES;
-		case Primitives::LineStrip:     return GL_LINE_STRIP;
-		case Primitives::TriangleList:  return GL_TRIANGLES;
-		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
-		default:						return 0; // should never happen
-		}
-	}
-
 	DebugMessageCallback _debug_message_callback = nullptr;
 
 	void set_debug_message_callback(DebugMessageCallback callback) {
@@ -167,7 +156,7 @@ namespace api {
 	}
 #endif
 
-	void initialize(const InitializeOptions& options) {
+	bool initialize(const InitializeOptions& options) {
 
 		// INITIALIZE GLAD
 
@@ -175,7 +164,7 @@ namespace api {
 			if (_debug_message_callback) {
 				_debug_message_callback("Failed to initialize GLAD");
 			}
-			return;
+			return false;
 		}
 
 		// ENABLE DEBUG OUTPUT
@@ -192,9 +181,12 @@ namespace api {
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		return true;
 	}
 
 	void shutdown() {
+		//Nothing to do here
 	}
 
 	void push_debug_group(std::string_view name) {
@@ -217,13 +209,13 @@ namespace api {
 	}
 
 
-	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) {
+	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
 		GLuint vertex_array_object = 0;
 		glCreateVertexArrays(1, &vertex_array_object);
 		_gl_object_label(GL_VERTEX_ARRAY, vertex_array_object, desc.debug_name);
 		glBindVertexArray(vertex_array_object);
 		for (unsigned int i = 0; i < desc.attributes.size(); ++i) {
-			const VertexArrayAttribDesc& attrib = desc.attributes[i];
+			const VertexInputAttribDesc& attrib = desc.attributes[i];
 			glEnableVertexArrayAttrib(vertex_array_object, i);
 			glVertexArrayAttribFormat(vertex_array_object, i,
 				_get_vertex_attribute_component_count(attrib.format),
@@ -232,15 +224,15 @@ namespace api {
 				attrib.offset);
 			glVertexArrayAttribBinding(vertex_array_object, i, attrib.binding);
 		}
-		return VertexArrayHandle{ vertex_array_object };
+		return VertexInputHandle{ vertex_array_object };
 	}
 
-	void destroy_vertex_array(VertexArrayHandle vertex_array) {
-		glDeleteVertexArrays(1, (GLuint*)&vertex_array.object);
+	void destroy_vertex_input(VertexInputHandle vertex_input) {
+		glDeleteVertexArrays(1, (GLuint*)&vertex_input.object);
 	}
 
-	void bind_vertex_array(VertexArrayHandle vertex_array) {
-		glBindVertexArray((GLuint)vertex_array.object);
+	void bind_vertex_input(VertexInputHandle vertex_input) {
+		glBindVertexArray((GLuint)vertex_input.object);
 	}
 
 	ShaderHandle create_shader(const ShaderDesc& desc) {
@@ -356,12 +348,12 @@ namespace api {
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object, offset, size);
 	}
 
-	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
-		glVertexArrayVertexBuffer((GLuint)vertex_array.object, binding, (GLuint)buffer.object, offset, stride);
+	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		glVertexArrayVertexBuffer((GLuint)vertex_input.object, binding, (GLuint)buffer.object, offset, stride);
 	}
 
-	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer) {
-		glVertexArrayElementBuffer((GLuint)vertex_array.object, (GLuint)buffer.object);
+	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {
+		glVertexArrayElementBuffer((GLuint)vertex_input.object, (GLuint)buffer.object);
 	}
 
 	void update_texture(
@@ -469,6 +461,10 @@ namespace api {
 		glBindSampler(binding, (GLuint)sampler.object);
 	}
 
+	FramebufferHandle get_default_framebuffer() {
+		return FramebufferHandle{ 0 };
+	}
+
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) {
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
@@ -491,6 +487,12 @@ namespace api {
 
 	void bind_framebuffer(FramebufferHandle framebuffer) {
 		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer.object);
+	}
+
+	Primitives _primitives = Primitives::TriangleList;
+
+	void set_primitives(Primitives primitives) {
+		_primitives = primitives;
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
@@ -531,12 +533,23 @@ namespace api {
 		}
 	}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {
-		glDrawArrays(_to_gl_primitives(primitives), vertex_offset, vertex_count);
+	GLenum _to_gl_primitives(Primitives primitives) {
+		switch (primitives) {
+		case Primitives::PointList:     return GL_POINTS;
+		case Primitives::LineList:      return GL_LINES;
+		case Primitives::LineStrip:     return GL_LINE_STRIP;
+		case Primitives::TriangleList:  return GL_TRIANGLES;
+		case Primitives::TriangleStrip: return GL_TRIANGLE_STRIP;
+		default:						return 0; // should never happen
+		}
 	}
 
-	void draw_indexed(Primitives primitives, unsigned int index_count) {
-		glDrawElements(_to_gl_primitives(primitives), index_count, GL_UNSIGNED_INT, nullptr);
+	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
+		glDrawArrays(_to_gl_primitives(_primitives), vertex_offset, vertex_count);
+	}
+
+	void draw_indexed(unsigned int index_count) {
+		glDrawElements(_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 } // namespace api

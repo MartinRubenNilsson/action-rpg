@@ -164,9 +164,14 @@ namespace api {
 #endif
 	}
 
-	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) { return VertexArrayHandle(); }
-	void destroy_vertex_array(VertexArrayHandle vertex_array) {}
-	void bind_vertex_array(VertexArrayHandle vertex_array) {}
+	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
+		D3D11_INPUT_ELEMENT_DESC input_element_descs[16] = {};
+		//TODO
+		return VertexInputHandle();
+	}
+
+	void destroy_vertex_input(VertexInputHandle vertex_input) {}
+	void bind_vertex_input(VertexInputHandle vertex_input) {}
 
 	ShaderHandle create_shader(const ShaderDesc& desc) { return ShaderHandle(); }
 	void destroy_shader(ShaderHandle shader) {}
@@ -177,8 +182,8 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {}
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
-	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
-	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer) {}
+	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
+	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {}
 
 	TextureHandle create_texture(const TextureDesc& desc) { return TextureHandle(); }
 	void destroy_texture(TextureHandle texture) {}
@@ -244,11 +249,31 @@ namespace api {
 		_device_context->RSSetViewports(count, d3d11_viewports);
 	}
 
+	D3D_PRIMITIVE_TOPOLOGY _primitives_to_d3d11_primitive_topology(Primitives primitives) {
+		switch (primitives) {
+		case Primitives::PointList:     return D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+		case Primitives::LineList:      return D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+		case Primitives::LineStrip:     return D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+		case Primitives::TriangleList:  return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		case Primitives::TriangleStrip: return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+		default:                        return D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		}
+	}
+
+	void set_primitives(Primitives primitives) {
+		_device_context->IASetPrimitiveTopology(_primitives_to_d3d11_primitive_topology(primitives));
+	}
+
 	void set_scissors(const Rect* scissors, unsigned int count) {}
 	void set_scissor_test_enabled(bool enable) {}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {}
-	void draw_indexed(Primitives primitives, unsigned int index_count) {}
+	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
+		//_device_context->Draw(vertex_count, vertex_offset);
+	}
+
+	void draw_indexed(unsigned int index_count) {
+		//_device_context->DrawIndexed(index_count, 0, 0);
+	}
 
 } // namespace api
 } // namespace graphics

@@ -58,6 +58,7 @@ namespace graphics {
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
+	void set_primitives(Primitives primitives);
 	void set_viewport(const Viewport& viewport);
 	void get_viewport(Viewport& viewport);
 	void set_scissor(const Rect& scissor);
@@ -65,8 +66,8 @@ namespace graphics {
 	void set_scissor_test_enabled(bool enable);
 	bool get_scissor_test_enabled();
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
-	void draw_indexed(Primitives primitives, unsigned int index_count);
+	void draw(unsigned int vertex_count, unsigned int vertex_offset = 0);
+	void draw_indexed(unsigned int index_count);
 
 	void swap_buffers();
 

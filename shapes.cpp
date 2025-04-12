@@ -204,9 +204,10 @@ namespace shapes {
 
 		graphics::bind_shader(graphics::shape_shader);
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
+		graphics::set_primitives(graphics::Primitives::LineList);
 
 		for (const Batch& draw : _batches) {
-			graphics::draw(draw.primitive, draw.vertex_count, draw.vertex_offset);
+			graphics::draw(draw.vertex_count, draw.vertex_offset);
 		}
 
 		// CLEANUP

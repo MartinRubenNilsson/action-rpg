@@ -16,7 +16,7 @@ namespace graphics {
 		RGBA32_FLOAT,
 	};
 
-	struct VertexArrayAttribDesc {
+	struct VertexInputAttribDesc {
 		unsigned int location = 0;
 		unsigned int binding = 0;
 		Format format = Format::UNKNOWN;
@@ -24,9 +24,9 @@ namespace graphics {
 		bool normalized = false;
 	};
 
-	struct VertexArrayDesc {
-		std::string_view debug_name = "vertex_array";
-		std::span<VertexArrayAttribDesc> attributes;
+	struct VertexInputDesc {
+		std::string_view debug_name = "vertex_input";
+		std::span<VertexInputAttribDesc> attributes;
 	};
 
 	struct ShaderDesc {

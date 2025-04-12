@@ -42,6 +42,7 @@ namespace ui {
 		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
 		graphics::bind_shader(graphics::ui_shader);
 		graphics::bind_uniform_buffer(1, graphics::ui_uniform_buffer);
+		graphics::set_primitives(graphics::Primitives::TriangleList);
 	}
 
 	void restore_render_state() {
@@ -69,7 +70,7 @@ namespace ui {
 		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
-		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
+		graphics::draw_indexed((unsigned int)num_indices);
 	}
 
 	struct CompiledGeometry {
@@ -105,7 +106,7 @@ namespace ui {
 		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
 		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
 		graphics::bind_index_buffer(compiled_geometry->index_buffer);
-		graphics::draw_indexed(graphics::Primitives::TriangleList, compiled_geometry->index_count);
+		graphics::draw_indexed(compiled_geometry->index_count);
 	}
 
 	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry) {

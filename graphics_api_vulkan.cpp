@@ -260,9 +260,9 @@ namespace api {
 	void push_debug_group(std::string_view name) {}
 	void pop_debug_group() {}
 
-	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) { return VertexArrayHandle(); }
-	void destroy_vertex_array(VertexArrayHandle vertex_array) {}
-	void bind_vertex_array(VertexArrayHandle vertex_array) {}
+	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) { return VertexInputHandle(); }
+	void destroy_vertex_input(VertexInputHandle vertex_input) {}
+	void bind_vertex_input(VertexInputHandle vertex_input) {}
 
 	ShaderHandle create_shader(const ShaderDesc& desc) { return ShaderHandle(); }
 	void destroy_shader(ShaderHandle shader) {}
@@ -273,8 +273,8 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {}
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
-	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
-	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer) {}
+	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
+	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {}
 
 	TextureHandle create_texture(const TextureDesc& desc) { return TextureHandle(); }
 	void destroy_texture(TextureHandle texture) {}

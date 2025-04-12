@@ -311,7 +311,8 @@ int main(int argc, char* argv[])
             int window_framebuffer_height = 0;
             window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
             graphics::set_viewport({ .width = (float)window_framebuffer_width, .height = (float)window_framebuffer_height });
-            graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+			graphics::set_primitives(graphics::Primitives::TriangleList);
+            graphics::draw(3); // draw a fullscreen-covering triangle
         }
 
 #ifdef _DEBUG

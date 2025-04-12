@@ -43,7 +43,7 @@ namespace graphics
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
-	api::VertexArrayHandle _vertex_array;
+	api::VertexInputHandle _vertex_input;
 	Pool<Shader> _shader_pool;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
@@ -106,13 +106,13 @@ namespace graphics
 
 		// CREATE VERTEX ARRAY
 		{
-			VertexArrayAttribDesc attribs[] = {
+			VertexInputAttribDesc attribs[] = {
 				{ .location = 0, .format = Format::RGB32_FLOAT, .offset = offsetof(Vertex, position) },
 				{ .location = 1, .format = Format::RGBA8_UNORM, .offset = offsetof(Vertex, color), .normalized = true },
 				{ .location = 2, .format = Format::RG32_FLOAT,  .offset = offsetof(Vertex, tex_coord) },
 			};
-			VertexArrayDesc desc = { .attributes = attribs };
-			_vertex_array = api::create_vertex_array(desc);
+			VertexInputDesc desc = { .attributes = attribs };
+			_vertex_input = api::create_vertex_input(desc);
 		}
 	}
 
@@ -225,17 +225,17 @@ namespace graphics
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset) {
 		if (handle == Handle<Buffer>()) {
-			api::bind_vertex_buffer(_vertex_array, binding, api::BufferHandle(), 0, 0);
+			api::bind_vertex_buffer(_vertex_input, binding, api::BufferHandle(), 0, 0);
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			api::bind_vertex_buffer(_vertex_array, binding, buffer->api_handle, stride, offset);
+			api::bind_vertex_buffer(_vertex_input, binding, buffer->api_handle, stride, offset);
 		}
 	}
 
 	void bind_index_buffer(Handle<Buffer> handle) {
 		if (handle == Handle<Buffer>()) {
-			api::bind_index_buffer(_vertex_array, api::BufferHandle());
+			api::bind_index_buffer(_vertex_input, api::BufferHandle());
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			api::bind_index_buffer(_vertex_array, buffer->api_handle);
+			api::bind_index_buffer(_vertex_input, buffer->api_handle);
 		}
 	}
 
@@ -467,6 +467,10 @@ namespace graphics
 		return Handle<Texture>();
 	}
 
+	void set_primitives(Primitives primitives) {
+		api::set_primitives(primitives);
+	}
+
 	void set_viewport(const Viewport& viewport) {
 		api::set_viewports(&viewport, 1);
 		_viewport = viewport;
@@ -494,12 +498,12 @@ namespace graphics
 		scissor = _scissor;
 	}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {
-		api::draw(primitives, vertex_count, vertex_offset);
+	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
+		api::draw(vertex_count, vertex_offset);
 	}
 
-	void draw_indexed(Primitives primitives, unsigned int index_count) {
-		api::draw_indexed(primitives, index_count);
+	void draw_indexed(unsigned int index_count) {
+		api::draw_indexed(index_count);
 	}
 
 	void swap_buffers() {

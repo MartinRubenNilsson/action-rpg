@@ -44,11 +44,11 @@ namespace api {
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
-	struct VertexArrayHandle { uintptr_t object = 0; };
+	struct VertexInputHandle { uintptr_t object = 0; };
 
-	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc);
-	void destroy_vertex_array(VertexArrayHandle vertex_array);
-	void bind_vertex_array(VertexArrayHandle vertex_array);
+	VertexInputHandle create_vertex_input(const VertexInputDesc& desc);
+	void destroy_vertex_input(VertexInputHandle vertex_input);
+	void bind_vertex_input(VertexInputHandle vertex_input);
 
 	struct ShaderHandle { uintptr_t object = 0; };
 
@@ -63,8 +63,8 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset);
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer);
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset);
-	void bind_vertex_buffer(VertexArrayHandle vertex_array, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
-	void bind_index_buffer(VertexArrayHandle vertex_array, BufferHandle buffer);
+	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
+	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer);
 
 	struct TextureHandle { uintptr_t object = 0; };
 
@@ -110,12 +110,13 @@ namespace api {
 	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]);
 	void bind_framebuffer(FramebufferHandle framebuffer);
 
+	void set_primitives(Primitives primitives);
 	void set_viewports(const Viewport* viewports, unsigned int count);
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
-	void draw_indexed(Primitives primitives, unsigned int index_count);
+	void draw(unsigned int vertex_count, unsigned int vertex_offset = 0);
+	void draw_indexed(unsigned int index_count);
 
 } // namespace api
 } // namespace graphics

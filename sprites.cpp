@@ -162,6 +162,8 @@ namespace sprites {
 		unsigned int last_bound_uniform_buffer_size = 0;
 		unsigned int last_bound_uniform_buffer_offset = 0;
 
+		graphics::set_primitives(graphics::Primitives::TriangleStrip);
+
 		for (const Batch& batch : _batches) {
 			if (batch.shader != last_bound_shader) {
 				graphics::bind_shader(batch.shader);
@@ -178,7 +180,8 @@ namespace sprites {
 					batch.uniform_buffer_size, batch.uniform_buffer_offset);
 				last_bound_uniform_buffer = batch.uniform_buffer;
 			}
-			graphics::draw(graphics::Primitives::TriangleStrip, batch.vertex_count, batch.vertex_offset);
+			
+			graphics::draw(batch.vertex_count, batch.vertex_offset);
 			_largest_batch_sprite_count = std::max(_largest_batch_sprite_count, batch.sprite_count);
 			_largest_batch_vertex_count = std::max(_largest_batch_vertex_count, batch.vertex_count);
 		}

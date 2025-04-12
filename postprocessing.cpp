@@ -3,10 +3,8 @@
 #include "graphics.h"
 #include "graphics_globals.h"
 
-namespace postprocessing
-{
-	struct Shockwave
-	{
+namespace postprocessing {
+	struct Shockwave {
 		Vector2f position_ws; // ws = world space
 		float force = 0.f;
 		float size = 0.f;
@@ -21,8 +19,7 @@ namespace postprocessing
 	float _screen_transition_progress = 0.f;
 	size_t _gaussian_blur_iterations = 0;
 
-	void _update_shockwaves(float dt)
-	{
+	void _update_shockwaves(float dt) {
 		//TODO: this probably belongs in the ecs
 		for (auto it = _shockwaves.begin(); it != _shockwaves.end();) {
 			it->force -= dt * 0.4f;
@@ -36,8 +33,7 @@ namespace postprocessing
 		}
 	}
 
-	void update(float dt)
-	{
+	void update(float dt) {
 		_update_shockwaves(dt);
 	}
 
@@ -46,15 +42,13 @@ namespace postprocessing
 		const Vector2f& camera_min_ws,
 		const Vector2f& camera_max_ws,
 		unsigned int target_width,
-		unsigned int target_height)
-	{
+		unsigned int target_height) {
 		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * target_width;
 		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * target_height;
 		return Vector2f(x, target_height - y);
 	}
 
-	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max)
-	{
+	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max) {
 #if 0
 		if (_shockwaves.empty()) return;
 		if (graphics::shockwave_shader == Handle<graphics::Shader>()) return;
@@ -77,13 +71,12 @@ namespace postprocessing
 			graphics::set_uniform_1f(graphics::shockwave_shader, "thickness", shockwave.thickness);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
-			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
 #endif
 	}
 
-	void _render_lighting(const Vector2f& camera_min, const Vector2f& camera_max)
-	{
+	void _render_lighting(const Vector2f& camera_min, const Vector2f& camera_max) {
 		if (_darkness_intensity == 0.f) return;
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_lighting()");
 
@@ -105,12 +98,11 @@ namespace postprocessing
 		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 		graphics::bind_framebuffer(graphics::game_framebuffer_0);
-		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+		graphics::draw(3); // draw a fullscreen-covering triangle
 #endif
 	}
 
-	void _render_screen_transition()
-	{
+	void _render_screen_transition() {
 #if 0
 		if (_screen_transition_progress == 0.f) return;
 		if (graphics::screen_transition_shader == Handle<graphics::Shader>()) return;
@@ -126,8 +118,7 @@ namespace postprocessing
 #endif
 	}
 
-	void _render_gaussian_blur()
-	{
+	void _render_gaussian_blur() {
 		if (_gaussian_blur_iterations == 0) return;
 		if (graphics::gaussian_blur_hor_shader == Handle<graphics::Shader>()) return;
 		if (graphics::gaussian_blur_ver_shader == Handle<graphics::Shader>()) return;
@@ -143,30 +134,29 @@ namespace postprocessing
 			graphics::bind_shader(graphics::gaussian_blur_hor_shader);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
-			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+			graphics::draw(3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
 			graphics::bind_shader(graphics::gaussian_blur_ver_shader);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
-			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
 
 		graphics::bind_sampler(0, graphics::nearest_sampler);
 	}
 
-	void render(const Vector2f& camera_min, const Vector2f& camera_max)
-	{
+	void render(const Vector2f& camera_min, const Vector2f& camera_max) {
 		graphics::ScopedDebugGroup debug_group("postprocessing::render()");
+		graphics::set_primitives(graphics::Primitives::TriangleList);
 		_render_shockwaves(camera_min, camera_max);
 		_render_lighting(camera_min, camera_max);
 		_render_screen_transition();
 		_render_gaussian_blur();
 	}
 
-	void add_shockwave(const Vector2f& position_ws)
-	{
+	void add_shockwave(const Vector2f& position_ws) {
 		Shockwave shockwave{};
 		shockwave.position_ws = position_ws; // ws = world space
 		shockwave.force = 0.2f;
@@ -175,24 +165,19 @@ namespace postprocessing
 		_shockwaves.push_back(shockwave);
 	}
 
-	void set_darkness_intensity(float intensity)
-	{
+	void set_darkness_intensity(float intensity) {
 		_darkness_intensity = std::clamp(intensity, 0.f, 1.f);
 	}
 
-	void set_darkness_center(const Vector2f& position_in_world_space)
-	{
+	void set_darkness_center(const Vector2f& position_in_world_space) {
 		_darkness_center_ws = position_in_world_space;
 	}
 
-	void set_screen_transition_progress(float progress)
-	{
+	void set_screen_transition_progress(float progress) {
 		_screen_transition_progress = std::clamp(progress, -1.f, 1.f);
 	}
 
-	void set_gaussian_blur_iterations(size_t iterations)
-	{
+	void set_gaussian_blur_iterations(size_t iterations) {
 		_gaussian_blur_iterations = std::min(iterations, MAX_GAUSSIAN_BLUR_ITERATIONS);
 	}
 }
-

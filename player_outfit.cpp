@@ -397,7 +397,8 @@ namespace player
 			graphics::bind_texture(0, texture);
 			graphics::bind_texture(1, lut1_texture);
 			graphics::bind_texture(2, lut2_texture);
-			graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
+			graphics::set_primitives(graphics::Primitives::TriangleList);
+			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
 
 		graphics::set_viewport(viewport);
