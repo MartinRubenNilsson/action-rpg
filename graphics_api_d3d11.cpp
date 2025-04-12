@@ -1,58 +1,107 @@
 #include "graphics_api.h"
 #ifdef GRAPHICS_API_D3D11
-#include <d3d11.h>
+#include <d3d11_1.h>
 
 #pragma comment(lib, "d3d11.lib")
 
 namespace graphics {
 namespace api {
 
-	void set_debug_message_callback(DebugMessageCallback callback) {}
+	DebugMessageCallback _debug_message_callback = nullptr;
+
+	void set_debug_message_callback(DebugMessageCallback callback) {
+		_debug_message_callback = callback;
+	}
+
+	void _output_debug_message(std::string_view message) {
+		if (_debug_message_callback) {
+			_debug_message_callback(message);
+		}
+	}
 
 	ID3D11Device* _device = nullptr;
 	ID3D11DeviceContext* _device_context = nullptr;
+#ifdef GRAPHICS_API_DEBUG
+	ID3DUserDefinedAnnotation* _annotation = nullptr;
+#endif
+
+	template <class T>
+	void _set_debug_name(T* object, std::string_view name) {
+#ifdef GRAPHICS_API_DEBUG
+		if (!object) return;
+		if (name.empty()) return;
+		object->SetPrivateData(WKPDID_D3DDebugObjectName, (UINT)name.size(), name.data());
+#endif
+	}
 
 	void initialize(const InitializeOptions& options) {
-		// Initialize D3D11
-		D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-		D3D11CreateDevice(
+		UINT flags = 0;
+#ifdef GRAPHICS_API_DEBUG
+		flags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+		D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
+		HRESULT result = D3D11CreateDevice(
 			nullptr,
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
-			0,
-			&feature_level,
-			1,
+			flags,
+			feature_levels,
+			std::size(feature_levels),
 			D3D11_SDK_VERSION,
 			&_device,
 			nullptr,
 			&_device_context
 		);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create D3D11 device");
+			return;
+		}
+#ifdef GRAPHICS_API_DEBUG
+		result = _device_context->QueryInterface(IID_PPV_ARGS(&_annotation));
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create D3D11 user defined annotation");
+			return;
+		}
+#endif
 	}
 
 	template <class T>
 	void _safe_release(T*& ptr) {
-		if (ptr) {
-			ptr->Release();
-			ptr = nullptr;
-		}
+		if (!ptr) return;
+		ptr->Release();
+		ptr = nullptr;
 	}
 
 	void shutdown() {
+#ifdef GRAPHICS_API_DEBUG
+		_safe_release(_annotation);
+#endif
 		_safe_release(_device_context);
 		_safe_release(_device);
 	}
 
-#ifdef GRAPHICS_API_D3D11
 	ID3D11Device* get_d3d11_device() {
 		return _device;
 	}
 	ID3D11DeviceContext* get_d3d11_device_context() {
 		return _device_context;
 	}
-#endif
 
-	void push_debug_group(std::string_view name) {}
-	void pop_debug_group() {}
+	void push_debug_group(std::string_view name) {
+#ifdef GRAPHICS_API_DEBUG
+		if (!_annotation) return;
+		wchar_t wide_name[256] = {};
+		MultiByteToWideChar(CP_UTF8, 0, name.data(), (int)name.size(), wide_name, std::size(wide_name) - 1);
+		_annotation->BeginEvent(wide_name);
+#endif
+	}
+
+	void pop_debug_group() {
+#ifdef GRAPHICS_API_DEBUG
+		if (!_annotation) return;
+		_annotation->EndEvent();
+#endif
+	}
 
 	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) { return VertexArrayHandle(); }
 	void destroy_vertex_array(VertexArrayHandle vertex_array) {}

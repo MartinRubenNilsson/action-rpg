@@ -147,6 +147,10 @@ namespace api {
 
 	DebugMessageCallback _debug_message_callback = nullptr;
 
+	void set_debug_message_callback(DebugMessageCallback callback) {
+		_debug_message_callback = callback;
+	}
+
 #ifdef GRAPHICS_API_DEBUG
 	void GLAPIENTRY _gl_debug_message_callback(
 		GLenum source,
@@ -162,10 +166,6 @@ namespace api {
 		}
 	}
 #endif
-
-	void set_debug_message_callback(DebugMessageCallback callback) {
-		_debug_message_callback = callback;
-	}
 
 	void initialize(const InitializeOptions& options) {
 
@@ -198,21 +198,29 @@ namespace api {
 	}
 
 	void push_debug_group(std::string_view name) {
+#ifdef GRAPHICS_API_DEBUG
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)name.size(), name.data());
+#endif
 	}
 
 	void pop_debug_group() {
+#ifdef GRAPHICS_API_DEBUG
 		glPopDebugGroup();
+#endif
 	}
+
+	void _gl_object_label(GLenum identifier, GLuint name, std::string_view label) {
+#ifdef GRAPHICS_API_DEBUG
+		if (label.empty()) return;
+		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
+#endif
+	}
+
 
 	VertexArrayHandle create_vertex_array(const VertexArrayDesc& desc) {
 		GLuint vertex_array_object = 0;
 		glCreateVertexArrays(1, &vertex_array_object);
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_VERTEX_ARRAY, vertex_array_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_VERTEX_ARRAY, vertex_array_object, desc.debug_name);
 		glBindVertexArray(vertex_array_object);
 		for (unsigned int i = 0; i < desc.attributes.size(); ++i) {
 			const VertexArrayAttribDesc& attrib = desc.attributes[i];
@@ -308,11 +316,7 @@ namespace api {
 				return ShaderHandle();
 			}
 		}
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_PROGRAM, program_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_PROGRAM, program_object, desc.debug_name);
 		return ShaderHandle{ program_object };
 	}
 
@@ -327,11 +331,7 @@ namespace api {
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;
 		glCreateBuffers(1, &buffer_object);
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_BUFFER, buffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_BUFFER, buffer_object, desc.debug_name);
 		GLbitfield flags = 0;
 		if (desc.dynamic) {
 			flags |= GL_DYNAMIC_STORAGE_BIT;
@@ -422,11 +422,7 @@ namespace api {
 	TextureHandle create_texture(const TextureDesc& desc) {
 		GLuint texture_object = 0;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_TEXTURE, texture_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_TEXTURE, texture_object, desc.debug_name);
 		glTextureStorage2D(texture_object, 1, _to_gl_sized_format(desc.format), desc.width, desc.height);
 		if (desc.initial_data) {
 			glTextureSubImage2D(
@@ -454,11 +450,7 @@ namespace api {
 	SamplerHandle create_sampler(const SamplerDesc& desc) {
 		GLuint sampler_object = 0;
 		glCreateSamplers(1, &sampler_object);
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_SAMPLER, sampler_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_SAMPLER, sampler_object, desc.debug_name);
 		const GLint gl_filter = _to_gl_filter(desc.filter);
 		glSamplerParameteri(sampler_object, GL_TEXTURE_MIN_FILTER, gl_filter);
 		glSamplerParameteri(sampler_object, GL_TEXTURE_MAG_FILTER, gl_filter);
@@ -480,11 +472,7 @@ namespace api {
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) {
 		GLuint framebuffer_object = 0;
 		glCreateFramebuffers(1, &framebuffer_object);
-#ifdef GRAPHICS_API_DEBUG
-		if (!desc.debug_name.empty()) {
-			glObjectLabel(GL_FRAMEBUFFER, framebuffer_object, (GLsizei)desc.debug_name.size(), desc.debug_name.data());
-		}
-#endif
+		_gl_object_label(GL_FRAMEBUFFER, framebuffer_object, desc.debug_name);
 		return FramebufferHandle{ framebuffer_object };
 	}
 
