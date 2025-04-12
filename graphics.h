@@ -23,13 +23,9 @@ namespace graphics
 	void initialize();
 	void shutdown();
 
-	// SHADERS
-
 	Handle<Shader> create_shader(ShaderDesc&& desc);
 	// Pass an empty handle to unbind any currently bound shader.
 	void bind_shader(Handle<Shader> handle);
-
-	// BUFFERS
 
 	Handle<Buffer> create_buffer(BufferDesc&& desc);
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);
@@ -47,8 +43,6 @@ namespace graphics
 	// is not a multiple of get_uniform_buffer_offset_alignment().
 	void bind_uniform_buffer_range(unsigned int binding, Handle<Buffer> handle, unsigned int size, unsigned offset = 0);
 
-	// TEXTURES
-
 	Handle<Texture> create_texture(TextureDesc&& desc);
 	Handle<Texture> load_texture(const std::string& path);
 	Handle<Texture> copy_texture(Handle<Texture> src);
@@ -59,14 +53,10 @@ namespace graphics
 	void copy_texture(Handle<Texture> dest, Handle<Texture> src);
 	void get_texture_size(Handle<Texture> handle, unsigned int& width, unsigned int& height);
 
-	// SAMPLERS
-
 	Handle<Sampler> create_sampler(SamplerDesc&& desc);
 	void destroy_sampler(Handle<Sampler> handle);
 	// Pass an empty handle to unbind any currently bound sampler.
 	void bind_sampler(unsigned int binding, Handle<Sampler> handle);
-
-	// FRAMEBUFFERS
 
 	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc);
 	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle);
@@ -77,8 +67,6 @@ namespace graphics
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
-	// FIXED-FUNCTION PIPELINE
-
 	void set_viewport(const Viewport& viewport);
 	void get_viewport(Viewport& viewport);
 	void set_scissor(const Rect& scissor);
@@ -86,12 +74,10 @@ namespace graphics
 	void set_scissor_test_enabled(bool enable);
 	bool get_scissor_test_enabled();
 
-	// DRAWING
-
 	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset = 0);
 	void draw_indexed(Primitives primitives, unsigned int index_count);
 
-	// DEBUGGING
+	void swap_buffers();
 
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();

@@ -19,22 +19,26 @@ namespace api {
 	void set_debug_message_callback(DebugMessageCallback callback);
 
 	struct InitializeOptions {
-		const char* application_name = "Application";
-		const char* engine_name = "Engine";
 #ifdef GRAPHICS_API_OPENGL
 		void* (*glad_load_proc)(const char* name) = nullptr;
 #endif
 #ifdef GRAPHICS_API_VULKAN
+		const char* application_name = "Application";
+		const char* engine_name = "Engine";
 		std::span<const char*> vulkan_instance_extensions;
+#endif
+#ifdef GRAPHICS_API_D3D11
+		void* hwnd = nullptr; // win32 window handle (HWND)
 #endif
 	};
 
-	void initialize(const InitializeOptions &options);
+	bool initialize(const InitializeOptions &options);
 	void shutdown();
 
 #ifdef GRAPHICS_API_D3D11
 	ID3D11Device* get_d3d11_device();
 	ID3D11DeviceContext* get_d3d11_device_context();
+	void swap_buffers();
 #endif
 
 	void push_debug_group(std::string_view name);

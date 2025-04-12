@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "graphics_api.h"
 #ifdef _DEBUG_IMGUI
 #include "imgui_impl.h"
 #include <imgui.h>
@@ -13,7 +14,6 @@
 #ifdef GRAPHICS_API_D3D11
 #include <imgui_impl_dx11.h>
 #endif
-#include "graphics_api.h"
 
 namespace window {
 	extern GLFWwindow* _window;
@@ -51,7 +51,10 @@ namespace imgui_impl {
 #endif
 #ifdef GRAPHICS_API_D3D11
 		ImGui_ImplGlfw_InitForOther(window::_window, true);
-		ImGui_ImplDX11_Init(graphics::api::get_d3d11_device(), graphics::api::get_d3d11_device_context());
+		ImGui_ImplDX11_Init(
+			graphics::api::get_d3d11_device(),
+			graphics::api::get_d3d11_device_context()
+		);
 #endif
 	}
 
@@ -97,4 +100,4 @@ namespace imgui_impl {
 	}
 }
 
-#endif // DEBUG_IMGUI
+#endif // _DEBUG_IMGUI

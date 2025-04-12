@@ -637,7 +637,7 @@
     <ClInclude Include="window_events.h">
       <Filter>application\window</Filter>
     </ClInclude>
-    <ClInclude Include="window_graphics_api.h">
+    <ClInclude Include="window_graphics.h">
       <Filter>application\window</Filter>
     </ClInclude>
     <ClInclude Include="filesystem.h">

@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "graphics.h"
 #include "graphics_api.h"
-#include "window_graphics_api.h"
+#include "window.h"
+#include "window_graphics.h"
 #include "pool.h"
 #include "console.h"
 #include "filesystem.h"
@@ -88,13 +89,16 @@ namespace graphics
 		// INITIALIZE GRAPHICS API
 		{
 			api::InitializeOptions options{};
-			options.application_name = APPLICATION_NAME;
-			options.engine_name = ENGINE_NAME;
 #ifdef GRAPHICS_API_OPENGL
 			options.glad_load_proc = window::get_glad_load_proc();
 #endif
 #ifdef GRAPHICS_API_VULKAN
+			options.application_name = APPLICATION_NAME;
+			options.engine_name = ENGINE_NAME;
 			options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
+#endif
+#ifdef GRAPHICS_API_D3D11
+			options.hwnd = window::get_hwnd();
 #endif
 			api::initialize(options);
 		}
@@ -495,6 +499,15 @@ namespace graphics
 
 	void draw_indexed(Primitives primitives, unsigned int index_count) {
 		api::draw_indexed(primitives, index_count);
+	}
+
+	void swap_buffers() {
+#ifdef GRAPHICS_API_OPENGL
+		window::swap_buffers();
+#endif
+#ifdef GRAPHICS_API_D3D11
+		graphics::api::swap_buffers();
+#endif
 	}
 
 	void push_debug_group(std::string_view name) {

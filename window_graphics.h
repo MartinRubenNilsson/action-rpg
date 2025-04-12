@@ -11,6 +11,8 @@ namespace window {
 #ifdef GRAPHICS_API_OPENGL
 	void make_opengl_context_current();
 	GLADloadproc get_glad_load_proc();
+	// Swaps the front and back buffers. Call at the end of each frame.
+	void swap_buffers();
 #endif
 
 #ifdef GRAPHICS_API_VULKAN

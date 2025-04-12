@@ -1,38 +1,16 @@
 #pragma once
 
-namespace window
-{
-	enum class CursorShape
-	{
-		// STANDARD CURSORS
-
-		Arrow, // The regular arrow cursor shape.
-		IBeam, // The text input I-beam cursor shape.
-		Crosshair, // The crosshair shape.
-		Hand, // The hand shape.
-		HResize, // The horizontal resize arrow shape.
-		VResize, // The vertical resize arrow shape.
-
-		// CUSTOM CURSORS
-
-		HandPoint,
-		HandPointUp, 
-		HandGrab,
-		Quill,
-
-		Count, // Keep last -- the total number of cursor shapes.
-	};
+namespace window {
 
 	bool initialize();
 	void shutdown();
 
+	void* get_hwnd(); // Get the window handle (HWND) for Windows API.
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 	bool should_close();
 	void set_should_close(bool should_close);
 	// Processes all pending events and populates the event queue. Call at the start of each frame.
-	void poll_events(); 
-	// Swaps the front and back buffers. Call at the end of each frame.
-	void swap_buffers(); 
+	void poll_events();
 	bool has_focus();
 	void set_visible(bool visible);
 	bool get_visible();
@@ -51,6 +29,28 @@ namespace window
 	bool get_cursor_visible();
 	void set_cursor_pos(double x, double y);
 	void get_cursor_pos(double& x, double& y);
+
+	enum class CursorShape {
+		// STANDARD CURSORS
+
+		Arrow, // The regular arrow cursor shape.
+		IBeam, // The text input I-beam cursor shape.
+		Crosshair, // The crosshair shape.
+		Hand, // The hand shape.
+		HResize, // The horizontal resize arrow shape.
+		VResize, // The vertical resize arrow shape.
+
+		// CUSTOM CURSORS
+
+		HandPoint,
+		HandPointUp,
+		HandGrab,
+		Quill,
+
+		Count, // Keep last -- the total number of cursor shapes.
+	};
+
+
 	void set_cursor_shape(CursorShape shape);
 	void set_clipboard_string(const std::string& string);
 	std::string get_clipboard_string();

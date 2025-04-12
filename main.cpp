@@ -364,7 +364,7 @@ int main(int argc, char* argv[])
         }
 #endif
 
-        window::swap_buffers();
+        graphics::swap_buffers();
 
 #ifdef _DEBUG_RENDERDOC
         renderdoc::open_capture_folder_if_capturing();

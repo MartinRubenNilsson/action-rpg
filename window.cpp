@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "window.h"
-#include "window_graphics_api.h"
 #include "window_events.h"
 #include "console.h"
 #include "images.h"
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h> // For glfwGetWin32Window()
 
 namespace window
 {
@@ -177,6 +178,10 @@ namespace window
 		glfwTerminate();
 	}
 
+	void* get_hwnd() {
+		return glfwGetWin32Window(_window);
+	}
+
 	double get_elapsed_time() {
 		return glfwGetTime();
 	}
@@ -191,12 +196,6 @@ namespace window
 
 	void poll_events() {
 		glfwPollEvents();
-	}
-
-	void swap_buffers() {
-#ifdef GRAPHICS_API_OPENGL
-		glfwSwapBuffers(_window);
-#endif
 	}
 
 	bool has_focus() {
@@ -332,6 +331,10 @@ namespace window
 
 	GLADloadproc get_glad_load_proc() {
 		return (GLADloadproc)glfwGetProcAddress;
+	}
+
+	void swap_buffers() {
+		glfwSwapBuffers(_window);
 	}
 #endif
 
