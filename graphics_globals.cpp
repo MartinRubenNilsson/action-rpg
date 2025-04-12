@@ -72,47 +72,58 @@ namespace graphics {
 		fullscreen_shader = create_shader({
 			.debug_name = "fullscreen shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = fullscreen_frag });
+			.fs_source = fullscreen_frag
+		});
 		gaussian_blur_hor_shader = create_shader({
 			.debug_name = "gaussian blur horizontal shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = gaussian_blur_hor_frag });
+			.fs_source = gaussian_blur_hor_frag
+		});
 		gaussian_blur_ver_shader = create_shader({
 			.debug_name = "gaussian blur vertical shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = gaussian_blur_ver_frag });
+			.fs_source = gaussian_blur_ver_frag
+		});
 		screen_transition_shader = create_shader({
 			.debug_name = "screen transition shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = screen_transition_frag });
+			.fs_source = screen_transition_frag
+		});
 		shockwave_shader = create_shader({
 			.debug_name = "shockwave shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = shockwave_frag });
+			.fs_source = shockwave_frag
+		});
 		sprite_shader = create_shader({
 			.debug_name = "sprite shader",
 			.vs_source = sprite_vert,
-			.fs_source = sprite_frag });
+			.fs_source = sprite_frag
+		});
 		grass_shader = create_shader({
 			.debug_name = "grass shader",
 			.vs_source = grass_vert,
-			.fs_source = sprite_frag });
+			.fs_source = sprite_frag
+		});
 		shape_shader = create_shader({
 			.debug_name = "shape shader",
 			.vs_source = shape_vert,
-			.fs_source = shape_frag });
+			.fs_source = shape_frag
+		});
 		text_shader = create_shader({
 			.debug_name = "text shader",
 			.vs_source = sprite_vert,
-			.fs_source = text_frag });
+			.fs_source = text_frag
+		});
 		ui_shader = create_shader({
 			.debug_name = "ui shader",
 			.vs_source = ui_vert,
-			.fs_source = ui_frag });
+			.fs_source = ui_frag
+		});
 		player_outfit_shader = create_shader({
 			.debug_name = "player outfit shader",
 			.vs_source = fullscreen_vert,
-			.fs_source = player_outfit_frag });
+			.fs_source = player_outfit_frag
+		});
 	}
 
 	void initialize_globals() {
@@ -125,7 +136,8 @@ namespace graphics {
 				.debug_name = "game framebuffer texture 0",
 				.width = GAME_FRAMEBUFFER_WIDTH,
 				.height = GAME_FRAMEBUFFER_HEIGHT,
-				.format = Format::RGBA8_UNORM }));
+				.format = Format::RGBA8_UNORM
+			}));
 		}
 		{
 			game_framebuffer_1 = create_framebuffer({
@@ -134,7 +146,8 @@ namespace graphics {
 				.debug_name = "game framebuffer texture 1",
 				.width = GAME_FRAMEBUFFER_WIDTH,
 				.height = GAME_FRAMEBUFFER_HEIGHT,
-				.format = Format::RGBA8_UNORM }));
+				.format = Format::RGBA8_UNORM
+			}));
 		}
 		{
 			player_outfit_framebuffer = create_framebuffer({
@@ -143,33 +156,46 @@ namespace graphics {
 				.debug_name = "player outfit texture",
 				.width = 1024, // size of player tileset
 				.height = 1024, // size of player tileset
-				.format = Format::RGBA8_UNORM }));
+				.format = Format::RGBA8_UNORM
+			}));
 		}
 
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
 			.size = 8192 * sizeof(Vertex), // 8192 is an initial estimate
-			.dynamic = true });
+			.type = BufferType::VertexBuffer,
+			.dynamic = true
+		});
 		dynamic_index_buffer = create_buffer({
 			.debug_name = "dynamic index buffer",
 			.size = 8192 * sizeof(unsigned int), // 8192 is an initial estimate
-			.dynamic = true });
+			.type = BufferType::IndexBuffer,
+			.dynamic = true
+		});
 		frame_uniform_buffer = create_buffer({
 			.debug_name = "frame uniform buffer",
 			.size = sizeof(FrameUniformBlock),
-			.dynamic = true });
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
 		ui_uniform_buffer = create_buffer({
 			.debug_name = "ui uniform buffer",
 			.size = sizeof(UiUniformBlock),
-			.dynamic = true });
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
 		sprite_uniform_buffer = create_buffer({
 			.debug_name = "sprite uniform buffer",
 			.size = 256 * 256, // estimate we won't need more than 256 custom blocks on screen at same time
-			.dynamic = true });
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
 		player_outfit_uniform_buffer = create_buffer({
 			.debug_name = "player outfit uniform buffer",
 			.size = sizeof(PlayerOutfitUniformBlock),
-			.dynamic = true });
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
 
 
 		{
@@ -205,11 +231,13 @@ namespace graphics {
 
 		nearest_sampler = create_sampler({
 			.debug_name = "nearest sampler",
-			.filter = Filter::Nearest });
+			.filter = Filter::Nearest
+		});
 		linear_sampler = create_sampler({
 			.debug_name = "linear sampler",
 			.filter = Filter::Linear,
-			.wrap = Wrap::ClampToEdge });
+			.wrap = Wrap::ClampToEdge
+		});
 
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);

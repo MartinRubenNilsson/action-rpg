@@ -35,11 +35,18 @@ namespace graphics {
 		std::string_view fs_source; // fragment shader source code
 	};
 
+	enum class BufferType {
+		VertexBuffer,
+		IndexBuffer,
+		UniformBuffer,
+	};
+
 	struct BufferDesc {
 		std::string_view debug_name = "buffer";
 		unsigned int size = 0; // in bytes
-		const void* initial_data = nullptr;
+		BufferType type = BufferType::VertexBuffer;
 		bool dynamic = false; // If true, the buffer can be updated with update_buffer().
+		const void* initial_data = nullptr;
 	};
 
 	struct TextureDesc {

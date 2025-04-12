@@ -1,21 +1,19 @@
 #pragma once
 
-namespace graphics
-{
-	struct FrameUniformBlock
-	{
+namespace graphics {
+	struct FrameUniformBlock {
 		float view_proj_matrix[16] = {};
 		float app_time = 0.f;
 		float game_time = 0.f;
+		float padding0;
+		float padding1;
 	};
 
-	struct UiUniformBlock
-	{
+	struct UiUniformBlock {
 		float transform[16] = {};
 	};
 
-	struct PlayerOutfitUniformBlock
-	{
+	struct PlayerOutfitUniformBlock {
 		int lut1_type = -1;
 		int lut1_y = -1;
 		int lut2_type = -1;

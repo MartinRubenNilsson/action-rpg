@@ -86,7 +86,7 @@ namespace api {
 				_output_debug_message("Failed to create DXGI factory");
 				return false;
 			}
-			DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
+			DXGI_SWAP_CHAIN_DESC swap_chain_desc{};
 			swap_chain_desc.BufferCount = 2; // one front buffer, one back buffer
 			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 			swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -177,8 +177,43 @@ namespace api {
 	void destroy_shader(ShaderHandle shader) {}
 	void bind_shader(ShaderHandle shader) {}
 
-	BufferHandle create_buffer(const BufferDesc& desc) { return BufferHandle(); }
-	void destroy_buffer(BufferHandle buffer) {}
+	BufferHandle create_buffer(const BufferDesc& desc) {
+		D3D11_BUFFER_DESC buffer_desc{};
+		buffer_desc.ByteWidth = desc.size;
+		buffer_desc.Usage = desc.dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_IMMUTABLE;
+		if (desc.type == BufferType::VertexBuffer) {
+			buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		} else if (desc.type == BufferType::IndexBuffer) {
+			buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		} else if (desc.type == BufferType::UniformBuffer) {
+			buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		}
+		if (desc.dynamic) {
+			buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		}
+		HRESULT result = S_OK;
+		ID3D11Buffer* buffer = nullptr;
+		if (desc.initial_data) {
+			D3D11_SUBRESOURCE_DATA initial_data{};
+			initial_data.pSysMem = desc.initial_data;
+			result = _device->CreateBuffer(&buffer_desc, &initial_data, &buffer);
+		} else {
+			result = _device->CreateBuffer(&buffer_desc, nullptr, &buffer);
+		}
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create buffer");
+			return BufferHandle();
+		}
+		_set_debug_name(buffer, desc.debug_name);
+		return BufferHandle{ .object = (uintptr_t)buffer };
+	}
+
+	void destroy_buffer(BufferHandle buffer) {
+		if (!buffer.object) return;
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		d3d11_buffer->Release();
+	}
+
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {}
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
