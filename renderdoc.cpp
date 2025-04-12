@@ -1,18 +1,16 @@
 #include "stdafx.h"
 #ifdef _DEBUG_RENDERDOC
 #include "renderdoc.h"
+#include "console.h"
+#include "filesystem.h"
 #include <Windows.h>
 #include <shellapi.h> // ShellExecuteW
 #include <renderdoc/renderdoc_app.h>
-#include "console.h"
-#include "filesystem.h"
 
-namespace renderdoc
-{
+namespace renderdoc {
 	RENDERDOC_API_1_6_0* _rdoc_api = nullptr;
 
-	void initialize()
-	{
+	void initialize() {
 		HMODULE mod = LoadLibraryA("renderdoc.dll");
 		if (!mod) {
 			console::log_error("Failed to load renderdoc.dll");
@@ -31,8 +29,7 @@ namespace renderdoc
 		_rdoc_api->MaskOverlayBits(eRENDERDOC_Overlay_None, eRENDERDOC_Overlay_None);
 	}
 
-	void open_capture_folder_if_capturing()
-	{
+	void open_capture_folder_if_capturing() {
 		if (!_rdoc_api) return;
 		if (!_rdoc_api->IsFrameCapturing()) return;
 		const char* path_cstr = _rdoc_api->GetCaptureFilePathTemplate();

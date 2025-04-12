@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "graphics.h"
 #include "graphics_api.h"
+#include "graphics_vertices.h"
 #include "window.h"
 #include "window_graphics.h"
 #include "pool.h"

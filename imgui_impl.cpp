@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "graphics_api.h"
 #ifdef _DEBUG_IMGUI
 #include "imgui_impl.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
+#include "graphics_api.h"
 #ifdef GRAPHICS_API_OPENGL
 #include <imgui_impl_opengl3.h>
 #endif
 #ifdef GRAPHICS_API_VULKAN
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.h> //TODO: remove
 #include <imgui_impl_vulkan.h>
 #endif
 #ifdef GRAPHICS_API_D3D11

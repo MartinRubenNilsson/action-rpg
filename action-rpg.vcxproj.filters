@@ -655,6 +655,9 @@
     <ClInclude Include="platform.h">
       <Filter>application\platform</Filter>
     </ClInclude>
+    <ClInclude Include="graphics_vertices.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">

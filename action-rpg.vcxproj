@@ -262,6 +262,7 @@
     <ClInclude Include="filesystem.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="graphics_globals.h" />
+    <ClInclude Include="graphics_vertices.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="fwd.h" />
     <ClInclude Include="images.h" />

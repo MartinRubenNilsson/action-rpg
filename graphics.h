@@ -1,24 +1,15 @@
 #pragma once
 #include "graphics_types.h"
 #include "fwd.h"
-#include "vector2.h"
-#include "color.h"
 #include <string_view>
 
 // graphics.h - High-level graphics API
 
-namespace graphics
-{
+namespace graphics {
 	struct Shader;
 	struct Buffer;
 	struct Texture;
 	struct Framebuffer;
-
-	struct Vertex {
-		Vector2f position;
-		Color color;
-		Vector2f tex_coord;
-	};
 
 	void initialize();
 	void shutdown();

@@ -3,11 +3,10 @@
 #include "fonts.h"
 #include "graphics.h"
 #include "graphics_globals.h"
+#include "graphics_vertices.h"
 
-namespace text
-{
-    void render(const Text& text)
-	{
+namespace text {
+    void render(const Text& text) {
         if (text.unicode_string.empty()) return;
 
         float whitespace_width = (float)fonts::get_glyph(text.font, U' ').advance_width;
@@ -25,13 +24,16 @@ namespace text
             current_point.x += fonts::get_kerning_advance(text.font, previous_codepoint, codepoint);
 
             switch (codepoint) {
-            case U' ': {
+            case U' ':
+            {
                 current_point.x += whitespace_width;
             } continue; // Don't need to create a quad for whitespaces
-            case U'\t': {
+            case U'\t':
+            {
                 current_point.x += whitespace_width * 4.f;
             } continue; // Don't need to create a quad for whitespaces
-            case U'\n': {
+            case U'\n':
+            {
                 current_point.x = 0.f;
                 current_point.y += line_spacing;
             } continue; // Don't need to create a quad for whitespaces
@@ -58,14 +60,14 @@ namespace text
         const float scale_for_pixel_height = fonts::get_scale_for_pixel_height(text.font, text.pixel_height);
         for (graphics::Vertex& vertex : vertices) {
             vertex.position.y = -vertex.position.y; // Flip y-axis
-			vertex.position *= scale_for_pixel_height;
+            vertex.position *= scale_for_pixel_height;
             vertex.position *= text.scale;
             vertex.position += text.position;
-		}
+        }
 
         graphics::bind_shader(graphics::text_shader);
         graphics::bind_texture(0, fonts::get_atlas_texture(text.font));
         graphics::update_buffer(graphics::dynamic_vertex_buffer, vertices.data(), (unsigned int)vertices.size() * sizeof(graphics::Vertex));
         graphics::draw(graphics::Primitives::TriangleList, (unsigned int)vertices.size());
-	}
+    }
 }

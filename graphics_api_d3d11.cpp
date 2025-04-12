@@ -2,10 +2,17 @@
 #ifdef GRAPHICS_API_D3D11
 #include <dxgi.h>
 #include <d3d11_1.h>
+#ifdef GRAPHICS_API_DEBUG
+#include <d3dcommon.h> // for WKPDID_D3DDebugObjectName
+#endif
 #include <wrl/client.h> // for Microsoft::WRL::ComPtr
+#include <string>
 
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxgi")
+#pragma comment(lib, "d3d11")
+#ifdef GRAPHICS_API_DEBUG
+#pragma comment(lib, "dxguid") // for WKPDID_D3DDebugObjectName
+#endif
 
 namespace graphics {
 namespace api {
@@ -22,12 +29,13 @@ namespace api {
 		}
 	}
 
+	IDXGISwapChain* _swap_chain = nullptr;
 	ID3D11Device* _device = nullptr;
 	ID3D11DeviceContext* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
 	ID3DUserDefinedAnnotation* _annotation = nullptr;
 #endif
-	IDXGISwapChain* _swap_chain = nullptr;
+	ID3D11RenderTargetView* _swap_chain_back_buffer_rtv = nullptr;
 
 	template <class T>
 	void _set_debug_name(T* object, std::string_view name) {
@@ -39,51 +47,72 @@ namespace api {
 	}
 
 	bool initialize(const InitializeOptions& options) {
-		UINT create_device_flags = 0;
+		HRESULT result = S_OK;
+		{
+			UINT create_device_flags = 0;
 #ifdef GRAPHICS_API_DEBUG
-		create_device_flags |= D3D11_CREATE_DEVICE_DEBUG;
+			create_device_flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
-		D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
-		HRESULT result = D3D11CreateDevice(
-			nullptr,
-			D3D_DRIVER_TYPE_HARDWARE,
-			nullptr,
-			create_device_flags,
-			feature_levels,
-			std::size(feature_levels),
-			D3D11_SDK_VERSION,
-			&_device,
-			nullptr,
-			&_device_context
-		);
-		if (FAILED(result)) {
-			_output_debug_message("Failed to create D3D11 device");
-			return false;
-		}
+			D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
+			result = D3D11CreateDevice(
+				nullptr,
+				D3D_DRIVER_TYPE_HARDWARE,
+				nullptr,
+				create_device_flags,
+				feature_levels,
+				std::size(feature_levels),
+				D3D11_SDK_VERSION,
+				&_device,
+				nullptr,
+				&_device_context
+			);
+			if (FAILED(result)) {
+				_output_debug_message("Failed to create D3D11 device");
+				return false;
+			}
 #ifdef GRAPHICS_API_DEBUG
-		result = _device_context->QueryInterface(IID_PPV_ARGS(&_annotation));
-		if (FAILED(result)) {
-			_output_debug_message("Failed to create D3D11 user defined annotation");
-			return false;
-		}
+			result = _device_context->QueryInterface(IID_PPV_ARGS(&_annotation));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to create D3D11 user defined annotation");
+				return false;
+			}
 #endif
-		Microsoft::WRL::ComPtr<IDXGIFactory> factory{};
-		result = CreateDXGIFactory(IID_PPV_ARGS(&factory));
-		if (FAILED(result)) {
-			_output_debug_message("Failed to create DXGI factory");
-			return false;
 		}
-		DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
-		swap_chain_desc.BufferCount = 2;
-		swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swap_chain_desc.OutputWindow = (HWND)options.hwnd;
-		swap_chain_desc.SampleDesc.Count = 1;
-		swap_chain_desc.Windowed = TRUE;
-		result = factory->CreateSwapChain(_device, &swap_chain_desc, &_swap_chain);
-		if (FAILED(result)) {
-			_output_debug_message("Failed to create swap chain");
-			return false;
+		{
+			Microsoft::WRL::ComPtr<IDXGIFactory> factory{};
+			result = CreateDXGIFactory(IID_PPV_ARGS(&factory));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to create DXGI factory");
+				return false;
+			}
+			DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
+			swap_chain_desc.BufferCount = 2; // one front buffer, one back buffer
+			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swap_chain_desc.OutputWindow = (HWND)options.hwnd;
+			swap_chain_desc.SampleDesc.Count = 1;
+			swap_chain_desc.Windowed = TRUE;
+			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+			result = factory->CreateSwapChain(_device, &swap_chain_desc, &_swap_chain);
+			if (FAILED(result)) {
+				_output_debug_message("Failed to create swap chain");
+				return false;
+			}
+		}
+		{
+			Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer;
+			result = _swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to get swap chain back buffer");
+				return false;
+			}
+			_set_debug_name(back_buffer.Get(), "BackBuffer");
+			result = _device->CreateRenderTargetView(back_buffer.Get(), nullptr, &_swap_chain_back_buffer_rtv);
+			if (FAILED(result)) {
+				_output_debug_message("Failed to create swap chain back buffer RTV");
+				return false;
+			}
+			_set_debug_name(_swap_chain_back_buffer_rtv, "BackBufferRTV");
 		}
 		return true;
 	}
@@ -96,6 +125,7 @@ namespace api {
 	}
 
 	void shutdown() {
+		_safe_release(_swap_chain_back_buffer_rtv);
 		_safe_release(_swap_chain);
 #ifdef GRAPHICS_API_DEBUG
 		_safe_release(_annotation);
@@ -183,7 +213,11 @@ namespace api {
 	void destroy_framebuffer(FramebufferHandle framebuffer) {}
 	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture) { return true; }
 	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {}
-	void bind_framebuffer(FramebufferHandle framebuffer) {}
+	void bind_framebuffer(FramebufferHandle framebuffer) {
+		if (!framebuffer.object) {
+			_device_context->OMSetRenderTargets(1, &_swap_chain_back_buffer_rtv, nullptr);
+		}
+	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {}
 	void set_scissors(const Rect* scissors, unsigned int count) {}

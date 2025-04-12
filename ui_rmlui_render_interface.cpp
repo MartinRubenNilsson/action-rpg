@@ -2,10 +2,10 @@
 #include "ui_rmlui_render_interface.h"
 #include "graphics.h"
 #include "graphics_globals.h"
+#include "graphics_vertices.h"
 #include "console.h"
 
-namespace ui
-{
+namespace ui {
 	static_assert(std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>);
 
 	int _viewport_width = 0;
@@ -16,20 +16,17 @@ namespace ui
 	Rml::Matrix4f _transform = Rml::Matrix4f::Identity();
 	Rml::Matrix4f _view_proj_matrix = Rml::Matrix4f::Identity();
 
-	Rml::TextureHandle _texture_handle_to_rml(Handle<graphics::Texture> handle)
-	{
+	Rml::TextureHandle _texture_handle_to_rml(Handle<graphics::Texture> handle) {
 		// PITFALL: 0 represents an invalid Rml::TextureHandle.
 		return *(Rml::TextureHandle*)&handle;
 	}
 
-	Handle<graphics::Texture> _texture_handle_from_rml(Rml::TextureHandle handle)
-	{
+	Handle<graphics::Texture> _texture_handle_from_rml(Rml::TextureHandle handle) {
 		// PITFALL: 0 represents an invalid Rml::TextureHandle.
-		return *(Handle<graphics::Texture>*)&handle;
+		return *(Handle<graphics::Texture>*) & handle;
 	}
 
-	void set_viewport(int viewport_width, int viewport_height)
-	{
+	void set_viewport(int viewport_width, int viewport_height) {
 		_viewport_width = viewport_width;
 		_viewport_height = viewport_height;
 		_view_proj_matrix =
@@ -37,8 +34,7 @@ namespace ui
 			Rml::Matrix4f::ProjectOrtho(0.0f, (float)viewport_width, 0.f, (float)viewport_height, -1.f, 1.f);
 	}
 
-	void prepare_render_state()
-	{
+	void prepare_render_state() {
 		graphics::push_debug_group("UI");
 		graphics::get_viewport(_previous_viewport);
 		_previous_scissor_test_enabled = graphics::get_scissor_test_enabled();
@@ -48,8 +44,7 @@ namespace ui
 		graphics::bind_uniform_buffer(1, graphics::ui_uniform_buffer);
 	}
 
-	void restore_render_state()
-	{
+	void restore_render_state() {
 		graphics::set_viewport(_previous_viewport);
 		graphics::set_scissor_test_enabled(_previous_scissor_test_enabled);
 		graphics::set_scissor(_previous_scissor);
@@ -62,8 +57,7 @@ namespace ui
 		Rml::Vertex* vertices, int num_vertices,
 		int* indices, int num_indices,
 		const Rml::TextureHandle texture,
-		const Rml::Vector2f& translation)
-	{
+		const Rml::Vector2f& translation) {
 		if (texture) {
 			graphics::bind_texture(0, _texture_handle_from_rml(texture));
 		} else {
@@ -78,16 +72,14 @@ namespace ui
 		graphics::draw_indexed(graphics::Primitives::TriangleList, (unsigned int)num_indices);
 	}
 
-	struct CompiledGeometry
-	{
+	struct CompiledGeometry {
 		Handle<graphics::Buffer> vertex_buffer;
 		Handle<graphics::Buffer> index_buffer;
 		unsigned int index_count = 0;
 		Handle<graphics::Texture> texture;
 	};
 
-	Rml::CompiledGeometryHandle RmlUiRenderInterface::CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture)
-	{
+	Rml::CompiledGeometryHandle RmlUiRenderInterface::CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture) {
 		CompiledGeometry* compiled_geometry = new CompiledGeometry();
 		compiled_geometry->vertex_buffer = graphics::create_buffer({
 			.debug_name = "rmlui vertex buffer",
@@ -102,8 +94,7 @@ namespace ui
 		return (Rml::CompiledGeometryHandle)compiled_geometry;
 	}
 
-	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation)
-	{
+	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation) {
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
 		if (compiled_geometry->texture != Handle<graphics::Texture>()) {
 			graphics::bind_texture(0, compiled_geometry->texture);
@@ -117,21 +108,18 @@ namespace ui
 		graphics::draw_indexed(graphics::Primitives::TriangleList, compiled_geometry->index_count);
 	}
 
-	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry)
-	{
+	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry) {
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
 		graphics::destroy_buffer(compiled_geometry->vertex_buffer);
 		graphics::destroy_buffer(compiled_geometry->index_buffer);
 		delete compiled_geometry;
 	}
 
-	void RmlUiRenderInterface::EnableScissorRegion(bool enable)
-	{
+	void RmlUiRenderInterface::EnableScissorRegion(bool enable) {
 		graphics::set_scissor_test_enabled(enable);
 	}
 
-	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height)
-	{
+	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height) {
 		graphics::set_scissor({
 			.x = x,
 			.y = _viewport_height - (y + height),
@@ -142,8 +130,7 @@ namespace ui
 	bool RmlUiRenderInterface::LoadTexture(
 		Rml::TextureHandle& texture_handle,
 		Rml::Vector2i& texture_dimensions,
-		const Rml::String& source)
-	{
+		const Rml::String& source) {
 		const Handle<graphics::Texture> texture = graphics::load_texture(source);
 		if (texture == Handle<graphics::Texture>()) return false;
 		unsigned int width, height;
@@ -157,8 +144,7 @@ namespace ui
 	bool RmlUiRenderInterface::GenerateTexture(
 		Rml::TextureHandle& texture_handle,
 		const Rml::byte* source,
-		const Rml::Vector2i& source_dimensions)
-	{
+		const Rml::Vector2i& source_dimensions) {
 		const Handle<graphics::Texture> texture = graphics::create_texture({
 			.debug_name = "rmlui texture",
 			.width = (unsigned int)source_dimensions.x,
@@ -170,13 +156,11 @@ namespace ui
 		return true;
 	}
 
-	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle)
-	{
+	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle) {
 		graphics::destroy_texture(_texture_handle_from_rml(texture_handle));
 	}
 
-	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform)
-	{
+	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform) {
 		_transform = transform ? *transform : Rml::Matrix4f::Identity();
 	}
 }

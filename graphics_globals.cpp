@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "graphics_globals.h"
 #include "graphics.h"
+#include "graphics_globals.h"
+#include "graphics_vertices.h"
 #include "filesystem.h"
 
-namespace graphics
-{
+namespace graphics {
 	eastl::vector<graphics::Vertex> temp_vertices;
 
 	Handle<Shader> fullscreen_shader;
@@ -36,8 +36,7 @@ namespace graphics
 	Handle<Sampler> nearest_sampler;
 	Handle<Sampler> linear_sampler;
 
-	void _initialize_shaders()
-	{
+	void _initialize_shaders() {
 		std::string fullscreen_vert;
 		std::string fullscreen_frag;
 		std::string gaussian_blur_hor_frag;
@@ -116,8 +115,7 @@ namespace graphics
 			.fs_source = player_outfit_frag });
 	}
 
-	void initialize_globals()
-	{
+	void initialize_globals() {
 		_initialize_shaders();
 
 		{

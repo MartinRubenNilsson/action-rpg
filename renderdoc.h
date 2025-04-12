@@ -1,8 +1,7 @@
 #pragma once
 #ifdef _DEBUG_RENDERDOC
 
-namespace renderdoc
-{
+namespace renderdoc {
 	void initialize();
 	void open_capture_folder_if_capturing();
 }

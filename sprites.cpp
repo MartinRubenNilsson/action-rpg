@@ -2,32 +2,38 @@
 #include "sprites.h"
 #include "graphics.h"
 #include "graphics_globals.h"
+#include "graphics_vertices.h"
 
-namespace sprites
-{
-	bool operator<(const Sprite& left, const Sprite& right)
-	{
-		if (left.sorting_layer != right.sorting_layer)
+namespace sprites {
+	bool operator<(const Sprite& left, const Sprite& right) {
+		if (left.sorting_layer != right.sorting_layer) {
 			return left.sorting_layer < right.sorting_layer;
-		if (left.position.y + left.sorting_point.y != right.position.y + right.sorting_point.y)
+		}
+		if (left.position.y + left.sorting_point.y != right.position.y + right.sorting_point.y) {
 			return left.position.y + left.sorting_point.y < right.position.y + right.sorting_point.y;
-		if (left.position.x + left.sorting_point.x != right.position.x + right.sorting_point.x)
+		}
+		if (left.position.x + left.sorting_point.x != right.position.x + right.sorting_point.x) {
 			return left.position.x + left.sorting_point.x < right.position.x + right.sorting_point.x;
-		if (left.shader != right.shader)
+		}
+		if (left.shader != right.shader) {
 			return left.shader < right.shader;
-		if (left.texture != right.texture)
+		}
+		if (left.texture != right.texture) {
 			return left.texture < right.texture;
-		if (left.uniform_buffer != right.uniform_buffer)
+		}
+		if (left.uniform_buffer != right.uniform_buffer) {
 			return left.uniform_buffer < right.uniform_buffer;
-		if (left.uniform_buffer_size != right.uniform_buffer_size)
+		}
+		if (left.uniform_buffer_size != right.uniform_buffer_size) {
 			return left.uniform_buffer_size < right.uniform_buffer_size;
-		if (left.uniform_buffer_offset != right.uniform_buffer_offset)
+		}
+		if (left.uniform_buffer_offset != right.uniform_buffer_offset) {
 			return left.uniform_buffer_offset < right.uniform_buffer_offset;
+		}
 		return false;
 	}
 
-	struct Batch
-	{
+	struct Batch {
 		Handle<graphics::Shader> shader;
 		Handle<graphics::Texture> texture;
 		Handle<graphics::Buffer> uniform_buffer;
@@ -46,13 +52,11 @@ namespace sprites
 	unsigned int _largest_batch_sprite_count = 0;
 	unsigned int _largest_batch_vertex_count = 0;
 
-	void add(const Sprite& sprite)
-	{
+	void add(const Sprite& sprite) {
 		_sprites.push_back(sprite);
 	}
 
-	void sort()
-	{
+	void sort() {
 		if (_sprites.empty()) return;
 
 		// Sort sprites by draw order.
@@ -69,8 +73,7 @@ namespace sprites
 		eastl::tim_sort_buffer(_sprites.begin(), _sprites.end(), _sprites.end());
 	}
 
-	void draw()
-	{
+	void draw() {
 		if (_sprites.empty()) return;
 
 		// Sprites sharing the same state (shader, texture, etc.) are batched together to reduce draw calls.
@@ -188,31 +191,26 @@ namespace sprites
 		graphics::temp_vertices.clear();
 	}
 
-	void clear_drawing_statistics()
-	{
+	void clear_drawing_statistics() {
 		_sprites_drawn = 0;
 		_batches_drawn = 0;
 		_largest_batch_sprite_count = 0;
 		_largest_batch_vertex_count = 0;
 	}
 
-	unsigned int get_sprites_drawn()
-	{
+	unsigned int get_sprites_drawn() {
 		return _sprites_drawn;
 	}
 
-	unsigned int get_batches_drawn()
-	{
+	unsigned int get_batches_drawn() {
 		return _batches_drawn;
 	}
 
-	unsigned int get_largest_batch_sprite_count()
-	{
+	unsigned int get_largest_batch_sprite_count() {
 		return _largest_batch_sprite_count;
 	}
 
-	unsigned int get_largest_batch_vertex_count()
-	{
+	unsigned int get_largest_batch_vertex_count() {
 		return _largest_batch_vertex_count;
 	}
 }
