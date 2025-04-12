@@ -214,7 +214,19 @@ namespace api {
 		d3d11_buffer->Release();
 	}
 
-	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {}
+	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {
+		if (!buffer.object) return;
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		D3D11_MAPPED_SUBRESOURCE mapped_resource{};
+		HRESULT result = _device_context->Map(d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to map buffer");
+			return;
+		}
+		memcpy((void*)((uintptr_t)mapped_resource.pData + offset), data, size);
+		_device_context->Unmap(d3d11_buffer, 0);
+	}
+
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {}
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
 	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
