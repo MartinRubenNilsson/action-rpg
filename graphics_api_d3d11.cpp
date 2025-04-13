@@ -1,5 +1,6 @@
 #include "graphics_api.h"
 #ifdef GRAPHICS_API_D3D11
+#define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <dxgi.h>
 #include <d3d11_1.h>
@@ -30,12 +31,12 @@ namespace api {
 		}
 	}
 
-	IDXGISwapChain* _swap_chain = nullptr;
 	ID3D11Device* _device = nullptr;
 	ID3D11DeviceContext1* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
-	ID3DUserDefinedAnnotation* _annotation = nullptr;
+	ID3DUserDefinedAnnotation* _user_defined_annotation = nullptr;
 #endif
+	IDXGISwapChain* _swap_chain = nullptr;
 	ID3D11RenderTargetView* _swap_chain_back_buffer_rtv = nullptr;
 
 	template <class T>
@@ -69,7 +70,7 @@ namespace api {
 				&device_context
 			);
 			if (FAILED(result)) {
-				_output_debug_message("Failed to create D3D11 device");
+				_output_debug_message("Failed to create D3D11 device and device context");
 				return false;
 			}
 			result = device_context->QueryInterface(IID_PPV_ARGS(&_device_context));
@@ -78,9 +79,9 @@ namespace api {
 				return false;
 			}
 #ifdef GRAPHICS_API_DEBUG
-			result = _device_context->QueryInterface(IID_PPV_ARGS(&_annotation));
+			result = device_context->QueryInterface(IID_PPV_ARGS(&_user_defined_annotation));
 			if (FAILED(result)) {
-				_output_debug_message("Failed to create D3D11 user defined annotation");
+				_output_debug_message("Failed to query D3D11 user defined annotation");
 				return false;
 			}
 #endif
@@ -102,7 +103,7 @@ namespace api {
 			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 			result = factory->CreateSwapChain(_device, &swap_chain_desc, &_swap_chain);
 			if (FAILED(result)) {
-				_output_debug_message("Failed to create swap chain");
+				_output_debug_message("Failed to create DXGI swap chain");
 				return false;
 			}
 		}
@@ -110,13 +111,13 @@ namespace api {
 			Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer;
 			result = _swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
 			if (FAILED(result)) {
-				_output_debug_message("Failed to get swap chain back buffer");
+				_output_debug_message("Failed to get DXGI swap chain back buffer");
 				return false;
 			}
 			_set_debug_name(back_buffer.Get(), "BackBuffer");
 			result = _device->CreateRenderTargetView(back_buffer.Get(), nullptr, &_swap_chain_back_buffer_rtv);
 			if (FAILED(result)) {
-				_output_debug_message("Failed to create swap chain back buffer RTV");
+				_output_debug_message("Failed to create DXGI swap chain back buffer RTV");
 				return false;
 			}
 			_set_debug_name(_swap_chain_back_buffer_rtv, "BackBufferRTV");
@@ -135,7 +136,7 @@ namespace api {
 		_safe_release(_swap_chain_back_buffer_rtv);
 		_safe_release(_swap_chain);
 #ifdef GRAPHICS_API_DEBUG
-		_safe_release(_annotation);
+		_safe_release(_user_defined_annotation);
 #endif
 		_safe_release(_device_context);
 		_safe_release(_device);
@@ -156,17 +157,17 @@ namespace api {
 
 	void push_debug_group(std::string_view name) {
 #ifdef GRAPHICS_API_DEBUG
-		if (!_annotation) return;
+		if (!_user_defined_annotation) return;
 		wchar_t wide_name[256] = {};
 		MultiByteToWideChar(CP_UTF8, 0, name.data(), (int)name.size(), wide_name, std::size(wide_name) - 1);
-		_annotation->BeginEvent(wide_name);
+		_user_defined_annotation->BeginEvent(wide_name);
 #endif
 	}
 
 	void pop_debug_group() {
 #ifdef GRAPHICS_API_DEBUG
-		if (!_annotation) return;
-		_annotation->EndEvent();
+		if (!_user_defined_annotation) return;
+		_user_defined_annotation->EndEvent();
 #endif
 	}
 
@@ -277,9 +278,59 @@ namespace api {
 		unsigned int src_depth) {}
 	void bind_texture(unsigned int binding, TextureHandle texture) {}
 
-	SamplerHandle create_sampler(const SamplerDesc& desc) { return SamplerHandle(); }
-	void destroy_sampler(SamplerHandle sampler) {}
-	void bind_sampler(unsigned int binding, SamplerHandle sampler) {}
+	D3D11_FILTER _filter_to_d3d11_filter(Filter filter) {
+		switch (filter) {
+		case Filter::Nearest:   return D3D11_FILTER_MIN_MAG_MIP_POINT;
+		case Filter::Linear:    return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		//case Filter::Bilinear:  return D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		//case Filter::Trilinear: return D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		default:                return D3D11_FILTER_MIN_MAG_MIP_POINT;
+		}
+	}
+
+	D3D11_TEXTURE_ADDRESS_MODE _wrap_to_d3d11_texture_address_mode(Wrap wrap) {
+		switch (wrap) {
+		case Wrap::Repeat:             return D3D11_TEXTURE_ADDRESS_WRAP;
+		case Wrap::MirroredRepeat:     return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+		case Wrap::ClampToEdge:        return D3D11_TEXTURE_ADDRESS_CLAMP;
+		case Wrap::ClampToBorder:      return D3D11_TEXTURE_ADDRESS_BORDER;
+		case Wrap::MirrorClampToEdge:  return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+		default:                       return D3D11_TEXTURE_ADDRESS_WRAP;
+		}
+	}
+
+	SamplerHandle create_sampler(const SamplerDesc& desc) {
+		D3D11_SAMPLER_DESC sampler_desc{};
+		sampler_desc.Filter = _filter_to_d3d11_filter(desc.filter);
+		sampler_desc.AddressU = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		sampler_desc.AddressV = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		sampler_desc.AddressW = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		sampler_desc.MinLOD = 0.f;
+		sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
+		sampler_desc.MipLODBias = 0.f;
+		sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		ID3D11SamplerState* sampler_state = nullptr;
+		HRESULT result = _device->CreateSamplerState(&sampler_desc, &sampler_state);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create sampler state");
+			return SamplerHandle();
+		}
+		_set_debug_name(sampler_state, desc.debug_name);
+		return SamplerHandle{ .object = (uintptr_t)sampler_state };
+	}
+
+	void destroy_sampler(SamplerHandle sampler) {
+		if (!sampler.object) return;
+		ID3D11SamplerState* d3d11_sampler_state = (ID3D11SamplerState*)sampler.object;
+		d3d11_sampler_state->Release();
+	}
+
+	void bind_sampler(unsigned int binding, SamplerHandle sampler) {
+		if (!sampler.object) return;
+		ID3D11SamplerState* d3d11_sampler_state = (ID3D11SamplerState*)sampler.object;
+		_device_context->PSSetSamplers(binding, 1, &d3d11_sampler_state);
+		_device_context->VSSetSamplers(binding, 1, &d3d11_sampler_state);
+	}
 
 	FramebufferHandle get_default_framebuffer() {
 		return FramebufferHandle{ .object = (uintptr_t)_swap_chain_back_buffer_rtv };
