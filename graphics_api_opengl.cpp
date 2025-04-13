@@ -66,35 +66,6 @@
 namespace graphics {
 namespace api {
 
-	GLuint _get_vertex_attribute_component_count(Format format) {
-		// must be 1, 2, 3, 4, or GL_BGRA
-		switch (format) {
-		case Format::R8_UNORM:     return 1;
-		case Format::RG8_UNORM:    return 2;
-		case Format::RGB8_UNORM:   return 3;
-		case Format::RGBA8_UNORM:  return 4;
-		case Format::R32_FLOAT:    return 1;
-		case Format::RG32_FLOAT:   return 2;
-		case Format::RGB32_FLOAT:  return 3;
-		case Format::RGBA32_FLOAT: return 4;
-		default: return 0;
-		}
-	}
-
-	GLenum _get_vertex_attribute_component_type(Format format) {
-		switch (format) {
-		case Format::R8_UNORM:     return GL_UNSIGNED_BYTE;
-		case Format::RG8_UNORM:    return GL_UNSIGNED_BYTE;
-		case Format::RGB8_UNORM:   return GL_UNSIGNED_BYTE;
-		case Format::RGBA8_UNORM:  return GL_UNSIGNED_BYTE;
-		case Format::R32_FLOAT:    return GL_FLOAT;
-		case Format::RG32_FLOAT:   return GL_FLOAT;
-		case Format::RGB32_FLOAT:  return GL_FLOAT;
-		case Format::RGBA32_FLOAT: return GL_FLOAT;
-		default: return 0;
-		}
-	}
-
 	GLenum _to_gl_base_format(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return GL_RED;
@@ -140,6 +111,13 @@ namespace api {
 
 	GLuint _program_pipeline_object = 0;
 
+	void _gl_object_label(GLenum identifier, GLuint name, std::string_view label) {
+#ifdef GRAPHICS_API_DEBUG
+		if (label.empty()) return;
+		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
+#endif
+	}
+
 	bool initialize(const InitializeOptions& options) {
 
 		// INITIALIZE GLAD
@@ -165,6 +143,7 @@ namespace api {
 
 		glCreateProgramPipelines(1, &_program_pipeline_object);
 		glBindProgramPipeline(_program_pipeline_object);
+		_gl_object_label(GL_PROGRAM_PIPELINE, _program_pipeline_object, "program pipeline");
 
 		// SETUP BLENDING
 
@@ -189,13 +168,6 @@ namespace api {
 	void pop_debug_group() {
 #ifdef GRAPHICS_API_DEBUG
 		glPopDebugGroup();
-#endif
-	}
-
-	void _gl_object_label(GLenum identifier, GLuint name, std::string_view label) {
-#ifdef GRAPHICS_API_DEBUG
-		if (label.empty()) return;
-		glObjectLabel(identifier, name, (GLsizei)label.size(), label.data());
 #endif
 	}
 
@@ -268,6 +240,35 @@ namespace api {
 		glUseProgramStages(_program_pipeline_object, GL_FRAGMENT_SHADER_BIT, (GLuint)shader.object);
 	}
 
+	GLuint _get_vertex_attribute_component_count(Format format) {
+		// must be 1, 2, 3, 4, or GL_BGRA
+		switch (format) {
+		case Format::R8_UNORM:     return 1;
+		case Format::RG8_UNORM:    return 2;
+		case Format::RGB8_UNORM:   return 3;
+		case Format::RGBA8_UNORM:  return 4;
+		case Format::R32_FLOAT:    return 1;
+		case Format::RG32_FLOAT:   return 2;
+		case Format::RGB32_FLOAT:  return 3;
+		case Format::RGBA32_FLOAT: return 4;
+		default: return 0;
+		}
+	}
+
+	GLenum _get_vertex_attribute_component_type(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:     return GL_UNSIGNED_BYTE;
+		case Format::RG8_UNORM:    return GL_UNSIGNED_BYTE;
+		case Format::RGB8_UNORM:   return GL_UNSIGNED_BYTE;
+		case Format::RGBA8_UNORM:  return GL_UNSIGNED_BYTE;
+		case Format::R32_FLOAT:    return GL_FLOAT;
+		case Format::RG32_FLOAT:   return GL_FLOAT;
+		case Format::RGB32_FLOAT:  return GL_FLOAT;
+		case Format::RGBA32_FLOAT: return GL_FLOAT;
+		default: return 0;
+		}
+	}
+
 	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
 		GLuint vertex_array_object = 0;
 		glCreateVertexArrays(1, &vertex_array_object);
@@ -293,93 +294,6 @@ namespace api {
 	void bind_vertex_input(VertexInputHandle vertex_input) {
 		glBindVertexArray((GLuint)vertex_input.object);
 	}
-
-#if 0
-	ShaderHandle create_shader(const ShaderDesc& desc) {
-		if (desc.vs_source.empty()) {
-			if (_debug_message_callback) {
-				_debug_message_callback("Vertex shader source code is empty: " + std::string(desc.debug_name));
-			}
-			return ShaderHandle();
-		}
-		if (desc.fs_source.empty()) {
-			if (_debug_message_callback) {
-				_debug_message_callback("Fragment shader source code is empty: " + std::string(desc.debug_name));
-			}
-			return ShaderHandle();
-		}
-		const GLuint program_object = glCreateProgram();
-		{
-			const char* vs_string = desc.vs_source.data();
-			const GLint vs_length = (GLint)desc.vs_source.size();
-			const GLuint vs_object = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vs_object, 1, &vs_string, &vs_length);
-			glCompileShader(vs_object);
-			int success;
-			glGetShaderiv(vs_object, GL_COMPILE_STATUS, &success);
-			if (!success) {
-				if (_debug_message_callback) {
-					char info_log[512];
-					glGetShaderInfoLog(vs_object, sizeof(info_log), nullptr, info_log);
-					_debug_message_callback("Failed to compile vertex shader: " + std::string(desc.debug_name));
-					_debug_message_callback(info_log);
-				}
-				glDeleteShader(vs_object);
-				glDeleteProgram(program_object);
-				return ShaderHandle();
-			}
-			glAttachShader(program_object, vs_object);
-			glDeleteShader(vs_object);
-		}
-		{
-			const char* fs_string = desc.fs_source.data();
-			const GLint fs_length = (GLint)desc.fs_source.size();
-			const GLuint fs_object = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fs_object, 1, &fs_string, &fs_length);
-			glCompileShader(fs_object);
-			int success;
-			glGetShaderiv(fs_object, GL_COMPILE_STATUS, &success);
-			if (!success) {
-				if (_debug_message_callback) {
-					char info_log[512];
-					glGetShaderInfoLog(fs_object, sizeof(info_log), nullptr, info_log);
-					_debug_message_callback("Failed to compile fragment shader: " + std::string(desc.debug_name));
-					_debug_message_callback(info_log);
-				}
-				glDeleteShader(fs_object);
-				glDeleteProgram(program_object);
-				return ShaderHandle();
-			}
-			glAttachShader(program_object, fs_object);
-			glDeleteShader(fs_object);
-		}
-		{
-			glLinkProgram(program_object);
-			int success;
-			glGetProgramiv(program_object, GL_LINK_STATUS, &success);
-			if (!success) {
-				if (_debug_message_callback) {
-					char info_log[512];
-					glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
-					_debug_message_callback("Failed to link program object: " + std::string(desc.debug_name));
-					_debug_message_callback(info_log);
-				}
-				glDeleteProgram(program_object);
-				return ShaderHandle();
-			}
-		}
-		_gl_object_label(GL_PROGRAM, program_object, desc.debug_name);
-		return ShaderHandle{ program_object };
-	}
-
-	void destroy_shader(ShaderHandle shader) {
-		glDeleteProgram((GLuint)shader.object);
-	}
-
-	void bind_shader(ShaderHandle shader) {
-		glUseProgram((GLuint)shader.object);
-	}
-#endif
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;

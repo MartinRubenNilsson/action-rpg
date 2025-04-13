@@ -4,6 +4,7 @@
 #define NOMINMAX
 #include <dxgi.h>
 #include <d3d11_1.h>
+#include <d3dcompiler.h>
 #ifdef GRAPHICS_API_DEBUG
 #include <d3dcommon.h> // for WKPDID_D3DDebugObjectName
 #endif
@@ -171,6 +172,104 @@ namespace api {
 #endif
 	}
 
+	bool _compile_shader(const ShaderDesc& desc, const char* target, ID3DBlob** shader_blob) {
+		if (desc.source_code.empty()) {
+			_output_debug_message("Shader source code is empty: " + std::string(desc.debug_name));
+			return false;
+		}
+		UINT flags = 0;
+#ifdef GRAPHICS_API_DEBUG
+		flags |= D3DCOMPILE_DEBUG;
+		flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+		Microsoft::WRL::ComPtr<ID3DBlob> error_blob{};
+		HRESULT result = D3DCompile(
+			desc.source_code.data(),
+			desc.source_code.size(),
+			nullptr,
+			nullptr,
+			D3D_COMPILE_STANDARD_FILE_INCLUDE,
+			"main",
+			target,
+			flags,
+			0,
+			shader_blob,
+			&error_blob
+		);
+		if (FAILED(result)) {
+			if (error_blob) {
+				_output_debug_message("Failed to compile shader: " + std::string(desc.debug_name));
+				_output_debug_message((char*)error_blob->GetBufferPointer());
+			}
+			return false;
+		}
+		return true;
+	}
+
+	VertexShaderHandle create_vertex_shader(const ShaderDesc& desc) {
+		Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
+		if (!_compile_shader(desc, "vs_5_0", &shader_blob)) {
+			return VertexShaderHandle();
+		}
+		Microsoft::WRL::ComPtr<ID3D11VertexShader> shader{};
+		HRESULT result = _device->CreateVertexShader(
+			shader_blob->GetBufferPointer(),
+			shader_blob->GetBufferSize(),
+			nullptr,
+			&shader
+		);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create vertex shader: " + std::string(desc.debug_name));
+			return VertexShaderHandle();
+		}
+		_set_debug_name(shader.Get(), desc.debug_name);
+		return VertexShaderHandle{ .object = (uintptr_t)shader.Get() };
+	}
+
+	void destroy_vertex_shader(VertexShaderHandle shader) {
+		if (!shader.object) return;
+		ID3D11VertexShader* d3d11_shader = (ID3D11VertexShader*)shader.object;
+		d3d11_shader->Release();
+	}
+
+	void bind_vertex_shader(VertexShaderHandle shader) {
+		if (!shader.object) return;
+		ID3D11VertexShader* d3d11_shader = (ID3D11VertexShader*)shader.object;
+		_device_context->VSSetShader(d3d11_shader, nullptr, 0);
+	}
+
+	FragmentShaderHandle create_fragment_shader(const ShaderDesc& desc) {
+		Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
+		if (!_compile_shader(desc, "ps_5_0", &shader_blob)) {
+			return FragmentShaderHandle();
+		}
+		Microsoft::WRL::ComPtr<ID3D11PixelShader> shader{};
+		HRESULT result = _device->CreatePixelShader(
+			shader_blob->GetBufferPointer(),
+			shader_blob->GetBufferSize(),
+			nullptr,
+			&shader
+		);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create fragment shader: " + std::string(desc.debug_name));
+			return FragmentShaderHandle();
+		}
+		_set_debug_name(shader.Get(), desc.debug_name);
+		return FragmentShaderHandle{ .object = (uintptr_t)shader.Get() };
+	}
+
+	void destroy_fragment_shader(FragmentShaderHandle shader) {
+		if (!shader.object) return;
+		ID3D11PixelShader* d3d11_shader = (ID3D11PixelShader*)shader.object;
+		d3d11_shader->Release();
+	}
+
+	void bind_fragment_shader(FragmentShaderHandle shader) {
+		if (!shader.object) return;
+		ID3D11PixelShader* d3d11_shader = (ID3D11PixelShader*)shader.object;
+		_device_context->PSSetShader(d3d11_shader, nullptr, 0);
+	}
+
 	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
 		D3D11_INPUT_ELEMENT_DESC input_element_descs[16] = {};
 		//TODO
@@ -179,10 +278,6 @@ namespace api {
 
 	void destroy_vertex_input(VertexInputHandle vertex_input) {}
 	void bind_vertex_input(VertexInputHandle vertex_input) {}
-
-	ShaderHandle create_shader(const ShaderDesc& desc) { return ShaderHandle(); }
-	void destroy_shader(ShaderHandle shader) {}
-	void bind_shader(ShaderHandle shader) {}
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		D3D11_BUFFER_DESC buffer_desc{};

@@ -760,4 +760,9 @@
       <UniqueIdentifier>{17beda9f-e4af-44d4-8299-f467bbcb1756}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="fullscreen.vs.hlsl">
+      <Filter>graphics\shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>
