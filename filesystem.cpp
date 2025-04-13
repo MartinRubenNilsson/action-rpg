@@ -4,9 +4,8 @@
 #include <fstream>
 
 namespace filesystem {
-	std::vector<File> _files;
 
-	FileFormat _get_file_format_from_extension(std::string_view path) {
+	FileFormat _path_to_file_format(std::string_view path) {
 		if (path.ends_with(".txt"))  return FileFormat::Text;
 		if (path.ends_with(".png"))  return FileFormat::PngImage;
 		if (path.ends_with(".ktx2")) return FileFormat::KhronosTexture;
@@ -22,13 +21,15 @@ namespace filesystem {
 		return FileFormat::Unknown;
 	}
 
+	std::vector<File> _files;
+
 	void initialize() {
 		_files.clear();
-		for (const auto& entry : std::filesystem::recursive_directory_iterator(".")) {
+		for (const std::filesystem::directory_entry& entry : std::filesystem::recursive_directory_iterator(".")) {
 			if (!entry.is_regular_file()) continue;
 			File file{};
 			file.path = entry.path().lexically_normal().string();
-			file.format = _get_file_format_from_extension(file.path);
+			file.format = _path_to_file_format(file.path);
 			_files.push_back(std::move(file));
 		}
 		std::ranges::sort(_files, {}, &File::path);

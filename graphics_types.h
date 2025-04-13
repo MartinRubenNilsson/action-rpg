@@ -21,7 +21,7 @@ namespace graphics {
 		unsigned int binding = 0;
 		Format format = Format::UNKNOWN;
 		unsigned int offset = 0;
-		bool normalized = false;
+		bool normalized = false; //TODO: remove, not supported in d3d11
 	};
 
 	struct VertexInputDesc {

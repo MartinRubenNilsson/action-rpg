@@ -32,7 +32,7 @@ namespace api {
 
 	IDXGISwapChain* _swap_chain = nullptr;
 	ID3D11Device* _device = nullptr;
-	ID3D11DeviceContext* _device_context = nullptr;
+	ID3D11DeviceContext1* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
 	ID3DUserDefinedAnnotation* _annotation = nullptr;
 #endif
@@ -55,6 +55,7 @@ namespace api {
 			create_device_flags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 			D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
+			Microsoft::WRL::ComPtr<ID3D11DeviceContext> device_context{};
 			result = D3D11CreateDevice(
 				nullptr,
 				D3D_DRIVER_TYPE_HARDWARE,
@@ -65,10 +66,15 @@ namespace api {
 				D3D11_SDK_VERSION,
 				&_device,
 				nullptr,
-				&_device_context
+				&device_context
 			);
 			if (FAILED(result)) {
 				_output_debug_message("Failed to create D3D11 device");
+				return false;
+			}
+			result = device_context->QueryInterface(IID_PPV_ARGS(&_device_context));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to query D3D11 device context 1");
 				return false;
 			}
 #ifdef GRAPHICS_API_DEBUG
@@ -234,7 +240,13 @@ namespace api {
 		_device_context->PSSetConstantBuffers(binding, 1, &d3d11_buffer);
 	}
 
-	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {}
+	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {
+		if (!buffer.object) return;
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		_device_context->VSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
+		_device_context->PSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
+	}
+
 	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
 	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {}
 
@@ -279,7 +291,8 @@ namespace api {
 
 	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {
 		if (!framebuffer.object) return;
-		_device_context->ClearRenderTargetView((ID3D11RenderTargetView*)framebuffer.object, color);
+		ID3D11RenderTargetView* d3d11_rtv = (ID3D11RenderTargetView*)framebuffer.object;
+		_device_context->ClearRenderTargetView(d3d11_rtv, color);
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer) {

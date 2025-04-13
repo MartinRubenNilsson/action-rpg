@@ -129,36 +129,30 @@ namespace graphics {
 	void initialize_globals() {
 		_initialize_shaders();
 
-		{
-			game_framebuffer_0 = create_framebuffer({
-				.debug_name = "game framebuffer 0" });
-			attach_framebuffer_texture(game_framebuffer_0, create_texture({
-				.debug_name = "game framebuffer texture 0",
-				.width = GAME_FRAMEBUFFER_WIDTH,
-				.height = GAME_FRAMEBUFFER_HEIGHT,
-				.format = Format::RGBA8_UNORM
-			}));
-		}
-		{
-			game_framebuffer_1 = create_framebuffer({
-				.debug_name = "game framebuffer 1" });
-			attach_framebuffer_texture(game_framebuffer_1, create_texture({
-				.debug_name = "game framebuffer texture 1",
-				.width = GAME_FRAMEBUFFER_WIDTH,
-				.height = GAME_FRAMEBUFFER_HEIGHT,
-				.format = Format::RGBA8_UNORM
-			}));
-		}
-		{
-			player_outfit_framebuffer = create_framebuffer({
-				.debug_name = "player outfit framebuffer" });
-			attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
-				.debug_name = "player outfit texture",
-				.width = 1024, // size of player tileset
-				.height = 1024, // size of player tileset
-				.format = Format::RGBA8_UNORM
-			}));
-		}
+		game_framebuffer_0 = create_framebuffer({
+			.debug_name = "game framebuffer 0" });
+		attach_framebuffer_texture(game_framebuffer_0, create_texture({
+			.debug_name = "game framebuffer texture 0",
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT,
+			.format = Format::RGBA8_UNORM
+		}));
+		game_framebuffer_1 = create_framebuffer({
+			.debug_name = "game framebuffer 1" });
+		attach_framebuffer_texture(game_framebuffer_1, create_texture({
+			.debug_name = "game framebuffer texture 1",
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT,
+			.format = Format::RGBA8_UNORM
+		}));
+		player_outfit_framebuffer = create_framebuffer({
+			.debug_name = "player outfit framebuffer" });
+		attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
+			.debug_name = "player outfit texture",
+			.width = 1024, // size of player tileset
+			.height = 1024, // size of player tileset
+			.format = Format::RGBA8_UNORM
+		}));
 
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
