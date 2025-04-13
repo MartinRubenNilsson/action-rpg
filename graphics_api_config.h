@@ -7,7 +7,7 @@
 #ifdef GRAPHICS_API_OPENGL
 // If you change the OpenGL version, make sure to also change the GLSL version in your shader files!
 #define GRAPHICS_API_OPENGL_VERSION_MAJOR 4
-#define GRAPHICS_API_OPENGL_VERSION_MINOR 5
+#define GRAPHICS_API_OPENGL_VERSION_MINOR 6
 #endif
 
 #if !defined(GRAPHICS_API_OPENGL) && \

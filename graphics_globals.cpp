@@ -45,77 +45,77 @@ namespace graphics {
 		filesystem::read_text_file("assets/shaders/fullscreen.vert", shader_code);
 		fullscreen_vert = create_vertex_shader({
 			.debug_name = "fullscreen vertex shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/fullscreen.frag", shader_code);
 		fullscreen_frag = create_fragment_shader({
 			.debug_name = "fullscreen fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/gaussian_blur_hor.frag", shader_code);
 		gaussian_blur_hor_frag = create_fragment_shader({
 			.debug_name = "gaussian blur horizontal fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/gaussian_blur_ver.frag", shader_code);
 		gaussian_blur_ver_frag = create_fragment_shader({
 			.debug_name = "gaussian blur vertical fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/screen_transition.frag", shader_code);
 		screen_transition_frag = create_fragment_shader({
 			.debug_name = "screen transition fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/shockwave.frag", shader_code);
 		shockwave_frag = create_fragment_shader({
 			.debug_name = "shockwave fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/sprite.vert", shader_code);
 		sprite_vert = create_vertex_shader({
 			.debug_name = "sprite vertex shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/sprite.frag", shader_code);
 		sprite_frag = create_fragment_shader({
 			.debug_name = "sprite fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/grass.vert", shader_code);
 		grass_vert = create_vertex_shader({
 			.debug_name = "grass vertex shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/shape.vert", shader_code);
 		shape_vert = create_vertex_shader({
 			.debug_name = "shape vertex shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/shape.frag", shader_code);
 		shape_frag = create_fragment_shader({
 			.debug_name = "shape fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/text.frag", shader_code);
 		text_frag = create_fragment_shader({
 			.debug_name = "text fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/ui.vert", shader_code);
 		ui_vert = create_vertex_shader({
 			.debug_name = "ui vertex shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/ui.frag", shader_code);
 		ui_frag = create_fragment_shader({
 			.debug_name = "ui fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 		filesystem::read_text_file("assets/shaders/player_outfit.frag", shader_code);
 		player_outfit_frag = create_fragment_shader({
 			.debug_name = "player outfit fragment shader",
-			.source_code = shader_code
+			.bytecode = shader_code
 		});
 	}
 

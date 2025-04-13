@@ -173,7 +173,7 @@ namespace api {
 	}
 
 	bool _compile_shader(const ShaderDesc& desc, const char* target, ID3DBlob** shader_blob) {
-		if (desc.source_code.empty()) {
+		if (desc.bytecode.empty()) {
 			_output_debug_message("Shader source code is empty: " + std::string(desc.debug_name));
 			return false;
 		}
@@ -184,8 +184,8 @@ namespace api {
 #endif
 		Microsoft::WRL::ComPtr<ID3DBlob> error_blob{};
 		HRESULT result = D3DCompile(
-			desc.source_code.data(),
-			desc.source_code.size(),
+			desc.bytecode.data(),
+			desc.bytecode.size(),
 			nullptr,
 			nullptr,
 			D3D_COMPILE_STANDARD_FILE_INCLUDE,
