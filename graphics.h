@@ -6,7 +6,9 @@
 // graphics.h - High-level graphics API
 
 namespace graphics {
-	struct Shader;
+
+	struct VertexShader;
+	struct FragmentShader;
 	struct Buffer;
 	struct Texture;
 	struct Framebuffer;
@@ -14,9 +16,21 @@ namespace graphics {
 	void initialize();
 	void shutdown();
 
-	Handle<Shader> create_shader(ShaderDesc&& desc);
-	// Pass an empty handle to unbind any currently bound shader.
-	void bind_shader(Handle<Shader> handle);
+	void push_debug_group(std::string_view name);
+	void pop_debug_group();
+
+	struct ScopedDebugGroup {
+		ScopedDebugGroup(std::string_view name) { push_debug_group(name); }
+		~ScopedDebugGroup() { pop_debug_group(); }
+	};
+
+	Handle<VertexShader> create_vertex_shader(ShaderDesc&& desc);
+	// Pass an empty handle to unbind any currently bound vertex shader.
+	void bind_vertex_shader(Handle<VertexShader> handle);
+
+	Handle<FragmentShader> create_fragment_shader(ShaderDesc&& desc);
+	// Pass an empty handle to unbind any currently bound fragment shader.
+	void bind_fragment_shader(Handle<FragmentShader> handle);
 
 	Handle<Buffer> create_buffer(BufferDesc&& desc);
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);
@@ -70,14 +84,6 @@ namespace graphics {
 	void draw_indexed(unsigned int index_count);
 
 	void swap_buffers();
-
-	void push_debug_group(std::string_view name);
-	void pop_debug_group();
-
-	struct ScopedDebugGroup {
-		ScopedDebugGroup(std::string_view name) { push_debug_group(name); }
-		~ScopedDebugGroup() { pop_debug_group(); }
-	};
 
 	void show_texture_debug_window();
 }

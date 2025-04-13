@@ -337,7 +337,7 @@ namespace player
 			break;
 		}
 
-		if (graphics::player_outfit_shader == Handle<graphics::Shader>()) return Handle<graphics::Texture>();
+		if (graphics::player_outfit_frag == Handle<graphics::FragmentShader>()) return Handle<graphics::Texture>();
 
 		graphics::Viewport viewport{};
 		graphics::get_viewport(viewport);
@@ -346,7 +346,8 @@ namespace player
 		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 0.f };
 		graphics::clear_framebuffer(graphics::player_outfit_framebuffer, CLEAR_COLOR);
 		graphics::bind_framebuffer(graphics::player_outfit_framebuffer);
-		graphics::bind_shader(graphics::player_outfit_shader);
+		graphics::bind_vertex_shader(graphics::fullscreen_vert);
+		graphics::bind_fragment_shader(graphics::player_outfit_frag);
 
 		const std::string base_dir = "assets/textures/character/";
 

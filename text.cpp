@@ -24,16 +24,13 @@ namespace text {
             current_point.x += fonts::get_kerning_advance(text.font, previous_codepoint, codepoint);
 
             switch (codepoint) {
-            case U' ':
-            {
+            case U' ': {
                 current_point.x += whitespace_width;
             } continue; // Don't need to create a quad for whitespaces
-            case U'\t':
-            {
+            case U'\t': {
                 current_point.x += whitespace_width * 4.f;
             } continue; // Don't need to create a quad for whitespaces
-            case U'\n':
-            {
+            case U'\n': {
                 current_point.x = 0.f;
                 current_point.y += line_spacing;
             } continue; // Don't need to create a quad for whitespaces
@@ -65,10 +62,11 @@ namespace text {
             vertex.position += text.position;
         }
 
-        graphics::bind_shader(graphics::text_shader);
+        graphics::bind_vertex_shader(graphics::sprite_vert);
+        graphics::bind_fragment_shader(graphics::text_frag);
         graphics::bind_texture(0, fonts::get_atlas_texture(text.font));
         graphics::update_buffer(graphics::dynamic_vertex_buffer, vertices.data(), (unsigned int)vertices.size() * sizeof(graphics::Vertex));
-		graphics::set_primitives(graphics::Primitives::TriangleList);
+        graphics::set_primitives(graphics::Primitives::TriangleList);
         graphics::draw((unsigned int)vertices.size());
     }
 }

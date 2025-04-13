@@ -40,7 +40,8 @@ namespace ui {
 		_previous_scissor_test_enabled = graphics::get_scissor_test_enabled();
 		graphics::get_scissor(_previous_scissor);
 		graphics::set_viewport({ .width = (float)_viewport_width, .height = (float)_viewport_height });
-		graphics::bind_shader(graphics::ui_shader);
+		graphics::bind_vertex_shader(graphics::ui_vert);
+		graphics::bind_fragment_shader(graphics::ui_frag);
 		graphics::bind_uniform_buffer(1, graphics::ui_uniform_buffer);
 		graphics::set_primitives(graphics::Primitives::TriangleList);
 	}

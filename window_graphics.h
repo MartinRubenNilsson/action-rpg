@@ -1,5 +1,5 @@
 #pragma once
-#include "graphics_config.h"
+#include "graphics_api_config.h"
 #include <span>
 
 #ifdef GRAPHICS_API_OPENGL

@@ -1,6 +1,8 @@
 #pragma once
+#include "graphics_vertices.h"
 
 namespace graphics {
+
 	struct FrameUniformBlock {
 		float view_proj_matrix[16] = {};
 		float app_time = 0.f;
@@ -26,17 +28,21 @@ namespace graphics {
 
 	// SHADERS
 
-	extern Handle<Shader> fullscreen_shader; // just a simple passthrough shader
-	extern Handle<Shader> gaussian_blur_hor_shader;
-	extern Handle<Shader> gaussian_blur_ver_shader;
-	extern Handle<Shader> screen_transition_shader;
-	extern Handle<Shader> shockwave_shader;
-	extern Handle<Shader> sprite_shader;
-	extern Handle<Shader> grass_shader;
-	extern Handle<Shader> shape_shader;
-	extern Handle<Shader> text_shader;
-	extern Handle<Shader> ui_shader;
-	extern Handle<Shader> player_outfit_shader;
+	extern Handle<VertexShader> fullscreen_vert;
+	extern Handle<FragmentShader> fullscreen_frag;
+	extern Handle<FragmentShader> gaussian_blur_hor_frag;
+	extern Handle<FragmentShader> gaussian_blur_ver_frag;
+	extern Handle<FragmentShader> screen_transition_frag;
+	extern Handle<FragmentShader> shockwave_frag;
+	extern Handle<VertexShader> sprite_vert;
+	extern Handle<FragmentShader> sprite_frag;
+	extern Handle<VertexShader> grass_vert;
+	extern Handle<VertexShader> shape_vert;
+	extern Handle<FragmentShader> shape_frag;
+	extern Handle<FragmentShader> text_frag;
+	extern Handle<VertexShader> ui_vert;
+	extern Handle<FragmentShader> ui_frag;
+	extern Handle<FragmentShader> player_outfit_frag;
 
 	// FRAMEBUFFERS
 

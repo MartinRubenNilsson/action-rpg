@@ -63,9 +63,7 @@ namespace filesystem {
 		text.resize(file.tellg());
 		file.seekg(0);
 		file.read(text.data(), text.size());
-		while (!text.empty() && text.back() == '\0') {
-			text.pop_back();
-		}
+		text.resize(file.gcount());
 		return true;
 	}
 

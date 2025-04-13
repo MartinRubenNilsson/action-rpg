@@ -155,7 +155,7 @@
     <ClInclude Include="dependencies\glad\glad.h" />
     <ClInclude Include="dependencies\glad\khrplatform.h" />
     <ClInclude Include="graphics_api.h" />
-    <ClInclude Include="graphics_config.h" />
+    <ClInclude Include="graphics_api_config.h" />
     <ClInclude Include="graphics_types.h" />
   </ItemGroup>
   <ItemGroup>

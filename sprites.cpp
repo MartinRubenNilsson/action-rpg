@@ -15,8 +15,11 @@ namespace sprites {
 		if (left.position.x + left.sorting_point.x != right.position.x + right.sorting_point.x) {
 			return left.position.x + left.sorting_point.x < right.position.x + right.sorting_point.x;
 		}
-		if (left.shader != right.shader) {
-			return left.shader < right.shader;
+		if (left.vertex_shader != right.vertex_shader) {
+			return left.vertex_shader < right.vertex_shader;
+		}
+		if (left.fragment_shader != right.fragment_shader) {
+			return left.fragment_shader < right.fragment_shader;
 		}
 		if (left.texture != right.texture) {
 			return left.texture < right.texture;
@@ -34,7 +37,8 @@ namespace sprites {
 	}
 
 	struct Batch {
-		Handle<graphics::Shader> shader;
+		Handle<graphics::VertexShader> vertex_shader;
+		Handle<graphics::FragmentShader> fragment_shader;
 		Handle<graphics::Texture> texture;
 		Handle<graphics::Buffer> uniform_buffer;
 		unsigned int uniform_buffer_size = 0;
@@ -110,14 +114,16 @@ namespace sprites {
 
 			if (_batches.empty()) {
 				Batch& first_batch = _batches.emplace_back();
-				first_batch.shader = sprite.shader;
+				first_batch.vertex_shader = sprite.vertex_shader;
+				first_batch.fragment_shader = sprite.fragment_shader;
 				first_batch.texture = sprite.texture;
 				first_batch.uniform_buffer = sprite.uniform_buffer;
 				first_batch.uniform_buffer_size = sprite.uniform_buffer_size;
 				first_batch.uniform_buffer_offset = sprite.uniform_buffer_offset;
 			} else {
 				Batch& current_batch = _batches.back();
-				if (sprite.shader == current_batch.shader &&
+				if (sprite.vertex_shader == current_batch.vertex_shader &&
+					sprite.fragment_shader == current_batch.fragment_shader &&
 					sprite.texture == current_batch.texture &&
 					sprite.uniform_buffer == current_batch.uniform_buffer &&
 					sprite.uniform_buffer_size == current_batch.uniform_buffer_size &&
@@ -128,7 +134,8 @@ namespace sprites {
 					current_batch.vertex_count += 2;
 				} else {
 					Batch& new_batch = _batches.emplace_back();
-					new_batch.shader = sprite.shader;
+					new_batch.vertex_shader = sprite.vertex_shader;
+					new_batch.fragment_shader = sprite.fragment_shader;
 					new_batch.texture = sprite.texture;
 					new_batch.uniform_buffer = sprite.uniform_buffer;
 					new_batch.uniform_buffer_size = sprite.uniform_buffer_size;
@@ -156,7 +163,8 @@ namespace sprites {
 			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
 		}
 
-		Handle<graphics::Shader> last_bound_shader;
+		Handle<graphics::VertexShader> last_bound_vertex_shader;
+		Handle<graphics::FragmentShader> last_bound_fragment_shader;
 		Handle<graphics::Texture> last_bound_texture;
 		Handle<graphics::Buffer> last_bound_uniform_buffer;
 		unsigned int last_bound_uniform_buffer_size = 0;
@@ -165,9 +173,13 @@ namespace sprites {
 		graphics::set_primitives(graphics::Primitives::TriangleStrip);
 
 		for (const Batch& batch : _batches) {
-			if (batch.shader != last_bound_shader) {
-				graphics::bind_shader(batch.shader);
-				last_bound_shader = batch.shader;
+			if (batch.vertex_shader != last_bound_vertex_shader) {
+				graphics::bind_vertex_shader(batch.vertex_shader);
+				last_bound_vertex_shader = batch.vertex_shader;
+			}
+			if (batch.fragment_shader != last_bound_fragment_shader) {
+				graphics::bind_fragment_shader(batch.fragment_shader);
+				last_bound_fragment_shader = batch.fragment_shader;
 			}
 			if (batch.texture != last_bound_texture) {
 				graphics::bind_texture(0, batch.texture);

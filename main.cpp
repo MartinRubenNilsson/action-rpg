@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "steam.h"
+#include "platform.h"
 #include "filesystem.h"
 #include "networking.h"
 #include "window.h"
@@ -22,12 +23,19 @@
 #include "renderdoc.h"
 #include "imgui_impl.h"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     if (steam::restart_app_if_necessary()) {
         return EXIT_FAILURE;
     }
     steam::initialize(); // Fails silently if Steam is not running.
+#ifdef _DEBUG_GRAPHICS
+    // HACK: We should be using a post-build event to copy the shaders,
+    // but then it doesn't run when only debugging and not recompiling,
+    // which is annoying when you've changed a shader but not the code,
+    // because then the new shader doesn't get copied.
+    platform::system("copy /Y ..\\*.vert .\\assets\\shaders\\");
+    platform::system("copy /Y ..\\*.frag .\\assets\\shaders\\");
+#endif
     filesystem::initialize();
 	networking::initialize();
 #ifdef _DEBUG_RENDERDOC
@@ -86,15 +94,6 @@ int main(int argc, char* argv[])
     ui::initialize();
     map::initialize();
     ecs::initialize();
-
-#ifdef _DEBUG_GRAPHICS
-    // HACK: We should be using a post-build event to copy the shaders,
-    // but then it doesn't run when only debugging and not recompiling,
-    // which is annoying when you've changed a shader but not the code,
-    // because then the new shader doesn't get copied.
-    system("copy /Y ..\\*.vert .\\assets\\shaders\\");
-    system("copy /Y ..\\*.frag .\\assets\\shaders\\");
-#endif
 
     for (const filesystem::File& file : filesystem::get_all_files_in_directory("assets/audio/banks")) {
         if (file.format != filesystem::FileFormat::FmodStudioBank) continue;
@@ -305,7 +304,8 @@ int main(int argc, char* argv[])
             graphics::ScopedDebugGroup debug_group("Upscale to window");
             graphics::bind_default_framebuffer();
 			graphics::clear_default_framebuffer(CLEAR_COLOR);
-            graphics::bind_shader(graphics::fullscreen_shader);
+            graphics::bind_vertex_shader(graphics::fullscreen_vert);
+            graphics::bind_fragment_shader(graphics::fullscreen_frag);
             graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_0));
             int window_framebuffer_width = 0;
             int window_framebuffer_height = 0;

@@ -142,7 +142,6 @@ namespace map {
 					tiled::TextureRect tex_rect = tiled::get_tile_texture_rect(*tileset, tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
 					sprite.position = position_top_left;
 					sprite.size.x = object.width;
@@ -477,7 +476,6 @@ namespace map {
 					tiled::TextureRect tex_rect = tiled::get_tile_texture_rect(*tileset, tile_id);
 
 					sprites::Sprite& sprite = ecs::emplace_sprite(entity);
-					sprite.shader = graphics::sprite_shader;
 					sprite.texture = graphics::load_texture(tileset->image_path);
 					sprite.position = position;
 					sprite.size = size;
@@ -607,7 +605,7 @@ namespace map {
 					switch (tag) {
 					case ecs::Tag::Grass: {
 
-						sprite.shader = graphics::grass_shader;
+						sprite.vertex_shader = graphics::grass_vert;
 						sprite.sorting_point = { 8.f, 28.f };
 
 						ecs::emplace_grass(entity);

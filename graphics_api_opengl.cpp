@@ -114,25 +114,7 @@ namespace api {
 		default: return 0;
 		}
 	}
-
-	GLint _to_gl_filter(Filter filter) {
-		switch (filter) {
-		case Filter::Nearest: return GL_NEAREST;
-		case Filter::Linear:  return GL_LINEAR;
-		default:			  return 0;
-		}
-	}
-
-	GLint _to_gl_wrap(Wrap wrap) {
-		switch (wrap) {
-		case Wrap::Repeat:            return GL_REPEAT;
-		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
-		case Wrap::ClampToEdge:       return GL_CLAMP_TO_EDGE;
-		case Wrap::ClampToBorder:     return GL_CLAMP_TO_BORDER;
-		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
-		default:				      return 0;
-		}
-	}
+	
 
 	DebugMessageCallback _debug_message_callback = nullptr;
 
@@ -156,6 +138,8 @@ namespace api {
 	}
 #endif
 
+	GLuint _program_pipeline_object = 0;
+
 	bool initialize(const InitializeOptions& options) {
 
 		// INITIALIZE GLAD
@@ -177,6 +161,11 @@ namespace api {
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 #endif
 
+		// SETUP PROGRAM PIPELINE OBJECT
+
+		glCreateProgramPipelines(1, &_program_pipeline_object);
+		glBindProgramPipeline(_program_pipeline_object);
+
 		// SETUP BLENDING
 
 		glEnable(GL_BLEND);
@@ -186,7 +175,9 @@ namespace api {
 	}
 
 	void shutdown() {
-		//Nothing to do here
+		if (_program_pipeline_object) {
+			glDeleteProgramPipelines(1, &_program_pipeline_object);
+		}
 	}
 
 	void push_debug_group(std::string_view name) {
@@ -208,6 +199,74 @@ namespace api {
 #endif
 	}
 
+	GLuint _create_shader_program(const ShaderDesc& desc, GLenum shader_type) {
+		if (desc.source_code.empty()) {
+			if (_debug_message_callback) {
+				_debug_message_callback("Shader source code is empty: " + std::string(desc.debug_name));
+			}
+			return 0;
+		}
+		const GLuint shader_object = glCreateShader(shader_type);
+		const char* source_code_string = desc.source_code.data();
+		const GLint source_code_length = (GLint)desc.source_code.size();
+		glShaderSource(shader_object, 1, &source_code_string, &source_code_length);
+		glCompileShader(shader_object);
+		GLint success = GL_FALSE;
+		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			if (_debug_message_callback) {
+				char info_log[512];
+				glGetShaderInfoLog(shader_object, sizeof(info_log), nullptr, info_log);
+				_debug_message_callback("Failed to compile shader: " + std::string(desc.debug_name));
+				_debug_message_callback(info_log);
+			}
+			glDeleteShader(shader_object);
+			return 0;
+		}
+		const GLuint program_object = glCreateProgram();
+		glProgramParameteri(program_object, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glAttachShader(program_object, shader_object);
+		glLinkProgram(program_object);
+		glDetachShader(program_object, shader_object);
+		glDeleteShader(shader_object);
+		glGetProgramiv(program_object, GL_LINK_STATUS, &success);
+		if (!success) {
+			if (_debug_message_callback) {
+				char info_log[512];
+				glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
+				_debug_message_callback("Failed to link program: " + std::string(desc.debug_name));
+				_debug_message_callback(info_log);
+			}
+			glDeleteProgram(program_object);
+			return 0;
+		}
+		_gl_object_label(GL_PROGRAM, program_object, desc.debug_name);
+		return program_object;
+	}
+
+	VertexShaderHandle create_vertex_shader(const ShaderDesc& desc) {
+		return VertexShaderHandle{ _create_shader_program(desc, GL_VERTEX_SHADER) };
+	}
+
+	void destroy_vertex_shader(VertexShaderHandle shader) {
+		glDeleteProgram((GLuint)shader.object);
+	}
+
+	void bind_vertex_shader(VertexShaderHandle shader) {
+		glUseProgramStages(_program_pipeline_object, GL_VERTEX_SHADER_BIT, (GLuint)shader.object);
+	}
+
+	FragmentShaderHandle create_fragment_shader(const ShaderDesc& desc) {
+		return FragmentShaderHandle{ _create_shader_program(desc, GL_FRAGMENT_SHADER) };
+	}
+
+	void destroy_fragment_shader(FragmentShaderHandle shader) {
+		glDeleteProgram((GLuint)shader.object);
+	}
+
+	void bind_fragment_shader(FragmentShaderHandle shader) {
+		glUseProgramStages(_program_pipeline_object, GL_FRAGMENT_SHADER_BIT, (GLuint)shader.object);
+	}
 
 	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
 		GLuint vertex_array_object = 0;
@@ -235,6 +294,7 @@ namespace api {
 		glBindVertexArray((GLuint)vertex_input.object);
 	}
 
+#if 0
 	ShaderHandle create_shader(const ShaderDesc& desc) {
 		if (desc.vs_source.empty()) {
 			if (_debug_message_callback) {
@@ -319,6 +379,7 @@ namespace api {
 	void bind_shader(ShaderHandle shader) {
 		glUseProgram((GLuint)shader.object);
 	}
+#endif
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		GLuint buffer_object = 0;
@@ -437,6 +498,25 @@ namespace api {
 
 	void bind_texture(unsigned int binding, TextureHandle texture) {
 		glBindTextureUnit(binding, (GLuint)texture.object);
+	}
+
+	GLint _to_gl_filter(Filter filter) {
+		switch (filter) {
+		case Filter::Nearest: return GL_NEAREST;
+		case Filter::Linear:  return GL_LINEAR;
+		default:			  return 0;
+		}
+	}
+
+	GLint _to_gl_wrap(Wrap wrap) {
+		switch (wrap) {
+		case Wrap::Repeat:            return GL_REPEAT;
+		case Wrap::MirroredRepeat:    return GL_MIRRORED_REPEAT;
+		case Wrap::ClampToEdge:       return GL_CLAMP_TO_EDGE;
+		case Wrap::ClampToBorder:     return GL_CLAMP_TO_BORDER;
+		case Wrap::MirrorClampToEdge: return GL_MIRROR_CLAMP_TO_EDGE;
+		default:				      return 0;
+		}
 	}
 
 	SamplerHandle create_sampler(const SamplerDesc& desc) {

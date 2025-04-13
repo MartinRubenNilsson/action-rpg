@@ -120,8 +120,8 @@ namespace postprocessing {
 
 	void _render_gaussian_blur() {
 		if (_gaussian_blur_iterations == 0) return;
-		if (graphics::gaussian_blur_hor_shader == Handle<graphics::Shader>()) return;
-		if (graphics::gaussian_blur_ver_shader == Handle<graphics::Shader>()) return;
+		if (graphics::gaussian_blur_hor_frag == Handle<graphics::FragmentShader>()) return;
+		if (graphics::gaussian_blur_ver_frag == Handle<graphics::FragmentShader>()) return;
 
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
 
@@ -131,14 +131,14 @@ namespace postprocessing {
 
 			// Horizontal pass
 			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-			graphics::bind_shader(graphics::gaussian_blur_hor_shader);
+			graphics::bind_fragment_shader(graphics::gaussian_blur_hor_frag);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(3); // draw a fullscreen-covering triangle
 
 			// Vertical pass
 			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-			graphics::bind_shader(graphics::gaussian_blur_ver_shader);
+			graphics::bind_fragment_shader(graphics::gaussian_blur_ver_frag);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(3); // draw a fullscreen-covering triangle
@@ -150,6 +150,7 @@ namespace postprocessing {
 	void render(const Vector2f& camera_min, const Vector2f& camera_max) {
 		graphics::ScopedDebugGroup debug_group("postprocessing::render()");
 		graphics::set_primitives(graphics::Primitives::TriangleList);
+		graphics::bind_vertex_shader(graphics::fullscreen_vert);
 		_render_shockwaves(camera_min, camera_max);
 		_render_lighting(camera_min, camera_max);
 		_render_screen_transition();

@@ -1,5 +1,6 @@
 #version 450
 
+out vec4 gl_Position;
 out vec2 tex_coord;
 
 void main()

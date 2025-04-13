@@ -4,6 +4,11 @@
 
 namespace graphics {
 
+	struct ShaderDesc {
+		std::string_view debug_name = "shader";
+		std::string_view source_code;
+	};
+
 	enum class Format {
 		UNKNOWN,
 		R8_UNORM,
@@ -27,12 +32,6 @@ namespace graphics {
 	struct VertexInputDesc {
 		std::string_view debug_name = "vertex_input";
 		std::span<VertexInputAttribDesc> attributes;
-	};
-
-	struct ShaderDesc {
-		std::string_view debug_name = "shader";
-		std::string_view vs_source; // vertex shader source code
-		std::string_view fs_source; // fragment shader source code
 	};
 
 	enum class BufferType {

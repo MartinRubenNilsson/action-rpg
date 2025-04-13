@@ -2,6 +2,8 @@
 
 uniform sampler2D tex;
 uniform float progress;
+
+in vec4 gl_FragCoord;
 out vec4 frag_color;
 
 void main()

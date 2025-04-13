@@ -202,7 +202,8 @@ namespace shapes {
 			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
 		}
 
-		graphics::bind_shader(graphics::shape_shader);
+		graphics::bind_vertex_shader(graphics::shape_vert);
+		graphics::bind_fragment_shader(graphics::shape_frag);
 		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
 		graphics::set_primitives(graphics::Primitives::LineList);
 

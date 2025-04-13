@@ -7,17 +7,21 @@
 namespace graphics {
 	eastl::vector<graphics::Vertex> temp_vertices;
 
-	Handle<Shader> fullscreen_shader;
-	Handle<Shader> gaussian_blur_hor_shader;
-	Handle<Shader> gaussian_blur_ver_shader;
-	Handle<Shader> screen_transition_shader;
-	Handle<Shader> shockwave_shader;
-	Handle<Shader> grass_shader;
-	Handle<Shader> sprite_shader;
-	Handle<Shader> shape_shader;
-	Handle<Shader> text_shader;
-	Handle<Shader> ui_shader;
-	Handle<Shader> player_outfit_shader;
+	Handle<VertexShader> fullscreen_vert;
+	Handle<FragmentShader> fullscreen_frag;
+	Handle<FragmentShader> gaussian_blur_hor_frag;
+	Handle<FragmentShader> gaussian_blur_ver_frag;
+	Handle<FragmentShader> screen_transition_frag;
+	Handle<FragmentShader> shockwave_frag;
+	Handle<VertexShader> sprite_vert;
+	Handle<FragmentShader> sprite_frag;
+	Handle<VertexShader> grass_vert;
+	Handle<VertexShader> shape_vert;
+	Handle<FragmentShader> shape_frag;
+	Handle<FragmentShader> text_frag;
+	Handle<VertexShader> ui_vert;
+	Handle<FragmentShader> ui_frag;
+	Handle<FragmentShader> player_outfit_frag;
 
 	Handle<Framebuffer> game_framebuffer_0;
 	Handle<Framebuffer> game_framebuffer_1;
@@ -37,123 +41,117 @@ namespace graphics {
 	Handle<Sampler> linear_sampler;
 
 	void _initialize_shaders() {
-		std::string fullscreen_vert;
-		std::string fullscreen_frag;
-		std::string gaussian_blur_hor_frag;
-		std::string gaussian_blur_ver_frag;
-		std::string screen_transition_frag;
-		std::string shockwave_frag;
-		std::string sprite_vert;
-		std::string sprite_frag;
-		std::string grass_vert;
-		std::string shape_vert;
-		std::string shape_frag;
-		std::string text_frag;
-		std::string ui_vert;
-		std::string ui_frag;
-		std::string player_outfit_frag;
-
-		filesystem::read_text_file("assets/shaders/fullscreen.vert", fullscreen_vert);
-		filesystem::read_text_file("assets/shaders/fullscreen.frag", fullscreen_frag);
-		filesystem::read_text_file("assets/shaders/gaussian_blur_hor.frag", gaussian_blur_hor_frag);
-		filesystem::read_text_file("assets/shaders/gaussian_blur_ver.frag", gaussian_blur_ver_frag);
-		filesystem::read_text_file("assets/shaders/screen_transition.frag", screen_transition_frag);
-		filesystem::read_text_file("assets/shaders/shockwave.frag", shockwave_frag);
-		filesystem::read_text_file("assets/shaders/sprite.vert", sprite_vert);
-		filesystem::read_text_file("assets/shaders/sprite.frag", sprite_frag);
-		filesystem::read_text_file("assets/shaders/grass.vert", grass_vert);
-		filesystem::read_text_file("assets/shaders/shape.vert", shape_vert);
-		filesystem::read_text_file("assets/shaders/shape.frag", shape_frag);
-		filesystem::read_text_file("assets/shaders/text.frag", text_frag);
-		filesystem::read_text_file("assets/shaders/ui.vert", ui_vert);
-		filesystem::read_text_file("assets/shaders/ui.frag", ui_frag);
-		filesystem::read_text_file("assets/shaders/player_outfit.frag", player_outfit_frag);
-
-		fullscreen_shader = create_shader({
-			.debug_name = "fullscreen shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = fullscreen_frag
+		std::string shader_code;
+		filesystem::read_text_file("assets/shaders/fullscreen.vert", shader_code);
+		fullscreen_vert = create_vertex_shader({
+			.debug_name = "fullscreen vertex shader",
+			.source_code = shader_code
 		});
-		gaussian_blur_hor_shader = create_shader({
-			.debug_name = "gaussian blur horizontal shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = gaussian_blur_hor_frag
+		filesystem::read_text_file("assets/shaders/fullscreen.frag", shader_code);
+		fullscreen_frag = create_fragment_shader({
+			.debug_name = "fullscreen fragment shader",
+			.source_code = shader_code
 		});
-		gaussian_blur_ver_shader = create_shader({
-			.debug_name = "gaussian blur vertical shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = gaussian_blur_ver_frag
+		filesystem::read_text_file("assets/shaders/gaussian_blur_hor.frag", shader_code);
+		gaussian_blur_hor_frag = create_fragment_shader({
+			.debug_name = "gaussian blur horizontal fragment shader",
+			.source_code = shader_code
 		});
-		screen_transition_shader = create_shader({
-			.debug_name = "screen transition shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = screen_transition_frag
+		filesystem::read_text_file("assets/shaders/gaussian_blur_ver.frag", shader_code);
+		gaussian_blur_ver_frag = create_fragment_shader({
+			.debug_name = "gaussian blur vertical fragment shader",
+			.source_code = shader_code
 		});
-		shockwave_shader = create_shader({
-			.debug_name = "shockwave shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = shockwave_frag
+		filesystem::read_text_file("assets/shaders/screen_transition.frag", shader_code);
+		screen_transition_frag = create_fragment_shader({
+			.debug_name = "screen transition fragment shader",
+			.source_code = shader_code
 		});
-		sprite_shader = create_shader({
-			.debug_name = "sprite shader",
-			.vs_source = sprite_vert,
-			.fs_source = sprite_frag
+		filesystem::read_text_file("assets/shaders/shockwave.frag", shader_code);
+		shockwave_frag = create_fragment_shader({
+			.debug_name = "shockwave fragment shader",
+			.source_code = shader_code
 		});
-		grass_shader = create_shader({
-			.debug_name = "grass shader",
-			.vs_source = grass_vert,
-			.fs_source = sprite_frag
+		filesystem::read_text_file("assets/shaders/sprite.vert", shader_code);
+		sprite_vert = create_vertex_shader({
+			.debug_name = "sprite vertex shader",
+			.source_code = shader_code
 		});
-		shape_shader = create_shader({
-			.debug_name = "shape shader",
-			.vs_source = shape_vert,
-			.fs_source = shape_frag
+		filesystem::read_text_file("assets/shaders/sprite.frag", shader_code);
+		sprite_frag = create_fragment_shader({
+			.debug_name = "sprite fragment shader",
+			.source_code = shader_code
 		});
-		text_shader = create_shader({
-			.debug_name = "text shader",
-			.vs_source = sprite_vert,
-			.fs_source = text_frag
+		filesystem::read_text_file("assets/shaders/grass.vert", shader_code);
+		grass_vert = create_vertex_shader({
+			.debug_name = "grass vertex shader",
+			.source_code = shader_code
 		});
-		ui_shader = create_shader({
-			.debug_name = "ui shader",
-			.vs_source = ui_vert,
-			.fs_source = ui_frag
+		filesystem::read_text_file("assets/shaders/shape.vert", shader_code);
+		shape_vert = create_vertex_shader({
+			.debug_name = "shape vertex shader",
+			.source_code = shader_code
 		});
-		player_outfit_shader = create_shader({
-			.debug_name = "player outfit shader",
-			.vs_source = fullscreen_vert,
-			.fs_source = player_outfit_frag
+		filesystem::read_text_file("assets/shaders/shape.frag", shader_code);
+		shape_frag = create_fragment_shader({
+			.debug_name = "shape fragment shader",
+			.source_code = shader_code
+		});
+		filesystem::read_text_file("assets/shaders/text.frag", shader_code);
+		text_frag = create_fragment_shader({
+			.debug_name = "text fragment shader",
+			.source_code = shader_code
+		});
+		filesystem::read_text_file("assets/shaders/ui.vert", shader_code);
+		ui_vert = create_vertex_shader({
+			.debug_name = "ui vertex shader",
+			.source_code = shader_code
+		});
+		filesystem::read_text_file("assets/shaders/ui.frag", shader_code);
+		ui_frag = create_fragment_shader({
+			.debug_name = "ui fragment shader",
+			.source_code = shader_code
+		});
+		filesystem::read_text_file("assets/shaders/player_outfit.frag", shader_code);
+		player_outfit_frag = create_fragment_shader({
+			.debug_name = "player outfit fragment shader",
+			.source_code = shader_code
 		});
 	}
 
-	void initialize_globals() {
-		_initialize_shaders();
-
+	void _initialize_framebuffers() {
 		game_framebuffer_0 = create_framebuffer({
-			.debug_name = "game framebuffer 0" });
+			.debug_name = "game framebuffer 0"
+		});
 		attach_framebuffer_texture(game_framebuffer_0, create_texture({
 			.debug_name = "game framebuffer texture 0",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
 			.format = Format::RGBA8_UNORM
 		}));
+
 		game_framebuffer_1 = create_framebuffer({
-			.debug_name = "game framebuffer 1" });
+			.debug_name = "game framebuffer 1"
+		});
 		attach_framebuffer_texture(game_framebuffer_1, create_texture({
 			.debug_name = "game framebuffer texture 1",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
 			.format = Format::RGBA8_UNORM
 		}));
+
 		player_outfit_framebuffer = create_framebuffer({
-			.debug_name = "player outfit framebuffer" });
+			.debug_name = "player outfit framebuffer"
+		});
 		attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
 			.debug_name = "player outfit texture",
 			.width = 1024, // size of player tileset
 			.height = 1024, // size of player tileset
 			.format = Format::RGBA8_UNORM
 		}));
+	}
 
+	void _initialize_buffers() {
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
 			.size = 8192 * sizeof(Vertex), // 8192 is an initial estimate
@@ -190,8 +188,9 @@ namespace graphics {
 			.type = BufferType::UniformBuffer,
 			.dynamic = true
 		});
+	}
 
-
+	void _initialize_textures() {
 		{
 			constexpr unsigned int ERROR_TEXTURE_SIZE = 32;
 			unsigned char error_texture_data[ERROR_TEXTURE_SIZE * ERROR_TEXTURE_SIZE * 4];
@@ -211,7 +210,8 @@ namespace graphics {
 				.width = ERROR_TEXTURE_SIZE,
 				.height = ERROR_TEXTURE_SIZE,
 				.format = Format::RGBA8_UNORM,
-				.initial_data = error_texture_data });
+				.initial_data = error_texture_data
+			});
 		}
 		{
 			unsigned char white_texture_data[4] = { 255, 255, 255, 255 };
@@ -220,9 +220,12 @@ namespace graphics {
 				.width = 1,
 				.height = 1,
 				.format = Format::RGBA8_UNORM,
-				.initial_data = white_texture_data });
+				.initial_data = white_texture_data
+			});
 		}
+	}
 
+	void _initialize_samplers() {
 		nearest_sampler = create_sampler({
 			.debug_name = "nearest sampler",
 			.filter = Filter::Nearest
@@ -232,10 +235,21 @@ namespace graphics {
 			.filter = Filter::Linear,
 			.wrap = Wrap::ClampToEdge
 		});
+	}
 
+	void _bind_globals() {
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
 		bind_uniform_buffer(0, frame_uniform_buffer);
 		bind_sampler(0, nearest_sampler);
+	}
+
+	void initialize_globals() {
+		_initialize_shaders();
+		_initialize_framebuffers();
+		_initialize_buffers();
+		_initialize_textures();
+		_initialize_samplers();
+		_bind_globals();
 	}
 }

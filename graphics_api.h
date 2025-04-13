@@ -2,7 +2,7 @@
 
 // graphics_api.h - Low-level graphics API
 
-#include "graphics_config.h"
+#include "graphics_api_config.h"
 #include "graphics_types.h"
 #include <span>
 
@@ -44,17 +44,23 @@ namespace api {
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
+	struct VertexShaderHandle { uintptr_t object = 0; };
+
+	VertexShaderHandle create_vertex_shader(const ShaderDesc& desc);
+	void destroy_vertex_shader(VertexShaderHandle shader);
+	void bind_vertex_shader(VertexShaderHandle shader);
+
+	struct FragmentShaderHandle { uintptr_t object = 0; };
+
+	FragmentShaderHandle create_fragment_shader(const ShaderDesc& desc);
+	void destroy_fragment_shader(FragmentShaderHandle shader);
+	void bind_fragment_shader(FragmentShaderHandle shader);
+
 	struct VertexInputHandle { uintptr_t object = 0; };
 
 	VertexInputHandle create_vertex_input(const VertexInputDesc& desc);
 	void destroy_vertex_input(VertexInputHandle vertex_input);
 	void bind_vertex_input(VertexInputHandle vertex_input);
-
-	struct ShaderHandle { uintptr_t object = 0; };
-
-	ShaderHandle create_shader(const ShaderDesc& desc);
-	void destroy_shader(ShaderHandle shader);
-	void bind_shader(ShaderHandle shader);
 
 	struct BufferHandle { uintptr_t object = 0; };
 

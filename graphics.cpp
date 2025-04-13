@@ -14,9 +14,12 @@
 
 namespace graphics
 {
-	struct Shader {
-		api::ShaderHandle api_handle{};
-		ShaderDesc desc{};
+	struct VertexShader {
+		api::VertexShaderHandle api_handle{};
+	};
+
+	struct FragmentShader {
+		api::FragmentShaderHandle api_handle{};
 	};
 
 	struct Buffer {
@@ -43,8 +46,9 @@ namespace graphics
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
-	api::VertexInputHandle _vertex_input;
-	Pool<Shader> _shader_pool;
+	api::VertexInputHandle _vertex_input; //todo: move this to graphics_globals.h
+	Pool<VertexShader> _vertex_shader_pool;
+	Pool<FragmentShader> _fragment_shader_pool;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
@@ -105,6 +109,7 @@ namespace graphics
 		}
 
 		// CREATE VERTEX ARRAY
+		//todo: move this to graphics_globals.cpp
 		{
 			VertexInputAttribDesc attribs[] = {
 				{ .location = 0, .format = Format::RGB32_FLOAT, .offset = offsetof(Vertex, position) },
@@ -116,16 +121,32 @@ namespace graphics
 		}
 	}
 
+	void push_debug_group(std::string_view name) {
+		api::push_debug_group(name);
+	}
+
+	void pop_debug_group() {
+		api::pop_debug_group();
+	}
+
 	void shutdown() {
 
-		// DELETE SHADERS
+		// DELETE VERTEX SHADERS
 
-		for (const Shader& shader : _shader_pool.span()) {
+		for (const VertexShader& shader : _vertex_shader_pool.span()) {
 			if (shader.api_handle.object) {
-				api::destroy_shader(shader.api_handle);
+				api::destroy_vertex_shader(shader.api_handle);
 			}
 		}
-		_shader_pool.clear();
+		_vertex_shader_pool.clear();
+
+		// DELETE FRAGMENT SHADERS
+
+		for (const FragmentShader& shader : _fragment_shader_pool.span()) {
+			if (shader.api_handle.object) {
+				api::destroy_fragment_shader(shader.api_handle);
+			}
+		}
 
 		// DELETE BUFFERS
 
@@ -134,6 +155,7 @@ namespace graphics
 				api::destroy_buffer(buffer.api_handle);
 			}
 		}
+		_buffer_pool.clear();
 
 		// DELETE TEXTURES
 
@@ -166,19 +188,31 @@ namespace graphics
 		api::shutdown();
 	}
 
-	Handle<Shader> create_shader(ShaderDesc&& desc) {
-		api::ShaderHandle api_handle = api::create_shader(desc);
-		if (!api_handle.object) return Handle<Shader>();
-		desc.fs_source = "";
-		desc.vs_source = "";
-		return _shader_pool.emplace(api_handle, desc);
+	Handle<VertexShader> create_vertex_shader(ShaderDesc&& desc) {
+		api::VertexShaderHandle api_handle = api::create_vertex_shader(desc);
+		if (!api_handle.object) return Handle<VertexShader>();
+		return _vertex_shader_pool.emplace(api_handle);
 	}
 
-	void bind_shader(Handle<Shader> handle) {
-		if (handle == Handle<Shader>()) {
-			api::bind_shader(api::ShaderHandle());
-		} else if (const Shader* shader = _shader_pool.get(handle)) {
-			api::bind_shader(shader->api_handle);
+	void bind_vertex_shader(Handle<VertexShader> handle) {
+		if (handle == Handle<VertexShader>()) {
+			api::bind_vertex_shader(api::VertexShaderHandle());
+		} else if (const VertexShader* shader = _vertex_shader_pool.get(handle)) {
+			api::bind_vertex_shader(shader->api_handle);
+		}
+	}
+
+	Handle<FragmentShader> create_fragment_shader(ShaderDesc&& desc) {
+		api::FragmentShaderHandle api_handle = api::create_fragment_shader(desc);
+		if (!api_handle.object) return Handle<FragmentShader>();
+		return _fragment_shader_pool.emplace(api_handle);
+	}
+
+	void bind_fragment_shader(Handle<FragmentShader> handle) {
+		if (handle == Handle<FragmentShader>()) {
+			api::bind_fragment_shader(api::FragmentShaderHandle());
+		} else if (const FragmentShader* shader = _fragment_shader_pool.get(handle)) {
+			api::bind_fragment_shader(shader->api_handle);
 		}
 	}
 
@@ -512,18 +546,6 @@ namespace graphics
 #endif
 #ifdef GRAPHICS_API_D3D11
 		graphics::api::swap_buffers();
-#endif
-	}
-
-	void push_debug_group(std::string_view name) {
-#ifdef GRAPHICS_API_DEBUG
-		api::push_debug_group(name);
-#endif
-	}
-
-	void pop_debug_group() {
-#ifdef GRAPHICS_API_DEBUG
-		api::pop_debug_group();
 #endif
 	}
 
