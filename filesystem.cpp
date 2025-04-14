@@ -63,6 +63,8 @@ namespace filesystem {
 		text.resize(file.tellg());
 		file.seekg(0);
 		file.read(text.data(), text.size());
+		//Why we need to resize to gcount():
+		//https://stackoverflow.com/questions/22984956/tellg-function-give-wrong-size-of-file
 		text.resize(file.gcount());
 		return true;
 	}

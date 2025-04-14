@@ -1,12 +1,17 @@
 #version 460
 
 uniform sampler2D tex;
-uniform vec2 resolution;
-uniform vec2 center;
-uniform float intensity;
 
-in vec2 tex_coord;
-out vec4 frag_color;
+layout(std140, binding = 1) uniform DarknessUniformBlock
+{
+    vec2 resolution;
+    vec2 center;
+    float intensity;
+};
+
+layout(location = 0) in vec2 tex_coord;
+
+layout(location = 0) out vec4 frag_color;
 
 void main()
 {

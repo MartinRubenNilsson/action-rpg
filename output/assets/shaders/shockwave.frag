@@ -1,14 +1,18 @@
 #version 460
 
 uniform sampler2D tex;
-uniform vec2 resolution; // in pixels
-uniform vec2 center; // in pixels
-uniform float force;
-uniform float size;
-uniform float thickness;
 
-in vec2 tex_coord;
-out vec4 frag_color;
+layout(std140, binding = 1) uniform ShockwaveUniformBlock
+{
+	vec2 resolution; // in pixels
+    vec2 center; // in pixels
+    float force;
+    float size;
+    float thickness;
+};
+
+layout(location = 0) in vec2 tex_coord;
+layout(location = 0) out vec4 frag_color;
 
 vec2 map_target_to_texture(vec2 pos) {
     return vec2(pos.x / resolution.x, pos.y / resolution.y);

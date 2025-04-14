@@ -13,6 +13,7 @@ namespace graphics {
 	Handle<FragmentShader> gaussian_blur_ver_frag;
 	Handle<FragmentShader> screen_transition_frag;
 	Handle<FragmentShader> shockwave_frag;
+	Handle<FragmentShader> darkness_frag;
 	Handle<VertexShader> sprite_vert;
 	Handle<FragmentShader> sprite_frag;
 	Handle<VertexShader> grass_vert;
@@ -33,6 +34,9 @@ namespace graphics {
 	Handle<Buffer> ui_uniform_buffer;
 	Handle<Buffer> sprite_uniform_buffer;
 	Handle<Buffer> player_outfit_uniform_buffer;
+	Handle<Buffer> darkness_uniform_buffer;
+	Handle<Buffer> screen_transition_uniform_buffer;
+	Handle<Buffer> shockwave_uniform_buffer;
 
 	Handle<Texture> error_texture; // 32x32 magenta-black checkerboard
 	Handle<Texture> white_texture; // 1x1 white texture
@@ -41,81 +45,86 @@ namespace graphics {
 	Handle<Sampler> linear_sampler;
 
 	void _initialize_shaders() {
-		std::string shader_code;
-		filesystem::read_text_file("assets/shaders/fullscreen.vert", shader_code);
+		std::vector<unsigned char> shader_bytecode;
+		filesystem::read_binary_file("assets/shaders/fullscreen.vert.spv", shader_bytecode);
 		fullscreen_vert = create_vertex_shader({
 			.debug_name = "fullscreen vertex shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/fullscreen.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/fullscreen.frag.spv", shader_bytecode);
 		fullscreen_frag = create_fragment_shader({
 			.debug_name = "fullscreen fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/gaussian_blur_hor.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/gaussian_blur_hor.frag.spv", shader_bytecode);
 		gaussian_blur_hor_frag = create_fragment_shader({
 			.debug_name = "gaussian blur horizontal fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/gaussian_blur_ver.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/gaussian_blur_ver.frag.spv", shader_bytecode);
 		gaussian_blur_ver_frag = create_fragment_shader({
 			.debug_name = "gaussian blur vertical fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/screen_transition.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/screen_transition.frag.spv", shader_bytecode);
 		screen_transition_frag = create_fragment_shader({
 			.debug_name = "screen transition fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/shockwave.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/shockwave.frag.spv", shader_bytecode);
 		shockwave_frag = create_fragment_shader({
 			.debug_name = "shockwave fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/sprite.vert", shader_code);
+		filesystem::read_binary_file("assets/shaders/darkness.frag.spv", shader_bytecode);
+		darkness_frag = create_fragment_shader({
+			.debug_name = "darkness fragment shader",
+			.bytecode = shader_bytecode
+		});
+		filesystem::read_binary_file("assets/shaders/sprite.vert.spv", shader_bytecode);
 		sprite_vert = create_vertex_shader({
 			.debug_name = "sprite vertex shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/sprite.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/sprite.frag.spv", shader_bytecode);
 		sprite_frag = create_fragment_shader({
 			.debug_name = "sprite fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/grass.vert", shader_code);
+		filesystem::read_binary_file("assets/shaders/grass.vert.spv", shader_bytecode);
 		grass_vert = create_vertex_shader({
 			.debug_name = "grass vertex shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/shape.vert", shader_code);
+		filesystem::read_binary_file("assets/shaders/shape.vert.spv", shader_bytecode);
 		shape_vert = create_vertex_shader({
 			.debug_name = "shape vertex shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/shape.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/shape.frag.spv", shader_bytecode);
 		shape_frag = create_fragment_shader({
 			.debug_name = "shape fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/text.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/text.frag.spv", shader_bytecode);
 		text_frag = create_fragment_shader({
 			.debug_name = "text fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/ui.vert", shader_code);
+		filesystem::read_binary_file("assets/shaders/ui.vert.spv", shader_bytecode);
 		ui_vert = create_vertex_shader({
 			.debug_name = "ui vertex shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/ui.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/ui.frag.spv", shader_bytecode);
 		ui_frag = create_fragment_shader({
 			.debug_name = "ui fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
-		filesystem::read_text_file("assets/shaders/player_outfit.frag", shader_code);
+		filesystem::read_binary_file("assets/shaders/player_outfit.frag.spv", shader_bytecode);
 		player_outfit_frag = create_fragment_shader({
 			.debug_name = "player outfit fragment shader",
-			.bytecode = shader_code
+			.bytecode = shader_bytecode
 		});
 	}
 
@@ -185,6 +194,24 @@ namespace graphics {
 		player_outfit_uniform_buffer = create_buffer({
 			.debug_name = "player outfit uniform buffer",
 			.size = sizeof(PlayerOutfitUniformBlock),
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
+		darkness_uniform_buffer = create_buffer({
+			.debug_name = "darkness uniform buffer",
+			.size = sizeof(DarknessUniformBlock),
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
+		screen_transition_uniform_buffer = create_buffer({
+			.debug_name = "screen transition uniform buffer",
+			.size = sizeof(ScreenTransitionUniformBlock),
+			.type = BufferType::UniformBuffer,
+			.dynamic = true
+		});
+		shockwave_uniform_buffer = create_buffer({
+			.debug_name = "shockwave uniform buffer",
+			.size = sizeof(ShockwaveUniformBlock),
 			.type = BufferType::UniformBuffer,
 			.dynamic = true
 		});

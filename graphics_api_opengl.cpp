@@ -174,16 +174,20 @@ namespace api {
 	GLuint _create_shader_program(const ShaderDesc& desc, GLenum shader_type) {
 		if (desc.bytecode.empty()) {
 			if (_debug_message_callback) {
-				_debug_message_callback("Shader source code is empty: " + std::string(desc.debug_name));
+				_debug_message_callback("Shader bytecode is empty: " + std::string(desc.debug_name));
 			}
 			return 0;
 		}
 		const GLuint shader_object = glCreateShader(shader_type);
-		const char* source_code_string = desc.bytecode.data();
-		const GLint source_code_length = (GLint)desc.bytecode.size();
+#if 1 // SPIR-V
+		glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
+		glSpecializeShader(shader_object, "main", 0, nullptr, nullptr);
+#else // GLSL
+		const char* source_code_string = desc.source_code.data();
+		const GLint source_code_length = (GLint)desc.source_code.size();
 		glShaderSource(shader_object, 1, &source_code_string, &source_code_length);
-		//glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
 		glCompileShader(shader_object);
+#endif
 		GLint success = GL_FALSE;
 		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &success);
 		if (!success) {
@@ -199,6 +203,7 @@ namespace api {
 		const GLuint program_object = glCreateProgram();
 		glProgramParameteri(program_object, GL_PROGRAM_SEPARABLE, GL_TRUE);
 		glAttachShader(program_object, shader_object);
+		return 0;
 		glLinkProgram(program_object);
 		glDetachShader(program_object, shader_object);
 		glDeleteShader(shader_object);

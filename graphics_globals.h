@@ -22,6 +22,29 @@ namespace graphics {
 		int lut2_y = -1;
 	};
 
+	struct DarknessUniformBlock {
+		Vector2f resolution;
+		Vector2f center;
+		float intensity = 0.f;
+		float padding0 = 0.f;
+	};
+
+	struct ScreenTransitionUniformBlock {
+		float progress = 0.f;
+		float padding0 = 0.f;
+		float padding1 = 0.f;
+		float padding2 = 0.f;
+	};
+
+	struct ShockwaveUniformBlock {
+		Vector2f resolution; // in pixels
+		Vector2f center; // in pixels
+		float force;
+		float size;
+		float thickness;
+		float padding0;
+	};
+
 	// You may use this as a temporary scratch buffer for vertices, for example
 	// when building a list of vertices to eventually upload to a buffer.
 	extern eastl::vector<graphics::Vertex> temp_vertices;
@@ -34,6 +57,7 @@ namespace graphics {
 	extern Handle<FragmentShader> gaussian_blur_ver_frag;
 	extern Handle<FragmentShader> screen_transition_frag;
 	extern Handle<FragmentShader> shockwave_frag;
+	extern Handle<FragmentShader> darkness_frag;
 	extern Handle<VertexShader> sprite_vert;
 	extern Handle<FragmentShader> sprite_frag;
 	extern Handle<VertexShader> grass_vert;
@@ -58,6 +82,9 @@ namespace graphics {
 	extern Handle<Buffer> ui_uniform_buffer;
 	extern Handle<Buffer> sprite_uniform_buffer;
 	extern Handle<Buffer> player_outfit_uniform_buffer;
+	extern Handle<Buffer> darkness_uniform_buffer;
+	extern Handle<Buffer> screen_transition_uniform_buffer;
+	extern Handle<Buffer> shockwave_uniform_buffer;
 
 	// TEXTURES
 

@@ -49,93 +49,75 @@ namespace postprocessing {
 	}
 
 	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max) {
-#if 0
 		if (_shockwaves.empty()) return;
-		if (graphics::shockwave_shader == Handle<graphics::Shader>()) return;
-
+		if (graphics::shockwave_frag == Handle<graphics::FragmentShader>()) return;
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_shockwaves()");
-
-		// Bind some shader uniforms
-		graphics::bind_shader(graphics::shockwave_shader);
-		graphics::set_uniform_2f(graphics::shockwave_shader, "resolution",
-			GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
-
+		graphics::bind_fragment_shader(graphics::shockwave_frag);
+		graphics::bind_uniform_buffer(1, graphics::shockwave_uniform_buffer);
+		graphics::ShockwaveUniformBlock shockwave_ub{};
+		shockwave_ub.resolution = Vector2f(GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
 		for (const Shockwave& shockwave : _shockwaves) {
-			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-			const Vector2f position_ts = _map_world_to_target(
+			shockwave_ub.center = _map_world_to_target(
 				shockwave.position_ws, camera_min, camera_max,
 				GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
-			graphics::set_uniform_2f(graphics::shockwave_shader, "center", position_ts.x, position_ts.y);
-			graphics::set_uniform_1f(graphics::shockwave_shader, "force", shockwave.force);
-			graphics::set_uniform_1f(graphics::shockwave_shader, "size", shockwave.size);
-			graphics::set_uniform_1f(graphics::shockwave_shader, "thickness", shockwave.thickness);
+			shockwave_ub.force = shockwave.force;
+			shockwave_ub.size = shockwave.size;
+			shockwave_ub.thickness = shockwave.thickness;
+			graphics::update_buffer(graphics::shockwave_uniform_buffer, &shockwave_ub, sizeof(shockwave_ub));
+			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
-#endif
 	}
 
-	void _render_lighting(const Vector2f& camera_min, const Vector2f& camera_max) {
+	void _render_darkness(const Vector2f& camera_min, const Vector2f& camera_max) {
 		if (_darkness_intensity == 0.f) return;
-		graphics::ScopedDebugGroup debug_group("postprocessing::_render_lighting()");
-
-#if 0
-		// Load shader
-		const Handle<graphics::Shader> shader = graphics::load_shader(
-			"assets/shaders/fullscreen.vert",
-			"assets/shaders/darkness.frag");
-		if (shader == Handle<graphics::Shader>()) return;
-
-		std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-		const Vector2f center_ts = _map_world_to_target(
+		if (graphics::darkness_frag == Handle<graphics::FragmentShader>()) return;
+		graphics::ScopedDebugGroup debug_group("postprocesssing::_render_darkness()");
+		graphics::bind_fragment_shader(graphics::darkness_frag);
+		graphics::DarknessUniformBlock darkness_ub{};
+		darkness_ub.resolution = Vector2f(GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
+		darkness_ub.center = _map_world_to_target(
 			_darkness_center_ws, camera_min, camera_max,
 			GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
-		graphics::bind_shader(shader);
-		graphics::set_uniform_2f(shader, "resolution",
-			GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
-		graphics::set_uniform_2f(shader, "center", center_ts.x, center_ts.y);
-		graphics::set_uniform_1f(shader, "intensity", _darkness_intensity);
+		darkness_ub.intensity = _darkness_intensity;
+		graphics::update_buffer(graphics::darkness_uniform_buffer, &darkness_ub, sizeof(darkness_ub));
+		graphics::bind_uniform_buffer(1, graphics::darkness_uniform_buffer);
+		std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 		graphics::bind_framebuffer(graphics::game_framebuffer_0);
 		graphics::draw(3); // draw a fullscreen-covering triangle
-#endif
 	}
 
 	void _render_screen_transition() {
-#if 0
 		if (_screen_transition_progress == 0.f) return;
-		if (graphics::screen_transition_shader == Handle<graphics::Shader>()) return;
-
+		if (graphics::screen_transition_frag == Handle<graphics::FragmentShader>()) return;
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_screen_transition()");
-
+		graphics::bind_fragment_shader(graphics::screen_transition_frag);
+		graphics::ScreenTransitionUniformBlock screen_transition_ub{};
+		screen_transition_ub.progress = _screen_transition_progress;
+		graphics::update_buffer(graphics::screen_transition_uniform_buffer, &screen_transition_ub, sizeof(screen_transition_ub));
+		graphics::bind_uniform_buffer(1, graphics::screen_transition_uniform_buffer);
 		std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-		graphics::bind_shader(graphics::screen_transition_shader);
-		graphics::set_uniform_1f(graphics::screen_transition_shader, "progress", _screen_transition_progress);
 		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 		graphics::bind_framebuffer(graphics::game_framebuffer_0);
-		graphics::draw(graphics::Primitives::TriangleList, 3); // draw a fullscreen-covering triangle
-#endif
+		graphics::draw(3); // draw a fullscreen-covering triangle
 	}
 
 	void _render_gaussian_blur() {
 		if (_gaussian_blur_iterations == 0) return;
 		if (graphics::gaussian_blur_hor_frag == Handle<graphics::FragmentShader>()) return;
 		if (graphics::gaussian_blur_ver_frag == Handle<graphics::FragmentShader>()) return;
-
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_gaussian_blur()");
-
 		graphics::bind_sampler(0, graphics::linear_sampler);
-
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
-
 			// Horizontal pass
 			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
 			graphics::bind_fragment_shader(graphics::gaussian_blur_hor_frag);
 			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(3); // draw a fullscreen-covering triangle
-
 			// Vertical pass
 			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
 			graphics::bind_fragment_shader(graphics::gaussian_blur_ver_frag);
@@ -143,7 +125,6 @@ namespace postprocessing {
 			graphics::bind_framebuffer(graphics::game_framebuffer_0);
 			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
-
 		graphics::bind_sampler(0, graphics::nearest_sampler);
 	}
 
@@ -152,7 +133,7 @@ namespace postprocessing {
 		graphics::set_primitives(graphics::Primitives::TriangleList);
 		graphics::bind_vertex_shader(graphics::fullscreen_vert);
 		_render_shockwaves(camera_min, camera_max);
-		_render_lighting(camera_min, camera_max);
+		_render_darkness(camera_min, camera_max);
 		_render_screen_transition();
 		_render_gaussian_blur();
 	}

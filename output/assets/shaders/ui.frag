@@ -2,9 +2,10 @@
 
 uniform sampler2D tex;
 
-in vec4 color;
-in vec2 tex_coord;
-out vec4 frag_color;
+layout(location = 0) in vec4 color;
+layout(location = 1) in vec2 tex_coord;
+
+layout(location = 0) out vec4 frag_color;
 
 void main()
 {

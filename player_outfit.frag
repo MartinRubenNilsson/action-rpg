@@ -12,8 +12,9 @@ layout(binding = 0) uniform sampler2D tex;
 layout(binding = 1) uniform sampler2D lut1;
 layout(binding = 2) uniform sampler2D lut2;
 
-in vec2 tex_coord;
-out vec4 frag_color;
+layout(location = 0) in vec2 tex_coord;
+
+layout(location = 0) out vec4 frag_color;
 
 #define LUT_SKIN 0
 #define LUT_HAIR 1

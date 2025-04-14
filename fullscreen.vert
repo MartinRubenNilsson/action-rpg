@@ -1,7 +1,6 @@
 #version 460
 
-out vec4 gl_Position;
-out vec2 tex_coord;
+layout(location = 0) out vec2 tex_coord;
 
 void main()
 {

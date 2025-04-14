@@ -1,10 +1,13 @@
 #version 460
 
 uniform sampler2D tex;
-uniform float progress;
 
-in vec4 gl_FragCoord;
-out vec4 frag_color;
+layout(std140, binding = 1) uniform ScreenTransitionUniformBlock
+{
+	float progress;
+};
+
+layout(location = 0) out vec4 frag_color;
 
 void main()
 {
