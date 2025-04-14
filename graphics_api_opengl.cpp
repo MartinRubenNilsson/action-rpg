@@ -2,6 +2,7 @@
 #ifdef GRAPHICS_API_OPENGL
 #include <glad/glad.h>
 #include <string>
+#include <vector>
 
 #pragma comment(lib, "opengl32")
 
@@ -62,6 +63,16 @@
 #undef glScissor
 #undef glScissorIndexed
 #undef glScissorIndexedv
+
+typedef unsigned long DWORD;
+
+extern "C" {
+	//This is a hack to make sure that OpenGL chooses the dedicated GPU on laptops
+	//with switchable graphics. It works by exporting a variable that the driver
+	//looks for when initializing the OpenGL context.
+	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; // NVIDIA: Force High-Performance GPU
+	_declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1; // AMD: Force High-Performance GPU
+}
 
 namespace graphics {
 namespace api {
@@ -139,6 +150,34 @@ namespace api {
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 #endif
 
+		// CHECK GRAPHICS CARD
+		{
+			const char* vendor = (const char*)glGetString(GL_VENDOR);
+			const char* renderer = (const char*)glGetString(GL_RENDERER);
+			const char* version = (const char*)glGetString(GL_VERSION);
+		}
+
+		// CHECK SPIR-V SUPPORT
+		{
+			GLint binary_format_count = 0;
+			glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &binary_format_count);
+			std::vector<GLint> binary_formats(binary_format_count);
+			glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, binary_formats.data());
+			bool is_spirv_supported = false;
+			for (GLint binary_format : binary_formats) {
+				if (binary_format == GL_SHADER_BINARY_FORMAT_SPIR_V) {
+					is_spirv_supported = true;
+					break;
+				}
+			}
+			if (!is_spirv_supported) {
+				if (_debug_message_callback) {
+					_debug_message_callback("SPIR-V is not supported");
+				}
+				return false;
+			}
+		}
+
 		// SETUP PROGRAM PIPELINE OBJECT
 
 		glCreateProgramPipelines(1, &_program_pipeline_object);
@@ -180,7 +219,8 @@ namespace api {
 		}
 		const GLuint shader_object = glCreateShader(shader_type);
 #if 1 // SPIR-V
-		glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
+		//glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
+		glShaderBinary(1, &shader_object, 0xF996, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
 		glSpecializeShader(shader_object, "main", 0, nullptr, nullptr);
 #else // GLSL
 		const char* source_code_string = desc.source_code.data();
@@ -203,7 +243,6 @@ namespace api {
 		const GLuint program_object = glCreateProgram();
 		glProgramParameteri(program_object, GL_PROGRAM_SEPARABLE, GL_TRUE);
 		glAttachShader(program_object, shader_object);
-		return 0;
 		glLinkProgram(program_object);
 		glDetachShader(program_object, shader_object);
 		glDeleteShader(shader_object);
