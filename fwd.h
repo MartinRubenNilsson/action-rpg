@@ -15,6 +15,7 @@ namespace audio {
 namespace graphics {
 	struct VertexShader;
 	struct FragmentShader;
+	struct VertexInput;
 	struct Buffer;
 	struct Texture;
 	struct Sampler;

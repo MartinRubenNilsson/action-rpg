@@ -9,6 +9,7 @@ namespace graphics {
 
 	struct VertexShader;
 	struct FragmentShader;
+	struct VertexInput;
 	struct Buffer;
 	struct Texture;
 	struct Framebuffer;
@@ -33,6 +34,9 @@ namespace graphics {
 	Handle<FragmentShader> create_fragment_shader(ShaderDesc&& desc);
 	// Pass an empty handle to unbind any currently bound fragment shader.
 	void bind_fragment_shader(Handle<FragmentShader> handle);
+
+	Handle<VertexInput> create_vertex_input(VertexInputDesc&& desc);
+	void bind_vertex_input(Handle<VertexInput> handle);
 
 	Handle<Buffer> create_buffer(BufferDesc&& desc);
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data = nullptr);

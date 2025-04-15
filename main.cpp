@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     platform::system("copy /Y ..\\shaders\\glsl\\* assets\\shaders");
 #endif
 #ifdef GRAPHICS_API_D3D11
-	platform::system("copy /Y ..\\shaders\\hlsl\\* assets\\shaders");
+	platform::system("copy /Y ..\\shaders\\dxbc\\* assets\\shaders");
 #endif
 #endif
     graphics::initialize();

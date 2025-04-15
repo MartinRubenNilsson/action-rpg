@@ -210,18 +210,54 @@ namespace api {
 		return true;
 	}
 
+#if 0
+	bool _is_dxil_signed(std::span<const unsigned char> buffer) {
+		//https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
+		struct DxilMinimalHeader {
+			UINT32 four_cc;
+			UINT32 hash_digest[4];
+		};
+		if (buffer.size() < sizeof(DxilMinimalHeader)) {
+			return false;
+		}
+		const DxilMinimalHeader* header = (const DxilMinimalHeader*)buffer.data();
+		bool has_digest = false;
+		has_digest |= header->hash_digest[0] != 0x0;
+		has_digest |= header->hash_digest[1] != 0x0;
+		has_digest |= header->hash_digest[2] != 0x0;
+		has_digest |= header->hash_digest[3] != 0x0;
+		return has_digest;
+	}
+#endif
+
+#define SHADER_MODEL "5_1"
+
 	VertexShaderHandle create_vertex_shader(const ShaderDesc& desc) {
-		Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
-		if (!_compile_shader(desc, "vs_5_0", &shader_blob)) {
+		if (desc.code.empty()) {
+			_output_debug_message("Vertex shader code is empty: " + std::string(desc.debug_name));
 			return VertexShaderHandle();
 		}
+		HRESULT result = S_OK;
 		ID3D11VertexShader* shader = nullptr;
-		HRESULT result = _device->CreateVertexShader(
-			shader_blob->GetBufferPointer(),
-			shader_blob->GetBufferSize(),
-			nullptr,
-			&shader
-		);
+		if (desc.binary) { // DXBC
+			result = _device->CreateVertexShader(
+				desc.code.data(),
+				desc.code.size(),
+				nullptr,
+				&shader
+			);
+		} else { // HLSL
+			Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
+			if (!_compile_shader(desc, "vs_" SHADER_MODEL, &shader_blob)) {
+				return VertexShaderHandle();
+			}
+			result = _device->CreateVertexShader(
+				shader_blob->GetBufferPointer(),
+				shader_blob->GetBufferSize(),
+				nullptr,
+				&shader
+			);
+		}
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create vertex shader: " + std::string(desc.debug_name));
 			return VertexShaderHandle();
@@ -237,23 +273,36 @@ namespace api {
 	}
 
 	void bind_vertex_shader(VertexShaderHandle shader) {
-		if (!shader.object) return;
 		ID3D11VertexShader* d3d11_shader = (ID3D11VertexShader*)shader.object;
 		_device_context->VSSetShader(d3d11_shader, nullptr, 0);
 	}
 
 	FragmentShaderHandle create_fragment_shader(const ShaderDesc& desc) {
-		Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
-		if (!_compile_shader(desc, "ps_5_0", &shader_blob)) {
+		if (desc.code.empty()) {
+			_output_debug_message("Fragment shader code is empty: " + std::string(desc.debug_name));
 			return FragmentShaderHandle();
 		}
+		HRESULT result = S_OK;
 		ID3D11PixelShader* shader = nullptr;
-		HRESULT result = _device->CreatePixelShader(
-			shader_blob->GetBufferPointer(),
-			shader_blob->GetBufferSize(),
-			nullptr,
-			&shader
-		);
+		if (desc.binary) { // DXBC
+			result = _device->CreatePixelShader(
+				desc.code.data(),
+				desc.code.size(),
+				nullptr,
+				&shader
+			);
+		} else { // HLSL
+			Microsoft::WRL::ComPtr<ID3DBlob> shader_blob{};
+			if (!_compile_shader(desc, "ps_" SHADER_MODEL, &shader_blob)) {
+				return FragmentShaderHandle();
+			}
+			result = _device->CreatePixelShader(
+				shader_blob->GetBufferPointer(),
+				shader_blob->GetBufferSize(),
+				nullptr,
+				&shader
+			);
+		}
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create fragment shader: " + std::string(desc.debug_name));
 			return FragmentShaderHandle();
@@ -269,19 +318,77 @@ namespace api {
 	}
 
 	void bind_fragment_shader(FragmentShaderHandle shader) {
-		if (!shader.object) return;
 		ID3D11PixelShader* d3d11_shader = (ID3D11PixelShader*)shader.object;
 		_device_context->PSSetShader(d3d11_shader, nullptr, 0);
 	}
 
-	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
-		D3D11_INPUT_ELEMENT_DESC input_element_descs[16] = {};
-		//TODO
-		return VertexInputHandle();
+	DXGI_FORMAT _format_to_dxgi_format(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:     return DXGI_FORMAT_R8_UNORM;
+		case Format::RG8_UNORM:    return DXGI_FORMAT_R8G8_UNORM;
+		case Format::RGB8_UNORM:   return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case Format::RGBA8_UNORM:  return DXGI_FORMAT_R8G8B8A8_UNORM;
+		case Format::R32_FLOAT:    return DXGI_FORMAT_R32_FLOAT;
+		case Format::RG32_FLOAT:   return DXGI_FORMAT_R32G32_FLOAT;
+		case Format::RGB32_FLOAT:  return DXGI_FORMAT_R32G32B32_FLOAT;
+		case Format::RGBA32_FLOAT: return DXGI_FORMAT_R32G32B32A32_FLOAT;
+		default:                   return DXGI_FORMAT_UNKNOWN;
+		}
 	}
 
-	void destroy_vertex_input(VertexInputHandle vertex_input) {}
-	void bind_vertex_input(VertexInputHandle vertex_input) {}
+	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
+		if (desc.attributes.empty()) {
+			_output_debug_message("Vertex input attributes are empty: " + std::string(desc.debug_name));
+			return VertexInputHandle();
+		}
+		if (desc.attributes.size() > D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT) {
+			_output_debug_message("Too many vertex input attributes: " + std::string(desc.debug_name));
+			return VertexInputHandle();
+		}
+		if (desc.bytecode.empty()) {
+			_output_debug_message("Vertex input bytecode is empty: " + std::string(desc.debug_name));
+			return VertexInputHandle();
+		}
+		D3D11_INPUT_ELEMENT_DESC d3d11_input_elements[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
+		const UINT d3d11_input_element_count = (UINT)desc.attributes.size();
+		for (UINT i = 0; i < d3d11_input_element_count; ++i) {
+			const VertexInputAttribDesc& attrib = desc.attributes[i];
+			// These are the HLSL semantics outputted by SPIRV-Cross, which maps a GLSL
+			// vertex input with location i to a HLSL vertex input with semantic TEXCOORDi.
+			d3d11_input_elements[i].SemanticName = "TEXCOORD";
+			d3d11_input_elements[i].SemanticIndex = i;
+			d3d11_input_elements[i].Format = _format_to_dxgi_format(attrib.format);
+			d3d11_input_elements[i].InputSlot = attrib.binding;
+			d3d11_input_elements[i].AlignedByteOffset = attrib.offset;
+			d3d11_input_elements[i].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			d3d11_input_elements[i].InstanceDataStepRate = 0;
+		}
+		ID3D11InputLayout* d3d11_input_layout = nullptr;
+		HRESULT result = _device->CreateInputLayout(
+			d3d11_input_elements,
+			d3d11_input_element_count,
+			desc.bytecode.data(),
+			desc.bytecode.size(),
+			&d3d11_input_layout
+		);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create vertex input layout: " + std::string(desc.debug_name));
+			return VertexInputHandle();
+		}
+		_set_debug_name(d3d11_input_layout, desc.debug_name);
+		return VertexInputHandle{ .object = (uintptr_t)d3d11_input_layout };
+	}
+
+	void destroy_vertex_input(VertexInputHandle vertex_input) {
+		if (!vertex_input.object) return;
+		ID3D11InputLayout* d3d11_input_layout = (ID3D11InputLayout*)vertex_input.object;
+		d3d11_input_layout->Release();
+	}
+
+	void bind_vertex_input(VertexInputHandle vertex_input) {
+		ID3D11InputLayout* d3d11_input_layout = (ID3D11InputLayout*)vertex_input.object;
+		_device_context->IASetInputLayout(d3d11_input_layout);
+	}
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
 		D3D11_BUFFER_DESC buffer_desc{};
@@ -334,21 +441,28 @@ namespace api {
 	}
 
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {
-		if (!buffer.object) return;
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		_device_context->VSSetConstantBuffers(binding, 1, &d3d11_buffer);
 		_device_context->PSSetConstantBuffers(binding, 1, &d3d11_buffer);
 	}
 
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {
-		if (!buffer.object) return;
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		_device_context->VSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 		_device_context->PSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 	}
 
-	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {}
-	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {}
+	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		const UINT strides[] = { stride };
+		const UINT offsets[] = { offset };
+		_device_context->IASetVertexBuffers(binding, 1, &d3d11_buffer, strides, offsets);
+	}
+	
+	void bind_index_buffer(BufferHandle buffer, unsigned int offset) {
+		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		_device_context->IASetIndexBuffer(d3d11_buffer, DXGI_FORMAT_R32_UINT, offset);
+	}
 
 	TextureHandle create_texture(const TextureDesc& desc) { return TextureHandle(); }
 	void destroy_texture(TextureHandle texture) {}
@@ -425,7 +539,6 @@ namespace api {
 	}
 
 	void bind_sampler(unsigned int binding, SamplerHandle sampler) {
-		if (!sampler.object) return;
 		ID3D11SamplerState* d3d11_sampler_state = (ID3D11SamplerState*)sampler.object;
 		_device_context->PSSetSamplers(binding, 1, &d3d11_sampler_state);
 		_device_context->VSSetSamplers(binding, 1, &d3d11_sampler_state);
@@ -446,7 +559,6 @@ namespace api {
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer) {
-		if (!framebuffer.object) return;
 		ID3D11RenderTargetView* d3d11_rtv = (ID3D11RenderTargetView*)framebuffer.object;
 		_device_context->OMSetRenderTargets(1, &d3d11_rtv, nullptr);
 	}

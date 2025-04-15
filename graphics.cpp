@@ -12,14 +12,17 @@
 #define KHRONOS_STATIC
 #include <ktx.h>
 
-namespace graphics
-{
+namespace graphics {
 	struct VertexShader {
 		api::VertexShaderHandle api_handle{};
 	};
 
 	struct FragmentShader {
 		api::FragmentShaderHandle api_handle{};
+	};
+
+	struct VertexInput {
+		api::VertexInputHandle api_handle{};
 	};
 
 	struct Buffer {
@@ -46,9 +49,9 @@ namespace graphics
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
-	api::VertexInputHandle _vertex_input; //todo: move this to graphics_globals.h
 	Pool<VertexShader> _vertex_shader_pool;
 	Pool<FragmentShader> _fragment_shader_pool;
+	Pool<VertexInput> _vertex_input_pool;
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
@@ -92,33 +95,20 @@ namespace graphics
 #endif
 
 		// INITIALIZE GRAPHICS API
-		{
-			api::InitializeOptions options{};
+
+		api::InitializeOptions options{};
 #ifdef GRAPHICS_API_OPENGL
-			options.glad_load_proc = window::get_glad_load_proc();
+		options.glad_load_proc = window::get_glad_load_proc();
 #endif
 #ifdef GRAPHICS_API_VULKAN
-			options.application_name = APPLICATION_NAME;
-			options.engine_name = ENGINE_NAME;
-			options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
+		options.application_name = APPLICATION_NAME;
+		options.engine_name = ENGINE_NAME;
+		options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
 #endif
 #ifdef GRAPHICS_API_D3D11
-			options.hwnd = window::get_hwnd();
+		options.hwnd = window::get_hwnd();
 #endif
-			api::initialize(options);
-		}
-
-		// CREATE VERTEX ARRAY
-		//todo: move this to graphics_globals.cpp
-		{
-			VertexInputAttribDesc attribs[] = {
-				{ .location = 0, .format = Format::RGB32_FLOAT, .offset = offsetof(Vertex, position) },
-				{ .location = 1, .format = Format::RGBA8_UNORM, .offset = offsetof(Vertex, color), .normalized = true },
-				{ .location = 2, .format = Format::RG32_FLOAT,  .offset = offsetof(Vertex, tex_coord) },
-			};
-			VertexInputDesc desc = { .attributes = attribs };
-			_vertex_input = api::create_vertex_input(desc);
-		}
+		api::initialize(options);
 	}
 
 	void shutdown() {
@@ -220,6 +210,20 @@ namespace graphics
 		}
 	}
 
+	Handle<VertexInput> create_vertex_input(VertexInputDesc&& desc) {
+		api::VertexInputHandle api_handle = api::create_vertex_input(desc);
+		if (!api_handle.object) return Handle<VertexInput>();
+		return _vertex_input_pool.emplace(api_handle);
+	}
+
+	void bind_vertex_input(Handle<VertexInput> handle) {
+		if (handle == Handle<VertexInput>()) {
+			api::bind_vertex_input(api::VertexInputHandle());
+		} else if (const VertexInput* vertex_input = _vertex_input_pool.get(handle)) {
+			api::bind_vertex_input(vertex_input->api_handle);
+		}
+	}
+
 	Handle<Buffer> create_buffer(BufferDesc&& desc) {
 		api::BufferHandle api_handle = api::create_buffer(desc);
 		if (!api_handle.object) return Handle<Buffer>();
@@ -263,17 +267,17 @@ namespace graphics
 
 	void bind_vertex_buffer(unsigned int binding, Handle<Buffer> handle, unsigned int stride, unsigned int offset) {
 		if (handle == Handle<Buffer>()) {
-			api::bind_vertex_buffer(_vertex_input, binding, api::BufferHandle(), 0, 0);
+			api::bind_vertex_buffer(binding, api::BufferHandle(), 0, 0);
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			api::bind_vertex_buffer(_vertex_input, binding, buffer->api_handle, stride, offset);
+			api::bind_vertex_buffer(binding, buffer->api_handle, stride, offset);
 		}
 	}
 
 	void bind_index_buffer(Handle<Buffer> handle) {
 		if (handle == Handle<Buffer>()) {
-			api::bind_index_buffer(_vertex_input, api::BufferHandle());
+			api::bind_index_buffer(api::BufferHandle());
 		} else if (const Buffer* buffer = _buffer_pool.get(handle)) {
-			api::bind_index_buffer(_vertex_input, buffer->api_handle);
+			api::bind_index_buffer(buffer->api_handle);
 		}
 	}
 

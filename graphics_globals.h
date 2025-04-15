@@ -73,11 +73,9 @@ namespace graphics {
 	extern Handle<FragmentShader> ui_frag;
 	extern Handle<FragmentShader> player_outfit_frag;
 
-	// FRAMEBUFFERS
+	// VERTEX INPUTS
 
-	extern Handle<Framebuffer> game_framebuffer_0; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
-	extern Handle<Framebuffer> game_framebuffer_1; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
-	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
+	extern Handle<VertexInput> sprite_vertex_input;
 
 	// BUFFERS
 
@@ -100,6 +98,12 @@ namespace graphics {
 
 	extern Handle<Sampler> nearest_sampler; // nearest filtering, wrap
 	extern Handle<Sampler> linear_sampler; // linear filtering, wrap
+
+	// FRAMEBUFFERS
+
+	extern Handle<Framebuffer> game_framebuffer_0; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> game_framebuffer_1; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
 
 	void initialize_globals();
 }

@@ -8,7 +8,7 @@ namespace graphics {
 		std::string_view debug_name = "shader";
 		// The shader code can be:
 		// - A string containing the source code (e.g., GLSL, HLSL)
-		// - Bytecode for a compiled shader (e.g., SPIR-V, DXIL)
+		// - Bytecode for a compiled shader (e.g., SPIR-V, DXBC, DXIL)
 		std::span<const unsigned char> code;
 		bool binary = false;
 	};
@@ -26,7 +26,7 @@ namespace graphics {
 	};
 
 	struct VertexInputAttribDesc {
-		unsigned int location = 0;
+		//unsigned int location = 0;
 		unsigned int binding = 0;
 		Format format = Format::UNKNOWN;
 		unsigned int offset = 0;
@@ -34,8 +34,9 @@ namespace graphics {
 	};
 
 	struct VertexInputDesc {
-		std::string_view debug_name = "vertex_input";
+		std::string_view debug_name = "vertex input";
 		std::span<VertexInputAttribDesc> attributes;
+		std::span<const unsigned char> bytecode; // Only needed for D3D11
 	};
 
 	enum class BufferType {

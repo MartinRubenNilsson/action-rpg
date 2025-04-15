@@ -71,8 +71,8 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset);
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer);
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset);
-	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
-	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer);
+	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset);
+	void bind_index_buffer(BufferHandle buffer, unsigned int offset = 0);
 
 	struct TextureHandle { uintptr_t object = 0; };
 

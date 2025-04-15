@@ -315,12 +315,12 @@ namespace api {
 		return VertexInputHandle{ vertex_array_object };
 	}
 
-	void destroy_vertex_input(VertexInputHandle vertex_input) {
-		glDeleteVertexArrays(1, (GLuint*)&vertex_input.object);
+	void destroy_vertex_input(VertexInputHandle sprite_vertex_input) {
+		glDeleteVertexArrays(1, (GLuint*)&sprite_vertex_input.object);
 	}
 
-	void bind_vertex_input(VertexInputHandle vertex_input) {
-		glBindVertexArray((GLuint)vertex_input.object);
+	void bind_vertex_input(VertexInputHandle sprite_vertex_input) {
+		glBindVertexArray((GLuint)sprite_vertex_input.object);
 	}
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
@@ -351,12 +351,12 @@ namespace api {
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object, offset, size);
 	}
 
-	void bind_vertex_buffer(VertexInputHandle vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
-		glVertexArrayVertexBuffer((GLuint)vertex_input.object, binding, (GLuint)buffer.object, offset, stride);
+	void bind_vertex_buffer(VertexInputHandle sprite_vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		glVertexArrayVertexBuffer((GLuint)sprite_vertex_input.object, binding, (GLuint)buffer.object, offset, stride);
 	}
 
-	void bind_index_buffer(VertexInputHandle vertex_input, BufferHandle buffer) {
-		glVertexArrayElementBuffer((GLuint)vertex_input.object, (GLuint)buffer.object);
+	void bind_index_buffer(VertexInputHandle sprite_vertex_input, BufferHandle buffer) {
+		glVertexArrayElementBuffer((GLuint)sprite_vertex_input.object, (GLuint)buffer.object);
 	}
 
 	GLenum _to_gl_base_format(Format format) {
