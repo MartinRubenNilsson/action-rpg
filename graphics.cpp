@@ -115,35 +115,50 @@ namespace graphics {
 
 		// DELETE VERTEX SHADERS
 
-		for (const VertexShader& shader : _vertex_shader_pool.span()) {
+		for (VertexShader& shader : _vertex_shader_pool.span()) {
 			if (shader.api_handle.object) {
 				api::destroy_vertex_shader(shader.api_handle);
+				shader.api_handle = api::VertexShaderHandle();
 			}
 		}
 		_vertex_shader_pool.clear();
 
 		// DELETE FRAGMENT SHADERS
 
-		for (const FragmentShader& shader : _fragment_shader_pool.span()) {
+		for (FragmentShader& shader : _fragment_shader_pool.span()) {
 			if (shader.api_handle.object) {
 				api::destroy_fragment_shader(shader.api_handle);
+				shader.api_handle = api::FragmentShaderHandle();
 			}
 		}
+		_fragment_shader_pool.clear();
+
+		// DELETE VERTEX INPUTS
+
+		for (VertexInput& vertex_input : _vertex_input_pool.span()) {
+			if (vertex_input.api_handle.object) {
+				api::destroy_vertex_input(vertex_input.api_handle);
+				vertex_input.api_handle = api::VertexInputHandle();
+			}
+		}
+		_vertex_input_pool.clear();
 
 		// DELETE BUFFERS
 
-		for (const Buffer& buffer : _buffer_pool.span()) {
+		for (Buffer& buffer : _buffer_pool.span()) {
 			if (buffer.api_handle.object) {
 				api::destroy_buffer(buffer.api_handle);
+				buffer.api_handle = api::BufferHandle();
 			}
 		}
 		_buffer_pool.clear();
 
 		// DELETE TEXTURES
 
-		for (const Texture& texture : _texture_pool.span()) {
+		for (Texture& texture : _texture_pool.span()) {
 			if (texture.api_handle.object) {
 				api::destroy_texture(texture.api_handle);
+				texture.api_handle = api::TextureHandle();
 			}
 		}
 		_texture_pool.clear();
@@ -151,18 +166,20 @@ namespace graphics {
 
 		// DELETE SAMPLERS
 
-		for (const Sampler& sampler : _sampler_pool.span()) {
+		for (Sampler& sampler : _sampler_pool.span()) {
 			if (sampler.api_handle.object) {
 				api::destroy_sampler(sampler.api_handle);
+				sampler.api_handle = api::SamplerHandle();
 			}
 		}
 		_sampler_pool.clear();
 
 		// DELETE FRAMEBUFFERS
 
-		for (const Framebuffer& framebuffer : _framebuffer_pool.span()) {
+		for (Framebuffer& framebuffer : _framebuffer_pool.span()) {
 			if (framebuffer.api_handle.object) {
 				api::destroy_framebuffer(framebuffer.api_handle);
+				framebuffer.api_handle = api::FramebufferHandle();
 			}
 		}
 		_framebuffer_pool.clear();

@@ -2,14 +2,13 @@
 #include "handle.h"
 
 template <typename T>
-class Pool
-{
+class Pool {
 public:
 	const T* data() const { return _data.data(); }
 
 	size_t size() const { return _data.size(); }
 
-	std::span<const T> span() const { return { _data.data(), _data.size() }; }
+	std::span<T> span() { return { _data.data(), _data.size() }; }
 
 	void clear();
 
@@ -27,8 +26,7 @@ private:
 };
 
 template<typename T>
-inline void Pool<T>::clear()
-{
+inline void Pool<T>::clear() {
 	_data.clear();
 	_generations.clear();
 	_freelist.clear();
@@ -36,8 +34,7 @@ inline void Pool<T>::clear()
 
 template<typename T>
 template<typename ...Args>
-inline Handle<T> Pool<T>::emplace(Args&&... args)
-{
+inline Handle<T> Pool<T>::emplace(Args&&... args) {
 	Handle<T> handle;
 	if (_freelist.empty()) {
 		handle.index = (uint16_t)_data.size();
@@ -54,16 +51,14 @@ inline Handle<T> Pool<T>::emplace(Args&&... args)
 }
 
 template<typename T>
-inline T* Pool<T>::get(Handle<T> handle)
-{
+inline T* Pool<T>::get(Handle<T> handle) {
 	if (handle.index >= _data.size()) return nullptr;
 	if (handle.generation != _generations[handle.index]) return nullptr;
 	return &_data[handle.index];
 }
 
 template<typename T>
-inline void Pool<T>::free(Handle<T> handle)
-{
+inline void Pool<T>::free(Handle<T> handle) {
 	if (handle.index >= _data.size()) return;
 	if (handle.generation != _generations[handle.index]) return;
 	_generations[handle.index]++;

@@ -35,6 +35,7 @@ namespace api {
 	ID3D11Device* _device = nullptr;
 	ID3D11DeviceContext1* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
+	ID3D11Debug* _debug = nullptr;
 	ID3DUserDefinedAnnotation* _user_defined_annotation = nullptr;
 #endif
 	IDXGISwapChain* _swap_chain = nullptr;
@@ -80,6 +81,11 @@ namespace api {
 				return false;
 			}
 #ifdef GRAPHICS_API_DEBUG
+			result = _device->QueryInterface(IID_PPV_ARGS(&_debug));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to query D3D11 debug device");
+				return false;
+			}
 			result = device_context->QueryInterface(IID_PPV_ARGS(&_user_defined_annotation));
 			if (FAILED(result)) {
 				_output_debug_message("Failed to query D3D11 user defined annotation");
@@ -139,8 +145,18 @@ namespace api {
 #ifdef GRAPHICS_API_DEBUG
 		_safe_release(_user_defined_annotation);
 #endif
+		if (_device_context) {
+			_device_context->ClearState();
+			_device_context->Flush();
+		}
 		_safe_release(_device_context);
 		_safe_release(_device);
+#ifdef GRAPHICS_API_DEBUG
+		if (_debug) {
+			_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
+		}
+		_safe_release(_debug);
+#endif
 	}
 
 	bool is_spirv_supported() {
@@ -464,8 +480,66 @@ namespace api {
 		_device_context->IASetIndexBuffer(d3d11_buffer, DXGI_FORMAT_R32_UINT, offset);
 	}
 
-	TextureHandle create_texture(const TextureDesc& desc) { return TextureHandle(); }
-	void destroy_texture(TextureHandle texture) {}
+	UINT _format_to_byte_width(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:     return 1;
+		case Format::RG8_UNORM:    return 2;
+		case Format::RGB8_UNORM:   return 4;
+		case Format::RGBA8_UNORM:  return 4;
+		case Format::R32_FLOAT:    return 4;
+		case Format::RG32_FLOAT:   return 8;
+		case Format::RGB32_FLOAT:  return 12;
+		case Format::RGBA32_FLOAT: return 16;
+		default:                   return 0;
+		}
+	}
+
+	TextureHandle create_texture(const TextureDesc& desc) {
+		D3D11_TEXTURE2D_DESC texture_desc{};
+		texture_desc.Width = desc.width;
+		texture_desc.Height = desc.height;
+		texture_desc.MipLevels = 1;
+		texture_desc.ArraySize = 1;
+		texture_desc.Format = _format_to_dxgi_format(desc.format);
+		texture_desc.SampleDesc.Count = 1;
+		texture_desc.Usage = D3D11_USAGE_DEFAULT;
+		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		HRESULT result = S_OK;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture{};
+		if (desc.initial_data) {
+			D3D11_SUBRESOURCE_DATA initial_data{};
+			initial_data.pSysMem = desc.initial_data;
+			initial_data.SysMemPitch = desc.width * _format_to_byte_width(desc.format);
+			result = _device->CreateTexture2D(&texture_desc, &initial_data, &texture);
+		} else {
+			result = _device->CreateTexture2D(&texture_desc, nullptr, &texture);
+		}
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create texture: " + std::string(desc.debug_name));
+			return TextureHandle();
+		}
+		_set_debug_name(texture.Get(), desc.debug_name);
+		D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
+		srv_desc.Format = texture_desc.Format;
+		srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		srv_desc.Texture2D.MostDetailedMip = 0;
+		srv_desc.Texture2D.MipLevels = 1;
+		ID3D11ShaderResourceView* srv = nullptr;
+		result = _device->CreateShaderResourceView(texture.Get(), &srv_desc, &srv);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create shader resource view: " + std::string(desc.debug_name));
+			return TextureHandle();
+		}
+		_set_debug_name(srv, desc.debug_name);
+		return TextureHandle{ .object = (uintptr_t)srv };
+	}
+
+	void destroy_texture(TextureHandle texture) {
+		if (!texture.object) return;
+		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
+		d3d11_srv->Release();
+	}
+
 	void update_texture(
 		TextureHandle texture,
 		unsigned int level,
@@ -489,7 +563,13 @@ namespace api {
 		unsigned int src_width,
 		unsigned int src_height,
 		unsigned int src_depth) {}
-	void bind_texture(unsigned int binding, TextureHandle texture) {}
+
+	void bind_texture(unsigned int binding, TextureHandle texture) {
+		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
+		//_device_context->PSSetShaderResources(binding, 1, &d3d11_srv);
+		//_device_context->VSSetShaderResources(binding, 1, &d3d11_srv);
+		//_device_context->CSSetShaderResources(binding, 1, &d3d11_srv);
+	}
 
 	D3D11_FILTER _filter_to_d3d11_filter(Filter filter) {
 		switch (filter) {

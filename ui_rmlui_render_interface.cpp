@@ -86,11 +86,15 @@ namespace ui {
 		compiled_geometry->vertex_buffer = graphics::create_buffer({
 			.debug_name = "rmlui vertex buffer",
 			.size = (unsigned int)sizeof(graphics::Vertex) * num_vertices,
-			.initial_data = vertices });
+			.type = graphics::BufferType::VertexBuffer,
+			.initial_data = vertices
+		});
 		compiled_geometry->index_buffer = graphics::create_buffer({
 			.debug_name = "rmlui index buffer",
 			.size = (unsigned int)sizeof(unsigned int) * num_indices,
-			.initial_data = indices });
+			.type = graphics::BufferType::IndexBuffer,
+			.initial_data = indices
+		});
 		compiled_geometry->index_count = (unsigned int)num_indices;
 		compiled_geometry->texture = _texture_handle_from_rml(texture);
 		return (Rml::CompiledGeometryHandle)compiled_geometry;

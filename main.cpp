@@ -383,10 +383,10 @@ int main(int argc, char* argv[]) {
     ecs::shutdown();
     ui::shutdown();
     audio::shutdown();
-    graphics::shutdown();
 #ifdef _DEBUG_IMGUI
     imgui_impl::shutdown();
 #endif
+    graphics::shutdown();
     window::shutdown();
 	networking::shutdown();
     steam::shutdown();
