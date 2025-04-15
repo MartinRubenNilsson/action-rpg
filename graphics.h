@@ -16,6 +16,8 @@ namespace graphics {
 	void initialize();
 	void shutdown();
 
+	bool is_spirv_supported();
+
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 

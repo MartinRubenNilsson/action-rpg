@@ -6,7 +6,11 @@ namespace graphics {
 
 	struct ShaderDesc {
 		std::string_view debug_name = "shader";
-		std::span<const unsigned char> bytecode; // SPIR-V if OpenGL, DXIL if D3D11
+		// The shader code can be:
+		// - A string containing the source code (e.g., GLSL, HLSL)
+		// - Bytecode for a compiled shader (e.g., SPIR-V, DXIL)
+		std::span<const unsigned char> code;
+		bool binary = false;
 	};
 
 	enum class Format {

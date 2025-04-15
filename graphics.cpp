@@ -121,14 +121,6 @@ namespace graphics
 		}
 	}
 
-	void push_debug_group(std::string_view name) {
-		api::push_debug_group(name);
-	}
-
-	void pop_debug_group() {
-		api::pop_debug_group();
-	}
-
 	void shutdown() {
 
 		// DELETE VERTEX SHADERS
@@ -186,6 +178,18 @@ namespace graphics
 		_framebuffer_pool.clear();
 
 		api::shutdown();
+	}
+
+	bool is_spirv_supported() {
+		return api::is_spirv_supported();
+	}
+
+	void push_debug_group(std::string_view name) {
+		api::push_debug_group(name);
+	}
+
+	void pop_debug_group() {
+		api::pop_debug_group();
 	}
 
 	Handle<VertexShader> create_vertex_shader(ShaderDesc&& desc) {
@@ -545,7 +549,7 @@ namespace graphics
 		window::swap_buffers();
 #endif
 #ifdef GRAPHICS_API_D3D11
-		graphics::api::swap_buffers();
+		api::swap_buffers();
 #endif
 	}
 

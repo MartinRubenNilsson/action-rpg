@@ -4,8 +4,7 @@
 #include "graphics_globals.h"
 #include "random.h"
 
-namespace player
-{
+namespace player {
 	const int C3_LUT_COLORS = 48;
 	const int C4_LUT_COLORS = 58;
 
@@ -23,8 +22,7 @@ namespace player
 	const int HAT_COLORS_1 = C3_LUT_COLORS;
 	const int HAT_COLORS_2 = C4_LUT_COLORS;
 
-	void randomize_outfit(Outfit& outfit)
-	{
+	void randomize_outfit(Outfit& outfit) {
 		outfit.body = (Outfit::Body)(random::range_i(1, (int)Outfit::Body::Count - 1));
 		outfit.skin_color = random::range_i(0, SKIN_COLORS - 1);
 		outfit.socks = (Outfit::Socks)(random::range_i(0, (int)Outfit::Socks::Count - 1));
@@ -51,18 +49,15 @@ namespace player
 		outfit.hat_color_2 = random::range_i(0, HAT_COLORS_2 - 1);
 	}
 
-	Handle<graphics::Texture> create_outfit_texture(Outfit& outfit)
-	{
-		enum LookupTextureType
-		{
+	Handle<graphics::Texture> create_outfit_texture(Outfit& outfit) {
+		enum LookupTextureType {
 			LUT_SKIN,
 			LUT_HAIR,
 			LUT_C3, // 3-color
 			LUT_C4, // 4-color
 		};
 
-		struct Layer
-		{
+		struct Layer {
 			const char* texture_path = nullptr;
 			int lut1_type = -1;
 			int lut1_y = -1;

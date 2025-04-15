@@ -77,31 +77,16 @@ extern "C" {
 namespace graphics {
 namespace api {
 
-	GLenum _to_gl_base_format(Format format) {
-		switch (format) {
-		case Format::R8_UNORM:    return GL_RED;
-		case Format::RG8_UNORM:   return GL_RG;
-		case Format::RGB8_UNORM:  return GL_RGB;
-		case Format::RGBA8_UNORM: return GL_RGBA;
-		default: return 0;
-		}
-	}
-
-	GLenum _to_gl_sized_format(Format format) {
-		switch (format) {
-		case Format::R8_UNORM:    return GL_R8;
-		case Format::RG8_UNORM:   return GL_RG8;
-		case Format::RGB8_UNORM:  return GL_RGB8;
-		case Format::RGBA8_UNORM: return GL_RGBA8;
-		default: return 0;
-		}
-	}
-	
-
 	DebugMessageCallback _debug_message_callback = nullptr;
 
 	void set_debug_message_callback(DebugMessageCallback callback) {
 		_debug_message_callback = callback;
+	}
+
+	void _output_debug_message(std::string_view message) {
+		if (_debug_message_callback) {
+			_debug_message_callback(message);
+		}
 	}
 
 #ifdef GRAPHICS_API_DEBUG
@@ -114,13 +99,12 @@ namespace api {
 		const GLchar* message,
 		const void* userParam
 	) {
-		if (_debug_message_callback) {
-			_debug_message_callback(message);
-		}
+		_output_debug_message(message);
 	}
 #endif
 
 	GLuint _program_pipeline_object = 0;
+	bool _is_spirv_supported = false;
 
 	void _gl_object_label(GLenum identifier, GLuint name, std::string_view label) {
 #ifdef GRAPHICS_API_DEBUG
@@ -134,17 +118,16 @@ namespace api {
 		// INITIALIZE GLAD
 
 		if (!gladLoadGLLoader((GLADloadproc)options.glad_load_proc)) {
-			if (_debug_message_callback) {
-				_debug_message_callback("Failed to initialize GLAD");
-			}
+			_output_debug_message("Failed to initialize GLAD");
 			return false;
 		}
 
 		// ENABLE DEBUG OUTPUT
 
 #ifdef GRAPHICS_API_DEBUG
-		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(_gl_debug_message_callback, 0);
+		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_MARKER, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_PUSH_GROUP, GL_DONT_CARE, 0, nullptr, GL_FALSE);
 		glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DONT_CARE, 0, nullptr, GL_FALSE);
@@ -163,18 +146,11 @@ namespace api {
 			glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &binary_format_count);
 			std::vector<GLint> binary_formats(binary_format_count);
 			glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, binary_formats.data());
-			bool is_spirv_supported = false;
 			for (GLint binary_format : binary_formats) {
 				if (binary_format == GL_SHADER_BINARY_FORMAT_SPIR_V) {
-					is_spirv_supported = true;
+					_is_spirv_supported = true;
 					break;
 				}
-			}
-			if (!is_spirv_supported) {
-				if (_debug_message_callback) {
-					_debug_message_callback("SPIR-V is not supported");
-				}
-				return false;
 			}
 		}
 
@@ -185,6 +161,7 @@ namespace api {
 		_gl_object_label(GL_PROGRAM_PIPELINE, _program_pipeline_object, "program pipeline");
 
 		// SETUP BLENDING
+		//fixme: move to userland
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,6 +173,10 @@ namespace api {
 		if (_program_pipeline_object) {
 			glDeleteProgramPipelines(1, &_program_pipeline_object);
 		}
+	}
+
+	bool is_spirv_supported() {
+		return _is_spirv_supported;
 	}
 
 	void push_debug_group(std::string_view name) {
@@ -211,32 +192,34 @@ namespace api {
 	}
 
 	GLuint _create_shader_program(const ShaderDesc& desc, GLenum shader_type) {
-		if (desc.bytecode.empty()) {
-			if (_debug_message_callback) {
-				_debug_message_callback("Shader bytecode is empty: " + std::string(desc.debug_name));
-			}
+		if (desc.code.empty()) {
+			_output_debug_message("Shader code is empty: " + std::string(desc.debug_name));
 			return 0;
 		}
 		const GLuint shader_object = glCreateShader(shader_type);
-#if 1 // SPIR-V
-		//glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
-		glShaderBinary(1, &shader_object, 0xF996, desc.bytecode.data(), (GLsizei)desc.bytecode.size());
-		glSpecializeShader(shader_object, "main", 0, nullptr, nullptr);
-#else // GLSL
-		const char* source_code_string = desc.source_code.data();
-		const GLint source_code_length = (GLint)desc.source_code.size();
-		glShaderSource(shader_object, 1, &source_code_string, &source_code_length);
-		glCompileShader(shader_object);
-#endif
+		if (desc.binary) { // SPIR-V
+			if (!_is_spirv_supported) {
+				_output_debug_message("SPIR-V is not supported on this system: " + std::string(desc.debug_name));
+				glDeleteShader(shader_object);
+				return 0;
+			}
+			glShaderBinary(1, &shader_object, GL_SHADER_BINARY_FORMAT_SPIR_V, desc.code.data(), (GLsizei)desc.code.size());
+			glSpecializeShader(shader_object, "main", 0, nullptr, nullptr);
+		} else { // GLSL
+			const char* source_code_string = (const char*)desc.code.data();
+			const GLint source_code_length = (GLint)desc.code.size();
+			glShaderSource(shader_object, 1, &source_code_string, &source_code_length);
+			glCompileShader(shader_object);
+		}
 		GLint success = GL_FALSE;
 		glGetShaderiv(shader_object, GL_COMPILE_STATUS, &success);
 		if (!success) {
-			if (_debug_message_callback) {
-				char info_log[512];
-				glGetShaderInfoLog(shader_object, sizeof(info_log), nullptr, info_log);
-				_debug_message_callback("Failed to compile shader: " + std::string(desc.debug_name));
-				_debug_message_callback(info_log);
-			}
+#ifdef GRAPHICS_API_DEBUG
+			char info_log[512];
+			glGetShaderInfoLog(shader_object, sizeof(info_log), nullptr, info_log);
+			_output_debug_message("Failed to compile shader: " + std::string(desc.debug_name));
+			_output_debug_message(info_log);
+#endif
 			glDeleteShader(shader_object);
 			return 0;
 		}
@@ -248,12 +231,12 @@ namespace api {
 		glDeleteShader(shader_object);
 		glGetProgramiv(program_object, GL_LINK_STATUS, &success);
 		if (!success) {
-			if (_debug_message_callback) {
-				char info_log[512];
-				glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
-				_debug_message_callback("Failed to link program: " + std::string(desc.debug_name));
-				_debug_message_callback(info_log);
-			}
+#ifdef GRAPHICS_API_DEBUG
+			char info_log[512];
+			glGetProgramInfoLog(program_object, sizeof(info_log), nullptr, info_log);
+			_output_debug_message("Failed to link program: " + std::string(desc.debug_name));
+			_output_debug_message(info_log);
+#endif
 			glDeleteProgram(program_object);
 			return 0;
 		}
@@ -376,6 +359,16 @@ namespace api {
 		glVertexArrayElementBuffer((GLuint)vertex_input.object, (GLuint)buffer.object);
 	}
 
+	GLenum _to_gl_base_format(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:    return GL_RED;
+		case Format::RG8_UNORM:   return GL_RG;
+		case Format::RGB8_UNORM:  return GL_RGB;
+		case Format::RGBA8_UNORM: return GL_RGBA;
+		default: return 0;
+		}
+	}
+
 	void update_texture(
 		TextureHandle texture,
 		unsigned int level,
@@ -429,6 +422,16 @@ namespace api {
 			src_width,
 			src_height,
 			src_depth);
+	}
+
+	GLenum _to_gl_sized_format(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:    return GL_R8;
+		case Format::RG8_UNORM:   return GL_RG8;
+		case Format::RGB8_UNORM:  return GL_RGB8;
+		case Format::RGBA8_UNORM: return GL_RGBA8;
+		default: return 0;
+		}
 	}
 
 	TextureHandle create_texture(const TextureDesc& desc) {
@@ -528,12 +531,6 @@ namespace api {
 		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer.object);
 	}
 
-	Primitives _primitives = Primitives::TriangleList;
-
-	void set_primitives(Primitives primitives) {
-		_primitives = primitives;
-	}
-
 	void set_viewports(const Viewport* viewports, unsigned int count) {
 		count = std::min(count, MAX_VIEWPORTS);
 		GLfloat gl_viewports[MAX_VIEWPORTS * 4];
@@ -572,7 +569,13 @@ namespace api {
 		}
 	}
 
-	GLenum _to_gl_primitives(Primitives primitives) {
+	Primitives _primitives = Primitives::TriangleList;
+
+	void set_primitives(Primitives primitives) {
+		_primitives = primitives;
+	}
+
+	GLenum _primitives_to_gl_primitives(Primitives primitives) {
 		switch (primitives) {
 		case Primitives::PointList:     return GL_POINTS;
 		case Primitives::LineList:      return GL_LINES;
@@ -584,11 +587,11 @@ namespace api {
 	}
 
 	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
-		glDrawArrays(_to_gl_primitives(_primitives), vertex_offset, vertex_count);
+		glDrawArrays(_primitives_to_gl_primitives(_primitives), vertex_offset, vertex_count);
 	}
 
 	void draw_indexed(unsigned int index_count) {
-		glDrawElements(_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(_primitives_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 
 } // namespace api

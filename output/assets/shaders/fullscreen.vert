@@ -1,5 +1,9 @@
 #version 460
 
+out gl_PerVertex {
+	vec4 gl_Position;
+};
+
 layout(location = 0) out vec2 tex_coord;
 
 void main()

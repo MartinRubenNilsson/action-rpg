@@ -35,6 +35,8 @@ namespace api {
 	bool initialize(const InitializeOptions &options);
 	void shutdown();
 
+	bool is_spirv_supported();
+
 #ifdef GRAPHICS_API_D3D11
 	ID3D11Device* get_d3d11_device();
 	ID3D11DeviceContext* get_d3d11_device_context();
@@ -116,10 +118,10 @@ namespace api {
 	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]);
 	void bind_framebuffer(FramebufferHandle framebuffer);
 
-	void set_primitives(Primitives primitives);
 	void set_viewports(const Viewport* viewports, unsigned int count);
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);
+	void set_primitives(Primitives primitives);
 
 	void draw(unsigned int vertex_count, unsigned int vertex_offset = 0);
 	void draw_indexed(unsigned int index_count);

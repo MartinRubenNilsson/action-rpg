@@ -45,86 +45,106 @@ namespace graphics {
 	Handle<Sampler> linear_sampler;
 
 	void _initialize_shaders() {
-		std::vector<unsigned char> shader_bytecode;
-		filesystem::read_binary_file("assets/shaders/fullscreen.vert.spv", shader_bytecode);
+		std::vector<unsigned char> shader_code;
+		const bool is_binary = graphics::is_spirv_supported();
+#ifdef GRAPHICS_API_OPENGL
+		const std::string extension = is_binary ? ".spv" : "";
+#endif
+		filesystem::read_binary_file("assets/shaders/fullscreen.vert" + extension, shader_code);
 		fullscreen_vert = create_vertex_shader({
 			.debug_name = "fullscreen vertex shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/fullscreen.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/fullscreen.frag" + extension, shader_code);
 		fullscreen_frag = create_fragment_shader({
 			.debug_name = "fullscreen fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/gaussian_blur_hor.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/gaussian_blur_hor.frag" + extension, shader_code);
 		gaussian_blur_hor_frag = create_fragment_shader({
 			.debug_name = "gaussian blur horizontal fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/gaussian_blur_ver.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/gaussian_blur_ver.frag" + extension, shader_code);
 		gaussian_blur_ver_frag = create_fragment_shader({
 			.debug_name = "gaussian blur vertical fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/screen_transition.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/screen_transition.frag" + extension, shader_code);
 		screen_transition_frag = create_fragment_shader({
 			.debug_name = "screen transition fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/shockwave.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/shockwave.frag" + extension, shader_code);
 		shockwave_frag = create_fragment_shader({
 			.debug_name = "shockwave fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/darkness.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/darkness.frag" + extension, shader_code);
 		darkness_frag = create_fragment_shader({
 			.debug_name = "darkness fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/sprite.vert.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/sprite.vert" + extension, shader_code);
 		sprite_vert = create_vertex_shader({
 			.debug_name = "sprite vertex shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/sprite.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/sprite.frag" + extension, shader_code);
 		sprite_frag = create_fragment_shader({
 			.debug_name = "sprite fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/grass.vert.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/grass.vert" + extension, shader_code);
 		grass_vert = create_vertex_shader({
 			.debug_name = "grass vertex shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/shape.vert.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/shape.vert" + extension, shader_code);
 		shape_vert = create_vertex_shader({
 			.debug_name = "shape vertex shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/shape.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/shape.frag" + extension, shader_code);
 		shape_frag = create_fragment_shader({
 			.debug_name = "shape fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/text.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/text.frag" + extension, shader_code);
 		text_frag = create_fragment_shader({
 			.debug_name = "text fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/ui.vert.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/ui.vert" + extension, shader_code);
 		ui_vert = create_vertex_shader({
 			.debug_name = "ui vertex shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/ui.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/ui.frag" + extension, shader_code);
 		ui_frag = create_fragment_shader({
 			.debug_name = "ui fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
-		filesystem::read_binary_file("assets/shaders/player_outfit.frag.spv", shader_bytecode);
+		filesystem::read_binary_file("assets/shaders/player_outfit.frag" + extension, shader_code);
 		player_outfit_frag = create_fragment_shader({
 			.debug_name = "player outfit fragment shader",
-			.bytecode = shader_bytecode
+			.code = shader_code,
+			.binary = is_binary
 		});
 	}
 
