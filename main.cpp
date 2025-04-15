@@ -28,20 +28,25 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;
     }
     steam::initialize(); // Fails silently if Steam is not running.
-#ifdef _DEBUG_GRAPHICS
-    // HACK: We should be using a post-build event to copy the shaders,
-    // but then it doesn't run when only debugging and not recompiling,
-    // which is annoying when you've changed a shader but not the code,
-    // because then the new shader doesn't get copied.
-    platform::system("copy /Y ..\\*.vert .\\assets\\shaders\\");
-    platform::system("copy /Y ..\\*.frag .\\assets\\shaders\\");
-#endif
     filesystem::initialize();
 	networking::initialize();
 #ifdef _DEBUG_RENDERDOC
     renderdoc::initialize();
 #endif
     window::initialize();
+#ifdef _DEBUG_GRAPHICS
+    // HACK: We should be using a post-build event to copy the shaders,
+    // but then it doesn't run when only debugging and not recompiling,
+    // which is annoying when you've changed a shader but not the code,
+    // because then the new shader doesn't get copied.
+    platform::system("del /q assets\\shaders\\*");
+#ifdef GRAPHICS_API_OPENGL
+    platform::system("copy /Y ..\\shaders\\glsl\\* assets\\shaders");
+#endif
+#ifdef GRAPHICS_API_D3D11
+	platform::system("copy /Y ..\\shaders\\hlsl\\* assets\\shaders");
+#endif
+#endif
     graphics::initialize();
     graphics::initialize_globals();
 #ifdef _DEBUG_IMGUI

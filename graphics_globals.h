@@ -5,6 +5,7 @@ namespace graphics {
 
 	struct FrameUniformBlock {
 		float view_proj_matrix[16] = {};
+
 		float app_time = 0.f;
 		float game_time = 0.f;
 		float padding0;
@@ -25,8 +26,11 @@ namespace graphics {
 	struct DarknessUniformBlock {
 		Vector2f resolution;
 		Vector2f center;
+
 		float intensity = 0.f;
 		float padding0 = 0.f;
+		float padding1 = 0.f;
+		float padding2 = 0.f;
 	};
 
 	struct ScreenTransitionUniformBlock {
@@ -39,6 +43,7 @@ namespace graphics {
 	struct ShockwaveUniformBlock {
 		Vector2f resolution; // in pixels
 		Vector2f center; // in pixels
+
 		float force;
 		float size;
 		float thickness;

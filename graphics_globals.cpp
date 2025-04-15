@@ -46,9 +46,13 @@ namespace graphics {
 
 	void _initialize_shaders() {
 		std::vector<unsigned char> shader_code;
-		const bool is_binary = graphics::is_spirv_supported();
 #ifdef GRAPHICS_API_OPENGL
+		const bool is_binary = graphics::is_spirv_supported();
 		const std::string extension = is_binary ? ".spv" : "";
+#endif
+#ifdef GRAPHICS_API_D3D11
+		const bool is_binary = false;
+		const std::string extension = is_binary ? ".cso" : ".hlsl";
 #endif
 		filesystem::read_binary_file("assets/shaders/fullscreen.vert" + extension, shader_code);
 		fullscreen_vert = create_vertex_shader({

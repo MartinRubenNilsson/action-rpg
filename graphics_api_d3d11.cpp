@@ -143,6 +143,10 @@ namespace api {
 		_safe_release(_device);
 	}
 
+	bool is_spirv_supported() {
+		return false;
+	}
+
 	ID3D11Device* get_d3d11_device() {
 		return _device;
 	}
@@ -174,7 +178,7 @@ namespace api {
 
 	bool _compile_shader(const ShaderDesc& desc, const char* target, ID3DBlob** shader_blob) {
 		if (desc.code.empty()) {
-			_output_debug_message("Shader source code is empty: " + std::string(desc.debug_name));
+			_output_debug_message("Shader code is empty: " + std::string(desc.debug_name));
 			return false;
 		}
 		UINT flags = 0;
@@ -211,7 +215,7 @@ namespace api {
 		if (!_compile_shader(desc, "vs_5_0", &shader_blob)) {
 			return VertexShaderHandle();
 		}
-		Microsoft::WRL::ComPtr<ID3D11VertexShader> shader{};
+		ID3D11VertexShader* shader = nullptr;
 		HRESULT result = _device->CreateVertexShader(
 			shader_blob->GetBufferPointer(),
 			shader_blob->GetBufferSize(),
@@ -222,8 +226,8 @@ namespace api {
 			_output_debug_message("Failed to create vertex shader: " + std::string(desc.debug_name));
 			return VertexShaderHandle();
 		}
-		_set_debug_name(shader.Get(), desc.debug_name);
-		return VertexShaderHandle{ .object = (uintptr_t)shader.Get() };
+		_set_debug_name(shader, desc.debug_name);
+		return VertexShaderHandle{ .object = (uintptr_t)shader };
 	}
 
 	void destroy_vertex_shader(VertexShaderHandle shader) {
@@ -243,7 +247,7 @@ namespace api {
 		if (!_compile_shader(desc, "ps_5_0", &shader_blob)) {
 			return FragmentShaderHandle();
 		}
-		Microsoft::WRL::ComPtr<ID3D11PixelShader> shader{};
+		ID3D11PixelShader* shader = nullptr;
 		HRESULT result = _device->CreatePixelShader(
 			shader_blob->GetBufferPointer(),
 			shader_blob->GetBufferSize(),
@@ -254,8 +258,8 @@ namespace api {
 			_output_debug_message("Failed to create fragment shader: " + std::string(desc.debug_name));
 			return FragmentShaderHandle();
 		}
-		_set_debug_name(shader.Get(), desc.debug_name);
-		return FragmentShaderHandle{ .object = (uintptr_t)shader.Get() };
+		_set_debug_name(shader, desc.debug_name);
+		return FragmentShaderHandle{ .object = (uintptr_t)shader };
 	}
 
 	void destroy_fragment_shader(FragmentShaderHandle shader) {

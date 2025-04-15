@@ -209,54 +209,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
-    <None Include="ui.vert">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="ui.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="sprite.vert">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="sprite.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="shape.vert">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="shape.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="text.frag">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="grass.vert">
-      <Filter>graphics\shaders</Filter>
-    </None>
-    <None Include="shockwave.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="screen_transition.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="gaussian_blur_ver.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="gaussian_blur_hor.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="fullscreen.vert">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="darkness.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="fullscreen.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
-    <None Include="player_outfit.frag">
-      <Filter>graphics\shaders\fullscreen</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui.h">
@@ -675,9 +627,6 @@
     <Filter Include="graphics">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
     </Filter>
-    <Filter Include="graphics\shaders">
-      <UniqueIdentifier>{fecc6edd-667c-49f6-adf9-57600b3c48af}</UniqueIdentifier>
-    </Filter>
     <Filter Include="steam">
       <UniqueIdentifier>{029569e4-8e84-4e37-99f3-3b57c5057e89}</UniqueIdentifier>
     </Filter>
@@ -734,9 +683,6 @@
     </Filter>
     <Filter Include="game\ecs\weapons">
       <UniqueIdentifier>{f5a887d6-c31f-4e53-9866-298d276906b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\shaders\fullscreen">
-      <UniqueIdentifier>{5d5bfacf-4b1b-42e0-975b-b637e78161bd}</UniqueIdentifier>
     </Filter>
     <Filter Include="networking">
       <UniqueIdentifier>{23c79627-6974-476a-9bf9-3a2b86f11791}</UniqueIdentifier>
