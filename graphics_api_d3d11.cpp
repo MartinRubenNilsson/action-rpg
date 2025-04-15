@@ -549,6 +549,7 @@ namespace api {
 		unsigned int height,
 		Format pixel_format,
 		const void* pixels) {}
+
 	void copy_texture(
 		TextureHandle dst_texture,
 		unsigned int dst_level,
@@ -566,7 +567,7 @@ namespace api {
 
 	void bind_texture(unsigned int binding, TextureHandle texture) {
 		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
-		//_device_context->PSSetShaderResources(binding, 1, &d3d11_srv);
+		_device_context->PSSetShaderResources(binding, 1, &d3d11_srv);
 		//_device_context->VSSetShaderResources(binding, 1, &d3d11_srv);
 		//_device_context->CSSetShaderResources(binding, 1, &d3d11_srv);
 	}
