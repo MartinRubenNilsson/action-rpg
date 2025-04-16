@@ -560,7 +560,32 @@ namespace api {
 		unsigned int width,
 		unsigned int height,
 		Format pixel_format,
-		const void* pixels) {}
+		const void* pixels
+	) {
+		if (!texture.object) return;
+		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
+		Microsoft::WRL::ComPtr<ID3D11Resource> resource{};
+		d3d11_srv->GetResource(&resource);
+		D3D11_BOX box{};
+		box.left = x;
+		box.top = y;
+		box.front = 0;
+		box.right = x + width;
+		box.bottom = y + height;
+		box.back = 1;
+		D3D11_SUBRESOURCE_DATA subresource_data{};
+		subresource_data.pSysMem = pixels;
+		subresource_data.SysMemPitch = width * _format_to_byte_width(pixel_format);
+		subresource_data.SysMemSlicePitch = 0;
+		_device_context->UpdateSubresource(
+			resource.Get(),
+			level,
+			&box,
+			pixels,
+			subresource_data.SysMemPitch,
+			subresource_data.SysMemSlicePitch
+		);
+	}
 
 	void copy_texture(
 		TextureHandle dst_texture,
