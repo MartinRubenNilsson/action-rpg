@@ -32,6 +32,11 @@ namespace api {
 		}
 	}
 
+	struct Framebuffer {
+		ID3D11RenderTargetView* rtv = nullptr;
+		ID3D11DepthStencilView* dsv = nullptr;
+	};
+
 	ID3D11Device* _device = nullptr;
 	ID3D11DeviceContext1* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
@@ -496,7 +501,7 @@ namespace api {
 		switch (format) {
 		case Format::R8_UNORM:     return 1;
 		case Format::RG8_UNORM:    return 2;
-		case Format::RGB8_UNORM:   return 4;
+		case Format::RGB8_UNORM:   return 3;
 		case Format::RGBA8_UNORM:  return 4;
 		case Format::R32_FLOAT:    return 4;
 		case Format::RG32_FLOAT:   return 8;
@@ -573,17 +578,13 @@ namespace api {
 		box.right = x + width;
 		box.bottom = y + height;
 		box.back = 1;
-		D3D11_SUBRESOURCE_DATA subresource_data{};
-		subresource_data.pSysMem = pixels;
-		subresource_data.SysMemPitch = width * _format_to_byte_width(pixel_format);
-		subresource_data.SysMemSlicePitch = 0;
 		_device_context->UpdateSubresource(
 			resource.Get(),
 			level,
 			&box,
 			pixels,
-			subresource_data.SysMemPitch,
-			subresource_data.SysMemSlicePitch
+			width * _format_to_byte_width(pixel_format),
+			0
 		);
 	}
 
@@ -648,7 +649,7 @@ namespace api {
 	D3D11_TEXTURE_ADDRESS_MODE _wrap_to_d3d11_texture_address_mode(Wrap wrap) {
 		switch (wrap) {
 		case Wrap::Repeat:             return D3D11_TEXTURE_ADDRESS_WRAP;
-		case Wrap::MirroredRepeat:     return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+		case Wrap::MirroredRepeat:     return D3D11_TEXTURE_ADDRESS_MIRROR;
 		case Wrap::ClampToEdge:        return D3D11_TEXTURE_ADDRESS_CLAMP;
 		case Wrap::ClampToBorder:      return D3D11_TEXTURE_ADDRESS_BORDER;
 		case Wrap::MirrorClampToEdge:  return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
