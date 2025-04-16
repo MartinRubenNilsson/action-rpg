@@ -514,7 +514,7 @@ namespace api {
 		texture_desc.ArraySize = 1;
 		texture_desc.Format = _format_to_dxgi_format(desc.format);
 		texture_desc.SampleDesc.Count = 1;
-		texture_desc.Usage = D3D11_USAGE_DEFAULT;
+		texture_desc.Usage = D3D11_USAGE_DEFAULT; // D3D11_USAGE_IMMUTABLE?
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		HRESULT result = S_OK;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture{};
@@ -575,7 +575,33 @@ namespace api {
 		unsigned int src_z,
 		unsigned int src_width,
 		unsigned int src_height,
-		unsigned int src_depth) {}
+		unsigned int src_depth
+	) {
+		if (!dst_texture.object || !src_texture.object) return;
+		ID3D11ShaderResourceView* d3d11_dst_srv = (ID3D11ShaderResourceView*)dst_texture.object;
+		ID3D11ShaderResourceView* d3d11_src_srv = (ID3D11ShaderResourceView*)src_texture.object;
+		Microsoft::WRL::ComPtr<ID3D11Resource> dst_resource;
+		Microsoft::WRL::ComPtr<ID3D11Resource> src_resource;
+		d3d11_dst_srv->GetResource(&dst_resource);
+		d3d11_src_srv->GetResource(&src_resource);
+		D3D11_BOX src_box{};
+		src_box.left = src_x;
+		src_box.top = src_y;
+		src_box.front = src_z;
+		src_box.right = src_x + src_width;
+		src_box.bottom = src_y + src_height;
+		src_box.back = src_z + src_depth;
+		_device_context->CopySubresourceRegion(
+			dst_resource.Get(),
+			dst_level,
+			dst_x,
+			dst_y,
+			dst_z,
+			src_resource.Get(),
+			src_level,
+			&src_box
+		);
+	}
 
 	void bind_texture(unsigned int binding, TextureHandle texture) {
 		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
