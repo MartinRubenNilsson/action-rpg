@@ -189,7 +189,7 @@ namespace graphics {
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
 			.format = Format::RGBA8_UNORM,
-			.framebuffer = true
+			.framebuffer_color = true
 		}));
 
 		game_pong_framebuffer = create_framebuffer({
@@ -200,7 +200,7 @@ namespace graphics {
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
 			.format = Format::RGBA8_UNORM,
-			.framebuffer = true
+			.framebuffer_color = true
 		}));
 
 		player_outfit_framebuffer = create_framebuffer({
@@ -211,7 +211,7 @@ namespace graphics {
 			.width = 1024, // size of player tileset
 			.height = 1024, // size of player tileset
 			.format = Format::RGBA8_UNORM,
-			.framebuffer = true
+			.framebuffer_color = true
 		}));
 	}
 

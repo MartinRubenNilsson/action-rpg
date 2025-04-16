@@ -291,10 +291,10 @@ namespace api {
 	void bind_sampler(unsigned int binding, SamplerHandle sampler) {}
 
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) { return FramebufferHandle(); }
-	void destroy_framebuffer(FramebufferHandle framebuffer) {}
-	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer, TextureHandle texture) { return true; }
-	void clear_framebuffer_color(FramebufferHandle framebuffer, const float color[4]) {}
-	void bind_framebuffer(FramebufferHandle framebuffer) {}
+	void destroy_framebuffer(FramebufferHandle framebuffer_color) {}
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, TextureHandle texture) { return true; }
+	void clear_framebuffer_color(FramebufferHandle framebuffer_color, const float color[4]) {}
+	void bind_framebuffer(FramebufferHandle framebuffer_color) {}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {}
 	void set_scissors(const Rect* scissors, unsigned int count) {}

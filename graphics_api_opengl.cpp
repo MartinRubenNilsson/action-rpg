@@ -514,21 +514,21 @@ namespace api {
 		return FramebufferHandle{ framebuffer_object };
 	}
 
-	void destroy_framebuffer(FramebufferHandle framebuffer) {
-		glDeleteFramebuffers(1, (GLuint*)&framebuffer.object);
+	void destroy_framebuffer(FramebufferHandle framebuffer_color) {
+		glDeleteFramebuffers(1, (GLuint*)&framebuffer_color.object);
 	}
 
-	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer, TextureHandle texture) {
-		glNamedFramebufferTexture((GLuint)framebuffer.object, GL_COLOR_ATTACHMENT0, (GLuint)texture.object, 0);
-		return glCheckNamedFramebufferStatus((GLuint)framebuffer.object, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, TextureHandle texture) {
+		glNamedFramebufferTexture((GLuint)framebuffer_color.object, GL_COLOR_ATTACHMENT0, (GLuint)texture.object, 0);
+		return glCheckNamedFramebufferStatus((GLuint)framebuffer_color.object, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer_color(FramebufferHandle framebuffer, const float color[4]) {
-		glClearNamedFramebufferfv((GLuint)framebuffer.object, GL_COLOR, 0, color);
+	void clear_framebuffer_color(FramebufferHandle framebuffer_color, const float color[4]) {
+		glClearNamedFramebufferfv((GLuint)framebuffer_color.object, GL_COLOR, 0, color);
 	}
 
-	void bind_framebuffer(FramebufferHandle framebuffer) {
-		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer.object);
+	void bind_framebuffer(FramebufferHandle framebuffer_color) {
+		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer_color.object);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {

@@ -531,7 +531,7 @@ namespace api {
 		texture_desc.SampleDesc.Count = 1;
 		texture_desc.Usage = D3D11_USAGE_DEFAULT; // D3D11_USAGE_IMMUTABLE?
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		if (desc.framebuffer) {
+		if (desc.framebuffer_color) {
 			texture_desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 		}
 		HRESULT result = S_OK;
