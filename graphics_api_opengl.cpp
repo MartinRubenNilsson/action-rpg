@@ -591,6 +591,7 @@ namespace api {
 	}
 
 	void draw_indexed(unsigned int index_count) {
+		//TODO: replace with glDrawElementsBaseVertex 
 		glDrawElements(_primitives_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr);
 	}
 

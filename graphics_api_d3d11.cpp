@@ -745,8 +745,8 @@ namespace api {
 		_device_context->Draw(vertex_count, vertex_offset);
 	}
 
-	void draw_indexed(unsigned int index_count) {
-		_device_context->DrawIndexed(index_count, 0, 0);
+	void draw_indexed(unsigned int index_count, unsigned int index_offset, unsigned int vertex_offset) {
+		_device_context->DrawIndexed(index_count, index_offset, vertex_offset);
 	}
 
 } // namespace api
