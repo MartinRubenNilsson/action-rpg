@@ -59,6 +59,7 @@ namespace graphics {
 		unsigned int height = 0;
 		Format format = Format::UNKNOWN;
 		const void* initial_data = nullptr;
+		bool framebuffer = false; // If true, the texture can be used as a framebuffer attachment.
 	};
 
 	enum class Filter {

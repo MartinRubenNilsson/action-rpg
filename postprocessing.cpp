@@ -64,9 +64,9 @@ namespace postprocessing {
 			shockwave_ub.size = shockwave.size;
 			shockwave_ub.thickness = shockwave.thickness;
 			graphics::update_buffer(graphics::shockwave_uniform_buffer, &shockwave_ub, sizeof(shockwave_ub));
-			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
-			graphics::bind_framebuffer(graphics::game_framebuffer_0);
+			std::swap(graphics::game_ping_framebuffer, graphics::game_pong_framebuffer);
+			graphics::bind_framebuffer(graphics::game_ping_framebuffer);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_pong_framebuffer));
 			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
 	}
@@ -75,6 +75,8 @@ namespace postprocessing {
 		if (_darkness_intensity == 0.f) return;
 		if (graphics::darkness_frag == Handle<graphics::FragmentShader>()) return;
 		graphics::ScopedDebugGroup debug_group("postprocesssing::_render_darkness()");
+		std::swap(graphics::game_ping_framebuffer, graphics::game_pong_framebuffer);
+		graphics::bind_framebuffer(graphics::game_ping_framebuffer);
 		graphics::bind_fragment_shader(graphics::darkness_frag);
 		graphics::DarknessUniformBlock darkness_ub{};
 		darkness_ub.resolution = Vector2f(GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT);
@@ -84,9 +86,7 @@ namespace postprocessing {
 		darkness_ub.intensity = _darkness_intensity;
 		graphics::update_buffer(graphics::darkness_uniform_buffer, &darkness_ub, sizeof(darkness_ub));
 		graphics::bind_uniform_buffer(1, graphics::darkness_uniform_buffer);
-		std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
-		graphics::bind_framebuffer(graphics::game_framebuffer_0);
+		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_pong_framebuffer));
 		graphics::draw(3); // draw a fullscreen-covering triangle
 	}
 
@@ -94,14 +94,14 @@ namespace postprocessing {
 		if (_screen_transition_progress == 0.f) return;
 		if (graphics::screen_transition_frag == Handle<graphics::FragmentShader>()) return;
 		graphics::ScopedDebugGroup debug_group("postprocessing::_render_screen_transition()");
+		std::swap(graphics::game_ping_framebuffer, graphics::game_pong_framebuffer);
+		graphics::bind_framebuffer(graphics::game_ping_framebuffer);
 		graphics::bind_fragment_shader(graphics::screen_transition_frag);
 		graphics::ScreenTransitionUniformBlock screen_transition_ub{};
 		screen_transition_ub.progress = _screen_transition_progress;
 		graphics::update_buffer(graphics::screen_transition_uniform_buffer, &screen_transition_ub, sizeof(screen_transition_ub));
 		graphics::bind_uniform_buffer(1, graphics::screen_transition_uniform_buffer);
-		std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
-		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
-		graphics::bind_framebuffer(graphics::game_framebuffer_0);
+		graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_pong_framebuffer));
 		graphics::draw(3); // draw a fullscreen-covering triangle
 	}
 
@@ -113,16 +113,16 @@ namespace postprocessing {
 		graphics::bind_sampler(0, graphics::linear_sampler);
 		for (size_t i = 0; i < _gaussian_blur_iterations; ++i) {
 			// Horizontal pass
-			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
+			std::swap(graphics::game_ping_framebuffer, graphics::game_pong_framebuffer);
+			graphics::bind_framebuffer(graphics::game_ping_framebuffer);
 			graphics::bind_fragment_shader(graphics::gaussian_blur_hor_frag);
-			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
-			graphics::bind_framebuffer(graphics::game_framebuffer_0);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_pong_framebuffer));
 			graphics::draw(3); // draw a fullscreen-covering triangle
 			// Vertical pass
-			std::swap(graphics::game_framebuffer_0, graphics::game_framebuffer_1);
+			std::swap(graphics::game_ping_framebuffer, graphics::game_pong_framebuffer);
+			graphics::bind_framebuffer(graphics::game_ping_framebuffer);
 			graphics::bind_fragment_shader(graphics::gaussian_blur_ver_frag);
-			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_1));
-			graphics::bind_framebuffer(graphics::game_framebuffer_0);
+			graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_pong_framebuffer));
 			graphics::draw(3); // draw a fullscreen-covering triangle
 		}
 		graphics::bind_sampler(0, graphics::nearest_sampler);

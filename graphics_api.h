@@ -114,8 +114,8 @@ namespace api {
 	FramebufferHandle get_default_framebuffer(); // aka the swap chain back buffer
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc);
 	void destroy_framebuffer(FramebufferHandle framebuffer);
-	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture);
-	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]);
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer, unsigned int buffer, TextureHandle texture);
+	void clear_framebuffer_color(FramebufferHandle framebuffer, unsigned int buffer, const float color[4]);
 	void bind_framebuffer(FramebufferHandle framebuffer);
 
 	void set_viewports(const Viewport* viewports, unsigned int count);

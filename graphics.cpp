@@ -488,7 +488,7 @@ namespace graphics {
 		if (!framebuffer) return;
 		Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) return;
-		if (!api::attach_framebuffer_texture(framebuffer->api_handle, texture->api_handle)) {
+		if (!api::attach_framebuffer_color_texture(framebuffer->api_handle, 0, texture->api_handle)) {
 			console::log_error(
 				"Failed to attach texture " +
 				std::string(texture->desc.debug_name) +
@@ -510,12 +510,12 @@ namespace graphics {
 	}
 
 	void clear_default_framebuffer(const float color[4]) {
-		api::clear_framebuffer(api::get_default_framebuffer(), color);
+		api::clear_framebuffer_color(api::get_default_framebuffer(), 0, color);
 	}
 
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]) {
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			api::clear_framebuffer(framebuffer->api_handle, color);
+			api::clear_framebuffer_color(framebuffer->api_handle, 0, color);
 		}
 	}
 

@@ -42,8 +42,8 @@ namespace graphics {
 	Handle<Sampler> nearest_sampler;
 	Handle<Sampler> linear_sampler;
 
-	Handle<Framebuffer> game_framebuffer_0;
-	Handle<Framebuffer> game_framebuffer_1;
+	Handle<Framebuffer> game_ping_framebuffer;
+	Handle<Framebuffer> game_pong_framebuffer;
 	Handle<Framebuffer> player_outfit_framebuffer;
 
 	void _initialize_shaders_and_vertex_inputs() {
@@ -181,34 +181,37 @@ namespace graphics {
 	}
 
 	void _initialize_framebuffers() {
-		game_framebuffer_0 = create_framebuffer({
-			.debug_name = "game framebuffer 0"
+		game_ping_framebuffer = create_framebuffer({
+			.debug_name = "game ping framebuffer"
 		});
-		attach_framebuffer_texture(game_framebuffer_0, create_texture({
-			.debug_name = "game framebuffer texture 0",
+		attach_framebuffer_texture(game_ping_framebuffer, create_texture({
+			.debug_name = "game ping framebuffer color texture",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
-			.format = Format::RGBA8_UNORM
+			.format = Format::RGBA8_UNORM,
+			.framebuffer = true
 		}));
 
-		game_framebuffer_1 = create_framebuffer({
-			.debug_name = "game framebuffer 1"
+		game_pong_framebuffer = create_framebuffer({
+			.debug_name = "game pong framebuffer"
 		});
-		attach_framebuffer_texture(game_framebuffer_1, create_texture({
-			.debug_name = "game framebuffer texture 1",
+		attach_framebuffer_texture(game_pong_framebuffer, create_texture({
+			.debug_name = "game pong framebuffer color texture",
 			.width = GAME_FRAMEBUFFER_WIDTH,
 			.height = GAME_FRAMEBUFFER_HEIGHT,
-			.format = Format::RGBA8_UNORM
+			.format = Format::RGBA8_UNORM,
+			.framebuffer = true
 		}));
 
 		player_outfit_framebuffer = create_framebuffer({
 			.debug_name = "player outfit framebuffer"
 		});
 		attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
-			.debug_name = "player outfit texture",
+			.debug_name = "player outfit framebuffer color texture",
 			.width = 1024, // size of player tileset
 			.height = 1024, // size of player tileset
-			.format = Format::RGBA8_UNORM
+			.format = Format::RGBA8_UNORM,
+			.framebuffer = true
 		}));
 	}
 

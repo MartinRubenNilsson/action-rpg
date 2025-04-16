@@ -101,8 +101,8 @@ namespace graphics {
 
 	// FRAMEBUFFERS
 
-	extern Handle<Framebuffer> game_framebuffer_0; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
-	extern Handle<Framebuffer> game_framebuffer_1; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> game_ping_framebuffer; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
+	extern Handle<Framebuffer> game_pong_framebuffer; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
 
 	void initialize_globals();

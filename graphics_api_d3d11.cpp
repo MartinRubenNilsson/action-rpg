@@ -32,8 +32,8 @@ namespace api {
 		}
 	}
 
-	struct Framebuffer {
-		ID3D11RenderTargetView* rtv = nullptr;
+	struct FramebufferImpl {
+		ID3D11RenderTargetView* rtvs[D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		ID3D11DepthStencilView* dsv = nullptr;
 	};
 
@@ -46,6 +46,7 @@ namespace api {
 #endif
 	IDXGISwapChain* _swap_chain = nullptr;
 	ID3D11RenderTargetView* _swap_chain_back_buffer_rtv = nullptr;
+	FramebufferImpl _default_framebuffer_impl = {}; // rtvs[0] = _swap_chain_back_buffer_rtv
 
 	template <class T>
 	void _set_debug_name(T* object, std::string_view name) {
@@ -99,7 +100,7 @@ namespace api {
 			}
 			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
 			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
-			//_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
 			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_INFO, TRUE);
 			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_MESSAGE, TRUE);
 			result = device_context->QueryInterface(IID_PPV_ARGS(&_user_defined_annotation));
@@ -137,13 +138,14 @@ namespace api {
 				_output_debug_message("Failed to get DXGI swap chain back buffer");
 				return false;
 			}
-			_set_debug_name(back_buffer.Get(), "BackBuffer");
+			_set_debug_name(back_buffer.Get(), "swap chain back buffer texture");
 			result = _device->CreateRenderTargetView(back_buffer.Get(), nullptr, &_swap_chain_back_buffer_rtv);
 			if (FAILED(result)) {
 				_output_debug_message("Failed to create DXGI swap chain back buffer RTV");
 				return false;
 			}
-			_set_debug_name(_swap_chain_back_buffer_rtv, "BackBufferRTV");
+			_set_debug_name(_swap_chain_back_buffer_rtv, "swap chain back buffer rtv");
+			_default_framebuffer_impl.rtvs[0] = _swap_chain_back_buffer_rtv;
 		}
 		return true;
 	}
@@ -156,6 +158,7 @@ namespace api {
 	}
 
 	void shutdown() {
+		_default_framebuffer_impl = {};
 		_safe_release(_swap_chain_back_buffer_rtv);
 		_safe_release(_swap_chain);
 #ifdef GRAPHICS_API_DEBUG
@@ -167,8 +170,15 @@ namespace api {
 		}
 		_safe_release(_device_context);
 		_safe_release(_device);
-		_safe_release(_info_queue);
 #ifdef GRAPHICS_API_DEBUG
+		if (_info_queue) {
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, FALSE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, FALSE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, FALSE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_INFO, FALSE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_MESSAGE, FALSE);
+		}
+		_safe_release(_info_queue);
 		if (_debug) {
 			_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
 		}
@@ -521,6 +531,9 @@ namespace api {
 		texture_desc.SampleDesc.Count = 1;
 		texture_desc.Usage = D3D11_USAGE_DEFAULT; // D3D11_USAGE_IMMUTABLE?
 		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		if (desc.framebuffer) {
+			texture_desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+		}
 		HRESULT result = S_OK;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture{};
 		if (desc.initial_data) {
@@ -603,7 +616,8 @@ namespace api {
 		unsigned int src_height,
 		unsigned int src_depth
 	) {
-		if (!dst_texture.object || !src_texture.object) return;
+		if (!dst_texture.object) return;
+		if (!src_texture.object) return;
 		ID3D11ShaderResourceView* d3d11_dst_srv = (ID3D11ShaderResourceView*)dst_texture.object;
 		ID3D11ShaderResourceView* d3d11_src_srv = (ID3D11ShaderResourceView*)src_texture.object;
 		Microsoft::WRL::ComPtr<ID3D11Resource> dst_resource;
@@ -690,22 +704,84 @@ namespace api {
 	}
 
 	FramebufferHandle get_default_framebuffer() {
-		return FramebufferHandle{ .object = (uintptr_t)_swap_chain_back_buffer_rtv };
+		return FramebufferHandle{ .object = (uintptr_t)&_default_framebuffer_impl };
 	}
 
-	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) { return FramebufferHandle(); }
-	void destroy_framebuffer(FramebufferHandle framebuffer) {}
-	bool attach_framebuffer_texture(FramebufferHandle framebuffer, TextureHandle texture) { return true; }
+	FramebufferHandle create_framebuffer(const FramebufferDesc& desc) {
+		return FramebufferHandle{ .object = (uintptr_t)new FramebufferImpl() };
+	}
 
-	void clear_framebuffer(FramebufferHandle framebuffer, const float color[4]) {
+	void destroy_framebuffer(FramebufferHandle framebuffer) {
 		if (!framebuffer.object) return;
-		ID3D11RenderTargetView* d3d11_rtv = (ID3D11RenderTargetView*)framebuffer.object;
+		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
+		if (framebuffer_impl == &_default_framebuffer_impl) {
+			_output_debug_message("Cannot destroy default framebuffer");
+			return;
+		}
+		for (unsigned int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+			_safe_release(framebuffer_impl->rtvs[i]);
+		}
+		_safe_release(framebuffer_impl->dsv);
+		delete framebuffer_impl;
+	}
+
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer, unsigned int buffer, TextureHandle texture) {
+		if (!framebuffer.object) return false;
+		if (buffer >= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) return false;
+		if (!texture.object) return false;
+		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
+		if (framebuffer_impl == &_default_framebuffer_impl) {
+			_output_debug_message("Cannot attach color texture to default framebuffer");
+			return false;
+		}
+		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
+		Microsoft::WRL::ComPtr<ID3D11Resource> d3d11_resource{};
+		d3d11_srv->GetResource(&d3d11_resource);
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture{};
+		if (FAILED(d3d11_resource->QueryInterface(IID_PPV_ARGS(&d3d11_texture)))) {
+			_output_debug_message("Failed to query texture from shader resource view");
+			return false;
+		}
+		D3D11_TEXTURE2D_DESC texture_desc{};
+		d3d11_texture->GetDesc(&texture_desc);
+		if (!(texture_desc.BindFlags & D3D11_BIND_RENDER_TARGET)) {
+			_output_debug_message("Texture cannot be used as render target");
+			return false;
+		}
+		D3D11_RENDER_TARGET_VIEW_DESC rtv_desc{};
+		rtv_desc.Format = texture_desc.Format;
+		rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		rtv_desc.Texture2D.MipSlice = 0;
+		ID3D11RenderTargetView* d3d11_rtv = nullptr;
+		HRESULT result = _device->CreateRenderTargetView(d3d11_texture.Get(), &rtv_desc, &d3d11_rtv);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create render target view");
+			return false;
+		}
+		_set_debug_name(d3d11_rtv, "Framebuffer color texture RTV");
+		framebuffer_impl->rtvs[buffer] = d3d11_rtv;
+		return true;
+	}
+
+	void clear_framebuffer_color(FramebufferHandle framebuffer, unsigned int buffer, const float color[4]) {
+		if (!framebuffer.object) return;
+		if (buffer >= D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) return;
+		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
+		ID3D11RenderTargetView* d3d11_rtv = framebuffer_impl->rtvs[buffer];
+		if (!d3d11_rtv) return;
 		_device_context->ClearRenderTargetView(d3d11_rtv, color);
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer) {
-		ID3D11RenderTargetView* d3d11_rtv = (ID3D11RenderTargetView*)framebuffer.object;
-		_device_context->OMSetRenderTargets(1, &d3d11_rtv, nullptr);
+		if (!framebuffer.object) {
+			_device_context->OMSetRenderTargets(0, nullptr, nullptr);
+			return;
+		}
+		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
+		_device_context->OMSetRenderTargets(
+			D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
+			framebuffer_impl->rtvs,
+			framebuffer_impl->dsv);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {

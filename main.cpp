@@ -283,8 +283,10 @@ int main(int argc, char* argv[]) {
         }
 
 		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 1.f };
-        graphics::clear_framebuffer(graphics::game_framebuffer_0, CLEAR_COLOR);
-        graphics::bind_framebuffer(graphics::game_framebuffer_0);
+        graphics::clear_framebuffer(graphics::game_ping_framebuffer, CLEAR_COLOR);
+		// Try to ensure game_ping_framebuffer is unbound as input before binding it as output
+        graphics::bind_texture(0, Handle<graphics::Texture>());
+        graphics::bind_framebuffer(graphics::game_ping_framebuffer);
         graphics::set_viewport({ .width = GAME_FRAMEBUFFER_WIDTH, .height = GAME_FRAMEBUFFER_HEIGHT });
 
         background::draw_sprites(camera_min, camera_max);
@@ -311,7 +313,7 @@ int main(int argc, char* argv[]) {
 			graphics::clear_default_framebuffer(CLEAR_COLOR);
             graphics::bind_vertex_shader(graphics::fullscreen_vert);
             graphics::bind_fragment_shader(graphics::fullscreen_frag);
-            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_framebuffer_0));
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_ping_framebuffer));
             int window_framebuffer_width = 0;
             int window_framebuffer_height = 0;
             window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
