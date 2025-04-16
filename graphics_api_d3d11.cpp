@@ -36,6 +36,7 @@ namespace api {
 	ID3D11DeviceContext1* _device_context = nullptr;
 #ifdef GRAPHICS_API_DEBUG
 	ID3D11Debug* _debug = nullptr;
+	ID3D11InfoQueue* _info_queue = nullptr;
 	ID3DUserDefinedAnnotation* _user_defined_annotation = nullptr;
 #endif
 	IDXGISwapChain* _swap_chain = nullptr;
@@ -86,6 +87,16 @@ namespace api {
 				_output_debug_message("Failed to query D3D11 debug device");
 				return false;
 			}
+			result = _debug->QueryInterface(IID_PPV_ARGS(&_info_queue));
+			if (FAILED(result)) {
+				_output_debug_message("Failed to query D3D11 info queue");
+				return false;
+			}
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
+			//_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_WARNING, TRUE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_INFO, TRUE);
+			_info_queue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_MESSAGE, TRUE);
 			result = device_context->QueryInterface(IID_PPV_ARGS(&_user_defined_annotation));
 			if (FAILED(result)) {
 				_output_debug_message("Failed to query D3D11 user defined annotation");
@@ -151,6 +162,7 @@ namespace api {
 		}
 		_safe_release(_device_context);
 		_safe_release(_device);
+		_safe_release(_info_queue);
 #ifdef GRAPHICS_API_DEBUG
 		if (_debug) {
 			_debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
@@ -679,11 +691,11 @@ namespace api {
 	void set_scissor_test_enabled(bool enable) {}
 
 	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
-		//_device_context->Draw(vertex_count, vertex_offset);
+		_device_context->Draw(vertex_count, vertex_offset);
 	}
 
 	void draw_indexed(unsigned int index_count) {
-		//_device_context->DrawIndexed(index_count, 0, 0);
+		_device_context->DrawIndexed(index_count, 0, 0);
 	}
 
 } // namespace api

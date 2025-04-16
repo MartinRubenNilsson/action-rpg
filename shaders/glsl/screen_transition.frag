@@ -7,6 +7,8 @@ layout(std140, binding = 1) uniform ScreenTransitionUniformBlock
 	float progress;
 };
 
+layout(location = 0) in vec2 tex_coord; // unused
+
 layout(location = 0) out vec4 frag_color;
 
 void main()

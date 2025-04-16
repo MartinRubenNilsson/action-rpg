@@ -317,6 +317,7 @@ namespace graphics {
 	}
 
 	void _bind_globals() {
+		bind_vertex_input(sprite_vertex_input);
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
 		bind_uniform_buffer(0, frame_uniform_buffer);

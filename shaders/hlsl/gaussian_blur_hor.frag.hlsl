@@ -6,9 +6,11 @@ SamplerState _tex_sampler : register(s0);
 
 static float4 gl_FragCoord;
 static float4 frag_color;
+static float2 tex_coord;
 
 struct SPIRV_Cross_Input
 {
+    float2 tex_coord : TEXCOORD0;
     float4 gl_FragCoord : SV_Position;
 };
 
@@ -40,6 +42,7 @@ SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 {
     gl_FragCoord = stage_input.gl_FragCoord;
     gl_FragCoord.w = 1.0 / gl_FragCoord.w;
+    tex_coord = stage_input.tex_coord;
     frag_main();
     SPIRV_Cross_Output stage_output;
     stage_output.frag_color = frag_color;

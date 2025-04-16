@@ -6,6 +6,8 @@ uniform sampler2D tex;
 const float offsets[3] = { 0.0, 1.3846153846, 3.2307692308 };
 const float weights[3] = { 0.2270270270, 0.3162162162, 0.0702702703 };
 
+layout(location = 0) in vec2 tex_coord; // unused
+
 layout(location = 0) out vec4 frag_color;
 
 void main()
