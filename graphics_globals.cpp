@@ -112,7 +112,8 @@ namespace graphics {
 				.binary = binary
 			});
 			VertexInputAttribDesc vertex_input_attribs[] = {
-				{.format = Format::RGB32_FLOAT, .offset = offsetof(Vertex, position) },
+				{.format = Format::RG32_FLOAT, .offset = offsetof(Vertex, position) },
+				// FIXME: normalized is not supported in d3d11
 				{.format = Format::RGBA8_UNORM, .offset = offsetof(Vertex, color), .normalized = true },
 				{.format = Format::RG32_FLOAT,  .offset = offsetof(Vertex, tex_coord) },
 			};
