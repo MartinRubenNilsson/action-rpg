@@ -158,7 +158,11 @@ int main(int argc, char* argv[]) {
                 if (ev.type == window::EventType::WindowClose) {
                     window::set_should_close(true);
 				} else if (ev.type == window::EventType::FramebufferSize) {
-					graphics::resize_swap_chain_buffers(ev.size.width, ev.size.height);
+					// When the window is minimized, an event is sent with size 0, 0,
+                    // which we must therefore ignore.
+					if (ev.size.width && ev.size.height) {
+					    graphics::resize_swap_chain_buffers(ev.size.width, ev.size.height);
+					}
                 }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
                     if (ev.key.code == window::Key::GraveAccent) {
