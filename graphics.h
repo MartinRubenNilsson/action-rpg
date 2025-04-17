@@ -19,6 +19,9 @@ namespace graphics {
 
 	bool is_spirv_supported();
 
+	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height);
+	void present_swap_chain_back_buffer();
+
 	void push_debug_group(std::string_view name);
 	void pop_debug_group();
 
@@ -88,8 +91,6 @@ namespace graphics {
 
 	void draw(unsigned int vertex_count, unsigned int vertex_offset = 0);
 	void draw_indexed(unsigned int index_count);
-
-	void swap_buffers();
 
 	void show_texture_debug_window();
 }

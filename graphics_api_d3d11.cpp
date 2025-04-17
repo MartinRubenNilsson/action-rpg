@@ -57,6 +57,23 @@ namespace api {
 #endif
 	}
 
+	bool _initialize_swap_chain_back_buffer_rtv_and_default_framebuffer_impl() {
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer_texture;
+		HRESULT result = _swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer_texture));
+		if (FAILED(result)) {
+			_output_debug_message("Failed to get swap chain back buffer");
+			return false;
+		}
+		_set_debug_name(back_buffer_texture.Get(), "swap chain back buffer texture");
+		result = _device->CreateRenderTargetView(back_buffer_texture.Get(), nullptr, &_swap_chain_back_buffer_rtv);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create swap chain back buffer RTV");
+			return false;
+		}
+		_set_debug_name(_swap_chain_back_buffer_rtv, "swap chain back buffer rtv");
+		_default_framebuffer_impl.rtvs[0] = _swap_chain_back_buffer_rtv;
+	}
+
 	bool initialize(const InitializeOptions& options) {
 		HRESULT result = S_OK;
 		{
@@ -132,20 +149,7 @@ namespace api {
 			}
 		}
 		{
-			Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer;
-			result = _swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
-			if (FAILED(result)) {
-				_output_debug_message("Failed to get DXGI swap chain back buffer");
-				return false;
-			}
-			_set_debug_name(back_buffer.Get(), "swap chain back buffer texture");
-			result = _device->CreateRenderTargetView(back_buffer.Get(), nullptr, &_swap_chain_back_buffer_rtv);
-			if (FAILED(result)) {
-				_output_debug_message("Failed to create DXGI swap chain back buffer RTV");
-				return false;
-			}
-			_set_debug_name(_swap_chain_back_buffer_rtv, "swap chain back buffer rtv");
-			_default_framebuffer_impl.rtvs[0] = _swap_chain_back_buffer_rtv;
+			
 		}
 		return true;
 	}
@@ -198,8 +202,33 @@ namespace api {
 		return _device_context;
 	}
 
-	void swap_buffers() {
-		if (!_swap_chain) return;
+	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height) {
+		if (new_width == 0 || new_height == 0) {
+			_output_debug_message("Invalid swap chain width or height");
+			return false;
+		}
+		// Need to release all outstanding references to the swap chain's back buffer(s) before resizing:
+		// https://learn.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgiswapchain-resizebuffers#remarks
+		_default_framebuffer_impl = {};
+		_safe_release(_swap_chain_back_buffer_rtv);
+		_device_context->OMSetRenderTargets(0, nullptr, nullptr); // In case the back buffer is bound as RTV
+		// Resize the swap chain buffers.
+		HRESULT result = _swap_chain->ResizeBuffers(
+			0, // keep the number of buffers as-is
+			new_width,
+			new_height,
+			DXGI_FORMAT_UNKNOWN, // keep the format as-is
+			0
+		);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to resize swap chain buffers");
+			return false;
+		}
+		_initialize_swap_chain_back_buffer_rtv_and_default_framebuffer_impl();
+		return true;
+	}
+
+	void present_swap_chain_back_buffer() {
 		_swap_chain->Present(0, 0);
 	}
 

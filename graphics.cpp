@@ -191,6 +191,26 @@ namespace graphics {
 		return api::is_spirv_supported();
 	}
 
+	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height) {
+#ifdef GRAPHICS_API_OPENGL
+		// The window owns the swap chain, so this is a no-op.
+		return true;
+#endif
+#ifdef GRAPHICS_API_D3D11
+		return api::resize_swap_chain_buffers(new_width, new_height);
+#endif
+	}
+
+	void present_swap_chain_back_buffer() {
+#ifdef GRAPHICS_API_OPENGL
+		// The window owns the swap chain.
+		window::present_swap_chain_back_buffer();
+#endif
+#ifdef GRAPHICS_API_D3D11
+		api::present_swap_chain_back_buffer();
+#endif
+	}
+
 	void push_debug_group(std::string_view name) {
 		api::push_debug_group(name);
 	}
@@ -563,15 +583,6 @@ namespace graphics {
 
 	void draw_indexed(unsigned int index_count) {
 		api::draw_indexed(index_count);
-	}
-
-	void swap_buffers() {
-#ifdef GRAPHICS_API_OPENGL
-		window::swap_buffers();
-#endif
-#ifdef GRAPHICS_API_D3D11
-		api::swap_buffers();
-#endif
 	}
 
 	void show_texture_debug_window() {

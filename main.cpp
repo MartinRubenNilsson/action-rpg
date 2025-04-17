@@ -147,6 +147,7 @@ int main(int argc, char* argv[]) {
         window::poll_events();
 
 #ifdef _DEBUG_IMGUI
+        // TODO: should this be moved to after the window event loop?
         imgui_impl::new_frame();
 #endif
 
@@ -156,6 +157,8 @@ int main(int argc, char* argv[]) {
             while (window::pop_event(ev)) {
                 if (ev.type == window::EventType::WindowClose) {
                     window::set_should_close(true);
+				} else if (ev.type == window::EventType::FramebufferSize) {
+					graphics::resize_swap_chain_buffers(ev.size.width, ev.size.height);
                 }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
                     if (ev.key.code == window::Key::GraveAccent) {
@@ -373,7 +376,7 @@ int main(int argc, char* argv[]) {
         }
 #endif
 
-        graphics::swap_buffers();
+        graphics::present_swap_chain_back_buffer();
 
 #ifdef _DEBUG_RENDERDOC
         renderdoc::open_capture_folder_if_capturing();

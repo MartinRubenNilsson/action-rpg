@@ -162,7 +162,10 @@ namespace window
 
 		// FINAL SETUP
 
+#ifdef GRAPHICS_API_OPENGL
+		//TODO: move to graphics.cpp
 		set_swap_interval(0); // Disable vsync
+#endif
 		set_cursor_shape(CursorShape::HandPoint);
 		set_icon_from_file("assets/window/swordsman.png");
 
@@ -323,7 +326,6 @@ namespace window
 		return string ? string : "";
 	}
 
-
 #ifdef GRAPHICS_API_OPENGL
 	void make_opengl_context_current() {
 		glfwMakeContextCurrent(window::_window);
@@ -333,7 +335,7 @@ namespace window
 		return (GLADloadproc)glfwGetProcAddress;
 	}
 
-	void swap_buffers() {
+	void present_swap_chain_back_buffer() {
 		glfwSwapBuffers(_window);
 	}
 #endif

@@ -16,20 +16,19 @@
 #include <RmlUi/Debugger.h>
 #endif
 
-namespace ui
-{
+namespace ui {
 	// All documents share this event listener.
-	struct CommonEventListener : Rml::EventListener
-	{
-		void ProcessEvent(Rml::Event& ev) override
-		{
+	struct CommonEventListener : Rml::EventListener {
+		void ProcessEvent(Rml::Event& ev) override {
 			switch (ev.GetId()) {
-			case Rml::EventId::Mouseover: {
+			case Rml::EventId::Mouseover:
+			{
 				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
 					audio::create_event({ .path = "event:/ui/snd_button_hover" });
 				}
 			} break;
-			case Rml::EventId::Click: {
+			case Rml::EventId::Click:
+			{
 				if (ev.GetTargetElement()->IsClassSet("menu-button")) {
 					audio::create_event({ .path = "event:/ui/snd_button_click" });
 				}
@@ -39,7 +38,7 @@ namespace ui
 	};
 
 	constexpr float _DT_ACCUMULATOR_MIN = 1.0f / 60.0f;
-	float _dt_accumulator = 0.f; 
+	float _dt_accumulator = 0.f;
 	bool debug = false;
 	RmlUiSystemInterface _system_interface;
 	RmlUiRenderInterface _render_interface;
@@ -50,8 +49,7 @@ namespace ui
 	CommonEventListener _common_event_listener;
 	std::vector<Event> _events;
 
-	void _on_escape_key_pressed()
-	{
+	void _on_escape_key_pressed() {
 		MenuType current_menu = get_top_menu();
 		if (current_menu == MenuType::Count) // no menus are open
 			push_menu(MenuType::Pause);
@@ -59,10 +57,8 @@ namespace ui
 			pop_menu();
 	}
 
-	namespace bindings
-	{
-		void on_click_play()
-		{
+	namespace bindings {
+		void on_click_play() {
 			pop_all_menus();
 			set_hud_visible(true);
 			_events.push_back({ EventType::PlayGame });
@@ -88,14 +84,12 @@ namespace ui
 			pop_menu();
 		}
 
-		void on_click_restart()
-		{
+		void on_click_restart() {
 			pop_menu();
 			_events.push_back({ EventType::RestartMap });
 		}
 
-		void on_click_main_menu()
-		{
+		void on_click_main_menu() {
 			set_hud_visible(false);
 			pop_all_menus();
 			push_menu(MenuType::Main);
@@ -103,8 +97,7 @@ namespace ui
 		}
 	}
 
-	void initialize()
-	{
+	void initialize() {
 		Rml::SetSystemInterface(&_system_interface);
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
@@ -118,8 +111,7 @@ namespace ui
 		create_textbox_presets();
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		Rml::Shutdown();
 		_context = nullptr;
 #ifdef _DEBUG_UI
@@ -127,8 +119,7 @@ namespace ui
 #endif
 	}
 
-	Rml::Input::KeyIdentifier _translate_key_identifier_to_rml(window::Key key)
-	{
+	Rml::Input::KeyIdentifier _translate_key_identifier_to_rml(window::Key key) {
 		switch (key) {
 		case window::Key::A:         return Rml::Input::KI_A;
 		case window::Key::B:         return Rml::Input::KI_B;
@@ -180,10 +171,10 @@ namespace ui
 		case window::Key::Right:     return Rml::Input::KI_RIGHT;
 		case window::Key::Up:        return Rml::Input::KI_UP;
 		case window::Key::Down:      return Rml::Input::KI_DOWN;
-		//case window::Key::Add:       return Rml::Input::KI_ADD;
+			//case window::Key::Add:       return Rml::Input::KI_ADD;
 		case window::Key::Backspace: return Rml::Input::KI_BACK;
 		case window::Key::Delete:    return Rml::Input::KI_DELETE;
-		//case window::Key::Divide:    return Rml::Input::KI_DIVIDE;
+			//case window::Key::Divide:    return Rml::Input::KI_DIVIDE;
 		case window::Key::End:       return Rml::Input::KI_END;
 		case window::Key::Escape:    return Rml::Input::KI_ESCAPE;
 		case window::Key::F1:        return Rml::Input::KI_F1;
@@ -205,20 +196,19 @@ namespace ui
 		case window::Key::Insert:    return Rml::Input::KI_INSERT;
 		case window::Key::LControl:  return Rml::Input::KI_LCONTROL;
 		case window::Key::LShift:    return Rml::Input::KI_LSHIFT;
-		//case window::Key::Multiply:  return Rml::Input::KI_MULTIPLY;
+			//case window::Key::Multiply:  return Rml::Input::KI_MULTIPLY;
 		case window::Key::Pause:     return Rml::Input::KI_PAUSE;
 		case window::Key::RControl:  return Rml::Input::KI_RCONTROL;
-		//case window::Key::Return:    return Rml::Input::KI_RETURN;
+			//case window::Key::Return:    return Rml::Input::KI_RETURN;
 		case window::Key::RShift:    return Rml::Input::KI_RSHIFT;
 		case window::Key::Space:     return Rml::Input::KI_SPACE;
-		//case window::Key::Subtract:  return Rml::Input::KI_SUBTRACT;
+			//case window::Key::Subtract:  return Rml::Input::KI_SUBTRACT;
 		case window::Key::Tab:       return Rml::Input::KI_TAB;
 		default:                     return Rml::Input::KI_UNKNOWN;
 		}
 	}
 
-	int _translate_key_modifier_flags_to_rml(int key_modifier_flags)
-	{
+	int _translate_key_modifier_flags_to_rml(int key_modifier_flags) {
 		int rml_key_modifiers = 0;
 		if (key_modifier_flags & window::MODIFIER_KEY_CONTROL)   rml_key_modifiers |= Rml::Input::KM_CTRL;
 		if (key_modifier_flags & window::MODIFIER_KEY_SHIFT)     rml_key_modifiers |= Rml::Input::KM_SHIFT;
@@ -230,10 +220,10 @@ namespace ui
 		return rml_key_modifiers;
 	}
 
-	void process_window_event(const window::Event& ev)
-	{
+	void process_window_event(const window::Event& ev) {
 		switch (ev.type) {
-		case window::EventType::FramebufferSize: {
+		case window::EventType::FramebufferSize:
+		{
 			set_viewport(ev.size.width, ev.size.height);
 			_context->SetDimensions(Rml::Vector2i(ev.size.width, ev.size.height));
 #ifdef _DEBUG_UI
@@ -246,7 +236,8 @@ namespace ui
 			// Don't set density independent pixel ratio for the debugger context!
 			// It should always be 1.0, so that it remains the same size.
 		} break;
-		case window::EventType::KeyPress: {
+		case window::EventType::KeyPress:
+		{
 			if (ev.key.code == window::Key::Escape) {
 				_on_escape_key_pressed();
 			}
@@ -257,7 +248,8 @@ namespace ui
 			_debugger_context->ProcessKeyDown(key_identifier, key_modifier_flags);
 #endif
 		} break;
-		case window::EventType::KeyRelease: {
+		case window::EventType::KeyRelease:
+		{
 			Rml::Input::KeyIdentifier key_identifier = _translate_key_identifier_to_rml(ev.key.code);
 			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.key.modifier_key_flags);
 			_context->ProcessKeyUp(key_identifier, key_modifier_flags);
@@ -265,7 +257,8 @@ namespace ui
 			_debugger_context->ProcessKeyUp(key_identifier, key_modifier_flags);
 #endif
 		} break;
-		case window::EventType::MouseMove: {
+		case window::EventType::MouseMove:
+		{
 			// CRITICAL: We get big frame drops when calling ProcessMouseMove() a lot,
 			// since it invokes a heavy update hover chain call. This happens when for example
 			// when we move the mouse around a lot. I dropped from 350 FPS to 230 FPS!
@@ -281,14 +274,16 @@ namespace ui
 			}
 #endif
 		} break;
-		case window::EventType::MouseButtonPress: {
+		case window::EventType::MouseButtonPress:
+		{
 			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
 			_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_flags);
 #ifdef _DEBUG_UI
 			_debugger_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_flags);
 #endif
 		} break;
-		case window::EventType::MouseButtonRelease: {
+		case window::EventType::MouseButtonRelease:
+		{
 			int key_modifier_flags = _translate_key_modifier_flags_to_rml(ev.mouse_button.modifier_key_flags);
 			_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_flags);
 #ifdef _DEBUG_UI
@@ -296,15 +291,18 @@ namespace ui
 #endif
 		} break;
 #if 0
-		case sf::Event::MouseWheelMoved: {
+		case sf::Event::MouseWheelMoved:
+		{
 			_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_flags);
 			_debugger_context->ProcessMouseWheel(float(-ev.mouseWheel.delta), key_modifier_flags);
 		} break;
-		case sf::Event::MouseLeft: {
+		case sf::Event::MouseLeft:
+		{
 			_context->ProcessMouseLeave();
 			_debugger_context->ProcessMouseLeave();
 		} break;
-		case sf::Event::TextEntered: {
+		case sf::Event::TextEntered:
+		{
 			Rml::Outfit c = Rml::Outfit(ev.text.unicode);
 			if (c == Rml::Outfit('\r')) {
 				c = Rml::Outfit('\n');
@@ -318,8 +316,7 @@ namespace ui
 		}
 	}
 
-	void update(float dt)
-	{
+	void update(float dt) {
 		// As an optimization, update the UI at a lower FPS than the game.
 		_dt_accumulator += dt;
 		if (_dt_accumulator < _DT_ACCUMULATOR_MIN) return;
@@ -336,8 +333,7 @@ namespace ui
 #endif
 	}
 
-	void render()
-	{
+	void render() {
 		prepare_render_state();
 		_context->Render();
 #ifdef _DEBUG_UI
@@ -346,13 +342,11 @@ namespace ui
 		restore_render_state();
 	}
 
-	void load_font_from_file(const std::string& path)
-	{
+	void load_font_from_file(const std::string& path) {
 		Rml::LoadFontFace(path);
 	}
 
-	void load_document_from_file(const std::string& path)
-	{
+	void load_document_from_file(const std::string& path) {
 		Rml::ElementDocument* doc = _context->LoadDocument(path);
 		if (!doc) {
 			console::log_error("Failed to load RmlUi document: " + path);
@@ -361,8 +355,7 @@ namespace ui
 		doc->SetId(filesystem::get_stem(path));
 	}
 
-	void add_event_listeners()
-	{
+	void add_event_listeners() {
 		// Add common event listener to all documents.
 		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
 			Rml::ElementDocument* doc = _context->GetDocument(i);
@@ -374,30 +367,26 @@ namespace ui
 		add_textbox_event_listeners();
 	}
 
-	void reload_styles()
-	{
+	void reload_styles() {
 		for (int i = 0; i < _context->GetNumDocuments(); ++i) {
 			_context->GetDocument(i)->ReloadStyleSheet();
 		}
 	}
 
-	void show_document(const std::string& name)
-	{
+	void show_document(const std::string& name) {
 		if (Rml::ElementDocument* doc = _context->GetDocument(name)) {
 			doc->Show();
 		}
 	}
 
-	bool get_next_event(Event& ev)
-	{
+	bool get_next_event(Event& ev) {
 		if (_events.empty()) return false;
 		ev = _events.back();
 		_events.pop_back();
 		return true;
 	}
 
-	bool is_menu_or_textbox_visible()
-	{
+	bool is_menu_or_textbox_visible() {
 		return (get_top_menu() != MenuType::Count) || is_textbox_open();
 	}
 }

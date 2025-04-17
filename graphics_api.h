@@ -40,7 +40,8 @@ namespace api {
 #ifdef GRAPHICS_API_D3D11
 	ID3D11Device* get_d3d11_device();
 	ID3D11DeviceContext* get_d3d11_device_context();
-	void swap_buffers();
+	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height);
+	void present_swap_chain_back_buffer(); // Swaps the front and back buffers
 #endif
 
 	void push_debug_group(std::string_view name);

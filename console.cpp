@@ -179,8 +179,9 @@ namespace console {
 	void process_window_event(const window::Event& ev) {
 		if (ev.type == window::EventType::KeyPress) {
 			auto it = _key_bindings.find(ev.key.code);
-			if (it != _key_bindings.end())
+			if (it != _key_bindings.end()) {
 				execute(it->second);
+			}
 		}
 	}
 
