@@ -807,6 +807,50 @@ namespace api {
 		_device_context->ClearRenderTargetView(d3d11_rtv, color);
 	}
 
+	D3D11_FILL_MODE _polygon_mode_to_d3d11_fill_mode(PolygonMode polygon_mode) {
+		switch (polygon_mode) {
+		case PolygonMode::Fill: return D3D11_FILL_SOLID;
+		case PolygonMode::Line: return D3D11_FILL_WIREFRAME;
+		default:                return D3D11_FILL_SOLID;
+		}
+	}
+
+	D3D11_CULL_MODE _cull_mode_to_d3d11_cull_mode(CullMode cull_mode) {
+		switch (cull_mode) {
+		case CullMode::None:  return D3D11_CULL_NONE;
+		case CullMode::Front: return D3D11_CULL_FRONT;
+		case CullMode::Back:  return D3D11_CULL_BACK;
+		default:              return D3D11_CULL_NONE;
+		}
+	}
+
+	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc) {
+		D3D11_RASTERIZER_DESC rasterizer_desc{};
+		rasterizer_desc.FillMode = _polygon_mode_to_d3d11_fill_mode(desc.polygon_mode);
+		rasterizer_desc.CullMode = _cull_mode_to_d3d11_cull_mode(desc.cull_mode);
+		rasterizer_desc.FrontCounterClockwise = desc.front_face_ccw ? TRUE : FALSE;
+		ID3D11RasterizerState* rasterizer_state = nullptr;
+		HRESULT result = _device->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create rasterizer state: " + std::string(desc.debug_name));
+			return RasterizerStateHandle();
+		}
+		_set_debug_name(rasterizer_state, desc.debug_name);
+		return RasterizerStateHandle{ .object = (uintptr_t)rasterizer_state };
+	}
+
+	void destroy_rasterizer_state(RasterizerStateHandle state) {
+		if (!state.object) return;
+		ID3D11RasterizerState* d3d11_rasterizer_state = (ID3D11RasterizerState*)state.object;
+		d3d11_rasterizer_state->Release();
+	}
+
+	void bind_rasterizer_state(RasterizerStateHandle state) {
+		// SIC: Allow binding a null state to unbind the current state.
+		ID3D11RasterizerState* d3d11_rasterizer_state = (ID3D11RasterizerState*)state.object;
+		_device_context->RSSetState(d3d11_rasterizer_state);
+	}
+
 	void bind_framebuffer(FramebufferHandle framebuffer) {
 		if (!framebuffer.object) {
 			_device_context->OMSetRenderTargets(0, nullptr, nullptr);

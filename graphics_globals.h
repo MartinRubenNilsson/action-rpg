@@ -105,5 +105,9 @@ namespace graphics {
 	extern Handle<Framebuffer> game_pong_framebuffer; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
 
+	// RASTERIZER STATES
+
+	extern Handle<RasterizerState> default_rasterizer_state;
+
 	void initialize_globals();
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "graphics_types.h"
-#include "fwd.h"
+#include "handle.h"
 #include <string_view>
 
 // graphics.h - High-level graphics API
@@ -13,6 +13,8 @@ namespace graphics {
 	struct Buffer;
 	struct Texture;
 	struct Framebuffer;
+	struct Sampler;
+	struct RasterizerState;
 
 	void initialize();
 	void shutdown();
@@ -80,6 +82,9 @@ namespace graphics {
 	void clear_default_framebuffer(const float color[4]);
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
+
+	Handle<RasterizerState> create_rasterizer_state(RasterizerStateDesc&& desc);
+	void bind_rasterizer_state(Handle<RasterizerState> handle);
 
 	void set_primitives(Primitives primitives);
 	void set_viewport(const Viewport& viewport);

@@ -86,6 +86,24 @@ namespace graphics {
 		std::string_view debug_name = "framebuffer";
 	};
 
+	enum class PolygonMode {
+		Fill,
+		Line,
+	};
+
+	enum class CullMode {
+		None,
+		Front,
+		Back,
+	};
+
+	struct RasterizerStateDesc {
+		std::string_view debug_name = "rasterizer state";
+		PolygonMode polygon_mode = PolygonMode::Fill;
+		CullMode cull_mode = CullMode::Back;
+		bool front_face_ccw = true; // If true, the front face is counter-clockwise
+	};
+
 	enum class Primitives {
 		PointList,
 		LineList,

@@ -119,6 +119,12 @@ namespace api {
 	void clear_framebuffer_color(FramebufferHandle framebuffer, unsigned int buffer, const float color[4]);
 	void bind_framebuffer(FramebufferHandle framebuffer);
 
+	struct RasterizerStateHandle { uintptr_t object = 0; };
+
+	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc);
+	void destroy_rasterizer_state(RasterizerStateHandle state);
+	void bind_rasterizer_state(RasterizerStateHandle state);
+
 	void set_viewports(const Viewport* viewports, unsigned int count);
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);

@@ -46,6 +46,11 @@ namespace graphics {
 		Handle<Texture> texture;
 	};
 
+	struct RasterizerState {
+		api::RasterizerStateHandle api_handle{};
+		RasterizerStateDesc desc{};
+	};
+
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
@@ -55,9 +60,10 @@ namespace graphics {
 	Pool<Buffer> _buffer_pool;
 	Pool<Texture> _texture_pool;
 	std::unordered_map<std::string, Handle<Texture>> _path_to_texture;
+	unsigned int _total_texture_memory_usage_in_bytes = 0;
 	Pool<Sampler> _sampler_pool;
 	Pool<Framebuffer> _framebuffer_pool;
-	unsigned int _total_texture_memory_usage_in_bytes = 0;
+	Pool<RasterizerState> _rasterizer_state_pool;
 
 #ifdef GRAPHICS_API_DEBUG
 	void _debug_message_callback(std::string_view message) {
@@ -183,6 +189,15 @@ namespace graphics {
 			}
 		}
 		_framebuffer_pool.clear();
+
+		// DELETE RASTERIZER STATES
+
+		for (RasterizerState& rasterizer_state : _rasterizer_state_pool.span()) {
+			if (rasterizer_state.api_handle.object) {
+				api::destroy_rasterizer_state(rasterizer_state.api_handle);
+				rasterizer_state.api_handle = api::RasterizerStateHandle();
+			}
+		}
 
 		api::shutdown();
 	}
@@ -544,6 +559,20 @@ namespace graphics {
 			return framebuffer->texture;
 		}
 		return Handle<Texture>();
+	}
+
+	Handle<RasterizerState> create_rasterizer_state(RasterizerStateDesc&& desc) {
+		api::RasterizerStateHandle api_handle = api::create_rasterizer_state(desc);
+		if (!api_handle.object) return Handle<RasterizerState>();
+		return _rasterizer_state_pool.emplace(api_handle, desc);
+	}
+
+	void bind_rasterizer_state(Handle<RasterizerState> handle) {
+		if (handle == Handle<RasterizerState>()) {
+			api::bind_rasterizer_state(api::RasterizerStateHandle());
+		} else if (const RasterizerState* state = _rasterizer_state_pool.get(handle)) {
+			api::bind_rasterizer_state(state->api_handle);
+		}
 	}
 
 	void set_primitives(Primitives primitives) {

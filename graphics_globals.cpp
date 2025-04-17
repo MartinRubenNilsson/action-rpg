@@ -46,6 +46,8 @@ namespace graphics {
 	Handle<Framebuffer> game_pong_framebuffer;
 	Handle<Framebuffer> player_outfit_framebuffer;
 
+	Handle<RasterizerState> default_rasterizer_state;
+
 	void _initialize_shaders_and_vertex_inputs() {
 		std::vector<unsigned char> shader_code;
 #ifdef GRAPHICS_API_OPENGL
@@ -320,12 +322,19 @@ namespace graphics {
 		});
 	}
 
+	void _initialize_rasterizer_states() {
+		default_rasterizer_state = create_rasterizer_state({
+			.debug_name = "default rasterizer state",
+		});
+	}
+
 	void _bind_globals() {
 		bind_vertex_input(sprite_vertex_input);
 		bind_vertex_buffer(0, dynamic_vertex_buffer, sizeof(Vertex));
 		bind_index_buffer(dynamic_index_buffer);
 		bind_uniform_buffer(0, frame_uniform_buffer);
 		bind_sampler(0, nearest_sampler);
+		bind_rasterizer_state(default_rasterizer_state);
 	}
 
 	void initialize_globals() {
@@ -334,6 +343,7 @@ namespace graphics {
 		_initialize_buffers();
 		_initialize_textures();
 		_initialize_samplers();
+		_initialize_rasterizer_states();
 		_bind_globals();
 	}
 }
