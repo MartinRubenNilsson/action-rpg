@@ -137,12 +137,12 @@ namespace api {
 			}
 			DXGI_SWAP_CHAIN_DESC swap_chain_desc{};
 			swap_chain_desc.BufferCount = 2; // one front buffer, one back buffer
-			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swap_chain_desc.OutputWindow = (HWND)options.hwnd;
 			swap_chain_desc.SampleDesc.Count = 1;
 			swap_chain_desc.Windowed = TRUE;
-			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+			swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			result = factory->CreateSwapChain(_device, &swap_chain_desc, &_swap_chain);
 			if (FAILED(result)) {
 				_output_debug_message("Failed to create DXGI swap chain");
