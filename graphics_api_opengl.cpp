@@ -166,8 +166,6 @@ namespace api {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glEnable(GL_CULL_FACE); // otherwise glCullFace() will not work
-
 		return true;
 	}
 
@@ -565,20 +563,17 @@ namespace api {
 		}
 	}
 
-	GLenum _cull_mode_to_gl_cull_mode(CullMode mode) {
-		switch (mode) {
-		case CullMode::None:  return GL_NONE;
-		case CullMode::Front: return GL_FRONT;
-		case CullMode::Back:  return GL_BACK;
-		default:              return 0;
-		}
-	}
-
 	void bind_rasterizer_state(RasterizerStateHandle state) {
 		if (!state.object) return; // TODO: default state
 		RasterizerStateDesc* impl = (RasterizerStateDesc*)state.object;
 		glPolygonMode(GL_FRONT_AND_BACK, _polygon_mode_to_gl_polygon_mode(impl->polygon_mode));
-		glCullFace(_cull_mode_to_gl_cull_mode(impl->cull_mode));
+		if (impl->cull_mode == CullMode::None) {
+			glDisable(GL_CULL_FACE);
+		} else {
+			glEnable(GL_CULL_FACE);
+			glCullFace(impl->cull_mode == CullMode::Front ? GL_FRONT : GL_BACK);
+		}
+		glFrontFace(impl->front_face_ccw ? GL_CCW : GL_CW);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
