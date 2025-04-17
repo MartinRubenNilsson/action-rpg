@@ -300,7 +300,7 @@ namespace api {
 	void set_scissors(const Rect* scissors, unsigned int count) {}
 	void set_scissor_test_enabled(bool enable) {}
 
-	void draw(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {}
+	void draw_all(Primitives primitives, unsigned int vertex_count, unsigned int vertex_offset) {}
 	void draw_indexed(Primitives primitives, unsigned int index_count) {}
 
 } // namespace api

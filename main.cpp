@@ -327,7 +327,7 @@ int main(int argc, char* argv[]) {
 
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
-        shapes::draw("ECS debug", camera_min, camera_max);
+        shapes::draw_all("shapes::draw_all() [ECS debug]", camera_min, camera_max);
         shapes::update_lifetimes(game_delta_time);
 #endif
         ui::render();

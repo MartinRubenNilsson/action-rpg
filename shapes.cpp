@@ -117,21 +117,21 @@ namespace shapes {
 		_update_lifetimes(_circles, dt);
 	}
 
-	void draw(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max) {
-		graphics::ScopedDebugGroup debug_group(debug_group_name);
+	void draw_all(std::string_view debug_group_name, const Vector2f& camera_min, const Vector2f& camera_max) {
+
+		// SETUP
 
 		_last_calculated_view_bounds.min_x = camera_min.x;
 		_last_calculated_view_bounds.min_y = camera_min.y;
 		_last_calculated_view_bounds.max_x = camera_max.x;
 		_last_calculated_view_bounds.max_y = camera_max.y;
 
-		// SETUP
-
 		_batches.clear();
 		graphics::temp_vertices.clear();
 
 		// CREATE LINE BATCH
-		{
+
+		if (!_lines.empty()) {
 			Batch& batch = _batches.emplace_back();
 			batch.primitive = graphics::Primitives::LineList;
 			batch.vertex_offset = (unsigned int)graphics::temp_vertices.size();
@@ -144,71 +144,73 @@ namespace shapes {
 		}
 
 		// CREATE BOX BATCHES
-		{
-			for (const Box& box : _boxes) {
-				if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
-				Batch& draw = _batches.emplace_back();
-				draw.primitive = graphics::Primitives::LineStrip;
-				draw.vertex_count = 5;
-				draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
-				graphics::temp_vertices.emplace_back(Vector2f{ box.min.x, box.min.y }, box.color);
-				graphics::temp_vertices.emplace_back(Vector2f{ box.max.x, box.min.y }, box.color);
-				graphics::temp_vertices.emplace_back(Vector2f{ box.max.x, box.max.y }, box.color);
-				graphics::temp_vertices.emplace_back(Vector2f{ box.min.x, box.max.y }, box.color);
-				graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
-			}
+
+		for (const Box& box : _boxes) {
+			if (_cull_box(_last_calculated_view_bounds, box.min, box.max)) continue;
+			Batch& draw = _batches.emplace_back();
+			draw.primitive = graphics::Primitives::LineStrip;
+			draw.vertex_count = 5;
+			draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
+			graphics::temp_vertices.emplace_back(Vector2f{ box.min.x, box.min.y }, box.color);
+			graphics::temp_vertices.emplace_back(Vector2f{ box.max.x, box.min.y }, box.color);
+			graphics::temp_vertices.emplace_back(Vector2f{ box.max.x, box.max.y }, box.color);
+			graphics::temp_vertices.emplace_back(Vector2f{ box.min.x, box.max.y }, box.color);
+			graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
 		}
 
 		// CREATE POLYGON BATCHES
-		{
-			for (const Polygon& polygon : _polygons) {
-				if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count)) continue;
-				Batch& draw = _batches.emplace_back();
-				draw.primitive = graphics::Primitives::LineStrip;
-				draw.vertex_count = polygon.count + 1;
-				draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
-				for (unsigned int i = 0; i < polygon.count; ++i) {
-					graphics::temp_vertices.emplace_back(polygon.points[i], polygon.color);
-				}
-				graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
+
+		for (const Polygon& polygon : _polygons) {
+			if (_cull_polygon(_last_calculated_view_bounds, polygon.points, polygon.count)) continue;
+			Batch& draw = _batches.emplace_back();
+			draw.primitive = graphics::Primitives::LineStrip;
+			draw.vertex_count = polygon.count + 1;
+			draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
+			for (unsigned int i = 0; i < polygon.count; ++i) {
+				graphics::temp_vertices.emplace_back(polygon.points[i], polygon.color);
 			}
+			graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
 		}
 
 		// CREATE CIRCLE BATCHES
-		{
+
+		for (const Circle& circle : _circles) {
 			constexpr unsigned int SUBDIVISIONS = 32;
 			constexpr float ANGLE_STEP = 6.283185307f / SUBDIVISIONS;
-			for (const Circle& circle : _circles) {
-				if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
-				Batch& draw = _batches.emplace_back();
-				draw.primitive = graphics::Primitives::LineStrip;
-				draw.vertex_count = SUBDIVISIONS + 1;
-				draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
-				for (unsigned int i = 0; i < SUBDIVISIONS; ++i) {
-					const float angle = i * ANGLE_STEP;
-					const Vector2f position = circle.center + circle.radius * Vector2f{ cos(angle), sin(angle) };
-					graphics::temp_vertices.emplace_back(position, circle.color);
-				}
-				graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
+			if (_cull_circle(_last_calculated_view_bounds, circle.center, circle.radius)) continue;
+			Batch& draw = _batches.emplace_back();
+			draw.primitive = graphics::Primitives::LineStrip;
+			draw.vertex_count = SUBDIVISIONS + 1;
+			draw.vertex_offset = (unsigned int)graphics::temp_vertices.size();
+			for (unsigned int i = 0; i < SUBDIVISIONS; ++i) {
+				const float angle = i * ANGLE_STEP;
+				const Vector2f position = circle.center + circle.radius * Vector2f{ cos(angle), sin(angle) };
+				graphics::temp_vertices.emplace_back(position, circle.color);
 			}
+			graphics::temp_vertices.emplace_back(graphics::temp_vertices[draw.vertex_offset]);
 		}
+
+		if (_batches.empty()) return; // nothing to draw
 
 		// DRAW BATCHES
+		{
+			graphics::ScopedDebugGroup debug_group(debug_group_name);
 
-		const unsigned int vertices_byte_size = (unsigned int)graphics::temp_vertices.size() * sizeof(graphics::Vertex);
-		if (vertices_byte_size <= graphics::get_buffer_size(graphics::dynamic_vertex_buffer)) {
-			graphics::update_buffer(graphics::dynamic_vertex_buffer, graphics::temp_vertices.data(), vertices_byte_size);
-		} else {
-			graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
-		}
+			const unsigned int vertices_byte_size = (unsigned int)graphics::temp_vertices.size() * sizeof(graphics::Vertex);
+			if (vertices_byte_size <= graphics::get_buffer_size(graphics::dynamic_vertex_buffer)) {
+				graphics::update_buffer(graphics::dynamic_vertex_buffer, graphics::temp_vertices.data(), vertices_byte_size);
+			} else {
+				graphics::recreate_buffer(graphics::dynamic_vertex_buffer, vertices_byte_size, graphics::temp_vertices.data());
+			}
 
-		graphics::bind_vertex_shader(graphics::shape_vert);
-		graphics::bind_fragment_shader(graphics::shape_frag);
-		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
-		graphics::set_primitives(graphics::Primitives::LineList);
+			graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
+			graphics::bind_vertex_shader(graphics::shape_vert);
+			graphics::bind_fragment_shader(graphics::shape_frag);
 
-		for (const Batch& draw : _batches) {
-			graphics::draw(draw.vertex_count, draw.vertex_offset);
+			for (const Batch& draw : _batches) {
+				graphics::set_primitives(draw.primitive);
+				graphics::draw(draw.vertex_count, draw.vertex_offset);
+			}
 		}
 
 		// CLEANUP

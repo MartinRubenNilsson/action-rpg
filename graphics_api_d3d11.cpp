@@ -344,6 +344,7 @@ namespace api {
 	}
 
 	void bind_vertex_shader(VertexShaderHandle shader) {
+		// SIC: Allow binding a null shader to unbind the current shader.
 		ID3D11VertexShader* d3d11_shader = (ID3D11VertexShader*)shader.object;
 		_device_context->VSSetShader(d3d11_shader, nullptr, 0);
 	}
@@ -389,6 +390,7 @@ namespace api {
 	}
 
 	void bind_fragment_shader(FragmentShaderHandle shader) {
+		// SIC: Allow binding a null shader to unbind the current shader.
 		ID3D11PixelShader* d3d11_shader = (ID3D11PixelShader*)shader.object;
 		_device_context->PSSetShader(d3d11_shader, nullptr, 0);
 	}
@@ -457,6 +459,7 @@ namespace api {
 	}
 
 	void bind_vertex_input(VertexInputHandle vertex_input) {
+		// SIC: Allow binding a null vertex input to unbind the current vertex input.
 		ID3D11InputLayout* d3d11_input_layout = (ID3D11InputLayout*)vertex_input.object;
 		_device_context->IASetInputLayout(d3d11_input_layout);
 	}
@@ -512,18 +515,21 @@ namespace api {
 	}
 
 	void bind_uniform_buffer(unsigned int binding, BufferHandle buffer) {
+		// SIC: Allow binding a null buffer to unbind the current buffer.
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		_device_context->VSSetConstantBuffers(binding, 1, &d3d11_buffer);
 		_device_context->PSSetConstantBuffers(binding, 1, &d3d11_buffer);
 	}
 
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {
+		// SIC: Allow binding a null buffer to unbind the current buffer.
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		_device_context->VSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 		_device_context->PSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 	}
 
 	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		// SIC: Allow binding a null buffer to unbind the current buffer.
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		const UINT strides[] = { stride };
 		const UINT offsets[] = { offset };
@@ -531,6 +537,7 @@ namespace api {
 	}
 	
 	void bind_index_buffer(BufferHandle buffer, unsigned int offset) {
+		// SIC: Allow binding a null buffer to unbind the current buffer.
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
 		_device_context->IASetIndexBuffer(d3d11_buffer, DXGI_FORMAT_R32_UINT, offset);
 	}
@@ -672,10 +679,9 @@ namespace api {
 	}
 
 	void bind_texture(unsigned int binding, TextureHandle texture) {
+		// SIC: Allow binding a null texture to unbind the current texture.
 		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
 		_device_context->PSSetShaderResources(binding, 1, &d3d11_srv);
-		//_device_context->VSSetShaderResources(binding, 1, &d3d11_srv);
-		//_device_context->CSSetShaderResources(binding, 1, &d3d11_srv);
 	}
 
 	D3D11_FILTER _filter_to_d3d11_filter(Filter filter) {
@@ -726,6 +732,7 @@ namespace api {
 	}
 
 	void bind_sampler(unsigned int binding, SamplerHandle sampler) {
+		// SIC: Allow binding a null sampler to unbind the current sampler.
 		ID3D11SamplerState* d3d11_sampler_state = (ID3D11SamplerState*)sampler.object;
 		_device_context->PSSetSamplers(binding, 1, &d3d11_sampler_state);
 		_device_context->VSSetSamplers(binding, 1, &d3d11_sampler_state);

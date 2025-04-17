@@ -586,7 +586,7 @@ namespace api {
 		}
 	}
 
-	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
+	void draw_all(unsigned int vertex_count, unsigned int vertex_offset) {
 		glDrawArrays(_primitives_to_gl_primitives(_primitives), vertex_offset, vertex_count);
 	}
 
