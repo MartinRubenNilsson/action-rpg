@@ -72,6 +72,7 @@ namespace api {
 		}
 		_set_debug_name(_swap_chain_back_buffer_rtv, "swap chain back buffer rtv");
 		_default_framebuffer_impl.rtvs[0] = _swap_chain_back_buffer_rtv;
+		return true;
 	}
 
 	bool initialize(const InitializeOptions& options) {
@@ -148,8 +149,8 @@ namespace api {
 				return false;
 			}
 		}
-		{
-			
+		if (!_initialize_swap_chain_back_buffer_rtv_and_default_framebuffer_impl()) {
+			return false;
 		}
 		return true;
 	}
@@ -234,7 +235,6 @@ namespace api {
 
 	void push_debug_group(std::string_view name) {
 #ifdef GRAPHICS_API_DEBUG
-		if (!_user_defined_annotation) return;
 		wchar_t wide_name[256] = {};
 		MultiByteToWideChar(CP_UTF8, 0, name.data(), (int)name.size(), wide_name, std::size(wide_name) - 1);
 		_user_defined_annotation->BeginEvent(wide_name);
@@ -243,7 +243,6 @@ namespace api {
 
 	void pop_debug_group() {
 #ifdef GRAPHICS_API_DEBUG
-		if (!_user_defined_annotation) return;
 		_user_defined_annotation->EndEvent();
 #endif
 	}
