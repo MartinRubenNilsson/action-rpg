@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "window.h"
 #include "window_events.h"
+#include "window_graphics.h"
 #include "console.h"
 #include "images.h"
 #include <GLFW/glfw3.h>
@@ -162,10 +163,6 @@ namespace window
 
 		// FINAL SETUP
 
-#ifdef GRAPHICS_API_OPENGL
-		//TODO: move to graphics.cpp
-		set_swap_interval(0); // Disable vsync
-#endif
 		set_cursor_shape(CursorShape::HandPoint);
 		set_icon_from_file("assets/window/swordsman.png");
 
@@ -267,13 +264,6 @@ namespace window
 		glfwGetFramebufferSize(_window, &width, &height);
 	}
 
-	void set_swap_interval(int interval) {
-		static int last_interval = 0;
-		if (interval == last_interval) return;
-		last_interval = interval;
-		glfwSwapInterval(interval);
-	}
-
 	void set_title(const std::string& title) {
 		glfwSetWindowTitle(_window, title.c_str());
 	}
@@ -333,6 +323,13 @@ namespace window
 
 	GLADloadproc get_glad_load_proc() {
 		return (GLADloadproc)glfwGetProcAddress;
+	}
+
+	void set_swap_interval(int interval) {
+		static int last_interval = INT_MAX;
+		if (interval == last_interval) return;
+		last_interval = interval;
+		glfwSwapInterval(interval);
 	}
 
 	void present_swap_chain_back_buffer() {

@@ -325,6 +325,7 @@ namespace graphics {
 	void _initialize_rasterizer_states() {
 		default_rasterizer_state = create_rasterizer_state({
 			.debug_name = "default rasterizer state",
+			.cull_mode = CullMode::None
 		});
 	}
 

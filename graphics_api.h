@@ -131,7 +131,7 @@ namespace api {
 	void set_primitives(Primitives primitives);
 
 	void draw(unsigned int vertex_count, unsigned int vertex_offset = 0);
-	void draw_indexed(unsigned int index_count, unsigned int index_offset = 0, unsigned int vertex_offset = 0);
+	void draw_indexed(unsigned int index_count, unsigned int base_vertex = 0);
 
 } // namespace api
 } // namespace graphics

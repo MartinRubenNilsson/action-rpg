@@ -166,6 +166,8 @@ namespace api {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		glEnable(GL_CULL_FACE); // otherwise glCullFace() will not work
+
 		return true;
 	}
 
@@ -351,12 +353,24 @@ namespace api {
 		glBindBufferRange(GL_UNIFORM_BUFFER, binding, (GLuint)buffer.object, offset, size);
 	}
 
-	void bind_vertex_buffer(VertexInputHandle sprite_vertex_input, unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
-		glVertexArrayVertexBuffer((GLuint)sprite_vertex_input.object, binding, (GLuint)buffer.object, offset, stride);
+	void bind_vertex_buffer(unsigned int binding, BufferHandle buffer, unsigned int stride, unsigned int offset) {
+		GLint vertex_array_object = 0;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertex_array_object);
+		if (vertex_array_object == 0) {
+			_output_debug_message("No vertex array object is bound");
+			return;
+		}
+		glVertexArrayVertexBuffer(vertex_array_object, binding, (GLuint)buffer.object, offset, stride);
 	}
 
-	void bind_index_buffer(VertexInputHandle sprite_vertex_input, BufferHandle buffer) {
-		glVertexArrayElementBuffer((GLuint)sprite_vertex_input.object, (GLuint)buffer.object);
+	void bind_index_buffer(BufferHandle buffer, unsigned int /*offset*/) {
+		GLint vertex_array_object = 0;
+		glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vertex_array_object);
+		if (vertex_array_object == 0) {
+			_output_debug_message("No vertex array object is bound");
+			return;
+		}
+		glVertexArrayElementBuffer(vertex_array_object, (GLuint)buffer.object);
 	}
 
 	GLenum _to_gl_base_format(Format format) {
@@ -518,17 +532,53 @@ namespace api {
 		glDeleteFramebuffers(1, (GLuint*)&framebuffer_color.object);
 	}
 
-	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, TextureHandle texture) {
-		glNamedFramebufferTexture((GLuint)framebuffer_color.object, GL_COLOR_ATTACHMENT0, (GLuint)texture.object, 0);
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, unsigned int buffer, TextureHandle texture) {
+		glNamedFramebufferTexture((GLuint)framebuffer_color.object, GL_COLOR_ATTACHMENT0 + buffer, (GLuint)texture.object, 0);
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer_color.object, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer_color(FramebufferHandle framebuffer_color, const float color[4]) {
-		glClearNamedFramebufferfv((GLuint)framebuffer_color.object, GL_COLOR, 0, color);
+	void clear_framebuffer_color(FramebufferHandle framebuffer_color, unsigned int buffer, const float color[4]) {
+		glClearNamedFramebufferfv((GLuint)framebuffer_color.object, GL_COLOR, buffer, color);
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer_color) {
 		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer_color.object);
+	}
+
+	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc) {
+		RasterizerStateDesc* impl = new RasterizerStateDesc(desc);
+		impl->debug_name = {};
+		return RasterizerStateHandle{ .object = (uintptr_t)impl };
+	}
+
+	void destroy_rasterizer_state(RasterizerStateHandle state) {
+		if (!state.object) return;
+		RasterizerStateDesc* impl = (RasterizerStateDesc*)state.object;
+		delete impl;
+	}
+
+	GLenum _polygon_mode_to_gl_polygon_mode(PolygonMode mode) {
+		switch (mode) {
+		case PolygonMode::Fill: return GL_FILL;
+		case PolygonMode::Line: return GL_LINE;
+		default:                return 0;
+		}
+	}
+
+	GLenum _cull_mode_to_gl_cull_mode(CullMode mode) {
+		switch (mode) {
+		case CullMode::None:  return GL_NONE;
+		case CullMode::Front: return GL_FRONT;
+		case CullMode::Back:  return GL_BACK;
+		default:              return 0;
+		}
+	}
+
+	void bind_rasterizer_state(RasterizerStateHandle state) {
+		if (!state.object) return; // TODO: default state
+		RasterizerStateDesc* impl = (RasterizerStateDesc*)state.object;
+		glPolygonMode(GL_FRONT_AND_BACK, _polygon_mode_to_gl_polygon_mode(impl->polygon_mode));
+		glCullFace(_cull_mode_to_gl_cull_mode(impl->cull_mode));
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
@@ -586,13 +636,12 @@ namespace api {
 		}
 	}
 
-	void draw_all(unsigned int vertex_count, unsigned int vertex_offset) {
+	void draw(unsigned int vertex_count, unsigned int vertex_offset) {
 		glDrawArrays(_primitives_to_gl_primitives(_primitives), vertex_offset, vertex_count);
 	}
 
-	void draw_indexed(unsigned int index_count) {
-		//TODO: replace with glDrawElementsBaseVertex 
-		glDrawElements(_primitives_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr);
+	void draw_indexed(unsigned int index_count, unsigned int base_vertex) {
+		glDrawElementsBaseVertex(_primitives_to_gl_primitives(_primitives), index_count, GL_UNSIGNED_INT, nullptr, base_vertex);
 	}
 
 } // namespace api
