@@ -1,5 +1,6 @@
 #pragma once
 #include <string_view>
+#include <initializer_list>
 #include <span>
 
 namespace graphics {
@@ -35,7 +36,7 @@ namespace graphics {
 
 	struct VertexInputDesc {
 		std::string_view debug_name = "vertex input";
-		std::span<VertexInputAttribDesc> attributes;
+		std::initializer_list<VertexInputAttribDesc> attributes;
 		std::span<const unsigned char> bytecode; // Only needed for D3D11
 	};
 

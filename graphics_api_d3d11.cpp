@@ -410,7 +410,7 @@ namespace api {
 	}
 
 	VertexInputHandle create_vertex_input(const VertexInputDesc& desc) {
-		if (desc.attributes.empty()) {
+		if (std::empty(desc.attributes)) {
 			_output_debug_message("Vertex input attributes are empty: " + std::string(desc.debug_name));
 			return VertexInputHandle();
 		}
@@ -425,7 +425,7 @@ namespace api {
 		D3D11_INPUT_ELEMENT_DESC d3d11_input_elements[D3D11_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
 		const UINT d3d11_input_element_count = (UINT)desc.attributes.size();
 		for (UINT i = 0; i < d3d11_input_element_count; ++i) {
-			const VertexInputAttribDesc& attrib = desc.attributes[i];
+			const VertexInputAttribDesc& attrib = *(desc.attributes.begin() + i);
 			// These are the HLSL semantics outputted by SPIRV-Cross, which maps a GLSL
 			// vertex input with location i to a HLSL vertex input with semantic TEXCOORDi.
 			d3d11_input_elements[i].SemanticName = "TEXCOORD";
