@@ -3,14 +3,15 @@
 // images.h - Wrapper for stb_image.h
 
 namespace images {
-	unsigned char* load(
-		const char* filename,
-		unsigned int* width,
-		unsigned int* height,
-		unsigned int* channels_in_file,
-		unsigned int desired_channels = 0);
-	void free(unsigned char* retval_from_load);
-	const char* failure_reason();
 
-	void flip_vertically(void* pixels, unsigned int width, unsigned int height, unsigned int bytes_per_pixel);
+	struct Image {
+		unsigned int width = 0;
+		unsigned int height = 0;
+		unsigned int channels = 0;
+		void* data = nullptr;
+		void* _private = nullptr; // For internal use only
+	};
+
+	bool load_image(const std::string& path, Image& image);
+	void free_image(Image& image);
 }

@@ -142,24 +142,27 @@ namespace window
 
 		// LOAD AND CREATE CUSTOM CURSORS
 
-		unsigned int width, height, channels;
-		unsigned char* pixels = images::load("assets/textures/cursors/cursor32x32.png", &width, &height, &channels, 4);
-		constexpr int CURSOR_SIZE = 32;
-		constexpr int CURSOR_SIZE_BYTES = CURSOR_SIZE * CURSOR_SIZE * 4;
-		if (width == CURSOR_SIZE && height == CURSOR_SIZE * 10 && pixels) {
-			GLFWimage image{};
-			image.height = CURSOR_SIZE;
-			image.width = CURSOR_SIZE;
-			image.pixels = pixels;
-			_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
-			image.pixels += CURSOR_SIZE_BYTES;
-			_cursors[(int)CursorShape::HandPointUp] = glfwCreateCursor(&image, 0, 0);
-			image.pixels += CURSOR_SIZE_BYTES;
-			_cursors[(int)CursorShape::HandGrab] = glfwCreateCursor(&image, 0, 0);
-			image.pixels += CURSOR_SIZE_BYTES;
-			_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
+		images::Image cursor_image{};
+		if (!images::load_image("assets/textures/cursors/cursor32x32.png", cursor_image)) {
+			console::log_error("Failed to load cursor image");
+		} else {
+			constexpr int CURSOR_SIZE = 32;
+			constexpr int CURSOR_SIZE_BYTES = CURSOR_SIZE * CURSOR_SIZE * 4;
+			if (cursor_image.width == CURSOR_SIZE && cursor_image.height == CURSOR_SIZE * 10 && cursor_image.data) {
+				GLFWimage image{};
+				image.height = CURSOR_SIZE;
+				image.width = CURSOR_SIZE;
+				image.pixels = (unsigned char*)cursor_image.data;
+				_cursors[(int)CursorShape::HandPoint] = glfwCreateCursor(&image, 0, 0);
+				image.pixels += CURSOR_SIZE_BYTES;
+				_cursors[(int)CursorShape::HandPointUp] = glfwCreateCursor(&image, 0, 0);
+				image.pixels += CURSOR_SIZE_BYTES;
+				_cursors[(int)CursorShape::HandGrab] = glfwCreateCursor(&image, 0, 0);
+				image.pixels += CURSOR_SIZE_BYTES;
+				_cursors[(int)CursorShape::Quill] = glfwCreateCursor(&image, 0, 0);
+			}
+			images::free_image(cursor_image);
 		}
-		images::free(pixels);
 
 		// FINAL SETUP
 
@@ -277,14 +280,13 @@ namespace window
 	}
 
 	void set_icon_from_file(const std::string& path) {
-		unsigned int width, height, channels;
-		unsigned char* pixels = images::load(path.c_str(), &width, &height, &channels, 4);
-		if (!pixels) {
+		images::Image image{};
+		if (!images::load_image(path, image)) {
 			console::log_error("Failed to load icon: " + path);
 			return;
 		}
-		set_icon_from_memory(width, height, pixels);
-		images::free(pixels);
+		set_icon_from_memory(image.width, image.height, (unsigned char*)image.data);
+		images::free_image(image);
 	}
 
 	void set_cursor_visible(bool visible) {

@@ -9,8 +9,6 @@
 #include "filesystem.h"
 #include "images.h"
 #include "platform.h"
-#define KHRONOS_STATIC
-#include <ktx.h>
 
 namespace graphics {
 
@@ -404,86 +402,78 @@ namespace graphics {
 		return _texture_pool.emplace(api_handle, desc);
 	}
 
-	Handle<Texture> load_texture(const std::string& path) {
-		const std::string normalized_path = filesystem::get_normalized_path(path);
-
-#if 1
-		// First, attempt to load the texture from a KTX2 file, if it exists.
-		if (const std::string normalized_path_ktx2 = filesystem::replace_extension(normalized_path, ".ktx2");
-			filesystem::file_exists(normalized_path_ktx2)) {
-
-			if (const auto it = _path_to_texture.find(normalized_path_ktx2); it != _path_to_texture.end()) {
-				return it->second;
-			}
-
-			ktxTexture2* ktx_texture;
-			ktxResult result = ktxTexture2_CreateFromNamedFile(
-				normalized_path_ktx2.c_str(),
-				KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
-				&ktx_texture
-			);
-			if (result != KTX_SUCCESS) {
-				console::log_error("Failed to load KTX2 texture: " + normalized_path_ktx2);
-				return Handle<Texture>();
-			}
-
-			// TODO: check ktx_texture->vkFormat and convert to OpenGL format if necessary
-#if 0
-#ifdef GRAPHICS_API_OPENGL
-			//We assume the texture is in RGBA8_UNORM format for now
-			images::flip_vertically(ktx_texture->pData, ktx_texture->baseWidth, ktx_texture->baseHeight, 4);
-#endif
-#endif
-
-			const Handle<Texture> handle = create_texture({
-				.debug_name = normalized_path_ktx2,
-				.width = ktx_texture->baseWidth,
-				.height = ktx_texture->baseHeight,
-				.format = Format::RGBA8_UNORM, // we assume this format for now
-				.initial_data = ktx_texture->pData
-			});
-
-			ktxTexture_Destroy(ktxTexture(ktx_texture));
-			_path_to_texture[normalized_path_ktx2] = handle;
-			return handle;
+	Format _image_channel_count_to_format(unsigned int channels) {
+		switch (channels) {
+		case 1:  return Format::R8_UNORM;
+		case 2:  return Format::RG8_UNORM;
+		case 3:  return Format::RGB8_UNORM;
+		case 4:  return Format::RGBA8_UNORM;
+		default: return Format::UNKNOWN;
 		}
-#endif
+	}
 
+	Handle<Texture> load_texture(const std::string& path) {
+
+		std::string normalized_path = filesystem::get_normalized_path(path);
+		// KTX2 compressed textures load much MUCH faster, so we prefer those whenever possible.
+		std::string normalized_path_ktx2 = filesystem::replace_extension(normalized_path, ".ktx2");
+
+		// Check if the KTX2 texture is already loaded.
+		if (const auto it = _path_to_texture.find(normalized_path_ktx2); it != _path_to_texture.end()) {
+			return it->second;
+		}
+		// Check if the non-KTX2 texture is already loaded.
 		if (const auto it = _path_to_texture.find(normalized_path); it != _path_to_texture.end()) {
 			return it->second;
 		}
 
-		unsigned int width, height, channels;
-		unsigned char* data = images::load(normalized_path.c_str(), &width, &height, &channels, 0);
-		if (!data) {
+		images::Image image{};
+		std::string path_used;
+		
+		if (filesystem::file_exists(normalized_path_ktx2)) {
+			// Try to load a KTX2 texture first if it exists.
+			if (!images::load_image(normalized_path_ktx2, image)) {
+				return Handle<Texture>();
+			}
+			path_used = std::move(normalized_path_ktx2);
+		} else if (filesystem::file_exists(normalized_path)) {
+			// Fall back to loading the non-KTX2 texture.
+			if (!images::load_image(normalized_path, image)) {
+				return Handle<Texture>();
+			}
+			path_used = std::string(normalized_path);
+		} else {
 			console::log_error("Failed to load texture: " + normalized_path);
-			console::log_error(images::failure_reason());
 			return Handle<Texture>();
 		}
 
-		Format format = Format::UNKNOWN;
-		if      (channels == 1) format = Format::R8_UNORM;
-		else if (channels == 2) format = Format::RG8_UNORM;
-		else if (channels == 3) format = Format::RGB8_UNORM;
-		else if (channels == 4) format = Format::RGBA8_UNORM;
-
-#if 0
-#ifdef GRAPHICS_API_OPENGL
-		//We assume the texture is in RGBA8_UNORM format for now
-		images::flip_vertically(data, width, height, channels);
-#endif
-#endif
+		const Format format = _image_channel_count_to_format(image.channels);
+		if (format == Format::UNKNOWN) {
+			console::log_error("Unsupported texture channel count:");
+			console::log_error("- Texture: " + std::string(path_used));
+			console::log_error("- Channels: " + std::to_string(image.channels));
+			images::free_image(image); // Don't forget!
+			return Handle<Texture>();
+		}
 
 		const Handle<Texture> handle = create_texture({
-			.debug_name = normalized_path,
-			.width = width,
-			.height = height,
+			// PITFALL: Since path_used goes out of scope once this function returns,
+			// setting debug_name to it would usually lead to undefined behavior.
+			// I've made it so that we move path_used into the unordered map,
+			// which takes ownership of the string and thus keeps it alive.
+			// Admittedly, this is a bit of a hack, but it seems to work.
+			.debug_name = path_used,
+			.width = image.width,
+			.height = image.height,
 			.format = format,
-			.initial_data = data
+			.initial_data = image.data
 		});
 
-		images::free(data);
-		_path_to_texture[normalized_path] = handle;
+		images::free_image(image); // Don't forget!
+
+		// CRITICAL: Move path_used so it is kept alive.
+		_path_to_texture[std::move(path_used)] = handle;
+
 		return handle;
 	}
 
