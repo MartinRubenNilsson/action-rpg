@@ -32,6 +32,7 @@ void vert_main()
     gl_Position = mul(float4(vertex_position, 0.0f, 1.0f), _17_view_proj_matrix);
     color = vertex_color;
     tex_coord = vertex_tex_coord;
+    gl_Position.y = -gl_Position.y;
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

@@ -59,7 +59,8 @@ namespace ui {
 		Rml::Vertex* vertices, int num_vertices,
 		int* indices, int num_indices,
 		const Rml::TextureHandle texture,
-		const Rml::Vector2f& translation) {
+		const Rml::Vector2f& translation
+	) {
 		if (texture) {
 			graphics::bind_texture(0, _texture_handle_from_rml(texture));
 		} else {
@@ -128,7 +129,7 @@ namespace ui {
 	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height) {
 		graphics::set_scissor({
 			.x = x,
-			.y = _viewport_height - (y + height),
+			.y = _viewport_height - (y + height), //TODO: Fix this
 			.width = width,
 			.height = height });
 	}
@@ -136,10 +137,12 @@ namespace ui {
 	bool RmlUiRenderInterface::LoadTexture(
 		Rml::TextureHandle& texture_handle,
 		Rml::Vector2i& texture_dimensions,
-		const Rml::String& source) {
+		const Rml::String& source
+	) {
 		const Handle<graphics::Texture> texture = graphics::load_texture(source);
 		if (texture == Handle<graphics::Texture>()) return false;
-		unsigned int width, height;
+		unsigned int width = 0;
+		unsigned int height = 0;
 		graphics::get_texture_size(texture, width, height);
 		texture_handle = _texture_handle_to_rml(texture);
 		texture_dimensions.x = width;
@@ -150,13 +153,15 @@ namespace ui {
 	bool RmlUiRenderInterface::GenerateTexture(
 		Rml::TextureHandle& texture_handle,
 		const Rml::byte* source,
-		const Rml::Vector2i& source_dimensions) {
+		const Rml::Vector2i& source_dimensions
+	) {
 		const Handle<graphics::Texture> texture = graphics::create_texture({
 			.debug_name = "rmlui texture",
 			.width = (unsigned int)source_dimensions.x,
 			.height = (unsigned int)source_dimensions.y,
 			.format = graphics::Format::RGBA8_UNORM,
-			.initial_data = source });
+			.initial_data = source
+		});
 		if (texture == Handle<graphics::Texture>()) return false;
 		texture_handle = _texture_handle_to_rml(texture);
 		return true;

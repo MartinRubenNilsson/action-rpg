@@ -257,33 +257,26 @@ int main(int argc, char* argv[]) {
         Vector2f camera_max;
         ecs::get_camera_bounds(camera_min, camera_max);
 
+        // Update frame uniform buffer
         {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
             const Vector2f camera_size = camera_max - camera_min;
-
-            // Rotation components
-            const float angle = 0.f;
-            const float cosine = std::cos(angle);
-            const float sine = std::sin(angle);
-            const float tx = -camera_center.x * cosine - camera_center.y * sine + camera_center.x;
-            const float ty = camera_center.x * sine - camera_center.y * cosine + camera_center.y;
-
-            // Projection components
             const float a = 2.f / camera_size.x;
+			// PITFALL: The sprites use a coordinate system where the Y axis is
+			// downwards, while the clip space Y axis is upwards. This means that we need
+			// to flip the Y axis when creating the view-projection matrix.
             const float b = -2.f / camera_size.y;
             const float c = -a * camera_center.x;
             const float d = -b * camera_center.y;
-
-            // Create the projection matrix
-            const float projection_matrix[16] = {
-				a * cosine, -b * sine, 0.f, 0.f,
-				a * sine, b * cosine, 0.f, 0.f,
+            const float view_proj_matrix[16] = {
+				  a, 0.f, 0.f, 0.f,
+				0.f,   b, 0.f, 0.f,
 				0.f, 0.f, 1.f, 0.f,
-				a * tx + c, b * ty + d, 0.f, 1.f
+				  c,   d, 0.f, 1.f
 			};
 
             graphics::FrameUniformBlock frame_ub{};
-            memcpy(frame_ub.view_proj_matrix, projection_matrix, sizeof(projection_matrix));
+            memcpy(frame_ub.view_proj_matrix, view_proj_matrix, sizeof(view_proj_matrix));
 			frame_ub.app_time = app_time;
 			frame_ub.game_time = game_time;
             graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));

@@ -402,21 +402,30 @@ namespace graphics {
 
 			ktxTexture2* ktx_texture;
 			ktxResult result = ktxTexture2_CreateFromNamedFile(
-				normalized_path_ktx2.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktx_texture);
-
+				normalized_path_ktx2.c_str(),
+				KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT,
+				&ktx_texture
+			);
 			if (result != KTX_SUCCESS) {
 				console::log_error("Failed to load KTX2 texture: " + normalized_path_ktx2);
 				return Handle<Texture>();
 			}
 
 			// TODO: check ktx_texture->vkFormat and convert to OpenGL format if necessary
+#if 0
+#ifdef GRAPHICS_API_OPENGL
+			//We assume the texture is in RGBA8_UNORM format for now
+			images::flip_vertically(ktx_texture->pData, ktx_texture->baseWidth, ktx_texture->baseHeight, 4);
+#endif
+#endif
 
 			const Handle<Texture> handle = create_texture({
 				.debug_name = normalized_path_ktx2,
 				.width = ktx_texture->baseWidth,
 				.height = ktx_texture->baseHeight,
 				.format = Format::RGBA8_UNORM, // we assume this format for now
-				.initial_data = ktx_texture->pData });
+				.initial_data = ktx_texture->pData
+			});
 
 			ktxTexture_Destroy(ktxTexture(ktx_texture));
 			_path_to_texture[normalized_path_ktx2] = handle;
@@ -437,17 +446,25 @@ namespace graphics {
 		}
 
 		Format format = Format::UNKNOWN;
-		if (channels == 1) format = Format::R8_UNORM;
+		if      (channels == 1) format = Format::R8_UNORM;
 		else if (channels == 2) format = Format::RG8_UNORM;
 		else if (channels == 3) format = Format::RGB8_UNORM;
 		else if (channels == 4) format = Format::RGBA8_UNORM;
+
+#if 0
+#ifdef GRAPHICS_API_OPENGL
+		//We assume the texture is in RGBA8_UNORM format for now
+		images::flip_vertically(data, width, height, channels);
+#endif
+#endif
 
 		const Handle<Texture> handle = create_texture({
 			.debug_name = normalized_path,
 			.width = width,
 			.height = height,
 			.format = format,
-			.initial_data = data });
+			.initial_data = data
+		});
 
 		images::free(data);
 		_path_to_texture[normalized_path] = handle;

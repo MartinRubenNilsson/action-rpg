@@ -27,4 +27,8 @@ namespace images {
 	const char* failure_reason() {
 		return stbi_failure_reason();
 	}
+
+	void flip_vertically(void* pixels, unsigned int width, unsigned int height, unsigned int bytes_per_pixel) {
+		stbi__vertical_flip(pixels, width, height, bytes_per_pixel);
+	}
 }

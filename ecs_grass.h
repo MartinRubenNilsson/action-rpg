@@ -1,14 +1,11 @@
 #pragma once
 
-namespace ecs
-{
-	struct Grass
-	{
+namespace ecs {
+	struct Grass {
 		int dummy = 0;
 	};
 
-	struct GrassUniformBlock
-	{
+	struct GrassUniformBlock {
 		Vector2f position;
 		Vector2f tex_min;
 		Vector2f tex_max;

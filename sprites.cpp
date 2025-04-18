@@ -90,26 +90,26 @@ namespace sprites {
 
 		for (const Sprite& sprite : _sprites) {
 
-			Vector2f tl = sprite.position; // top-left
-			Vector2f br = sprite.position + sprite.size; // bottom-right
-			Vector2f tr = { br.x, tl.y }; // top-right
-			Vector2f bl = { tl.x, br.y }; // bottom-left
+			const Vector2f tl = sprite.position; // top-left
+			const Vector2f br = sprite.position + sprite.size; // bottom-right
+			const Vector2f tr = { br.x, tl.y }; // top-right
+			const Vector2f bl = { tl.x, br.y }; // bottom-left
 
-			const Vector2f tex_tl = sprite.tex_position;
-			const Vector2f tex_br = sprite.tex_position + sprite.tex_size;
-			const Vector2f tex_tr = { tex_br.x, tex_tl.y };
-			const Vector2f tex_bl = { tex_tl.x, tex_br.y };
+			Vector2f tex_tl = sprite.tex_position;
+			Vector2f tex_br = sprite.tex_position + sprite.tex_size;
+			Vector2f tex_tr = { tex_br.x, tex_tl.y };
+			Vector2f tex_bl = { tex_tl.x, tex_br.y };
 
 			if (sprite.flags & SPRITE_FLIP_HORIZONTALLY) {
-				std::swap(tl, tr);
-				std::swap(bl, br);
+				std::swap(tex_tl, tex_tr);
+				std::swap(tex_bl, tex_br);
 			}
 			if (sprite.flags & SPRITE_FLIP_VERTICALLY) {
-				std::swap(tl, bl);
-				std::swap(tr, br);
+				std::swap(tex_tl, tex_bl);
+				std::swap(tex_tr, tex_br);
 			}
 			if (sprite.flags & SPRITE_FLIP_DIAGONALLY) {
-				std::swap(bl, tr);
+				std::swap(tex_bl, tex_tr);
 			}
 
 			if (_batches.empty()) {

@@ -2,20 +2,17 @@
 #include "ecs_sprites.h"
 #include "random.h"
 
-namespace ecs
-{
+namespace ecs {
 	extern entt::registry _registry;
 
-	void update_sprites_following_bodies()
-	{
-		for (auto [entity, sprite, body, follow]  :
+	void update_sprites_following_bodies() {
+		for (auto [entity, sprite, body, follow] :
 			_registry.view<sprites::Sprite, b2BodyId, SpriteFollowBody>().each()) {
 			sprite.position = b2Body_GetPosition(body) + follow.offset;
 		}
 	}
 
-	void update_sprite_blinks(float dt)
-	{
+	void update_sprite_blinks(float dt) {
 		for (auto [entity, blink] : _registry.view<SpriteBlink>().each()) {
 			if (blink.duration > 0.f) {
 				blink.duration -= dt;
@@ -27,8 +24,7 @@ namespace ecs
 		}
 	}
 
-	void update_sprite_shakes(float dt)
-	{
+	void update_sprite_shakes(float dt) {
 		for (auto [entity, shake] : _registry.view<SpriteShake>().each()) {
 			const float last_duration = shake.duration;
 			if (shake.duration > 0.f) {
@@ -42,8 +38,7 @@ namespace ecs
 		}
 	}
 
-	void blink_sprites_before_drawing()
-	{
+	void blink_sprites_before_drawing() {
 		for (auto [entity, sprites, blink] : _registry.view<sprites::Sprite, SpriteBlink>().each()) {
 			blink._original_color = sprites.color;
 			const float t = fmod(blink.duration, blink.interval);
@@ -51,58 +46,49 @@ namespace ecs
 		}
 	}
 
-	void unblink_sprites_after_drawing()
-	{
+	void unblink_sprites_after_drawing() {
 		for (auto [entity, sprites, blink] : _registry.view<sprites::Sprite, SpriteBlink>().each()) {
 			sprites.color = blink._original_color;
 		}
 	}
 
-	void shake_sprites_before_drawing()
-	{
+	void shake_sprites_before_drawing() {
 		for (auto [entity, sprites, shake] : _registry.view<sprites::Sprite, SpriteShake>().each()) {
 			shake._original_position = sprites.position;
-			sprites.position.x += shake.magnitude * 
+			sprites.position.x += shake.magnitude *
 				random::fractal_perlin_noise(10.f * shake.duration, (float)shake._random_seed, 0.f);
 			sprites.position.y += shake.magnitude *
 				random::fractal_perlin_noise(10.f * shake.duration, (float)shake._random_seed, 1.f);
 		}
 	}
 
-	void unshake_sprites_after_drawing()
-	{
+	void unshake_sprites_after_drawing() {
 		for (auto [entity, sprites, shake] : _registry.view<sprites::Sprite, SpriteShake>().each()) {
 			sprites.position = shake._original_position;
 		}
 	}
 
-	sprites::Sprite& emplace_sprite(entt::entity entity)
-	{
+	sprites::Sprite& emplace_sprite(entt::entity entity) {
 		return _registry.emplace_or_replace<sprites::Sprite>(entity);
 	}
 
-	sprites::Sprite* get_sprite(entt::entity entity)
-	{
+	sprites::Sprite* get_sprite(entt::entity entity) {
 		return _registry.try_get<sprites::Sprite>(entity);
 	}
 
-	SpriteFollowBody& emplace_sprite_follow_body(entt::entity entity, const Vector2f& offset)
-	{
+	SpriteFollowBody& emplace_sprite_follow_body(entt::entity entity, const Vector2f& offset) {
 		return _registry.emplace_or_replace<SpriteFollowBody>(entity, offset);
 	}
 
-	SpriteFollowBody* get_sprite_follow_body(entt::entity entity)
-	{
+	SpriteFollowBody* get_sprite_follow_body(entt::entity entity) {
 		return _registry.try_get<SpriteFollowBody>(entity);
 	}
 
-	SpriteBlink& emplace_sprite_blink(entt::entity entity)
-	{
+	SpriteBlink& emplace_sprite_blink(entt::entity entity) {
 		return _registry.emplace_or_replace<SpriteBlink>(entity);
 	}
 
-	SpriteShake& emplace_sprite_shake(entt::entity entity)
-	{
+	SpriteShake& emplace_sprite_shake(entt::entity entity) {
 		SpriteShake& shake = _registry.emplace_or_replace<SpriteShake>(entity);
 		shake._random_seed = random::range_ui(0, 128);
 		return shake;

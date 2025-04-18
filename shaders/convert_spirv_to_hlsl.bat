@@ -15,7 +15,7 @@ if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 :: Process SPIR-V files to HLSL
 for %%f in (%INPUT_DIR%\*.spv) do (
     echo Converting SPIR-V file: %%f
-    spirv-cross "%%f" --hlsl --entry main --shader-model 50 --output "%OUTPUT_DIR%\%%~nf.hlsl"
+    spirv-cross "%%f" --hlsl --entry main --shader-model 50 --flip-vert-y --output "%OUTPUT_DIR%\%%~nf.hlsl"
 	
     if !ERRORLEVEL! EQU 0 (
         echo - Success: Created %OUTPUT_DIR%\%%~nf.hlsl

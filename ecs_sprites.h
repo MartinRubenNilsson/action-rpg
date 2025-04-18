@@ -1,17 +1,15 @@
 #pragma once
 #include "sprites.h"
 
-namespace ecs
-{
+namespace ecs {
+
 	// Makes the Sprite follow along a b2BodyId as the latter moves.
-	struct SpriteFollowBody
-	{
+	struct SpriteFollowBody {
 		Vector2f offset; // the sprite's position relative to the body's position
 	};
 
 	// Makes the Sprite's color blink.
-	struct SpriteBlink
-	{
+	struct SpriteBlink {
 		float duration = 0.f; // in seconds
 		float interval = 0.f; // in seconds
 		Color color = colors::WHITE;
@@ -19,8 +17,7 @@ namespace ecs
 	};
 
 	// Makes the Sprite shake.
-	struct SpriteShake
-	{
+	struct SpriteShake {
 		// The duration decreases by dt each frame, while the magnitude decreases
 		// in such a way that the two values always satisfy the following power law:
 		// 

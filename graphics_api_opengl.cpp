@@ -394,7 +394,8 @@ namespace api {
 			height,
 			_to_gl_base_format(pixel_format),
 			GL_UNSIGNED_BYTE,
-			pixels);
+			pixels
+		);
 	}
 
 	void copy_texture(
@@ -427,7 +428,8 @@ namespace api {
 			dst_z,
 			src_width,
 			src_height,
-			src_depth);
+			src_depth
+		);
 	}
 
 	GLenum _to_gl_sized_format(Format format) {
@@ -455,7 +457,8 @@ namespace api {
 				desc.height,
 				_to_gl_base_format(desc.format),
 				GL_UNSIGNED_BYTE,
-				desc.initial_data);
+				desc.initial_data
+			);
 		}
 		return TextureHandle{ texture_object };
 	}
@@ -524,13 +527,13 @@ namespace api {
 		glDeleteFramebuffers(1, (GLuint*)&framebuffer_color.object);
 	}
 
-	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, unsigned int buffer, TextureHandle texture) {
-		glNamedFramebufferTexture((GLuint)framebuffer_color.object, GL_COLOR_ATTACHMENT0 + buffer, (GLuint)texture.object, 0);
+	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer_color, unsigned int attachment, TextureHandle texture) {
+		glNamedFramebufferTexture((GLuint)framebuffer_color.object, GL_COLOR_ATTACHMENT0 + attachment, (GLuint)texture.object, 0);
 		return glCheckNamedFramebufferStatus((GLuint)framebuffer_color.object, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 
-	void clear_framebuffer_color(FramebufferHandle framebuffer_color, unsigned int buffer, const float color[4]) {
-		glClearNamedFramebufferfv((GLuint)framebuffer_color.object, GL_COLOR, buffer, color);
+	void clear_framebuffer_color(FramebufferHandle framebuffer_color, unsigned int attachment, const float color[4]) {
+		glClearNamedFramebufferfv((GLuint)framebuffer_color.object, GL_COLOR, attachment, color);
 	}
 
 	void bind_framebuffer(FramebufferHandle framebuffer_color) {
@@ -572,28 +575,28 @@ namespace api {
 
 	GLenum _blend_factor_to_gl_blend_factor(BlendFactor factor) {
 		switch (factor) {
-		case BlendFactor::Zero:                return GL_ZERO;
-		case BlendFactor::One:                 return GL_ONE;
-		case BlendFactor::SrcColor:            return GL_SRC_COLOR;
-		case BlendFactor::OneMinusSrcColor:    return GL_ONE_MINUS_SRC_COLOR;
-		case BlendFactor::DstColor:            return GL_DST_COLOR;
-		case BlendFactor::OneMinusDstColor:    return GL_ONE_MINUS_DST_COLOR;
-		case BlendFactor::SrcAlpha:            return GL_SRC_ALPHA;
-		case BlendFactor::OneMinusSrcAlpha:    return GL_ONE_MINUS_SRC_ALPHA;
-		case BlendFactor::DstAlpha:            return GL_DST_ALPHA;
-		case BlendFactor::OneMinusDstAlpha:    return GL_ONE_MINUS_DST_ALPHA;
-		default:                               return GL_ZERO;
+		case BlendFactor::Zero:             return GL_ZERO;
+		case BlendFactor::One:              return GL_ONE;
+		case BlendFactor::SrcColor:         return GL_SRC_COLOR;
+		case BlendFactor::OneMinusSrcColor: return GL_ONE_MINUS_SRC_COLOR;
+		case BlendFactor::DstColor:         return GL_DST_COLOR;
+		case BlendFactor::OneMinusDstColor: return GL_ONE_MINUS_DST_COLOR;
+		case BlendFactor::SrcAlpha:         return GL_SRC_ALPHA;
+		case BlendFactor::OneMinusSrcAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+		case BlendFactor::DstAlpha:         return GL_DST_ALPHA;
+		case BlendFactor::OneMinusDstAlpha: return GL_ONE_MINUS_DST_ALPHA;
+		default:                            return GL_ZERO;
 		}
 	}
 
 	GLenum _blend_op_to_gl_blend_op(BlendOp op) {
 		switch (op) {
-		case BlendOp::Add:               return GL_FUNC_ADD;
-		case BlendOp::Subtract:          return GL_FUNC_SUBTRACT;
-		case BlendOp::ReverseSubtract:   return GL_FUNC_REVERSE_SUBTRACT;
-		case BlendOp::Min:               return GL_MIN;
-		case BlendOp::Max:               return GL_MAX;
-		default:                         return GL_FUNC_ADD;
+		case BlendOp::Add:             return GL_FUNC_ADD;
+		case BlendOp::Subtract:        return GL_FUNC_SUBTRACT;
+		case BlendOp::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
+		case BlendOp::Min:             return GL_MIN;
+		case BlendOp::Max:             return GL_MAX;
+		default:                       return GL_FUNC_ADD;
 		}
 	}
 
@@ -632,21 +635,34 @@ namespace api {
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {
-		count = std::min(count, MAX_VIEWPORTS);
-		GLfloat gl_viewports[MAX_VIEWPORTS * 4];
-		for (unsigned int i = 0; i < count; ++i) {
-			gl_viewports[i * 4 + 0] = (GLfloat)viewports[i].x;
-			gl_viewports[i * 4 + 1] = (GLfloat)viewports[i].y;
-			gl_viewports[i * 4 + 2] = (GLfloat)viewports[i].width;
-			gl_viewports[i * 4 + 3] = (GLfloat)viewports[i].height;
+		if (count > MAX_VIEWPORTS) {
+			count = MAX_VIEWPORTS;
 		}
-		glViewportArrayv(0, count, gl_viewports);
-		GLdouble gl_depth_ranges[MAX_VIEWPORTS * 2];
+		struct GLViewport {
+			GLfloat x;
+			GLfloat y;
+			GLfloat width;
+			GLfloat height;
+		};
+		struct GLDepthRange {
+			GLdouble min_depth;
+			GLdouble max_depth;
+		};
+		GLViewport gl_viewports[MAX_VIEWPORTS];
+		GLDepthRange gl_depth_ranges[MAX_VIEWPORTS];
 		for (unsigned int i = 0; i < count; ++i) {
-			gl_depth_ranges[i * 2 + 0] = (GLdouble)viewports[i].min_depth;
-			gl_depth_ranges[i * 2 + 1] = (GLdouble)viewports[i].max_depth;
+			const Viewport& viewport = viewports[i];
+			GLViewport& gl_viewport = gl_viewports[i];
+			gl_viewport.x = (GLfloat)viewport.x;
+			gl_viewport.y = (GLfloat)viewport.y;
+			gl_viewport.width = (GLfloat)viewport.width;
+			gl_viewport.height = (GLfloat)viewport.height;
+			GLDepthRange& gl_depth_range = gl_depth_ranges[i];
+			gl_depth_range.min_depth = (GLdouble)viewport.min_depth;
+			gl_depth_range.max_depth = (GLdouble)viewport.max_depth;
 		}
-		glDepthRangeArrayv(0, count, gl_depth_ranges);
+		glViewportArrayv(0, count, (GLfloat*)gl_viewports);
+		glDepthRangeArrayv(0, count, (GLdouble*)gl_depth_ranges);
 	}
 
 	void set_scissors(const Rect* scissors, unsigned int count) {
