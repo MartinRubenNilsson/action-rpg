@@ -398,11 +398,15 @@ namespace graphics {
 		}
 	}
 
+	unsigned int _get_texture_byte_size(const TextureDesc& desc) {
+		return desc.width * desc.height * _format_to_channels(desc.format);
+	}
+
 	Handle<Texture> create_texture(TextureDesc&& desc) {
 		api::TextureHandle api_handle = api::create_texture(desc);
 		if (!api_handle.object) return Handle<Texture>();
 		desc.initial_data = nullptr;
-		_total_texture_memory_usage_in_bytes += desc.width * desc.height * _format_to_channels(desc.format);
+		_total_texture_memory_usage_in_bytes += _get_texture_byte_size(desc);
 		return _texture_pool.emplace(api_handle, desc);
 	}
 
@@ -494,8 +498,7 @@ namespace graphics {
 		Texture* texture = _texture_pool.get(handle);
 		if (!texture) return;
 		api::destroy_texture(texture->api_handle);
-		_total_texture_memory_usage_in_bytes -=
-			texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
+		_total_texture_memory_usage_in_bytes -= _get_texture_byte_size(texture->desc);
 		// HACK: When a texture is loaded, its debug_name is set to the path.
 		_path_to_texture.erase(std::string(texture->desc.debug_name));
 		*texture = Texture();
@@ -613,11 +616,11 @@ namespace graphics {
 		if (!texture) return;
 		if (texture->desc.width == width && texture->desc.height == height) return; // No-op
 		api::destroy_texture(texture->api_handle);
-		_total_texture_memory_usage_in_bytes -= texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
+		_total_texture_memory_usage_in_bytes -= _get_texture_byte_size(texture->desc);
 		texture->desc.width = width;
 		texture->desc.height = height;
 		texture->api_handle = api::create_texture(texture->desc);
-		_total_texture_memory_usage_in_bytes += texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
+		_total_texture_memory_usage_in_bytes += _get_texture_byte_size(texture->desc);
 		api::attach_framebuffer_color_texture(framebuffer->api_handle, 0, texture->api_handle);
 	}
 
@@ -712,7 +715,7 @@ namespace graphics {
 			if (ImGui::TreeNode(texture.desc.debug_name.data())) {
 				ImGui::Text("Dimensions: %dx%dx", texture.desc.width, texture.desc.height);
 				ImGui::Text("Format: %s", magic_enum::enum_name(texture.desc.format).data());
-				unsigned int size = texture.desc.width * texture.desc.height * _format_to_channels(texture.desc.format);
+				unsigned int size = _get_texture_byte_size(texture.desc);
 				unsigned int kb = size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
