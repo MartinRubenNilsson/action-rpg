@@ -8,6 +8,7 @@ namespace graphics {
 	eastl::vector<graphics::Vertex> temp_vertices;
 
 	Handle<VertexShader> fullscreen_vert;
+	Handle<VertexShader> fullscreen_flip_vert;
 	Handle<FragmentShader> fullscreen_frag;
 	Handle<FragmentShader> gaussian_blur_hor_frag;
 	Handle<FragmentShader> gaussian_blur_ver_frag;
@@ -42,6 +43,7 @@ namespace graphics {
 	Handle<Sampler> nearest_sampler;
 	Handle<Sampler> linear_sampler;
 
+	Handle<Framebuffer> final_framebuffer;
 	Handle<Framebuffer> game_ping_framebuffer;
 	Handle<Framebuffer> game_pong_framebuffer;
 	Handle<Framebuffer> player_outfit_framebuffer;
@@ -63,6 +65,13 @@ namespace graphics {
 		if (filesystem::read_binary_file("assets/shaders/fullscreen.vert" + extension, shader_code)) {
 			fullscreen_vert = create_vertex_shader({
 				.debug_name = "fullscreen vertex shader",
+				.code = shader_code,
+				.binary = binary
+			});
+		}
+		if (filesystem::read_binary_file("assets/shaders/fullscreen_flip.vert" + extension, shader_code)) {
+			fullscreen_flip_vert = create_vertex_shader({
+				.debug_name = "fullscreen flip vertex shader",
 				.code = shader_code,
 				.binary = binary
 			});
@@ -189,41 +198,6 @@ namespace graphics {
 		}
 	}
 
-	void _create_framebuffers() {
-		game_ping_framebuffer = create_framebuffer({
-			.debug_name = "game ping framebuffer"
-		});
-		attach_framebuffer_texture(game_ping_framebuffer, create_texture({
-			.debug_name = "game ping framebuffer color texture",
-			.width = GAME_FRAMEBUFFER_WIDTH,
-			.height = GAME_FRAMEBUFFER_HEIGHT,
-			.format = Format::RGBA8_UNORM,
-			.framebuffer_color = true
-		}));
-
-		game_pong_framebuffer = create_framebuffer({
-			.debug_name = "game pong framebuffer"
-		});
-		attach_framebuffer_texture(game_pong_framebuffer, create_texture({
-			.debug_name = "game pong framebuffer color texture",
-			.width = GAME_FRAMEBUFFER_WIDTH,
-			.height = GAME_FRAMEBUFFER_HEIGHT,
-			.format = Format::RGBA8_UNORM,
-			.framebuffer_color = true
-		}));
-
-		player_outfit_framebuffer = create_framebuffer({
-			.debug_name = "player outfit framebuffer"
-		});
-		attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
-			.debug_name = "player outfit framebuffer color texture",
-			.width = 1024, // size of player tileset
-			.height = 1024, // size of player tileset
-			.format = Format::RGBA8_UNORM,
-			.framebuffer_color = true
-		}));
-	}
-
 	void _create_buffers() {
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
@@ -328,6 +302,53 @@ namespace graphics {
 		});
 	}
 
+	void _create_framebuffers() {
+		final_framebuffer = create_framebuffer({
+			.debug_name = "final framebuffer"
+		});
+		attach_framebuffer_texture(final_framebuffer, create_texture({
+			.debug_name = "final framebuffer color texture",
+			// this is just the initial size, it will be resized when the window is resized
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT,
+			.format = Format::RGBA8_UNORM,
+			.framebuffer_color = true
+		}));
+
+		game_ping_framebuffer = create_framebuffer({
+			.debug_name = "game ping framebuffer"
+		});
+		attach_framebuffer_texture(game_ping_framebuffer, create_texture({
+			.debug_name = "game ping framebuffer color texture",
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT,
+			.format = Format::RGBA8_UNORM,
+			.framebuffer_color = true
+		}));
+
+		game_pong_framebuffer = create_framebuffer({
+			.debug_name = "game pong framebuffer"
+		});
+		attach_framebuffer_texture(game_pong_framebuffer, create_texture({
+			.debug_name = "game pong framebuffer color texture",
+			.width = GAME_FRAMEBUFFER_WIDTH,
+			.height = GAME_FRAMEBUFFER_HEIGHT,
+			.format = Format::RGBA8_UNORM,
+			.framebuffer_color = true
+		}));
+
+		player_outfit_framebuffer = create_framebuffer({
+			.debug_name = "player outfit framebuffer"
+		});
+		attach_framebuffer_texture(player_outfit_framebuffer, create_texture({
+			.debug_name = "player outfit framebuffer color texture",
+			.width = 1024, // size of player tileset
+			.height = 1024, // size of player tileset
+			.format = Format::RGBA8_UNORM,
+			.framebuffer_color = true
+		}));
+	}
+
 	void _create_rasterizer_states() {
 		default_rasterizer_state = create_rasterizer_state({
 			.debug_name = "default rasterizer state",
@@ -369,5 +390,9 @@ namespace graphics {
 		_create_rasterizer_states();
 		_create_blend_states();
 		_bind_globals();
+	}
+
+	void resize_final_framebuffer(unsigned int new_width, unsigned int new_height) {
+		graphics::resize_framebuffer(final_framebuffer, new_width, new_height);
 	}
 }

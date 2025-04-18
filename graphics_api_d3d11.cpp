@@ -203,7 +203,7 @@ namespace api {
 		return _device_context;
 	}
 
-	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height) {
+	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height) {
 		if (new_width == 0 || new_height == 0) {
 			_output_debug_message("Invalid swap chain width or height");
 			return false;
@@ -738,7 +738,7 @@ namespace api {
 		_device_context->VSSetSamplers(binding, 1, &d3d11_sampler_state);
 	}
 
-	FramebufferHandle get_default_framebuffer() {
+	FramebufferHandle get_swap_chain_back_buffer() {
 		return FramebufferHandle{ .object = (uintptr_t)&_default_framebuffer_impl };
 	}
 

@@ -29,9 +29,8 @@ namespace ui {
 	void set_viewport(int viewport_width, int viewport_height) {
 		_viewport_width = viewport_width;
 		_viewport_height = viewport_height;
-		_view_proj_matrix =
-			Rml::Matrix4f::Scale(1.f, -1.f, 1.f) *
-			Rml::Matrix4f::ProjectOrtho(0.0f, (float)viewport_width, 0.f, (float)viewport_height, -1.f, 1.f);
+		_view_proj_matrix = Rml::Matrix4f::ProjectOrtho(
+			0.0f, (float)viewport_width, 0.f, (float)viewport_height, -1.f, 1.f);
 	}
 
 	void prepare_render_state() {

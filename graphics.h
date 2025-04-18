@@ -22,7 +22,7 @@ namespace graphics {
 
 	bool is_spirv_supported();
 
-	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height);
+	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height);
 	void present_swap_chain_back_buffer();
 
 	void push_debug_group(std::string_view name);
@@ -75,14 +75,14 @@ namespace graphics {
 	// Pass an empty handle to unbind any currently bound sampler.
 	void bind_sampler(unsigned int binding, Handle<Sampler> handle);
 
+	Handle<Framebuffer> get_swap_chain_back_buffer();
 	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc);
 	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle);
-	// The default framebuffer is the window framebuffer.
-	void bind_default_framebuffer();
-	void bind_framebuffer(Handle<Framebuffer> handle);
-	void clear_default_framebuffer(const float color[4]);
-	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
+	// Resizes all textures attached to the framebuffer.
+	void resize_framebuffer(Handle<Framebuffer> framebuffer_handle, unsigned int width, unsigned int height);
+	void bind_framebuffer(Handle<Framebuffer> handle);
+	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 
 	Handle<RasterizerState> create_rasterizer_state(RasterizerDesc&& desc);
 	void bind_rasterizer_state(Handle<RasterizerState> handle);

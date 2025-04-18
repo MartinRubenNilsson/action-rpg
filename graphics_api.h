@@ -40,7 +40,7 @@ namespace api {
 #ifdef GRAPHICS_API_D3D11
 	ID3D11Device* get_d3d11_device();
 	ID3D11DeviceContext* get_d3d11_device_context();
-	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height);
+	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height);
 	void present_swap_chain_back_buffer(); // Swaps the front and back buffers
 #endif
 
@@ -112,7 +112,7 @@ namespace api {
 
 	struct FramebufferHandle { uintptr_t object = 0; };
 
-	FramebufferHandle get_default_framebuffer(); // aka the swap chain back buffer
+	FramebufferHandle get_swap_chain_back_buffer(); // aka the "default framebuffer"
 	FramebufferHandle create_framebuffer(const FramebufferDesc& desc);
 	void destroy_framebuffer(FramebufferHandle framebuffer);
 	bool attach_framebuffer_color_texture(FramebufferHandle framebuffer, unsigned int attachment, TextureHandle texture);

@@ -57,6 +57,7 @@ namespace graphics {
 	// SHADERS
 
 	extern Handle<VertexShader> fullscreen_vert;
+	extern Handle<VertexShader> fullscreen_flip_vert;
 	extern Handle<FragmentShader> fullscreen_frag;
 	extern Handle<FragmentShader> gaussian_blur_hor_frag;
 	extern Handle<FragmentShader> gaussian_blur_ver_frag;
@@ -101,6 +102,7 @@ namespace graphics {
 
 	// FRAMEBUFFERS
 
+	extern Handle<Framebuffer> final_framebuffer; // same size as the window framebuffer
 	extern Handle<Framebuffer> game_ping_framebuffer; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> game_pong_framebuffer; // GAME_FRAMEBUFFER_WIDTH x GAME_FRAMEBUFFER_HEIGHT
 	extern Handle<Framebuffer> player_outfit_framebuffer; // 1024 x 1024
@@ -114,4 +116,5 @@ namespace graphics {
 	extern Handle<BlendState> default_blend_state;
 
 	void initialize_globals();
+	void resize_final_framebuffer(unsigned int new_width, unsigned int new_height);
 }

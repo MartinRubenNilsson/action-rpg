@@ -47,6 +47,7 @@ namespace graphics {
 		api::FramebufferHandle api_handle{};
 		FramebufferDesc desc{};
 		Handle<Texture> texture;
+		bool is_swap_chain_back_buffer = false;
 	};
 
 	struct RasterizerState {
@@ -71,6 +72,7 @@ namespace graphics {
 	unsigned int _total_texture_memory_usage_in_bytes = 0;
 	Pool<Sampler> _sampler_pool;
 	Pool<Framebuffer> _framebuffer_pool;
+	Handle<Framebuffer> _swap_chain_back_buffer_handle;
 	Pool<RasterizerState> _rasterizer_state_pool;
 	Pool<BlendState> _blend_state_pool;
 
@@ -123,7 +125,13 @@ namespace graphics {
 #ifdef GRAPHICS_API_D3D11
 		options.hwnd = window::get_hwnd();
 #endif
-		return api::initialize(options);
+		if (!api::initialize(options)) return false;
+
+		// INITIALIZE SWAP CHAIN BACK BUFFER
+
+		_swap_chain_back_buffer_handle = _framebuffer_pool.emplace(api::get_swap_chain_back_buffer());
+
+		return true;
 	}
 
 	void shutdown() {
@@ -192,6 +200,11 @@ namespace graphics {
 		// DELETE FRAMEBUFFERS
 
 		for (Framebuffer& framebuffer : _framebuffer_pool.span()) {
+			// The swap chain back buffer can't be destroyed the usual way
+			// since it it handled differently from the user-created framebuffers.
+			// For example, it might be owned by the window (if using OpenGL+GLFW),
+			// or by the IDGXISwapChain (if using D3D11).
+			if (framebuffer.is_swap_chain_back_buffer) continue;
 			if (framebuffer.api_handle.object) {
 				api::destroy_framebuffer(framebuffer.api_handle);
 				framebuffer.api_handle = api::FramebufferHandle();
@@ -228,13 +241,13 @@ namespace graphics {
 		return api::is_spirv_supported();
 	}
 
-	bool resize_swap_chain_buffers(unsigned int new_width, unsigned int new_height) {
+	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height) {
 #ifdef GRAPHICS_API_OPENGL
 		// The window owns the swap chain, so this is a no-op.
 		return true;
 #endif
 #ifdef GRAPHICS_API_D3D11
-		return api::resize_swap_chain_buffers(new_width, new_height);
+		return api::resize_swap_chain_framebuffer(new_width, new_height);
 #endif
 	}
 
@@ -551,6 +564,10 @@ namespace graphics {
 		}
 	}
 
+	Handle<Framebuffer> get_swap_chain_back_buffer() {
+		return _swap_chain_back_buffer_handle;
+	}
+
 	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc) {
 		api::FramebufferHandle api_handle = api::create_framebuffer(desc);
 		if (!api_handle.object) return Handle<Framebuffer>();
@@ -560,6 +577,10 @@ namespace graphics {
 	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle) {
 		Framebuffer* framebuffer = _framebuffer_pool.get(framebuffer_handle);
 		if (!framebuffer) return;
+		if (framebuffer->is_swap_chain_back_buffer) {
+			console::log_error("Cannot attach a texture to the swap chain back buffer.");
+			return;
+		}
 		Texture* texture = _texture_pool.get(texture_handle);
 		if (!texture) return;
 		if (!api::attach_framebuffer_color_texture(framebuffer->api_handle, 0, texture->api_handle)) {
@@ -573,8 +594,34 @@ namespace graphics {
 		framebuffer->texture = texture_handle;
 	}
 
-	void bind_default_framebuffer() {
-		api::bind_framebuffer(api::get_default_framebuffer());
+	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle) {
+		const Framebuffer* framebuffer = _framebuffer_pool.get(handle);
+		if (!framebuffer) return Handle<Texture>();
+		if (framebuffer->is_swap_chain_back_buffer) {
+			console::log_error("Cannot get the texture of the swap chain back buffer.");
+			return Handle<Texture>();
+		}
+		return framebuffer->texture;
+	}
+
+	void resize_framebuffer(Handle<Framebuffer> framebuffer_handle, unsigned int width, unsigned int height) {
+		if (width == 0 || height == 0) return; // Illegal size
+		Framebuffer* framebuffer = _framebuffer_pool.get(framebuffer_handle);
+		if (!framebuffer) return;
+		if (framebuffer->is_swap_chain_back_buffer) {
+			console::log_error("Cannot resize the swap chain back buffer.");
+			return;
+		}
+		Texture* texture = _texture_pool.get(framebuffer->texture);
+		if (!texture) return;
+		if (texture->desc.width == width && texture->desc.height == height) return; // No-op
+		api::destroy_texture(texture->api_handle);
+		_total_texture_memory_usage_in_bytes -= texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
+		texture->desc.width = width;
+		texture->desc.height = height;
+		texture->api_handle = api::create_texture(texture->desc);
+		_total_texture_memory_usage_in_bytes += texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
+		api::attach_framebuffer_color_texture(framebuffer->api_handle, 0, texture->api_handle);
 	}
 
 	void bind_framebuffer(Handle<Framebuffer> handle) {
@@ -583,21 +630,10 @@ namespace graphics {
 		}
 	}
 
-	void clear_default_framebuffer(const float color[4]) {
-		api::clear_framebuffer_color(api::get_default_framebuffer(), 0, color);
-	}
-
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]) {
 		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
 			api::clear_framebuffer_color(framebuffer->api_handle, 0, color);
 		}
-	}
-
-	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle) {
-		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
-			return framebuffer->texture;
-		}
-		return Handle<Texture>();
 	}
 
 	Handle<RasterizerState> create_rasterizer_state(RasterizerDesc&& desc) {

@@ -1,14 +1,12 @@
 #pragma once
 #include <RmlUi/Core/RenderInterface.h>
 
-namespace ui
-{
+namespace ui {
 	void set_viewport(int viewport_width, int viewport_height);
 	void prepare_render_state();
 	void restore_render_state();
 
-	struct RmlUiRenderInterface : public Rml::RenderInterface
-	{
+	struct RmlUiRenderInterface : public Rml::RenderInterface {
 		void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture, const Rml::Vector2f& translation) override;
 		Rml::CompiledGeometryHandle CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture) override;
 		void RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation) override;

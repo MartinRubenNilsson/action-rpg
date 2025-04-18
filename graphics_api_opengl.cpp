@@ -375,6 +375,41 @@ namespace api {
 		}
 	}
 
+	GLenum _to_gl_sized_format(Format format) {
+		switch (format) {
+		case Format::R8_UNORM:    return GL_R8;
+		case Format::RG8_UNORM:   return GL_RG8;
+		case Format::RGB8_UNORM:  return GL_RGB8;
+		case Format::RGBA8_UNORM: return GL_RGBA8;
+		default: return 0;
+		}
+	}
+
+	TextureHandle create_texture(const TextureDesc& desc) {
+		GLuint texture_object = 0;
+		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
+		_gl_object_label(GL_TEXTURE, texture_object, desc.debug_name);
+		glTextureStorage2D(texture_object, 1, _to_gl_sized_format(desc.format), desc.width, desc.height);
+		if (desc.initial_data) {
+			glTextureSubImage2D(
+				texture_object,
+				0, // level
+				0, // xoffset
+				0, // yoffset
+				desc.width,
+				desc.height,
+				_to_gl_base_format(desc.format),
+				GL_UNSIGNED_BYTE,
+				desc.initial_data
+			);
+		}
+		return TextureHandle{ texture_object };
+	}
+
+	void destroy_texture(TextureHandle texture) {
+		glDeleteTextures(1, (GLuint*)&texture.object);
+	}
+
 	void update_texture(
 		TextureHandle texture,
 		unsigned int level,
@@ -432,41 +467,6 @@ namespace api {
 		);
 	}
 
-	GLenum _to_gl_sized_format(Format format) {
-		switch (format) {
-		case Format::R8_UNORM:    return GL_R8;
-		case Format::RG8_UNORM:   return GL_RG8;
-		case Format::RGB8_UNORM:  return GL_RGB8;
-		case Format::RGBA8_UNORM: return GL_RGBA8;
-		default: return 0;
-		}
-	}
-
-	TextureHandle create_texture(const TextureDesc& desc) {
-		GLuint texture_object = 0;
-		glCreateTextures(GL_TEXTURE_2D, 1, &texture_object);
-		_gl_object_label(GL_TEXTURE, texture_object, desc.debug_name);
-		glTextureStorage2D(texture_object, 1, _to_gl_sized_format(desc.format), desc.width, desc.height);
-		if (desc.initial_data) {
-			glTextureSubImage2D(
-				texture_object,
-				0, // level
-				0, // xoffset
-				0, // yoffset
-				desc.width,
-				desc.height,
-				_to_gl_base_format(desc.format),
-				GL_UNSIGNED_BYTE,
-				desc.initial_data
-			);
-		}
-		return TextureHandle{ texture_object };
-	}
-
-	void destroy_texture(TextureHandle texture) {
-		glDeleteTextures(1, (GLuint*)&texture.object);
-	}
-
 	void bind_texture(unsigned int binding, TextureHandle texture) {
 		glBindTextureUnit(binding, (GLuint)texture.object);
 	}
@@ -512,7 +512,7 @@ namespace api {
 		glBindSampler(binding, (GLuint)sampler.object);
 	}
 
-	FramebufferHandle get_default_framebuffer() {
+	FramebufferHandle get_swap_chain_back_buffer() {
 		return FramebufferHandle{ 0 };
 	}
 

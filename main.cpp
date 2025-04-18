@@ -161,7 +161,8 @@ int main(int argc, char* argv[]) {
 					// When the window is minimized, an event is sent with size 0, 0,
                     // which we must therefore ignore.
 					if (ev.size.width && ev.size.height) {
-					    graphics::resize_swap_chain_buffers(ev.size.width, ev.size.height);
+					    graphics::resize_swap_chain_framebuffer(ev.size.width, ev.size.height);
+						graphics::resize_final_framebuffer(ev.size.width, ev.size.height);
 					}
                 }  else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
@@ -262,10 +263,7 @@ int main(int argc, char* argv[]) {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
             const Vector2f camera_size = camera_max - camera_min;
             const float a = 2.f / camera_size.x;
-			// PITFALL: The sprites use a coordinate system where the Y axis is
-			// downwards, while the clip space Y axis is upwards. This means that we need
-			// to flip the Y axis when creating the view-projection matrix.
-            const float b = -2.f / camera_size.y;
+            const float b = 2.f / camera_size.y;
             const float c = -a * camera_center.x;
             const float d = -b * camera_center.y;
             const float view_proj_matrix[16] = {
@@ -274,7 +272,6 @@ int main(int argc, char* argv[]) {
 				0.f, 0.f, 1.f, 0.f,
 				  c,   d, 0.f, 1.f
 			};
-
             graphics::FrameUniformBlock frame_ub{};
             memcpy(frame_ub.view_proj_matrix, view_proj_matrix, sizeof(view_proj_matrix));
 			frame_ub.app_time = app_time;
@@ -289,8 +286,12 @@ int main(int argc, char* argv[]) {
         graphics::bind_framebuffer(graphics::game_ping_framebuffer);
         graphics::set_viewport({ .width = GAME_FRAMEBUFFER_WIDTH, .height = GAME_FRAMEBUFFER_HEIGHT });
 
+		// RENDER SPRITES TO GAME FRAMEBUFFER
+
         background::draw_sprites(camera_min, camera_max);
         ecs::draw_sprites(camera_min, camera_max);
+
+		// POSTPROCESS GAME FRAMEBUFFER
 
         switch (ui::get_top_menu()) {
         case ui::MenuType::Pause:
@@ -307,10 +308,12 @@ int main(int argc, char* argv[]) {
         postprocessing::set_screen_transition_progress(map::get_transition_progress());
         postprocessing::render(camera_min, camera_max);
 
+		// UPSCALE GAME FRAMEBUFFER TO FINAL FRAMEBUFFER
+
 		if (!window::get_minimized()) {
-            graphics::ScopedDebugGroup debug_group("Upscale to window");
-            graphics::bind_default_framebuffer();
-			graphics::clear_default_framebuffer(CLEAR_COLOR);
+            graphics::ScopedDebugGroup debug_group("Upscale to final framebuffer");
+			graphics::clear_framebuffer(graphics::final_framebuffer, CLEAR_COLOR);
+			graphics::bind_framebuffer(graphics::final_framebuffer);
             graphics::bind_vertex_shader(graphics::fullscreen_vert);
             graphics::bind_fragment_shader(graphics::fullscreen_frag);
             graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::game_ping_framebuffer));
@@ -323,11 +326,31 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef _DEBUG
+		// RENDER DEBUG SHAPES TO FINAL FRAMEBUFFER
+
         ecs::add_debug_shapes_to_render_queue();
         shapes::draw_all("shapes::draw_all() [ECS debug]", camera_min, camera_max);
         shapes::update_lifetimes(game_delta_time);
 #endif
+
+		// RENDER UI TO FINAL FRAMEBUFFER
+
         ui::render();
+
+		// COPY FINAL FRAMEBUFFER TO BACK BUFFER
+        {
+            graphics::ScopedDebugGroup debug_group("Copy to back buffer");
+            graphics::bind_framebuffer(graphics::get_swap_chain_back_buffer());
+#ifdef GRAPHICS_API_OPENGL
+            graphics::bind_vertex_shader(graphics::fullscreen_flip_vert);
+#else
+            graphics::bind_vertex_shader(graphics::fullscreen_vert);
+#endif
+            graphics::bind_fragment_shader(graphics::fullscreen_frag);
+            graphics::bind_texture(0, graphics::get_framebuffer_texture(graphics::final_framebuffer));
+            graphics::bind_sampler(0, graphics::nearest_sampler);
+            graphics::draw(3); // draw a fullscreen-covering triangle
+        }
 
 #ifdef _DEBUG_IMGUI
         // CREATE DEBUG STATS WINDOW
@@ -356,22 +379,22 @@ int main(int argc, char* argv[]) {
             ImGui::Value("Largest Batch", sprites::get_largest_batch_sprite_count());
             ImGui::End();
         }
-
         if (debug_textboxes) {
 			ui::show_textbox_debug_window();
 		}
         if (debug_textures) {
             graphics::show_texture_debug_window();
         }
-
-#endif // DEBUG_IMGUI
-
-#ifdef _DEBUG_IMGUI
         {
-            graphics::ScopedDebugGroup debug_group("ImGui");
+            graphics::ScopedDebugGroup debug_group("imgui_impl::render()");
+            // PITFALL: ImGui uses its own shaders and such, so we need to render it
+			// to the back buffer, not the final framebuffer, since when using OpenGL
+			// as backend we flip the final framebuffer vertically.
             imgui_impl::render();
         }
 #endif
+
+        // PRESENT BACK BUFFER
 
         graphics::present_swap_chain_back_buffer();
 
