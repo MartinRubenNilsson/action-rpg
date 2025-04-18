@@ -441,7 +441,7 @@ namespace graphics {
 			if (!images::load_image(normalized_path, image)) {
 				return Handle<Texture>();
 			}
-			path_used = std::string(normalized_path);
+			path_used = std::move(normalized_path);
 		} else {
 			console::log_error("Failed to load texture: " + normalized_path);
 			return Handle<Texture>();
