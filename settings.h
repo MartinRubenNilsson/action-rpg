@@ -2,7 +2,7 @@
 
 namespace settings
 {
-	extern const std::string SETTINGS_FILE_DEFAULT_PATH;
+	extern const std::string_view SETTINGS_FILE_DEFAULT_PATH;
 
 	extern bool fullscreen;
 	extern unsigned int window_scale; // Determines window size relative to WINDOW_MIN_WIDTH/HEIGHT
@@ -18,6 +18,6 @@ namespace settings
 	void apply();
 	void save_to_stream(std::ostream& os);
 	void load_from_stream(std::istream& is);
-	bool save_to_file(const std::string& path = SETTINGS_FILE_DEFAULT_PATH);
-	bool load_from_file(const std::string& path = SETTINGS_FILE_DEFAULT_PATH);
+	bool save_to_file(std::string_view path = SETTINGS_FILE_DEFAULT_PATH);
+	bool load_from_file(std::string_view path = SETTINGS_FILE_DEFAULT_PATH);
 }

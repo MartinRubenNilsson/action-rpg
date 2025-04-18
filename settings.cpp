@@ -6,7 +6,7 @@
 #include "filesystem.h"
 
 namespace settings {
-	const std::string SETTINGS_FILE_DEFAULT_PATH = "settings.txt";
+	const std::string_view SETTINGS_FILE_DEFAULT_PATH = "settings.txt";
 
 	bool fullscreen = false;
 	unsigned int window_scale = 5;
@@ -57,13 +57,13 @@ namespace settings {
 		}
 	}
 
-	bool save_to_file(const std::string& path) {
+	bool save_to_file(std::string_view path) {
 		std::ostringstream oss;
 		save_to_stream(oss);
 		return filesystem::write_text_file(path, oss.str());
 	}
 
-	bool load_from_file(const std::string& path) {
+	bool load_from_file(std::string_view path) {
 		std::string text;
 		if (!filesystem::read_text_file(path, text)) return false;
 		std::istringstream iss(std::move(text));
