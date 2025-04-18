@@ -125,7 +125,7 @@ namespace graphics {
 		options.vulkan_instance_extensions = window::get_required_vulkan_instance_extensions();
 #endif
 #ifdef GRAPHICS_API_D3D11
-		options.hwnd = window::get_hwnd();
+		options.hwnd = window::get_win32_window();
 #endif
 		if (!api::initialize(options)) return false;
 

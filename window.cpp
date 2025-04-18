@@ -181,7 +181,11 @@ namespace window
 		glfwTerminate();
 	}
 
-	void* get_hwnd() {
+	void* get_glfw_window() {
+		return _window;
+	}
+
+	void* get_win32_window() {
 		return glfwGetWin32Window(_window);
 	}
 

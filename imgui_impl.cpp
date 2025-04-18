@@ -3,6 +3,7 @@
 #include "imgui_impl.h"
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
+#include "window.h"
 #include "graphics_api.h"
 #ifdef GRAPHICS_API_OPENGL
 #include <imgui_impl_opengl3.h>
@@ -14,10 +15,6 @@
 #ifdef GRAPHICS_API_D3D11
 #include <imgui_impl_dx11.h>
 #endif
-
-namespace window {
-	extern GLFWwindow* _window;
-}
 
 namespace graphics {
 #ifdef GRAPHICS_API_VULKAN
@@ -35,11 +32,11 @@ namespace imgui_impl {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 #ifdef GRAPHICS_API_OPENGL
-		ImGui_ImplGlfw_InitForOpenGL(window::_window, true);
+		ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)window::get_glfw_window(), true);
 		ImGui_ImplOpenGL3_Init();
 #endif
 #ifdef GRAPHICS_API_VULKAN
-		ImGui_ImplGlfw_InitForVulkan(window::_window, true);
+		ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)window::get_glfw_window(), true);
 		ImGui_ImplVulkan_InitInfo init_info{};
 		init_info.Instance = graphics::_instance;
 		init_info.PhysicalDevice = graphics::_physical_device;
@@ -50,7 +47,7 @@ namespace imgui_impl {
 		ImGui_ImplVulkan_Init(&init_info);
 #endif
 #ifdef GRAPHICS_API_D3D11
-		ImGui_ImplGlfw_InitForOther(window::_window, true);
+		ImGui_ImplGlfw_InitForOther((GLFWwindow*)window::get_glfw_window(), true);
 		ImGui_ImplDX11_Init(
 			graphics::api::get_d3d11_device(),
 			graphics::api::get_d3d11_device_context()

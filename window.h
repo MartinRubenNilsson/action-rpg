@@ -5,7 +5,9 @@ namespace window {
 	bool initialize();
 	void shutdown();
 
-	void* get_hwnd(); // Get the window handle (HWND) for Windows API.
+	void* get_glfw_window(); // Get the GLFW window handle (GLFWwindow).
+	void* get_win32_window(); // Get the Win32 window handle (HWND).
+
 	double get_elapsed_time(); // Time since the window was created, in seconds.
 	bool should_close();
 	void set_should_close(bool should_close);
