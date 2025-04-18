@@ -40,7 +40,7 @@ namespace settings {
 	void load_from_stream(std::istream& is) {
 		std::string line;
 		while (std::getline(is, line)) {
-			std::istringstream iss(line);
+			std::istringstream iss(std::move(line));
 			std::string key;
 			iss >> key;
 			if (key == "fullscreen") {

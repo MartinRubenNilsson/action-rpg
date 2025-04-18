@@ -125,6 +125,12 @@ namespace api {
 	void destroy_rasterizer_state(RasterizerStateHandle state);
 	void bind_rasterizer_state(RasterizerStateHandle state);
 
+	struct BlendStateHandle { uintptr_t object = 0; };
+
+	BlendStateHandle create_blend_state(const BlendStateDesc& desc);
+	void destroy_blend_state(BlendStateHandle state);
+	void bind_blend_state(BlendStateHandle state);
+
 	void set_viewports(const Viewport* viewports, unsigned int count);
 	void set_scissors(const Rect* scissors, unsigned int count);
 	void set_scissor_test_enabled(bool enable);

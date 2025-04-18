@@ -84,9 +84,13 @@ namespace console {
 		// LOG COUT AND CERR
 		{
 			std::string line;
-			while (std::getline(_cout_stream, line)) log(line);
+			while (std::getline(_cout_stream, line)) {
+				log(line);
+			}
 			_cout_stream.str(std::string());
-			while (std::getline(_cerr_stream, line)) log_error(line);
+			while (std::getline(_cerr_stream, line)) {
+				log_error(line);
+			}
 			_cerr_stream.str(std::string());
 		}
 
@@ -231,7 +235,9 @@ namespace console {
 		if (_history.size() > _MAX_HISTORY) {
 			_history.pop_front();
 		}
-		if (show_console) _visible = true;
+		if (show_console) {
+			_visible = true;
+		}
 	}
 
 	void execute(std::string_view command_line, bool defer) {

@@ -282,16 +282,16 @@ namespace api {
 	}
 
 #if 0
-	bool _is_dxil_signed(std::span<const unsigned char> buffer) {
+	bool _is_dxil_signed(std::span<const unsigned char> d3d11_buffer) {
 		//https://www.wihlidal.com/blog/pipeline/2018-09-16-dxil-signing-post-compile/
 		struct DxilMinimalHeader {
 			UINT32 four_cc;
 			UINT32 hash_digest[4];
 		};
-		if (buffer.size() < sizeof(DxilMinimalHeader)) {
+		if (d3d11_buffer.size() < sizeof(DxilMinimalHeader)) {
 			return false;
 		}
-		const DxilMinimalHeader* header = (const DxilMinimalHeader*)buffer.data();
+		const DxilMinimalHeader* header = (const DxilMinimalHeader*)d3d11_buffer.data();
 		bool has_digest = false;
 		has_digest |= header->hash_digest[0] != 0x0;
 		has_digest |= header->hash_digest[1] != 0x0;
@@ -465,34 +465,34 @@ namespace api {
 	}
 
 	BufferHandle create_buffer(const BufferDesc& desc) {
-		D3D11_BUFFER_DESC buffer_desc{};
-		buffer_desc.ByteWidth = desc.size;
-		buffer_desc.Usage = desc.dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_IMMUTABLE;
+		D3D11_BUFFER_DESC d3d11_buffer_desc{};
+		d3d11_buffer_desc.ByteWidth = desc.size;
+		d3d11_buffer_desc.Usage = desc.dynamic ? D3D11_USAGE_DYNAMIC : D3D11_USAGE_IMMUTABLE;
 		if (desc.type == BufferType::VertexBuffer) {
-			buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+			d3d11_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		} else if (desc.type == BufferType::IndexBuffer) {
-			buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+			d3d11_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		} else if (desc.type == BufferType::UniformBuffer) {
-			buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			d3d11_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		}
 		if (desc.dynamic) {
-			buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			d3d11_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		}
 		HRESULT result = S_OK;
-		ID3D11Buffer* buffer = nullptr;
+		ID3D11Buffer* d3d11_buffer = nullptr;
 		if (desc.initial_data) {
-			D3D11_SUBRESOURCE_DATA initial_data{};
-			initial_data.pSysMem = desc.initial_data;
-			result = _device->CreateBuffer(&buffer_desc, &initial_data, &buffer);
+			D3D11_SUBRESOURCE_DATA d3d11_initial_data{};
+			d3d11_initial_data.pSysMem = desc.initial_data;
+			result = _device->CreateBuffer(&d3d11_buffer_desc, &d3d11_initial_data, &d3d11_buffer);
 		} else {
-			result = _device->CreateBuffer(&buffer_desc, nullptr, &buffer);
+			result = _device->CreateBuffer(&d3d11_buffer_desc, nullptr, &d3d11_buffer);
 		}
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create buffer");
 			return BufferHandle();
 		}
-		_set_debug_name(buffer, desc.debug_name);
-		return BufferHandle{ .object = (uintptr_t)buffer };
+		_set_debug_name(d3d11_buffer, desc.debug_name);
+		return BufferHandle{ .object = (uintptr_t)d3d11_buffer };
 	}
 
 	void destroy_buffer(BufferHandle buffer) {
@@ -504,13 +504,13 @@ namespace api {
 	void update_buffer(BufferHandle buffer, const void* data, unsigned int size, unsigned int offset) {
 		if (!buffer.object) return;
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
-		D3D11_MAPPED_SUBRESOURCE mapped_resource{};
-		HRESULT result = _device_context->Map(d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
+		D3D11_MAPPED_SUBRESOURCE d3d11_mapped_subresource{};
+		HRESULT result = _device_context->Map(d3d11_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &d3d11_mapped_subresource);
 		if (FAILED(result)) {
 			_output_debug_message("Failed to map buffer");
 			return;
 		}
-		memcpy((void*)((uintptr_t)mapped_resource.pData + offset), data, size);
+		memcpy((void*)((uintptr_t)d3d11_mapped_subresource.pData + offset), data, size);
 		_device_context->Unmap(d3d11_buffer, 0);
 	}
 
@@ -557,46 +557,46 @@ namespace api {
 	}
 
 	TextureHandle create_texture(const TextureDesc& desc) {
-		D3D11_TEXTURE2D_DESC texture_desc{};
-		texture_desc.Width = desc.width;
-		texture_desc.Height = desc.height;
-		texture_desc.MipLevels = 1;
-		texture_desc.ArraySize = 1;
-		texture_desc.Format = _format_to_dxgi_format(desc.format);
-		texture_desc.SampleDesc.Count = 1;
-		texture_desc.Usage = D3D11_USAGE_DEFAULT; // D3D11_USAGE_IMMUTABLE?
-		texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		D3D11_TEXTURE2D_DESC d3d11_texture2d_desc{};
+		d3d11_texture2d_desc.Width = desc.width;
+		d3d11_texture2d_desc.Height = desc.height;
+		d3d11_texture2d_desc.MipLevels = 1;
+		d3d11_texture2d_desc.ArraySize = 1;
+		d3d11_texture2d_desc.Format = _format_to_dxgi_format(desc.format);
+		d3d11_texture2d_desc.SampleDesc.Count = 1;
+		d3d11_texture2d_desc.Usage = D3D11_USAGE_DEFAULT; // D3D11_USAGE_IMMUTABLE?
+		d3d11_texture2d_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 		if (desc.framebuffer_color) {
-			texture_desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+			d3d11_texture2d_desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
 		}
 		HRESULT result = S_OK;
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture{};
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture2d{};
 		if (desc.initial_data) {
-			D3D11_SUBRESOURCE_DATA initial_data{};
-			initial_data.pSysMem = desc.initial_data;
-			initial_data.SysMemPitch = desc.width * _format_to_byte_width(desc.format);
-			result = _device->CreateTexture2D(&texture_desc, &initial_data, &texture);
+			D3D11_SUBRESOURCE_DATA d3d11_initial_data{};
+			d3d11_initial_data.pSysMem = desc.initial_data;
+			d3d11_initial_data.SysMemPitch = desc.width * _format_to_byte_width(desc.format);
+			result = _device->CreateTexture2D(&d3d11_texture2d_desc, &d3d11_initial_data, &d3d11_texture2d);
 		} else {
-			result = _device->CreateTexture2D(&texture_desc, nullptr, &texture);
+			result = _device->CreateTexture2D(&d3d11_texture2d_desc, nullptr, &d3d11_texture2d);
 		}
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create texture: " + std::string(desc.debug_name));
 			return TextureHandle();
 		}
-		_set_debug_name(texture.Get(), desc.debug_name);
-		D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc{};
-		srv_desc.Format = texture_desc.Format;
-		srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		srv_desc.Texture2D.MostDetailedMip = 0;
-		srv_desc.Texture2D.MipLevels = 1;
-		ID3D11ShaderResourceView* srv = nullptr;
-		result = _device->CreateShaderResourceView(texture.Get(), &srv_desc, &srv);
+		_set_debug_name(d3d11_texture2d.Get(), desc.debug_name);
+		D3D11_SHADER_RESOURCE_VIEW_DESC d3d11_srv_desc{};
+		d3d11_srv_desc.Format = d3d11_texture2d_desc.Format;
+		d3d11_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		d3d11_srv_desc.Texture2D.MostDetailedMip = 0;
+		d3d11_srv_desc.Texture2D.MipLevels = 1;
+		ID3D11ShaderResourceView* d3d11_srv = nullptr;
+		result = _device->CreateShaderResourceView(d3d11_texture2d.Get(), &d3d11_srv_desc, &d3d11_srv);
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create shader resource view: " + std::string(desc.debug_name));
 			return TextureHandle();
 		}
-		_set_debug_name(srv, desc.debug_name);
-		return TextureHandle{ .object = (uintptr_t)srv };
+		_set_debug_name(d3d11_srv, desc.debug_name);
+		return TextureHandle{ .object = (uintptr_t)d3d11_srv };
 	}
 
 	void destroy_texture(TextureHandle texture) {
@@ -617,19 +617,19 @@ namespace api {
 	) {
 		if (!texture.object) return;
 		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
-		Microsoft::WRL::ComPtr<ID3D11Resource> resource{};
-		d3d11_srv->GetResource(&resource);
-		D3D11_BOX box{};
-		box.left = x;
-		box.top = y;
-		box.front = 0;
-		box.right = x + width;
-		box.bottom = y + height;
-		box.back = 1;
+		Microsoft::WRL::ComPtr<ID3D11Resource> d3d11_resource{};
+		d3d11_srv->GetResource(&d3d11_resource);
+		D3D11_BOX d3d11_box{};
+		d3d11_box.left = x;
+		d3d11_box.top = y;
+		d3d11_box.front = 0;
+		d3d11_box.right = x + width;
+		d3d11_box.bottom = y + height;
+		d3d11_box.back = 1;
 		_device_context->UpdateSubresource(
-			resource.Get(),
+			d3d11_resource.Get(),
 			level,
-			&box,
+			&d3d11_box,
 			pixels,
 			width * _format_to_byte_width(pixel_format),
 			0
@@ -655,26 +655,26 @@ namespace api {
 		if (!src_texture.object) return;
 		ID3D11ShaderResourceView* d3d11_dst_srv = (ID3D11ShaderResourceView*)dst_texture.object;
 		ID3D11ShaderResourceView* d3d11_src_srv = (ID3D11ShaderResourceView*)src_texture.object;
-		Microsoft::WRL::ComPtr<ID3D11Resource> dst_resource;
-		Microsoft::WRL::ComPtr<ID3D11Resource> src_resource;
-		d3d11_dst_srv->GetResource(&dst_resource);
-		d3d11_src_srv->GetResource(&src_resource);
-		D3D11_BOX src_box{};
-		src_box.left = src_x;
-		src_box.top = src_y;
-		src_box.front = src_z;
-		src_box.right = src_x + src_width;
-		src_box.bottom = src_y + src_height;
-		src_box.back = src_z + src_depth;
+		Microsoft::WRL::ComPtr<ID3D11Resource> d3d11_dst_resource;
+		Microsoft::WRL::ComPtr<ID3D11Resource> d3d11_src_resource;
+		d3d11_dst_srv->GetResource(&d3d11_dst_resource);
+		d3d11_src_srv->GetResource(&d3d11_src_resource);
+		D3D11_BOX d3d11_src_box{};
+		d3d11_src_box.left = src_x;
+		d3d11_src_box.top = src_y;
+		d3d11_src_box.front = src_z;
+		d3d11_src_box.right = src_x + src_width;
+		d3d11_src_box.bottom = src_y + src_height;
+		d3d11_src_box.back = src_z + src_depth;
 		_device_context->CopySubresourceRegion(
-			dst_resource.Get(),
+			d3d11_dst_resource.Get(),
 			dst_level,
 			dst_x,
 			dst_y,
 			dst_z,
-			src_resource.Get(),
+			d3d11_src_resource.Get(),
 			src_level,
-			&src_box
+			&d3d11_src_box
 		);
 	}
 
@@ -706,23 +706,23 @@ namespace api {
 	}
 
 	SamplerHandle create_sampler(const SamplerDesc& desc) {
-		D3D11_SAMPLER_DESC sampler_desc{};
-		sampler_desc.Filter = _filter_to_d3d11_filter(desc.filter);
-		sampler_desc.AddressU = _wrap_to_d3d11_texture_address_mode(desc.wrap);
-		sampler_desc.AddressV = _wrap_to_d3d11_texture_address_mode(desc.wrap);
-		sampler_desc.AddressW = _wrap_to_d3d11_texture_address_mode(desc.wrap);
-		sampler_desc.MinLOD = 0.f;
-		sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
-		sampler_desc.MipLODBias = 0.f;
-		sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		ID3D11SamplerState* sampler_state = nullptr;
-		HRESULT result = _device->CreateSamplerState(&sampler_desc, &sampler_state);
+		D3D11_SAMPLER_DESC d3d11_sampler_desc{};
+		d3d11_sampler_desc.Filter = _filter_to_d3d11_filter(desc.filter);
+		d3d11_sampler_desc.AddressU = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		d3d11_sampler_desc.AddressV = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		d3d11_sampler_desc.AddressW = _wrap_to_d3d11_texture_address_mode(desc.wrap);
+		d3d11_sampler_desc.MinLOD = 0.f;
+		d3d11_sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
+		d3d11_sampler_desc.MipLODBias = 0.f;
+		d3d11_sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		ID3D11SamplerState* d3d11_sampler_state = nullptr;
+		HRESULT result = _device->CreateSamplerState(&d3d11_sampler_desc, &d3d11_sampler_state);
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create sampler state");
 			return SamplerHandle();
 		}
-		_set_debug_name(sampler_state, desc.debug_name);
-		return SamplerHandle{ .object = (uintptr_t)sampler_state };
+		_set_debug_name(d3d11_sampler_state, desc.debug_name);
+		return SamplerHandle{ .object = (uintptr_t)d3d11_sampler_state };
 	}
 
 	void destroy_sampler(SamplerHandle sampler) {
@@ -772,23 +772,23 @@ namespace api {
 		ID3D11ShaderResourceView* d3d11_srv = (ID3D11ShaderResourceView*)texture.object;
 		Microsoft::WRL::ComPtr<ID3D11Resource> d3d11_resource{};
 		d3d11_srv->GetResource(&d3d11_resource);
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture{};
-		if (FAILED(d3d11_resource->QueryInterface(IID_PPV_ARGS(&d3d11_texture)))) {
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> d3d11_texture_2d{};
+		if (FAILED(d3d11_resource->QueryInterface(IID_PPV_ARGS(&d3d11_texture_2d)))) {
 			_output_debug_message("Failed to query texture from shader resource view");
 			return false;
 		}
-		D3D11_TEXTURE2D_DESC texture_desc{};
-		d3d11_texture->GetDesc(&texture_desc);
-		if (!(texture_desc.BindFlags & D3D11_BIND_RENDER_TARGET)) {
+		D3D11_TEXTURE2D_DESC d3d11_texture2d_desc{};
+		d3d11_texture_2d->GetDesc(&d3d11_texture2d_desc);
+		if (!(d3d11_texture2d_desc.BindFlags & D3D11_BIND_RENDER_TARGET)) {
 			_output_debug_message("Texture cannot be used as render target");
 			return false;
 		}
-		D3D11_RENDER_TARGET_VIEW_DESC rtv_desc{};
-		rtv_desc.Format = texture_desc.Format;
-		rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		rtv_desc.Texture2D.MipSlice = 0;
+		D3D11_RENDER_TARGET_VIEW_DESC d3d11_rtv_desc{};
+		d3d11_rtv_desc.Format = d3d11_texture2d_desc.Format;
+		d3d11_rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		d3d11_rtv_desc.Texture2D.MipSlice = 0;
 		ID3D11RenderTargetView* d3d11_rtv = nullptr;
-		HRESULT result = _device->CreateRenderTargetView(d3d11_texture.Get(), &rtv_desc, &d3d11_rtv);
+		HRESULT result = _device->CreateRenderTargetView(d3d11_texture_2d.Get(), &d3d11_rtv_desc, &d3d11_rtv);
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create render target view");
 			return false;
@@ -805,6 +805,18 @@ namespace api {
 		ID3D11RenderTargetView* d3d11_rtv = framebuffer_impl->rtvs[buffer];
 		if (!d3d11_rtv) return;
 		_device_context->ClearRenderTargetView(d3d11_rtv, color);
+	}
+
+	void bind_framebuffer(FramebufferHandle framebuffer) {
+		if (!framebuffer.object) {
+			_device_context->OMSetRenderTargets(0, nullptr, nullptr);
+			return;
+		}
+		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
+		_device_context->OMSetRenderTargets(
+			D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
+			framebuffer_impl->rtvs,
+			framebuffer_impl->dsv);
 	}
 
 	D3D11_FILL_MODE _polygon_mode_to_d3d11_fill_mode(PolygonMode polygon_mode) {
@@ -825,18 +837,18 @@ namespace api {
 	}
 
 	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc) {
-		D3D11_RASTERIZER_DESC rasterizer_desc{};
-		rasterizer_desc.FillMode = _polygon_mode_to_d3d11_fill_mode(desc.polygon_mode);
-		rasterizer_desc.CullMode = _cull_mode_to_d3d11_cull_mode(desc.cull_mode);
-		rasterizer_desc.FrontCounterClockwise = desc.front_face_ccw ? TRUE : FALSE;
-		ID3D11RasterizerState* rasterizer_state = nullptr;
-		HRESULT result = _device->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
+		D3D11_RASTERIZER_DESC d3d11_rasterizer_desc{};
+		d3d11_rasterizer_desc.FillMode = _polygon_mode_to_d3d11_fill_mode(desc.polygon_mode);
+		d3d11_rasterizer_desc.CullMode = _cull_mode_to_d3d11_cull_mode(desc.cull_mode);
+		d3d11_rasterizer_desc.FrontCounterClockwise = desc.front_face_ccw ? TRUE : FALSE;
+		ID3D11RasterizerState* d3d11_rasterizer_state = nullptr;
+		HRESULT result = _device->CreateRasterizerState(&d3d11_rasterizer_desc, &d3d11_rasterizer_state);
 		if (FAILED(result)) {
 			_output_debug_message("Failed to create rasterizer state: " + std::string(desc.debug_name));
 			return RasterizerStateHandle();
 		}
-		_set_debug_name(rasterizer_state, desc.debug_name);
-		return RasterizerStateHandle{ .object = (uintptr_t)rasterizer_state };
+		_set_debug_name(d3d11_rasterizer_state, desc.debug_name);
+		return RasterizerStateHandle{ .object = (uintptr_t)d3d11_rasterizer_state };
 	}
 
 	void destroy_rasterizer_state(RasterizerStateHandle state) {
@@ -851,16 +863,42 @@ namespace api {
 		_device_context->RSSetState(d3d11_rasterizer_state);
 	}
 
-	void bind_framebuffer(FramebufferHandle framebuffer) {
-		if (!framebuffer.object) {
-			_device_context->OMSetRenderTargets(0, nullptr, nullptr);
-			return;
+	BlendStateHandle create_blend_state(const BlendStateDesc& desc) {
+		D3D11_BLEND_DESC d3d11_blend_desc{};
+#if 0
+		d3d11_blend_desc.AlphaToCoverageEnable = FALSE;
+		d3d11_blend_desc.IndependentBlendEnable = FALSE;
+		for (unsigned int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+			d3d11_blend_desc.RenderTarget[i].BlendEnable = desc.blend_enable ? TRUE : FALSE;
+			d3d11_blend_desc.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+			d3d11_blend_desc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+			d3d11_blend_desc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+			d3d11_blend_desc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
+			d3d11_blend_desc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
+			d3d11_blend_desc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+			d3d11_blend_desc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 		}
-		FramebufferImpl* framebuffer_impl = (FramebufferImpl*)framebuffer.object;
-		_device_context->OMSetRenderTargets(
-			D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT,
-			framebuffer_impl->rtvs,
-			framebuffer_impl->dsv);
+#endif
+		ID3D11BlendState* d3d11_blend_state = nullptr;
+		HRESULT result = _device->CreateBlendState(&d3d11_blend_desc, &d3d11_blend_state);
+		if (FAILED(result)) {
+			_output_debug_message("Failed to create blend state: " + std::string(desc.debug_name));
+			return BlendStateHandle();
+		}
+		_set_debug_name(d3d11_blend_state, desc.debug_name);
+		return BlendStateHandle{ .object = (uintptr_t)d3d11_blend_state };
+	}
+
+	void destroy_blend_state(BlendStateHandle state) {
+		if (!state.object) return;
+		ID3D11BlendState* d3d11_blend_state = (ID3D11BlendState*)state.object;
+		d3d11_blend_state->Release();
+	}
+
+	void bind_blend_state(BlendStateHandle state) {
+		// SIC: Allow binding a null state to unbind the current state.
+		ID3D11BlendState* d3d11_blend_state = (ID3D11BlendState*)state.object;
+		_device_context->OMSetBlendState(d3d11_blend_state, nullptr, 0xffffffff);
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {

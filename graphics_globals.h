@@ -109,5 +109,9 @@ namespace graphics {
 
 	extern Handle<RasterizerState> default_rasterizer_state;
 
+	// BLEND STATES
+
+	extern Handle<BlendState> default_blend_state;
+
 	void initialize_globals();
 }

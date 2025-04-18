@@ -15,8 +15,9 @@ namespace graphics {
 	struct Framebuffer;
 	struct Sampler;
 	struct RasterizerState;
+	struct BlendState;
 
-	void initialize();
+	bool initialize();
 	void shutdown();
 
 	bool is_spirv_supported();
@@ -85,6 +86,9 @@ namespace graphics {
 
 	Handle<RasterizerState> create_rasterizer_state(RasterizerStateDesc&& desc);
 	void bind_rasterizer_state(Handle<RasterizerState> handle);
+
+	Handle<BlendState> create_blend_state(BlendStateDesc&& desc);
+	void bind_blend_state(Handle<BlendState> handle);
 
 	void set_primitives(Primitives primitives);
 	void set_viewport(const Viewport& viewport);

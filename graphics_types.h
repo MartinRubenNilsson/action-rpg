@@ -1,6 +1,6 @@
 #pragma once
-#include <span>
 #include <string_view>
+#include <span>
 
 namespace graphics {
 
@@ -87,14 +87,14 @@ namespace graphics {
 	};
 
 	enum class PolygonMode {
-		Fill,
-		Line,
+		Fill, // Draw the polygon with a solid color
+		Line, // Draw the polygon as a wireframe
 	};
 
 	enum class CullMode {
-		None,
-		Front,
-		Back,
+		None, // No triangles are discarded
+		Front, // Front-facing triangles are discarded
+		Back, // Back-facing triangles are discarded
 	};
 
 	struct RasterizerStateDesc {
@@ -102,6 +102,10 @@ namespace graphics {
 		PolygonMode polygon_mode = PolygonMode::Fill;
 		CullMode cull_mode = CullMode::Back;
 		bool front_face_ccw = true; // If true, the front face is counter-clockwise
+	};
+
+	struct BlendStateDesc {
+		std::string_view debug_name = "blend state";
 	};
 
 	enum class Primitives {

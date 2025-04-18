@@ -48,7 +48,9 @@ namespace graphics {
 
 	Handle<RasterizerState> default_rasterizer_state;
 
-	void _initialize_shaders_and_vertex_inputs() {
+	Handle<BlendState> default_blend_state;
+
+	void _load_and_create_shaders_and_vertex_inputs() {
 		std::vector<unsigned char> shader_code;
 #ifdef GRAPHICS_API_OPENGL
 		const bool binary = graphics::is_spirv_supported();
@@ -183,7 +185,7 @@ namespace graphics {
 		}
 	}
 
-	void _initialize_framebuffers() {
+	void _create_framebuffers() {
 		game_ping_framebuffer = create_framebuffer({
 			.debug_name = "game ping framebuffer"
 		});
@@ -218,7 +220,7 @@ namespace graphics {
 		}));
 	}
 
-	void _initialize_buffers() {
+	void _create_buffers() {
 		dynamic_vertex_buffer = create_buffer({
 			.debug_name = "dynamic vertex buffer",
 			.size = 8192 * sizeof(Vertex), // 8192 is an initial estimate
@@ -275,7 +277,7 @@ namespace graphics {
 		});
 	}
 
-	void _initialize_textures() {
+	void _create_textures() {
 		{
 			constexpr unsigned int ERROR_TEXTURE_SIZE = 32;
 			unsigned char error_texture_data[ERROR_TEXTURE_SIZE * ERROR_TEXTURE_SIZE * 4];
@@ -310,7 +312,7 @@ namespace graphics {
 		}
 	}
 
-	void _initialize_samplers() {
+	void _create_samplers() {
 		nearest_sampler = create_sampler({
 			.debug_name = "nearest sampler",
 			.filter = Filter::Nearest
@@ -322,10 +324,23 @@ namespace graphics {
 		});
 	}
 
-	void _initialize_rasterizer_states() {
+	void _create_rasterizer_states() {
 		default_rasterizer_state = create_rasterizer_state({
 			.debug_name = "default rasterizer state",
 			.cull_mode = CullMode::None
+		});
+	}
+
+	void _initialize_blend_states() {
+		default_blend_state = create_blend_state({
+			.debug_name = "default blend state",
+			//blend_enable = true,
+			//src_factor = BlendFactor::SrcAlpha,
+			//dst_factor = BlendFactor::OneMinusSrcAlpha,
+			//blend_op = BlendOp::Add,
+			//src_factor_alpha = BlendFactor::One,
+			//dst_factor_alpha = BlendFactor::Zero,
+			//blend_op_alpha = BlendOp::Add
 		});
 	}
 
@@ -336,15 +351,16 @@ namespace graphics {
 		bind_uniform_buffer(0, frame_uniform_buffer);
 		bind_sampler(0, nearest_sampler);
 		bind_rasterizer_state(default_rasterizer_state);
+		bind_blend_state(default_blend_state);
 	}
 
 	void initialize_globals() {
-		_initialize_shaders_and_vertex_inputs();
-		_initialize_framebuffers();
-		_initialize_buffers();
-		_initialize_textures();
-		_initialize_samplers();
-		_initialize_rasterizer_states();
+		_load_and_create_shaders_and_vertex_inputs();
+		_create_framebuffers();
+		_create_buffers();
+		_create_textures();
+		_create_samplers();
+		_create_rasterizer_states();
 		_bind_globals();
 	}
 }

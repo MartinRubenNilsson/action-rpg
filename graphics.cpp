@@ -13,6 +13,9 @@
 #include <ktx.h>
 
 namespace graphics {
+
+	// IMPORTANT: These structs are internal! Don't move them to graphics.h!
+
 	struct VertexShader {
 		api::VertexShaderHandle api_handle{};
 	};
@@ -51,6 +54,11 @@ namespace graphics {
 		RasterizerStateDesc desc{};
 	};
 
+	struct BlendState {
+		api::BlendStateHandle api_handle{};
+		BlendStateDesc desc{};
+	};
+
 	Viewport _viewport;
 	Rect _scissor;
 	bool _scissor_test_enabled = false;
@@ -64,6 +72,7 @@ namespace graphics {
 	Pool<Sampler> _sampler_pool;
 	Pool<Framebuffer> _framebuffer_pool;
 	Pool<RasterizerState> _rasterizer_state_pool;
+	Pool<BlendState> _blend_state_pool;
 
 #ifdef GRAPHICS_API_DEBUG
 	void _debug_message_callback(std::string_view message) {
@@ -72,7 +81,7 @@ namespace graphics {
 	}
 #endif
 
-	void initialize() {
+	bool initialize() {
 #ifdef GRAPHICS_API_DEBUG
 		api::set_debug_message_callback(_debug_message_callback);
 #endif
@@ -82,7 +91,7 @@ namespace graphics {
 #ifdef GRAPHICS_API_VULKAN
 		if (!window::is_vulkan_supported()) {
 			console::log_error("Vulkan is not supported on this system.");
-			return;
+			return false;
 		}
 
 		// PITFALL: On my laptop (ROG Zephyrus), there's a cross-reaction between these two
@@ -114,7 +123,7 @@ namespace graphics {
 #ifdef GRAPHICS_API_D3D11
 		options.hwnd = window::get_hwnd();
 #endif
-		api::initialize(options);
+		return api::initialize(options);
 	}
 
 	void shutdown() {
@@ -198,6 +207,19 @@ namespace graphics {
 				rasterizer_state.api_handle = api::RasterizerStateHandle();
 			}
 		}
+		_rasterizer_state_pool.clear();
+
+		// DELETE BLEND STATES
+
+		for (BlendState& blend_state : _blend_state_pool.span()) {
+			if (blend_state.api_handle.object) {
+				api::destroy_blend_state(blend_state.api_handle);
+				blend_state.api_handle = api::BlendStateHandle();
+			}
+		}
+		_blend_state_pool.clear();
+
+		// SHUTDOWN API
 
 		api::shutdown();
 	}
@@ -572,6 +594,20 @@ namespace graphics {
 			api::bind_rasterizer_state(api::RasterizerStateHandle());
 		} else if (const RasterizerState* state = _rasterizer_state_pool.get(handle)) {
 			api::bind_rasterizer_state(state->api_handle);
+		}
+	}
+
+	Handle<BlendState> create_blend_state(BlendStateDesc&& desc) {
+		api::BlendStateHandle api_handle = api::create_blend_state(desc);
+		if (!api_handle.object) return Handle<BlendState>();
+		return _blend_state_pool.emplace(api_handle, desc);
+	}
+
+	void bind_blend_state(Handle<BlendState> handle) {
+		if (handle == Handle<BlendState>()) {
+			api::bind_blend_state(api::BlendStateHandle());
+		} else if (const BlendState* state = _blend_state_pool.get(handle)) {
+			api::bind_blend_state(state->api_handle);
 		}
 	}
 
