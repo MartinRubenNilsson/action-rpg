@@ -6,68 +6,66 @@
 #include "filesystem.h"
 
 namespace settings {
-	const std::string_view SETTINGS_FILE_DEFAULT_PATH = "settings.txt";
 
-	bool fullscreen = false;
-	unsigned int window_scale = 5;
-	bool vsync = false;
-	float volume_master = 1.f;
-	float volume_music = 1.f;
-	float volume_sound = 1.f;
+	AppSettings app_settings;
 
-	void apply() {
-		window::set_fullscreen(fullscreen);
-		if (!fullscreen) {
-			window::set_size(GAME_FRAMEBUFFER_WIDTH * window_scale, GAME_FRAMEBUFFER_HEIGHT * window_scale);
+	void apply(const AppSettings& settings) {
+		window::set_fullscreen(settings.fullscreen);
+		if (!settings.fullscreen) {
+			window::set_size(
+				GAME_FRAMEBUFFER_WIDTH * settings.window_scale,
+				GAME_FRAMEBUFFER_HEIGHT * settings.window_scale);
 		}
-		graphics::set_swap_chain_sync_interval(vsync ? 1 : 0);
-		audio::set_bus_volume(audio::BUS_MASTER, volume_master);
-		audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
-		audio::set_bus_volume(audio::BUS_SOUND, volume_sound);
+		graphics::set_swap_chain_sync_interval(settings.vsync ? 1 : 0);
+		audio::set_bus_volume(audio::BUS_MASTER, settings.volume_master);
+		audio::set_bus_volume(audio::BUS_MUSIC, settings.volume_music);
+		audio::set_bus_volume(audio::BUS_SOUND, settings.volume_sound);
 	}
 
-	void save_to_stream(std::ostream& os) {
-		os << "fullscreen " << fullscreen << std::endl;
-		os << "window_scale " << window_scale << std::endl;
-		os << "vsync " << vsync << std::endl;
-		os << "volume_master " << volume_master << std::endl;
-		os << "volume_music " << volume_music << std::endl;
-		os << "volume_sound " << volume_sound << std::endl;
+	void save_to_stream(std::ostream& os, const AppSettings& settings) {
+		os << "fullscreen " << settings.fullscreen << std::endl;
+		os << "window_scale " << settings.window_scale << std::endl;
+		os << "vsync " << settings.vsync << std::endl;
+		os << "volume_master " << settings.volume_master << std::endl;
+		os << "volume_music " << settings.volume_music << std::endl;
+		os << "volume_sound " << settings.volume_sound << std::endl;
 	}
 
-	void load_from_stream(std::istream& is) {
+	void load_from_stream(std::istream& is, AppSettings& settings) {
 		std::string line;
 		while (std::getline(is, line)) {
 			std::istringstream iss(std::move(line));
 			std::string key;
 			iss >> key;
 			if (key == "fullscreen") {
-				iss >> fullscreen;
+				iss >> settings.fullscreen;
 			} else if (key == "window_scale") {
-				iss >> window_scale;
+				iss >> settings.window_scale;
 			} else if (key == "vsync") {
-				iss >> vsync;
+				iss >> settings.vsync;
 			} else if (key == "volume_master") {
-				iss >> volume_master;
+				iss >> settings.volume_master;
 			} else if (key == "volume_music") {
-				iss >> volume_music;
+				iss >> settings.volume_music;
 			} else if (key == "volume_sound") {
-				iss >> volume_sound;
+				iss >> settings.volume_sound;
 			}
 		}
 	}
 
-	bool save_to_file(std::string_view path) {
+	const std::string_view APP_SETTINGS_PATH = "settings.txt";
+
+	bool save_to_file(std::string_view path, const AppSettings& settings) {
 		std::ostringstream oss;
-		save_to_stream(oss);
+		save_to_stream(oss, settings);
 		return filesystem::write_text_file(path, oss.str());
 	}
 
-	bool load_from_file(std::string_view path) {
+	bool load_from_file(std::string_view path, AppSettings& settings) {
 		std::string text;
 		if (!filesystem::read_text_file(path, text)) return false;
 		std::istringstream iss(std::move(text));
-		load_from_stream(iss);
+		load_from_stream(iss, settings);
 		return true;
 	}
 }

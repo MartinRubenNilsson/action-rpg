@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
 
     ui::add_event_listeners(); // Must come after loading RML documents.
 
-    settings::load_from_file();
-    settings::apply();
+    settings::load_from_file(settings::APP_SETTINGS_PATH, settings::app_settings);
+    settings::apply(settings::app_settings);
 
     window::set_visible(true);
 

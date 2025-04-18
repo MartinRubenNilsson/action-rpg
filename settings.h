@@ -1,23 +1,25 @@
 #pragma once
 
-namespace settings
-{
-	extern const std::string_view SETTINGS_FILE_DEFAULT_PATH;
+namespace settings {
 
-	extern bool fullscreen;
-	extern unsigned int window_scale; // Determines window size relative to WINDOW_MIN_WIDTH/HEIGHT
-	extern bool vsync;
-	extern float volume_master;
-	extern float volume_music;
-	extern float volume_sound;
+	struct AppSettings {
+		bool fullscreen = false;
+		unsigned int window_scale = 5; // Window size relative to WINDOW_MIN_WIDTH/HEIGHT
+		bool vsync = false;
+		float volume_master = 1.f;
+		float volume_music = 1.f;
+		float volume_sound = 1.f;
+	};
 
-	// Call apply() to make any changes take effect.
-	// (The load functions don't call it automatically,
-	// rather they only update the above variables.)
+	extern AppSettings app_settings;
 
-	void apply();
-	void save_to_stream(std::ostream& os);
-	void load_from_stream(std::istream& is);
-	bool save_to_file(std::string_view path = SETTINGS_FILE_DEFAULT_PATH);
-	bool load_from_file(std::string_view path = SETTINGS_FILE_DEFAULT_PATH);
+	void apply(const AppSettings &settings);
+
+	void save_to_stream(std::ostream& os, const AppSettings& settings);
+	void load_from_stream(std::istream& is, AppSettings& settings);
+
+	extern const std::string_view APP_SETTINGS_PATH;
+
+	bool save_to_file(std::string_view path, const AppSettings &settings);
+	bool load_from_file(std::string_view path, AppSettings& settings);
 }
