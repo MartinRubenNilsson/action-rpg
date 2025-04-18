@@ -51,12 +51,12 @@ namespace graphics {
 
 	struct RasterizerState {
 		api::RasterizerStateHandle api_handle{};
-		RasterizerStateDesc desc{};
+		RasterizerDesc desc{};
 	};
 
 	struct BlendState {
 		api::BlendStateHandle api_handle{};
-		BlendStateDesc desc{};
+		BlendDesc desc{};
 	};
 
 	Viewport _viewport;
@@ -583,7 +583,7 @@ namespace graphics {
 		return Handle<Texture>();
 	}
 
-	Handle<RasterizerState> create_rasterizer_state(RasterizerStateDesc&& desc) {
+	Handle<RasterizerState> create_rasterizer_state(RasterizerDesc&& desc) {
 		api::RasterizerStateHandle api_handle = api::create_rasterizer_state(desc);
 		if (!api_handle.object) return Handle<RasterizerState>();
 		return _rasterizer_state_pool.emplace(api_handle, desc);
@@ -597,7 +597,7 @@ namespace graphics {
 		}
 	}
 
-	Handle<BlendState> create_blend_state(BlendStateDesc&& desc) {
+	Handle<BlendState> create_blend_state(BlendDesc&& desc) {
 		api::BlendStateHandle api_handle = api::create_blend_state(desc);
 		if (!api_handle.object) return Handle<BlendState>();
 		return _blend_state_pool.emplace(api_handle, desc);

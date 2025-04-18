@@ -543,15 +543,15 @@ namespace api {
 		glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)framebuffer_color.object);
 	}
 
-	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc) {
-		RasterizerStateDesc* impl = new RasterizerStateDesc(desc);
+	RasterizerStateHandle create_rasterizer_state(const RasterizerDesc& desc) {
+		RasterizerDesc* impl = new RasterizerDesc(desc);
 		impl->debug_name = {};
 		return RasterizerStateHandle{ .object = (uintptr_t)impl };
 	}
 
 	void destroy_rasterizer_state(RasterizerStateHandle state) {
 		if (!state.object) return;
-		RasterizerStateDesc* impl = (RasterizerStateDesc*)state.object;
+		RasterizerDesc* impl = (RasterizerDesc*)state.object;
 		delete impl;
 	}
 
@@ -565,7 +565,7 @@ namespace api {
 
 	void bind_rasterizer_state(RasterizerStateHandle state) {
 		if (!state.object) return; // TODO: default state
-		RasterizerStateDesc* impl = (RasterizerStateDesc*)state.object;
+		RasterizerDesc* impl = (RasterizerDesc*)state.object;
 		glPolygonMode(GL_FRONT_AND_BACK, _polygon_mode_to_gl_polygon_mode(impl->polygon_mode));
 		if (impl->cull_mode == CullMode::None) {
 			glDisable(GL_CULL_FACE);

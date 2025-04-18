@@ -121,13 +121,13 @@ namespace api {
 
 	struct RasterizerStateHandle { uintptr_t object = 0; };
 
-	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc);
+	RasterizerStateHandle create_rasterizer_state(const RasterizerDesc& desc);
 	void destroy_rasterizer_state(RasterizerStateHandle state);
 	void bind_rasterizer_state(RasterizerStateHandle state);
 
 	struct BlendStateHandle { uintptr_t object = 0; };
 
-	BlendStateHandle create_blend_state(const BlendStateDesc& desc);
+	BlendStateHandle create_blend_state(const BlendDesc& desc);
 	void destroy_blend_state(BlendStateHandle state);
 	void bind_blend_state(BlendStateHandle state);
 

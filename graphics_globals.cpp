@@ -117,12 +117,17 @@ namespace graphics {
 			});
 			sprite_vertex_input = graphics::create_vertex_input({
 				.debug_name = "sprite vertex input",
-				.attributes = {
-					{ .format = Format::RG32_FLOAT, .offset = offsetof(Vertex, position) },
-					// FIXME: normalized is not supported in d3d11
-					{ .format = Format::RGBA8_UNORM, .offset = offsetof(Vertex, color), .normalized = true },
-					{ .format = Format::RG32_FLOAT, .offset = offsetof(Vertex, tex_coord) },
-				},
+				.attributes = { {
+					.format = Format::RG32_FLOAT,
+					.offset = offsetof(Vertex, position)
+				}, {
+					.format = Format::RGBA8_UNORM,
+					.offset = offsetof(Vertex, color),
+					.normalized = true // FIXME: normalized is not supported in d3d11
+				}, {
+					.format = Format::RG32_FLOAT,
+					.offset = offsetof(Vertex, tex_coord)
+				}, },
 				.bytecode = shader_code
 			});
 		}
@@ -330,16 +335,15 @@ namespace graphics {
 		});
 	}
 
-	void _initialize_blend_states() {
+	void _create_blend_states() {
 		default_blend_state = create_blend_state({
 			.debug_name = "default blend state",
-			//blend_enable = true,
-			//src_factor = BlendFactor::SrcAlpha,
-			//dst_factor = BlendFactor::OneMinusSrcAlpha,
-			//blend_op = BlendOp::Add,
-			//src_factor_alpha = BlendFactor::One,
-			//dst_factor_alpha = BlendFactor::Zero,
-			//blend_op_alpha = BlendOp::Add
+			.attachments = { {
+				.blend_enable = true,
+				.src_color_blend_factor = BlendFactor::SrcAlpha,
+				.dst_color_blend_factor = BlendFactor::OneMinusSrcAlpha,
+				.color_blend_op = BlendOp::Add,
+			} }
 		});
 	}
 
@@ -360,6 +364,7 @@ namespace graphics {
 		_create_textures();
 		_create_samplers();
 		_create_rasterizer_states();
+		_create_blend_states();
 		_bind_globals();
 	}
 }

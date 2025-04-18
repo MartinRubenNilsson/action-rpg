@@ -84,10 +84,10 @@ namespace graphics {
 	void clear_framebuffer(Handle<Framebuffer> handle, const float color[4]);
 	Handle<Texture> get_framebuffer_texture(Handle<Framebuffer> handle);
 
-	Handle<RasterizerState> create_rasterizer_state(RasterizerStateDesc&& desc);
+	Handle<RasterizerState> create_rasterizer_state(RasterizerDesc&& desc);
 	void bind_rasterizer_state(Handle<RasterizerState> handle);
 
-	Handle<BlendState> create_blend_state(BlendStateDesc&& desc);
+	Handle<BlendState> create_blend_state(BlendDesc&& desc);
 	void bind_blend_state(Handle<BlendState> handle);
 
 	void set_primitives(Primitives primitives);

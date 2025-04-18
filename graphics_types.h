@@ -98,15 +98,48 @@ namespace graphics {
 		Back, // Back-facing triangles are discarded
 	};
 
-	struct RasterizerStateDesc {
+	struct RasterizerDesc {
 		std::string_view debug_name = "rasterizer state";
 		PolygonMode polygon_mode = PolygonMode::Fill;
 		CullMode cull_mode = CullMode::Back;
 		bool front_face_ccw = true; // If true, the front face is counter-clockwise
 	};
 
-	struct BlendStateDesc {
+	enum class BlendFactor {
+		Zero,
+		One,
+		SrcColor,
+		OneMinusSrcColor,
+		DstColor,
+		OneMinusDstColor,
+		SrcAlpha,
+		OneMinusSrcAlpha,
+		DstAlpha,
+		OneMinusDstAlpha,
+		// NOTE: there are more options availible, but I haven't added them yet
+	};
+
+	enum class BlendOp {
+		Add,
+		Subtract,
+		ReverseSubtract,
+		Min,
+		Max,
+	};
+
+	struct AttachmentBlendDesc {
+		bool blend_enable = false;
+		BlendFactor src_color_blend_factor = BlendFactor::One;
+		BlendFactor dst_color_blend_factor = BlendFactor::Zero;
+		BlendOp color_blend_op = BlendOp::Add;
+		BlendFactor src_alpha_blend_factor = BlendFactor::One;
+		BlendFactor dst_alpha_blend_factor = BlendFactor::Zero;
+		BlendOp alpha_blend_op = BlendOp::Add;
+	};
+
+	struct BlendDesc {
 		std::string_view debug_name = "blend state";
+		std::initializer_list<AttachmentBlendDesc> attachments;
 	};
 
 	enum class Primitives {

@@ -836,8 +836,8 @@ namespace api {
 		}
 	}
 
-	RasterizerStateHandle create_rasterizer_state(const RasterizerStateDesc& desc) {
-		D3D11_RASTERIZER_DESC d3d11_rasterizer_desc{};
+	RasterizerStateHandle create_rasterizer_state(const RasterizerDesc& desc) {
+		D3D11_RASTERIZER_DESC d3d11_rasterizer_desc = CD3D11_RASTERIZER_DESC(D3D11_DEFAULT);
 		d3d11_rasterizer_desc.FillMode = _polygon_mode_to_d3d11_fill_mode(desc.polygon_mode);
 		d3d11_rasterizer_desc.CullMode = _cull_mode_to_d3d11_cull_mode(desc.cull_mode);
 		d3d11_rasterizer_desc.FrontCounterClockwise = desc.front_face_ccw ? TRUE : FALSE;
@@ -863,22 +863,54 @@ namespace api {
 		_device_context->RSSetState(d3d11_rasterizer_state);
 	}
 
-	BlendStateHandle create_blend_state(const BlendStateDesc& desc) {
-		D3D11_BLEND_DESC d3d11_blend_desc{};
-#if 0
-		d3d11_blend_desc.AlphaToCoverageEnable = FALSE;
-		d3d11_blend_desc.IndependentBlendEnable = FALSE;
-		for (unsigned int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
-			d3d11_blend_desc.RenderTarget[i].BlendEnable = desc.blend_enable ? TRUE : FALSE;
-			d3d11_blend_desc.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-			d3d11_blend_desc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-			d3d11_blend_desc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
-			d3d11_blend_desc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
-			d3d11_blend_desc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
-			d3d11_blend_desc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-			d3d11_blend_desc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	D3D11_BLEND _blend_factor_to_d3d11_blend(BlendFactor blend_factor) {
+		switch (blend_factor) {
+		case BlendFactor::Zero:             return D3D11_BLEND_ZERO;
+		case BlendFactor::One:              return D3D11_BLEND_ONE;
+		case BlendFactor::SrcColor:         return D3D11_BLEND_SRC_COLOR;
+		case BlendFactor::OneMinusSrcColor: return D3D11_BLEND_INV_SRC_COLOR;
+		case BlendFactor::SrcAlpha:         return D3D11_BLEND_SRC_ALPHA;
+		case BlendFactor::OneMinusSrcAlpha: return D3D11_BLEND_INV_SRC_ALPHA;
+		case BlendFactor::DstColor:         return D3D11_BLEND_DEST_COLOR;
+		case BlendFactor::OneMinusDstColor: return D3D11_BLEND_INV_DEST_COLOR;
+		case BlendFactor::DstAlpha:         return D3D11_BLEND_DEST_ALPHA;
+		case BlendFactor::OneMinusDstAlpha: return D3D11_BLEND_INV_DEST_ALPHA;
+		default:                            return D3D11_BLEND_ZERO;
 		}
-#endif
+	}
+
+	D3D11_BLEND_OP _blend_op_to_d3d11_blend_op(BlendOp blend_op) {
+		switch (blend_op) {
+		case BlendOp::Add:             return D3D11_BLEND_OP_ADD;
+		case BlendOp::Subtract:        return D3D11_BLEND_OP_SUBTRACT;
+		case BlendOp::ReverseSubtract: return D3D11_BLEND_OP_REV_SUBTRACT;
+		case BlendOp::Min:             return D3D11_BLEND_OP_MIN;
+		case BlendOp::Max:             return D3D11_BLEND_OP_MAX;
+		default:                       return D3D11_BLEND_OP_ADD;
+		}
+	}
+
+	BlendStateHandle create_blend_state(const BlendDesc& desc) {
+		if (desc.attachments.size() > D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT) {
+			_output_debug_message("Too many blend state buffers: " + std::string(desc.debug_name));
+			return BlendStateHandle();
+		}
+		D3D11_BLEND_DESC d3d11_blend_desc = CD3D11_BLEND_DESC(D3D11_DEFAULT);
+		for (unsigned int i = 0; i < D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+			const AttachmentBlendDesc& attachment_blend_desc = *(desc.attachments.begin() + i);
+			if (attachment_blend_desc.blend_enable && i > 0) {
+				d3d11_blend_desc.IndependentBlendEnable = TRUE;
+			}
+			D3D11_RENDER_TARGET_BLEND_DESC& d3d11_rt_blend_desc = d3d11_blend_desc.RenderTarget[i];
+			d3d11_rt_blend_desc.BlendEnable = attachment_blend_desc.blend_enable ? TRUE : FALSE;
+			d3d11_rt_blend_desc.SrcBlend = _blend_factor_to_d3d11_blend(attachment_blend_desc.src_color_blend_factor);
+			d3d11_rt_blend_desc.DestBlend = _blend_factor_to_d3d11_blend(attachment_blend_desc.dst_color_blend_factor);
+			d3d11_rt_blend_desc.BlendOp = _blend_op_to_d3d11_blend_op(attachment_blend_desc.color_blend_op);
+			d3d11_rt_blend_desc.SrcBlendAlpha = _blend_factor_to_d3d11_blend(attachment_blend_desc.src_alpha_blend_factor);
+			d3d11_rt_blend_desc.DestBlendAlpha = _blend_factor_to_d3d11_blend(attachment_blend_desc.dst_alpha_blend_factor);
+			d3d11_rt_blend_desc.BlendOpAlpha = _blend_op_to_d3d11_blend_op(attachment_blend_desc.alpha_blend_op);
+			//d3d11_rt_blend_desc.RenderTargetWriteMask = attachment_blend_desc.color_write_mask;
+		}
 		ID3D11BlendState* d3d11_blend_state = nullptr;
 		HRESULT result = _device->CreateBlendState(&d3d11_blend_desc, &d3d11_blend_state);
 		if (FAILED(result)) {
