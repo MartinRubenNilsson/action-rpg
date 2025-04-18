@@ -57,6 +57,19 @@ namespace api {
 #endif
 	}
 
+	template <class T>
+	std::string _get_debug_name(T* object) {
+#ifdef GRAPHICS_API_DEBUG
+		std::string name;
+		if (!object) return name;
+		UINT size = 0;
+		object->GetPrivateData(WKPDID_D3DDebugObjectName, &size, nullptr);
+		name.resize(size);
+		object->GetPrivateData(WKPDID_D3DDebugObjectName, &size, name.data());
+		return name;
+#endif
+	}
+
 	bool _initialize_swap_chain_back_buffer_rtv_and_default_framebuffer_impl() {
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer_texture;
 		HRESULT result = _swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer_texture));
@@ -793,7 +806,8 @@ namespace api {
 			_output_debug_message("Failed to create render target view");
 			return false;
 		}
-		_set_debug_name(d3d11_rtv, "Framebuffer color texture RTV");
+		_set_debug_name(d3d11_rtv, _get_debug_name(d3d11_texture_2d.Get()) + " rtv");
+		_safe_release(framebuffer_impl->rtvs[buffer]);
 		framebuffer_impl->rtvs[buffer] = d3d11_rtv;
 		return true;
 	}
