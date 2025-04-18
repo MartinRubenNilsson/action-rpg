@@ -33,6 +33,10 @@ namespace graphics {
 
 	struct Texture {
 		api::TextureHandle api_handle{};
+		// PITFALL: When loading a texture, desc.debug_name is set to the texture path.
+		// To ensure the string_view doesn't get invalidated, the owning string is
+		// moved into _path_to_texture. If this map gets cleared for whatever reason,
+		// then all these string_views will therefore be invalidated, so watch out!
 		TextureDesc desc{};
 	};
 
