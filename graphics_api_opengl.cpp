@@ -160,12 +160,6 @@ namespace api {
 		glBindProgramPipeline(_program_pipeline_object);
 		_gl_object_label(GL_PROGRAM_PIPELINE, _program_pipeline_object, "program pipeline");
 
-		// SETUP BLENDING
-		//fixme: move to userland
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		return true;
 	}
 
@@ -303,7 +297,7 @@ namespace api {
 		_gl_object_label(GL_VERTEX_ARRAY, vertex_array_object, desc.debug_name);
 		glBindVertexArray(vertex_array_object);
 		for (unsigned int i = 0; i < desc.attributes.size(); ++i) {
-			const VertexInputAttribDesc& attrib = desc.attributes[i];
+			const VertexInputAttribDesc& attrib = *(desc.attributes.begin() + i);
 			glEnableVertexArrayAttrib(vertex_array_object, i);
 			glVertexArrayAttribFormat(vertex_array_object, i,
 				_get_vertex_attribute_component_count(attrib.format),
@@ -574,6 +568,67 @@ namespace api {
 			glCullFace(impl->cull_mode == CullMode::Front ? GL_FRONT : GL_BACK);
 		}
 		glFrontFace(impl->front_face_ccw ? GL_CCW : GL_CW);
+	}
+
+	GLenum _blend_factor_to_gl_blend_factor(BlendFactor factor) {
+		switch (factor) {
+		case BlendFactor::Zero:                return GL_ZERO;
+		case BlendFactor::One:                 return GL_ONE;
+		case BlendFactor::SrcColor:            return GL_SRC_COLOR;
+		case BlendFactor::OneMinusSrcColor:    return GL_ONE_MINUS_SRC_COLOR;
+		case BlendFactor::DstColor:            return GL_DST_COLOR;
+		case BlendFactor::OneMinusDstColor:    return GL_ONE_MINUS_DST_COLOR;
+		case BlendFactor::SrcAlpha:            return GL_SRC_ALPHA;
+		case BlendFactor::OneMinusSrcAlpha:    return GL_ONE_MINUS_SRC_ALPHA;
+		case BlendFactor::DstAlpha:            return GL_DST_ALPHA;
+		case BlendFactor::OneMinusDstAlpha:    return GL_ONE_MINUS_DST_ALPHA;
+		default:                               return GL_ZERO;
+		}
+	}
+
+	GLenum _blend_op_to_gl_blend_op(BlendOp op) {
+		switch (op) {
+		case BlendOp::Add:               return GL_FUNC_ADD;
+		case BlendOp::Subtract:          return GL_FUNC_SUBTRACT;
+		case BlendOp::ReverseSubtract:   return GL_FUNC_REVERSE_SUBTRACT;
+		case BlendOp::Min:               return GL_MIN;
+		case BlendOp::Max:               return GL_MAX;
+		default:                         return GL_FUNC_ADD;
+		}
+	}
+
+	BlendStateHandle create_blend_state(const BlendDesc& desc) {
+		BlendDesc* impl = new BlendDesc(desc);
+		impl->debug_name = {};
+		return BlendStateHandle{ .object = (uintptr_t)impl };
+	}
+
+	void destroy_blend_state(BlendStateHandle state) {
+		if (!state.object) return;
+		BlendDesc* impl = (BlendDesc*)state.object;
+		delete impl;
+	}
+
+	void bind_blend_state(BlendStateHandle state) {
+		if (!state.object) return; // TODO: default state
+		BlendDesc* impl = (BlendDesc*)state.object;
+		for (GLuint i = 0; i < impl->attachments.size(); ++i) {
+			const AttachmentBlendDesc& attachment_blend_desc = *(impl->attachments.begin() + i);
+			if (attachment_blend_desc.blend_enable) {
+				glEnablei(GL_BLEND, i);
+			} else {
+				glDisablei(GL_BLEND, i);
+			}
+			glBlendFuncSeparatei(i,
+				_blend_factor_to_gl_blend_factor(attachment_blend_desc.src_color_blend_factor),
+				_blend_factor_to_gl_blend_factor(attachment_blend_desc.dst_color_blend_factor),
+				_blend_factor_to_gl_blend_factor(attachment_blend_desc.src_alpha_blend_factor),
+				_blend_factor_to_gl_blend_factor(attachment_blend_desc.dst_alpha_blend_factor)
+			);
+			glBlendEquationSeparatei(i,
+				_blend_op_to_gl_blend_op(attachment_blend_desc.color_blend_op),
+				_blend_op_to_gl_blend_op(attachment_blend_desc.alpha_blend_op));
+		}
 	}
 
 	void set_viewports(const Viewport* viewports, unsigned int count) {

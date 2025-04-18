@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
             graphics::update_buffer(graphics::frame_uniform_buffer, &frame_ub, sizeof(frame_ub));
         }
 
-		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 1.f };
+		constexpr float CLEAR_COLOR[4] = { 0.f, 0.f, 0.f, 0.f };
         graphics::clear_framebuffer(graphics::game_ping_framebuffer, CLEAR_COLOR);
 		// Try to ensure game_ping_framebuffer is unbound as input before binding it as output
         graphics::bind_texture(0, Handle<graphics::Texture>());
