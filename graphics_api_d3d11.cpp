@@ -537,6 +537,14 @@ namespace api {
 	void bind_uniform_buffer_range(unsigned int binding, BufferHandle buffer, unsigned int size, unsigned int offset) {
 		// SIC: Allow binding a null buffer to unbind the current buffer.
 		ID3D11Buffer* d3d11_buffer = (ID3D11Buffer*)buffer.object;
+		// PITFALL: In D3D11, the XSSetConstantBuffers1() family of functions expects
+		// the offsets and sizes to be counted in "shader constants", which are 16 bytes
+		// (4*32-bit components), e.g. float4s. This is different from OpenGL, where
+		// the offsets and sizes are counted in bytes. Compare:
+		// https://learn.microsoft.com/en-us/windows/win32/api/d3d11_1/nf-d3d11_1-id3d11devicecontext1-vssetconstantbuffers1
+		// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBufferRange.xhtml
+		size /= 16; // 16 bytes per float4
+		offset /= 16; // 16 bytes per float4
 		_device_context->VSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 		_device_context->PSSetConstantBuffers1(binding, 1, &d3d11_buffer, &offset, &size);
 	}
