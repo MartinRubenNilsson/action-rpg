@@ -343,6 +343,9 @@ namespace graphics {
 				.src_color_blend_factor = BlendFactor::SrcAlpha,
 				.dst_color_blend_factor = BlendFactor::OneMinusSrcAlpha,
 				.color_blend_op = BlendOp::Add,
+				.src_alpha_blend_factor = BlendFactor::One,
+				.dst_alpha_blend_factor = BlendFactor::OneMinusSrcAlpha,
+				.alpha_blend_op = BlendOp::Add,
 			} }
 		});
 	}
