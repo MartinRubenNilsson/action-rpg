@@ -129,7 +129,10 @@ namespace graphics {
 
 		// INITIALIZE SWAP CHAIN BACK BUFFER
 
-		_swap_chain_back_buffer_handle = _framebuffer_pool.emplace(api::get_swap_chain_back_buffer());
+		Framebuffer swap_chain_back_buffer{};
+		swap_chain_back_buffer.api_handle = api::get_swap_chain_back_buffer();
+		swap_chain_back_buffer.is_swap_chain_back_buffer = true;
+		_swap_chain_back_buffer_handle = _framebuffer_pool.emplace(std::move(swap_chain_back_buffer));
 
 		return true;
 	}
@@ -625,7 +628,9 @@ namespace graphics {
 	}
 
 	void bind_framebuffer(Handle<Framebuffer> handle) {
-		if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
+		if (handle == Handle<Framebuffer>()) {
+			api::bind_framebuffer(api::FramebufferHandle());
+		} else if (const Framebuffer* framebuffer = _framebuffer_pool.get(handle)) {
 			api::bind_framebuffer(framebuffer->api_handle);
 		}
 	}

@@ -15,7 +15,11 @@ void main(){
 	// |  /
 	// | /
 	// |/
-	// 
+	//
+	// PITFALL: We use an unusual clip space coordinate system where y is down.
+	// This makes it easier to handle some differences between OpenGL and D3D11.
+	// Moreover, it means the shader coordinate axes point the same as the game world.
+	//
 	const vec2 vertices[3] = vec2[3](
 		vec2(-1.0, -1.0), // top left
 		vec2(3.0, -1.0), // top right

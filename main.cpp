@@ -262,6 +262,9 @@ int main(int argc, char* argv[]) {
         {
             const Vector2f camera_center = (camera_min + camera_max) / 2.f;
             const Vector2f camera_size = camera_max - camera_min;
+            // PITFALL: We use an unusual clip space coordinate system where y is down.
+            // This makes it easier to handle some differences between OpenGL and D3D11.
+            // Moreover, it means the shader coordinate axes point the same as the game world.
             const float a = 2.f / camera_size.x;
             const float b = 2.f / camera_size.y;
             const float c = -a * camera_center.x;
@@ -342,6 +345,11 @@ int main(int argc, char* argv[]) {
             graphics::ScopedDebugGroup debug_group("Copy to back buffer");
             graphics::bind_framebuffer(graphics::get_swap_chain_back_buffer());
 #ifdef GRAPHICS_API_OPENGL
+            // PITFALL: In order to easier handle some differences between OpenGL and D3D11,
+            // we render each framebuffer upside-down. This means we can use the same UV
+			// and viewport coordinates for both APIs. However, it means we need to do a
+			// vertical flip when rendering to the back buffer in OpenGL, otherwise the
+			// final image will be upside-down.
             graphics::bind_vertex_shader(graphics::fullscreen_flip_vert);
 #else
             graphics::bind_vertex_shader(graphics::fullscreen_vert);
