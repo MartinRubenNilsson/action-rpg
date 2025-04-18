@@ -1,7 +1,5 @@
 #pragma once
 
-// images.h - Wrapper for stb_image.h
-
 namespace images {
 
 	struct Image {
