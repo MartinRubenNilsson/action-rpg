@@ -343,7 +343,9 @@ int main(int argc, char* argv[]) {
 		// COPY FINAL FRAMEBUFFER TO BACK BUFFER
         {
             graphics::ScopedDebugGroup debug_group("Copy to back buffer");
-            graphics::bind_framebuffer(graphics::get_swap_chain_back_buffer());
+			const Handle<graphics::Framebuffer> back_buffer = graphics::get_swap_chain_back_buffer();
+			graphics::clear_framebuffer(back_buffer, CLEAR_COLOR);
+            graphics::bind_framebuffer(back_buffer);
 #ifdef GRAPHICS_API_OPENGL
             // PITFALL: In order to easier handle some differences between OpenGL and D3D11,
             // we render each framebuffer upside-down. This means we can use the same UV
