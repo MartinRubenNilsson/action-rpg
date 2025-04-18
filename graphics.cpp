@@ -320,7 +320,7 @@ namespace graphics {
 		api::BufferHandle api_handle = api::create_buffer(desc);
 		if (!api_handle.object) return Handle<Buffer>();
 		desc.initial_data = nullptr;
-		return _buffer_pool.emplace(api_handle, desc);
+		return _buffer_pool.emplace(api_handle, std::move(desc));
 	}
 
 	void recreate_buffer(Handle<Buffer> handle, unsigned int size, const void* initial_data) {
@@ -407,7 +407,7 @@ namespace graphics {
 		if (!api_handle.object) return Handle<Texture>();
 		desc.initial_data = nullptr;
 		_total_texture_memory_usage_in_bytes += _get_texture_byte_size(desc);
-		return _texture_pool.emplace(api_handle, desc);
+		return _texture_pool.emplace(api_handle, std::move(desc));
 	}
 
 	Format _channels_to_format(unsigned int channels) {
@@ -545,7 +545,7 @@ namespace graphics {
 	Handle<Sampler> create_sampler(SamplerDesc&& desc) {
 		api::SamplerHandle api_handle = api::create_sampler(desc);
 		if (!api_handle.object) return Handle<Sampler>();
-		return _sampler_pool.emplace(api_handle, desc);
+		return _sampler_pool.emplace(api_handle, std::move(desc));
 	}
 
 	void destroy_sampler(Handle<Sampler> handle) {
@@ -571,7 +571,7 @@ namespace graphics {
 	Handle<Framebuffer> create_framebuffer(FramebufferDesc&& desc) {
 		api::FramebufferHandle api_handle = api::create_framebuffer(desc);
 		if (!api_handle.object) return Handle<Framebuffer>();
-		return _framebuffer_pool.emplace(api_handle, desc);
+		return _framebuffer_pool.emplace(api_handle, std::move(desc));
 	}
 
 	void attach_framebuffer_texture(Handle<Framebuffer> framebuffer_handle, Handle<Texture> texture_handle) {
@@ -641,7 +641,7 @@ namespace graphics {
 	Handle<RasterizerState> create_rasterizer_state(RasterizerDesc&& desc) {
 		api::RasterizerStateHandle api_handle = api::create_rasterizer_state(desc);
 		if (!api_handle.object) return Handle<RasterizerState>();
-		return _rasterizer_state_pool.emplace(api_handle, desc);
+		return _rasterizer_state_pool.emplace(api_handle, std::move(desc));
 	}
 
 	void bind_rasterizer_state(Handle<RasterizerState> handle) {
@@ -655,7 +655,7 @@ namespace graphics {
 	Handle<BlendState> create_blend_state(BlendDesc&& desc) {
 		api::BlendStateHandle api_handle = api::create_blend_state(desc);
 		if (!api_handle.object) return Handle<BlendState>();
-		return _blend_state_pool.emplace(api_handle, desc);
+		return _blend_state_pool.emplace(api_handle, std::move(desc));
 	}
 
 	void bind_blend_state(Handle<BlendState> handle) {
