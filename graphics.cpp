@@ -388,7 +388,7 @@ namespace graphics {
 		api::bind_uniform_buffer_range(binding, buffer->api_handle, size, offset);
 	}
 
-	unsigned _get_size(Format format) {
+	unsigned int _format_to_channels(Format format) {
 		switch (format) {
 		case Format::R8_UNORM:    return 1;
 		case Format::RG8_UNORM:   return 2;
@@ -402,11 +402,11 @@ namespace graphics {
 		api::TextureHandle api_handle = api::create_texture(desc);
 		if (!api_handle.object) return Handle<Texture>();
 		desc.initial_data = nullptr;
-		_total_texture_memory_usage_in_bytes += desc.width * desc.height * _get_size(desc.format);
+		_total_texture_memory_usage_in_bytes += desc.width * desc.height * _format_to_channels(desc.format);
 		return _texture_pool.emplace(api_handle, desc);
 	}
 
-	Format _image_channel_count_to_format(unsigned int channels) {
+	Format _channels_to_format(unsigned int channels) {
 		switch (channels) {
 		case 1:  return Format::R8_UNORM;
 		case 2:  return Format::RG8_UNORM;
@@ -451,7 +451,7 @@ namespace graphics {
 			return Handle<Texture>();
 		}
 
-		const Format format = _image_channel_count_to_format(image.channels);
+		const Format format = _channels_to_format(image.channels);
 		if (format == Format::UNKNOWN) {
 			console::log_error("Unsupported texture channel count:");
 			console::log_error("- Texture: " + std::string(path_used));
@@ -495,7 +495,7 @@ namespace graphics {
 		if (!texture) return;
 		api::destroy_texture(texture->api_handle);
 		_total_texture_memory_usage_in_bytes -=
-			texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
+			texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
 		// HACK: When a texture is loaded, its debug_name is set to the path.
 		_path_to_texture.erase(std::string(texture->desc.debug_name));
 		*texture = Texture();
@@ -613,11 +613,11 @@ namespace graphics {
 		if (!texture) return;
 		if (texture->desc.width == width && texture->desc.height == height) return; // No-op
 		api::destroy_texture(texture->api_handle);
-		_total_texture_memory_usage_in_bytes -= texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
+		_total_texture_memory_usage_in_bytes -= texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
 		texture->desc.width = width;
 		texture->desc.height = height;
 		texture->api_handle = api::create_texture(texture->desc);
-		_total_texture_memory_usage_in_bytes += texture->desc.width * texture->desc.height * _get_size(texture->desc.format);
+		_total_texture_memory_usage_in_bytes += texture->desc.width * texture->desc.height * _format_to_channels(texture->desc.format);
 		api::attach_framebuffer_color_texture(framebuffer->api_handle, 0, texture->api_handle);
 	}
 
@@ -712,7 +712,7 @@ namespace graphics {
 			if (ImGui::TreeNode(texture.desc.debug_name.data())) {
 				ImGui::Text("Dimensions: %dx%dx", texture.desc.width, texture.desc.height);
 				ImGui::Text("Format: %s", magic_enum::enum_name(texture.desc.format).data());
-				unsigned int size = texture.desc.width * texture.desc.height * _get_size(texture.desc.format);
+				unsigned int size = texture.desc.width * texture.desc.height * _format_to_channels(texture.desc.format);
 				unsigned int kb = size / 1024;
 				unsigned int mb = kb / 1024;
 				if (mb) {
