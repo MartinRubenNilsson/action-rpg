@@ -127,7 +127,8 @@ namespace sprites {
 					sprite.texture == current_batch.texture &&
 					sprite.uniform_buffer == current_batch.uniform_buffer &&
 					sprite.uniform_buffer_size == current_batch.uniform_buffer_size &&
-					sprite.uniform_buffer_offset == current_batch.uniform_buffer_offset) {
+					sprite.uniform_buffer_offset == current_batch.uniform_buffer_offset
+				) {
 					// Add degenerate triangles to separate the sprites
 					graphics::temp_vertices.emplace_back(graphics::temp_vertices.back()); // D
 					graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl); // E
@@ -146,8 +147,8 @@ namespace sprites {
 
 			// Add the vertices of the new sprite to the batch
 			graphics::temp_vertices.emplace_back(tl, sprite.color, tex_tl);
-			graphics::temp_vertices.emplace_back(bl, sprite.color, tex_bl);
 			graphics::temp_vertices.emplace_back(tr, sprite.color, tex_tr);
+			graphics::temp_vertices.emplace_back(bl, sprite.color, tex_bl);
 			graphics::temp_vertices.emplace_back(br, sprite.color, tex_br);
 
 			// Update statistics
