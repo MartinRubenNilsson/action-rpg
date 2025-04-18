@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "settings.h"
 #include "window.h"
-#include "window_graphics.h"
+#include "graphics.h"
 #include "audio.h"
 #include "filesystem.h"
 
@@ -20,9 +20,7 @@ namespace settings {
 		if (!fullscreen) {
 			window::set_size(GAME_FRAMEBUFFER_WIDTH * window_scale, GAME_FRAMEBUFFER_HEIGHT * window_scale);
 		}
-#ifdef GRAPHICS_API_OPENGL
-		window::set_swap_interval(vsync ? 1 : 0); //TODO: move to graphics.cpp
-#endif
+		graphics::set_swap_chain_sync_interval(vsync ? 1 : 0);
 		audio::set_bus_volume(audio::BUS_MASTER, volume_master);
 		audio::set_bus_volume(audio::BUS_MUSIC, volume_music);
 		audio::set_bus_volume(audio::BUS_SOUND, volume_sound);

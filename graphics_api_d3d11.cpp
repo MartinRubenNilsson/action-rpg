@@ -242,8 +242,8 @@ namespace api {
 		return true;
 	}
 
-	void present_swap_chain_back_buffer() {
-		_swap_chain->Present(0, 0);
+	void present_swap_chain_back_buffer(unsigned int sync_interval) {
+		_swap_chain->Present(sync_interval, 0);
 	}
 
 	void push_debug_group(std::string_view name) {

@@ -256,13 +256,23 @@ namespace graphics {
 #endif
 	}
 
+	unsigned int _swap_chain_sync_interval = 0;
+
+	void set_swap_chain_sync_interval(unsigned int sync_interval) {
+		_swap_chain_sync_interval = sync_interval;
+#ifdef GRAPHICS_API_OPENGL
+		// The window owns the swap chain.
+		window::set_swap_chain_sync_interval(sync_interval);
+#endif
+	}
+
 	void present_swap_chain_back_buffer() {
 #ifdef GRAPHICS_API_OPENGL
 		// The window owns the swap chain.
 		window::present_swap_chain_back_buffer();
 #endif
 #ifdef GRAPHICS_API_D3D11
-		api::present_swap_chain_back_buffer();
+		api::present_swap_chain_back_buffer(_swap_chain_sync_interval);
 #endif
 	}
 

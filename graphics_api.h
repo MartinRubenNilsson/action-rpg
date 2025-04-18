@@ -41,7 +41,7 @@ namespace api {
 	ID3D11Device* get_d3d11_device();
 	ID3D11DeviceContext* get_d3d11_device_context();
 	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height);
-	void present_swap_chain_back_buffer(); // Swaps the front and back buffers
+	void present_swap_chain_back_buffer(unsigned int sync_interval = 0);
 #endif
 
 	void push_debug_group(std::string_view name);

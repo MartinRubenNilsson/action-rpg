@@ -331,11 +331,13 @@ namespace window
 		return (GLADloadproc)glfwGetProcAddress;
 	}
 
-	void set_swap_interval(int interval) {
-		static int last_interval = INT_MAX;
-		if (interval == last_interval) return;
-		last_interval = interval;
-		glfwSwapInterval(interval);
+	void set_swap_chain_sync_interval(int sync_interval) {
+		// Calling glfwSwapInverval() repetitively made the app lag,
+		// so I've added a check here to ensure it doesn't happen again.
+		static int last_sync_interval = INT_MAX;
+		if (sync_interval == last_sync_interval) return;
+		last_sync_interval = sync_interval;
+		glfwSwapInterval(sync_interval);
 	}
 
 	void present_swap_chain_back_buffer() {

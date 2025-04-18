@@ -23,6 +23,7 @@ namespace graphics {
 	bool is_spirv_supported();
 
 	bool resize_swap_chain_framebuffer(unsigned int new_width, unsigned int new_height);
+	void set_swap_chain_sync_interval(unsigned int sync_interval);
 	void present_swap_chain_back_buffer();
 
 	void push_debug_group(std::string_view name);
