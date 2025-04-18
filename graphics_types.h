@@ -102,7 +102,7 @@ namespace graphics {
 		std::string_view debug_name = "rasterizer state";
 		PolygonMode polygon_mode = PolygonMode::Fill;
 		CullMode cull_mode = CullMode::Back;
-		bool front_face_ccw = true; // If true, the front face is counter-clockwise
+		bool front_face_ccw = false; // If true, the front face is counter-clockwise
 	};
 
 	enum class BlendFactor {

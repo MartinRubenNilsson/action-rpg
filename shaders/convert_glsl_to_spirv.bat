@@ -1,4 +1,6 @@
 @echo off
+setlocal EnableDelayedExpansion
+
 echo Converting GLSL files to SPIR-V...
 echo.
 
@@ -14,15 +16,16 @@ if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 for %%f in (%INPUT_DIR%\*) do (
     echo Converting vertex shader: %%f
     glslang -G -g "%%f" -o "%OUTPUT_DIR%\%%~nf%%~xf.spv"
-    if %ERRORLEVEL% EQU 0 (
+	
+    if !ERRORLEVEL! EQU 0 (
         echo - Success: Created %OUTPUT_DIR%\%%~nf%%~xf.spv
         set /a COUNTER+=1
     ) else (
         echo - Error: Failed to convert %%f
+		pause
     )
 	echo.
 )
 
 echo.
-echo Conversion complete. Processed %COUNTER% files.
-pause
+echo Conversion complete. Converted %COUNTER% files from GLSL to SPIR-V.

@@ -1,7 +1,6 @@
 #version 460
 
-layout(std140, binding = 0) uniform FrameUniformBlock
-{
+layout(std140, binding = 0) uniform FrameUniformBlock {
 	mat4 view_proj_matrix;
 	float app_time;
 	float game_time;
@@ -18,8 +17,7 @@ out gl_PerVertex {
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec2 tex_coord;
 
-void main()
-{
+void main() {
 	gl_Position = view_proj_matrix * vec4(vertex_position, 0.0, 1.0);
 	color = vertex_color;
 	tex_coord = vertex_tex_coord;

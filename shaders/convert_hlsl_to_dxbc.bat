@@ -1,5 +1,8 @@
 @echo off
-echo Compiling HLSL files to DXBC using fxc...
+setlocal EnableDelayedExpansion
+
+
+echo Compiling HLSL files to DXBC...
 echo.
 
 :: Define directory paths as variables
@@ -12,7 +15,6 @@ if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
 
 :: Process HLSL files to DXBC
 for %%f in (%INPUT_DIR%\*.hlsl) do (
-    setlocal EnableDelayedExpansion
     set "filename=%%~nxf"
     set "basename=%%~nf"
     set "target="
@@ -43,12 +45,11 @@ for %%f in (%INPUT_DIR%\*.hlsl) do (
             echo - Error: Failed to compile %%f
         )
     ) else (
-        echo Skipping unknown shader type: %%f
+        echo Warning: Skipping unknown shader type: %%f
+		pause
     )
-    endlocal
     echo.
 )
 
 echo.
-echo Compilation complete. Processed %COUNTER% files from HLSL to DXBC.
-pause
+echo Compilation complete. Compiled %COUNTER% files from HLSL to DXBC.

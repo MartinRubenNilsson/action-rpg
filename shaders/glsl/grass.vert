@@ -1,14 +1,12 @@
 #version 460
 
-layout(std140, binding = 0) uniform FrameUniformBlock
-{
+layout(std140, binding = 0) uniform FrameUniformBlock {
 	mat4 view_proj_matrix;
 	float app_time;
 	float game_time;
 };
 
-layout(std140, binding = 1) uniform GrassUniformBlock
-{
+layout(std140, binding = 1) uniform GrassUniformBlock {
 	vec2 position;
 	vec2 tex_min;
 	vec2 tex_max;
@@ -25,8 +23,7 @@ out gl_PerVertex {
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec2 tex_coord;
 
-void main()
-{
+void main() {
 	const vec2 local_tex_coord = (vertex_tex_coord - tex_min) / (tex_max - tex_min);
 	const float sway_intensity = clamp(1.0 - local_tex_coord.y, 0.0, 1.0) * (0.5 + 0.3 * sin(0.3 * game_time));
 	const float sway_time_offset = local_tex_coord.x * 2.0 + 0.008 * dot(position, vec2(1, 2));
