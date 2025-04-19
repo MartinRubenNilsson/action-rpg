@@ -39,4 +39,4 @@ namespace renderdoc {
 	}
 }
 
-#endif // DEBUG_RENDERDOC
+#endif // _DEBUG_RENDERDOC
