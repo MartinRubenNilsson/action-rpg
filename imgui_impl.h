@@ -8,4 +8,4 @@ namespace imgui_impl {
 	void render();
 }
 
-#endif // DEBUG_IMGUI
+#endif // _DEBUG_IMGUI
