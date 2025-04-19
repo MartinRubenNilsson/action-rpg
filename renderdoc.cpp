@@ -8,23 +8,24 @@
 namespace renderdoc {
 	RENDERDOC_API_1_6_0* _rdoc_api = nullptr;
 
-	void initialize() {
+	bool initialize() {
 		HMODULE mod = LoadLibraryA("renderdoc.dll");
 		if (!mod) {
 			console::log_error("Failed to load renderdoc.dll");
-			return;
+			return false;
 		}
 		pRENDERDOC_GetAPI RENDERDOC_GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
 		int ret = RENDERDOC_GetAPI(eRENDERDOC_API_Version_1_6_0, (void**)&_rdoc_api);
 		if (ret != 1) {
 			console::log_error("Failed to get renderdoc API");
-			return;
+			return false;
 		}
 		//_rdoc_api->SetCaptureOptionU32(eRENDERDOC_Option_APIValidation, 1);
 		//_rdoc_api->SetCaptureOptionU32(eRENDERDOC_Option_DebugOutputMute, 0);
 		RENDERDOC_InputButton capture_key = eRENDERDOC_Key_PrtScrn;
 		_rdoc_api->SetCaptureKeys(&capture_key, 1);
 		_rdoc_api->MaskOverlayBits(eRENDERDOC_Overlay_None, eRENDERDOC_Overlay_None);
+		return true;
 	}
 
 	bool is_frame_capturing() {
