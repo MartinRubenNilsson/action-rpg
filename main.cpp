@@ -249,8 +249,6 @@ int main(int argc, char* argv[]) {
         postprocessing::update(game_delta_time);
 
         // RENDER
-
-        const float pixel_scale = 1.f;
 		
         sprites::clear_drawing_statistics();
 
