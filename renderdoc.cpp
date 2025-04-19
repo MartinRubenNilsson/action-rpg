@@ -2,9 +2,7 @@
 #ifdef _DEBUG_RENDERDOC
 #include "renderdoc.h"
 #include "console.h"
-#include "filesystem.h"
 #include <Windows.h>
-#include <shellapi.h> // ShellExecuteW
 #include <renderdoc/renderdoc_app.h>
 
 namespace renderdoc {
@@ -29,14 +27,14 @@ namespace renderdoc {
 		_rdoc_api->MaskOverlayBits(eRENDERDOC_Overlay_None, eRENDERDOC_Overlay_None);
 	}
 
-	void open_capture_folder_if_capturing() {
-		if (!_rdoc_api) return;
-		if (!_rdoc_api->IsFrameCapturing()) return;
-		const char* path_cstr = _rdoc_api->GetCaptureFilePathTemplate();
-		if (!path_cstr) return;
-		std::string parent_path = filesystem::get_parent_path(path_cstr);
-		std::wstring parent_path_wstring(parent_path.begin(), parent_path.end());
-		ShellExecuteW(0, L"open", parent_path_wstring.c_str(), 0, 0, SW_SHOWNORMAL);
+	bool is_frame_capturing() {
+		if (!_rdoc_api) return false;
+		return _rdoc_api->IsFrameCapturing();
+	}
+
+	const char* get_capture_file_path_template() {
+		if (!_rdoc_api) return "";
+		return _rdoc_api->GetCaptureFilePathTemplate();
 	}
 }
 

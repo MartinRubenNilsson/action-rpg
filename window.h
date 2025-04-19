@@ -51,7 +51,6 @@ namespace window {
 		Count, // Keep last -- the total number of cursor shapes.
 	};
 
-
 	void set_cursor_shape(CursorShape shape);
 	void set_clipboard_string(const std::string& string);
 	std::string get_clipboard_string();

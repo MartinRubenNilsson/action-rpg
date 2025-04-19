@@ -409,7 +409,11 @@ int main(int argc, char* argv[]) {
         graphics::present_swap_chain_back_buffer();
 
 #ifdef _DEBUG_RENDERDOC
-        renderdoc::open_capture_folder_if_capturing();
+        if (renderdoc::is_frame_capturing()) {
+			const std::string capture_file_directory =
+                filesystem::get_parent_path(renderdoc::get_capture_file_path_template());
+            platform::open(capture_file_directory.c_str());
+        }
 #endif
     }
 

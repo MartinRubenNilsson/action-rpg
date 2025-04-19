@@ -3,6 +3,7 @@
 namespace platform {
 	int system(const char* command);
 	bool set_environment_variable(const char* name, const char* value);
+	bool open(const char* path);
 	bool is_debugger_present();
 	void debug_break();
 	void output_debug_string(const char* string);

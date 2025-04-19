@@ -3,7 +3,8 @@
 
 namespace renderdoc {
 	void initialize();
-	void open_capture_folder_if_capturing();
+	bool is_frame_capturing();
+	const char* get_capture_file_path_template();
 }
 
 #endif // DEBUG_RENDERDOC
