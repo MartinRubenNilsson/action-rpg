@@ -2,7 +2,7 @@
 #ifdef _DEBUG_IMGUI
 
 namespace imgui_impl {
-	void initialize();
+	bool initialize();
 	void shutdown();
 	void new_frame();
 	void render();
