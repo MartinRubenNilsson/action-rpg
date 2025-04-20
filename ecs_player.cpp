@@ -482,17 +482,22 @@ namespace ecs {
 			ImGui::Text("Arrows: %d", player.arrows);
 			ImGui::Text("Rupees: %d", player.rupees);
 
-			if (ImGui::Button("Apply 1 Damage"))
+			if (ImGui::Button("Apply 1 Damage")) {
 				apply_damage_to_player(entity, { DamageType::Default, 1 });
-			if (ImGui::Button("Kill"))
+			}
+			if (ImGui::Button("Kill")) {
 				apply_damage_to_player(entity, { DamageType::Default, 999 });
+			}
 
-			if (ImGui::Button("Give 5 Arrows"))
+			if (ImGui::Button("Give 5 Arrows")) {
 				player.arrows += 5;
-			if (ImGui::Button("Give 5 Bombs"))
+			}
+			if (ImGui::Button("Give 5 Bombs")) {
 				player.bombs += 5;
-			if (ImGui::Button("Give 5 Rupees"))
+			}
+			if (ImGui::Button("Give 5 Rupees")) {
 				player.rupees += 5;
+			}
 
 #if 0
 			if (ImGui::Button("Randomize Outfit")) {
@@ -541,7 +546,7 @@ namespace ecs {
 		return true;
 	}
 
-	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity) {
+	void _on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		Pickup* pickup = get_pickup(pickup_entity);
@@ -570,7 +575,7 @@ namespace ecs {
 		destroy_at_end_of_frame(pickup_entity);
 	}
 
-	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
+	void _on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->touching_pushable_block = true;
@@ -581,7 +586,7 @@ namespace ecs {
 		}
 	}
 
-	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
+	void _on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity) {
 		Player* player = get_player(player_entity);
 		if (!player) return;
 		player->touching_pushable_block = false;
@@ -594,19 +599,19 @@ namespace ecs {
 	void on_player_physics_event(const PhysicsEvent& ev) {
 		if (ev.type == PhysicsEventType::SensorBeginTouch) {
 			if (ev.tag_b == Tag::Pickup) {
-				on_player_begin_touch_pickup(ev.entity_a, ev.entity_b);
+				_on_player_begin_touch_pickup(ev.entity_a, ev.entity_b);
 			} else if (ev.tag_b == Tag::Portal) {
 				activate_portal(ev.entity_b);
 			}
 		} else if (ev.type == PhysicsEventType::ContactBeginTouch) {
 			if (ev.tag_b == Tag::PushableBlock) {
-				on_player_begin_touch_pushable_block(ev.entity_a, ev.entity_b);
+				_on_player_begin_touch_pushable_block(ev.entity_a, ev.entity_b);
 			} else if (ev.tag_b == Tag::Slime) {
 				apply_damage_to_player(ev.entity_a, { DamageType::Melee, 1 });
 			} 
 		} else if (ev.type == PhysicsEventType::ContactEndTouch) {
 			if (ev.tag_b == Tag::PushableBlock) {
-				on_player_end_touch_pushable_block(ev.entity_a, ev.entity_b);
+				_on_player_end_touch_pushable_block(ev.entity_a, ev.entity_b);
 			}
 		}
 	}

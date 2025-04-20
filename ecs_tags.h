@@ -1,9 +1,7 @@
 #pragma once
 
-namespace ecs
-{
-	enum class Tag
-	{
+namespace ecs {
+	enum class Tag {
 		None,
 		Player,
 		Slime,

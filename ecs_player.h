@@ -63,8 +63,9 @@ namespace ecs {
 
 	bool kill_player(entt::entity entity);
 
-	void on_player_begin_touch_pickup(entt::entity player_entity, entt::entity pickup_entity);
-	void on_player_begin_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity);
-	void on_player_end_touch_pushable_block(entt::entity player_entity, entt::entity pushable_block_entity);
 	void on_player_physics_event(const PhysicsEvent& ev);
+
+	struct Damage;
+
+	bool apply_damage_to_player(entt::entity entity, const Damage& damage);
 }

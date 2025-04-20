@@ -13,6 +13,7 @@
 #include "ecs_common.h"
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
+#include "ecs_damage.h"
 #include "ecs_sprites.h"
 #include "ecs_uniform_block.h"
 #include "ecs_animations.h"
@@ -336,6 +337,8 @@ namespace map {
 
 					ecs::set_physics_event_callback(entity, ecs::on_player_physics_event);
 
+					ecs::set_apply_damage_callback(entity, ecs::apply_damage_to_player);
+
 					ecs::Camera camera{};
 					camera.center = position_top_left;
 					camera.confines_min = map_bounds_min;
@@ -348,6 +351,7 @@ namespace map {
 				case ecs::Tag::Slime: {
 
 					ecs::emplace_ai(entity, ecs::AiType::Slime);
+					ecs::set_apply_damage_callback(entity, ecs::apply_damage_to_slime);
 
 				} break;
 				case ecs::Tag::Portal: {
@@ -616,6 +620,7 @@ namespace map {
 							block.tex_max = sprite.tex_position + sprite.tex_size;
 							ecs::emplace_uniform_block(entity, &block, sizeof(ecs::GrassUniformBlock));
 						}
+						ecs::set_apply_damage_callback(entity, ecs::apply_damage_to_grass);
 
 					} break;
 					}

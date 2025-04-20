@@ -14,4 +14,8 @@ namespace ecs {
 	Grass& emplace_grass(entt::entity entity);
 
 	GrassUniformBlock& emplace_grass_uniform_block(entt::entity entity);
+
+	struct Damage;
+
+	bool apply_damage_to_grass(entt::entity entity, const Damage& damage);
 }

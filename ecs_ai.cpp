@@ -3,19 +3,19 @@
 #include "ecs_ai_knowledge.h"
 #include "ecs_ai_action.h"
 #include "ecs_animations.h"
+#include "ecs_common.h"
 #include "map_tilegrid.h"
 #include "random.h"
+#include "audio.h"
 #include "shapes.h"
 #include "text.h"
 #include "fonts.h"
 #include "tile_ids.h"
 
-namespace ecs
-{
+namespace ecs {
     extern entt::registry _registry;
 
-    void _update_ai_decision_making(float dt)
-    {
+    void _update_ai_decision_making(float dt) {
         const AiWorld& world = get_ai_world();
         const bool player_exists = _registry.valid(world.player.entity);
 
@@ -27,19 +27,20 @@ namespace ecs
             switch (type) {
             case AiType::None:
                 break; // Do nothing
-            case AiType::Slime: {
+            case AiType::Slime:
+            {
 
                 if (action.type == AiActionType::Flee && action.status == AiActionStatus::Running) {
                 } else if (action.type == AiActionType::Pursue && action.status == AiActionStatus::Running) {
                 } else if (player_exists && dist_to_player < 25.f) {
-					ai_flee(entity, world.player.entity, knowledge.me.p_speed, 60.f);
+                    ai_flee(entity, world.player.entity, knowledge.me.p_speed, 60.f);
                 } else if (player_exists && dist_to_player < 100.f) {
-					ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f, true);
-				} else if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
-				} else if (action.type == AiActionType::Wander && action.status == AiActionStatus::Succeeded) {
+                    ai_pursue(entity, world.player.entity, knowledge.me.p_speed, 35.f, true);
+                } else if (action.type == AiActionType::Wait && action.status == AiActionStatus::Running) {
+                } else if (action.type == AiActionType::Wander && action.status == AiActionStatus::Succeeded) {
                     float duration = random::range_f(0.5f, 1.5f);
-					ai_wait(entity, duration);
-				} else if (action.type != AiActionType::Wander) {
+                    ai_wait(entity, duration);
+                } else if (action.type != AiActionType::Wander) {
                     float duration = random::range_f(1.f, 3.f);
                     ai_wander(entity, knowledge.initial_position, 20.f, 50.f, duration);
                 }
@@ -49,19 +50,18 @@ namespace ecs
         }
     }
 
-    void update_ai_logic(float dt)
-    {
+    void update_ai_logic(float dt) {
         update_ai_knowledge_and_world(dt);
         _update_ai_decision_making(dt);
         update_ai_actions(dt);
     }
-    
-    void update_ai_graphics(float dt)
-    {
+
+    void update_ai_graphics(float dt) {
         for (auto [entity, animation, ai_type, body] :
             _registry.view<TileAnimation, const AiType, b2BodyId>().each()) {
             switch (ai_type) {
-            case AiType::Slime: {
+            case AiType::Slime:
+            {
                 Vector2f velocity = b2Body_GetLinearVelocity(body);
                 if (!is_zero(velocity)) {
                     switch (get_direction(velocity)) {
@@ -73,12 +73,11 @@ namespace ecs
                 }
                 animation.speed = length(velocity) / 32.f;
             } break;
-			}
-		}
+            }
+        }
     }
 
-    void debug_draw_ai()
-    {
+    void debug_draw_ai() {
 #ifdef _DEBUG
         text::Text text{};
         text.font = fonts::load_font("assets/fonts/Helvetica.ttf");;
@@ -112,14 +111,25 @@ namespace ecs
                 }
                 ++paths_drawn;
             }
-		}
+        }
 #endif
     }
 
-    void emplace_ai(entt::entity entity, AiType type)
-    {
+    void emplace_ai(entt::entity entity, AiType type) {
         emplace_ai_knowledge(entity);
         _registry.emplace_or_replace<AiType>(entity, type);
         _registry.emplace_or_replace<AiAction>(entity);
+    }
+
+    bool apply_damage_to_slime(entt::entity entity, const Damage& damage) {
+        //TODO: more stuff here
+
+        audio::create_event({ .path = "event:/snd_slime_dying" });
+
+        // TODO use snd_slime_hurt when slime is damaged and snd_slime_dying when slime is dead
+        // audio::play("event:/snd_slime_hurt");
+
+        destroy_at_end_of_frame(entity);
+        return true;
     }
 }

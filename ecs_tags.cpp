@@ -1,10 +1,8 @@
 #include "stdafx.h"
 #include "ecs_tags.h"
 
-namespace ecs
-{
-    bool string_to_tag(std::string_view string, Tag& tag)
-    {
+namespace ecs {
+	bool string_to_tag(std::string_view string, Tag& tag) {
 		char sanitized_string[64] = {}; // lowercase alphabetic characters only
 		for (size_t i = 0, j = 0; i < string.size() && j < std::size(sanitized_string); ++i) {
 			if (!isalpha(string[i])) continue;
@@ -14,10 +12,9 @@ namespace ecs
 		if (!value.has_value()) return false;
 		tag = value.value();
 		return true;
-    }
+	}
 
-	std::string_view tag_to_string(Tag tag)
-	{
+	std::string_view tag_to_string(Tag tag) {
 		return magic_enum::enum_name(tag);
 	}
 }
