@@ -7,22 +7,18 @@
 #include "map.h"
 #include "audio.h"
 
-namespace ecs
-{
+namespace ecs {
     extern entt::registry _registry;
 
-    Chest& emplace_chest(entt::entity entity, const Chest& chest)
-    {
+    Chest& emplace_chest(entt::entity entity, const Chest& chest) {
         return _registry.emplace_or_replace<Chest>(entity, chest);
     }
 
-    Chest* get_chest(entt::entity entity)
-    {
+    Chest* get_chest(entt::entity entity) {
         return _registry.try_get<Chest>(entity);
     }
 
-    void open_chest(entt::entity entity, bool ignore_contents)
-    {
+    void open_chest(entt::entity entity, bool ignore_contents) {
         Chest* chest = get_chest(entity);
         if (!chest) return;
         if (chest->opened) return;
@@ -61,8 +57,7 @@ namespace ecs
         audio::create_event({ .path = "event:/props/chest/open" });
     }
 
-    void interact_with_chest(entt::entity entity)
-    {
+    void interact_with_chest(entt::entity entity) {
         open_chest(entity);
     }
 }

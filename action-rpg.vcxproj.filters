@@ -128,7 +128,7 @@
     <ClCompile Include="ecs_chest.cpp">
       <Filter>game\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="ecs_interact.cpp">
+    <ClCompile Include="ecs_interactions.cpp">
       <Filter>game\ecs\mechanics</Filter>
     </ClCompile>
     <ClCompile Include="ecs_damage.cpp">
@@ -511,7 +511,7 @@
     <ClInclude Include="ecs_chest.h">
       <Filter>game\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="ecs_interact.h">
+    <ClInclude Include="ecs_interactions.h">
       <Filter>game\ecs\mechanics</Filter>
     </ClInclude>
     <ClInclude Include="ecs_damage.h">

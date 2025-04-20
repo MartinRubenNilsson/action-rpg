@@ -14,6 +14,7 @@
 #include "ecs_physics.h"
 #include "ecs_physics_filters.h"
 #include "ecs_damage.h"
+#include "ecs_interactions.h"
 #include "ecs_sprites.h"
 #include "ecs_uniform_block.h"
 #include "ecs_animations.h"
@@ -392,6 +393,8 @@ namespace map {
 						b2Polygon box = b2MakeBox(10.f, 6.f);
 						b2CreatePolygonShape(body, &shape_def, &box);
 					}
+
+					ecs::set_interaction_callback(entity, ecs::interact_with_chest);
 
 				} break;
 				case ecs::Tag::BladeTrap: {

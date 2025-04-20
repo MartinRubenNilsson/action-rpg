@@ -9,7 +9,7 @@
 #include "ecs_camera.h"
 #include "ecs_bomb.h"
 #include "ecs_damage.h"
-#include "ecs_interact.h"
+#include "ecs_interactions.h"
 #include "ecs_portal.h"
 #include "player_outfit.h"
 #include "console.h"
@@ -276,7 +276,7 @@ namespace ecs {
 					const Vector2f box_center = position + player.look_dir * 16.f;
 					const Vector2f box_min = box_center - Vector2f(6.f, 6.f);
 					const Vector2f box_max = box_center + Vector2f(6.f, 6.f);
-					interact_in_box(box_min, box_max);
+					interact_with_all_entities_in_box(box_min, box_max);
 				}
 
 			} break;
