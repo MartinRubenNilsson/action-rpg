@@ -23,6 +23,8 @@ namespace graphics {
 	Handle<FragmentShader> text_frag;
 	Handle<VertexShader> ui_vert;
 	Handle<FragmentShader> ui_frag;
+	Handle<VertexShader> ui_rectangle_vert;
+	Handle<FragmentShader> ui_rectangle_frag;
 	Handle<FragmentShader> player_outfit_frag;
 
 	Handle<VertexInput> sprite_vertex_input;
@@ -185,6 +187,20 @@ namespace graphics {
 		if (filesystem::read_binary_file("assets/shaders/ui.frag" + extension, shader_code)) {
 			ui_frag = create_fragment_shader({
 				.debug_name = "ui fragment shader",
+				.code = shader_code,
+				.binary = binary
+			});
+		}
+		if (filesystem::read_binary_file("assets/shaders/ui_rectangle.vert" + extension, shader_code)) {
+			ui_rectangle_vert = create_vertex_shader({
+				.debug_name = "ui rectangle vertex shader",
+				.code = shader_code,
+				.binary = binary
+			});
+		}
+		if (filesystem::read_binary_file("assets/shaders/ui_rectangle.frag" + extension, shader_code)) {
+			ui_rectangle_frag = create_fragment_shader({
+				.debug_name = "ui rectangle fragment shader",
 				.code = shader_code,
 				.binary = binary
 			});

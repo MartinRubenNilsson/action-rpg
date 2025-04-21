@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "ui.h"
 #include "console.h"
+#include "sprites.h"
 #include "graphics.h"
+#include "graphics_globals.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4244) // conversion from '...' to '...', possible loss of data
@@ -109,13 +111,13 @@ namespace ui {
 			CLAY({
 				.id = CLAY_ID("SideBar"),
 				.layout = {
-					//.layoutDirection = CLAY_TOP_TO_BOTTOM,
 					.sizing = {
 						.width = CLAY_SIZING_FIXED(300),
 						.height = CLAY_SIZING_GROW(0)
 					},
 					.padding = CLAY_PADDING_ALL(16),
-					.childGap = 16
+					.childGap = 16,
+					.layoutDirection = CLAY_TOP_TO_BOTTOM
 				},
 				.backgroundColor = COLOR_LIGHT
 			}) {
@@ -178,8 +180,8 @@ namespace ui {
 	}
 
 	void render_clay_layout() {
-		if (!_clay_render_commands.length) return;
 		return;
+		if (!_clay_render_commands.length) return;
 		graphics::ScopedDebugGroup debug_group("ui::render_clay_layout()");
 		for (int32_t i = 0; i < _clay_render_commands.length; ++i) {
 			const Clay_RenderCommand& command = _clay_render_commands.internalArray[i];
@@ -189,7 +191,21 @@ namespace ui {
 			} break;
 			case CLAY_RENDER_COMMAND_TYPE_RECTANGLE: {
 				// The renderer should draw a solid color rectangle.
-				__debugbreak();
+				const Clay_RectangleRenderData& rectangle = command.renderData.rectangle;
+				sprites::Sprite sprite{};
+				sprite.vertex_shader = graphics::ui_rectangle_vert;
+				sprite.fragment_shader = graphics::ui_rectangle_frag;
+				sprite.position.x = command.boundingBox.x;
+				sprite.position.y = command.boundingBox.y;
+				sprite.size.x = command.boundingBox.width;
+				sprite.size.y = command.boundingBox.height;
+				sprite.color = {
+					(unsigned char)rectangle.backgroundColor.r,
+					(unsigned char)rectangle.backgroundColor.g,
+					(unsigned char)rectangle.backgroundColor.b,
+					(unsigned char)rectangle.backgroundColor.a
+				};
+				sprites::add(sprite);
 			} break;
 			case CLAY_RENDER_COMMAND_TYPE_BORDER: {
 				// The renderer should draw a colored border inset into the bounding box.
@@ -217,5 +233,7 @@ namespace ui {
 			} break;
 			}
 		}
+		// No need to sort, since the Clay render commands are already sorted.
+		sprites::draw();
 	}
 }

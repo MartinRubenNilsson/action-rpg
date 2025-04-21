@@ -4,12 +4,12 @@
 namespace graphics {
 
 	struct FrameUniformBlock {
-		float view_proj_matrix[16] = {};
-
 		float app_time = 0.f;
 		float game_time = 0.f;
-		float padding0;
-		float padding1;
+		float window_framebuffer_width = 0.f;
+		float window_framebuffer_height = 0.f;
+
+		float view_proj_matrix[16] = {};
 	};
 
 	struct UiUniformBlock {
@@ -72,6 +72,8 @@ namespace graphics {
 	extern Handle<FragmentShader> text_frag;
 	extern Handle<VertexShader> ui_vert;
 	extern Handle<FragmentShader> ui_frag;
+	extern Handle<VertexShader> ui_rectangle_vert;
+	extern Handle<FragmentShader> ui_rectangle_frag;
 	extern Handle<FragmentShader> player_outfit_frag;
 
 	// VERTEX INPUTS

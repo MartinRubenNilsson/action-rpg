@@ -362,6 +362,7 @@ namespace ui {
 	}
 
 	void render() {
+
 		render_clay_layout();
 
 		prepare_render_state();

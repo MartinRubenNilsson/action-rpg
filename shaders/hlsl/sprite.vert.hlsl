@@ -1,8 +1,10 @@
 cbuffer FrameUniformBlock : register(b0)
 {
-    row_major float4x4 _17_view_proj_matrix : packoffset(c0);
-    float _17_app_time : packoffset(c4);
-    float _17_game_time : packoffset(c4.y);
+    float _17_app_time : packoffset(c0);
+    float _17_game_time : packoffset(c0.y);
+    float _17_window_framebuffer_width : packoffset(c0.z);
+    float _17_window_framebuffer_height : packoffset(c0.w);
+    row_major float4x4 _17_view_proj_matrix : packoffset(c1);
 };
 
 
