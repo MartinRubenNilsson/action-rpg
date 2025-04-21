@@ -5,10 +5,8 @@
 #include "ui_textbox.h"
 #include "console.h"
 
-namespace ui
-{
-	namespace bindings
-	{
+namespace ui {
+	namespace bindings {
 		// HUD
 
 		int hud_player_health = 0;
@@ -29,24 +27,20 @@ namespace ui
 	extern Rml::Context* _context;
 	Rml::DataModelHandle _data_model_handle;
 
-	bool is_variable_dirty(const std::string& name)
-	{
+	bool is_variable_dirty(const std::string& name) {
 		return _data_model_handle.IsVariableDirty(name);
 	}
 
-	void dirty_all_variables()
-	{
+	void dirty_all_variables() {
 		_data_model_handle.DirtyAllVariables();
 	}
 
 	template <void (*Func)()>
-	Rml::DataEventFunc _wrap()
-	{
+	Rml::DataEventFunc _wrap() {
 		return [](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList&) { Func(); };
 	}
 
-	void create_bindings()
-	{
+	void create_bindings() {
 		Rml::DataModelConstructor data_model = _context->CreateDataModel("data_model");
 		if (!data_model) return;
 		_data_model_handle = data_model.GetModelHandle();

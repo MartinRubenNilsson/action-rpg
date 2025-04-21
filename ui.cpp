@@ -16,6 +16,8 @@
 #include <RmlUi/Debugger.h>
 #endif
 
+#include "ui_clay.h"
+
 namespace ui {
 	// All documents share this event listener.
 	struct CommonEventListener : Rml::EventListener {
@@ -98,6 +100,8 @@ namespace ui {
 	}
 
 	void initialize() {
+		initialize_clay();
+
 		Rml::SetSystemInterface(&_system_interface);
 		Rml::SetRenderInterface(&_render_interface);
 		Rml::Initialise();
@@ -117,6 +121,8 @@ namespace ui {
 #ifdef _DEBUG_UI
 		_debugger_context = nullptr;
 #endif
+
+		shutdown_clay();
 	}
 
 	Rml::Input::KeyIdentifier _translate_key_identifier_to_rml(window::Key key) {
@@ -220,6 +226,11 @@ namespace ui {
 		return rml_key_modifiers;
 	}
 
+	double _mouse_position_x = 0;
+	double _mouse_position_y = 0;
+	bool _mouse_is_down = false;
+	float _scroll_delta_x = 0.f;
+
 	void process_window_event(const window::Event& ev) {
 		switch (ev.type) {
 		case window::EventType::FramebufferSize:
@@ -235,6 +246,8 @@ namespace ui {
 			_context->SetDensityIndependentPixelRatio(dp_ratio);
 			// Don't set density independent pixel ratio for the debugger context!
 			// It should always be 1.0, so that it remains the same size.
+
+			set_clay_layout_dimensions((float)ev.size.width, (float)ev.size.height);
 		} break;
 		case window::EventType::KeyPress:
 		{
@@ -273,6 +286,9 @@ namespace ui {
 				_debugger_context->ProcessMouseMove((int)ev.mouse_move.x, (int)ev.mouse_move.y, key_modifier_flags);
 			}
 #endif
+			_mouse_position_x = (int)ev.mouse_move.x;
+			_mouse_position_y = (int)ev.mouse_move.y;
+
 		} break;
 		case window::EventType::MouseButtonPress:
 		{
@@ -281,6 +297,7 @@ namespace ui {
 #ifdef _DEBUG_UI
 			_debugger_context->ProcessMouseButtonDown((int)ev.mouse_button.button, key_modifier_flags);
 #endif
+			_mouse_is_down = true;
 		} break;
 		case window::EventType::MouseButtonRelease:
 		{
@@ -289,6 +306,7 @@ namespace ui {
 #ifdef _DEBUG_UI
 			_debugger_context->ProcessMouseButtonUp((int)ev.mouse_button.button, key_modifier_flags);
 #endif
+			_mouse_is_down = false;
 		} break;
 #if 0
 		case sf::Event::MouseWheelMoved:
@@ -317,6 +335,15 @@ namespace ui {
 	}
 
 	void update(float dt) {
+		set_clay_pointer_state((float)_mouse_position_x, (float)_mouse_position_y, _mouse_is_down);
+		update_clay_scroll_containers(_scroll_delta_x, dt); //TODO
+
+		begin_clay_layout();
+
+		_test_clay();
+		//TODO
+		end_clay_layout();
+
 		// As an optimization, update the UI at a lower FPS than the game.
 		_dt_accumulator += dt;
 		if (_dt_accumulator < _DT_ACCUMULATOR_MIN) return;
@@ -331,9 +358,12 @@ namespace ui {
 		}
 		_debugger_context->Update();
 #endif
+
 	}
 
 	void render() {
+		render_clay_layout();
+
 		prepare_render_state();
 		_context->Render();
 #ifdef _DEBUG_UI

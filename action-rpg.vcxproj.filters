@@ -117,7 +117,7 @@
       <Filter>ui\rmlui_interfaces</Filter>
     </ClCompile>
     <ClCompile Include="renderdoc.cpp">
-      <Filter>graphics\renderdoc</Filter>
+      <Filter>application\renderdoc</Filter>
     </ClCompile>
     <ClCompile Include="fonts.cpp">
       <Filter>graphics</Filter>
@@ -206,6 +206,9 @@
     <ClCompile Include="platform_windows.cpp">
       <Filter>application\platform</Filter>
     </ClCompile>
+    <ClCompile Include="ui_clay.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -277,173 +280,8 @@
     <ClInclude Include="map_tilegrid.h">
       <Filter>game\map</Filter>
     </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamapps.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamappticket.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamclient.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamcontroller.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamdualsense.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamfriends.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamgamecoordinator.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamgameserver.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamgameserverstats.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamhtmlsurface.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamhttp.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteaminput.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteaminventory.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteammatchmaking.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteammusic.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteammusicremote.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamnetworking.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamnetworkingmessages.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamnetworkingsockets.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamnetworkingutils.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamparentalsettings.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamps3overlayrenderer.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamremoteplay.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamremotestorage.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamscreenshots.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamugc.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamuser.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamuserstats.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamutils.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\isteamvideo.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\matchmakingtypes.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steam_api.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steam_api_common.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steam_api_flat.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steam_api_internal.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steam_gameserver.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamclientpublic.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamencryptedappticket.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamhttpenums.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamnetworkingfakeip.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamnetworkingtypes.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamps3params.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamtypes.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\steam\steamuniverse.h">
-      <Filter>steam\api</Filter>
-    </ClInclude>
     <ClInclude Include="steam.h">
       <Filter>steam</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod.hpp">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_codec.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_common.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_dsp.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_dsp_effects.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_errors.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_output.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_studio.h">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_studio.hpp">
-      <Filter>audio\fmod</Filter>
-    </ClInclude>
-    <ClInclude Include="dependencies\fmod\fmod_studio_common.h">
-      <Filter>audio\fmod</Filter>
     </ClInclude>
     <ClInclude Include="shapes.h">
       <Filter>graphics</Filter>
@@ -490,11 +328,8 @@
       <Filter>ui\rmlui_interfaces</Filter>
     </ClInclude>
     <ClInclude Include="fwd.h" />
-    <ClInclude Include="dependencies\renderdoc\renderdoc_app.h">
-      <Filter>graphics\renderdoc</Filter>
-    </ClInclude>
     <ClInclude Include="renderdoc.h">
-      <Filter>graphics\renderdoc</Filter>
+      <Filter>application\renderdoc</Filter>
     </ClInclude>
     <ClInclude Include="fonts.h">
       <Filter>graphics</Filter>
@@ -610,6 +445,9 @@
     <ClInclude Include="graphics_vertices.h">
       <Filter>graphics</Filter>
     </ClInclude>
+    <ClInclude Include="ui_clay.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -621,17 +459,11 @@
     <Filter Include="ui">
       <UniqueIdentifier>{c3167945-45a3-4c9c-ad21-9950dd64fdfc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="audio\fmod">
-      <UniqueIdentifier>{d2d7a6c5-f26c-4ccc-af5d-7cb680bb2afd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="graphics">
       <UniqueIdentifier>{cd3119d2-6df6-4778-bf8a-2ac760001e68}</UniqueIdentifier>
     </Filter>
     <Filter Include="steam">
       <UniqueIdentifier>{029569e4-8e84-4e37-99f3-3b57c5057e89}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="steam\api">
-      <UniqueIdentifier>{d3ef2347-9886-432b-9205-5a7bb0ae438e}</UniqueIdentifier>
     </Filter>
     <Filter Include="application">
       <UniqueIdentifier>{11af7b6c-13f6-4f3d-9d96-435780a3cff7}</UniqueIdentifier>
@@ -641,9 +473,6 @@
     </Filter>
     <Filter Include="ui\rmlui_interfaces">
       <UniqueIdentifier>{cb12366d-8c11-48b4-a752-e5b39ec96b0e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="graphics\renderdoc">
-      <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
     </Filter>
     <Filter Include="game">
       <UniqueIdentifier>{5f4911be-b72a-4a81-bdf6-a53443597ca1}</UniqueIdentifier>
@@ -704,6 +533,9 @@
     </Filter>
     <Filter Include="application\platform">
       <UniqueIdentifier>{17beda9f-e4af-44d4-8299-f467bbcb1756}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="application\renderdoc">
+      <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

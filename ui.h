@@ -1,27 +1,22 @@
 #pragma once
 
-namespace window
-{
+namespace window {
 	struct Event;
 }
 
-namespace ui
-{
-	enum class EventType
-	{
+namespace ui {
+	enum class EventType {
 		PlayGame,
 		RestartMap,
 		QuitApp,
 		GoToMainMenu,
 	};
 
-	struct Event
-	{
+	struct Event {
 		EventType type;
 	};
 
-	namespace bindings
-	{
+	namespace bindings {
 		void on_click_play();
 		void on_click_settings();
 		void on_click_credits();
