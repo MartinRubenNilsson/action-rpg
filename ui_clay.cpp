@@ -135,6 +135,10 @@ namespace ui {
 					},
 					.backgroundColor = COLOR_RED
 				}) {
+
+#if 0
+					static int imageData = 0;
+
 					CLAY({
 						.id = CLAY_ID("ProfilePicture"),
 						.layout = {
@@ -144,15 +148,20 @@ namespace ui {
 							}
 						},
 						.image = {
-							//.imageData = &profilePicture,
+							.imageData = &imageData,
 							.sourceDimensions = {60, 60}
 						}
 					}) {}
+#endif
+
 #if 0
-					CLAY_TEXT(CLAY_STRING("Clay - UI Library"), CLAY_TEXT_CONFIG({
-						.fontSize = 24,
-						.textColor = {255, 255, 255, 255}
-					}));
+					CLAY_TEXT(
+						CLAY_STRING("Clay - UI Library"),
+						CLAY_TEXT_CONFIG({
+							.textColor = {255, 255, 255, 255},
+							.fontSize = 24
+						})
+					);
 #endif
 				}
 
@@ -217,7 +226,7 @@ namespace ui {
 			} break;
 			case CLAY_RENDER_COMMAND_TYPE_IMAGE: {
 				// The renderer should draw an image.
-				__debugbreak();
+				//__debugbreak(); //TODO
 			} break;
 			case CLAY_RENDER_COMMAND_TYPE_SCISSOR_START: {
 				// The renderer should begin clipping all future draw commands, only rendering content that falls within the provided boundingBox.
