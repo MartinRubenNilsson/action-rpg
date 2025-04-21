@@ -95,10 +95,10 @@ namespace sprites {
 			const Vector2f tr = { br.x, tl.y }; // top-right
 			const Vector2f bl = { tl.x, br.y }; // bottom-left
 
-			Vector2f tex_tl = sprite.tex_position;
-			Vector2f tex_br = sprite.tex_position + sprite.tex_size;
-			Vector2f tex_tr = { tex_br.x, tex_tl.y };
-			Vector2f tex_bl = { tex_tl.x, tex_br.y };
+			Vector2f tex_tl = sprite.tex_position; // top-left
+			Vector2f tex_br = sprite.tex_position + sprite.tex_size; // bottom-right
+			Vector2f tex_tr = { tex_br.x, tex_tl.y }; // top-right
+			Vector2f tex_bl = { tex_tl.x, tex_br.y }; // bottom-left
 
 			if (sprite.flags & SPRITE_FLIP_HORIZONTALLY) {
 				std::swap(tex_tl, tex_tr);
@@ -188,7 +188,8 @@ namespace sprites {
 			}
 			if (batch.uniform_buffer != last_bound_uniform_buffer ||
 				batch.uniform_buffer_size != last_bound_uniform_buffer_size ||
-				batch.uniform_buffer_offset != last_bound_uniform_buffer_offset) {
+				batch.uniform_buffer_offset != last_bound_uniform_buffer_offset
+			) {
 				graphics::bind_uniform_buffer_range(1, batch.uniform_buffer,
 					batch.uniform_buffer_size, batch.uniform_buffer_offset);
 				last_bound_uniform_buffer = batch.uniform_buffer;

@@ -47,6 +47,9 @@ namespace sprites {
 	// 4. vertex shader
 	// 5. fragment shader
 	// 5. texture
+	// 6. uniform buffer
+	// 7. uniform buffer size
+	// 8. uniform buffer offset
 	// 
 	// In all cases, a less-than comparison is used.
 	// If one case yields a tie, then the next case is considered, and so on.
