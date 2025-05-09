@@ -3,7 +3,6 @@
 #include "graphics.h"
 #include "graphics_globals.h"
 #include "graphics_vertices.h"
-#include "console.h"
 
 namespace ui {
 	static_assert(std::is_same_v<Rml::Matrix4f, Rml::ColumnMajorMatrix4f>);
