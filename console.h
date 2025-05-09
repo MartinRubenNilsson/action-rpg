@@ -7,7 +7,7 @@ namespace window {
 
 namespace console {
 	void initialize();
-	void update(float dt); // Must come after ImGui::SFML::Update but before Imgui::SFML::Render.
+	void update(float dt);
 	void process_window_event(const window::Event& ev);
 
 	bool is_visible();
