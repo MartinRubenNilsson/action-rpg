@@ -27,7 +27,7 @@ using namespace std::literals::string_literals;
 #include <imgui_stdlib.h>
 #endif
 
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 
 #include "fwd.h"
 #include "handle.h"

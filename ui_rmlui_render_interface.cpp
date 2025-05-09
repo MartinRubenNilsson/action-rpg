@@ -54,120 +54,89 @@ namespace ui {
 		graphics::pop_debug_group();
 	}
 
-	void RmlUiRenderInterface::RenderGeometry(
-		Rml::Vertex* vertices, int num_vertices,
-		int* indices, int num_indices,
-		const Rml::TextureHandle texture,
-		const Rml::Vector2f& translation
-	) {
+	struct CompiledGeometry {
+		Handle<graphics::Buffer> vertex_buffer;
+		Handle<graphics::Buffer> index_buffer;
+		unsigned int index_count = 0;
+	};
+
+	Rml::CompiledGeometryHandle RmlUiRenderInterface::CompileGeometry(Rml::Span<const Rml::Vertex> vertices, Rml::Span<const int> indices) {
+		CompiledGeometry* compiled_geometry = new CompiledGeometry();
+		compiled_geometry->vertex_buffer = graphics::create_buffer({
+			.debug_name = "rmlui vertex buffer",
+			.size = (unsigned int)(sizeof(graphics::Vertex) * vertices.size()),
+			.type = graphics::BufferType::VertexBuffer,
+			.initial_data = vertices.data()
+		});
+		compiled_geometry->index_buffer = graphics::create_buffer({
+			.debug_name = "rmlui index buffer",
+			.size = (unsigned int)(sizeof(unsigned int) * indices.size()),
+			.type = graphics::BufferType::IndexBuffer,
+			.initial_data = indices.data()
+		});
+		compiled_geometry->index_count = (unsigned int)indices.size();
+		return (Rml::CompiledGeometryHandle)compiled_geometry;
+	}
+
+	void RmlUiRenderInterface::RenderGeometry(Rml::CompiledGeometryHandle geometry, Rml::Vector2f translation, Rml::TextureHandle texture) {
+		CompiledGeometry* compiled_geometry = (CompiledGeometry *)geometry;
+		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
+		graphics::bind_index_buffer(compiled_geometry->index_buffer);
+		const Rml::Matrix4f transform = _view_proj_matrix * _transform * Rml::Matrix4f::Translate(translation.x, translation.y, 0.0f);
+		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
 		if (texture) {
 			graphics::bind_texture(0, _texture_handle_from_rml(texture));
 		} else {
 			graphics::bind_texture(0, graphics::white_texture);
 		}
-		Rml::Matrix4f transform = _view_proj_matrix * _transform * Rml::Matrix4f::Translate(translation.x, translation.y, 0.0f);
-		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
-		graphics::update_buffer(graphics::dynamic_vertex_buffer, (graphics::Vertex*)vertices, num_vertices * sizeof(graphics::Vertex));
-		graphics::update_buffer(graphics::dynamic_index_buffer, (unsigned int*)indices, num_indices * sizeof(unsigned int));
-		graphics::bind_vertex_buffer(0, graphics::dynamic_vertex_buffer, sizeof(graphics::Vertex));
-		graphics::bind_index_buffer(graphics::dynamic_index_buffer);
-		graphics::draw_indexed((unsigned int)num_indices);
-	}
-
-	struct CompiledGeometry {
-		Handle<graphics::Buffer> vertex_buffer;
-		Handle<graphics::Buffer> index_buffer;
-		unsigned int index_count = 0;
-		Handle<graphics::Texture> texture;
-	};
-
-	Rml::CompiledGeometryHandle RmlUiRenderInterface::CompileGeometry(Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::TextureHandle texture) {
-		CompiledGeometry* compiled_geometry = new CompiledGeometry();
-		compiled_geometry->vertex_buffer = graphics::create_buffer({
-			.debug_name = "rmlui vertex buffer",
-			.size = (unsigned int)sizeof(graphics::Vertex) * num_vertices,
-			.type = graphics::BufferType::VertexBuffer,
-			.initial_data = vertices
-		});
-		compiled_geometry->index_buffer = graphics::create_buffer({
-			.debug_name = "rmlui index buffer",
-			.size = (unsigned int)sizeof(unsigned int) * num_indices,
-			.type = graphics::BufferType::IndexBuffer,
-			.initial_data = indices
-		});
-		compiled_geometry->index_count = (unsigned int)num_indices;
-		compiled_geometry->texture = _texture_handle_from_rml(texture);
-		return (Rml::CompiledGeometryHandle)compiled_geometry;
-	}
-
-	void RmlUiRenderInterface::RenderCompiledGeometry(Rml::CompiledGeometryHandle geometry, const Rml::Vector2f& translation) {
-		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
-		if (compiled_geometry->texture != Handle<graphics::Texture>()) {
-			graphics::bind_texture(0, compiled_geometry->texture);
-		} else {
-			graphics::bind_texture(0, graphics::white_texture);
-		}
-		Rml::Matrix4f transform = _view_proj_matrix * _transform * Rml::Matrix4f::Translate(translation.x, translation.y, 0.0f);
-		graphics::update_buffer(graphics::ui_uniform_buffer, transform.data(), sizeof(Rml::Matrix4f));
-		graphics::bind_vertex_buffer(0, compiled_geometry->vertex_buffer, sizeof(graphics::Vertex));
-		graphics::bind_index_buffer(compiled_geometry->index_buffer);
 		graphics::draw_indexed(compiled_geometry->index_count);
 	}
 
-	void RmlUiRenderInterface::ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry) {
+	void RmlUiRenderInterface::ReleaseGeometry(Rml::CompiledGeometryHandle geometry) {
 		CompiledGeometry* compiled_geometry = (CompiledGeometry*)geometry;
 		graphics::destroy_buffer(compiled_geometry->vertex_buffer);
 		graphics::destroy_buffer(compiled_geometry->index_buffer);
 		delete compiled_geometry;
 	}
 
-	void RmlUiRenderInterface::EnableScissorRegion(bool enable) {
-		graphics::set_scissor_test_enabled(enable);
-	}
-
-	void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width, int height) {
-		graphics::set_scissor({
-			.x = x,
-			.y = _viewport_height - (y + height), //TODO: Fix this
-			.width = width,
-			.height = height });
-	}
-
-	bool RmlUiRenderInterface::LoadTexture(
-		Rml::TextureHandle& texture_handle,
-		Rml::Vector2i& texture_dimensions,
-		const Rml::String& source
-	) {
+	Rml::TextureHandle RmlUiRenderInterface::LoadTexture(Rml::Vector2i& texture_dimensions, const Rml::String& source) {
 		const Handle<graphics::Texture> texture = graphics::load_texture(source);
-		if (texture == Handle<graphics::Texture>()) return false;
+		if (texture == Handle<graphics::Texture>()) return Rml::TextureHandle();
 		unsigned int width = 0;
 		unsigned int height = 0;
 		graphics::get_texture_size(texture, width, height);
-		texture_handle = _texture_handle_to_rml(texture);
 		texture_dimensions.x = width;
 		texture_dimensions.y = height;
-		return true;
+		return _texture_handle_to_rml(texture);
 	}
 
-	bool RmlUiRenderInterface::GenerateTexture(
-		Rml::TextureHandle& texture_handle,
-		const Rml::byte* source,
-		const Rml::Vector2i& source_dimensions
-	) {
+	Rml::TextureHandle RmlUiRenderInterface::GenerateTexture(Rml::Span<const Rml::byte> source, Rml::Vector2i source_dimensions) {
 		const Handle<graphics::Texture> texture = graphics::create_texture({
 			.debug_name = "rmlui texture",
 			.width = (unsigned int)source_dimensions.x,
 			.height = (unsigned int)source_dimensions.y,
 			.format = graphics::Format::RGBA8_UNORM,
-			.initial_data = source
+			.initial_data = source.data()
 		});
-		if (texture == Handle<graphics::Texture>()) return false;
-		texture_handle = _texture_handle_to_rml(texture);
-		return true;
+		if (texture == Handle<graphics::Texture>()) return Rml::TextureHandle();
+		return _texture_handle_to_rml(texture);
 	}
 
 	void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle texture_handle) {
 		graphics::destroy_texture(_texture_handle_from_rml(texture_handle));
+	}
+
+	void RmlUiRenderInterface::EnableScissorRegion(bool enable) {
+		graphics::set_scissor_test_enabled(enable);
+	}
+
+	void RmlUiRenderInterface::SetScissorRegion(Rml::Rectanglei region) {
+		graphics::set_scissor({
+			.x = region.Left(),
+			.y = region.Top(),
+			.width = region.Width(),
+			.height = region.Height()
+		});
 	}
 
 	void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f* transform) {
