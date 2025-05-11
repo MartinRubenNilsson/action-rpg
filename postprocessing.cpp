@@ -42,7 +42,8 @@ namespace postprocessing {
 		const Vector2f& camera_min_ws,
 		const Vector2f& camera_max_ws,
 		unsigned int target_width,
-		unsigned int target_height) {
+		unsigned int target_height
+	) {
 		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * target_width;
 		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * target_height;
 		return Vector2f(x, y);

@@ -1,9 +1,12 @@
 #version 460
 
 layout(std140, binding = 0) uniform FrameUniformBlock {
-	mat4 view_proj_matrix;
 	float app_time;
 	float game_time;
+	float window_framebuffer_width;
+	float window_framebuffer_height;
+
+	mat4 view_proj_matrix;
 };
 
 layout(std140, binding = 1) uniform GrassUniformBlock {

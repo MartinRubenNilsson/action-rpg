@@ -7,9 +7,11 @@ cbuffer GrassUniformBlock : register(b1)
 
 cbuffer FrameUniformBlock : register(b0)
 {
-    row_major float4x4 _46_view_proj_matrix : packoffset(c0);
-    float _46_app_time : packoffset(c4);
-    float _46_game_time : packoffset(c4.y);
+    float _46_app_time : packoffset(c0);
+    float _46_game_time : packoffset(c0.y);
+    float _46_window_framebuffer_width : packoffset(c0.z);
+    float _46_window_framebuffer_height : packoffset(c0.w);
+    row_major float4x4 _46_view_proj_matrix : packoffset(c1);
 };
 
 
