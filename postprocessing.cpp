@@ -45,7 +45,7 @@ namespace postprocessing {
 		unsigned int target_height) {
 		const float x = (pos_ws.x - camera_min_ws.x) / (camera_max_ws.x - camera_min_ws.x) * target_width;
 		const float y = (pos_ws.y - camera_min_ws.y) / (camera_max_ws.y - camera_min_ws.y) * target_height;
-		return Vector2f(x, target_height - y);
+		return Vector2f(x, y);
 	}
 
 	void _render_shockwaves(const Vector2f& camera_min, const Vector2f& camera_max) {
