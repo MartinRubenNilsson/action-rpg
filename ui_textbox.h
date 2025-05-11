@@ -1,9 +1,7 @@
 #pragma once
 
-namespace ui
-{
-	enum class TextboxSprite
-	{
+namespace ui {
+	enum class TextboxSprite {
 		None,
 		Skull,
 		GoldenKey,
@@ -11,8 +9,7 @@ namespace ui
 
 	const char* get_textbox_sprite_name(TextboxSprite sprite);
 
-	struct Textbox
-	{
+	struct Textbox {
 		static const std::string OPENING_SOUND_ITEM_FANFARE;
 		static const std::string DEFAULT_TYPING_SOUND;
 

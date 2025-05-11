@@ -347,7 +347,6 @@ namespace ui {
 		// As an optimization, update the UI at a lower FPS than the game.
 		_dt_accumulator += dt;
 		if (_dt_accumulator < _DT_ACCUMULATOR_MIN) return;
-		_dt_accumulator = 0.0f;
 
 		update_textbox(_dt_accumulator);
 		dirty_all_variables();
@@ -359,6 +358,7 @@ namespace ui {
 		_debugger_context->Update();
 #endif
 
+		_dt_accumulator = 0.0f;
 	}
 
 	void render() {
