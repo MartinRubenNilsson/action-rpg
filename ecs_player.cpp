@@ -311,6 +311,8 @@ namespace ecs {
 			} break;
 			case PlayerState::Dying: {
 
+				unsigned int original_tile_id = animation.tile_id;
+
 				switch (dir) {
 				case 'l':
 				case 'r': animation.tile_id = TILE_ID_PLAYER_DYING_RIGHT_DOWN; break;
@@ -318,7 +320,9 @@ namespace ecs {
 				case 'd': animation.tile_id = TILE_ID_PLAYER_DYING_RIGHT_DOWN; break;
 				}
 
-				animation.progress = 0.f;
+				if (animation.tile_id != original_tile_id) { // HACK
+					animation.progress = 0.f;
+				}
 				animation.loop = false;
 
 				if (animation.progress == 1.f) {

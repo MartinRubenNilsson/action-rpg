@@ -149,8 +149,8 @@ namespace api {
 				return false;
 			}
 			DXGI_SWAP_CHAIN_DESC swap_chain_desc{};
-			swap_chain_desc.BufferCount = 2; // one front buffer, one back buffer
 			swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			swap_chain_desc.BufferCount = 2; // one front buffer, one back buffer
 			swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swap_chain_desc.OutputWindow = (HWND)options.hwnd;
 			swap_chain_desc.SampleDesc.Count = 1;
