@@ -21,29 +21,24 @@
 #include "graphics.h"
 #include "graphics_globals.h"
 
-namespace ecs
-{
+namespace ecs {
 	int debug_flags = 0;
 	entt::registry _registry;
 
-	void initialize()
-	{
+	void initialize() {
 		initialize_physics();
 	}
 
-	void shutdown()
-	{
+	void shutdown() {
 		clear();
 		shutdown_physics();
 	}
 
-	void process_window_event(const window::Event& event) 
-	{
+	void process_window_event(const window::Event& event) {
 		process_window_event_for_players(event);
 	}
 
-	void update(float dt)
-	{
+	void update(float dt) {
 		update_physics(dt);
 		update_players(dt);
 		update_portals(dt);
@@ -63,8 +58,7 @@ namespace ecs
 		update_cameras(dt);
 	}
 
-	void get_camera_bounds(Vector2f& min, Vector2f& max)
-	{
+	void get_camera_bounds(Vector2f& min, Vector2f& max) {
 		Vector2f center, size;
 		ecs::get_blended_camera_view(center, size);
 		min = center - size / 2.f;
@@ -73,9 +67,8 @@ namespace ecs
 
 	//TODO: move this to a separate file
 	std::vector<UniformBlock> _uniform_blocks;
-	 
-	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max)
-	{
+
+	void draw_sprites(const Vector2f& camera_min, const Vector2f& camera_max) {
 		graphics::ScopedDebugGroup debug_group("ecs::draw_sprites()");
 
 		blink_sprites_before_drawing();
@@ -86,7 +79,7 @@ namespace ecs
 
 		_uniform_blocks.clear();
 
-		for (auto [entity, sprite, block] :_registry.view<sprites::Sprite, const UniformBlock>().each()) {
+		for (auto [entity, sprite, block] : _registry.view<sprites::Sprite, const UniformBlock>().each()) {
 			if (!(sprite.flags & sprites::SPRITE_VISIBLE)) continue;
 			if (sprite.position.x > camera_max.x) continue;
 			if (sprite.position.y > camera_max.y) continue;
@@ -117,8 +110,7 @@ namespace ecs
 		unshake_sprites_after_drawing();
 	}
 
-	void add_debug_shapes_to_render_queue()
-	{
+	void add_debug_shapes_to_render_queue() {
 		if (debug_flags & DEBUG_PHYSICS) {
 			debug_draw_physics();
 		}

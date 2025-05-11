@@ -1,9 +1,7 @@
 #pragma once
 
-namespace text
-{
-	struct Text
-	{
+namespace text {
+	struct Text {
 		Handle<fonts::Font> font;
 		std::u32string unicode_string; // String of unicode codepoints; can be created using the U"..." string literal.
 		float pixel_height = 30.f;

@@ -59,7 +59,8 @@ namespace ecs
 		for (auto [entity, action, body] : _registry.view<AiAction, b2BodyId>().each()) {
 			if (action.status != AiActionStatus::Running) continue;
 
-			const Vector2f my_pos = b2Body_GetPosition(body);
+			//const Vector2f my_pos = b2Body_GetPosition(body);
+			const Vector2f my_pos = b2Body_GetWorldCenterOfMass(body);
 			const Vector2f my_old_dir = normalize(b2Body_GetLinearVelocity(body));
 			Vector2f my_new_dir;
 

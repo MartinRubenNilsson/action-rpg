@@ -16,7 +16,8 @@ namespace ecs
 		info.name = get_name(entity);
 		info.tag = get_tag(entity);
 		if (b2BodyId body = get_body(entity); B2_IS_NON_NULL(body)) {
-			info.position = b2Body_GetPosition(body);
+			//info.position = b2Body_GetPosition(body);
+			info.position = b2Body_GetWorldCenterOfMass(body);
 			info.velocity = b2Body_GetLinearVelocity(body);
 		}
 		get_float_property(entity, "speed", info.p_speed);
@@ -43,7 +44,8 @@ namespace ecs
 	{
 		AiKnowledge& knowledge = _registry.emplace_or_replace<AiKnowledge>(entity);
 		if (b2BodyId body = get_body(entity); B2_IS_NON_NULL(body)) {
-			knowledge.initial_position = b2Body_GetPosition(body);
+			//knowledge.initial_position = b2Body_GetPosition(body);
+			knowledge.initial_position = b2Body_GetWorldCenterOfMass(body);
 			knowledge.initial_velocity = b2Body_GetLinearVelocity(body);
 		}
 		return knowledge;

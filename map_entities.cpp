@@ -182,6 +182,19 @@ namespace map {
 
 					if (!tile.objects.empty()) {
 
+						// DETERMINE PIVOT
+
+						Vector2f pivot;
+
+						for (const tiled::Object& object : tile.objects) {
+							if (object.type != tiled::ObjectType::Point) continue;
+							if (object.name != "pivot") continue;
+							pivot.x = object.x;
+							pivot.y = object.y;
+						}
+
+						sprite.sorting_point = pivot;
+
 						// EMPLACE SPRITE-BODY ATTACHMENT
 
 						ecs::emplace_sprite_follow_body(entity);

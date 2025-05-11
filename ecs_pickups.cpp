@@ -6,17 +6,14 @@
 #include "ecs_animations.h"
 #include "tile_ids.h"
 
-namespace map
-{
+namespace map {
 	unsigned int get_object_layer_index();
 }
 
-namespace ecs
-{
+namespace ecs {
 	extern entt::registry _registry;
 
-	void update_pickups(float dt)
-	{
+	void update_pickups(float dt) {
 		for (auto [entity, pickup] : _registry.view<Pickup>().each()) {
 			pickup.timer.update(dt);
 			if (pickup.timer.finished()) {
@@ -35,8 +32,7 @@ namespace ecs
 		}
 	}
 
-	entt::entity create_pickup(PickupType type, const Vector2f& position)
-	{
+	entt::entity create_pickup(PickupType type, const Vector2f& position) {
 		entt::entity entity = _registry.create();
 		set_tag(entity, Tag::Pickup);
 		{
@@ -83,18 +79,15 @@ namespace ecs
 		return entity;
 	}
 
-	Pickup& emplace_pickup(entt::entity entity)
-	{
+	Pickup& emplace_pickup(entt::entity entity) {
 		return _registry.emplace_or_replace<Pickup>(entity);
 	}
 
-	Pickup* get_pickup(entt::entity entity)
-	{
+	Pickup* get_pickup(entt::entity entity) {
 		return _registry.try_get<Pickup>(entity);
 	}
 
-	bool remove_pickup(entt::entity entity)
-	{
+	bool remove_pickup(entt::entity entity) {
 		return _registry.remove<Pickup>(entity);
 	}
 }

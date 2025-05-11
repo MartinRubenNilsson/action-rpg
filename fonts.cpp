@@ -8,12 +8,10 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
 
-namespace fonts
-{
+namespace fonts {
 	const int ATLAS_TEXTURE_SIZE = 1024;
 
-	struct Font
-	{
+	struct Font {
 		std::vector<unsigned char> data;
 		stbtt_fontinfo info{};
 		int ascent = 0; // The (unscaled) coordinate above the baseline the font extends.
@@ -30,8 +28,7 @@ namespace fonts
 	Pool<Font> _font_pool;
 	std::unordered_map<std::string, Handle<Font>> _font_path_to_handle;
 
-	Handle<Font> load_font(const std::string& path)
-	{
+	Handle<Font> load_font(const std::string& path) {
 		const std::string normalized_path = filesystem::get_normalized_path(path);
 		if (auto it = _font_path_to_handle.find(normalized_path);  it != _font_path_to_handle.end()) {
 			return it->second;
@@ -54,7 +51,7 @@ namespace fonts
 
 		font.atlas_pixels.resize(ATLAS_TEXTURE_SIZE * ATLAS_TEXTURE_SIZE);
 		stbtt_PackBegin(&font.pack_context, font.atlas_pixels.data(), ATLAS_TEXTURE_SIZE, ATLAS_TEXTURE_SIZE, 0, 1, nullptr);
-		font.atlas_texture = graphics::create_texture({ 
+		font.atlas_texture = graphics::create_texture({
 			.debug_name = normalized_path,
 			.width = ATLAS_TEXTURE_SIZE,
 			.height = ATLAS_TEXTURE_SIZE,
@@ -73,8 +70,7 @@ namespace fonts
 		return handle;
 	}
 
-	Handle<graphics::Texture> get_atlas_texture(Handle<Font> handle)
-	{
+	Handle<graphics::Texture> get_atlas_texture(Handle<Font> handle) {
 		Font* font = _font_pool.get(handle);
 		if (!font) return Handle<graphics::Texture>();
 		if (font->atlas_texture_needs_updating) {
@@ -84,22 +80,19 @@ namespace fonts
 		return font->atlas_texture;
 	}
 
-	int get_line_spacing(Handle<Font> handle)
-	{
+	int get_line_spacing(Handle<Font> handle) {
 		const Font* font = _font_pool.get(handle);
 		if (!font) return 0;
 		return font->ascent - font->descent + font->line_gap;
 	}
 
-	float get_scale_for_pixel_height(Handle<Font> handle, float pixel_height)
-	{
+	float get_scale_for_pixel_height(Handle<Font> handle, float pixel_height) {
 		const Font* font = _font_pool.get(handle);
 		if (!font) return 0.0f;
 		return stbtt_ScaleForPixelHeight(&font->info, pixel_height);
 	}
 
-	Glyph get_glyph(Handle<Font> handle, char32_t codepoint)
-	{
+	Glyph get_glyph(Handle<Font> handle, char32_t codepoint) {
 		Font* font = _font_pool.get(handle);
 		if (!font) return Glyph();
 		Glyph glyph{};
@@ -120,8 +113,7 @@ namespace fonts
 		return glyph;
 	}
 
-	int get_kerning_advance(Handle<Font> handle, char32_t codepoint1, char32_t codepoint2)
-	{
+	int get_kerning_advance(Handle<Font> handle, char32_t codepoint1, char32_t codepoint2) {
 		const Font* font = _font_pool.get(handle);
 		if (!font) return 0;
 		return stbtt_GetCodepointKernAdvance(&font->info, codepoint1, codepoint2);
