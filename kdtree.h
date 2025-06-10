@@ -3,5 +3,6 @@
 #include <span>
 
 namespace kdtree {
-	void build(std::span<Vector2f> points);
+	// Complexity: O(n log^2 n)
+	void build_by_sorting(std::span<Vector2f> points);
 }
