@@ -209,6 +209,9 @@
     <ClCompile Include="ui_clay.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="kdtree.cpp">
+      <Filter>math\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -315,9 +318,6 @@
       <Filter>utilities</Filter>
     </ClInclude>
     <ClInclude Include="config.h" />
-    <ClInclude Include="vector2.h">
-      <Filter>math</Filter>
-    </ClInclude>
     <ClInclude Include="color.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -448,6 +448,12 @@
     <ClInclude Include="ui_clay.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="kdtree.h">
+      <Filter>math\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="vector2.h">
+      <Filter>math\geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="math">
@@ -536,6 +542,9 @@
     </Filter>
     <Filter Include="application\renderdoc">
       <UniqueIdentifier>{bf527ac4-533e-4928-8221-bccdf1999347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\geometry">
+      <UniqueIdentifier>{ab000c27-cdf7-472a-bf6e-87da02d252a5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

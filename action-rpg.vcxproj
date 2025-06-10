@@ -165,6 +165,7 @@
     <ClCompile Include="graphics_globals.cpp" />
     <ClCompile Include="images.cpp" />
     <ClCompile Include="imgui_impl.cpp" />
+    <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="networking.cpp" />
     <ClCompile Include="platform_windows.cpp" />
     <ClCompile Include="renderdoc.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="fwd.h" />
     <ClInclude Include="images.h" />
     <ClInclude Include="imgui_impl.h" />
+    <ClInclude Include="kdtree.h" />
     <ClInclude Include="networking.h" />
     <ClInclude Include="platform.h" />
     <ClInclude Include="pool.h" />
