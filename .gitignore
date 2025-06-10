@@ -370,3 +370,9 @@ FodyWeavers.xsd
 /output/Release.exe
 /output/imgui.ini
 /output/settings.txt
+/lib/GraphicsAPI_Debug.idb
+/lib/GraphicsAPI_Debug.lib
+/lib/TiledLoader_Debug.idb
+/lib/TiledLoader_Debug.lib
+/output/action-rpg_Debug.exp
+/output/action-rpg_Debug.lib
