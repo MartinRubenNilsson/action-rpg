@@ -3,11 +3,8 @@
 #include <span>
 
 namespace kdtree {
-	// Builds a k-d tree from a set of points. Complexity: O(n log^2 n)
-	void build_by_sorting(std::span<Vector2f> kdtree);
-
 	// Builds a k-d tree from a set of points. Complexity: O(n log n)
-	void build_by_partitioning(std::span<Vector2f> kdtree);
+	void build(std::span<Vector2f> kdtree);
 
 	// Queries the nearest point to a given point in the k-d tree. Sets 'nearest_index' to the index of the nearest point
 	// in the k-d tree, and 'nearest_distance_sq' to the squared distance to that point. You can set 'nearest_distance_sq'

@@ -10,22 +10,18 @@ namespace kdtree {
 		return a.y < b.y;
 	}
 
-	void _build_by_sorting_recursively(std::span<Vector2f> kdtree, bool compare_x) {
+	void _build_recursively(std::span<Vector2f> kdtree, bool compare_x) {
 		const size_t size = kdtree.size();
 		if (size <= 1) return;
-		std::sort(kdtree.begin(), kdtree.end(), compare_x ? _compare_x : _compare_y);
-		const size_t left_size = size / 2;
-		_build_by_sorting_recursively(kdtree.first(left_size), !compare_x);
+		const size_t left_size = size / 2; // Also the index of the median point
 		const size_t right_size = size - left_size - 1;
-		_build_by_sorting_recursively(kdtree.last(right_size), !compare_x);
+		std::nth_element(kdtree.begin(), kdtree.begin() + left_size, kdtree.end(), compare_x ? _compare_x : _compare_y);
+		_build_recursively(kdtree.first(left_size), !compare_x);
+		_build_recursively(kdtree.last(right_size), !compare_x);
 	}
 
-	void build_by_sorting(std::span<Vector2f> kdtree) {
-		_build_by_sorting_recursively(kdtree, true);
-	}
-
-	void build_by_partitioning(std::span<Vector2f> kdtree) {
-		//TODO: implement
+	void build(std::span<Vector2f> kdtree) {
+		_build_recursively(kdtree, true);
 	}
 
 	void _query_nearest_recursive(std::span<const Vector2f> kdtree, const Vector2f& point, const Vector2f** nearest_point, float& nearest_distance_sq, bool compare_x) {

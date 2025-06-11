@@ -6,7 +6,7 @@
 #include "shapes.h"
 
 namespace kdtree_test {
-	int _size = 100000;
+	int _size = 10000;
 	std::vector<Vector2f> _kdtree;
 	double _cursor_x = 0;
 	double _cursor_y = 0;
@@ -26,9 +26,9 @@ namespace kdtree_test {
 		if (ImGui::InputInt("Size", &_size)) {
 			_size = std::max(_size, 0);
 		}
-		if (ImGui::Button("Build by sorting")) {
+		if (ImGui::Button("Build")) {
 			_generate_points(framebuffer_width, framebuffer_height);
-			kdtree::build_by_sorting(_kdtree);
+			kdtree::build(_kdtree);
 		}
 		ImGui::Checkbox("Use k-d tree", &_use_kdtree);
 		ImGui::End();
