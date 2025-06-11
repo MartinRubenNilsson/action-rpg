@@ -22,6 +22,7 @@
 #include "sprites.h"
 #include "renderdoc.h"
 #include "imgui_impl.h"
+#include "kdtree_test.h"
 
 int main(int argc, char* argv[]) {
     if (steam::restart_app_if_necessary()) {
@@ -98,7 +99,7 @@ int main(int argc, char* argv[]) {
     while (!window::should_close()) {
 
         const float new_app_time = (float)window::get_elapsed_time();
-		const float app_delta_time = new_app_time - app_time;
+        const float app_delta_time = new_app_time - app_time;
         app_time = new_app_time;
 
         steam::run_message_loop();
@@ -115,14 +116,14 @@ int main(int argc, char* argv[]) {
             while (window::pop_event(ev)) {
                 if (ev.type == window::EventType::WindowClose) {
                     window::set_should_close(true);
-				} else if (ev.type == window::EventType::FramebufferSize) {
-					// When the window is minimized, an event is sent with size 0, 0,
+                } else if (ev.type == window::EventType::FramebufferSize) {
+                    // When the window is minimized, an event is sent with size 0, 0,
                     // which we must therefore ignore.
-					if (ev.size.width && ev.size.height) {
-					    graphics::resize_swap_chain_framebuffer(ev.size.width, ev.size.height);
-						graphics::resize_final_framebuffer(ev.size.width, ev.size.height);
-					}
-                }  else if (ev.type == window::EventType::KeyPress) {
+                    if (ev.size.width && ev.size.height) {
+                        graphics::resize_swap_chain_framebuffer(ev.size.width, ev.size.height);
+                        graphics::resize_final_framebuffer(ev.size.width, ev.size.height);
+                    }
+                } else if (ev.type == window::EventType::KeyPress) {
 #ifdef _DEBUG
                     if (ev.key.code == window::Key::GraveAccent) {
                         console::toggle_visible();
@@ -165,21 +166,21 @@ int main(int argc, char* argv[]) {
             while (ui::get_next_event(ev)) {
                 switch (ev.type) {
                 case ui::EventType::PlayGame: {
-					background::set_type(background::Type::None);
-					map::open("summer_forest_00");
+                    background::set_type(background::Type::None);
+                    map::open("summer_forest_00");
                 } break;
                 case ui::EventType::RestartMap: {
                     map::reset();
                 } break;
                 case ui::EventType::GoToMainMenu: {
                     background::set_type(background::Type::MountainDusk);
-					map::close(0.f);
+                    map::close(0.f);
                 } break;
                 case ui::EventType::QuitApp: {
                     window::set_should_close(true);
                 } break;
-				}
-			}
+                }
+            }
         }
 
         // UPDATE
@@ -198,30 +199,32 @@ int main(int argc, char* argv[]) {
             game_delta_time = 0.0;
         }
         if (map::get_transition_progress() != 0.f) {
-			game_delta_time = 0.0; // pause game while map is transitioning
+            game_delta_time = 0.0; // pause game while map is transitioning
         }
 
-		game_time += game_delta_time;
+        game_time += game_delta_time;
 
         ecs::update(game_delta_time);
         postprocessing::update(game_delta_time);
 
         // RENDER
-		
+
         sprites::clear_drawing_statistics();
 
         int window_framebuffer_width = 0;
         int window_framebuffer_height = 0;
         window::get_framebuffer_size(window_framebuffer_width, window_framebuffer_height);
 
-        Vector2f camera_min;
-        Vector2f camera_max;
-        ecs::get_camera_bounds(camera_min, camera_max);
+        Vector2f camera_min = { 0.f, 0.f };
+		Vector2f camera_max = { (float)window_framebuffer_width, (float)window_framebuffer_height };
+        if (map::is_open()) {
+            ecs::get_camera_bounds(camera_min, camera_max);
+        }
+        const Vector2f camera_center = (camera_min + camera_max) / 2.f;
+        const Vector2f camera_size = camera_max - camera_min;
 
         // Update frame uniform buffer
         {
-            const Vector2f camera_center = (camera_min + camera_max) / 2.f;
-            const Vector2f camera_size = camera_max - camera_min;
             // PITFALL: We use an unusual clip space coordinate system where y is down.
             // This makes it easier to handle some differences between OpenGL and D3D11.
             // Moreover, it means the shader coordinate axes point the same as the game world.
@@ -249,7 +252,7 @@ int main(int argc, char* argv[]) {
 		// Try to ensure game_ping_framebuffer is unbound as input before binding it as output
         graphics::bind_texture(0, Handle<graphics::Texture>());
         graphics::bind_framebuffer(graphics::game_ping_framebuffer);
-        graphics::set_viewport({ .width = GAME_FRAMEBUFFER_WIDTH, .height = GAME_FRAMEBUFFER_HEIGHT });
+        graphics::set_viewport({ .width = camera_size.x, .height = camera_size.y });
 
 		// RENDER SPRITES TO GAME FRAMEBUFFER
 
@@ -288,9 +291,23 @@ int main(int argc, char* argv[]) {
         }
 
 #ifdef _DEBUG
+        ecs::add_debug_shapes_to_render_queue();
+
+#if 1
+        // KD-TREE TEST
+
+        kdtree_test::show_imgui_window(window_framebuffer_width, window_framebuffer_height);
+        {
+            double cursor_x = 0.0;
+			double cursor_y = 0.0;
+			window::get_cursor_pos(cursor_x, cursor_y);
+		    kdtree_test::set_cursor_pos(cursor_x, cursor_y);
+        }
+        kdtree_test::add_debug_shapes_to_render_queue();
+#endif
+
 		// RENDER DEBUG SHAPES TO FINAL FRAMEBUFFER
 
-        ecs::add_debug_shapes_to_render_queue();
         shapes::draw_all("shapes::draw_all() [ECS debug]", camera_min, camera_max);
         shapes::update_lifetimes(game_delta_time);
 #endif

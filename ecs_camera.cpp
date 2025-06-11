@@ -4,8 +4,7 @@
 #include "random.h"
 #include "easings.h"
 
-namespace ecs
-{
+namespace ecs {
 	const Vector2f DEFAULT_CAMERA_SIZE = { GAME_FRAMEBUFFER_WIDTH, GAME_FRAMEBUFFER_HEIGHT };
 	const float _CAMERA_BLEND_DURATION = 1.f;
 
@@ -20,11 +19,10 @@ namespace ecs
 	float _camera_blend_time = _CAMERA_BLEND_DURATION;
 
 	Vector2f _confine_camera_center(
-		const Vector2f& camera_center, 
+		const Vector2f& camera_center,
 		const Vector2f& camera_size,
 		const Vector2f& confines_min,
-		const Vector2f& confines_max)
-	{
+		const Vector2f& confines_max) {
 		const Vector2f center_min = confines_min + camera_size / 2.f;
 		const Vector2f center_max = confines_max - camera_size / 2.f;
 		Vector2f confined_center = camera_center;
@@ -41,8 +39,7 @@ namespace ecs
 		return confined_center;
 	}
 
-	void update_cameras(float dt)
-	{
+	void update_cameras(float dt) {
 		_camera_shake_time += dt;
 		_camera_blend_time = std::clamp(_camera_blend_time + dt, 0.f, _CAMERA_BLEND_DURATION);
 
@@ -81,21 +78,18 @@ namespace ecs
 		}
 	}
 
-	void get_active_camera_view(Vector2f& center, Vector2f& size)
-	{
+	void get_active_camera_view(Vector2f& center, Vector2f& size) {
 		center = _active_camera_center;
 		size = _active_camera_size;
 	}
 
-	void get_blended_camera_view(Vector2f& center, Vector2f& size)
-	{
+	void get_blended_camera_view(Vector2f& center, Vector2f& size) {
 		float blend_factor = ease_out_expo(_camera_blend_time / _CAMERA_BLEND_DURATION);
 		center = lerp(_last_active_camera_center, _active_camera_center, blend_factor);
 		size = lerp(_last_active_camera_size, _active_camera_size, blend_factor);
 	}
 
-	bool activate_camera(entt::entity entity, bool hard_cut)
-	{
+	bool activate_camera(entt::entity entity, bool hard_cut) {
 		if (!_registry.all_of<Camera>(entity)) return false;
 		_last_active_camera_center = _active_camera_center;
 		_last_active_camera_size = _active_camera_size;
@@ -104,18 +98,15 @@ namespace ecs
 		return true;
 	}
 
-	Camera& emplace_camera(entt::entity entity, const Camera& camera)
-	{
+	Camera& emplace_camera(entt::entity entity, const Camera& camera) {
 		return _registry.emplace_or_replace<Camera>(entity, camera);
 	}
 
-	Camera* get_camera(entt::entity entity)
-	{
+	Camera* get_camera(entt::entity entity) {
 		return _registry.try_get<Camera>(entity);
 	}
 
-	entt::entity detach_camera(entt::entity entity)
-	{
+	entt::entity detach_camera(entt::entity entity) {
 		Camera* camera = get_camera(entity);
 		if (!camera) return entt::null;
 		camera->entity_to_follow = entt::null;
@@ -128,8 +119,7 @@ namespace ecs
 		return new_entity;
 	}
 
-	bool add_trauma_to_camera(entt::entity entity, float trauma)
-	{
+	bool add_trauma_to_camera(entt::entity entity, float trauma) {
 		if (Camera* camera = get_camera(entity)) {
 			camera->trauma += trauma;
 			return true;
@@ -137,8 +127,7 @@ namespace ecs
 		return false;
 	}
 
-	bool add_trauma_to_active_camera(float trauma)
-	{
+	bool add_trauma_to_active_camera(float trauma) {
 		if (_active_camera_entity == entt::null) return false;
 		return add_trauma_to_camera(_active_camera_entity, trauma);
 	}

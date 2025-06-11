@@ -3,11 +3,9 @@
 
 Timer::Timer(float duration)
 	: _duration(std::max(0.f, duration))
-	, _time(_duration)
-{}
+	, _time(_duration) {}
 
-bool Timer::update(float dt, bool loop)
-{
+bool Timer::update(float dt, bool loop) {
 	if (_time < _duration) {
 		_time += std::clamp(dt, 0.f, _duration);
 		if (_time >= _duration) {

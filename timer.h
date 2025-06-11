@@ -1,7 +1,6 @@
 #pragma once
 
-class Timer
-{
+class Timer {
 public:
 	Timer() = default;
 	Timer(float duration); // Doesn't automatically start the timer.
