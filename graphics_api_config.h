@@ -1,8 +1,8 @@
 #pragma once
 
-//#define GRAPHICS_API_OPENGL
+#define GRAPHICS_API_OPENGL
 //#define GRAPHICS_API_VULKAN
-#define GRAPHICS_API_D3D11
+//#define GRAPHICS_API_D3D11
 
 #ifdef GRAPHICS_API_OPENGL
 // If you change the OpenGL version, make sure to also change the GLSL version in your shader files!

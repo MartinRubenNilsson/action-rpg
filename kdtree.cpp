@@ -24,6 +24,10 @@ namespace kdtree {
 		_build_by_sorting_recursively(kdtree, true);
 	}
 
+	void build_by_partitioning(std::span<Vector2f> kdtree) {
+		//TODO: implement
+	}
+
 	void _query_nearest_recursive(std::span<const Vector2f> kdtree, const Vector2f& point, const Vector2f** nearest_point, float& nearest_distance_sq, bool compare_x) {
 		const size_t size = kdtree.size();
 		// 1. If the tree is empty, return immediately.

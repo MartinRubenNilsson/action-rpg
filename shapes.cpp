@@ -13,6 +13,12 @@ namespace shapes {
 		float max_y = 0.f;
 	};
 
+	struct Point {
+		Vector2f position;
+		Color color = colors::WHITE;
+		float lifetime = 0.f;
+	};
+
 	struct Line {
 		Vector2f p1;
 		Vector2f p2;
@@ -50,11 +56,20 @@ namespace shapes {
 	// Culling will use the view bounds from last render call,
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
+	std::vector<Point> _points;
 	std::vector<Line> _lines;
 	std::vector<Box> _boxes;
 	std::vector<Polygon> _polygons;
 	std::vector<Circle> _circles;
 	std::vector<Batch> _batches;
+
+	bool _cull_point(const ViewBounds& bounds, const Vector2f& position) {
+		if (position.x < bounds.min_x) return true;
+		if (position.x > bounds.max_x) return true;
+		if (position.y < bounds.min_y) return true;
+		if (position.y > bounds.max_y) return true;
+		return false;
+	}
 
 	bool _cull_line(const ViewBounds& bounds, const Vector2f& p1, const Vector2f& p2) {
 		if (p1.x < bounds.min_x && p2.x < bounds.min_x) return true;
@@ -111,6 +126,7 @@ namespace shapes {
 	}
 
 	void update_lifetimes(float dt) {
+		_update_lifetimes(_points, dt);
 		_update_lifetimes(_lines, dt);
 		_update_lifetimes(_boxes, dt);
 		_update_lifetimes(_polygons, dt);
@@ -128,6 +144,19 @@ namespace shapes {
 
 		_batches.clear();
 		graphics::temp_vertices.clear();
+
+		// CREATE POINT BATCH
+
+		if (!_points.empty()) {
+			Batch& batch = _batches.emplace_back();
+			batch.primitive = graphics::Primitives::PointList;
+			batch.vertex_offset = (unsigned int)graphics::temp_vertices.size();
+			for (const Point& point : _points) {
+				if (_cull_point(_last_calculated_view_bounds, point.position)) continue;
+				graphics::temp_vertices.emplace_back(point.position, point.color);
+				batch.vertex_count += 1;
+			}
+		}
 
 		// CREATE LINE BATCH
 
@@ -217,6 +246,11 @@ namespace shapes {
 
 		_batches.clear();
 		graphics::temp_vertices.clear();
+	}
+
+	void add_point(const Vector2f& point, const Color& color, float lifetime) {
+		if (lifetime <= 0.f && _cull_point(_last_calculated_view_bounds, point)) return;
+		_points.emplace_back(point, color, lifetime);
 	}
 
 	void add_line(const Vector2f& p1, const Vector2f& p2, const Color& color, float lifetime) {
