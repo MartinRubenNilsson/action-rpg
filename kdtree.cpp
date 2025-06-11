@@ -40,14 +40,14 @@ namespace kdtree {
 		size_t mid_point_index = size / 2; // Also the size of the left subtree
 		const Vector2f& mid_point = kdtree[mid_point_index];
 		const float signed_distance_to_split_plane = compare_x ? mid_point.x - point.x : mid_point.y - point.y;
-		std::span<const Vector2f> next_subtree = kdtree.first(mid_point_index); // The left subtree
+		std::span<const Vector2f> nearest_subtree = kdtree.first(mid_point_index); // The left subtree
 		std::span<const Vector2f> other_subtree = kdtree.last(size - mid_point_index - 1); // The right subtree
 		if (signed_distance_to_split_plane < 0.f) {
 			// The point is on the right side of the split plane, so swap the subtrees.
-			std::swap(next_subtree, other_subtree);
+			std::swap(nearest_subtree, other_subtree);
 		}
 		// 3. Query the nearest point in the subtree whose region contains the point.
-		_query_nearest_recursive(next_subtree, point, nearest_point, nearest_distance_sq, !compare_x);
+		_query_nearest_recursive(nearest_subtree, point, nearest_point, nearest_distance_sq, !compare_x);
 		// 4. Check if the point on the split plane is closer than the current nearest point.
 		const float distance_sq_to_mid_point = length_squared(mid_point - point);
 		if (distance_sq_to_mid_point < nearest_distance_sq) {
