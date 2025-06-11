@@ -64,4 +64,4 @@ namespace kdtree_test {
 	}
 }
 
-#endif
+#endif // _DEBUG

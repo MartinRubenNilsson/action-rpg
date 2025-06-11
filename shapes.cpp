@@ -56,12 +56,12 @@ namespace shapes {
 	// Culling will use the view bounds from last render call,
 	// leading to one frame of lag, but it's not a big deal.
 	ViewBounds _last_calculated_view_bounds{};
-	std::vector<Point> _points;
-	std::vector<Line> _lines;
-	std::vector<Box> _boxes;
-	std::vector<Polygon> _polygons;
-	std::vector<Circle> _circles;
-	std::vector<Batch> _batches;
+	eastl::vector<Point> _points;
+	eastl::vector<Line> _lines;
+	eastl::vector<Box> _boxes;
+	eastl::vector<Polygon> _polygons;
+	eastl::vector<Circle> _circles;
+	eastl::vector<Batch> _batches;
 
 	bool _cull_point(const ViewBounds& bounds, const Vector2f& position) {
 		if (position.x < bounds.min_x) return true;
@@ -109,7 +109,7 @@ namespace shapes {
 	}
 
 	template <typename T>
-	void _update_lifetimes(std::vector<T>& vec, float dt) {
+	void _update_lifetimes(eastl::vector<T>& vec, float dt) {
 		size_t size = vec.size();
 		for (size_t i = size; i--;) {
 			vec[i].lifetime -= dt;
