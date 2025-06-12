@@ -215,6 +215,9 @@
     <ClCompile Include="kdtree_test.cpp">
       <Filter>math\geometry</Filter>
     </ClCompile>
+    <ClCompile Include="delaunay.cpp">
+      <Filter>math\geometry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
@@ -458,6 +461,9 @@
       <Filter>math\geometry</Filter>
     </ClInclude>
     <ClInclude Include="kdtree_test.h">
+      <Filter>math\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="delaunay.h">
       <Filter>math\geometry</Filter>
     </ClInclude>
   </ItemGroup>

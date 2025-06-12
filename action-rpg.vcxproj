@@ -151,6 +151,7 @@
     <ClCompile Include="console_commands.cpp" />
     <ClCompile Include="console_commands_misc.cpp" />
     <ClCompile Include="console_commands_steam.cpp" />
+    <ClCompile Include="delaunay.cpp" />
     <ClCompile Include="eastl_allocator.cpp" />
     <ClCompile Include="ecs_blade_trap.cpp" />
     <ClCompile Include="ecs_chest.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="console.h" />
     <ClInclude Include="console_commands.h" />
+    <ClInclude Include="delaunay.h" />
     <ClInclude Include="dependencies\box2d\base.h" />
     <ClInclude Include="dependencies\box2d\box2d.h" />
     <ClInclude Include="dependencies\box2d\collision.h" />

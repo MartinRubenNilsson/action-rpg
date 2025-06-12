@@ -293,7 +293,7 @@ int main(int argc, char* argv[]) {
 #ifdef _DEBUG
         ecs::add_debug_shapes_to_render_queue();
 
-#if 1
+#if 0
         // KD-TREE TEST
 
         kdtree_test::show_imgui_window(window_framebuffer_width, window_framebuffer_height);
